@@ -72,6 +72,8 @@ class muscatConversion extends frontControllerApplication
 		'seriestitlemismatches3' => 'listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = other)',
 		'languages' => 'listing: languages',
 		'reversetransliterations' => 'listing: reverse-transliterated titles',
+		'distinctn1notfollowedbyn2' => 'Distinct values of all *n1 fields that are not immediately followed by a *n2 field',
+		'distinctn2notprecededbyn1' => 'Distinct values of all *n2 fields that are not immediately preceded by a *n1 field',
 	);
 	
 	# Define the types
@@ -6419,6 +6421,75 @@ class muscatConversion extends frontControllerApplication
 		# Return the HTML
 		return $html;
 	}
+	
+	
+	# Report for distinctn1notfollowedbyn2
+	private function report_distinctn1notfollowedbyn2 ()
+	{
+		// No action needed - the view is created dynamically
+		return true;
+	}
+	
+	
+	# View for distinctn1notfollowedbyn2
+	private function report_distinctn1notfollowedbyn2_view ()
+	{
+		# Define a manual query
+		$query = "
+			SELECT
+				value,
+				COUNT(recordId) AS instances
+			FROM catalogue_processed
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist LIKE '%@n1@%'
+				AND fieldslist NOT LIKE '%@n1@n2@%'
+				AND field = 'n1'
+			GROUP BY value
+			ORDER BY " . $this->databaseConnection->trimSql ('value') . "
+		;";
+		
+		# Obtain the listing HTML
+		$html = $this->reportListing (NULL, 'values', false, false, $query);
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Report for distinctn2notprecededbyn1
+	private function report_distinctn2notprecededbyn1 ()
+	{
+		// No action needed - the view is created dynamically
+		return true;
+	}
+	
+	
+	# View for distinctn2notprecededbyn1
+	private function report_distinctn2notprecededbyn1_view ()
+	{
+		# Define a manual query
+		$query = "
+			SELECT
+				value,
+				COUNT(recordId) AS instances
+			FROM catalogue_processed
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist LIKE '%@n2@%'
+				AND fieldslist NOT LIKE '%@n1@n2@%'
+				AND field = 'n2'
+			GROUP BY value
+			ORDER BY " . $this->databaseConnection->trimSql ('value') . "
+		;";
+		
+		# Obtain the listing HTML
+		$html = $this->reportListing (NULL, 'values', false, false, $query);
+		
+		# Return the HTML
+		return $html;
+	}
+	
 	
 	
 /*
