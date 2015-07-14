@@ -46,6 +46,7 @@ class muscatConversion extends frontControllerApplication
 		'loccamuninotinspri' => 'records with location matching Cambridge University, not in SPRI',
 		'loccamuniinspri' => 'records with location matching Cambridge University, in SPRI',
 		'onordercancelled' => 'items on order or cancelled',
+		'invalidacquisitiondate' => 'items with an invalid acquisition date',
 		'ordercancelled' => 'items where the order is cancelled',
 		'absitalics' => 'records with italics in the abstract',
 		'isbninvalid' => 'records with invalid ISBN numbers',
@@ -5661,6 +5662,26 @@ class muscatConversion extends frontControllerApplication
 				    fieldslist LIKE '%@status@%'
 				AND field = 'status'
 				AND value IN ('On Order', 'On Order (O/P)', 'On Order (O/S)', 'Order Cancelled')
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Items with an invalid acquisition date
+	private function report_invalidacquisitiondate ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'invalidacquisitiondate' AS report,
+				id AS recordId
+				FROM catalogue_xml
+				WHERE
+					    EXTRACTVALUE(xml, '//acq/date') REGEXP '.+'
+					AND EXTRACTVALUE(xml, '//acq/date') NOT REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Require YYYY/MM/DD
+					AND EXTRACTVALUE(xml, '//acq/date') NOT REGEXP '^[0-9]{4}$'						-- But also permit year only
 		";
 		
 		# Return the query
