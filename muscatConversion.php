@@ -46,6 +46,7 @@ class muscatConversion extends frontControllerApplication
 		'loccamuninotinspri' => 'records with location matching Cambridge University, not in SPRI',
 		'loccamuniinspri' => 'records with location matching Cambridge University, in SPRI',
 		'onordercancelled' => 'items on order or cancelled',
+		'ordercancelled' => 'items where the order is cancelled',
 		'absitalics' => 'records with italics in the abstract',
 		'isbninvalid' => 'records with invalid ISBN numbers',
 		'urlinvalid' => 'records with a badly-formatted URL',
@@ -5660,6 +5661,27 @@ class muscatConversion extends frontControllerApplication
 				    fieldslist LIKE '%@status@%'
 				AND field = 'status'
 				AND value IN ('On Order', 'On Order (O/P)', 'On Order (O/S)', 'Order Cancelled')
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Items where the order is cancelled
+	private function report_ordercancelled ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'ordercancelled' AS report,
+				catalogue_rawdata.recordId
+			FROM catalogue_rawdata
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist LIKE '%@status@%'
+				AND field = 'status'
+				AND value = 'Order Cancelled'
 		";
 		
 		# Return the query
