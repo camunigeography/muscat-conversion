@@ -6193,7 +6193,14 @@ class muscatConversion extends frontControllerApplication
 			$data = $this->databaseConnection->select ($this->settings['database'], $table, array (), array (), true, $orderBy = 'instances DESC,id');
 		}
 		if (!$data) {
-			return $html = "\n<p>There is no data. Please re-run the report generation from the <a href=\"{$this->baseUrl}/import/\">import page</a>.</p>";
+			$errorStatus = $this->databaseConnection->error ();
+			if ($errorStatus[0] === '00000') {
+				$html  = "\n<p>There are no records.</p>";
+			} else {
+				$html  = "\n<p>There is no data.</p>";
+				$html .= "\n<p>Please re-run the report generation from the <a href=\"{$this->baseUrl}/import/\">import page</a>.</p>";
+			}
+			return $html;
 		}
 		
 		# If instances data is present, determine total records, by summing the instances values; NB this assumes there is no crossover between entries
