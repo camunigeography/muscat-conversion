@@ -45,7 +45,7 @@ class muscatConversion extends frontControllerApplication
 		'notinspri' => 'items not in SPRI',
 		'loccamuninotinspri' => 'records with location matching Cambridge University, not in SPRI',
 		'loccamuniinspri' => 'records with location matching Cambridge University, in SPRI',
-		'onorder' => 'items on order',
+		'onordercancelled' => 'items on order or cancelled',
 		'absitalics' => 'records with italics in the abstract',
 		'isbninvalid' => 'records with invalid ISBN numbers',
 		'urlinvalid' => 'records with a badly-formatted URL',
@@ -5646,13 +5646,13 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Items on order
-	private function report_onorder ()
+	# Items on order or cancelled
+	private function report_onordercancelled ()
 	{
 		# Define the query
 		$query = "
 			SELECT
-				'onorder' AS report,
+				'onordercancelled' AS report,
 				catalogue_rawdata.recordId
 			FROM catalogue_rawdata
 			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
