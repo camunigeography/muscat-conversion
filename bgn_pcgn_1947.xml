@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE translit SYSTEM "translit.dtd">
+
+
+<!-- 
+
+  Transliteration definitions for BGN/PCGN 1947.
+
+  Rona Linke <rlinke@lingua-systems.com>
+
+  Copyright (C) 2010 Lingua-Systems Software GmbH
+
+-->
+
+
+<translit>
+
+    <!-- meta information -->
+
+    <name>BGN PCGN 1947</name>
+    <desc>BGN PCGN 1947, Cyrillic to Latin, Russian</desc>
+    <reverse>true</reverse>
+
+
+    <!-- set of transliteration rules -->
+
+    <!--
+        Used abbreviations (according to Unicode Standard 5.0):
+
+            CCL = CYRILLIC CAPITAL LETTER
+            CSL = CYRILLIC SMALL LETTER
+            LCL = LATIN CAPITAL LETTER
+            LSL = LATIN SMALL LETTER
+    -->
+
+    <rules>
+
+        <!-- context dependent rules -->
+		
+		
+		<rule>
+			<from>&#x0435;</from>
+			<to>&#x0079;&#x0065;</to>
+			<context>
+				<after>[\b&#x0430;&#x0435;&#x0451;&#x0438;&#x043E;&#x0443;&#x044B;&#x044D;&#x044E;&#x044F;&#x0439;&#x044A;&#x044C;]</after>
+			</context>
+		</rule>
+		
+		<rule>
+			<from>&#x0415;</from>
+			<to>&#x0059;&#x0065;</to>
+			<context>
+				<after>\b</after>
+				<before>\b</before>
+			</context>
+		</rule>
+		
+		<rule>
+			<from>&#x0415;</from>
+			<to>&#x0059;&#x0045;</to>
+			<context>
+				<after>[\b&#x0410;&#x0415;&#x0401;&#x0418;&#x041E;&#x0423;&#x042B;&#x042D;&#x042E;&#x042F;&#x0419;&#x042A;&#x042C;]</after>
+			</context>
+		</rule>
+		
+        <rule>
+            <from>&#x044D;</from>   <!-- CSL E -->
+            <to>&#x0065;</to>       <!-- LSL E -->
+        </rule>
+        <rule>
+            <from>&#x042D;</from>   <!-- CCL E -->
+            <to>&#x0045;</to>       <!-- LCL E -->
+        </rule>
+		
+        <rule>
+            <from>&#x0446;</from>   <!-- CSL TSE  -->
+            <to>ts</to>       <!-- LSL C  -->
+        </rule>
+        <rule>
+            <from>&#x0426;</from>   <!-- CCL TSE  -->
+            <to>Ts</to>       <!-- LCL C  -->
+            <context>
+                <after>\b</after>
+				<before>[\p{IsUpper}\p{IsSpace}]</before>
+            </context>
+        </rule>
+        <rule>
+            <from>&#x0426;</from>   <!-- CCL TSE  -->
+            <to>TS</to>       <!-- LCL C  -->
+            <context>
+                <before>\b</before>
+            </context>
+        </rule>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+        <!--otherwise 'cz'-->
+        <rule>
+            <from>&#x0446;</from>   <!-- CSL TSE  -->
+            <to>&#x0063;&#x007A;</to>       <!-- LSL C LSL Z  -->
+        </rule>
+        <rule> <!-- ALLCAPS -->
+            <from>&#x0426;</from>   <!-- CCL TSE  -->
+            <to>&#x0043;&#x005A;</to>       <!-- LCL C  LCL Z-->
+            <context>
+                <before>[\p{IsUpper}\p{IsSpace}]</before>
+                <after>[\p{IsUpper}\p{IsSpace}]</after>
+            </context>
+        </rule>
+        <rule>
+            <from>&#x0426;</from>   <!-- CCL TSE  -->
+            <to>&#x0043;&#x007A;</to>       <!-- LCL C  LSL Z-->
+        </rule>
+
+
+        <!-- transliterations resulting in multiple characters -->
+        <rule>
+            <from>&#x0449;</from>       <!-- CSL SHCHA  -->
+            <to>&#x0073;&#x0068;&#x0063;&#x0068;</to>   <!-- LSL S LSL H LSL C LSL H -->
+        </rule>
+        <rule> <!-- ALLCAPS -->
+            <from>&#x0429;</from>       <!-- CCL SHCHA  -->
+            <to>&#x0053;&#x0048;&#x0043;&#x0048;</to> <!-- LCL S LCL H LCL C LCL H -->
+            <context>
+                <before>[\p{IsUpper}\p{IsSpace}]</before>
+                <after>[\p{IsUpper}\p{IsSpace}]</after>
+            </context>
+        </rule>
+        <rule>
+            <from>&#x0429;</from>   <!-- CCL SHCHA  -->
+            <to>&#x0053;&#x0068;&#x0063;&#x0068;</to> <!-- LCL S LSL H LSL C LSL H -->
+        </rule>
+
+        <rule>
+            <from>&#x0451;</from>           <!-- CSL IO -->
+            <to>&#x0079;&#x006F;</to>       <!-- LSL Y LSL O -->
+        </rule>
+        <rule> <!-- ALLCAPS -->
+            <from>&#x0401;</from>           <!-- CCL IO -->
+            <to>&#x0059;&#x004F;</to>       <!-- LCL Y LCL O -->
+            <context>
+                <before>[\p{IsUpper}\p{IsSpace}]</before>
+                <after>[\p{IsUpper}\p{IsSpace}]</after>
+            </context>
+        </rule>
+        <rule>
+            <from>&#x0401;</from>   <!-- CCL IO -->
+            <to>&#x0059;&#x006F;</to>       <!-- LCL Y LSL O -->
+        </rule>
+
+        <rule>
+            <from>&#x0436;</from>   <!-- CSL ZHE  -->
+            <to>&#x007A;&#x0068;</to>       <!-- LSL Z LSL H  -->
+        </rule>
+        <rule>
+            <from>&#x0416;</from>   <!-- CCL ZHE  -->
+            <to>&#x005A;&#x0048;</to>       <!-- LCL Z LCL H  -->
+            <context>
+                <before>[\p{IsUpper}\p{IsSpace}]</before>
+                <after>[\p{IsUpper}\p{IsSpace}]</after>
+            </context>
+        </rule>
+        <rule>
+            <from>&#x0416;</from>   <!-- CCL ZHE  -->
+            <to>&#x005A;&#x0068;</to>       <!-- LCL Z LSL H  -->
+        </rule>
+        <rule>
+            <from>&#x0447;</from>   <!-- CSL CHE -->
+            <to>&#x0063;&#x0068;</to>       <!-- LSL C LSL H  -->
+        </rule>
+        <rule> <!-- ALLCAPS-->
+            <from>&#x0427;</from>   <!-- CCL CHE  -->
+            <to>&#x0043;&#x0048;</to>       <!-- LCL C LCL H -->
+            <context>
+                <before>[\p{IsUpper}\p{IsSpace}]</before>
+                <after>[\p{IsUpper}\p{IsSpace}]</after>
+            </context>
+        </rule>
+        <rule>
+            <from>&#x0427;</from>   <!-- CCL CHE  -->
+            <to>&#x0043;&#x0068;</to>       <!-- LCL C LSL H -->
+        </rule>
+
+        <rule>
+            <from>&#x0448;</from>   <!-- CSL SHA  -->
+            <to>&#x0073;&#x0068;</to>       <!-- LSL S LSL H  -->
+        </rule>
+        <rule> <!-- ALLCAPS-->
+            <from>&#x0428;</from>   <!-- CCL SHA  -->
+            <to>&#x0053;&#x0048;</to>       <!-- LCL S LCL H  -->
+            <context>
+                <before>[\p{IsUpper}\p{IsSpace}]</before>
+                <after>[\p{IsUpper}\p{IsSpace}]</after>
+            </context>
+        </rule>
+        <rule>
+            <from>&#x0428;</from>   <!-- CCL SHA  -->
+            <to>&#x0053;&#x0068;</to>       <!-- LCL S LSL H  -->
+        </rule>
+
+        <rule>
+            <from>&#x044E;</from>       <!-- CSL YU  -->
+            <to>&#x0079;&#x0075;</to>   <!-- LSL Y & LSL U  -->
+        </rule>
+        <rule> <!-- ALLCAPS -->
+            <from>&#x042E;</from>       <!-- CCL YU  -->
+            <to>&#x0059;&#x0055;</to>   <!-- LCL Y & LCL U -->
+            <context>
+                <before>[\p{IsUpper}\p{IsSpace}]</before>
+                <after>[\p{IsUpper}\p{IsSpace}]</after>
+            </context>
+        </rule>
+        <rule>
+            <from>&#x042E;</from>       <!-- CCL YU  -->
+            <to>&#x0059;&#x0075;</to>   <!-- LCL Y & LSL U -->
+        </rule>
+
+        <rule>
+            <from>&#x044F;</from>       <!-- CSL YA  -->
+            <to>&#x0079;&#x0061;</to>   <!-- LSL Y & LSL A  -->
+        </rule>
+        <rule> <!-- ALLCAPS -->
+            <from>&#x042F;</from>       <!-- CCL YA  -->
+            <to>&#x0059;&#x0041;</to>   <!-- LCL Y & LCL A  -->
+            <context>
+                <before>[\p{IsUpper}\p{IsSpace}]</before>
+                <after>[\p{IsUpper}\p{IsSpace}]</after>
+            </context>
+        </rule>
+        <rule>
+            <from>&#x042F;</from>       <!-- CCL YA  -->
+            <to>&#x0059;&#x0061;</to>   <!-- LCL Y & LSL A  -->
+        </rule>
+        <rule>
+            <from>&#x044A;</from>   <!-- CSL HARD SIGN  -->
+            <to>&#x0060;&#x0060;</to>       <!-- TWO GRAVE ACCENTS -->
+        </rule>
+        <rule>
+            <from>&#x042A;</from>   <!-- CCL HARD SIGN  -->
+            <to>&#x0060;&#x0060;</to>       <!-- TWO GRAVE ACCENTS -->
+            <context>
+                <before>([^\p{IsWord}]|$)</before>
+                <after>\p{IsUpper}</after>
+            </context>
+
+        </rule>
+
+        <rule>
+            <from>&#x044B;</from>   <!-- CSL YERU -->
+            <to>&#x0079;&#x0027;</to>       <!-- LSL Y APOSTROPHE-->
+        </rule>
+        <rule>
+            <from>&#x042B;</from>   <!-- CCL YERU -->
+            <to>&#x0059;&#x0027;</to>       <!-- LCL Y APOSTROPHE-->
+        </rule>
+
+		
+		
+	
+    </rules>
+
+</translit>
+
+
+<!--
+  vim: sts=4 sw=4 ai et
+-->

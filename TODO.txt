@@ -1,0 +1,109 @@
+
+
+
+Items 140709:
+-------------
+	- Adjust createMarcExport() to filter out those in the report with @location@ matches "Not in SPRI", i.e. those in loccamuninotinspri
+	- 245 $a dotEnd is wrong. Need to remove, and change so that every record simply has a . at end of whole field if not already there
+	- 245 0? where ? is the stop list like "The ", or "Der " or "An " (which would have values of 4, 4, 3 respective).
+
+
+	
+Items 140508:
+-------------
+	- Fix up report_emptyabstract - needs to post-filter for *abs is blank or *abs is empty
+	- The two export types, created in createMarcExport(), need to filter out those records listed at report_onorder()
+		- Also extract those into a separate download also in MARC format - this is so that the librarians can work through this list offline (they cannot be imported into Voyager directly)
+			- This needs to be done by date order, e.g. date=2012/06/14 shown in /records/171173/
+	- Also, will need to the parser, a code and check which adds a flag for those where @location@ matches "Not in SPRI" and another @location@ field does NOT match "Cambridge University" (i.e. we don't items from other ex-Cam institutions appearing to the general public in Voyager, but bibliographers need to see them - Voyager has ability to allow staff to search on dark records)
+	- Amend record_missingd() also to exclude where (status IN ('On Order', 'On Order (O/P)', 'On Order (O/S)', 'Order Cancelled', 'Received') OR location is 'Not in SPRI')
+	- When analytic support (i.e. record splitting) is added in, need to deal with report_artbecomedoc() which shows c. 17,000 records that should be treated as *doc and so should not be split, but their parentage needs to be evident (i.e. currently cannot tell that it has been extracted from something else)
+		- Requires note "Extracted from <*tg/*t> <*d> <*pt>"
+		- Same with report_artlocationpam(); this identifies pamphlets which need to be loaded into Voyager as documents (not as an article), but where the parent title needs to be made explicit in the record itself - i.e. is cases where SPRI doesn't subscribe to the journal so will never have a match - is standalone offprint
+
+
+
+
+
+Splitting of a record into bibliographic/holding/item
+-----------------------------------------------------
+
+1. Bibliographic [MARC standard]: Description of all instances of a book (or whatever); e.g. "A Dell T1500 has X memory, Y, disk space. etc."
+2. Holding [MARC standard]: Description of the overall holdings (instances) by a specific institution; e.g. "SPRI holds 6 Dell T1500s"
+3. Item [Proprietary, not part of MARC]: The actual instance within the holding, used for circulation such as barcoding and stockchecking [this implemented in Voyager (and others) but not all library systems]; e.g. "1 T1500 in Friends' Room", "1 T1500 in Friends' Room" ... [6 of these in total]
+
+Aim is to ensure all current Muscat data goes into 1, 2. Note that 3 is currently possible - will be generated in Voyager.
+
+Policy decision that we will not do Item records. Even though the hard work of splitting 1 Muscat record into parts, and doing matching, policy decision that this splits only into Bibliographic + Holding.
+
+A) First type of splitting:
+No manual splitting of /art/j or /art/in records at all - both the parent and child already exist (except the 1,600 or so /art/j which are being cleaned up), and they will continue to have 1:1 mappings in Muscat.
+Muscat will already have the parent and child anyway (pending the 1,600)
+Voyager will do this automatically, as the MARC record contains both parts.
+NB 870/880 field is what tells how to join together, i.e. parent like /records/60773/ will have a new field containing the parent identifier, and the children such as /records/209271/ will have a reciprocal number which matches that parent
+
+B) Second type of splitting:
+Splitting into Bibliographic/Holding/Item
+Again, Voyager will do this automatically, as the MARC record contains both parts.
+
+The clearing up of the 1,600 records will involve:
+- Fixing typos that mean the join doesn't work; or
+- Manually converting in Muscat the source record from being its current /art/in to being a /doc
+
+
+
+
+Name prefixes:
+--------------
+
+(Check need for this)
+
+SELECT DISTINCT  `value` FROM  `catalogue_rawdata` WHERE  `field` =  'nd' ORDER BY  `value`;
+Librarians to send back which are suffixes/prefixes
+
+
+
+
+
+Notes on replacement algorithm:
+-------------------------------
+
+
+-- Replace a string having { then shortly after } in a string
+-- Initial try (rejected) used http://compgroups.net/comp.databases.mysql/replacing-only-the-first-occurence-of-a/334101
+-- See also http://stackoverflow.com/questions/2056558/
+-- The length(value) stuff is basically SUBSTR_COUNT - see: http://www.thingy-ma-jig.co.uk/blog/17-02-2010/mysql-count-occurrences-string
+
+
+-- First try:
+-- UPDATE catalogue_processed SET processed = CONCAT( SUBSTRING_INDEX(processed,'{',1), '<sub>',  SUBSTRING_INDEX(processed,'{',1) ) WHERE processed REGEXP '^([^}]+){' AND ((LENGTH(processed)-LENGTH(REPLACE(processed,'</sub>','')))/LENGTH('</sub>') = 0);
+-- UPDATE catalogue_processed SET processed = CONCAT( SUBSTRING_INDEX(processed,'}',1), '</sub>', SUBSTRING ( processed FROM SUBSTRING_INDEX(processed,'}',1)) ) WHERE processed REGEXP '^([^{]+)}' AND ((LENGTH(processed)-LENGTH(REPLACE(processed,'<sub>' ,'')))/LENGTH('<sub>' ) = 1);
+
+
+UPDATE catalogue_processed SET processed = value;
+
+-- Position of first occurence is LOCATE('{',processed)
+-- String before first occurence is SUBSTRING(processed,1,(LOCATE('{',processed)-LENGTH('{')) )
+-- String after first occurence is  SUBSTRING(processed,(LOCATE('{',processed)+LENGTH('{')) )
+
+UPDATE catalogue_processed SET processed = CONCAT(
+	SUBSTRING(processed,1,(LOCATE('{',processed)-LENGTH('{')) ),
+	'<sub>',
+	SUBSTRING(processed,  (LOCATE('{',processed)+LENGTH('{')) )
+) WHERE processed REGEXP '^([^}]+){' AND ((LENGTH(processed)-LENGTH(REPLACE(processed,'</sub>','')))/LENGTH('</sub>') = 0);
+
+UPDATE catalogue_processed SET processed = CONCAT(
+	SUBSTRING(processed,1,(LOCATE('}',processed)-LENGTH('}')) ),
+	'</sub>',
+	SUBSTRING(processed,  (LOCATE('}',processed)+LENGTH('}')) )
+) WHERE processed REGEXP '^([^{]+)}' AND ((LENGTH(processed)-LENGTH(REPLACE(processed,'<sub>','')))/LENGTH('<sub>') = 1);
+
+
+
+
+General bugs:
+-------------
+
+# Search needs to have minimum 3 characters for each field
+
+

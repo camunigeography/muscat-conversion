@@ -1,0 +1,28 @@
+#muscatconversion .miniform {clear: right; float: right; position: relative; top: -20px;}
+#muscatconversion #exportdate {clear: right; float: right; font-size: 0.83em; margin: 0; padding: 0; position: relative; top: -1.2em; color: gray;}
+#muscatconversion .fieldstabs {clear: right; margin-left: 20px;}
+#muscatconversion .reportsjumplist {font-size: 0.83em; text-align: right; position: relative; top: -2.6em;}
+#muscatconversion .fieldsjumplist {font-size: 0.83em; display: inline; padding-right: 8px;}
+#muscatconversion .reportsjumplist *, #muscatconversion .fieldsjumplist * {display: inline;}
+#muscatconversion .reportsjumplist option, #muscatconversion .fieldsjumplist option {display: block;}
+#muscatconversion .reportsjumplist select, #muscatconversion .reportsjumplist input, #muscatconversion .fieldsjumplist select, #muscatconversion .fieldsjumplist input {font-size: 1em;}
+#muscatconversion .fieldsjumplist select {margin: 0;}
+#muscatconversion .listing {clear: right;}	/* Clear right following fieldstabs */
+#muscatconversion ul.tabs li.selected {font-weight: bold;}
+#muscatconversion table.lines.regulated tr td:first-child {width: 60px;}
+#muscatconversion table.record tr td.description {color: gray;}
+#muscatconversion ul.previousnextlinks {float: right; margin: 0; padding: 0; line-height: 16px;}
+#muscatconversion ul.previousnextlinks li {display: inline; margin: 0; padding: 0;}
+#muscatconversion ul.previousnextlinks li a {border: 0;}
+#muscatconversion div.marc {overflow-x: scroll;}
+#muscatconversion div.marc strong {font-weight: normal; color: red;}
+#muscatconversion #form_definition {font-family: Lucida Console, courier, monospace; line-height: 1.5em; padding: 10px;}
+#muscatconversion ul.downloads li a {font-weight: bold; width: 18em;}
+#muscatconversion img.extension.file-txt {display: none;}
+#muscatconversion table.diacritics {table-layout: fixed; width: 100%; min-width: 1000px;}
+#muscatconversion table.diacritics h3 {font-size: 0.9em; height: 7.4em; margin-top: 10px; padding-top: 0;}
+#muscatconversion table.diacritics table {margin-bottom: 20px;}
+#muscatconversion table.diacritics table tr td:first-child {text-align: right;}
+#muscatconversion table.diacritics table tr td.unicode {font-size: 1.4em;}
+#muscatconversion table.fieldslisting td.Description {width: 400px;}
+

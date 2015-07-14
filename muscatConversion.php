@@ -1,0 +1,6471 @@
+<?php
+
+# Class to manage Muscat data conversion
+require_once ('frontControllerApplication.php');
+class muscatConversion extends frontControllerApplication
+{
+	# Define the registry of reports; those prefixed with 'listing_' return data rather than record numbers
+	private $reports = array (
+		'q0naming' => 'records without a *q0',
+		'missingcategory' => 'records without a category (*doc/*art/*ser)',
+		'missingd' => 'records without a *d that are not *ser and either no status or status is GLACIOPAMS',
+		'missingacc' => 'records without a *acc',
+		'sermissingr' => '*ser records without a *r, except where location is Not in SPRI',
+		'kbk2mismatch' => 'records where a *kb/*k2 is present but not both',
+		'artwithoutlocstatus' => '*art records where there is no *loc and no *status',
+		'artlocationpam' => '*art records where *location begins with Pam',
+		'tcnotone' => 'records without exactly one *tc',
+		'tgmismatch' => 'records whose *tg count does not match *t',
+		'missingrpl' => 'records without a *rpl',
+		'missingrplstatus' => 'records in SPRI without a *rpl and without a *status, that are not *ser',
+		'rploncewitho' => 'records having only one *rpl and *rpl is O',
+		'rpl3charaz09' => 'records having *rpl not matching [A-Z0-9]{1,3}',
+		'locwithoutlocation' => '*loc records where there is no *location',
+		'unmatchedbrackets' => 'unmatched { and } brackets',
+		'nestedbrackets' => 'nested { { and } } brackets',
+		'status' => 'records with a status field',
+		'statusglaciopams' => 'records with a *status field where the status is not GLACIOPAMS',
+		'statuslocationglaciopams' => 'records with a *status field and *location where the status is not GLACIOPAMS',
+		'doclocationperiodical' => '*doc records with one *location, which is Periodical',
+		'doclocationlocationperiodical' => '*doc records with two or more *locations, at least one of which is Periodical',
+		'inwithj' => '*in records which have a *j',
+		'artnotjt' => '*art records with a *j where *t does not immediately follow *j',
+		'sernonuniquet' => '*ser records where t is not unique',
+		'artbecomedoc' => 'records classified as articles which need to become documents',
+//		'orphanedart' => '*art records who have become orphaned',
+		'arttoplevelp' => '*art records with a top-level *p',
+		'artwithk2' => 'linked analytics: *art records with *k2',
+		'docwithkb' => '*doc records with *kb',
+		'artinnokg' => 'records with *in but no *kg',
+		'loclocfiltered1' => "Records with two or more locations, having first filtered out any locations whose location is 'Not in SPRI'",
+		'loclocfiltered2' => "Records with two or more locations, having first filtered out any locations whose location is 'Not in SPRI'/'Periodical'/'Basement IGS Collection'/'Basement Seligman *'",
+		'loclocfiltered3' => "Records with two or more locations, where no location is 'Not in SPRI', having first filtered out any matching a whitelist of internal locations",
+		'loclocloc' => 'records with three or more locations',
+		'arttitlenoser' => 'articles without a matching serial title, that are not pamphlets or in the special collection',
+		'notinspri' => 'items not in SPRI',
+		'loccamuninotinspri' => 'records with location matching Cambridge University, not in SPRI',
+		'loccamuniinspri' => 'records with location matching Cambridge University, in SPRI',
+		'onorder' => 'items on order',
+		'absitalics' => 'records with italics in the abstract',
+		'isbninvalid' => 'records with invalid ISBN numbers',
+		'urlinvalid' => 'records with a badly-formatted URL',
+		'ndnd' => 'records with two adjacent *nd entries',
+		'misformattedad' => 'records where ed/eds/comp/comps indicator is not properly formatted',
+		'orphanedrole' => 'records where *role is not followed by *n',
+		'emptyauthor' => 'records with an empty *a',
+		'specialcharscasse' => 'records with irregular case-sensitivity of special characters',
+		'unknowndiacritics' => 'records with unknown diacritics',
+	//	'emptyabstract' => 'records without abstracts',
+		'locationunknown' => 'records where location is unknown, for records whether the status is not present or is GLACIOPAMS',
+		'multiplecopies' => 'records where there appear to be multiple copies, in notes field',
+		'multiplesourcesser' => 'records with multiple sources (*ser)',
+		'multiplesourcesdocart' => 'records with multiple sources (*doc/*art)',
+	);
+	
+	# Listing reports
+	private $listings = array (
+		'diacritics' => 'listing: counts of diacritics used in the raw data',
+		'journaltitles' => 'listing: journal titles',
+		'seriestitles' => 'listing: series titles',
+		'seriestitlemismatches1' => "listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = 'Periodical')",
+		'seriestitlemismatches2' => "listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc is empty)",
+		'seriestitlemismatches3' => 'listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = other)',
+		'languages' => 'listing: languages',
+		'reversetransliterations' => 'listing: reverse-transliterated titles',
+	);
+	
+	# Define the types
+	private $types = array (
+		'muscatview' => array (	// Sharded records
+			'label'		=> '<img src="/images/icons/page_white.png" alt="" border="0" /> Muscat editing view',
+			'title'		=> 'The data as it would be seen if editing in Muscat',
+			'errorHtml'	=> "The 'muscatview' version of record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
+			'fields'	=> array ('recordId', 'field', 'value'),
+			'idField'	=> 'recordId',
+			'orderBy'	=> 'recordId, line',
+			'class'		=> 'regulated',
+		),
+		'rawdata' => array (	// Sharded records
+			'label'		=> '<img src="/images/icons/page_white_text.png" alt="" border="0" /> Raw data',
+			'title'		=> 'The raw data as exported by Muscat',
+			'errorHtml'	=> "There is no such record <em>%s</em>. Please try searching again.",
+			'fields'	=> array ('recordId', 'field', 'value'),
+			'idField'	=> 'recordId',
+			'orderBy'	=> 'recordId, line',
+			'class'		=> 'compressed',	// 'regulated'
+		),
+		'processed' => array (	// Sharded records
+			'label'		=> '<img src="/images/icons/page.png" alt="" border="0" /> Processed version',
+			'title'		=> 'The data as exported by Muscat',
+			'errorHtml'	=> "The 'processed' version of record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
+			'fields'	=> array ('recordId', 'field', 'value'),
+			'idField'	=> 'recordId',
+			'orderBy'	=> 'recordId, line',
+			'class'		=> 'compressed',
+		),
+		'xml' => array (
+			'label'		=> '<img src="/images/icons/page_white_code.png" alt="" border="0" /> Muscat as XML',
+			'title'		=> 'Representation of the Muscat data as XML, via the defined Schema',
+			'errorHtml'	=> "The XML representation of the Muscat record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
+			'fields'	=> array ('id', 'xml'),
+			'idField'	=> 'id',
+			'orderBy'	=> 'id',
+			'class'		=> false,
+		),
+		'marc' => array (
+			'label'		=> '<img src="/images/icons/page_white_code_red.png" alt="" border="0" /> Muscat as MARC',
+			'title'		=> 'Representation of the XML data as MARC21, via the defined parser description',
+			'errorHtml'	=> "The MARC21 representation of the Muscat record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
+			'fields'	=> array ('id', 'marc'),
+			'idField'	=> 'id',
+			'orderBy'	=> 'id',
+			'class'		=> false,
+		),
+	);
+	
+	# Fieldsindex fields
+	private $fieldsIndexFields = array (
+		'title' => 'tc',
+		'region' => 'ks',
+		'surname' => 'n1',
+		'forename' => 'n2',
+		'journaltitle' => '/art/j/tg/t',
+		'seriestitle' => '/doc/ts',
+		'year' => 'd',
+		'language' => 'lang',
+		'abstract' => 'abs',
+		'keyword' => 'kw',
+		'isbn' => 'isbn',
+		'location' => 'location',
+		'anywhere' => '*',
+	);
+	
+	# Define supported languages
+	private $supportedReverseTransliterationLanguages = array (
+		'Russian' => 'BGN PCGN 1947',	// Filename becomes bgn_pcgn_1947.xml
+	);
+	
+	# Function to assign defaults additional to the general application defaults
+	public function defaults ()
+	{
+		# Specify available arguments as defaults or as NULL (to represent a required argument)
+		$defaults = array (
+			'applicationName' => 'Muscat conversion project',
+			'authentication' => true,
+			'administrators' => true,
+			'hostname' => 'localhost',
+			'database' => 'muscatconversion',	// Requires SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX
+			'username' => NULL,
+			'password' => NULL,
+			'table' => false,	// Not used
+			'chunkEvery' => 2500,
+			'debugMode' => false,
+			'paginationRecordsPerPageDefault' => 50,
+			'div' => strtolower (__CLASS__),
+		);
+		
+		# Return the defaults
+		return $defaults;
+	}
+	
+	
+	# Function to assign supported actions
+	public function actions ()
+	{
+		# Define available tasks
+		$actions = array (
+			'reports' => array (
+				'description' => false,
+				'url' => 'reports/',
+				'tab' => 'Reports',
+				'icon' => 'asterisk_orange',
+			),
+			'reportdownload' => array (
+				'description' => 'Export',
+				'url' => 'reports/',
+				'export' => true,
+			),
+			'records' => array (
+				'description' => 'Records',
+				'url' => 'records/',
+				'tab' => 'Records',
+				'icon' => 'application_double',
+			),
+			'fields' => array (
+				'description' => false,
+				'url' => 'fields/',
+				'tab' => 'Fields',
+				'icon' => 'chart_organisation',
+			),
+			'search' => array (
+				'description' => 'Search the catalogue',
+				'url' => 'search/',
+				'tab' => 'Search',
+				'icon' => 'magnifier',
+			),
+			'statistics' => array (
+				'description' => 'Statistics',
+				'url' => 'statistics/',
+				'tab' => 'Statistics',
+				'icon' => 'chart_pie',
+			),
+			'import' => array (
+				'description' => 'Import',
+				'url' => 'import/',
+				'tab' => 'Import',
+				'icon' => 'database_refresh',
+				'administrator' => true,
+			),
+			'schema' => array (
+				'description' => 'Schema',
+				'subtab' => 'Schema',
+				'icon' => 'tag',
+				'parent' => 'admin',
+				'administrator' => true,
+			),
+			'marcparser' => array (
+				'description' => 'MARC21 parser definition',
+				'subtab' => 'MARC21 parser definition',
+				'url' => 'marcparser.html',
+				'icon' => 'chart_line',
+				'parent' => 'admin',
+				'administrator' => true,
+			),
+			'transliterator' => array (
+				'description' => 'Reverse-transliteration definition',
+				'subtab' => 'Reverse-transliteration definition',
+				'url' => 'transliterator.html',
+				'icon' => 'arrow_refresh',
+				'parent' => 'admin',
+				'administrator' => true,
+			),
+			'export' => array (
+				'description' => 'Export MARC21 output',
+				'tab' => 'Export',
+				'url' => 'export/',
+				'icon' => 'database_go',
+				'administrator' => true,
+			),
+		);
+		
+		# Return the actions
+		return $actions;
+	}
+	
+	
+	# Database structure definition
+	public function databaseStructure ()
+	{
+		return "
+			CREATE TABLE IF NOT EXISTS `administrators` (
+			  `username` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Username' PRIMARY KEY,
+			  `active` enum('','Yes','No') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'Yes' COMMENT 'Currently active?',
+			  `privilege` enum('Administrator','Restricted administrator') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'Administrator' COMMENT 'Administrator level'
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='System administrators';
+			
+			CREATE TABLE IF NOT EXISTS `marcparserdefinition` (
+			  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Automatic key' PRIMARY KEY,
+			  `definition` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Parser definition',
+			  `savedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Automatic timestamp'
+			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC parser definition';
+			
+			CREATE TABLE IF NOT EXISTS `reversetransliterationdefinition` (
+			  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Automatic key' PRIMARY KEY,
+			  `definition` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Parser definition',
+			  `savedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Automatic timestamp'
+			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC parser definition';
+		";
+	}
+	
+	
+	# Additional processing
+	public function main ()
+	{
+		# Add other settings
+		$this->exportsDirectory = $this->applicationRoot . '/exports/';
+		$this->exportsProcessingTmp = $this->applicationRoot . '/exports-tmp/';
+		$this->cpanDir = $this->applicationRoot . '/libraries/transliteration/cpan';
+		
+		# Determine the import lockfile location
+		$this->lockfile = $this->exportsProcessingTmp . 'lockfile.txt';
+		
+		# Ensure an import is not running
+		if ($importHtml = $this->importInProgress ()) {
+			echo $importHtml;
+			return false;
+		}
+		
+		# Determine and show the export date
+		$isExportType = (isSet ($this->actions[$this->action]['export']) && $this->actions[$this->action]['export']);
+		if (!$isExportType) {
+			$this->exportDateDescription = $this->getExportDate ();
+			echo "\n<p id=\"exportdate\">{$this->exportDateDescription}</p>";
+		}
+		
+		# Merge the listings array into the main reports list
+		$this->reports += $this->listings;
+		
+		# Define unicode symbols
+		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
+		
+	}
+	
+	
+	# Function to get the export date
+	private function getExportDate ()
+	{
+		$tableStatus = $this->databaseConnection->getTableStatus ($this->settings['database'], 'catalogue_rawdata');
+		return $tableStatus['Comment'];
+	}
+	
+	
+	# Home page
+	public function home ()
+	{
+		# Welcome
+		$html  = "\n<h2>Welcome</h2>";
+		$html .= $this->reportsJumplist ();
+		$html .= "\n<p>This administrative system enables Library staff at SPRI to get an overview of problems with Muscat records so that they can be prepared for eventual export to Voyager.</p>";
+		$html .= "\n<h3>Reports available</h3>";
+		$html .= $this->reportsTable ();
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# Function to list the reports
+	public function reports ($id = false)
+	{
+		# Start the HTML
+		$html  = '';
+		
+		# If no specified report, create a listing of reports
+		if (!$id) {
+			
+			# Compile the HTML
+			$html .= "\n<h2>Reports</h2>";
+			$html .= $this->reportsJumplist ();
+			$html .= "\n<p>This page lists the various reports that check for data errors.</p>";
+			$html .= $this->reportsTable ();
+			
+			# Show the HTML and end
+			echo $html;
+			return true;
+		}
+		
+		# Ensure the report ID is valid
+		if (!isSet ($this->reports[$id])) {
+			$html .= "\n<h2>Reports</h2>";
+			$html .= $this->reportsJumplist ($id);
+			$html .= "\n<p>There is no such report <em>" . htmlspecialchars ($id) . "</em>. Please check the URL and try again.</p>";
+			echo $html;
+			return false;
+		}
+		
+		# Show the title
+		$html .= "\n<h2>Report: " . htmlspecialchars (ucfirst ($this->reports[$id])) . '</h2>';
+		$html .= $this->reportsJumplist ($id);
+		
+		# View the report
+		$html .= $this->viewResults ($id);
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# Function to create a reports list
+	private function reportsTable ()
+	{
+		# Get the list of reports
+		$reports = $this->getReports ();
+		
+		# Get the counts
+		$counts = $this->getCounts ();
+		
+		# Get the total number of records
+		$stats = $this->getStats ();
+		$totalRecords = $stats['totalRecords'];
+		
+		# Convert to an HTML list
+		$table = array ();
+		foreach ($reports as $report => $description) {
+			$link = $this->reportLink ($report);
+			$table[$report]['Description'] = "<a href=\"{$link}\">" . ucfirst (htmlspecialchars ($description)) . '</a>';
+			$table[$report]['Problems?'] = ($this->isListing ($report) ? '<span class="faded right">n/a</span>' : ($counts[$report] ? '<span class="warning right">' . number_format ($counts[$report]) : '<span class="success right">' . 'None') . '</span>');
+			$percentage = ($counts[$report] ? round (100 * ($counts[$report] / $totalRecords), 2) . '%' : '-');
+			$table[$report]['%'] = ($this->isListing ($report) ? '<span class="faded right">n/a</span>' : '<span class="comment right">' . ($percentage === '0%' ? '0.01%' : $percentage) . '</span>');
+		}
+		
+		# Compile the HTML
+		$html  = application::htmlTable ($table, array (), 'lines', $keyAsFirstColumn = false, false, $allowHtml = true);
+		
+		# Note the data date
+		$html .= "\n<p class=\"comment\"><br />{$this->exportDateDescription}.</p>";
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Function to determine if the specified report is a listing type
+	private function isListing ($report)
+	{
+		return (array_key_exists ($report, $this->listings));
+	}
+	
+	
+	# Function to get the counts
+	private function getCounts ()
+	{
+		# Get the list of reports
+		$reports = $this->getReports ();
+		
+		# Get the counts
+		$query = "SELECT report, COUNT(*) AS total FROM reportresults GROUP BY report;";
+		$data = $this->databaseConnection->getPairs ($query);
+		
+		# Ensure that each report type has a count
+		$counts = array ();
+		foreach ($reports as $id => $description) {
+			$counts[$id] = (isSet ($data[$id]) ? $data[$id] : 0);
+		}
+		
+		# Return the counts
+		return $counts;
+	}
+	
+	
+	# Function to create a reports jumplist
+	private function reportsJumplist ($current = false)
+	{
+		# Determine the front reports page link
+		$frontpage = $this->reportLink ();
+		
+		# Get the counts
+		$counts = $this->getCounts ();
+		
+		# Create the list
+		$droplist = array ();
+		$droplist[$frontpage] = '';
+		foreach ($this->reports as $report => $description) {
+			$link = $this->reportLink ($report);
+			$description = (strlen ($description) > 50 ? substr ($description, 0, 50) . '...' : $description);	// Truncate
+			$droplist[$link] = ucfirst ($description) . ($this->isListing ($report) ? '' : ' (' . number_format ($counts[$report]) . ')');
+		}
+		
+		# Create a link to the selected item
+		$selected = $this->reportLink ($current);
+		
+		# Compile the HTML and register a processor
+		$html  = pureContent::htmlJumplist ($droplist, $selected, $this->baseUrl . '/', $name = 'reportsjumplist', $parentTabLevel = 0, $class = 'reportsjumplist', 'Switch to: ');
+		pureContent::jumplistProcessor ($name);
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Function to link a report
+	private function reportLink ($record = false)
+	{
+		return $this->baseUrl . '/reports/' . ($record ? htmlspecialchars ($record) . '/' : '');
+	}
+	
+	
+	# Function to get the list of reports
+	public function getReports ()
+	{
+		# Ensure each report exists
+		foreach ($this->reports as $report => $description) {
+			$methodName = 'report_' . $report;
+			if (!method_exists ($this, $methodName)) {
+				unset ($this->reports[$report]);
+			}
+		}
+		
+		# Return the list
+		return $this->reports;
+	}
+	
+	
+	# Function to view results of a report
+	private function viewResults ($id)
+	{
+		# Determine the description
+		$description = 'This report shows ' . $this->reports[$id] . '.';
+		
+		# Start the HTML With the description
+		$html  = "\n<div class=\"graybox\">";
+		if (!$this->isListing ($id)) {
+			$html .= "\n<p class=\"right\"><a href=\"{$this->baseUrl}/reports/{$id}/{$id}.csv\">Export as CSV</a></p>";
+		}
+		$html .= "\n<p><strong>" . htmlspecialchars ($description) . '</strong></p>';
+		$html .= "\n</div>";
+		
+		# Show the records for this query (having regard to any page number supplied via the URL)
+		if ($this->isListing ($id)) {
+			$viewMethod = "report_{$id}_view";
+			$html .= $this->{$viewMethod} ();
+		} else {
+			$baseLink = '/reports/' . $id . '/';
+			$html .= $this->recordListing ($id, false, array (), $baseLink, true);
+		}
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Function to list the records
+	public function records ($id = false)
+	{
+		# Start the HTML
+		$html = '';
+		
+		# If no ID, show the search form
+		if (!$id) {
+			if ($id = $this->recordSearchForm ($html)) {
+				
+				# State if not found
+				if (!$this->getRecords ($id, false, $convertEntities = true)) {
+					$html .= "\n<p>There is no such record <em>" . htmlspecialchars ($id) . '</em>. Please try searching again.</p>';
+					echo $html;
+					return false;
+				}
+				
+				# Redirect to the found record
+				$url = $_SERVER['_SITE_URL'] . $this->recordLink ($id);
+				application::sendHeader (301, $url, $html);
+				echo $html;
+				return true;
+			}
+			
+			# Show the HTML and end
+			echo $html;
+			return true;
+		}
+		
+		# Add previous/next links
+		$previousNextLinks = $this->previousNextLinks ($id);
+		$html .= "<p>Record #<strong>{$id}</strong>:</p>";
+		$html .= $previousNextLinks;
+		
+		# Get the data, in order, starting with the most basic version, ending if any fail
+		$tabs = array ();
+		$i = 0;
+		foreach ($this->types as $type => $attributes) {
+			if (!$tabs[$type] = $this->recordFieldValueTable ($id, $type, $errorHtml)) {
+				if ($i == 0) {	// First one is the master record; if it does not exist, assume this is actually a genuinely non-existent record
+					$errorHtml = "There is no such record <em>{$id}</em>.";
+				}
+				$html .= "\n<p>{$errorHtml}</p>";
+				echo $html;
+				return false;
+			}
+			$i++;
+		}
+		
+		# Compile the labels, whose ordering is used for the tabbing
+		$labels = array ();
+		$typesReverseOrder = array_reverse ($this->types, true);
+		$i = 1;
+		foreach ($typesReverseOrder as $type => $attributes) {
+			$labels[$type] = "<span accesskey=\"" . $i++ . "\" title=\"{$attributes['title']}\">" . $attributes['label'] . '</span>';
+		}
+		
+		# Load into tabs and render
+		require_once ('jquery.php');
+		$jQuery = new jQuery ();
+		$jQuery->tabs ($labels, $tabs);
+		$html .= $jQuery->getHtml ();
+		
+		// $html .= application::dumpData ($record, false, true);
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# Function to create previous/next record links
+	private function previousNextLinks ($id)
+	{
+		# Start the HTML
+		$html = '';
+		
+		# Get the data
+		$query = "SELECT
+			(SELECT MAX(id) AS id FROM catalogue_rawdata WHERE id < {$id}) AS previous,
+			(SELECT MIN(id) AS id FROM catalogue_rawdata WHERE id > {$id}) AS next
+		;";
+		$data = $this->databaseConnection->getOne ($query);
+		
+		# Create a list
+		$list = array ();
+		$list[] = ($data['previous'] ? '<a href="' . "{$this->baseUrl}/records/{$data['previous']}/" . '"><img src="/images/icons/control_rewind_blue.png" alt="Previous record" border="0" /></a>' : '');
+		$list[] = '#' . $id;
+		$list[] = ($data['next'] ? '<a href="' . "{$this->baseUrl}/records/{$data['next']}/" . '"><img src="/images/icons/control_fastforward_blue.png" alt="Next record" border="0" /></a>' : '');
+		
+		# Compile the HTML
+		$html = application::htmlUl ($list, 0, 'previousnextlinks');
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Function to create a record field/value table
+	private function recordFieldValueTable ($id, $type, &$errorHtml = false)
+	{
+		# Get the data or end
+		$linkFields = ($type != 'xml');
+		if (!$record = $this->getRecords ($id, $type, $convertEntities = true, $linkFields)) {
+			$errorHtml = sprintf ($this->types[$type]['errorHtml'], $id);
+			return false;
+		}
+		
+		# Render the result
+		switch ($type) {
+			
+			# Text records
+			case 'marc':
+				# Uncomment this block to compute the MARC on-the-fly for testing purposes
+			/*
+			*/
+				$data = $this->getRecords ($id, 'xml');
+				$marcParserDefinition = $this->getMarcParserDefinition ();
+				$record = array ();
+				$record['marc'] = $this->convertToMarc ($marcParserDefinition, $data['xml'], $errorString);
+				$output  = "\n<p>The MARC output uses the <a target=\"_blank\" href=\"{$this->baseUrl}/marcparser.html\">parser definition</a> to do the translation from the XML representation.</p>";
+				if ($errorString) {
+					$output .= "\n<p><img src=\"/images/icons/exclamation.png\" class=\"icon\" /> {$errorString}</p>";
+				}
+			/*
+			*/
+				
+				$output  = "\n<div class=\"graybox marc\">" . "\n<pre>" . htmlspecialchars ($record[$type]) . "\n</pre>\n</div>";
+				$output .= "\n<p>This is generated using the <a href=\"{$this->baseUrl}/marcparser.html\">MARC21 parser definition</a>.</p>";
+				break;
+				
+			case 'xml':
+				# Uncomment this block to compute the XML on-the-fly for testing purposes
+			/*
+				$data = $this->getRecords ($id, 'processed');
+				$schemaFlattenedXmlWithContainership = $this->getSchema (true);
+				$record = array ();
+				$record['xml'] = xml::dropSerialRecordIntoSchema ($schemaFlattenedXmlWithContainership, $data, $errorHtml, $debugString);
+			*/
+				$output = "\n<div class=\"graybox\">" . "\n<pre>" . htmlspecialchars ($record[$type]) . "\n</pre>\n</div>";
+				break;
+				
+			# Tabular records
+			default:
+				$class = $this->types[$type]['class'];
+				foreach ($record as $index => $row) {
+					$showHtmlTags = array ('<em>', '</em>');
+					foreach ($showHtmlTags as $htmlTag) {
+						$record[$index]['value'] = str_replace ($htmlTag, '<span style="color: #903;"><tt>' . htmlspecialchars ($htmlTag) . '</tt></span>', $record[$index]['value']);	// Show HTML as visible HTML
+					}
+				}
+				$output = application::htmlTable ($record, array (), 'lines record' . ($class ? " {$class}" : ''), $keyAsFirstColumn = false, $uppercaseHeadings = true, $allowHtml = true, false, $addCellClasses = true);
+				break;
+		}
+		
+		# Return the HTML/XML
+		return $output;
+	}
+	
+	
+	# Function to display the schema
+	public function schema ()
+	{
+		# Read the schema
+		$xml = $this->getSchema (false, true);
+		
+		# Convert to HTML
+		$html = "\n<pre>" . htmlspecialchars ($xml) . '</pre>';
+		
+		# Surround with a presentational box
+		$html = "\n<div class=\"graybox\">{$html}</div>";
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# Function to define the schema
+	private function getSchema ($flattenedWithContainership = false, $formatted = false)
+	{
+		# Define the structure
+		$structure = "
+<?xml version='1.0' encoding='UTF-8' ?>
+<root>
+	<q0 /><!-- ID -->
+	<status /><!-- automatically generated when item is ordered. Unless automatically deleted during cataloguing, this field can be updated to show the current status of an order if there is any reason for failure to supply. The same applies to *art and *ser order records. See 3.2.9.3 -->
+	
+	<doc><!-- a whole document (*doc) consisting of a book, report, volume of conference proceedings, letter etc.; -->
+		<ag>
+			<a><!-- author(s) -->
+				<n1 />
+				<n2 />
+				<nd />
+			</a>
+			<ad /><!-- authorial detail (usually 'and others' 'ed.' 'eds.') - repeatable field -->
+			<al><!-- alternative spelling of transliterated name or alternative name -->
+				<n1 />
+				<n2 />
+				<nd />
+			</al>
+			<aff /><!-- affiliation -->
+		</ag>
+		<tg><!-- title group, an invisible field which groups all *t entries for searching -->
+			<t /><!-- title -->
+			<tt /><!-- translation of title (if *t is not in English) -->
+			<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
+			<to /><!-- title of original (if publication is a translation) -->'
+			<tc /><!-- UNKNOWN -->
+		</tg>
+		<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
+		<e><!-- editor(s) of whole work, use n for name in indirect order (*e edited by *n Smith/Bob); in practice this has also been used to add non-author contributors - this field in practice contains messy data often -->
+			<role />
+			<n><!-- Name field (used in conjunction with *e and *ee fields) -->
+				<n1 />
+				<n2 />
+				<nd />
+			</n>
+		</e>
+		<edn /><!-- edition -->
+		<ee><!-- editors of this edition, use *n for name in indirect order -->
+			<role />
+			<n><!-- Name field (used in conjunction with *e and *ee fields) -->
+				<n1 />
+				<n2 />
+				<nd />
+			</n>
+		</ee>
+		<pg><!-- where two or more publishers, from different places, have collaborated -->
+			<pl /><!-- place of publication -->
+			<pu /><!-- name of publisher -->
+		</pg>
+		<d /><!-- date of publication -->
+		<v /><!-- number of volumes, if more than one, e.g. 4 v. -->
+		<vno /><!-- volume number, e.g., Vol.2 -->
+		<p /><!-- pagination etc. -->
+		<pt /><!-- part of work referred to -->
+		<form /><!-- form of document, if non-book format -->
+		<size /><!-- size of document -->
+		<ts /><!-- title of series and number in series -->
+		<issn /><!-- International Standard Serial Number -->
+		<isbn /><!-- International Standard Book Number (entered with no spaces or hyphens) -->
+		<notes>
+			<note /><!-- additional miscellaneous information (public note, for publication in PGA, SPRILIB) -->
+			<priv /><!-- additional information for library staff only (private note) -->
+			<local /><!-- additional note, not for publication, but of use to library users on site, e.g. 'SPRI has 2 copies', 'CD-ROM kept in Library Office', etc. -->
+		</notes>
+		<abs /><!-- annotation or abstract -->
+		<k><!-- UDC classification numbers -->
+			<ks />
+			<kw /><!-- UDC translations. Added automatically by running c-tranudc (see Section ?) -->
+		</k>
+		<k2>
+			<ka />
+			<kb />
+			<kc />
+			<kd />
+			<ke /><!-- Analytic record link: (redundant for processing purposes) used in host record that Muscat uses for GUI purposes to link to a lookup -->
+			<kf /><!-- Analytic record link: (redundant for processing purposes) internal Muscat GUI representation of kg -->
+			<kg /><!-- Analytic record link: used in analytic (child) record that is basically a join to the q0 (ID) of the host -->
+		</k2>
+		<kb /><!-- Exchange -->
+		<loc><!-- location in SPRI library -->
+			<location />
+			<doslink /><!-- GUI field: not required for voyager -->
+			<winlink /><!-- GUI field: not required for voyager -->
+		</loc>
+		<url>
+			<urlfull /><!-- URL mirror -->
+			<urlgen /><!-- URL mirror -->
+			<doslink /><!-- GUI field: not required for voyager -->
+			<winlink /><!-- GUI field: not required for voyager -->
+		</url>
+		<urlft><!-- URL of related website (used with *form Online publication) -->
+			<urlfull /><!-- URL mirror -->
+			<urlgen /><!-- URL mirror -->
+			<doslink /><!-- GUI field: not required for voyager -->
+			<winlink /><!-- GUI field: not required for voyager -->
+		</urlft>
+		<rpl /><!-- giving code letter to enable records to be sorted into subject sections in PGA. See 3.2.8. -->
+		<!-- Acquisition fields: -->
+		<acq><!-- left blank	 -->
+			<ref /><!-- Annnn	(Order number added automatically. The initial letter changes each year,	i.e. A for 1995, B for 1996, C for 1997, etc.) -->
+			<date /><!-- yyyy/mm/dd -->
+			<o /><!-- supplier	(give surname first, e.g. Bull, Colin not Colin Bull. Do not insert 'requested' or other info before the name. Any other details relating to suppliers should be inserted in the *priv field.) -->
+			<!--<o /> donor	(as above, but add (gift) after name) -->
+			<pr /><!-- price	(enter pound symbol as GBP, $ as USD, etc.) -->
+			<fund /><!-- code	(see 3.2.9.2) -->
+			<sref /><!-- Supplier reference -->
+			<recr /><!-- bibliographer's initials -->
+		</acq>
+		<acc><!-- accession data -->
+			<ref /><!-- accession number (i.e. number stamped on book, not database record number) -->
+			<date /><!-- yyyy/mm/dd -->
+			<con /><!-- condition or conservation note -->
+			<recr /><!-- bibliographer's initials -->
+			<status /><!-- status note -->
+		</acc>
+		<doi>
+			<doifld />
+			<doslink /><!-- GUI field: not required for voyager -->
+			<winlink /><!-- GUI field: not required for voyager -->
+		</doi>
+	</doc>
+	
+	<art><!-- a part document (*art) consisting of a paper in a journal (even if the paper takes the whole of one issue in a journal), a book chapter or conference paper -->
+		<ag>
+			<a><!-- author(s) repeatable field -->
+				<n1 />
+				<n2 />
+				<nd />
+			</a>	
+			<ad /><!-- authorial detail (usually 'and others' 'ed.' 'eds.') -->
+			<al><!-- alternative spelling of transliterated name or alternative name -->
+				<n1 />
+				<n2 />
+				<nd />
+			</al>
+			<aff /><!-- affiliation -->
+		</ag>
+		<tg><!-- title group, an invisible field which groups all *t entries for searching -->
+			<t /><!-- title -->
+			<tt /><!-- translation of title (if *t is not in English) -->
+			<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
+			<to /><!-- title of original (if publication is a translation) -->'
+			<tc /><!-- UNKNOWN -->
+		</tg>
+		<lang /><!-- name of language (e.g. 'French' 'German') -->
+		<e><!-- editor(s) of whole work, use n for name in indirect order (*e edited by *n Smith/Bob); in practice this has also been used to add non-author contributors (sometimes for art/in/ records that relates to the *in level) - this field in practice contains messy data often -->
+			<role />
+			<n><!-- Name field (used in conjunction with *e and *ee fields) -->
+				<n1 />
+				<n2 />
+				<nd />
+			</n>
+		</e>
+		<in><!-- information about the document (i.e. book or conference proceedings etc.) in which the article occurs, which can be followed by: -->
+<!-- redundant -->
+			<ag>
+				<a><!-- author(s) -->
+					<n1 />
+					<n2 />
+					<nd />
+				</a>
+				<ad /><!-- authorial detail ..... -->
+				<al><!-- alternative spelling of transliterated name or alternative name -->
+					<n1 />
+					<n2 />
+					<nd />
+				</al>
+				<aff /><!-- affiliated author (not used at present) -->
+			</ag>
+			<tg><!-- title group, an invisible field which groups all *t entries for searching -->
+				<t /><!-- title -->
+				<tt /><!-- translation of title (if *t is not in English) -->
+				<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
+				<to /><!-- title of original (if publication is a translation) -->'
+				<tc /><!-- UNKNOWN -->
+			</tg>
+			<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
+			<edn /><!-- edition -->
+			<ee><!-- editors of this edition, use *n for name in indirect order -->
+				<role />
+				<n><!-- Name field (used in conjunction with *e and *ee fields) -->
+					<n1 />
+					<n2 />
+					<nd />
+				</n>
+			</ee>
+			<vno /><!-- the volume number of the work, in multi-volume works -->
+			<pg><!-- where two or more publishers, from different places, have collaborated -->
+				<pl /><!-- place of publication -->
+				<pu /><!-- name of publisher -->
+			</pg>
+			<d /><!-- date of publication -->
+<!-- /redundant -->
+			<pt /><!-- part of work referred to -->
+			<p /><!-- pagination -->
+<!-- redundant -->
+			<form /><!-- form of document, if non-book format -->
+			<ts /><!-- title of series and number in series -->
+			<issn /><!-- International Standard Serial Number -->
+			<isbn /><!-- International Standard Book Number (entered with no spaces or hyphens) -->
+<!-- /redundant -->
+			<notes>
+				<note /><!-- additional miscellaneous information (public note, for publication in PGA, SPRILIB) -->
+				<priv /><!-- additional information for library staff only (private note) -->
+				<local /><!-- additional note, not for publication, but of use to library users on site, e.g. 'SPRI has 2 copies', 'CD-ROM kept in Library Office', etc. -->
+			</notes>
+			<abs /><!-- annotation or abstract -->
+			<k><!-- UDC classification numbers -->
+				<ks />
+				<kw /><!-- UDC translations. Added automatically by running c-transudc -->
+			</k>
+			<k2>
+				<ka />
+				<kb />
+				<kc />
+				<kd />
+				<ke /><!-- Analytic record link: (redundant for processing purposes) used in host record that Muscat uses for GUI purposes to link to a lookup -->
+				<kf /><!-- Analytic record link: (redundant for processing purposes) internal Muscat GUI representation of kg -->
+				<kg /><!-- Analytic record link: used in analytic (child) record that is basically a join to the q0 (ID) of the host -->
+			</k2>
+<!-- redundant -->
+			<loc><!-- location in SPRI library -->
+				<location />
+				<doslink /><!-- GUI field: not required for voyager -->
+				<winlink /><!-- GUI field: not required for voyager -->
+			</loc>
+<!-- /redundant -->
+			<url>
+				<urlfull /><!-- URL mirror -->
+				<urlgen /><!-- URL mirror -->
+				<doslink /><!-- GUI field: not required for voyager -->
+				<winlink /><!-- GUI field: not required for voyager -->
+			</url>
+			<urlft><!-- URL of related website (used with *form Online publication) -->
+				<urlfull /><!-- URL mirror -->
+				<urlgen /><!-- URL mirror -->
+				<doslink /><!-- GUI field: not required for voyager -->
+				<winlink /><!-- GUI field: not required for voyager -->
+			</urlft>
+			<rpl /><!-- giving code letter to enable records to be sorted into subject sections in PGA. See 3.2.8. -->
+<!-- redundant -->
+			<!-- Acquisition fields: -->
+			<acq><!-- left blank	 -->
+				<ref /><!-- Annnn	(Order number added automatically. The initial letter changes each year,	i.e. A for 1995, B for 1996, C for 1997, etc.) -->
+				<date /><!-- yyyy/mm/dd -->
+				<o /><!--  supplier	(give surname first, e.g. Bull, Colin not Colin Bull. Do not insert 'requested' or other info before the name. Any other details relating to suppliers should be inserted in the *priv field.) -->
+				<!--<o /> donor	(as above, but add (gift) after name) -->
+				<pr /><!-- price	(enter pound symbol as GBP, $ as USD, etc.) -->
+				<fund /><!-- code	(see 3.2.9.2) -->
+				<sref /><!-- Supplier reference -->
+				<recr /><!-- bibliographer's initials -->
+			</acq>
+<!-- /redundant -->
+			<acc><!-- accession data -->
+<!-- redundant -->
+				<ref /><!-- accession number (i.e. number stamped on book, not database record number) -->
+				<date /><!-- yyyy/mm/dd -->
+				<con /><!-- condition or conservation note -->
+<!-- /redundant -->
+				<recr /><!-- bibliographer's initials -->
+				<status /><!-- status note -->
+			</acc>
+			<doi>
+				<doifld />
+				<doslink /><!-- GUI field: not required for voyager -->
+				<winlink /><!-- GUI field: not required for voyager -->
+			</doi>
+		</in>
+		<j><!-- information about the periodical in which the article occurs -->
+			<tg><!-- title group, an invisible field which groups all *t entries for searching -->
+				<t /><!-- title -->
+				<tt /><!-- translation of title (if *t is not in English) -->
+				<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
+				<to /><!-- title of original (if publication is a translation) -->'
+				<tc /><!-- UNKNOWN -->
+			</tg>
+			<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
+			<pg><!-- where two or more publishers, from different places, have collaborated -->
+				<pl /><!-- place of publication -->
+				<pu /><!-- name of publisher -->
+			</pg>
+			<d /><!-- date of publication -->
+			<pt /><!-- part of work referred to -->
+			<p /><!-- pagination -->
+			<form /><!-- form of document, if non-book format -->
+			<issn /><!-- International Standard Serial Number -->
+			<isbn /><!-- International Standard Book Number (entered with no spaces or hyphens) -->
+			<notes>
+				<note /><!-- additional miscellaneous information (public note, for publication in PGA, SPRILIB) -->
+				<priv /><!-- additional information for library staff only (private note) -->
+				<local /><!-- additional note, not for publication, but of use to library users on site, e.g. 'SPRI has 2 copies', 'CD-ROM kept in Library Office', etc. -->
+			</notes>
+			<abs /><!-- annotation or abstract -->
+			<k><!-- UDC classification numbers -->
+				<ks />
+				<kw /><!-- UDC translations. Added automatically by running c-transudc -->
+			</k>
+			<k2>
+				<ka />
+				<kb />
+				<kc />
+				<kd />
+				<ke /><!-- Analytic record link: (redundant for processing purposes) used in host record that Muscat uses for GUI purposes to link to a lookup -->
+				<kf /><!-- Analytic record link: (redundant for processing purposes) internal Muscat GUI representation of kg -->
+				<kg /><!-- Analytic record link: used in analytic (child) record that is basically a join to the q0 (ID) of the host -->
+			</k2>
+			<loc><!-- location in SPRI library -->
+				<location />
+				<doslink /><!-- GUI field: not required for voyager -->
+				<winlink /><!-- GUI field: not required for voyager -->
+			</loc>
+			<url>
+				<urlfull /><!-- URL mirror -->
+				<urlgen /><!-- URL mirror -->
+				<doslink /><!-- GUI field: not required for voyager -->
+				<winlink /><!-- GUI field: not required for voyager -->
+			</url>
+			<urlft><!-- URL of related website (used with *form Online publication) -->
+				<urlfull /><!-- URL mirror -->
+				<urlgen /><!-- URL mirror -->
+				<doslink /><!-- GUI field: not required for voyager -->
+				<winlink /><!-- GUI field: not required for voyager -->
+			</urlft>
+			<rpl /><!-- giving code letter to enable records to be sorted into subject sections in PGA. See 3.2.8. -->
+			<!-- Acquisition fields: -->
+			<acq><!-- left blank	 -->
+				<ref /><!-- Annnn	(Order number added automatically. The initial letter changes each year,	i.e. A for 1995, B for 1996, C for 1997, etc.) -->
+				<date /><!-- yyyy/mm/dd -->
+				<o /><!-- supplier	(give surname first, e.g. Bull, Colin not Colin Bull. Do not insert 'requested' or other info before the name. Any other details relating to suppliers should be inserted in the *priv field.) -->
+				<!--<o /> donor	(as above, but add (gift) after name) -->
+				<pr /><!-- price	(enter pound symbol as GBP, $ as USD, etc.) -->
+				<fund /><!-- code	(see 3.2.9.2) -->
+				<sref /><!-- Supplier reference -->
+				<recr /><!-- bibliographer's initials -->
+			</acq>
+			<acc><!-- accession data -->
+				<ref /><!-- accession number (i.e. number stamped on book, not database record number) -->
+				<date /><!-- yyyy/mm/dd -->
+				<con /><!-- condition or conservation note -->
+				<recr /><!-- bibliographer's initials -->
+				<status /><!-- status note -->
+			</acc>
+			<doi>
+				<doifld />
+				<doslink /><!-- GUI field: not required for voyager -->
+				<winlink /><!-- GUI field: not required for voyager -->
+			</doi>
+		</j>
+	</art>
+	
+	<ser><!-- a periodical (*ser) -->
+		<ag>
+			<a><!-- author(s) -->
+				<n1 />
+				<n2 />
+				<nd />
+			</a>
+			<ad /><!-- authorial detail (usually 'and others' 'ed.' 'eds.') - repeatable field -->
+			<al><!-- alternative spelling of transliterated name or alternative name -->
+				<n1 />
+				<n2 />
+				<nd />
+			</al>
+			<aff /><!-- affiliation -->
+		</ag>
+		<tg><!-- title group, an invisible field which groups all *t entries for searching -->
+			<t /><!-- title -->
+			<tt /><!-- translation of title (if *t is not in English) -->
+			<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
+			<to /><!-- title of original (if publication is a translation) -->'
+			<tc /><!-- UNKNOWN -->
+		</tg>
+		<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
+		<ft /><!-- former title -->
+		<st /><!-- subsequent title -->
+		<pg><!-- where two or more publishers, from different places, have collaborated -->
+			<pl /><!-- place of publication -->
+			<pu /><!-- name of publisher -->
+		</pg>
+		<abs /><!-- annotation or abstract -->
+		<issn /><!-- International Standard Serial Number -->
+		<isbn /><!-- International Standard Book Number (entered with no spaces or hyphens) -->
+		<r /><!-- range of holdings -->
+		<freq /><!-- frequency -->
+		<form /><!-- form of document, if non-book format -->
+		<size /><!-- size of document -->
+		<note /><!-- additional miscellaneous information (public note, for publication in PGA, SPRILIB) -->
+		<priv /><!-- additional information for library staff only (private note) -->
+		<notes>
+			<note /><!-- additional miscellaneous information (public note, for publication in PGA, SPRILIB) -->
+			<priv /><!-- additional information for library staff only (private note) -->
+			<local /><!-- additional note, not for publication, but of use to library users on site, e.g. 'SPRI has 2 copies', 'CD-ROM kept in Library Office', etc. -->
+		</notes>
+		<k><!-- UDC classification numbers -->
+			<ks />
+			<kw /><!-- UDC translations. Added automatically by running c-transudc -->
+		</k>
+		<k2><!-- left blank, but essential if *k2 included -->
+			<ka />
+			<kb />
+			<kc />
+			<kd />
+			<ke /><!-- Analytic record link: (redundant for processing purposes) used in host record that Muscat uses for GUI purposes to link to a lookup -->
+			<kf /><!-- Analytic record link: (redundant for processing purposes) internal Muscat GUI representation of kg -->
+			<kg /><!-- Analytic record link: used in analytic (child) record that is basically a join to the q0 (ID) of the host -->
+		</k2>
+		<kb /><!-- Exchange -->
+		<loc><!-- location in SPRI library -->
+			<location />
+			<doslink /><!-- GUI field: not required for voyager -->
+			<winlink /><!-- GUI field: not required for voyager -->
+		</loc>
+		<url>
+			<urlfull /><!-- URL mirror -->
+			<urlgen /><!-- URL mirror -->
+			<doslink /><!-- GUI field: not required for voyager -->
+			<winlink /><!-- GUI field: not required for voyager -->
+		</url>
+		<urlft><!-- URL of related website (used with *form Online publication) -->
+			<urlfull /><!-- URL mirror -->
+			<urlgen /><!-- URL mirror -->
+			<doslink /><!-- GUI field: not required for voyager -->
+			<winlink /><!-- GUI field: not required for voyager -->
+		</urlft>
+		<hold /><!-- holdings (Supplements to journals should be notated as follows in the holdings field: *hold 1-2, 3 (+ supp.), 4-8, etc. Note the space after the '+') -->
+		<!-- Acquisition fields: -->
+		<acq><!-- left blank	 -->
+			<ref /><!-- Annnn	(Order number added automatically. The initial letter changes each year,	i.e. A for 1995, B for 1996, C for 1997, etc.) -->
+			<date /><!-- yyyy/mm/dd -->
+			<o /><!-- supplier	(give surname first, e.g. Bull, Colin not Colin Bull. Do not insert 'requested' or other info before the name. Any other details relating to suppliers should be inserted in the *priv field.) -->
+			<!--<o /> donor	(as above, but add (gift) after name) -->
+			<pr /><!-- price	(enter pound symbol as GBP, $ as USD, etc.) -->
+			<fund /><!-- code	(see 3.2.9.2) -->
+			<sref /><!-- Supplier reference -->
+			<recr /><!-- bibliographer's initials -->
+		</acq>
+		<acc><!-- accession data -->
+			<ref /><!-- accession number (i.e. number stamped on book, not database record number) -->
+			<date /><!-- yyyy/mm/dd -->
+			<con /><!-- condition or conservation note -->
+			<recr /><!-- bibliographer's initials -->
+			<status /><!-- status note -->
+		</acc>
+		<doi>
+			<doifld />
+			<doslink /><!-- GUI field: not required for voyager -->
+			<winlink /><!-- GUI field: not required for voyager -->
+		</doi>
+		<doslink /><!-- GUI field: not required for voyager -->
+		<winlink /><!-- GUI field: not required for voyager -->
+	</ser>
+</root>
+		";
+		
+		# Trim the structure to prevent parser errors
+		$structure = trim ($structure);
+		
+		# Remove spaces if not formatted
+		#!# This is rather hacky
+		if (!$formatted) {
+			$structure = str_replace (array ("\n", "\r", "\t"), '', $structure);
+		}
+		
+		# Flatten if required
+		if ($flattenedWithContainership) {
+			require_once ('xml.php');
+			$structure = xml::flattenedXmlWithContainership ($structure);
+		}
+		
+		# Return the structure
+		return $structure;
+	}
+	
+	
+	# Function to link a record
+	private function recordLink ($id)
+	{
+		return $this->baseUrl . '/records/' . htmlspecialchars ($id) . '/';
+	}
+	
+	
+	# Function to provide a record search
+	private function recordSearchForm (&$html)
+	{
+		# Introductory text and form
+		$html .= "\n<p>You can use this form to go to a specific record, by entering a record number:</p>";
+		$resultRecord = $this->recordForm ($html);
+		
+		# Browsing mode
+		$html .= "\n<p><br /><br /><strong>Or browse</strong> through the records:</p>";
+		$resultBrowse = $this->recordBrowser ($html);
+		
+		# End if no result
+		if (!$resultRecord) {return false;}
+		
+		# Get the ID
+		return $resultRecord['q'];
+	}
+	
+	
+	# Function to create a record form
+	private function recordForm (&$html, $miniform = false)
+	{
+		# Cache _GET and remove the action, to avoid ultimateForm thinking the form has been submitted
+		#!# This is a bit hacky, but is necessary because we set name=false in the ultimateForm constructor
+		$get = $_GET;	// Cache
+		#!# This general scenario is best dealt with in future by adding a 'getIgnore' parameter to the ultimateForm constructor
+		if (isSet ($_GET['action'])) {unset ($_GET['action']);}
+		if (isSet ($_GET['item'])) {unset ($_GET['item']);}
+		if (isSet ($_GET['thousand'])) {unset ($_GET['thousand']);}
+		
+		# Run the form module
+		$form = new form (array (
+			'displayRestrictions' => false,
+			'get' => true,
+			'name' => false,
+			'nullText' => false,
+			'div' => 'ultimateform ' . ($miniform ? 'miniform' : 'largesearch'),
+			'submitTo' => $this->baseUrl . '/records/',
+			'display'		=> 'template',
+			'displayTemplate' => ($miniform ? '<!--{[[PROBLEMS]]}-->' : '{[[PROBLEMS]]}') /* Slightly hacky way of ensuring the problems list doesn't appear twice on the page */ . '<p>{q} {[[SUBMIT]]}</p>',
+			'submitButtonText' => 'Go!',
+			'submitButtonAccesskey' => false,
+			'formCompleteText' => false,
+			'requiredFieldIndicator' => false,
+			'reappear' => true,
+		));
+		$form->search (array (
+			'name'		=> 'q',
+			'size'		=> ($miniform ? 9 : 15),
+			'maxlength'	=> 6,
+			'title'		=> 'Search',
+			'required'	=> (!$miniform),
+			'placeholder' => ($miniform ? 'Record #' : 'Record number'),
+			'autofocus'	=> (!$miniform),
+			'regexp' => '^([0-9]+)$',
+		));
+		
+		# Process the form
+		$result = $form->process ($html);
+		
+		# Reinstate GET
+		$_GET = $get;
+		unset ($get);
+		
+		# Return the result
+		return $result;
+	}
+	
+	
+	# Function to create a record browser, which exists mainly for the purpose of getting all the records into search engine indexes
+	private function recordBrowser (&$html)
+	{
+		# Determine the number of records and therefore the number of listings by thousand records
+		$data = $this->getStats ();
+		$highestNumberedRecord = $data['highestNumberedRecord'];
+		$thousands = floor ($highestNumberedRecord / 1000);
+		
+		# Check if a valid 'thousands' value has been supplied in the URL
+		if (isSet ($_GET['thousand'])) {
+			
+			# If the 'thousands' value is invalid, throw a 404
+			if (!ctype_digit ($_GET['thousand']) || ($_GET['thousand'] > $thousands)) {
+				application::sendHeader (404);
+				$html .= "\n<p>The record set you specified is invalid. Please check the URL or <a href=\"{$this->baseUrl}/records/\">pick from the index</a>.</p>";
+				return false;
+			}
+			
+			# List the values within this thousand
+			$thousand = $_GET['thousand'];	// Validated as ctype_digit above
+			$query = "SELECT id FROM fieldsindex WHERE FLOOR(id/1000) = '{$thousand}';";
+			$ids = $this->databaseConnection->getPairs ($query);
+			$html .= "\n<p>Records for {$thousand},xxx [or <a href=\"{$this->baseUrl}/records/\">reset</a>]:</p>";
+			$html .= $this->listNumbers ($ids);
+			return true;
+		}
+		
+		# Create the list
+		$list = array ();
+		for ($i = 1; $i <= $thousands; $i++) {
+			$list[] = $i;
+		}
+		
+		# Render the HTML
+		$html .= $this->listNumbers ($list, 'k', ',xxx');
+		
+		# Return success
+		return true;
+	}
+	
+	
+	# Function to link through to an ID listing of record numbers
+	private function listNumbers ($numbers, $linkSuffix = false, $visibleSuffix = false)
+	{
+		# Create a link for each thousand, with the first record being 1,000 (i.e. 1)
+		$list = array ();
+		foreach ($numbers as $i) {
+			$list[] = "<li><a href=\"{$this->baseUrl}/records/{$i}{$linkSuffix}/\">{$i}{$visibleSuffix}</a></li>";
+		}
+		
+		# Compile the HTML
+		$html  = "\n<div class=\"graybox\">";
+		$html .= application::splitListItems ($list, 4);
+		$html .= "\n</div>";
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Overriding function
+	public function showTabs ($current, $class = 'tabs')
+	{
+		# Show the record number form
+		$recordFormHtml = '';
+		$this->recordForm ($recordFormHtml, true);
+		$html = $recordFormHtml;
+		
+		# Run the standard tabs function
+		$html .= parent::showTabs ($current, $class);
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Function to get records (or a single record)
+	private function getRecords ($ids /* or single ID */, $type = false, $convertEntities = false, $linkFields = false)
+	{
+		# Determine the type whose table will be looked up from
+		$type = ($type ? $type : 'rawdata');
+		
+		# Determine if this is a sharded table (i.e. a record is spread across multiple entries)
+		$isSharded = ($this->types[$type]['idField'] == 'recordId');
+		
+		# If only a single record is requested, make into an array of one for consistency with multiple-record processing
+		$singleRecordId = (is_array ($ids) ? false : $ids);
+		if ($singleRecordId) {$ids = array ($ids);}
+		
+		# Get the raw data, or end
+		if (!$records = $this->databaseConnection->select ($this->settings['database'], "catalogue_{$type}", $conditions = array ($this->types[$type]['idField'] => $ids), $this->types[$type]['fields'], false, $this->types[$type]['orderBy'])) {return false;}
+		
+		# Regroup by the record ID
+		$records = application::regroup ($records, $this->types[$type]['idField'], true, $regroupedColumnKnownUnique = (!$isSharded));
+		
+		# If the table is a sharded table, process the shards
+		if ($isSharded) {
+			
+			# Get the descriptions
+			$descriptions = false;
+		/*
+			if ($type == 'rawdata') {
+				$descriptions = $this->getFieldDescriptions ();
+			}
+		*/
+			
+			# Process each record
+			foreach ($records as $recordId => $record) {
+				foreach ($record as $index => $row) {
+					
+					# If showing descriptions, add the description field, and shift the record's value to the end
+					if ($descriptions) {
+						$records[$recordId][$index]['description'] = $descriptions[$row['field']];
+						$value = $row['value'];
+						unset ($records[$recordId][$index]['value']);
+						$records[$recordId][$index]['value'] = $value;
+					}
+					
+					# Handle entity conversions if required
+					if ($convertEntities) {
+						
+						# Convert entities e.g. & becomes &amp; - only those changes afterwards (below) will be allowed through HTML
+						$records[$recordId][$index]['value'] = htmlspecialchars ($records[$recordId][$index]['value']);
+						
+						# Allow italics in t and tc records, by converting back entity versions to proper HTML
+						// $italicsPermittedInFields = array ('local', 't', 'tc');	// Find using SELECT DISTINCT (field) FROM catalogue_processed WHERE `value` LIKE '%<em>%';
+						// if (in_array ($row['field'], $italicsPermittedInFields)) {
+						$records[$recordId][$index]['value'] = str_replace (array ('&lt;em&gt;', '&lt;/em&gt;'), array ('<em>', '</em>'), $records[$recordId][$index]['value']);
+						// }
+					}
+					
+					# Convert the field name to a link if required
+					if ($linkFields) {
+						$link = $this->fieldLink ($row['field'], $convertEntities);
+						$records[$recordId][$index]['field'] = "<a href=\"{$link}\">{$row['field']}</a>";
+					}
+					
+					# Hyperlink values if required
+					if ($linkFields) {
+						if ($row['field'] == 'kg') {
+							if (strlen ($row['value']) && ctype_digit ($row['value'])) {
+								$records[$recordId][$index]['value'] = "<a href=\"{$this->baseUrl}/records/{$row['value']}/\">{$row['value']}</a>";
+							}
+						}
+					}
+					
+					//application::dumpData ($record);
+				}
+			}
+		}
+		
+		# If a single record, just return that item
+		$recordOrRecords = ($singleRecordId ? $records[$singleRecordId] : $records);
+		
+		# Return the record (or false)
+		return $recordOrRecords;
+	}
+	
+	
+	# Fields traversal
+	public function fields ($field = false)
+	{
+		# Start the HTML with the title
+		$html = '';
+		
+		# Get the distinct fields
+		$fields = $this->getDistinctFields ();
+		
+		# If not on a specific field, show the listing as a sortable table
+		if (!$field) {
+			
+			# Compile the HTML
+			$html .= "\n<h2>Fields</h2>";
+			$html .= "\n<p>The table below shows all the fields in use across all records.</p>";
+			$html .= "\n<p>If you find any unrecognised fields, go into the listing for that field to find the records containing.</p>";
+			$html .= "\n" . '<!-- Enable table sortability: --><script language="javascript" type="text/javascript" src="/sitetech/sorttable.js"></script>';
+			$html .= application::htmlTable ($fields, array (), $class = 'fieldslisting lines compressed sortable" id="sortable', $keyAsFirstColumn = false, false, $allowHtml = true, false, $addCellClasses = true);
+			
+			# Show the HTML and end
+			echo $html;
+			return true;
+		}
+		
+		# If a field is specified in the URL, validate it and list its contents
+		if (!isSet ($fields[$field])) {
+			$html .= "\n<h2>Fields</h2>";
+			$html .= "\n<p>There is no such field <em>" . htmlspecialchars ($field) . "</em>.</p>";
+			$html .= "\n<p>Please select from the <a href=\"{$this->baseUrl}/fields/\">listing</a> and try again.</p>";
+			echo $html;
+			return true;
+		}
+		
+		# Determine whether to show a list of field totals or list of distinct values
+		$showDistinctValues = (isSet ($_GET['values']) && $_GET['values'] == '1');
+		
+		# Determine whether to show a list of records for a distinct value
+		$showDistinctRecords = ($showDistinctValues && isSet ($_GET['value']) && strlen ($_GET['value']));
+		
+		# Show subtabs
+		$link = $this->fieldLink ($field);
+		$links = array (
+			'/'					=> $this->fieldsDroplist ($fields, $showDistinctValues, $field),
+			"{$link}"			=> "<a href=\"{$link}\"><strong>Records</strong>: <em>{$field}</em></a>",
+			"{$link}values/"	=> "<a href=\"{$link}values/\"><strong>Distinct values</strong>: <em>{$field}</em></a>",
+		);
+		$selected = $link . ($showDistinctValues ? 'values/' : '');;
+		$html .= application::htmlUl ($links, 0, 'fieldstabs tabs subtabs right', true, false, false, false, $selected);
+		
+		# Show list of records for a distinct value if required
+		if ($showDistinctRecords) {
+			
+			# Overwrite the value with a correct version that maintains URL encoding properly, specifically of + signs, by emulating it from the original REQUEST_URI
+			# The problem arises because mod_rewrite decodes at the point of shifting the path fragment (e.g. "/attributes/harddisk/a+%2B+b/" results in "value=a   b"
+			# See: http://stackoverflow.com/a/10999987/180733 , in particular: "In fact it is impossible to do using a rewrite rule alone. Apache decodes the URL before putting it through rewrite, but it doesn't understand plus signs"
+			preg_match ('|^' . $this->baseUrl . "/fields/{$field}/values/(.+)/|", $_SERVER['REQUEST_URI'], $matches);	// e.g. /library/catalogue/fields/n1/values/a+b/
+			$_GET['value'] = urldecode ($matches[1]);	// Overwrite, with the URLdecoding doing what Apache would natively do
+			$value = $_GET['value'];
+			
+			# Define a query
+			$query = "SELECT DISTINCT recordId FROM catalogue_processed WHERE field = :field AND value = :value;";
+			$preparedStatementValues = array ('field' => $field, 'value' => $value);
+			
+			# Create a listing
+			$html .= "\n<h2>Records for field with value <em>" . htmlspecialchars ($value) . "</em> in field <em>*{$field}</em></h2>";
+			$html .= "\n<p>Below are records with the value <em>" . htmlspecialchars ($value) . "</em> in field <em>*{$field}</em>:</p>";
+			$valueLinkEncoded = htmlspecialchars (urlencode ($value));
+			$html .= $this->recordListing (false, $query, $preparedStatementValues, "/fields/{$field}/values/{$valueLinkEncoded}/");
+			
+		# Show distinct values if required
+		} else if ($showDistinctValues) {
+			
+			# Get the total number of results as a known total to seed the paginator, overriding automatic counting (which will fail for a GROUP BY query)
+			$countingQuery = "SELECT COUNT( DISTINCT(value) ) AS total FROM catalogue_processed WHERE field = :field;";
+			$preparedStatementValues = array ('field' => $field);
+			$knownTotalAvailable = $this->databaseConnection->getOneField ($countingQuery, 'total', $preparedStatementValues);
+			
+			# Dynamically select unique values
+			$query = "SELECT
+					value AS title,
+					COUNT(*) AS instances
+				FROM `catalogue_processed`
+				WHERE field = :field
+				GROUP BY value
+				ORDER BY " . $this->databaseConnection->trimSql ('value') . "
+			;";
+			
+			# Show the distinct values for this query (having regard to any page number supplied via the URL)
+			$html .= "\n<h2>Distinct values for field <em>*{$field}</em></h2>";
+			$html .= $this->recordListing (false, $query, $preparedStatementValues, "/fields/{$field}/values/", false, false, $view = 'valuestable', false, $knownTotalAvailable, 'distinct value');
+			
+		} else {
+			
+			# Get the total number of results as a known total to seed the paginator, overriding automatic counting (as the DISTINCT will give a wrong result)
+			$countingQuery = "SELECT COUNT( DISTINCT(recordId) ) AS total FROM catalogue_processed WHERE field = :field;";
+			$preparedStatementValues = array ('field' => $field);
+			$knownTotalAvailable = $this->databaseConnection->getOneField ($countingQuery, 'total', $preparedStatementValues);
+			
+			# Define the query for records having this field
+			$query = "SELECT DISTINCT(recordId) AS recordId FROM catalogue_processed WHERE field = :field ORDER BY recordId;";
+			
+			# Show the records for this query (having regard to any page number supplied via the URL)
+			$html .= "\n<h2>Records containing field <em>*{$field}</em></h2>";
+			$html .= "\n<p>Below are records which contain a field <em>{$field}</em> ('<em>" . htmlspecialchars ($fields[$field]['Description']) . "</em>'):</p>";
+			$html .= $this->recordListing (false, $query, $preparedStatementValues, "/fields/{$field}/", false, false, 'listing', false, $knownTotalAvailable);
+		}
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# Function to create a fields droplist
+	private function fieldsDroplist ($fields, $showDistinctValues, $currentField)
+	{
+		# Create an array of field links
+		$droplist = array ();
+		$droplist[$this->baseUrl . '/fields/'] = 'Fields:';
+		foreach ($fields as $field => $attributes) {
+			$link = $this->fieldLink ($field) . ($showDistinctValues ? 'values/' : '');
+			$droplist[$link] = $field;
+		}
+		
+		# Determine the current field link
+		$selected = $this->fieldLink ($currentField) . ($showDistinctValues ? 'values/' : '');
+		
+		# Compile the HTML and register a processor
+		$html  = pureContent::htmlJumplist ($droplist, $selected, $this->baseUrl . '/', $name = 'fieldsdroplist', $parentTabLevel = 0, $class = 'fieldsjumplist', false);
+		pureContent::jumplistProcessor ($name);
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Function to format a list of records as a hyperlinked list
+	private function recordList ($records, $fullInfo = false)
+	{
+		# Table mode
+		if ($fullInfo) {
+			foreach ($records as $recordId => $record) {
+				$link = $this->recordLink ($recordId);
+				$records[$recordId]['id'] = "<a href=\"{$link}\">{$recordId}</a>";
+			}
+			$headings = $this->databaseConnection->getHeadings ($this->settings['database'], 'fieldsindex');
+			$headings['recordId'] = '#';
+			$html = application::htmlTable ($records, $headings, 'lines', $keyAsFirstColumn = false, $uppercaseHeadings = true, $allowHtml = true);
+			
+		# List mode
+		} else {
+			$list = array ();
+			foreach ($records as $record => $label) {
+				$link = $this->recordLink ($record);
+				$list[$record] = "<a href=\"{$link}\">" . htmlspecialchars ($label) . "</a>";
+				$list[$record] = "<li>{$list[$record]}</li>";
+			}
+			$html = application::splitListItems ($list, 4);
+		}
+		
+		# Compile the HTML
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Function to get the distinct fields
+	private function getDistinctFields ()
+	{
+		# Get the distinct fields
+		$query = "SELECT
+			field AS Field, COUNT(*) AS Instances
+			FROM catalogue_rawdata
+			GROUP BY field
+			ORDER BY field
+		;";
+		$data = $this->databaseConnection->getData ($query);
+		
+		# Reindex by field name
+		$fields = array ();
+		foreach ($data as $id => $field) {
+			$fieldname = $field['Field'];
+			$fields[$fieldname] = $field;
+		}
+		
+		# Get the descriptions
+		$descriptions = $this->getFieldDescriptions ();
+		
+		# Add a link to view each
+		foreach ($fields as $fieldname => $field) {
+			$link = $this->fieldLink ($fieldname);
+			$fields[$fieldname]['Records'] = "<a href=\"{$link}\">Records: <strong>{$fieldname}</strong></a>";
+			$fields[$fieldname]['Distinct values'] = "<a href=\"{$link}values/\">Distinct values: <strong>{$fieldname}</strong></a>";
+		}
+		
+		# Merge in the descriptions
+		foreach ($fields as $fieldname => $field) {
+			$fields[$fieldname]['Description'] = (isSet ($descriptions[$fieldname]) ? $descriptions[$fieldname] : '?');
+		}
+		
+		# Add commas to long numbers (which is not efficient to do in MySQL)
+		foreach ($fields as $fieldname => $field) {
+			$fields[$fieldname]['Instances'] = '<span class="right">' . number_format ($field['Instances']) . '</span>';
+		}
+		
+		# Return the list
+		return $fields;
+	}
+	
+	
+	# Function to get the field descriptions
+	private function getFieldDescriptions ()
+	{
+		# Return the definitions
+		return array (
+			'a' => 'Author(s)',
+			'abs' => 'Abstract',
+			'acc' => 'Accession number',
+			'acq' => 'Acquisition number',
+			'ad' => "Authorial detail (usually 'and others', 'ed.', 'eds.' etc",
+			'aff' => 'Affiliation',
+			'ag' => 'Other affiliations',
+			'al' => 'Alternative spelling of transliterated name or alternative name',
+			'art' => 'Article (record type)',
+			'con' => 'Condition',
+			'd' => 'Date',
+			'date' => 'Date of accession/acquisition (depending on context)',
+			'doc' => 'Document (record type)',
+			'doi' => 'DOI',
+			'doifld' => 'DOI',
+			'doslink' => 'DOI',
+			'e' => 'Additional contributions to work (introduction, translation, editing etc.)',
+			'edn' => 'Edition',
+			'ee' => 'Further contributors of this specific edition',
+			'form' => 'Form of item, if non-book',
+			'freq' => 'Frequency of title (serials only)',
+			'ft' => 'Former title',
+			'fund' => 'Purchase fund ',
+			'hold' => 'Current holdings (serials only)',
+			'in' => '"In" larger text (i.e. Chapter "in" edited work or article "in" journal)',
+			'isbn' => 'ISBN',
+			'issn' => 'ISSN',
+			'j' => 'Denotes start of journal information, but has no information entered directly into this field',
+			'k' => 'UDC classification number',
+			'k2' => 'Left blank but essential if using *kb',
+			'ke' => 'Analytic record link: (redundant for processing purposes) used in host record that Muscat uses for GUI purposes to link to a lookup',
+			'kf' => 'Analytic record link: (redundant for processing purposes) internal Muscat GUI representation of kg',
+			'kg' => 'Analytic record link: used in analytic (child) record that is basically a join to the q0 (ID) of the host',
+			'kb' => 'Details of how item is received (exchange, gift etc. Mostly applied to serials)',
+			'ks' => 'UDC Keywords (hidden mirror)',
+			'kw' => 'UDC Keywords',
+			'lang' => 'Language type',
+			'loc' => 'Location',
+			'local' => 'Local note',
+			'location' => 'Location (mirror of *loc)',
+			'n' => 'Name field (used in conjunction with *e and *ee fields)',
+			'n1' => 'Name field (used in conjunction with *e and *ee fields)',
+			'n2' => 'Name field (used in conjunction with *e and *ee fields)',
+			'nd' => 'Seems to denote titles such as "Jr." and "Sir". ',
+			'note' => 'Note field',
+			'notes' => 'Denotes start of note type field',
+			'o' => 'Origin (where item came from)',
+			'p' => 'Pagination',
+			'pg' => 'Precedes publication details',
+			'pl' => 'Place of publication',
+			'pr' => 'Price',
+			'priv' => 'Private note',
+			'pt' => 'Part (pagination, volume etc.)',
+			'pu' => 'Publisher',
+			'q0' => "Muscat's unique record identifier",
+			'r' => 'Range (serials only)',
+			'recr' => 'Responsible bibliographer for record (bibliographer initials)',
+			'ref' => 'Reference (Accession and/or aquisition number)',
+			'role' => 'Additional information about contributors to work',
+			'rpl' => 'PGA category',
+			'ser' => 'Serial (record type)',
+			'size' => 'Size of item',
+			'sref' => 'Supplier reference',
+			'st' => 'Subsequent title',
+			'status' => 'Item status (on order/received etc.)',
+			't' => 'Title',
+			'ta' => 'Amendment to misspelled title (supplied by bibliographer)',
+			'tc' => '[Unknown]',
+			'tg' => 'Title group',
+			'to' => 'Title of original (if publication is a translation)',
+			'ts' => 'Title of series',
+			'tt' => 'Translation of title ',
+			'url' => 'URL ',
+			'urlft' => 'URL mirror',
+			'urlfull' => 'URL mirror',
+			'urlgen' => 'URL mirror',
+			'v' => 'Number of volumes',
+			'vno' => 'Volume number',
+			'winlink' => 'Linking field for URLs',
+		);
+	}
+	
+	
+	# Function to export a report download
+	public function reportdownload ($id)
+	{
+		# Get the data
+		$query = "
+			SELECT
+				id AS 'Record number',
+				ExtractValue(xml, 'status') AS 'Status',
+				CONCAT_WS(', ', ExtractValue(xml, '*/ag/a[1]/n1'), ExtractValue(xml, '*/ag/a[1]/n2')) AS 'Author 1',
+				ExtractValue(xml, '*/ag/a/*') AS 'All authors',
+				ExtractValue(xml, '*/tg/tc') AS 'Title fields',
+				ExtractValue(xml, '//pg[1]/pu') AS 'Publisher',
+				ExtractValue(xml, '*/d[1]') AS 'Date of publication',
+				ExtractValue(xml, '*/isbn[1]') AS 'ISBN',
+				ExtractValue(xml, '//acq[1]/pr') AS 'Price',
+				ExtractValue(xml, '//acq[1]/sref') AS 'Supplier reference',
+				ExtractValue(xml, '//acq[1]/ref') AS 'Order number',
+				ExtractValue(xml, '//acq[1]/o') AS 'Supplier/donor',
+				ExtractValue(xml, '//acq[1]/recr') AS 'Bibliographer',
+				ExtractValue(xml, '//acq[1]/date') AS 'Date (acq)',
+				ExtractValue(xml, '//notes[1]/note') AS 'Note',
+				ExtractValue(xml, '//notes[1]/priv') AS 'Note (private)',
+				ExtractValue(xml, '//notes[1]/local') AS 'Note (local)'
+				
+			FROM catalogue_xml
+			LEFT OUTER JOIN (
+				SELECT recordId FROM reportresults WHERE report = '{$id}' ORDER BY recordId
+			) AS matches
+			ON catalogue_xml.id = matches.recordId
+			WHERE recordId IS NOT NULL
+		;";
+		$data = $this->databaseConnection->getData ($query);
+		
+		// application::dumpData ($data);
+		// die;
+		
+		# Convert to CSV
+		require_once ('csv.php');
+		csv::serve ($data, $id);
+	}
+	
+	
+	# Function to create a record listing based on a query, with pagination
+	private function recordListing ($id, $query, $preparedStatementValues = array (), $baseLink, $listingIsProblemType = false, $queryString = false, $view = 'listing' /* listing/record/table/valuestable */, $tableViewTable = false, $knownTotalAvailable = false, $entityName = 'record')
+	{
+		# Assemble the query, determining whether to use $id or $query
+		if ($id) {
+			$query = "SELECT * FROM reportresults WHERE report = '{$id}' ORDER BY recordId;";
+			$preparedStatementValues = array ();
+		}
+		
+		# Enable a listing type switcher, if in a supported view mode, which can override the view
+		$listingTypeSwitcherHtml = false;
+		$switcherSupportedViewTypes = array ('listing', 'record');
+		if (in_array ($view, $switcherSupportedViewTypes)) {
+			$listingTypes = array (
+				'listing'	=> 'application_view_columns',
+				'record'	=> 'application_tile_vertical',
+			);
+			$view = application::preferenceSwitcher ($listingTypeSwitcherHtml, $listingTypes);
+			
+			# In record mode, use a separate pagination memory
+			if ($view == 'record') {
+				$this->settings['paginationRecordsPerPageDefault'] = 25;
+				$this->settings['paginationRecordsPerPagePresets'] = array (5, 10, 25, 50, 100);
+				$this->settings['cookieName'] = 'fullrecordsperpage';
+			}
+		}
+		
+		# Load the pagination class
+		require_once ('pagination.php');
+		$pagination = new pagination ($this->settings, $this->baseUrl);
+		
+		# Determine what page
+		$page = $pagination->currentPage ();
+		
+		# Create a form to set the number of pagination records per page
+		$paginationRecordsPerPage = $pagination->recordsPerPageForm ($recordsPerPageFormHtml);
+		
+		# Get the data, via pagination
+		list ($dataRaw, $totalAvailable, $totalPages, $page, $actualMatchesReachedMaximum) = $this->databaseConnection->getDataViaPagination ($query, $tableViewTable, true, $preparedStatementValues, array (), $paginationRecordsPerPage, $page, false, $knownTotalAvailable);
+		
+		// application::dumpData ($this->databaseConnection->error ());
+		
+		# Start the HTML for the record listing
+		$html  = '';
+		
+		# Show the listing of problematic records, or report a clean record set
+		if ($listingIsProblemType) {
+			if (!$dataRaw) {
+				$html .= "\n<p class=\"success\">{$this->tick}" . " All {$entityName}s are correct - congratulations!</p>";
+				return $html;
+			} else {
+				$html .= "\n<p class=\"warning\">" . '<img src="/images/icons/exclamation.png" /> The following ' . (($totalAvailable == 1) ? "{$entityName} has this problem" : number_format ($totalAvailable) . " {$entityName}s have this problem") . ':</p>';
+			}
+		} else {
+			if (!$dataRaw) {
+				$html .= "\n<p>There are no {$entityName}s.</p>";
+			} else {
+				$html .= "\n<p>" . ($totalAvailable == 1 ? "There is one {$entityName}" : 'There are ' . number_format ($totalAvailable) . " {$entityName}s") . ':</p>';
+			}
+		}
+		
+		# Add pagination links and controls
+		if ($dataRaw) {
+			$html .= $listingTypeSwitcherHtml;
+			$html .= $recordsPerPageFormHtml;
+			$paginationLinks = pagination::paginationLinks ($page, $totalPages, $this->baseUrl . $baseLink, $queryString);
+			$html .= $paginationLinks;
+		}
+		
+		# Compile the listing
+		$data = array ();
+		if ($dataRaw) {
+			switch ($view) {
+				
+				# List mode
+				case 'listing':
+					
+					# List mode needs just id=>id format
+					foreach ($dataRaw as $index => $record) {
+						$recordId = $record['recordId'];
+						$data[$recordId] = $recordId;
+					}
+					$html .= $this->recordList ($data);
+					$html  = "\n<div class=\"graybox\">" . $html . "\n</div>";	// Surround with a box
+					break;
+				
+				# Record mode
+				case 'record':
+					
+					# Record mode shows each record
+					foreach ($dataRaw as $index => $record) {
+						$recordId = $record['recordId'];
+						$data[$recordId] = $this->recordFieldValueTable ($recordId, 'rawdata');
+						$data[$recordId] = "\n<h3>Record <a href=\"{$this->baseUrl}/records/{$recordId}/\">#{$recordId}</a>:</h3>" . "\n<div class=\"graybox\">" . $data[$recordId] . "\n</div>";	// Surround with a box
+					}
+					$html .= implode ($data);
+					break;
+					
+				# Table view
+				case 'table':
+					
+					# Replace each label with the record title, since table view shows shows titles
+					$titles = $this->getRecordTitles (array_keys ($dataRaw));
+					foreach ($dataRaw as $recordId => $label) {
+						$data[$recordId] = $dataRaw[$recordId];
+						$data[$recordId]['title'] = $titles[$recordId];
+					}
+					$html .= $this->recordList ($data, true);
+					$html .= $paginationLinks;	// Show the pagination links at the end again, since the page will be relatively long
+					$html  = "\n<div class=\"graybox\">" . $html . "\n</div>";	// Surround with a box
+					break;
+					
+				# Table view but showing values rather than records
+				case 'valuestable':
+					
+					# Generate the HTML
+					$html .= $this->valuesTable ($dataRaw, false, $baseLink, false, false);
+					break;
+			}
+		}
+		
+		# Surround the listing with a div for clearance purposes
+		$html = "\n<div class=\"listing\">" . $html . "\n</div>";
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Function to get the record titles
+	private function getRecordTitles ($ids)
+	{
+		# Get the titles
+		$data = $this->databaseConnection->selectPairs ($this->settings['database'], 'catalogue_rawdata', $conditions = array ('field' => 'tc', 'recordId' => $ids), $columns = array ('recordId', 'value'), true, $orderBy = 'recordId');
+		return $data;
+	}
+	
+	
+	# Function to link a field
+	private function fieldLink ($fieldname, $convertEntities = true)
+	{
+		return $this->baseUrl . '/fields/' . ($convertEntities ? htmlspecialchars ($fieldname) : $fieldname) . '/';
+	}
+	
+	
+	# Function to get stats data
+	private function getStats ()
+	{
+		# Get the data and return it
+		$data = $this->databaseConnection->selectOne ($this->settings['database'], 'statistics', array ('id' => 1));
+		unset ($data['id']);
+		return $data;
+	}
+	
+	
+	# Function to show stats
+	public function statistics ()
+	{
+		# Get the data
+		$data = $this->getStats ();
+		
+		# Apply number format
+		foreach ($data as $key => $value) {
+			if (ctype_digit ($value)) {
+				$data[$key] = number_format ($value);
+			}
+		}
+		
+		# Compile the HTML
+		$headings = $this->databaseConnection->getHeadings ($this->settings['database'], 'statistics');
+		$html = application::htmlTableKeyed ($data, $headings);
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# Function to import the file, clearing any existing import
+	# Needs privileges: SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, DROP
+	public function import ()
+	{
+		# Prevent timeouts
+		ini_set ('max_execution_time', 0);
+		
+		# Start the HTML
+		$html = '';
+		
+		# Ensure the transliteration module is present
+		if (!is_dir ($this->cpanDir)) {
+			$html .= "\n<div class=\"graybox\">";
+			$html .= "\n<p class=\"warning\">The transliteration module was not found. The Webmaster needs to ensure that {$this->cpanDir} is present.</p>";
+			$html .= "\n</div>";
+			echo $html;
+			return true;
+		}
+		
+		# Start a timer
+		$startTime = time ();
+		
+		# Determine the date of a Muscat export that would be dated today
+		$today = date ('Ymd');
+		
+		# Start the HTML with instructions
+		$html .= "\n" . '<p>At present, automatic imports each night are not yet running. Therefore, imports need to be done manually, as follows:</p>';
+		$html .= "\n" . '<ol class="spaced" start="0">';
+		$html .= "\n\t" . '<li>Be aware that you may have to wait until your colleagues are not using Muscat to do an export, as exporting may lock Muscat access.</li>';
+		$html .= "\n\t" . '<li><p><strong>Create the exports</strong>, by opening a Muscat terminal and typing the following. Note that this can take a while to create.</p>';
+		$html .= "\n\t\t" . '<div class="graybox">';
+		$html .= "\n\t\t\t" . "<tt>c-extract first 00001 last 999999 to gctemp</tt><br />";
+		$html .= "\n\t\t\t" . "<tt>c-list from gctemp to muscat{$today}muscatview.txt</tt><br />";
+		$html .= "\n\t\t\t" . "<tt>c-list_allfields from gctemp to muscat{$today}rawdata.txt</tt>";
+		$html .= "\n\t\t" . '</div></li>';
+		$html .= "\n\t" . "<li><p><strong>Upload the export files</strong> to this website, using this form. Note that this can take several minutes, so please be patient.</p>";
+		$html .= $this->uploadFilesForImporting ($today);
+		$html .= "\n\t" . '</li>';
+		$html .= "\n\t" . '<li><p><strong>Run the import</strong> using the form below. This will reset the data in this reporting system.</p>';
+		$html .= $this->doImport ($done);
+		$html .= "\n\t" . '</li>';
+		$html .= "\n" . '</ol>';
+		
+		# Show how long the import took
+		if ($done) {
+			$finishTime = time ();
+			$seconds = $finishTime - $startTime;
+			$html .= "\n<p>The import took: {$seconds} seconds.</p>";
+		}
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# Function to create an upload form for importing
+	private function uploadFilesForImporting ($today)
+	{
+		# Start the HTML
+		$html = '';
+		
+		# Create the form
+		$form = new form (array (
+			'submitButtonText' => 'Upload!',
+			'name' => 'upload',
+			'div' => false,
+			'displayRestrictions' => false,
+			'formCompleteText' => false,
+			'requiredFieldIndicator' => false,
+			'submitButtonAccesskey' => false,
+		));
+		$form->upload (array (
+			'name'					=> 'muscatviewfile',
+			'title'					=> "muscat{$today}muscatview.txt file",
+			'directory'				=> $this->exportsDirectory,
+			// 'output'				=> array ('processing' => 'compiled'),
+			'required'				=> 1,
+			'enableVersionControl'	=> true,
+			'forcedFileName'		=> "muscat{$today}muscatview",
+			'allowedExtensions'		=> array ('txt'),
+			'lowercaseExtension'	=> true,
+		));
+		$form->upload (array (
+			'name'					=> 'rawdatafile',
+			'title'					=> "muscat{$today}rawdata.txt file",
+			'directory'				=> $this->exportsDirectory,
+			// 'output'				=> array ('processing' => 'compiled'),
+			'required'				=> 1,
+			'enableVersionControl'	=> true,
+			'forcedFileName'		=> "muscat{$today}rawdata",
+			'allowedExtensions'		=> array ('txt'),
+			'lowercaseExtension'	=> true,
+		));
+		
+		# Process the form, and show a message when done
+		if ($result = $form->process ($html)) {
+			$html = "\n" . "<p>{$this->tick} The files should now be listed in the import box below.</p>";
+		}
+		
+		# Surround with a box
+		$html = "\n<div class=\"graybox\">\n" . $html . "\n</div>";
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Function to do the actual import
+	private function doImport (&$done = false)
+	{
+		# Start the HTML
+		$html = '';
+		
+		# Determine the export files, or end
+		if (!$exportFiles = $this->getExportFiles (true)) {
+			$html .= "\n<div class=\"graybox\">";
+			$html .= "\n<p class=\"warning\">No export file sets were found. Please follow the instructions above to create a set.</p>";
+			$html .= "\n</div>";
+			return $html;
+		}
+		
+		# Ensure another import is not running
+		if ($importHtml = $this->importInProgress ()) {
+			$html .= $importHtml;
+			return $html;
+		}
+		
+		# Create the form
+		if (!$result = $this->runImportForm ($exportFiles, $html)) {
+			return $html;
+		}
+		
+		/*
+		# State that the import is now running
+		$html = "\n<p>Import now running (can take 5-10 minutes)&hellip;</p>";
+		
+		# Flush the HTML so far
+		echo $html;
+		ob_flush ();
+		flush ();
+		*/
+		
+		# Write the lockfile
+		file_put_contents ($this->lockfile, $_SERVER['REMOTE_USER'] . ' ' . date ('Y-m-d H:i:s'));
+		
+		# Ensure that GROUP_CONCAT fields do not overflow
+		$sql = "SET SESSION group_concat_max_len := @@max_allowed_packet;";		// Otherwise GROUP_CONCAT truncates the combined strings
+		$this->databaseConnection->execute ($sql);
+		
+		# Skip the main import if required
+		if ($result['importtype'] == 'full') {
+			
+			# Add each of the two Muscat data formats
+			$tableComment = $this->processMuscatFile ($result['date'], 'muscatview');
+			$tableComment = $this->processMuscatFile ($result['date'], 'rawdata');
+			
+			# Create the processed table
+			#  Dependencies: catalogue_rawdata
+			$this->createProcessedTable ();
+			
+			# Parse special characters
+			#   Dependencies: catalogue_processed
+			$this->specialCharacterParsing ();
+			
+			# Perform mass data fixes
+			#   Dependencies: catalogue_processed
+			$this->massDataFixes ();
+			
+			# Perform reverse-transliteration
+			#   Dependencies: catalogue_processed
+			$this->doReverseTransliteration ();
+			
+			# Finish character processing stage
+			$html .= "\n<p>{$this->tick} The character processing has been done.</p>";
+			
+			# Create the XML table
+			#   Depencies: catalogue_processed
+			$this->createXmlTable ();
+			
+			# Create the fields index table
+			#  Dependencies: catalogue_processed and catalogue_xml
+			$this->createFieldsindexTable ();
+			
+			# Create the statistics table
+			$this->createStatisticsTable ($tableComment);
+			
+			# Confirm output
+			$html .= "\n<p>{$this->tick} The data has been imported.</p>";
+		}
+		
+		# Deal with record linkage, if required
+		if (($result['importtype'] == 'full') || ($result['importtype'] == 'recordlinkage')) {
+			$this->recordLinkage ();
+			$html .= "\n<p>{$this->tick} Record linkage has been done.</p>";
+		}
+		
+		# Create the MARC table
+		if (($result['importtype'] == 'full') || ($result['importtype'] == 'marc')) {
+			if ($this->createMarcRecords ()) {
+				$html .= "\n<p>{$this->tick} The MARC versions of the records have been generated.</p>";
+			}
+		}
+		
+		# Run (pre-process) the reports
+		if (($result['importtype'] == 'full') || ($result['importtype'] == 'reports')) {
+			$this->runReports ();
+			$html .= "\n<p>{$this->tick} The <a href=\"{$this->baseUrl}/reports/\">reports</a> have been generated.</p>";
+		}
+		
+		# Run (pre-process) the reports
+		if (($result['importtype'] == 'full') || ($result['importtype'] == 'listings')) {
+			$this->runListings ();
+			$html .= "\n<p>{$this->tick} The <a href=\"{$this->baseUrl}/reports/\">listings reports</a> have been generated.</p>";
+		}
+		
+		# Remove the lockfile
+		unlink ($this->lockfile);
+		
+		# Flag that an import has been done
+		$done = true;
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Function to get the latest export file
+	private function getExportFiles ($showErrors)
+	{
+		# Get required libraries
+		require_once ('directories.php');
+		
+		# Ensure the directory is readable
+		if (!is_readable ($this->exportsDirectory)) {
+			if ($showErrors) {
+				echo "\n<p class=\"warning\">The directory {$this->exportsDirectory} could not be accessed. Please check the file permissions.</p>";
+			}
+			return false;
+		}
+		
+		# Get the file lising
+		if (!$files = directories::listFiles ($this->exportsDirectory, array ('txt'), true, false)) {
+			if ($showErrors) {
+				echo "\n<p class=\"warning\">No export file was found. It should be in the location {$this->exportsDirectory}.</p>";
+			}
+			return false;
+		}
+		
+		# Do checks on each file
+		foreach ($files as $filename => $file) {
+			
+			# Complain if any file is not in the yymmdd format
+			if (!preg_match ('/^muscat201[0-9][0-1][0-9][0-3][0-9](muscatview|rawdata)\.txt$/', $filename)) {
+				if ($showErrors) {
+					echo "\n<p class=\"warning\">The file <em>{$filename}</em> has the wrong filename format. It should be <em>yymmdd.txt</em> .</p>";
+				}
+				return false;
+			}
+			
+			# Ensure each file is readable
+			if (!is_readable ($this->exportsDirectory . $filename)) {
+				if ($showErrors) {
+					echo "\n<p class=\"warning\">The export file {$filename} is not readable.</p>";
+				}
+				return false;
+			}
+			
+			# Ensure each file is not zero-length
+			if (!filesize ($this->exportsDirectory . $filename)) {
+				if ($showErrors) {
+					echo "\n<p class=\"warning\">The export file {$filename} has no content - it must not be zero bytes in size.</p>";
+				}
+				return false;
+			}
+		}
+		
+		# Rearrange i.e. grouped containing 'all' or 'muscatview' type
+		$groups = array ();
+		foreach ($files as $filename => $attributes) {
+			preg_match ('/muscat([0-9]{8})(muscatview|rawdata).txt$/', $filename, $matches);
+			$date = $matches[1];
+			$type = $matches[2];
+			$groups[$date][$type] = $filename;
+		}
+		
+		# Filter to those having pairs only, as array(date=>dateString)
+		$listing = array ();
+		foreach ($groups as $date => $files) {
+			if (count ($files) == 2) {
+				$listing[$date] = $this->dateString ($this->exportsDirectory . 'muscat' . $date . '.txt');
+			}
+		}
+		
+		# Reverse the order to be most-recent first
+		krsort ($listing);
+		
+		# Return the file path
+		return $listing;
+	}
+	
+	
+	# Function to get the export date as a string
+	private function dateString ($exportFile)
+	{
+		# Determine the filename
+		$basename = pathinfo ($exportFile, PATHINFO_FILENAME);
+		$basename = preg_replace ('/^muscat/', '', $basename);
+		$basename = preg_replace ('/(muscatview|rawdata)$/', '', $basename);
+		$date = date_create_from_format ('Ymd', $basename);
+		$string = date_format ($date, 'jS F Y');
+		
+		# Return the string
+		return $string;
+	}
+	
+	
+	# Function to create the run import form
+	private function runImportForm ($exportFiles, &$html)
+	{
+		# Determine the most recent file
+		$exportFilesKeys = array_keys ($exportFiles);
+		$mostRecent = reset ($exportFilesKeys);
+		
+		# Create the form
+		$form = new form (array (
+			'submitButtonText' => 'Begin import!',
+			'div' => 'graybox',
+			'name' => 'import',
+		));
+		$form->select (array ( 
+		    'name'		=> 'date', 
+		    'title'		=> 'Select export files dated', 
+		    'values'	=> $exportFiles,
+		    'required'	=> true,
+			'default'	=> $mostRecent,
+		));
+		$form->select (array ( 
+		    'name'		=> 'importtype', 
+		    'title'		=> 'Import type', 
+		    'values'	=> array (
+				'full'					=> 'FULL import (c. 2 hours)',
+				'recordlinkage'			=> 'Record linkage',
+				'marc'					=> 'Regenerate MARC only (c. 30 minutes)',
+				'reports'				=> 'Regenerate reports only (c. 3 minutes)',
+				'listings'				=> 'Regenerate listings reports only (c. 34 minutes)',
+			),
+		    'required'	=> true,
+			'default'	=> 'full',
+		));
+		
+		# End if not submitted
+		$result = $form->process ($html);
+		
+		# Return the status
+		return $result;
+	}
+	
+	
+	# Function to process each of the Muscat files into the database
+	private function processMuscatFile ($date, $type)
+	{
+		# Parse the file to a CSV
+		$csvFilename = $this->exportsProcessingTmp . "catalogue_{$type}.csv";
+		$importFile = $this->exportsDirectory . "muscat{$date}{$type}.txt";
+		$this->parseFileToCsv ($csvFilename, $importFile);
+		
+		# Insert the CSV data into the database
+		$tableComment = 'Data from Muscat dated: ' . $this->dateString ($importFile);
+		$this->insertCsvToDatabase ($csvFilename, $type, $tableComment);
+		
+		# Add indexing for performance
+		$sql = "ALTER TABLE {$this->settings['database']}.catalogue_{$type} ADD INDEX (`recordId`);";
+		$this->databaseConnection->execute ($sql);
+		$sql = "ALTER TABLE {$this->settings['database']}.catalogue_{$type} ADD INDEX (`field`);";
+		$this->databaseConnection->execute ($sql);
+		
+		# Return the table comment
+		return $tableComment;
+	}
+	
+	
+	# Main parser
+	private function parseFileToCsv ($csvFilename, $exportFile)
+	{
+		# Create the file, doing a zero-byte write to create the file; the operations which follow are appends
+		file_put_contents ($csvFilename, '');
+		
+		# Start a string to be used to write a CSV
+		$csv = '';
+		
+		# Start a container for the current record
+		$record = array ();
+		
+		# Read the file, one line at a time (file_get_contents would be too inefficient for a 220MB file if converted to an array of 190,000 records)
+		$handle = fopen ($exportFile, 'rb');
+		$recordCounter = 0;
+		while (($line = fgets ($handle, 4096)) !== false) {
+			
+			# If the line is empty, this signifies the end of the record, so compile and process the record
+			if (!strlen (trim ($line))) {
+				
+				# Compile the record, adding it to the CSV string
+				$csv .= $this->addRecord ($record);
+				
+				# Every 1,000 records, append the data to the CSV to avoid large memory usage
+				$recordCounter++;
+				if (($recordCounter % $this->settings['chunkEvery']) == 0) {
+					file_put_contents ($csvFilename, $csv, FILE_APPEND);
+					$csv = '';
+				}
+				
+				# Reset the record container and move on
+				$record = array ();
+				continue;
+			}
+			
+			# Add the line to the record
+			$record[] = $line;
+			
+			# Break if the volume of lines has been reached
+			if ($this->settings['debugMode']) {
+				if ($recordCounter == $this->settings['debugMode']) {break;}
+			}
+		}
+		
+		# Compile the final record, adding it to the CSV string
+		$csv .= $this->addRecord ($record);
+		
+		# Write the remaining CSV data and clear memory
+		file_put_contents ($csvFilename, $csv, FILE_APPEND);
+		unset ($csv);
+		
+		# Close the file being imported
+		fclose ($handle);
+	}
+	
+	
+	# Function to add a record
+	private function addRecord ($record)
+	{
+		# Combine lines
+		$record = $this->trimCombineCarryoverLines ($record);
+		
+		# Rearrange to insertable datastructure, or end if the record is invalid (e.g. documentation records at start)
+		if (!$record = $this->convertToCsv ($record)) {return false;}
+		
+		# Return the record
+		return $record;
+	}
+	
+	
+	# Function to combine lines that contain carried-over text
+	private function trimCombineCarryoverLines ($record)
+	{
+		# Define a line number above that we can join onto if necessary
+		$lineNumberAboveJoinable = 0;
+		
+		# Work through each line
+		foreach ($record as $lineNumber => $line) {
+			
+			# Determine if the line has a key. before trimming to avoid the situation of an intended carry-over string that begins with a * in the text
+			$keyed = (substr ($line, 0, 1) == '*');
+			
+			# Trim the line, which will be guaranteed not-empty after trimming
+			$record[$lineNumber] = trim ($record[$lineNumber]);
+			
+			# Skip if the line is the '#' terminator line at the end
+			#!# Need a check that it is the last line in the record
+			if ($record[$lineNumber] == '#') {
+				unset ($record[$lineNumber]);
+				continue;
+			}
+			
+			#!# Need to register cases where there isn't a *q0 at the start, which also ensures against -1 offsets
+			
+			# Join lines, separating by space, that do not begin with a key, and remove the orphaned carry-over
+			if (!$keyed) {
+				$record[$lineNumberAboveJoinable] .= ' ' . $record[$lineNumber];
+				unset ($record[$lineNumber]);
+				continue;
+			}
+			
+			# Having confirmed a line that is retained, register this line number in case it is needed
+			$lineNumberAboveJoinable = $lineNumber;
+		}
+		
+		# Reindex the lines
+		$record = array_values ($record);
+		
+		# Return the cleaned record
+		return $record;
+	}
+	
+	
+	# Rearrange to insertable datastructure
+	private function convertToCsv ($lines)
+	{
+		# Define the number of the first real record in the data
+		$firstRealRecord = 1000;
+		
+		# Loop through each line, and split
+		$record = array ();
+		foreach ($lines as $lineNumber => $line) {
+			
+			# Split by the first whitespace
+			preg_match ("/^\*([a-z0-9]+)\s*(.*)$/", $line, $matches);
+			
+			# Ensure the first line is *q0
+			if ($lineNumber == 0) {
+				if ($matches[1] != 'q0') {
+					#!# Report the problem
+					return false;
+				}
+				
+				# Determine the ID, as *q0
+				$recordId = $matches[2];
+			}
+			
+			# Skip the documentation records (within range 1-999)
+			if ($recordId < $firstRealRecord) {return false;}
+			
+			# Assemble the line as one of the inserts
+			$record[$lineNumber] = array (
+				'recordId' => $recordId,
+				'line' => $lineNumber,
+				'field' => $matches[1],
+				'value' => $matches[2],
+			);
+		}
+		
+		# Convert to CSV
+		require_once ('csv.php');
+		$csv = csv::dataToCsv ($record, '', ',', array (), $includeHeaderRow = ($recordId == $firstRealRecord));
+		
+		# Return the CSV
+		return $csv;
+	}
+	
+	
+	# Function to insert the CSV into the database
+	private function insertCsvToDatabase ($csvFilename, $type, $tableComment)
+	{
+		# Compile the table structure
+		require_once ('csv.php');
+		
+		/*
+		# Compile the SQL
+		$sql = csv::filesToSql (dirname ($csvFilename), "catalogue_{$type}.csv", $fieldLabels = array (), $tableComment, $prefix = '', $names = array (), $errorsHtml, $highMemory = false);
+		if ($errorsHtml) {
+			echo "\n" . application::dumpData ($errorsHtml, false, true);
+			return false;
+		}
+		*/
+		
+		# Compile the SQL; this is done manually rather than using csv::filesToSql as that is slow (it has to compute the structure) and doesn't cope well with having two CSVs in the same directory with one for each table
+		$sql = "
+			-- {$tableComment}
+			DROP TABLE IF EXISTS `catalogue_{$type}`;
+			CREATE TABLE `catalogue_{$type}` (
+				id INT(11) NOT NULL AUTO_INCREMENT,
+				`recordId` INT(6),
+				`line` INT(3),
+				`field` VARCHAR(8) COLLATE utf8_unicode_ci,
+				`value` TEXT,
+				PRIMARY KEY (id)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='{$tableComment}';
+			
+			-- Data in catalogue_{$type}.csv
+			LOAD DATA LOCAL INFILE '{$this->exportsProcessingTmp}catalogue_{$type}.csv'
+			INTO TABLE `catalogue_{$type}`
+			FIELDS TERMINATED BY ','
+			ENCLOSED BY '\"'
+			ESCAPED BY '\"'
+			LINES TERMINATED BY '\\n'
+			IGNORE 1 LINES
+			(`recordId`,`line`,`field`,`value`)
+			;
+		";
+		
+		# Save the SQL to a file
+		$sqlFilename = $this->exportsProcessingTmp . "catalogue_{$type}.sql";
+		file_put_contents ($sqlFilename, $sql);
+		
+		# Execute the SQL
+		$this->databaseConnection->runSql ($this->settings, $sqlFilename, $isFile = true);
+	}
+	
+	
+	# Function to create the fields index table
+	#   Dependencies: catalogue_processed and catalogue_xml
+	private function createFieldsindexTable ()
+	{
+		# Now create the fields index table, based on the results of a query that combines them
+		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.fieldsindex;";
+		$this->databaseConnection->execute ($sql);
+		# CREATE TABLE AS ... wrongly results in a VARCHAR(344) column, resulting in record #195245 and others being truncated; length of at least VARCHAR(565) (as of 20/11/2012) is needed
+		# $sql = "CREATE TABLE fieldsindex (PRIMARY KEY (id))
+		# 	ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci	/* MyISAM forced, so that FULLTEXT search can be used */
+		# 	AS
+		# 	(SELECT
+		# 		recordId AS id,
+		# 		CONCAT('@', GROUP_CONCAT(`field` SEPARATOR '@'),'@') AS fieldslist
+		# 	FROM {$this->settings['database']}.catalogue_processed
+		# 	GROUP BY recordId
+		# );";
+		$sql = "CREATE TABLE fieldsindex (
+			  id INT(6) NOT NULL COMMENT 'Record ID',
+			  fieldslist VARCHAR(1024) NOT NULL COMMENT 'Fields list',
+			  PRIMARY KEY (`id`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Summary statistics';
+		";
+		$this->databaseConnection->execute ($sql);
+		$sql = "INSERT INTO fieldsindex (SELECT
+				recordId AS id,
+				CONCAT('@', GROUP_CONCAT(`field` SEPARATOR '@'),'@') AS fieldslist
+			FROM {$this->settings['database']}.catalogue_processed
+			GROUP BY recordId
+		);";
+		$this->databaseConnection->execute ($sql);
+		
+		# Add search fields, using cross-update technique at http://www.electrictoolbox.com/article/mysql/cross-table-update/ and http://dba.stackexchange.com/questions/21152/how-to-update-one-table-based-on-another-tables-values-on-the-fly
+		$sql = "ALTER TABLE fieldsindex
+			ADD title TEXT NULL COMMENT 'Title of work',
+			ADD titleSortfield TEXT NULL COMMENT 'Title of work (sort index)',
+			ADD region TEXT NULL COMMENT 'Region',
+			ADD surname TEXT NULL COMMENT 'Author surname',
+			ADD forename TEXT NULL COMMENT 'Author forename',
+			ADD journaltitle TEXT NULL COMMENT 'Journal title in article records',
+			ADD seriestitle TEXT NULL COMMENT 'Series title',
+			ADD `year` TEXT NULL COMMENT 'Year (four digits)',
+			ADD `language` TEXT NULL COMMENT 'Language',
+			ADD abstract TEXT NULL COMMENT 'Abstract',
+			ADD keyword TEXT NULL COMMENT 'Keyword',
+			ADD isbn TEXT NULL COMMENT 'ISBN',
+			ADD location TEXT NULL COMMENT 'Location',
+			ADD anywhere TEXT NULL COMMENT 'Text anywhere within record',
+			ADD FULLTEXT INDEX relevanceindex (anywhere)
+		;";
+		$this->databaseConnection->execute ($sql);
+		foreach ($this->fieldsIndexFields as $field => $source) {
+			if (is_null ($source)) {continue;}	// Skip fields marked as NULL
+			$concatSeparator = '@';
+			if ($source == 'ks') {$concatSeparator = '|';}	// Regions have '@' in them
+			if ($source == 'lang') {$concatSeparator = ', ';}	// So that this is listed in report_languages_view nicely and so the search works directly from that page
+			
+			# Define inner select to retrieve the data, either an XPath-based lookup, or a standard field read
+			if (substr_count ($source, '/')) {
+				$innerSelectSql = "
+					SELECT
+						id,
+						REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '{$source}'), '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\") AS value	/* Decode entities; see: https://stackoverflow.com/questions/30194976/ */
+					FROM catalogue_xml
+				";
+			} else {
+				$innerSelectSql = "
+					SELECT
+						recordId AS id,
+						CONCAT('{$concatSeparator}', GROUP_CONCAT(value SEPARATOR '{$concatSeparator}'), '{$concatSeparator}') AS value
+					FROM catalogue_processed "
+					. ($source == '*' ? '' : "WHERE field = '{$source}'")
+					. " GROUP BY recordId
+				";
+			}
+			
+			# Insert the values
+			$sql = "
+				UPDATE fieldsindex f
+				INNER JOIN (
+					{$innerSelectSql}
+				) AS c
+				ON f.id = c.id
+				SET f.{$field} = c.value;";
+			$this->databaseConnection->execute ($sql);
+		}
+		$sql = "UPDATE fieldsindex SET titleSortfield = " . $this->databaseConnection->trimSql ('title') . ';';
+		$this->databaseConnection->execute ($sql);
+	}
+	
+	
+	# Function to create the processed data table
+	private function createProcessedTable ()
+	{
+		# Now create the processed table, which will be used for amending the raw data e.g. to convert special characters
+		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.catalogue_processed;";
+		$this->databaseConnection->execute ($sql);
+		$sql = "CREATE TABLE catalogue_processed LIKE catalogue_rawdata;";
+		$this->databaseConnection->execute ($sql);
+		$sql = "INSERT INTO catalogue_processed SELECT * FROM catalogue_rawdata;";
+		$this->databaseConnection->execute ($sql);
+	}
+	
+	
+	# Function to create the statistics table
+	private function createStatisticsTable ($tableComment)
+	{
+		# Now create the statistics table; this is pre-compiled for performance
+		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.statistics;";
+		$this->databaseConnection->execute ($sql);
+		$sql = "
+			CREATE TABLE `statistics` (
+			  `id` int(1) NOT NULL COMMENT 'Identifier (always 1)',
+			  `totalRecords` int(11) NOT NULL COMMENT 'Total records',
+			  `totalDataEntries` int(11) NOT NULL COMMENT 'Total data entries',
+			  `averageDataEntriesPerRecord` int(3) NOT NULL COMMENT 'Average data entries per record',
+			  `highestNumberedRecord` int(11) NOT NULL COMMENT 'Highest-numbered record',
+			  `exportDate` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Export date',
+			  PRIMARY KEY (`id`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Summary statistics';";
+		$this->databaseConnection->execute ($sql);
+		$sql = "
+			INSERT INTO statistics VALUES (
+				1,
+				(SELECT COUNT(DISTINCT(recordId)) FROM catalogue_rawdata),
+				(SELECT COUNT(*) FROM catalogue_rawdata),
+				(SELECT ROUND( (SELECT COUNT(*) FROM catalogue_rawdata) / (SELECT COUNT(DISTINCT(recordId)) FROM catalogue_rawdata) )),
+				(SELECT MAX(recordId) FROM catalogue_rawdata),
+				'{$tableComment}'
+			)
+		;";
+		$this->databaseConnection->execute ($sql);
+	}
+	
+	
+	# Run parsing of special escape characters (see section 3.4 of the Library Manual); see http://lists.mysql.com/mysql/193376 for notes on backslash handling in MySQL
+	private function specialCharacterParsing ()
+	{
+		# Start a list of queries
+		$queries = array ();
+		
+		# Define backslash characters for clarity
+		# http://lists.mysql.com/mysql/193376 : "LIKE or REGEXP pattern is parsed twice, while the REPLACE pattern is parsed once"
+		$literalBackslash	= '\\';										// PHP representation of one literal backslash
+		$mysqlBacklash		= $literalBackslash . $literalBackslash;	// http://lists.mysql.com/mysql/193376 shows that a MySQL backlash is always written as \\
+		$replaceBlackslash	= $mysqlBacklash;							// http://lists.mysql.com/mysql/193376 shows that REPLACE expects a single MySQL backslash
+		$likeBackslash		= $mysqlBacklash /* . $mysqlBacklash # seems to work only with one */;			// http://lists.mysql.com/mysql/193376 shows that LIKE expects a single MySQL backslash
+		$regexpBackslash	= $mysqlBacklash . $mysqlBacklash;			// http://lists.mysql.com/mysql/193376
+		
+		# Italics, e.g. /records/205430/
+		# "In order to italicise a Latin name in the middle of a line of Roman text, prefix the words to be italicised by '\v' and end the words with '\n'"
+		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBlackslash}v','<em>');";
+		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBlackslash}n','</em>');";	// \n does not mean anything special in REPLACE()
+		
+		# Diacritics (query takes 135 seconds)
+		$diacritics = $this->diacriticsTable ();
+		$queries[] = "UPDATE catalogue_processed SET value = " . $this->databaseConnection->replaceSql ($diacritics, 'value', "'") . ';';
+		
+		# Subscripts, e.g. "H{2}SO{4} will print out as H2SO4 with both 2 and 4 as subscripts"
+		$superscriptsFound = array_merge (array ('+', '-', '=', '(', ')', 'n'), range (0, 99), range (-99, -1), array ('103', '118', '125', '127', '129', '134', '137', '143', '144', '181', '187', '188', '204', '206', '207', '210', '222', '226', '228', '230', '231', '232', '234', '235', '238', '239', '240', '241', '548', '552'));
+		$subscriptsFound = array_merge (array ('+', '-', '=', '(', ')'), range (0, 9), range (-99, -1), array ('10', '11', '12', '13', '14', '15', '16', '17', '18', '20', '21', '22', '23', '25', '26', '27', '28', '29', '30', '31', '33', '35', '37', '40', '43', '45', '50', '60', '63', '64', '86', '90', '115', '128', '137', '200', '210', '238', '241', '500', '700', '0001', '1010', '1120', '2021'));
+		$superscriptsSubscriptsReplacements = $this->superscriptsSubscripts ($superscriptsFound, $subscriptsFound);
+		$queries[] = "UPDATE catalogue_processed SET value = " . $this->databaseConnection->replaceSql ($superscriptsSubscriptsReplacements, 'value', "'") . ';';
+		
+		# Greek characters; see also report_specialcharscase which enables the librarians to normalise \gGamMA to \gGamma
+		# Assumes this catalogue rule has been eliminated: "When '\g' is followed by a word, the case of the first letter is significant. The remaining letters can be in either upper or lower case however. Thus '\gGamma' is a capital gamma, and the forms '\gGAMMA', '\gGAmma' etc. will also represent capital gamma."
+		$greekLetters = $this->greekLetters ();
+		$greekLettersReplacements = array ();
+		foreach ($greekLetters as $letterCaseSensitive => $unicodeCharacter) {
+			$greekLettersReplacements["{$replaceBlackslash}g{$letterCaseSensitive}"] = $unicodeCharacter;
+		}
+		$queries[] = "UPDATE catalogue_processed SET value = " . $this->databaseConnection->replaceSql ($greekLettersReplacements, 'value', "'") . ';';
+		
+		# Quantity/mathematical symbols
+		$specialCharacters = array (
+			'deg'		=> chr(0xc2).chr(0xb0),
+			'min'		=> chr(0xe2).chr(0x80).chr(0xb2),
+			'sec'		=> chr(0xe2).chr(0x80).chr(0xb3),
+			'<-'		=> chr(0xE2).chr(0x86).chr(0x90),		// http://www.fileformat.info/info/unicode/char/2190/index.htm
+			'->'		=> chr(0xE2).chr(0x86).chr(0x92),		// http://www.fileformat.info/info/unicode/char/2192/index.htm
+			'+ or -'	=> chr(0xC2).chr(0xB1),					// http://www.fileformat.info/info/unicode/char/00b1/index.htm
+			'>='		=> chr(0xE2).chr(0x89).chr(0xA5),		// http://www.fileformat.info/info/unicode/char/2265/index.htm
+			'<='		=> chr(0xE2).chr(0x89).chr(0xA4),		// http://www.fileformat.info/info/unicode/char/2264/index.htm
+		);
+		$specialCharactersReplacements = array ();
+		foreach ($specialCharacters as $letter => $unicodeCharacter) {
+			$specialCharactersReplacements["{$replaceBlackslash}g{$letter}"] = $unicodeCharacter;
+		}
+		$queries[] = "UPDATE catalogue_processed SET value = " . $this->databaseConnection->replaceSql ($specialCharactersReplacements, 'value', "'") . ';';
+		
+		// file_put_contents ("{$_SERVER['DOCUMENT_ROOT']}{$this->baseUrl}/debug-muscat.wri", print_r ($queries, true));
+		// application::dumpData ($queries);
+		// die;
+		
+		# Run each query
+		foreach ($queries as $query) {
+			$result = $this->databaseConnection->query ($query);
+			// application::dumpData ($this->databaseConnection->error ());
+		}
+	}
+	
+	
+	# Conversion of superscripts and subscripts
+	private function superscriptsSubscripts ($superscriptsFound, $subscriptsFound)
+	{
+		/*
+		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'}e{',CHAR(0xE284AF USING utf8)) WHERE `value` LIKE '%}e{%';";	// Natural exponent U+212F
+		
+		# Subscript: "Subscripts are entered by prefixing the number to be dropped by { and typing } after the number e.g. H{2}SO{4} will print out as H2SO4 with both 2 and 4 as subscripts."; http://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts#Superscripts_and_subscripts_block and http://www.decodeunicode.org/en/u+2072/properties
+		# Superscript: "For superscripts, the procedure is reversed e.g. 4840 m}2{ will print out as 4840 m with 2 as superscript."
+		// Find using: SELECT * FROM catalogue_processed WHERE REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(value,'{1}',''),'{2}',''),'{3}',''),'{4}',''),'{5}',''),'{6}',''),'{7}',''),'{8}','') REGEXP ('}([^{ ]+){') AND value NOT REGEXP ('}(1|2|-2|2-|2+|3|-3|4|5|6|-6|-8|10|11|13|14|15|18|21|22|26|32|34|36|39|41|53|85|90|137|129|210|230|226|228|234|238|241|.|~|-|\\+|a|c|B|E|o|p|ere|er|re|e\\^gre|ieme|r|me|ne|st|-1|\\\\vo\\\\n){');
+		// Find using: SELECT * FROM catalogue_processed WHERE value REGEXP ('{[0-9n=()+-]+}') AND `value` NOT REGEXP ('{(0|1|2|3|4|6|7|8|10|11|12|14|15|17|18|21|22|23|25|30|31|35|37|43|45|50|60|86|90|137|200|210|238|239|240|241|500|700|0001|1010|1120|2021)}');
+		for ($i = 0; $i <= 9; $i++) {
+			$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{{$i}}',CHAR(0xE2828{$i} USING utf8)) WHERE `value` LIKE '%{{$i}}%';";	// Subscript
+			$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'}{$i}{',CHAR(0xE281B{$i} USING utf8)) WHERE `value` LIKE '%}{$i}{%';";	// Superscript
+		}
+		*/
+		
+		# Determine the unicode code points for 1...9+- for both subscripts and superscripts; see: http://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts#Superscripts_and_subscripts_block
+		$unicodeSubscripts = array ();
+		$unicodeSuperscripts = array ();
+		$oneDigitNumbers = range (0, 9);
+		foreach ($oneDigitNumbers as $oneDigitNumber) {
+			
+			# Superscripts: more awkward than subscripts as code points include three ASCII-position characters; see: http://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts#Superscripts_and_subscripts_block
+			switch ($oneDigitNumber) {
+				case 1:
+					$unicodeSuperscripts[$oneDigitNumber] = chr(0xC2).chr(0xB9);
+					break;
+				case 2:
+				case 3:
+					$unicodeSuperscripts[$oneDigitNumber] = chr(0xC2).chr(0xB0 + $oneDigitNumber);
+					break;
+				default:
+					$unicodeSuperscripts[$oneDigitNumber] = chr(0xE2).chr(0x81).chr(0xB0 + $oneDigitNumber);
+			}
+			
+			# Subscripts
+			$unicodeSubscripts[$oneDigitNumber] = chr(0xE2).chr(0x82).chr(0x80 + $oneDigitNumber);
+		}
+		$unicodeSuperscripts['+'] = chr(0xE2).chr(0x81).chr(0xBA);
+		$unicodeSuperscripts['-'] = chr(0xE2).chr(0x81).chr(0xBB);
+		$unicodeSuperscripts['='] = chr(0xE2).chr(0x81).chr(0xBC);
+		$unicodeSuperscripts['('] = chr(0xE2).chr(0x81).chr(0xBD);
+		$unicodeSuperscripts[')'] = chr(0xE2).chr(0x81).chr(0xBE);
+		$unicodeSuperscripts['n'] = chr(0xE2).chr(0x81).chr(0xBF);
+		$unicodeSubscripts['+'] = chr(0xE2).chr(0x82).chr(0x8A);
+		$unicodeSubscripts['-'] = chr(0xE2).chr(0x82).chr(0x8B);
+		$unicodeSubscripts['='] = chr(0xE2).chr(0x82).chr(0x8C);
+		$unicodeSubscripts['('] = chr(0xE2).chr(0x82).chr(0x8D);
+		$unicodeSubscripts[')'] = chr(0xE2).chr(0x82).chr(0x8E);
+		
+		# Perform the replacements
+		$replacements = array ();
+		foreach ($superscriptsFound as $superscript) {
+			$find = '}' . $superscript . '{';
+			$replacements[$find] = strtr ($superscript, $unicodeSuperscripts);
+		}
+		foreach ($subscriptsFound as $subscript) {
+			$find = '{' . $subscript . '}';
+			$replacements[$find] = strtr ($subscript, $unicodeSubscripts);
+		}
+		
+		# Return the replacements
+		return $replacements;
+	}
+	
+	
+	# Lookup table for diacritics
+	private function diacriticsTable ()
+	{
+		# Diacritics; see also report_diacritics() and report_diacritics_view(); most are defined at http://www.ssec.wisc.edu/~tomw/java/unicode.html and this is useful: http://illegalargumentexception.blogspot.co.uk/2009/09/java-character-inspector-application.html
+		$diacritics = array (
+			
+			// ^a acute
+			'a^a' => chr(0xc3).chr(0xa1),			//  0x00E1
+			'c^a' => chr(0xc4).chr(0x87),			//  0x0107
+			'e^a' => chr(0xc3).chr(0xa9),			//  0x00E9
+			'g^a' => chr(0xc7).chr(0xb5),			//  0x01F5
+			'i^a' => chr(0xc3).chr(0xad),			//  0x00ED
+			'n^a' => chr(0xc5).chr(0x84),			//  0x0144
+			'o^a' => chr(0xc3).chr(0xb3),			//  0x00F3
+			'r^a' => chr(0xc5).chr(0x95),			//  0x0155
+			's^a' => chr(0xc5).chr(0x9b),			//  0x015B
+			'u^a' => chr(0xc3).chr(0xba),			//  0x00FA
+			'y^a' => chr(0xc3).chr(0xbd),			//  0x00FD
+			'z^a' => chr(0xc5).chr(0xba),			//  0x017A
+			'A^a' => chr(0xc3).chr(0x81),			//  0x00C1
+			'C^a' => chr(0xc4).chr(0x86),			//  0x0106
+			'E^a' => chr(0xc3).chr(0x89),			//  0x00C9
+			'I^a' => chr(0xc3).chr(0x8d),			//  0x00CD
+			'O^a' => chr(0xc3).chr(0x93),			//  0x00D3
+			'S^a' => chr(0xc5).chr(0x9a),			//  0x015A
+			'U^a' => chr(0xc3).chr(0x9a),			//  0x00DA
+			'Z^a' => chr(0xc5).chr(0xb9),			//  0x0179
+			
+			// ^g grave
+			'a^g' => chr(0xc3).chr(0xa0),			//  0x00E0
+			'e^g' => chr(0xc3).chr(0xa8),			//  0x00E8
+			'i^g' => chr(0xc3).chr(0xac),			//  0x00EC
+			'o^g' => chr(0xc3).chr(0xb2),			//  0x00F2
+			'u^g' => chr(0xc3).chr(0xb9),			//  0x00F9
+			'A^g' => chr(0xc3).chr(0x80),			//  0x00C0
+			'E^g' => chr(0xc3).chr(0x88),			//  0x00C8
+			
+			// ^c cedilla [though some actually are suspected to be Polish/Lithuanian Ogonek; see: http://www.twardoch.com/download/polishhowto/ogonek.html ]
+			'a^c' => chr(0xc4).chr(0x85),			//  0x0105),	// http://www.fileformat.info/info/unicode/char/0105/index.htm ; see also http://scriptsource.org/cms/scripts/page.php?item_id=character_detail&key=SEQ0061_0327
+			'c^c' => chr(0xc3).chr(0xa7),			//  0x00E7
+			'e^c' => chr(0xc8).chr(0xa9),			//  0x0229
+			'i^c' => chr(0xc4).chr(0xaf),			//  0x012f),	// http://www.fileformat.info/info/unicode/char/12f/index.htm
+			'k^c' => chr(0xc4).chr(0xb7),			//  0x0137
+			'l^c' => chr(0xc4).chr(0xbc),			//  0x013C
+			's^c' => chr(0xc5).chr(0x9f),			//  0x015F
+			't^c' => chr(0xc5).chr(0xa3),			//  0x0163
+			'u^c' => chr(0xc5).chr(0xb3),			//  0x0173),	// http://www.fileformat.info/info/unicode/char/0173/index.htm ; see also http://scriptsource.org/cms/scripts/page.php?item_id=character_detail&key=SEQ0075_0327
+			'C^c' => chr(0xc3).chr(0x87),			//  0x00C7
+			
+			// ^u umlaut
+			'a^u' => chr(0xc3).chr(0xa4),			//  0x00E4
+			'e^u' => chr(0xc3).chr(0xab),			//  0x00EB
+			'h^u' => chr(0xE1).chr(0xb8).chr(0xa7),	//  0x1E27
+			'i^u' => chr(0xc3).chr(0xaf),			//  0x00EF
+			'o^u' => chr(0xc3).chr(0xb6),			//  0x00F6
+			'u^u' => chr(0xc3).chr(0xbc),			//  0x00FC
+			'y^u' => chr(0xc3).chr(0xbf),			//  0x00FF
+			'A^u' => chr(0xc3).chr(0x84),			//  0x00C4
+			'O^u' => chr(0xc3).chr(0x96),			//  0x00D6
+			'U^u' => chr(0xc3).chr(0x9c),			//  0x00DC
+			
+			// ^m macron (i.e. horizontal line over letter)
+			'a^m' => chr(0xc4).chr(0x81),			//  0x0101
+			'e^m' => chr(0xc4).chr(0x93),			//  0x0113
+			'i^m' => chr(0xc4).chr(0xab),			//  0x012B
+			'o^m' => chr(0xc5).chr(0x8d),			//  0x014D
+			'u^m' => chr(0xc5).chr(0xab),			//  0x016B
+			'y^m' => chr(0xc8).chr(0xb3),			//  0x0233
+			'A^m' => chr(0xc4).chr(0x80),			//  0x0100
+			'O^m' => chr(0xc5).chr(0x8c),			//  0x014C
+			'U^m' => chr(0xc5).chr(0xaa),			//  0x016A
+			'V^m' => chr(0x56).chr(0xcc).chr(0x84),	//  0x0056).0x0304			// #!# Suspect wrong
+			'2^m' => '2' . chr(0xCC).chr(0x85),		//  0x0305; records 119571 and 125394, which have e.g. 112^m1 which should be 1121 where there is a line over the 2; see http://en.wikipedia.org/wiki/Overline#Unicode for Unicode handling
+			
+			// ^j ligature ('join', i.e. line above two letters)
+			'h^j' => chr(0x68),	//  0x0068	),	// #!# Not sure what this supposed to be
+			
+			// ^z '/' (stroke) through letter
+			'a^z' => chr(0xe2).chr(0xb1).chr(0xa5),	//  0x2C65),	// http://www.fileformat.info/info/unicode/char/2c65/index.htm
+			'd^z' => chr(0xc4).chr(0x91),			//  0x0111),	// http://www.fileformat.info/info/unicode/char/0111/index.htm
+			'j^z' => chr(0xc9).chr(0x89),			//  0x0249),	// http://www.fileformat.info/info/unicode/char/0249/index.htm
+			'l^z' => chr(0xc5).chr(0x82),			//  0x0142
+			'o^z' => chr(0xc3).chr(0xb8),			//  0x00F8
+			'L^z' => chr(0xc5).chr(0x81),			//  0x0141
+			'O^z' => chr(0xc3).chr(0x98),			//  0x00D8
+			
+			// ^h for circumflex ('h' stands for 'hat')
+			'a^h' => chr(0xc3).chr(0xa2),			//  0x00E2
+			'e^h' => chr(0xc3).chr(0xaa),			//  0x00EA
+			'g^h' => chr(0xc4).chr(0x9d),			//  0x011D
+			'i^h' => chr(0xc3).chr(0xae),			//  0x00EE
+			'o^h' => chr(0xc3).chr(0xb4),			//  0x00F4
+			'u^h' => chr(0xc3).chr(0xbb),			//  0x00FB
+			'y^h' => chr(0xc5).chr(0xb7),			//  0x0177
+			'A^h' => chr(0xc3).chr(0x82),			//  0x00C2
+			'E^h' => chr(0xc3).chr(0x8a),			//  0x00CA
+			'I^h' => chr(0xc3).chr(0x8e),			//  0x00CE
+			'U^h' => chr(0xc3).chr(0x9b),			//  0x00DB
+			
+			// ^v for 'v' (caron) over a letter
+			'a^v' => chr(0xc7).chr(0x8e),			//  0x01CE
+			'c^v' => chr(0xc4).chr(0x8d),			//  0x010D
+			'e^v' => chr(0xc4).chr(0x9b),			//  0x011B
+			'g^v' => chr(0xc7).chr(0xa7),			//  0x01E7
+			'i^v' => chr(0xc7).chr(0x90),			//  0x01D0
+			'n^v' => chr(0xc5).chr(0x88),			//  0x0148
+			'o^v' => chr(0xc7).chr(0x92),			//  0x01D2
+			'r^v' => chr(0xc5).chr(0x99),			//  0x0159
+			's^v' => chr(0xc5).chr(0xa1),			//  0x0161
+			'u^v' => chr(0xc7).chr(0x94),			//  0x01D4
+			'z^v' => chr(0xc5).chr(0xbe),			//  0x017E
+			'C^v' => chr(0xc4).chr(0x8c),			//  0x010C
+			'D^v' => chr(0xc4).chr(0x8e),			//  0x010E
+			'R^v' => chr(0xc5).chr(0x98),			//  0x0158
+			'S^v' => chr(0xc5).chr(0xa0),			//  0x0160
+			'Z^v' => chr(0xc5).chr(0xbd),			//  0x017D
+			
+			// ^o for 'o' (ring) over a letter
+			'a^o' => chr(0xc3).chr(0xa5),			//  0x00E5
+//			'e^o' => chr(0x65).chr(0xcc).chr(0x8a),	//  0x0065).0x030a			// \u0065 + \u030a
+			'o^o' => chr(0x6f).chr(0xcc).chr(0x8a),	//  0x006f).0x030a			// \u006F + \u030a
+			'u^o' => chr(0xc5).chr(0xaf),			//  0x016F
+			'A^o' => chr(0xc3).chr(0x85),			//  0x00C5
+			
+			// ^t tilde
+			'a^t' => chr(0xc3).chr(0xa3),			//  0x00E3
+			'e^t' => chr(0xe1).chr(0xba).chr(0xbd),	//  0x1EBD
+			'i^t' => chr(0xc4).chr(0xa9),			//  0x0129
+			'n^t' => chr(0xc3).chr(0xb1),			//  0x00F1
+			'o^t' => chr(0xc3).chr(0xb5),			//  0x00F5
+			'u^t' => chr(0xc5).chr(0xa9),			//  0x0169
+			'O^t' => chr(0xc3).chr(0x95),			//  0x00D5
+			'U^t' => chr(0xc5).chr(0xa8),			//  0x0168
+			' ^t' => ' ~',
+		);
+		
+		# Capitals (have same meaning - data is too extensive to fix up manually)
+		$diacritics += array (
+			
+			// ^A acute (upper-case)
+			'A^A' => $diacritics['A^a'],
+			'E^A' => $diacritics['E^a'],
+			'I^A' => $diacritics['I^a'],
+			'O^A' => $diacritics['O^a'],
+			'S^A' => $diacritics['S^a'],
+			
+			// ^G grave (upper-case)
+			'A^G' => $diacritics['A^g'],
+			
+			// ^U umlaut (upper-case)
+			'A^U' => $diacritics['A^u'],
+			'O^U' => $diacritics['O^u'],
+			'U^U' => $diacritics['U^u'],
+			
+			// ^M macron (i.e. horizontal line over letter) (upper-case)
+			'O^M' => $diacritics['O^m'],
+			
+			// ^Z '/' through letter (upper-case)
+			'L^Z' => $diacritics['L^z'],
+			'O^Z' => $diacritics['O^z'],
+			
+			// ^H for circumflex ('h' stands for 'hat') (upper-case)
+			'I^H' => $diacritics['I^h'],
+			
+			// ^V for 'v' over a letter (upper-case)
+			'C^V' => $diacritics['C^v'],
+			'S^V' => $diacritics['S^v'],
+			
+			// ^O for 'o' over a letter (upper-case)
+			'A^O' => $diacritics['A^o'],
+		);
+		
+		# Return the array
+		return $diacritics;
+	}
+	
+	
+	# Lookup table for greek letters
+	private function greekLetters ()
+	{
+		# Greek letters \g___; Unicode references from http://www.utf8-chartable.de/unicode-utf8-table.pl?start=896&number=128
+		$greekLetters = array (
+			'alpha'				=> chr(0xce).chr(0xb1),
+			'beta'				=> chr(0xce).chr(0xb2),
+			'gamma'				=> chr(0xce).chr(0xb3),
+			'delta'				=> chr(0xce).chr(0xb4),
+			'epsilon'			=> chr(0xce).chr(0xb5),
+			'zeta'				=> chr(0xce).chr(0xb6),
+			'eta'				=> chr(0xce).chr(0xb7),
+			'theta'				=> chr(0xce).chr(0xb8),
+			'iota'				=> chr(0xce).chr(0xb9),
+			'kappa'				=> chr(0xce).chr(0xba),
+			'lambda'			=> chr(0xce).chr(0xbb),
+			'mu'				=> chr(0xce).chr(0xbc),
+			'nu'				=> chr(0xce).chr(0xbd),
+			'xi'				=> chr(0xce).chr(0xbe),
+			'omicron'			=> chr(0xce).chr(0xbf),
+			'pi'				=> chr(0xcf).chr(0x80),
+			'rho'				=> chr(0xcf).chr(0x81),
+			'sigma'				=> chr(0xcf).chr(0x83),
+			'tau'				=> chr(0xcf).chr(0x84),
+			'upsilon'			=> chr(0xcf).chr(0x85),
+			'phi'				=> chr(0xcf).chr(0x86),
+			'chi'				=> chr(0xcf).chr(0x87),
+			'psi'				=> chr(0xcf).chr(0x88),
+			'omega'				=> chr(0xcf).chr(0x89),
+			'Alpha'				=> chr(0xce).chr(0x91),
+			'Beta'				=> chr(0xce).chr(0x92),
+			'Gamma'				=> chr(0xce).chr(0x93),
+			'Delta'				=> chr(0xce).chr(0x94),
+			'Epsilon'			=> chr(0xce).chr(0x95),
+			'Zeta'				=> chr(0xce).chr(0x96),
+			'Eta'				=> chr(0xce).chr(0x97),
+			'Theta'				=> chr(0xce).chr(0x98),
+			'Iota'				=> chr(0xce).chr(0x99),
+			'Kappa'				=> chr(0xce).chr(0x9a),
+			'Lambda'			=> chr(0xce).chr(0x9b),
+			'Mu'				=> chr(0xce).chr(0x9c),
+			'Nu'				=> chr(0xce).chr(0x9d),
+			'Xi'				=> chr(0xce).chr(0x9e),
+			'Omicron'			=> chr(0xce).chr(0x9f),
+			'Pi'				=> chr(0xce).chr(0xa0),
+			'Rho'				=> chr(0xce).chr(0xa1),
+			'Sigma'				=> chr(0xce).chr(0xa3),
+			'Tau'				=> chr(0xce).chr(0xa4),
+			'Upsilon'			=> chr(0xce).chr(0xa5),
+			'Phi'				=> chr(0xce).chr(0xa6),
+			'Chi'				=> chr(0xce).chr(0xa7),
+			'Psi'				=> chr(0xce).chr(0xa8),
+			'Omega'				=> chr(0xce).chr(0xa9),
+		);
+		
+		# Return the array
+		return $greekLetters;
+	}
+	
+	
+	# Function to fix up data en-masse
+	private function massDataFixes ()
+	{
+		# Remove "pub. " and "pub." from *loc
+		$queries[] = "UPDATE `catalogue_processed` SET value = REPLACE(value, 'pub. ', '') WHERE field = 'location';";	// # 304 rows
+		$queries[] = "UPDATE `catalogue_processed` SET value = REPLACE(value, 'pub.', '') WHERE field = 'location';";	// # 13927 rows
+		
+		# Run each query
+		foreach ($queries as $query) {
+			$result = $this->databaseConnection->query ($query);
+			// application::dumpData ($this->databaseConnection->error ());
+		}
+	}
+	
+	
+	# Function to perform record linkage
+	private function recordLinkage ()
+	{
+		// todo
+		
+	}
+	
+	
+	# Function to run reverse-transliteration; takes about 20 minutes to run
+	#   Depencies: catalogue_processed
+	private function doReverseTransliteration ()
+	{
+		# Create the table
+		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.reversetransliterations;";
+		$this->databaseConnection->execute ($sql);
+		$sql = "CREATE TABLE IF NOT EXISTS `reversetransliterations` (
+			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Record ID',
+			`title_latin` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title (English), from original data',
+			`title` varchar(255) COLLATE utf8_unicode_ci NULL COMMENT 'Reverse-transliterated title',
+			PRIMARY KEY (`id`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of reverse transliterations'
+		;";
+		$this->databaseConnection->execute ($sql);
+		
+		# Define supported language
+		$language = 'Russian';
+		
+		# Get the titles from record IDs whose language is Russian
+		$query = "
+			SELECT
+				recordId,
+				value
+			FROM catalogue_processed
+			WHERE
+				    field = 'tc'
+				AND recordId IN (
+					SELECT recordId FROM catalogue_processed WHERE field = 'lang' AND value = 'Russian'
+				)
+		;";
+		
+		# Get the data
+		$data = $this->databaseConnection->getPairs ($query, true);
+		
+		# Reverse-transliterate each entry
+		$reverseTransliterations = array ();
+		$i = 0;
+		$chunksOf = 500;
+		$lastId = key (array_slice ($data, -1, 1, true));
+		foreach ($data as $id => $string) {
+			
+			# Create a transliterated version for insert
+			$reverseTransliterations[$id] = array (
+				'id'			=> $id,
+				'title_latin'	=> $string,
+				'title'			=> $this->reverseTransliterateString ($string, $language),
+			);
+			$i++;
+			
+			# Do insert if required, at the end of a chunk, or the last key
+			if (($i == $chunksOf) || ($id == $lastId)) {
+				$this->databaseConnection->insertMany ($this->settings['database'], 'reversetransliterations', $reverseTransliterations);
+				$reverseTransliterations = array ();
+				$i = 0;
+			}
+		}
+		
+		# Cross-update the reverse transliteration values into the processed table, replacing the original values (which remain available in the reversetransliterations table)
+		$query = "
+			UPDATE {$this->settings['database']}.catalogue_processed
+			JOIN reversetransliterations ON
+				    recordId = reversetransliterations.id		/* Ensures it exists, i.e. only affects the rows present in the reversetransliterations table */
+				AND field = 'tc'
+			SET catalogue_processed.value = reversetransliterations.title
+			WHERE field = 'tc'
+		;";
+		$this->databaseConnection->execute ($query);
+		
+		# Signal success
+		return true;
+	}
+	
+	
+	# Function to reverse-transliterate a the string
+	/*
+		Files are at
+		/root/.cpan/build/Lingua-Translit-0.22-th0SPW/xml/
+		
+		Documentation at
+		http://www.lingua-systems.com/translit/downloads/lingua-translit-developer-manual-eng.pdf
+		
+		XML transliteration file:
+		/transliteration/bgn_pcgn_1947.xml
+		
+		Instructions for root instanll:
+		Make changes to the XML file then run, as root:
+		cd /root/.cpan/build/Lingua-Translit-0.22-th0SPW/xml/ && make all-tables && cd /root/.cpan/build/Lingua-Translit-0.22-th0SPW/ && make clean && perl Makefile.PL && make && make install
+		
+		Lingua Translit documentation:
+		http://www.lingua-systems.com/translit/downloads/lingua-translit-developer-manual-eng.pdf
+		http://search.cpan.org/~alinke/Lingua-Translit-0.22/lib/Lingua/Translit.pm#ADDING_NEW_TRANSLITERATIONS
+		
+		# Example use:
+		echo "hello" | translit -r -t "BGN PCGN 1947"
+	*/
+	private function reverseTransliterateString ($string, $language)
+	{
+		# Ensure language is supported
+		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return $string;}
+		
+		# Extract any English translation already present
+		$englishPart = false;
+		if (preg_match ('/^(.+) \[(.+)\]$/', trim ($string), $matches)) {
+			$string = $matches[1];
+			$englishPart = $matches[2];
+		}
+		
+		# Perform transliteration
+		$command = "{$this->cpanDir}/bin/translit -trans '{$this->supportedReverseTransliterationLanguages[$language]}' --reverse";
+		$reverseTransliteration = application::createProcess ($command, $string);
+		
+		# Reinstate English part if required
+		if ($englishPart) {
+			$reverseTransliteration .= ' [' . $englishPart . ']';
+		}
+		
+		# Return the transliteration
+		return $reverseTransliteration;
+	}
+	
+	
+	
+	# Function to create XML records
+	#   Depencies: catalogue_processed
+	private function createXmlTable ()
+	{
+		# Clean out the XML table
+		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.catalogue_xml;";
+		$this->databaseConnection->execute ($sql);
+		
+		# Create the new XML table
+		$sql = "
+			CREATE TABLE IF NOT EXISTS catalogue_xml (
+				id int(11) NOT NULL COMMENT 'Record number',
+				xml text COLLATE utf8_unicode_ci COMMENT 'XML representation of Muscat record',
+			  PRIMARY KEY (id)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='XML representation of Muscat records';
+		";
+		$this->databaseConnection->execute ($sql);
+		
+		# Cross insert the IDs
+		$query = "INSERT INTO catalogue_xml (id) (SELECT DISTINCT(recordId) FROM catalogue_processed);";
+		$this->databaseConnection->execute ($query);
+		
+		# Get the schema
+		$schemaFlattenedXmlWithContainership = $this->getSchema (true);
+		
+		# Allow large queries for the chunking operation
+		$maxQueryLength = (1024 * 1024 * 32);	// i.e. this many MB
+		$query = 'SET SESSION max_allowed_packet = ' . $maxQueryLength . ';';
+		$this->databaseConnection->execute ($query);
+		
+		# Process the records in chunks
+		$chunksOf = 500;	// Change max_allowed_packet above if necessary
+		while (true) {	// Until the break
+			
+			# Get the next chunk of record IDs to update, until all are done
+			$query = "SELECT id FROM catalogue_xml WHERE xml IS NULL AND id >= 1000 LIMIT {$chunksOf};";
+			if (!$ids = $this->databaseConnection->getPairs ($query)) {break;}
+			
+			# Get the records for this chunk, using the processed data (as that includes character conversions)
+			$records = $this->getRecords ($ids, 'processed');
+			
+			# Arrange as a set of inserts
+			$inserts = array ();
+			foreach ($records as $id => $record) {
+				$xml = xml::dropSerialRecordIntoSchema ($schemaFlattenedXmlWithContainership, $record, $errorHtml, $debugString);
+				if ($errorHtml) {
+					$html  = "<p class=\"warning\">Record <a href=\"{$this->baseUrl}/records/{$id}/\">{$id}</a> could not be converted to XML:</p>";
+					$html .= "\n" . $errorHtml;
+					$html .= "\n<div class=\"graybox\">\n<h3>Crashed record:</h3>" . "\n<pre>" . htmlspecialchars ($xml) . "\n</pre>\n</div>";
+					$html .= "\n<div class=\"graybox\">\n<h3>Stack debug:</h3>" . nl2br ($debugString) . "\n</div>";
+					$html .= "\n<div class=\"graybox\">\n<h3>Target schema:</h3>" . application::dumpData ($schemaFlattenedXmlWithContainership, false, true) . "\n</div>";
+					echo $html;
+					return false;
+				}
+				$inserts[$id] = array (
+					'id' => $id,
+					'xml' => $xml,
+				);
+			}
+			
+			# Update the records
+			// if (!$this->databaseConnection->insertMany ($this->settings['database'], 'catalogue_xml', $inserts, false, $onDuplicateKeyUpdate = true)) {
+			if (!$this->databaseConnection->replaceMany ($this->settings['database'], 'catalogue_xml', $inserts)) {
+				echo "<p class=\"warning\">Error generating XML, stopping at batch ({$id}):</p>";
+				echo application::dumpData ($this->databaseConnection->error (), false, true);
+				return false;
+			}
+		}
+	}
+	
+	
+	# Function to create MARC records
+	private function createMarcRecords ()
+	{
+		# Clean out the XML table
+		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.catalogue_marc;";
+		$this->databaseConnection->execute ($sql);
+		
+		# Create the new MARC table
+		$sql = "
+			CREATE TABLE IF NOT EXISTS catalogue_marc (
+				id int(11) NOT NULL COMMENT 'Record number',
+				marc text COLLATE utf8_unicode_ci COMMENT 'MARC representation of Muscat record',
+			  PRIMARY KEY (id)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC representation of Muscat records';
+		";
+		$this->databaseConnection->execute ($sql);
+		
+		# Cross insert the IDs
+		$query = "INSERT INTO catalogue_marc (id) (SELECT DISTINCT(recordId) FROM catalogue_rawdata);";
+		$this->databaseConnection->execute ($query);
+		
+		# Get the schema
+		if (!$marcParserDefinition = $this->getMarcParserDefinition ()) {return false;}
+		
+		# Allow large queries for the chunking operation
+		$maxQueryLength = (1024 * 1024 * 32);	// i.e. this many MB
+		$query = 'SET SESSION max_allowed_packet = ' . $maxQueryLength . ';';
+		$this->databaseConnection->execute ($query);
+		
+		# Process the records in chunks
+		$chunksOf = 500;	// Change max_allowed_packet above if necessary
+		while (true) {	// Until the break
+			
+			# Get the next chunk of record IDs to update, until all are done
+			$query = "SELECT id FROM catalogue_marc WHERE marc IS NULL AND id >= 1000 LIMIT {$chunksOf};";
+			if (!$ids = $this->databaseConnection->getPairs ($query)) {break;}
+			
+			# Get the records for this chunk
+			$records = $this->getRecords ($ids, 'xml');
+			
+			# Arrange as a set of inserts
+			$inserts = array ();
+			foreach ($records as $id => $record) {
+				$marc = $this->convertToMarc ($marcParserDefinition, $record['xml'], $errorString);
+				if ($errorString) {
+					$html  = "<p class=\"warning\">Record <a href=\"{$this->baseUrl}/records/{$id}/\">{$id}</a> could not be converted to MARC:</p>";
+					$html .= "\n<p><img src=\"/images/icons/exclamation.png\" class=\"icon\" /> {$errorString}</p>";
+					echo $html;
+					return false;
+				}
+				$inserts[$id] = array (
+					'id' => $id,
+					'marc' => $marc,
+				);
+			}
+			
+			# Insert the records; ON DUPLICATE KEY UPDATE is a dirty but useful method of getting a multiple update at once (as this doesn't require a WHERE clause, which can't be used as there is more than one record to be inserted)
+			if (!$this->databaseConnection->insertMany ($this->settings['database'], 'catalogue_marc', $inserts, false, $onDuplicateKeyUpdate = true)) {
+				echo "<p class=\"warning\">Error generating MARC, stopping at batched ({$id}):</p>";
+				echo application::dumpData ($this->databaseConnection->error (), false, true);
+				return false;
+			}
+		}
+		
+		# Also generate a compiled text file and binary output
+		$this->createMarcExport ();
+		
+		# Signal success
+		return true;
+	}
+	
+	
+	# Function to generate the MARC21 output as text
+	private function createMarcExport ()
+	{
+		# Clear the current file
+		$directory = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl;
+		$filename = $directory . '/marc.txt';
+		if (file_exists ($filename)) {
+			unlink ($filename);
+		}
+		
+		# Get the total records in the table
+		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], 'catalogue_marc');
+		
+		# Start the output
+		$text = '';
+		
+		# Chunk the records
+		$offset = 0;
+		$limit = 1000;
+		$recordsRemaining = $totalRecords;
+		while ($recordsRemaining > 0) {
+			
+			# Get the records
+			$query = "SELECT * FROM {$this->settings['database']}.catalogue_marc LIMIT {$offset},{$limit};";
+			$data = $this->databaseConnection->getPairs ($query);
+			
+			# Add each record
+			foreach ($data as $id => $record) {
+				$text .= trim ($record) . "\n\n";
+			}
+			
+			# Decrement the remaining records
+			$recordsRemaining = $recordsRemaining - $limit;
+			$offset += $limit;
+		}
+		
+		# Reformat to Voyager input style
+		$text = preg_replace ("/{$this->doubleDagger}([a-z])/", '$\1', $text);				// Replace double-dagger
+		$text = preg_replace ('/^([LDR0-9]{3}) #(.) (.+)$/m', '\1 \\\2 \3', $text);		// Replace # marker in position 1 with \
+		$text = preg_replace ('/^([LDR0-9]{3}) (.)# (.+)$/m', '\1 \2\\ \3', $text);		// Replace # marker in position 2 with \
+		$text = preg_replace ('/^([0-9LDR]{3}) (.+)$/m', '\1  \2', $text);				// Add double-space
+		$text = preg_replace ('/^([0-9LDR]{3})  (.)(.) (.+)$/m', '\1  \2\3\4', $text);	// Remove space after marker
+		$text = preg_replace ('/^(.+)$/m', '=\1', $text);								// Add = at start
+		
+		# Save the file
+		file_put_contents ($filename, $text);
+		
+		# Create a binary version
+		$this->marcBinaryConversion ($directory);
+		
+		# Check the output
+		$this->marcLintTest ($directory);
+	}
+	
+	
+	# Function to convert the MARC text to binary format
+	private function marcBinaryConversion ($directory)
+	{
+		# Clear file if it currently exists
+		$filename = "{$directory}/marc.mrc";
+		if (file_exists ($filename)) {
+			unlink ($filename);
+		}
+		
+		# Define and execute the command for converting the text version to binary; see: http://marcedit.reeset.net/ and http://marcedit.reeset.net/wiki/content/cmarceditexe-using-command-line
+		$command = "mono /usr/local/bin/marcedit/cmarcedit.exe -s {$directory}/marc.txt -d {$filename} -pd -make";
+		shell_exec ($command);
+	}
+	
+	
+	# Function to do a lint test
+	private function marcLintTest ($directory)
+	{
+		# Clear file if it currently exists
+		$filename = "{$directory}/marc.errors.txt";
+		if (file_exists ($filename)) {
+			unlink ($filename);
+		}
+		
+		# Define and execute the command for converting the text version to binary; see: http://marcedit.reeset.net/ and http://marcedit.reeset.net/wiki/content/cmarceditexe-using-command-line
+		$command = "cd {$this->applicationDirectory}/libraries/bibcheck/ ; perl lint_test.pl {$directory}/marc.mrc 2>> errors.txt ; mv errors.txt {$filename}";
+		shell_exec ($command);
+	}
+	
+	
+	# Function to run the reports
+	private function runReports ()
+	{
+		# Clean out the report results table
+		$query = "DROP TABLE IF EXISTS {$this->settings['database']}.reportresults;";
+		$this->databaseConnection->query ($query);
+		
+		# Create the new results table
+		$query = "CREATE TABLE IF NOT EXISTS reportresults (
+			`id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Automatic key',
+			`report` varchar(40) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Report type',
+			`recordId` int(6) NOT NULL COMMENT 'Record number',
+			PRIMARY KEY (`id`),
+			KEY `report` (`report`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Results table' AUTO_INCREMENT=1 ;
+		";
+		$this->databaseConnection->query ($query);
+		
+		# Run each report and insert the results
+		$reports = $this->getReports ();
+		foreach ($reports as $report => $description) {
+			$reportFunction = 'report_' . $report;
+			
+			# Skip listing type reports, which implement data handling directly, and which are handled separately in runListings ()
+			if ($this->isListing ($report)) {continue;}
+			
+			# Assemble the query and insert the data
+			$query = $this->$reportFunction ();
+			$query = "INSERT INTO reportresults (report,recordId) (" . $query . ');';
+			$result = $this->databaseConnection->query ($query);
+			
+			# Handle errors
+			if ($result === false) {
+				echo "<p class=\"warning\">Error generating report <em>{$report}</em>:</p>";
+				echo application::dumpData ($this->databaseConnection->error (), false, true);
+			}
+		}
+	}
+	
+	
+	# Function to run the listing reports
+	private function runListings ()
+	{
+		# Run each listing report
+		foreach ($this->listings as $report => $description) {
+			$reportFunction = 'report_' . $report;
+			$this->$reportFunction ();
+		}
+	}
+	
+	
+	# Search
+	public function search ()
+	{
+		/*
+		
+		Main fields that people want to search within are:
+		
+		- Author (original=a/ee, compiled as: n1 for surname and n2 for forename)
+		- Title (t and tt become tc, which is a superset)
+		- Date (d)
+		
+		So use
+		
+		Surname (n1)
+		Forename (n2)
+		Title (tc)
+		Journal (t - technically must follow j, but for now without)
+		Date (d), must be four-digits
+		Keyword (kw)
+		Text within abstract (abs)
+		ISBN (isbn)
+		Region (ks, filtered on (@*[0-9]+) ) - precompile at
+			- Arctic - beginning *3 or *4 or *6
+			- Antarctic - begins with *7 or *8
+			- Polar - begins *2
+			- Russian - begins *5 but not *55/*56/*57/*58
+		*/
+		
+		# Determine whether to do case-sensitive matching
+		#!# Currently only implemented for the anywhere key
+		$caseSensitivity = (isSet ($_GET['casesensitive']) && ($_GET['casesensitive'] == '1') ? 'BINARY ' : '');
+		
+		# Determine whether to force matching for a complete value rather than part of a value, i.e. whether 'science' matches only 'science' rather than 'academy of science' also
+		#!# Currently only implemented for the anywhere key
+		$completeMatch = (isSet ($_GET['completematch']) && ($_GET['completematch'] == '1'));
+		
+		# Define the search clause templates
+		$searchClauses = array (
+			'title'		=> "title LIKE :title",
+			'title_transliterated'		=> "title_transliterated LIKE :title_transliterated",
+			'region'	=> array (
+				'Polar regions'						=> "region REGEXP '\(@\*[2][0-9]*\)'",				// *2
+				'   Arctic'							=> "region REGEXP '\(@\*[3|4|5|6][0-9]*\)'",		// *3 or *4 or *5 or *6
+				'   North America'					=> "region REGEXP '\(@\*[40][0-9]*\)'",				// *40
+				'   Russia'							=> "region REGEXP '\(@\*[50|51|52|53][0-9]*\)'",	// *50 - *53
+				'   European Arctic'				=> "region REGEXP '\(@\*[55|56|57|58][0-9]*\)'",	// *55/*56/*57/*58
+				'   Arctic Ocean'					=> "region REGEXP '\(@\*[6][0-9]*\)'",				// *6
+				'   Antarctic and Southern Ocean'	=> "region REGEXP '\(@\*[7|8][0-9]*\)'",			// *7/*8
+				'Non-polar regions'					=> "region REGEXP '\([2|3|4|5|6|7|8|9][0-9]*\)'",	// run from (2) to (97) NB without @*
+			),
+			'surname'		=> "surname LIKE :surname",
+			'forename'		=> "forename LIKE :forename",
+			'journaltitle'	=> "journaltitle = :journaltitle",
+			'seriestitle'	=> "seriestitle = :seriestitle",
+			'year'			=> "year LIKE :year",
+			'language'		=> "language LIKE :language",
+			'abstract'		=> "abstract LIKE :abstract OR keyword LIKE :keyword",
+			'isbn'			=> "isbn LIKE :isbn",
+			'location'		=> "location LIKE :location",
+			'anywhere'		=> "anywhere LIKE {$caseSensitivity} :anywhere",
+		);
+		
+		# Clear application variables out of _GET
+		unset ($_GET['action']);
+		if (isSet ($_GET['page'])) {
+			$page = $_GET['page'];	// Cache for later
+			unset ($_GET['page']);
+		}
+		
+		# Start the HTML
+		$html  = '';
+		$html .= "\n<p>This search will find records that match all the query terms you enter. It is not case sensitive.</p>";
+		$html .= "\n<p><a href=\"./\">Reset</a></p>";
+		
+		# Create the search form
+		$result = $this->searchForm ($html, $searchClauses);
+		
+		# Show results if submitted
+		if ($result) {
+			
+			# Cache a build of the query string
+			$queryStringComplete = http_build_query ($result);
+			
+			# Compile a search token for the match which contains all terms, so that these do not include the % markers
+			$allTerms = implode (' ', $result);
+			
+			# Create a list of constraints
+			$constraints = array ();
+			foreach ($result as $key => $value) {
+				$searchClause = (is_array ($searchClauses[$key]) ? $searchClauses[$key][$value] : $searchClauses[$key]);
+				if ($completeMatch) {
+					$searchClause = str_replace (' LIKE ', ' = BINARY ', $searchClause);
+					$result[$key] = $this->literalLikeValue ($value);
+				} else {
+					if (substr_count ($searchClause, 'LIKE')) {$result[$key] = '%' . $this->literalLikeValue ($value) . '%';}	// Text matches should be %search%
+				}
+				if (!substr_count ($searchClause, ' :')) {unset ($result[$key]);}	// Do not supply a value if there is no placeholder
+				$constraints[$key] = $searchClause;
+			}
+			
+			# Duplicate abstract to keyword (this is because PDO doesn't permit a named parameter to be used twice, i.e. "abstract LIKE :abstract OR keywordk LIKE :abstract")
+			if (isSet ($result['abstract'])) {$result['keyword'] = $result['abstract'];}
+			
+			# Construct the query
+			if ($completeMatch) {
+				$query = "SELECT
+						id,
+						title
+					FROM fieldsindex
+					WHERE \n    (" . implode (")\nAND (", $constraints) . ')
+					ORDER BY titleSortfield
+				;';
+			} else {
+				
+				# Add in the allterms token
+				$result['allterms'] = $allTerms;
+				
+				# Construct the query
+				$query = "SELECT
+						id,
+						title,
+					MATCH(anywhere) AGAINST(:allterms) AS relevance
+					FROM fieldsindex
+					WHERE \n    (" . implode (")\nAND (", $constraints) . ')
+					ORDER BY titleSortfield
+				;';
+			}
+			
+			# Restore $_GET['page']
+			if (isSet ($page)) {$_GET['page'] = $page;}
+			
+			# Display the results
+			$baseLink = '/search/';
+			$html .= $this->recordListing (false, $query, $result, $baseLink, false, $queryStringComplete, 'table', "{$this->settings['database']}.fieldsindex");
+			
+			// application::dumpData ($query);
+			// application::dumpData ($result);
+			// application::dumpData ($this->databaseConnection->error ());
+			// application::dumpData ($data);
+			
+		}
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# Function to provide the search form
+	private function searchForm (&$html, $searchClauses)
+	{
+		# Start the HTML
+		$html = '';
+		
+		# Run the form module
+		$form = new form (array (
+			'displayRestrictions' => false,
+			'get' => true,
+			'name' => false,
+			'nullText' => false,
+			'submitButtonText' => 'Search!',
+			'formCompleteText' => false,
+			'requiredFieldIndicator' => false,
+			'reappear' => true,
+			'id' => 'searchform',
+			'submitTo' => $this->baseUrl . '/search/',
+			'databaseConnection' => $this->databaseConnection,
+		));
+		$form->dataBinding (array (
+			'database' => $this->settings['database'],
+			'table' => 'fieldsindex',
+			'exclude' => array ('id', 'fieldslist', 'keyword', 'titleSortfield'),
+			'textAsVarchar' => true,
+			'attributes' => array (
+				'region' => array ('type' => 'select', 'nullText' => 'Any', 'values' => array_keys ($searchClauses['region']), ),
+				'year' => array ('regexp' => '^([0-9]{4})$', 'size' => 7, 'maxlength' => 4, ),
+				'abstract' => array ('title' => 'Keyword; or<br />Text within abstract', ),		// Keyword is piggy-backed onto abstract in the search phase
+			),
+		));
+		$formHtml = '';
+		$result = $form->process ($formHtml);
+		
+		# Filter to those filled-in
+		if ($result) {
+			foreach ($result as $key => $value) {
+				if (!strlen ($value)) {
+					unset ($result[$key]);
+				}
+			}
+		}
+		
+		# If there is a result, show the hiding system first
+		if ($result) {
+			$html .= '
+				<!-- http://docs.jquery.com/Effects/toggle -->
+				<script src="http://code.jquery.com/jquery-latest.js"></script>
+				<script>
+					$(document).ready(function(){
+						$("a#showform").click(function () {
+							$("#searchform").toggle();
+						});
+					});
+				</script>
+				<style type="text/css">#searchform {display: none;}</style>
+			';
+			$html .= "\n" . '<p><a id="showform" name="showform"><img src="/images/icons/pencil.png" alt="" border="0" /> <strong>Refine/filter this search</strong></a> if you wish.</p>';
+		}
+		
+		# Add the form HTML
+		$html .= $formHtml;
+		
+		# Return the result
+		return $result;
+	}
+	
+	
+	# Function to ensure a value passed for use in LIKE is literal
+	private function literalLikeValue ($term)
+	{
+		# Turn backlashes and wildcards into literals
+		$replacements = array (
+			'\\' => '\\\\',
+			'%' => '\\%',
+			'_' => '\\_',
+		);
+		$term = strtr ($term, $replacements);
+		
+		# Return the term
+		return $term;
+	}
+	
+	
+	# MARC21 parser definition
+	public function marcparser ()
+	{
+		# Start the HTML
+		$html  = '';
+		
+		# Get the supported macros
+		$supportedMacros = $this->getSupportedMacros ();
+		
+		# Display a flash message if set
+		#!# Flash message support needs to be added to ultimateForm natively, as this is a common use-case
+		$successMessage = 'The definition has been updated.';
+		if ($flashValue = application::getFlashMessage ('submission', $this->baseUrl . '/')) {
+			$message = "\n" . "<p>{$this->tick} <strong>" . $successMessage . '</strong></p>';
+			$html .= "\n<div class=\"graybox flashmessage\">" . $message . '</div>';
+		}
+		
+		# Create a form
+		$form = new form (array (
+			'formCompleteText' => false,
+			'reappear'	=> true,
+			'display' => 'paragraphs',
+			'autofocus' => true,
+			'unsavedDataProtection' => true,
+			'whiteSpaceTrimSurrounding' => false,
+		));
+		$form->heading ('p', "Here you can define the translation of the Muscat data's XML representation to MARC21.");
+		$form->heading ('p', 'The parser uses <a target="_blank" href="http://msdn.microsoft.com/en-us/library/ms256122.aspx">XPath operators</a>, enclosed in { } brackets, used to target parts of the <a target="_blank" href="' . $this->baseUrl . '/schema.html">schema</a>.');
+		$form->heading ('p', 'Control characters may exist at the start of the line: A = All must result in a match for the line to be displayed; R = Repeatable field.');
+		$form->heading ('p', "A subfield can be set as optional by adding ?, e.g. {$this->doubleDagger}b?{//acq/ref} . Optional blocks found to be empty are removed before an A (all) control character is considered.");
+		$form->heading ('p', 'Macros available, written as <tt>{xpath..|macro:<em>macroname</em>}</tt>, are: <tt>' . implode ('</tt>, <tt>', $supportedMacros) . '</tt>. (Those for use in the two indicator positions are prefixed with <tt>indicators</tt>).');
+		$form->heading ('p', 'Lines starting with # are comments.');
+		$form->textarea (array (
+			'name'		=> 'definition',
+			'title'		=> 'Parser definition',
+			'required'	=> true,
+			'rows'		=> 30,
+			'cols'		=> 120,
+			'default'	=> $this->getMarcParserDefinition (),
+			'wrap'		=> 'off',
+		));
+		
+		# Validate the parser syntax
+		if ($unfinalisedData = $form->getUnfinalisedData ()) {
+			if ($unfinalisedData['definition']) {
+				$record = '';	// Bogus record - good enough for checking parsing
+				$this->convertToMarc ($unfinalisedData['definition'], $record, $errorString);
+				if ($errorString) {
+					$form->registerProblem ('compilefailure', $errorString);
+				}
+			}
+		}
+		
+		# Process the form
+		if ($result = $form->process ($html)) {
+			
+			# Save the latest version
+			$this->databaseConnection->insert ($this->settings['database'], 'marcparserdefinition', array ('definition' => $result['definition']));
+			
+			# Set a flash message
+			$function = __FUNCTION__;
+			$redirectTo = "{$_SERVER['_SITE_URL']}{$this->baseUrl}/{$this->actions[$function]['url']}";
+			$redirectMessage = "\n{$this->tick}" . ' <strong>' . $successMessage . '</strong></p>';
+			application::setFlashMessage ('submission', '1', $redirectTo, $redirectMessage, $this->baseUrl . '/');
+			
+			# Confirm success, resetting the HTML, and show the submission
+			$html = application::sendHeader (302, $redirectTo, true);
+		}
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# MARC21 output page
+	public function export ()
+	{
+		# End if no output
+		$directory = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl;
+		if (!file_exists ("{$directory}/marc.txt") || !file_exists ("{$directory}/marc.mrc") || !file_exists ("{$directory}/marc.errors.txt")) {
+			$html = "\n<p>There is no MARC output yet. Please <a href=\"{$this->baseUrl}/import/\">run an import</a> first.</p>";
+			echo $html;
+			return;
+		}
+		
+		# Compile the HTML
+		$html  = "\n<h3>Downloads</h3>";
+		$html .= "\n<ul class=\"downloads actions left spaced\">";
+		$html .= "\n\t<li><a class=\"actions\" href=\"{$this->baseUrl}/export/marc.txt\">MARC21 data (text)</a></li>";
+		$html .= "\n\t<li><a class=\"actions\" href=\"{$this->baseUrl}/export/marc.mrc\">MARC21 data (binary .mrc)</a></li>";
+		$html .= "\n</ul>";
+		
+		# Show errors
+		$html .= "\n<h3>Errors</h3>";
+		$filename = $directory . '/marc.errors.txt';
+		$errors = file_get_contents ($filename);
+		$html .= "\n<div class=\"graybox\">";
+		$html .= "\n<pre>";
+		$html .= htmlspecialchars ($errors);
+		$html .= "\n</pre>";
+		$html .= "\n</div>";
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# Function to return the parser definition
+	private function getMarcParserDefinition ()
+	{
+		# Get the latest version
+		$query = "SELECT definition FROM {$this->settings['database']}.marcparserdefinition ORDER BY id DESC LIMIT 1;";
+		if (!$definition = $this->databaseConnection->getOneField ($query, 'definition')) {
+			echo "\n<p class=\"warning\"><strong>Error:</strong> The MARC21 parser definition could not be retrieved.</p>";
+			return false;
+		}
+		
+		# Return the string
+		return $definition;
+	}
+	
+	
+	# Function to convert the data to MARC format
+	# NB XPath functions can have PHP modifications in them using php:functionString - may be useful in future http://www.sitepoint.com/php-dom-using-xpath/ http://cowburn.info/2009/10/23/php-funcs-xpath/
+	private function convertToMarc ($marcParserDefinition, $record, &$errorString = '')
+	{
+		# Ensure the line-by-line syntax is valid, extract macros, and construct a data structure representing the record
+		if (!$datastructure = $this->convertToMarc_InitialiseDatastructure ($record, $marcParserDefinition, $errorString)) {return false;}
+		
+		# End if not all macros are supported
+		if (!$this->convertToMarc_MacrosAllSupported ($datastructure, $errorString)) {return false;}
+		
+		# Load the record as a valid XML object
+		$xmlProlog = '<' . '?xml version="1.0" encoding="utf-8"?' . '>';
+		$record = $xmlProlog . "\n<root>" . "\n" . $record . "\n</root>";
+		$xml = new SimpleXMLElement ($record);
+		
+		# Perform XPath replacements
+		if (!$datastructure = $this->convertToMarc_PerformXpathReplacements ($datastructure, $xml, $errorString)) {return false;}
+		
+		# Expand repeatable fields
+		if (!$datastructure = $this->convertToMarc_ExpandRepeatableFields ($datastructure, $errorString)) {return false;}
+		
+		# Process the record
+		$record = $this->convertToMarc_ProcessRecord ($datastructure, $errorString);
+		
+		# Return the record
+		return $record;
+	}
+	
+	
+	# Function to ensure the line-by-line syntax is valid, extract macros, and construct a data structure representing the record
+	private function convertToMarc_InitialiseDatastructure ($record, $marcParserDefinition, &$errorString = '')
+	{
+		# Convert the definition into lines
+		$marcParserDefinition = str_replace ("\r\n", "\n", $marcParserDefinition);
+		$lines = explode ("\n", $marcParserDefinition);
+		
+		# Strip out comments and empty lines
+		foreach ($lines as $lineNumber => $line) {
+			
+			# Skip empty lines
+			if (!trim ($line)) {unset ($lines[$lineNumber]);}
+			
+			# Skip comment lines
+			if (substr ($line, 0, 1) == '#') {unset ($lines[$lineNumber]); continue;}
+		}
+		
+		# Start the datastructure by loading each line
+		$datastructure = array ();
+		foreach ($lines as $lineNumber => $line) {
+			$datastructure[$lineNumber]['line'] = $line;
+		}
+		
+		# Ensure the line-by-line syntax is valid, extract macros, and construct a data structure representing the record
+		foreach ($lines as $lineNumber => $line) {
+			
+			# Initialise arrays to ensure attributes for each line are present
+			$datastructure[$lineNumber]['controlCharacters'] = array ();
+			$datastructure[$lineNumber]['xpathReplacements'] = array ();
+			$datastructure[$lineNumber]['macros'] = array ();
+			
+			# Special-case the leader
+			if (preg_match ('/^LDR(.+)$/', trim ($line))) {
+				$datastructure[$lineNumber]['line'] = trim ($line);
+				continue;
+			}
+			
+			# Validate and extract the syntax
+			if (!preg_match ('/^([A-Z]*)\s+([0-9]{3} .{3}.+)$/', $line, $matches)) {
+				$errorString = 'Line ' . ($lineNumber + 1) . ' does not have the right syntax.';
+				return false;
+			}
+			
+			# Strip away (and cache) the control characters
+			$datastructure[$lineNumber]['controlCharacters'] = str_split ($matches[1]);
+			$datastructure[$lineNumber]['line'] = $matches[2];
+			
+			# Extract all XPath references, whichever line they are on
+			preg_match_all ("|{([^}]+)}|U", $line, $matches, PREG_SET_ORDER);
+			foreach ($matches as $match) {
+				$xpath = $match[1];
+				
+				# Firstly, register macro requirements by stripping these from the end of the XPath, e.g. {/*/isbn|macro:validisbn|macro:foobar} results in $datastructure[$lineNumber]['macros'][/*/isbn|macro] = array ('xpath' => 'validisbn', 'macrosThisXpath' => 'foobar')
+				$macrosThisXpath = array ();
+				while (preg_match ('/^(.+)\|macro:([^|]+)$/', $xpath, $macroMatches)) {
+					array_unshift ($macrosThisXpath, $macroMatches[2]);
+					$xpath = $macroMatches[1];
+				}
+				if ($macrosThisXpath) {
+					$datastructure[$lineNumber]['macros'][$match[0]] = array ('xpath' => $xpath, 'macrosThisXpath' => $macrosThisXpath);	// Note that using [xpath]=>macrosThisXpath is not sufficient as lines can use the same xXath more than once
+				}
+				
+				# Register the XPaths
+				$datastructure[$lineNumber]['xpathReplacements'][$match[0]] = $xpath;
+			}
+		}
+		
+		# Return the datastructure
+		return $datastructure;
+	}
+	
+	
+	# Function to check all macros are supported
+	private function convertToMarc_MacrosAllSupported ($datastructure, &$errorString = '')
+	{
+		# Get the supported macros
+		$supportedMacros = $this->getSupportedMacros ();
+		
+		# Work through each line of macros
+		$unknownMacros = array ();
+		foreach ($datastructure as $lineNumber => $line) {
+			foreach ($line['macros'] as $find => $attributes) {
+				foreach ($attributes['macrosThisXpath'] as $macro) {
+					$macro = preg_replace ('/^!([a-zA-Z]+)/', '\1', $macro);	// Strip any prefixed !
+					$macro = preg_replace ('/^([a-zA-Z]+)\([^)]+\)/', '\1', $macro);	// Strip any prefixed (..) argument
+					if (!in_array ($macro, $supportedMacros)) {
+						$unknownMacros[] = $macro;
+					}
+				}
+			}
+		}
+		if ($unknownMacros) {
+			$errorString = 'Not all macros were recognised: ' . implode (', ', $unknownMacros);
+			return false;
+		}
+		
+		# No problems found
+		return true;
+	}
+	
+	
+	# Function to perform Xpath replacements
+	private function convertToMarc_PerformXpathReplacements ($datastructure, $xml, &$errorString = '')
+	{
+		# Perform XPath replacements
+		$compileFailures = array ();
+		foreach ($datastructure as $lineNumber => $line) {
+			
+			# Determine if the line is repeatable
+			$isRepeatable = (in_array ('R', $datastructure[$lineNumber]['controlCharacters']));
+			
+			# Work through each Xpath replacement
+			foreach ($line['xpathReplacements'] as $find => $xpath) {
+				
+				# Attempt to parse
+				$result = @$xml->xpath ('/root' . $xpath);
+				
+				# Check for compile failures
+				if ($result === false) {
+					$compileFailures[] = $xpath;
+					continue;
+				}
+				
+				# If there was a match, show it
+				if ($result) {
+					
+					# Obtain the value component(s)
+					$value = array ();
+					foreach ($result as $node) {
+						$value[] = (string) $node;
+					}
+					
+					/*
+					  NOTE:
+					  
+					  The order of processing here is important.
+					  
+					  Below are two steps:
+					  
+					  1) Assemble the string components (unless repeatable) into a single string
+					     e.g. {//k/kw} may end up with values 'Foo' 'Bar' 'Zog'
+						 therefore these become imploded to:
+						 FooBarZog
+						 However, if the R (Repeatable) flag is present at the very start of the line, then that will be stored as
+						 array('Foo', 'Bar', 'Zog')
+						 
+					  2) Run the value through any macros that have been defined for this XPath on this line
+					     This takes effect on each value now present, i.e.
+						 {//k/kw|macro::dotend} would result in either:
+						 R:        FooBarZog.
+						 (not R):  array('Foo.', 'Bar.', 'Zog.')
+						 
+					  So, currently, the code does the merging first, then macro processing on each element.
+					*/
+					
+					# Assemble the string components (unless repeatable) into a single string
+					if (!$isRepeatable) {
+						$value = implode ('', $value);
+					}
+					
+					# Run the value through any macros that have been defined for this XPath on this line
+					if (isSet ($datastructure[$lineNumber]['macros'][$find])) {
+						
+						# Determine the macro(s) for this Xpath
+						$macros = $datastructure[$lineNumber]['macros'][$find]['macrosThisXpath'];
+						
+						# For a repeatable field, process each value; otherwise process the compiled string
+						if ($isRepeatable) {
+							foreach ($value as $index => $subValue) {
+								$value[$index] = $this->processMacros ($xml, $subValue, $macros);
+							}
+						} else {
+							$value = $this->processMacros ($xml, $value, $macros);
+						}
+					}
+					
+					# Register the processed value
+					$datastructure[$lineNumber]['xpathReplacements'][$find] = $value;	// $value is usually a string, but an array if repeatable
+				} else {
+					$datastructure[$lineNumber]['xpathReplacements'][$find] = '';
+				}
+			}
+		}
+		
+		# If there are compile failures, assemble this into an error message
+		if ($compileFailures) {
+			$errorString = 'Not all expressions compiled: ' . implode ($compileFailures);
+			return false;
+		}
+		
+		# Return the datastructure
+		return $datastructure;
+	}
+	
+	
+	# Function to expand repeatable fields
+	private function convertToMarc_ExpandRepeatableFields ($datastructureUnexpanded, &$errorString = '')
+	{
+		$datastructure = array ();	// Expanded version, replacing the original
+		foreach ($datastructureUnexpanded as $lineNumber => $line) {
+			
+			# If not repeatable, copy the attributes across unamended, and move on
+			if (!in_array ('R', $line['controlCharacters'])) {
+				$datastructure[$lineNumber] = $line;
+				continue;
+			}
+			
+			# For repeatable, first check the counts are consistent (e.g. if //k/kw generated 7 items, and //a/b generated 5, throw an exception, as behaviour is undefined)
+			$counts = array ();
+			foreach ($line['xpathReplacements'] as $find => $values) {
+				$counts[$find] = count ($values);
+			}
+			if (count (array_count_values ($counts)) != 1) {
+				$errorString = 'Line ' . ($lineNumber + 1) . ' is a repeatable field, but the number of generated values in the subfields are not consistent:' . application::dumpData ($counts, false, true);
+				return false;
+			}
+			
+			# If there are no values on this line, then no expansion is needed, so copy the attributes across unamended, and move on
+			if (!$values) {	// Reuse the last $values - it will be confirmed as being the same as all subfields will have
+				$datastructure[$lineNumber] = $line;
+				continue;
+			}
+			
+			# Split each original line then discard the original
+			foreach ($line['xpathReplacements'] as $find => $values) {
+				foreach ($values as $index => $value) {
+					
+					# Assign the new key (original key, plus the subvalue index)
+					$newLineNumber = "{$lineNumber}_{$index}";
+					
+					# Clone the line to a new line, and do the same for control characters
+					$datastructure[$newLineNumber]['line'] = $line['line'];
+					$datastructure[$newLineNumber]['controlCharacters'] = $line['controlCharacters'];
+					
+					# Move each subfield value so that it is indexed by line
+					$datastructure[$newLineNumber]['xpathReplacements'][$find] = $value;
+				}
+			}
+		}
+		
+		# Return the newly-expanded datastructure
+		return $datastructure;
+	}
+	
+	
+	# Function to process the record
+	private function convertToMarc_ProcessRecord ($datastructure, $errorString)
+	{
+		# Process each line
+		$outputLines = array ();
+		foreach ($datastructure as $lineNumber => $attributes) {
+			$line = $attributes['line'];
+			
+			# Perform XPath replacements if any, working through each replacement
+			if ($datastructure[$lineNumber]['xpathReplacements']) {
+				foreach ($datastructure[$lineNumber]['xpathReplacements'] as $find => $replace) {
+					
+					# Determine if the item is an optional block, which has the effect of overriding an 'A' (all) control character, and wipes out the block
+					$optionalBlock = false;
+					$delimiter = '/';
+					$completeBlockMatch = $delimiter . "(({$this->doubleDagger}[a-z])\?(" . preg_quote ($find, $delimiter) . ")(\s*))({$this->doubleDagger}|$)" . $delimiter . 'u';
+					if (preg_match ($completeBlockMatch, $line, $matches)) {
+						$optionalBlock = true;
+						
+						# If there is a value, remove the ? modifer; if there is no value, wipe out the optional block from the line entirely
+						//application::dumpData ($matches);
+						if (strlen ($replace)) {
+							$line = preg_replace ($completeBlockMatch, '\2\3\4\5', $line);	// i.e. "?b?{//acq/ref} ?c..." becomes "?b{//acq/ref} ?c..."
+						} else {
+							$line = preg_replace ($completeBlockMatch, '\5', $line);		// i.e. "?b?{//acq/ref} ?c..." becomes "?c..."
+						}
+					}
+					
+					# If there is an 'A' (all) control character, require all placeholders to have resulted in text
+					#!# Currently this takes no account of the use of a macro in the nonfiling-character section (e.g. 02), i.e. those macros prefixed with indicators; however in practice that should always return a string
+					if (in_array ('A', $datastructure[$lineNumber]['controlCharacters'])) {
+						if (!$optionalBlock) {
+							if (!strlen ($replace)) {continue 2;}
+						}
+					}
+				}
+				
+				# Perform string translation on each line
+				$line = strtr ($line, $datastructure[$lineNumber]['xpathReplacements']);
+			}
+			
+			# Register the value
+			$outputLines[] = $line;
+		}
+		
+		# Compile the record
+		$record = implode ("\n", $outputLines);
+		
+		# Return the record
+		return $record;
+	}
+	
+	
+	# Reverse-transliteration definition
+	public function transliterator ()
+	{
+		# Start the HTML
+		$html  = '';
+		
+		# Define the language
+		$language = 'Russian';
+		
+		# Display a flash message if set
+		#!# Flash message support needs to be added to ultimateForm natively, as this is a common use-case
+		$successMessage = 'The definition has been updated.';
+		if ($flashValue = application::getFlashMessage ('submission', $this->baseUrl . '/')) {
+			$message = "\n" . "<p>{$this->tick} <strong>" . $successMessage . '</strong></p>';
+			$html .= "\n<div class=\"graybox flashmessage\">" . $message . '</div>';
+		}
+		
+		# Create a form
+		$form = new form (array (
+			'formCompleteText' => false,
+			'reappear'	=> true,
+			'display' => 'paragraphs',
+			'autofocus' => true,
+			'unsavedDataProtection' => true,
+			'whiteSpaceTrimSurrounding' => false,
+		));
+		$form->heading ('p', "Here you can define the reverse-transliteration definition.");
+		$form->heading ('p', 'Character set numbers - useful references for copying and pasting: <a href="http://en.wikipedia.org/wiki/Russian_alphabet" target="_blank">Russian</a> and <a href="http://en.wikipedia.org/wiki/List_of_Unicode_characters#Basic_Latin" target="_blank">Basic latin</a>.');
+		$form->textarea (array (
+			'name'		=> 'definition',
+			'title'		=> 'Reverse-transliteration definition',
+			'required'	=> true,
+			'rows'		=> 30,
+			'cols'		=> 120,
+			'default'	=> $this->getReverseTransliterationDefinition (),
+			'wrap'		=> 'off',
+		));
+		
+		# Validate the parser syntax
+		if ($unfinalisedData = $form->getUnfinalisedData ()) {
+			if ($unfinalisedData['definition']) {
+				require_once ('xml.php');
+				if (!xml::isValid ($unfinalisedData['definition'], $errors)) {
+					$form->registerProblem ('invalidxml', 'The definition was not valid XML, as per the following error(s):' . application::htmlUl ($errors));
+				}
+			}
+		}
+		
+		# Process the form
+		if ($result = $form->process ($html)) {
+			
+			# Save the latest version
+			$this->databaseConnection->insert ($this->settings['database'], 'reversetransliterationdefinition', array ('definition' => $result['definition']));
+			
+			# Compile the reverse transliterator
+			if (!$this->compileReverseTransliterator ($result['definition'], $language, $errorHtml)) {
+				echo "\n<p class=\"warning\">{$errorHtml}</p>";
+				return false;
+			}
+			
+			# Set a flash message
+			$function = __FUNCTION__;
+			$redirectTo = "{$_SERVER['_SITE_URL']}{$this->baseUrl}/{$this->actions[$function]['url']}";
+			$redirectMessage = "\n{$this->tick}" . ' <strong>' . $successMessage . '</strong></p>';
+			application::setFlashMessage ('submission', '1', $redirectTo, $redirectMessage, $this->baseUrl . '/');
+			
+			# Confirm success, resetting the HTML, and show the submission
+			$html = application::sendHeader (302, $redirectTo, true);
+		}
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# Function to compile the reverse transliteration file
+	private function compileReverseTransliterator ($definition, $language, &$errorHtml = '')
+	{
+		# Define the local CPAN directory and the translit compilation directory
+		$translitDir = "{$this->cpanDir}/Lingua-Translit-0.22";
+		
+		# Define a reverse transliteration definition file name; e.g. 'BGN PCGN 1947' should be bgn_pcgn_1947.xml
+		$filename = str_replace (' ', '_', strtolower ($this->supportedReverseTransliterationLanguages[$language])) . '.xml';
+		
+		# Write out the file
+		$reverseTransliterationFile = $translitDir . '/xml/' . $filename;
+		if (!file_put_contents ($reverseTransliterationFile, $definition)) {
+			$errorHtml = 'Error saving the transliteration file.';
+			return false;
+		}
+		
+		# Compile the transliterations
+		/* Equivalent for a root build is:
+			cd /root/.cpan/build/Lingua-Translit-0.22-th0SPW/xml/
+			make all-tables
+			cd /root/.cpan/build/Lingua-Translit-0.22-th0SPW/
+			make clean
+			perl Makefile.PL
+			make
+			make install
+		*/
+		$command = "cd {$translitDir}/xml/ && make all-tables && cd {$translitDir}/ && make clean && perl Makefile.PL INSTALL_BASE={$translitDir} && make && make install";
+		exec ($command, $output, $unixReturnValue);
+		if ($unixReturnValue != 0) {
+			$errorHtml = "Error (return status: <em>{$unixReturnValue}</em>) recompiling the transliterations: <tt>" . application::htmlUl ($output) . "</tt>";
+			return false;
+		}
+		
+		# Signal success
+		return true;
+	}
+	
+	
+	# Function to return the reverse-transliteration definition
+	private function getReverseTransliterationDefinition ()
+	{
+		# Get the latest version
+		$query = "SELECT definition FROM {$this->settings['database']}.reversetransliterationdefinition ORDER BY id DESC LIMIT 1;";
+		if (!$definition = $this->databaseConnection->getOneField ($query, 'definition')) {
+			echo "\n<p class=\"warning\"><strong>Error:</strong> The reverse-transliteration definition could not be retrieved.</p>";
+			return false;
+		}
+		
+		# Return the string
+		return $definition;
+	}
+	
+	
+	# Function to get a list of supported macros
+	private function getSupportedMacros ()
+	{
+		# Get the list of matching functions
+		$methods = get_class_methods ($this);
+		
+		# Find matches
+		$macros = array ();
+		foreach ($methods as $method) {
+			if (preg_match ('/^macro_([a-zA-Z0-9]+)/', $method, $matches)) {
+				$macros[] = $matches[1];
+			}
+		}
+		
+		# Return the list
+		return $macros;
+	}
+	
+	
+	# Function to process strings through macros; macros should return a processed string, or false upon failure
+	private function processMacros ($xml, $string, $macros)
+	{
+		# Pass the string through each macro in turn
+		foreach ($macros as $macro) {
+			
+			# Cache the original string
+			$originalString = $string;
+			
+			# Determine if this is a negative-match macro, preceeded with !, which means that if output is generated then the string is not valid
+			$negativeMatchMode = false;
+			if (preg_match ('/!(.+)/', $macro, $matches)) {
+				$macro = $matches[1];	// Overwrite the method name, e.g. !validIsbn will check the results of macro_validIsbn() in negative-match mode
+				$negativeMatchMode = true;
+			}
+			
+			# Determine any argument supplied
+			$parameter = NULL;
+			if (preg_match ('/([a-zA-Z0-9]+)\(([^)]+)\)/', $macro, $matches)) {
+				$macro = $matches[1];	// Overwrite the method name, e.g. !validIsbn will check the results of macro_validIsbn() in negative-match mode
+				$parameter = $matches[2];
+			}
+			
+			# Pass the string through the macro
+			$macroMethod = 'macro_' . $macro;
+			if (is_null ($parameter)) {
+				$string = $this->{$macroMethod} ($string, $xml);
+			} else {
+				$string = $this->{$macroMethod} ($string, $xml, $parameter);
+			}
+			
+			# In negative-match mode, if a string has been returned, then use the string unmodified
+			if ($negativeMatchMode) {
+				if (strlen ($string)) {
+					return false;
+				} else {
+					$string = $originalString;	// Reset and use this
+				}
+			}
+			
+			// Continue to next macro (if any), using the processed string as it now stands
+		}
+		
+		# Return the string
+		return $string;
+	}
+	
+	
+	/* Macros */
+	
+	
+	# ISBN validation
+	private function macro_validisbn ($value)
+	{
+		# Validate, or end; see: https://github.com/davemontalvo/ISBN-Tools/blob/master/isbn_tools.php
+		require_once ('ISBN-Tools/isbn_tools.php');
+		if (!validateISBN ($value)) {return false;}
+		// if (!preg_match ('/^(97(8|9))?\d{9}(\d|X)$/', $value)) {return false;}
+		
+		# Return the value unmodified if it passes the test
+		return $value;
+	}
+	
+	
+	# URL fixing
+	#!# Ideally get rid of this once the data is fixed up
+	private function macro_urlFix ($value)
+	{
+		# Add http:// if not at start
+		if (!preg_match ('~^(http|https|ftp)://~', $value)) {
+			$value = 'http://' . $value;
+		}
+		
+		# Return the value, possibly modified
+		return $value;
+	}
+	
+	
+	# Splitting of strings with colons in
+	private function macro_colonSplit ($value, $xml, $splitMarker)
+	{
+		# Return unmodified if no split
+		if (!preg_match ('/^([^:]+) ?: (.+)$/', $value, $matches)) {
+			return $value;
+		}
+		
+		# If a split is found, assemble
+		$value = trim ($matches[1]) . " : {$this->doubleDagger}{$splitMarker} " . trim ($matches[2]);
+		
+		# Return the value
+		return $value;
+	}
+	
+	
+	# Require a dot
+	private function macro_requireDot ($value)
+	{
+		# End if none
+		if (!preg_match ('/^([^:]+) ?\. (.+)$/', $value, $matches)) {
+			return false;
+		}
+		
+		# Return unmodified if present
+		return $value;
+	}
+	
+	
+	
+	# Splitting of strings with a dot
+	private function macro_dotSplit ($value, $xml, $splitMarker)
+	{
+		# Return unmodified if no split
+		if (!preg_match ('/^([^:]+) ?\. (.+)$/', $value, $matches)) {
+			return $value;
+		}
+		
+		# If a split is found, assemble
+		$value = trim ($matches[1]) . ". {$this->doubleDagger}{$splitMarker} " . trim ($matches[2]);
+		
+		# Return the value
+		return $value;
+	}
+	
+	
+	# Ending strings with dots
+	private function macro_dotEnd ($value)
+	{
+		# Return unmodified if no split
+		if (preg_match ('/^(.+)\.$/', $value, $matches)) {
+			return $value;
+		}
+		
+		# Add the dot
+		$value .= '.';
+		
+		# Return the value
+		return $value;
+	}
+	
+	
+	# Macro for constructing an author name; see also http://www.loc.gov/marc/bibliographic/bd100.html
+	# NB for future: Spreadsheet is being updated such that this macro will also take into account *ad, as well as other more detailed logic
+	private function macro_authorName ($value, $xml, $parameter, $is245Format = false)
+	{
+		# Obtain *n1, *n2, *nd (e.g. Forename, Surname, Jnr)
+		$n1 = $this->xPathValue ($xml, "{$parameter}/n1");
+		$n2 = $this->xPathValue ($xml, "{$parameter}/n2");
+		$nd = $this->xPathValue ($xml, "{$parameter}/nd");
+		
+		# Determine prefix/suffix based on value of $nd
+		#!# More needed - updated list to follow
+		$prefixes = array ('Dame', 'Field Marshall', 'Earl of', "\vAdmiral Sir\n", "\vCommander\n", "\vEnsign\n", "\vFreiherr\n", "\vGeneral Sir\n", "\vHon\n", "\vReverend\n", "\vSir\n", "Abbe^a", "Admiral", "Admiral Lord", "Admiral of the Fleet, Sir", "Admiral Sir", "Admiral, Sir", "Amiral", "Archdeacon", "Archpriest", "Baron", "Baroness", "Bishop", "Brigadier", "Brigadier-General", "Capita^an", "Capitan", "Capt.", "Captain", "Captaine de fre^agate", "Cdr", "Cdr.", "Chief Justice", "Chief-Justice", "Cmdr", "Col.", "Colonel", "Commandant", "Commandante", "Commander", "Commodore", "Conte", "Contre-Amiral", "Coronel", "Count", "Doctor", "Dom", "Dr", "Dr.", "Father", "Fr", "Freiherr", "General", "General, Count", "General, Sir", "Graf", "Hon.", "Kapita^un", "Kommando^zrkaptajn", "Korv. Kapt.", "L'Abbe^a", "l'amiral", "Lady", "Lieut", "Lieut.", "Lieutenant Colonel", "Lieutenant General", "Lord", "Lt", "Lt Cdr", "Lt.", "Lt. Col.", "Maj. Gen.", "Major", "Major General", "Mme", "Mme.", "Mrs", "Mrs J.S.C.", "Mrs Tom", "Mrs.", "Prince", "Prince San Donato", "Professor", "Protoierey", "Rear Admiral", "Rear-Admiral", "Rev", "Rev.", "Rev. Dr.", "Rev'd", "Revd", "Reverend", "Right Hon. Lord", "Ritter", "Rt. Hon.", "Sir", "Sister", "The Venerable", "Vice Admiral Sir", "Vice-Admiral", "Viscount");
+		$suffixes = array ("... [et al.]", "\vII\n", "\vIII\n", "\vJr, M.D.\n", "\vJr.\n", "\vJr\n", "\vKapt. zur See\n", "\vM.D.\n", "\vOMI\n", "\vR.N.\n", "\vSr SGM\n", "\vSr\n", "10th Baron Strabolgi", "1797-1823", "1st Baron", "1st Baron Mountevans", "1st baron Moyne", "1st Baron Tweedsmuir", "1st Marquis of Dufferin and Ava", "2nd Baron", "2nd Baron Tweedsmuir", "4th Baron", "Archbishop of Uppsala", "Baron Ashburton", "Baron de", "Baron von", "Baroness Tweedsmuir", "Bishop of Exeter", "Bishop of Keewatin", "Bishop of Kingston", "Bishop of Tasmania", "C.B., R.D., Commander R.N.R., Marine Superintendent", "Campsterianus", "Capt. US Navy (Ret)", "Chevalier de", "Col USAF (Ret.) Lt", "Director", "Duc d'", "Duchess of Bedford", "Duke of", "Earl", "Earl of", "Earl of Northbrook", "Earl of Southesk", "H.E. Ambassador", "II", "II.", "III", "Ing.", "IV", "Jnr", "Jr", "Jr eds", "Jr, MD", "Jr.", "Junior", "K.C.B. K.C.", "King of Norway", "l'Aine^a", "Lord Kennet", "Lord of Roberval", "Lord, 1920-1999", "Lt. Colonel, USAF-Retired", "M.D.", "MA, Phd", "Major, D.S.O.", "Marquis of", "O.M.", "O.M.I.", "OMI", "Prince di Cannino", "Prince of Monaco", "Prince of Wales, 1948-", "Rear Admiral, USN (Ret.)", "Rear Admiral, USN (Ret)", "Rev., O.M.I.", "Sir, C.B., F.R.S., President of the Royal Geographical Society, and ", "President of the Hakluyt Society", "Sister, S.S.A.", "SJ", "Sr", "Sr.", "Third Baron");
+		$prefix = (in_array ($nd, $prefixes) ? $nd . ' ' : false);
+		$suffix = (in_array ($nd, $suffixes) ? ($is245Format? ' ' : ",{$this->doubleDagger}") . $nd : false);
+		
+		# If no result, return false
+		if (!strlen ($n1)) {return false;}
+		
+		# If 'Anon', return only that
+		if ($n1 == 'Anon') {return $n1;}
+		
+		# Assemble into a single string
+		if ($is245Format) {
+			$value = "{$prefix}{$n2} {$n1}{$suffix}";		// For 245, prefix/suffix is: "Dame Elizabeth Smith", "John Smith Jr."
+		} else {
+			#!# Need to check "$aSmith, John,$cJr."
+			$value = "{$n1}, {$prefix}{$n2}{$suffix}";				// For 100/700, prefix/suffix is: "Smith, Dame Elizabeth", "$aSmith, John,$cJr."
+		}
+		
+		# Remove extraneous spaces
+		$value = str_replace ('  ', ' ', trim ($value));
+		
+		# Return the string
+		return $value;
+	}
+	
+	
+	# Macro for generating the statement of responsibility (as used by 245c [uses e])
+	private function macro_generateStatementOfResponsibility245c ($value, $xml)
+	{
+		#!# If 245c then 245?a should never end with a dot
+		
+		# Ignore the supplied value
+		$value = NULL;
+		
+		# Get each author
+		$tryAuthors = 4;	// 3, plus one more which counts as 'more'
+		$authors = array ();
+		for ($i = 1; $i <= $tryAuthors; $i++) {
+			$authorName = $this->macro_authorName ($value, $xml, "/*/ag/a[{$i}]", $is245Format = true);
+			if (strlen ($authorName)) {
+				$authors[$i] = $authorName;
+			}
+		}
+		
+		# If no author 1, i.e. no authors, return blank
+		if (!$authors) {return false;}
+		
+		# If first author is is 'Anon', return blank
+		if ($authors[1] == 'Anon') {return false;}
+		
+		# If 1-3 100s then list each one, imploded by ', '
+		if (count ($authors) <= 3) {
+			$value = application::commaAndListing ($authors);
+		}
+		
+		# If more than 3 authors, then add et al
+		if (count ($authors) > 3) {
+			$value = $authors[1] . '... [et al.]';
+		}
+		
+		# Add processing for @ad (authorial detail)
+		$ads = $this->xPathValues ($xml, "/*/ag/ad[{$i}]");
+		if ($ads) {
+			$prefix = false;
+			$suffix = false;
+			foreach ($ads as $ad) {
+				
+				# If @ad in 'ed.?'/'eds.?' then add to the start 'edited by ' at the start of the block; ditto 'comp'/'comps' => 'compiled by '
+				#!# If either present here, all names go into 700, and there will be no 100 field
+				$prefixes = array (
+					'/^(eds?\.?)$/'		=> 'edited by ',
+					'/^(comps?\.?)$/'	=> 'compiled by ',
+				);
+				foreach ($prefixes as $find => $replace) {
+					if (preg_match ($find, $ad)) {
+						$prefix = $replace;
+						continue 2;		// Skip any more searches for this, and go to the next $ad as we don't need any further checks
+					}
+				}
+				
+				# If there is an @ad and has /^and ([1-9][0-9]*) others$/, then add et al
+				if (preg_match ('/^and [1-9][0-9]* others$/', $ad)) {
+					$value = $authors[1];	// Overwrite the value to be the first author only
+					$suffix = '... [et al.]';
+					continue 1;		// Go to the next $ad as we don't need any further checks
+				}
+			}
+			$value = $prefix . $value . $suffix;
+		}
+		
+		# Check for @e (editors); see /records/169916/ which is a good example
+		#!# Need to count highest number of @e fields and use that, rather than arbitrary 20 here
+		$tryEditorGroups = 20;
+		$editorGroups = array ();
+		for ($i = 1; $i <= $tryEditorGroups; $i++) {
+			
+			# End if no such group
+			if (!$editorGroup = $this->xPathValue ($xml, "/*/e[{$i}]")) {break;}
+			
+			# Obtain the role
+			$role = $this->xPathValue ($xml, "/*/e[{$i}]/role");
+			
+			# Get the editors
+			$tryEditors = 4;	// 3, plus one more which counts as 'more'
+			$editors = array ();
+			for ($j = 1; $j <= $tryAuthors; $j++) {
+				$editorName = $this->macro_authorName ($value, $xml, "/*/e[{$i}]/n[$j]", $is245Format = true);
+				if (strlen ($editorName)) {
+					$editors[$j] = $editorName;
+				}
+			}
+			
+			#!# Need report to check there are no cases where <e> has <role> but no <n> editors
+			
+			# Assemble and append the string to the value
+			$value .= ' ; ' . lcfirst ($role) . ' ' . application::commaAndListing ($editors);
+		}
+		
+		# Add ' / ' at start
+		$value = ' / ' . $value;
+		
+		# Return the value
+		return $value;
+	}
+	
+	
+	# Function to get an XPath value
+	private function xPathValue ($xml, $xPath)
+	{
+		$result = @$xml->xpath ('/root' . $xPath);
+		if (!$result) {return false;}
+		$value = array ();
+		foreach ($result as $node) {
+			$value[] = (string) $node;
+		}
+		$value = implode ($value);
+		return $value;
+	}
+	
+	
+	# Function to get a set of XPath values for a field known to have multiple entries
+	private function xPathValues ($xml, $xPath)
+	{
+		$values = array ();
+		$maxItems = 20;
+		for ($i = 1; $i <= $maxItems; $i++) {
+			$value = $this->xPathValue ($xml, $xPath);
+			if (strlen ($value)) {
+				$values[$i] = $value;
+			}
+		}
+		
+		# Return the values
+		return $values;
+	}
+	
+	
+	# Macro for generating the statement of responsibility (and 250a [uses ee])
+	private function macro_generateStatementOfResponsibility250a ($value, $xml)
+	{
+		# If there is no @edn then return false;
+		
+		# Start with @edn
+		
+		# If there is no @ee, return all so far and end
+		
+		# If there is a //e/role then add that
+		
+		# Add each //e/n/ add those using the same "@n1, @n2 @nd" rule as per "@subroutine for author names" block above
+		
+		# Return that value
+		
+	}
+	
+	
+	
+	# Macro for 508 fields (note relating to the additional author specification), which uses ad; see: http://www.loc.gov/marc/bibliographic/bd508.html
+	private function macro_generate508 ($value)
+	{
+		# Return false if not in the 'and X others' format
+		if (!preg_match ('/^and ([1-9][0-9]*) others$/', $value, $matches)) {return false;}
+		
+		# Assemble the text
+		$value = 'Statement of responsibility includes: ' . $matches[1] . ' others';
+		
+		# Return the value
+		return $value;
+	}
+	
+	
+	# Macro to generate the stop word count; this does not actually modify the string itself - just returns a number
+	private function macro_indicatorsStopWordsCount ($value, $xml)
+	{
+		# Get the stop words list, indexed by language
+		$stopWords = $this->stopWords ();
+		
+		# Obtain the language value for the record
+		$xPath = '//lang[1]';	// Choose first only
+		$language = $this->xPathValue ($xml, $xPath);
+		
+		#!# Note /records/2071/ has "546    ?aFrenchFrench"
+		
+		# If no language specified, choose 'English'
+		if (!strlen ($language)) {$language = 'English';}
+		
+		# End if the language is not in the list of stop words
+		if (!isSet ($stopWords[$language])) {return '0';}
+		
+		# Work through each stop word, and if a match is found, return the string length
+		foreach ($stopWords[$language] as $stopWord) {
+			if (preg_match ("/^{$stopWord} /i", $value)) {	// Case-insensitive match
+				return (string) (strlen ($stopWord) + 1); // Include the space
+			}
+		}
+		
+		# Return '0' by default
+		return '0';
+	}
+	
+	
+	# Lookup table for stop words in various languages
+	private function stopWords ()
+	{
+		# Define the stop words
+		$stopWords = array (
+			'a' => 'English glg Hungarian Portuguese',
+			'al-' => 'ara',
+			'an' => 'English',
+			'ane' => 'enm',
+			'das' => 'German',
+			'de' => 'Danish Swedish',
+			'dem' => 'German',
+			'den' => 'Danish German Swedish',
+			'der' => 'German',
+			'det' => 'Danish German Swedish',
+			'die' => 'German',
+			'een' => 'Dutch',
+			'ei' => 'Norwegian',
+			'ein' => 'German Norwegian',
+			'eine' => 'German',
+			'einem' => 'German',
+			'einen' => 'German',
+			'einer' => 'German',
+			'eines' => 'German',
+			'eit' => 'Norwegian',
+			'el' => 'Spanish',
+			'els' => 'Catalan',
+			'en' => 'Danish Norwegian Swedish',
+			'et' => 'Danish Norwegian',
+			'ett' => 'Swedish',
+			'gl' => 'Italian',
+			'gli' => 'Italian',
+			'ha' => 'Hebrew',
+			'het' => 'Dutch',
+			'ho' => 'grc',
+			'il' => 'Italian mlt',
+			'l' => 'Catalan French Italian mlt',
+			'la' => 'Catalan French Italian Spanish',
+			'las' => 'Spanish',
+			'le' => 'French Italian',
+			'les' => 'Catalan French',
+			'lo' => 'Italian Spanish',
+			'los' => 'Spanish',
+			'os' => 'Portuguese',
+			'ta' => 'grc',
+			'ton' => 'grc',
+			'the' => 'English',
+			'um' => 'Portuguese',
+			'uma' => 'Portuguese',
+			'un' => 'Catalan Spanish French Italian',
+			'una' => 'Catalan Spanish Italian',
+			'une' => 'French',
+			'uno' => 'Italian',
+			'y' => 'wel',
+		);
+		
+		# Process the list, tokenising by language
+		$stopWordsByLanguage = array ();
+		foreach ($stopWords as $stopWord => $languages) {
+			$languages = explode (' ', $languages);
+			foreach ($languages as $language) {
+				$stopWordsByLanguage[$language][] = $stopWord;
+			}
+		}
+		
+		/*
+		# ACTUALLY, this is not required, because a space in the text is the delimeter
+		# Arrange by longest-first
+		$sortByStringLength = create_function ('$a, $b', 'return strlen ($b) - strlen ($a);');
+		foreach ($stopWordsByLanguage as $language => $stopWords) {
+			usort ($stopWords, $sortByStringLength);	// Sort by string length
+			$stopWordsByLanguage[$language] = $stopWords;	// Overwrite list with newly-sorted list
+		}
+		*/
+		
+		# Return the array
+		return $stopWordsByLanguage;
+	}
+	
+	
+	# Macro to generate the stop word count
+	private function macro_language066c ($value)
+	{
+		if ($value == 'Russian') {
+			return '(N';
+		}
+		
+		# Return false if no matches
+		return false;
+	}
+	
+	
+	# Macro to perform transliteration
+	private function macro_transliterate ($value, $xml)
+	{
+		# Obtain the language value for the record
+		$xPath = '//lang[1]';	// Choose first only
+		$language = $this->xPathValue ($xml, $xPath);
+		
+		# Pass the value into the transliterator programme
+		$output = $this->reverseTransliterateString ($value, $language);
+		
+		# Return the string
+		return $output;
+	}
+	
+	
+	
+	/* Reports */
+	
+	
+	# Naming report
+	private function report_q0naming ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'q0naming' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE fieldslist NOT LIKE '%@q0@%'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Naming report
+	private function report_missingcategory ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'missingcategory' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE fieldslist NOT REGEXP '@(doc|art|ser)@'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records without a *d that are not *ser and either no status or status is GLACIOPAMS
+	private function report_missingd ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'missingd' AS report,
+				catalogue_rawdata.recordId
+			FROM catalogue_rawdata
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist NOT LIKE '%@d@%'
+				AND fieldslist NOT LIKE '%@ser@%'
+				AND (
+					   fieldslist NOT LIKE '%@status@%'
+					OR (field = 'status' AND value = 'GLACIOPAMS')
+				)
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records without a *acc
+	private function report_missingacc ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'missingacc' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE fieldslist NOT LIKE '%@acc@%'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *ser records without a *r, except where location is Not in SPRI
+	private function report_sermissingr ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'sermissingr' AS report,
+				catalogue_rawdata.recordId
+			FROM catalogue_rawdata
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist LIKE '%@ser@%'
+				AND fieldslist NOT LIKE '%@r@%'
+				AND field = 'location'
+				AND value != 'Not in SPRI'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records where a *kb/*k2 is present but not both
+	private function report_kbk2mismatch ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'kbk2mismatch' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				   (fieldslist LIKE '%@kb@%' AND fieldslist NOT LIKE '%@k2@%')
+				OR (fieldslist LIKE '%@k2@%' AND fieldslist NOT LIKE '%@kb@%')
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *art records where there is no *loc and no *status
+	private function report_artwithoutlocstatus ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'artwithoutloc' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE fieldslist LIKE '%@art@%'
+			  AND fieldslist NOT LIKE '%@loc@%'
+			  AND fieldslist NOT LIKE '%@status@%'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *art records where *location begins with Pam
+	private function report_artlocationpam ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'artlocationpam' AS report,
+				catalogue_rawdata.recordId
+				/* ,
+				catalogue_rawdata.field,
+				catalogue_rawdata.value,
+				fieldsindex.fieldslist
+				*/
+			FROM catalogue_rawdata
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist LIKE '%@art@%'
+				AND fieldslist LIKE '%@location@%'
+				AND field = 'location'
+				AND value LIKE 'Pam%'
+			";
+		
+		/*
+		# Define the query; see http://stackoverflow.com/questions/4287822 for queries using the Entity-Attribute-Value (key-value-store) pattern
+		$query = "
+			SELECT
+				'artlocationpam' AS report,
+				location.id AS recordId
+			FROM fieldsindex
+			JOIN catalogue_rawdata AS location ON fieldsindex.id = location.id AND location.field = 'location'
+			WHERE
+				    fieldslist LIKE '%@art@%'
+				AND fieldslist LIKE '%@location@%'
+				AND location.value LIKE 'Pam%'
+			";
+		*/
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records without exactly one *tc
+	private function report_tcnotone ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'tcnotone' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE ((LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@tc@',''))) / LENGTH('@tc@')) != 1
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records whose *tg count does not match *t
+	private function report_tgmismatch ()
+	{
+		# Define the query; uses substring count method in comments at: http://www.thingy-ma-jig.co.uk/blog/17-02-2010/mysql-count-occurrences-string
+		$query = "
+			SELECT
+				'tgmismatch' AS report,
+				id
+			FROM fieldsindex
+			WHERE
+				((LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@t@',''))) / LENGTH('@t@')) !=
+				((LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@tg@',''))) / LENGTH('@tg@'))
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records without a *rpl
+	private function report_missingrpl ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'missingrpl' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE fieldslist NOT LIKE '%@rpl@%'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records in SPRI without a *rpl and without a *status, that are not *ser
+	private function report_missingrplstatus ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'missingrplstatus' AS report,
+				catalogue_rawdata.recordId
+			FROM catalogue_rawdata
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist NOT LIKE '%@ser@%'
+				AND fieldslist NOT LIKE '%@rpl@%'
+				AND fieldslist NOT LIKE '%@status@%'
+				AND field = 'location'
+				AND value != 'Not in SPRI'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records having only one *rpl and *rpl is O
+	private function report_rploncewitho ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'rploncewitho' AS report,
+				catalogue_rawdata.recordId
+			FROM catalogue_rawdata
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist LIKE '%@rpl@%'
+				AND ((LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@rpl@',''))) / LENGTH('@rpl@')) = 1
+				AND field = 'rpl'
+				AND value = 'O'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records having *rpl not matching [A-Z0-9]{1,3}
+	private function report_rpl3charaz09 ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'rpl3charaz09' AS report,
+				recordId
+			FROM catalogue_rawdata
+			WHERE
+				    field = 'rpl'
+				AND value NOT REGEXP '^[A-Z0-9]{1,3}$'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *loc records where there is no *location
+	private function report_locwithoutlocation ()
+	{
+		# Define the query
+		/*
+		$query = "
+			SELECT
+				'locwithoutlocation' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE fieldslist LIKE '%@loc@%'
+			  AND fieldslist NOT LIKE '%@location@%'
+			";
+		*/
+		$query = "
+			SELECT DISTINCT
+				'locwithoutlocation' AS report,
+				catalogue_rawdata.recordId
+			FROM catalogue_rawdata
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist LIKE '%@loc@%'
+				AND fieldslist NOT LIKE '%@location@%'
+				AND
+					(
+						fieldslist NOT LIKE '%@status@%'
+						OR 
+						(
+							    fieldslist LIKE '%@status@%'
+							AND field = 'status'
+							AND value != 'GLACIOPAMS'
+						)
+					)
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# records where the number of { doesn't match the number of }
+	private function report_unmatchedbrackets ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'unmatchedbrackets' AS report,
+				recordId
+			FROM catalogue_rawdata
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				(LENGTH(value)-LENGTH(REPLACE(value,'{','')))/LENGTH('{') !=	/* i.e. substr_count('{') */
+				(LENGTH(value)-LENGTH(REPLACE(value,'}','')))/LENGTH('}')
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# records where brackets are nested, e.g. { { text } }
+	private function report_nestedbrackets ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'nestedbrackets' AS report,
+				recordId
+			FROM catalogue_rawdata
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    value REGEXP '{([^}]*){'
+				AND value REGEXP '}([^{]*)}'
+				AND (LENGTH(value)-LENGTH(REPLACE(value,'{','')))/LENGTH('{') = 2
+				AND (LENGTH(value)-LENGTH(REPLACE(value,'}','')))/LENGTH('}') = 2
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with a *status field
+	private function report_status ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'status' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				fieldslist LIKE '%@status@%'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with a *status field where the status is not GLACIOPAMS
+	private function report_statusglaciopams ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'statusglaciopams' AS report,
+				catalogue_rawdata.recordId
+			FROM catalogue_rawdata
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist LIKE '%@status@%'
+				AND field = 'status'
+				AND value != 'GLACIOPAMS'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with a *status field and *location where the status is not GLACIOPAMS
+	private function report_statuslocationglaciopams ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'statuslocationglaciopams' AS report,
+				catalogue_rawdata.recordId
+			FROM catalogue_rawdata
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist LIKE '%@status@%'
+				AND fieldslist LIKE '%@location@%'
+				AND field = 'status'
+				AND value != 'GLACIOPAMS'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *doc records with one *location, which is Periodical
+	private function report_doclocationperiodical ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'doclocationperiodical' AS report,
+				catalogue_rawdata.recordId
+			FROM catalogue_rawdata
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist LIKE '%@doc@%'
+				AND fieldslist LIKE '%@location@%'
+				AND fieldslist NOT REGEXP '@location@.*@location@'	/* NOT two locations, i.e. exactly one */
+				AND field = 'location'
+				AND value = 'Periodical'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *doc records with two or more *locations, at least one of which is Periodical
+	private function report_doclocationlocationperiodical ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'doclocationlocationperiodical' AS report,
+				catalogue_rawdata.recordId
+			FROM catalogue_rawdata
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist LIKE '%@doc@%'
+				AND fieldslist LIKE '%@location@%'
+				AND fieldslist REGEXP '@location@.*@location@'	/* At least two locations */
+				AND field = 'location'
+				AND value = 'Periodical'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *in records which have a *j
+	private function report_inwithj ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'inwithj' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE fieldslist LIKE '%@in@%'
+			  AND fieldslist LIKE '%@j@%'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *art records with a *j where *t does not immediately follow *j
+	private function report_artnotjt ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'artnotjt' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE fieldslist LIKE '%@art@%'
+			  AND fieldslist LIKE '%@j@%'
+			  AND fieldslist NOT LIKE '%@j@tg@t@%'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *ser records where t is not unique
+	private function report_sernonuniquet ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'sernonuniquet' AS report,
+				id AS recordId
+			FROM fieldsindex
+			INNER JOIN (
+				SELECT title
+				FROM fieldsindex
+				WHERE fieldslist LIKE '%@ser@%'
+				GROUP BY title
+				HAVING COUNT(id) > 1
+			) AS subquerytable
+			ON fieldsindex.title = subquerytable.title
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records classified as articles which need to become documents
+	private function report_artbecomedoc ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'artbecomedoc' AS report,
+				catalogue_rawdata.recordId
+			FROM catalogue_rawdata
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist LIKE '%@art@%'
+				AND fieldslist NOT LIKE  '%@winlink@%'
+				AND fieldslist LIKE  '%@j@tg@t@%'			/* Looking for articles in journals */
+				AND fieldslist NOT LIKE  '%@status@%'		/* It has been processed */
+				AND fieldslist LIKE  '%@loc@%'
+				AND field = 'location'
+				AND value NOT LIKE 'Pam%'
+				AND value NOT LIKE 'Special Collection%'
+				AND value NOT LIKE 'Basement%'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	/*
+	# *art records who have become orphaned
+	private function report_orphanedart ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'orphanedart' AS report,
+				catalogue_rawdata.recordId,
+				fieldsindex.title
+			FROM catalogue_rawdata
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist LIKE '%@art@%'
+				AND fieldslist LIKE '%@j@tg@t@%'
+				AND field = 'location'
+				AND value = 'Periodical'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	*/
+	
+	
+	# *art records with a top-level *p
+	private function report_arttoplevelp ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'arttoplevelp' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE fieldslist REGEXP '@art@.+@p@.*@?(in|j)@'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# records with *in but no *kg
+	private function report_artinnokg ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'artinnokg' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE fieldslist LIKE '%@in@%'
+			  AND fieldslist NOT LIKE '%@kg@%'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Linked analytics: *art records with *k2
+	private function report_artwithk2 ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'artwithk2' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE fieldslist LIKE '%@art@%'
+			  AND fieldslist LIKE '%@k2@%'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *doc records with *kb
+	private function report_docwithkb ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'docwithkb' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE fieldslist LIKE '%@doc@%'
+			  AND fieldslist LIKE '%@kb@%'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with two or more locations, having first filtered out any locations whose location is 'Not in SPRI'
+	private function report_loclocfiltered1 ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'loclocfiltered1' AS report,
+				recordId
+			FROM (
+				/* Subquery to create fields index */
+				SELECT
+					recordId,
+					CONCAT('@', GROUP_CONCAT(`field` SEPARATOR '@'),'@') AS fieldslist
+				FROM (
+					/* Subquery to create records but with whitelisted terms taken out */
+					SELECT
+						recordId,field	/* Limit for efficiency */
+					FROM catalogue_rawdata
+					WHERE NOT (field = 'location' AND value = 'Not in SPRI')
+				) AS rawdata_filtered
+				GROUP BY recordId
+			) AS fieldsindex
+			WHERE fieldslist REGEXP '@location.*@location'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with two or more locations, having first filtered out any locations whose location is 'Not in SPRI' or 'Periodical' or 'Basement IGS Collection'
+	private function report_loclocfiltered2 ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'loclocfiltered2' AS report,
+				recordId
+			FROM (
+				/* Subquery to create fields index */
+				SELECT
+					recordId,
+					CONCAT('@', GROUP_CONCAT(`field` SEPARATOR '@'),'@') AS fieldslist
+				FROM (
+					/* Subquery to create records but with whitelisted terms taken out */
+					SELECT
+						recordId,field	/* Limit for efficiency */
+					FROM catalogue_rawdata
+					WHERE NOT (field = 'location' AND (
+						value IN('Not in SPRI', 'Periodical', 'Basement IGS Collection')
+						OR
+						value LIKE 'Basement Seligman %'
+					))
+				) AS rawdata_filtered
+				GROUP BY recordId
+			) AS fieldsindex
+			WHERE fieldslist REGEXP '@location.*@location'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with two or more locations, where no location is 'Not in SPRI', having first filtered out any matching a whitelist of internal locations
+	/*
+		Note that "Not in SPRI" should be treated as a special case beyond the general rule:
+		- Example: locations are: "Not in SPRI" and "Library of Congress" --> DOES NOT appear in report
+		- Example: locations are: "Periodical" and "Library of Congress" --> DOES appear in report
+	*/
+	private function report_loclocfiltered3 ()
+	{
+		# Define the query
+		$query = "
+		SELECT
+			'loclocfiltered3' AS report,
+			recordId
+		FROM
+			(
+				/* Obtain list of records with all locations grouped into one value, but filter out known fine records */
+				SELECT
+					recordId,
+					CONCAT('|', GROUP_CONCAT(value SEPARATOR '||'), '|') AS all_locations
+				FROM catalogue_processed
+				WHERE
+					    field = 'location'
+					AND value NOT REGEXP ('^Periodical|^Basement|^Pam|^Shelf|^153-158 Wubbold Room$|^Archive|^Atlas|^Cupboard|^Folio|^Large Atlas|^Library Office|^Map Room|^Picture Library|^Russian|^Special Collection|^Theses$')
+				GROUP BY recordId
+			) AS rawdata_combined
+			WHERE
+				/* If 'Not in SPRI' is present anywhere, then any other location values are irrelevant */
+				    all_locations NOT LIKE '%|Not in SPRI|%'
+				/* Require two or more locations to be present */
+				AND all_locations LIKE '%||%'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with three or more locations
+	private function report_loclocloc ()
+	{
+		# Define the query
+		#!# NB This requires the XML representation to have been compiled first
+		$query = "
+			SELECT
+				'loclocloc' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE fieldslist REGEXP '@location.*@location.*@location'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Articles without a matching serial title in another record: orphaned works, that are not pamphlets or in the special collection
+	private function report_arttitlenoser ()
+	{
+		# Define the query; see: http://stackoverflow.com/a/367865 and http://stackoverflow.com/a/350180
+		/*
+			16525 - no *exact* match
+			
+			
+		*/
+		$query = "
+			SELECT
+				'arttitlenoser' AS report,
+				id AS recordId
+			FROM (
+				
+				/* Subquery to extract the serial title within the record, where the record is not a pamphlet */
+				/* NB As of 8/May/2014: matches 89,603 records */
+				SELECT
+					id,
+					EXTRACTVALUE(xml, 'art/j/tg/t') AS title
+				FROM catalogue_xml
+					WHERE
+						EXTRACTVALUE(xml, 'art/j') != ''							/* I.e. is in journal */
+					AND EXTRACTVALUE(xml, 'art/j/loc/location') NOT LIKE 'Pam %'	/* I.e. has a location which is not pamphlet */
+					AND EXTRACTVALUE(xml, 'art/j/loc/location') NOT LIKE 'Special Collection %'	/* I.e. has a location which is not in the special collection (historic materials, bound copies together, early pamphlets) */
+					AND EXTRACTVALUE(xml, 'status') = ''
+				) AS articles
+				
+			LEFT OUTER JOIN (
+				
+				/* Subquery to extract the title from the parent serials */
+				SELECT
+					EXTRACTVALUE(xml, 'ser/tg/t') AS title
+				FROM catalogue_xml
+					WHERE EXTRACTVALUE(xml, 'ser/tg/t') != ''		/* Implicit within this that it is a serial */
+				) AS serials
+				
+			ON (articles.title = serials.title)
+			WHERE serials.title IS NULL
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Items not in SPRI
+	private function report_notinspri ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'notinspri' AS report,
+				catalogue_rawdata.recordId
+			FROM catalogue_rawdata
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist LIKE '%@location@%'
+				AND field = 'location'
+				AND value LIKE 'Not in SPRI'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with location matching Cambridge University, not in SPRI
+	private function report_loccamuninotinspri ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'loccamuninotinspri' AS report,
+				id AS recordId
+				FROM catalogue_xml
+				WHERE
+					    EXTRACTVALUE(xml, '//location') LIKE '%Cambridge University%'
+					AND EXTRACTVALUE(xml, '//location') LIKE '%Not in SPRI%'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with location matching Cambridge University, in SPRI
+	private function report_loccamuniinspri ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'loccamuniinspri' AS report,
+				id AS recordId
+				FROM catalogue_xml
+				WHERE
+					    EXTRACTVALUE(xml, '//location') LIKE '%Cambridge University%'
+					AND EXTRACTVALUE(xml, '//location') NOT LIKE '%Not in SPRI%'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Items on order
+	private function report_onorder ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'onorder' AS report,
+				catalogue_rawdata.recordId
+			FROM catalogue_rawdata
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist LIKE '%@status@%'
+				AND field = 'status'
+				AND value IN ('On Order', 'On Order (O/P)', 'On Order (O/S)', 'Order Cancelled')
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with italics in the abstract
+	private function report_absitalics ()
+	{
+		# Define the query
+		$backslash = '\\';	// PHP representation of one literal backslash
+		$query = "
+			SELECT DISTINCT
+				'absitalics' AS report,
+				recordId
+			FROM catalogue_rawdata
+			WHERE
+				    field = 'abs'
+				AND value REGEXP '{$backslash}{$backslash}{$backslash}{$backslash}v.+{$backslash}{$backslash}{$backslash}{$backslash}n'	/* MySQL backslash needed twice in REGEXP to make literal */
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with invalid ISBN number; NB this does *not* perform a full check-digit check - see macro_validisbn for that
+	private function report_isbninvalid ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'isbninvalid' AS report,
+				recordId
+			FROM catalogue_rawdata
+			WHERE
+				    field = 'isbn'
+				AND value NOT REGEXP '^(97(8|9))?[[:digit:]]{9}([[:digit:]]|X)$'		/* http://stackoverflow.com/questions/14419628/regexp-mysql-function */
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with a badly-formatted URL
+	private function report_urlinvalid ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'urlinvalid' AS report,
+				recordId
+			FROM catalogue_rawdata
+			WHERE
+				    field = 'urlgen'
+				AND value IS NOT NULL
+				AND value NOT REGEXP '^(http|https|ftp)://.+$'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with two adjacent *nd entries
+	private function report_ndnd ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'ndnd' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE fieldslist LIKE '%@nd@nd%'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records where ed/eds/comp/comps indicator is not properly formatted
+	private function report_misformattedad ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'misformattedad' AS report,
+				recordId
+			FROM catalogue_rawdata
+			WHERE
+				field = 'ad'
+				AND (
+					(value REGEXP '[[:<:]]eds[[:>:]]'   AND value NOT LIKE '%eds.%')
+					OR
+					(value REGEXP '[[:<:]]comps[[:>:]]' AND value NOT LIKE '%comps.%')
+					OR
+					(value REGEXP '[[:<:]]ed[[:>:]]'    AND value NOT LIKE '%ed.%')
+					OR
+					(value REGEXP '[[:<:]]comp[[:>:]]'  AND value NOT LIKE '%comp.%')
+				)
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records where *role is not followed by *n
+	private function report_orphanedrole ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'orphanedrole' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				    fieldslist LIKE '%@role%'
+				AND fieldslist NOT LIKE '%@role@n%'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with an empty *a
+	private function report_emptyauthor ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'emptyauthor' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				   fieldslist LIKE '%@a@a%'
+				OR (fieldslist LIKE  '%@a@%' AND fieldslist NOT LIKE '%@a@n%')
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with irregular case-sensitivity of special characters
+	# Want to avoid this currently-permitted inconsistency: "When '\g' is followed by a word, the case of the first letter is significant. The remaining letters can be in either upper or lower case however. Thus '\gGamma' is a capital gamma, and the forms '\gGAMMA', '\gGAmma' etc. will also represent capital gamma."
+	private function report_specialcharscase ()
+	{
+		# Define the query
+		$literalBackslash	= '\\';										// PHP representation of one literal backslash
+		$mysqlBacklash		= $literalBackslash . $literalBackslash;	// http://lists.mysql.com/mysql/193376 shows that a MySQL backlash is always written as \\
+		$regexpBackslash	= $mysqlBacklash . $mysqlBacklash;			// http://lists.mysql.com/mysql/193376
+		
+		# Create the SQL clauses for each greek letter; each clause for that letter does a case insensitive match (which will find \galpha or \gAlpha or \galPHa), then excludes the perfect cases of \galpha \gAlpha
+		$sqlWhere = array ();
+		$greekLetters = $this->greekLetters ();
+		foreach ($greekLetters as $letterCaseSensitive => $unicodeCharacter) {
+			$letterLcfirst = lcfirst ($letterCaseSensitive);
+			$letterUcfirst = ucfirst ($letterCaseSensitive);
+			$sqlWhere[] = "(value REGEXP '{$regexpBackslash}g{$letterLcfirst}' AND value NOT REGEXP BINARY '{$regexpBackslash}g{$letterLcfirst}' AND value NOT REGEXP BINARY '{$regexpBackslash}g{$letterUcfirst}')";
+		}
+		$sqlWhere = array_unique ($sqlWhere);	// The greek letters list is both lower and case - combine the pairs
+		
+		# Compile the query
+		$query = "
+			SELECT DISTINCT
+				'specialcharscase' AS report,
+				recordId
+			FROM catalogue_rawdata
+			WHERE
+				    value REGEXP '{$regexpBackslash}g([a-z]+)'	/* Optimisation */
+				AND (
+				" . implode ("\n OR ", $sqlWhere) . "
+				)
+		";
+		
+		/* Generates: 
+		
+		SELECT DISTINCT
+		'specialcharscase' AS report,
+		recordId
+		FROM catalogue_rawdata
+		WHERE
+		value REGEXP '\\\\g([a-z]+)'
+		AND (
+		(value REGEXP '\\\\galpha' AND value NOT REGEXP BINARY '\\\\galpha' AND value NOT REGEXP BINARY '\\\\gAlpha')
+		OR (value REGEXP '\\\\gbeta' AND value NOT REGEXP BINARY '\\\\gbeta' AND value NOT REGEXP BINARY '\\\\gBeta')
+		OR (value REGEXP '\\\\ggamma' AND value NOT REGEXP BINARY '\\\\ggamma' AND value NOT REGEXP BINARY '\\\\gGamma')
+		OR (value REGEXP '\\\\gdelta' AND value NOT REGEXP BINARY '\\\\gdelta' AND value NOT REGEXP BINARY '\\\\gDelta')
+		OR (value REGEXP '\\\\gepsilon' AND value NOT REGEXP BINARY '\\\\gepsilon' AND value NOT REGEXP BINARY '\\\\gEpsilon')
+		OR (value REGEXP '\\\\gzeta' AND value NOT REGEXP BINARY '\\\\gzeta' AND value NOT REGEXP BINARY '\\\\gZeta')
+		OR (value REGEXP '\\\\geta' AND value NOT REGEXP BINARY '\\\\geta' AND value NOT REGEXP BINARY '\\\\gEta')
+		OR (value REGEXP '\\\\gtheta' AND value NOT REGEXP BINARY '\\\\gtheta' AND value NOT REGEXP BINARY '\\\\gTheta')
+		OR (value REGEXP '\\\\giota' AND value NOT REGEXP BINARY '\\\\giota' AND value NOT REGEXP BINARY '\\\\gIota')
+		OR (value REGEXP '\\\\gkappa' AND value NOT REGEXP BINARY '\\\\gkappa' AND value NOT REGEXP BINARY '\\\\gKappa')
+		OR (value REGEXP '\\\\glambda' AND value NOT REGEXP BINARY '\\\\glambda' AND value NOT REGEXP BINARY '\\\\gLambda')
+		OR (value REGEXP '\\\\gmu' AND value NOT REGEXP BINARY '\\\\gmu' AND value NOT REGEXP BINARY '\\\\gMu')
+		OR (value REGEXP '\\\\gnu' AND value NOT REGEXP BINARY '\\\\gnu' AND value NOT REGEXP BINARY '\\\\gNu')
+		OR (value REGEXP '\\\\gxi' AND value NOT REGEXP BINARY '\\\\gxi' AND value NOT REGEXP BINARY '\\\\gXi')
+		OR (value REGEXP '\\\\gomicron' AND value NOT REGEXP BINARY '\\\\gomicron' AND value NOT REGEXP BINARY '\\\\gOmicron')
+		OR (value REGEXP '\\\\gpi' AND value NOT REGEXP BINARY '\\\\gpi' AND value NOT REGEXP BINARY '\\\\gPi')
+		OR (value REGEXP '\\\\grho' AND value NOT REGEXP BINARY '\\\\grho' AND value NOT REGEXP BINARY '\\\\gRho')
+		OR (value REGEXP '\\\\gsigma' AND value NOT REGEXP BINARY '\\\\gsigma' AND value NOT REGEXP BINARY '\\\\gSigma')
+		OR (value REGEXP '\\\\gtau' AND value NOT REGEXP BINARY '\\\\gtau' AND value NOT REGEXP BINARY '\\\\gTau')
+		OR (value REGEXP '\\\\gupsilon' AND value NOT REGEXP BINARY '\\\\gupsilon' AND value NOT REGEXP BINARY '\\\\gUpsilon')
+		OR (value REGEXP '\\\\gphi' AND value NOT REGEXP BINARY '\\\\gphi' AND value NOT REGEXP BINARY '\\\\gPhi')
+		OR (value REGEXP '\\\\gchi' AND value NOT REGEXP BINARY '\\\\gchi' AND value NOT REGEXP BINARY '\\\\gChi')
+		OR (value REGEXP '\\\\gpsi' AND value NOT REGEXP BINARY '\\\\gpsi' AND value NOT REGEXP BINARY '\\\\gPsi')
+		OR (value REGEXP '\\\\gomega' AND value NOT REGEXP BINARY '\\\\gomega' AND value NOT REGEXP BINARY '\\\\gOmega')
+		);
+		
+		*/
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with unknown diacritics
+	private function report_unknowndiacritics ()
+	{
+		# Define backslashes
+		$literalBackslash	= '\\';										// PHP representation of one literal backslash
+		$mysqlBacklash		= $literalBackslash . $literalBackslash;	// http://lists.mysql.com/mysql/193376 shows that a MySQL backlash is always written as \\
+		
+		# Find cases matching .^.
+		$query = "
+			SELECT DISTINCT
+				'unknowndiacritics' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+			    value REGEXP '.{$mysqlBacklash}^.'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records where location is unknown, for records whether the status is not present or is GLACIOPAMS
+	private function report_locationunknown ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'locationunknown' AS report,
+				catalogue_processed.recordId
+			FROM catalogue_processed
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				(
+					   fieldslist NOT LIKE '%@status@%'
+					OR (field = 'status' AND value = 'GLACIOPAMS')
+				)
+				AND
+				(
+					   fieldslist NOT LIKE '%@location@%'
+					OR (
+						    field = 'location'
+						AND (
+							   value LIKE '%?%'
+							OR value = '-'
+							OR value = ''
+						)
+					)
+				)
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records where there appear to be multiple copies, in notes field
+	private function report_multiplecopies ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'multiplecopies' AS report,
+				recordId
+			FROM catalogue_rawdata
+			WHERE
+				    field IN('note', 'local')
+				AND value LIKE 'SPRI has%'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with multiple sources (*ser)
+	private function report_multiplesourcesser ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'multiplesourcesser' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				fieldslist LIKE '%@ser@%' AND
+				(
+				   fieldslist LIKE '%@o@o@%'
+				OR fieldslist REGEXP '@o@.*@o@'
+				)
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with multiple sources (*doc/*art)
+	private function report_multiplesourcesdocart ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'multiplesourcesdocart' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				(fieldslist LIKE '%@doc@%' OR fieldslist LIKE '%@art@%') AND
+				(
+				   fieldslist LIKE '%@o@o@%'
+				OR fieldslist REGEXP '@o@.*@o@'
+				)
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Report showing instances of diacritics; NB takes about 33 minutes to run
+	private function report_diacritics ()
+	{
+		# Define the diacritics
+		$diacritics = array (
+			'a' => 'acute',
+			'g' => 'grave',
+			'c' => 'cedilla',
+			'u' => 'umlaut',
+			'm' => 'macron (i.e. horizontal line over letter)',
+			'j' => "ligature ('join', i.e. line above two letters)",
+			'z' => "'/' through letter",
+			'h' => "for circumflex ('h' stands for 'hat')",
+			'v' => "for 'v' over a letter",
+			'o' => "for 'o' over a letter",
+			't' => 'tilde',
+		);
+		
+		# Add capitalised versions
+		foreach ($diacritics as $diacritic => $description) {
+			$diacriticCapitalised = ucfirst ($diacritic);
+			$descriptionCapitalised = $description . ' (upper-case)';
+			$diacritics[$diacriticCapitalised] = $descriptionCapitalised;
+		}
+		
+		# Create the table
+		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.listing_diacritics;";
+		$this->databaseConnection->execute ($sql);
+		$sql = "CREATE TABLE IF NOT EXISTS `listing_diacritics` (
+			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
+			`diacritic` varchar(2) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Diacritic modifier',
+			`description` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Description',
+			`letter` varchar(2) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Letter',
+			`instances` int(11) NOT NULL COMMENT 'Instances',
+			PRIMARY KEY (`id`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of diacritic modifier instances'
+		;";
+		$this->databaseConnection->execute ($sql);
+		
+		# Construct a set of SQL statements; this has to be chunked due to http://bugs.mysql.com/44626
+		$azRanges = array (range ('a', 'z'), range ('A', 'Z'));
+		foreach ($diacritics as $diacritic => $description) {
+			foreach ($azRanges as $azRange) {
+				
+				# Construct the queries for each range
+				$subqueries = array ();
+				foreach ($azRange as $letter) {
+					$subqueries[] = "SELECT '{$diacritic}' AS diacritic, \"{$description}\" AS description, '{$letter}' AS letter, COUNT(*) AS instances FROM catalogue_rawdata WHERE value LIKE BINARY '%{$letter}^{$diacritic}%'";
+				}
+				$query = implode ("\n UNION ", $subqueries);
+				
+				# Run the query
+				$query = "INSERT INTO listing_diacritics (diacritic, description, letter, instances) \n {$query};";
+				$result = $this->databaseConnection->execute ($query);
+			}
+		}
+		
+		# Return the result
+		return true;
+	}
+	
+	
+	# View for report_diacritics
+	private function report_diacritics_view ()
+	{
+		# Start the HTML
+		$html = '';
+		
+		# Obtain the data
+		if (!$data = $this->databaseConnection->select ($this->settings['database'], 'listing_diacritics', array (), array (), true, $orderBy = 'id')) {	// ORDER BY id will maintain a-z,A-Z ordering of letters
+			return $html = "\n<p>There is no data. Please re-run the report generation from the <a href=\"{$this->baseUrl}/import/\">import page</a>.</p>";
+		}
+		
+		# Regroup by diacritic
+		$data = application::regroup ($data, 'diacritic');
+		
+		# Get the diacritics lookup table
+		$diacritics = $this->diacriticsTable ();
+		
+		# Show each diacritic modifer, in a large table
+		$html .= "\n" . '<table class="lines diacritics">';
+		$html .= "\n\t" . '<tr>';
+		$onSecondLine = false;
+		foreach ($data as $diacritic => $instances) {
+			
+			# Create new line at first capitalised diacritic modifier
+			if (!$onSecondLine) {
+				if (strtoupper ($diacritic) == $diacritic) {
+					$html .= "\n\t" . '</tr>';
+					$html .= "\n\t" . '<tr>';
+					$onSecondLine = true;
+				}
+			}
+			
+			# Start with the heading
+			$html .= "\n\t" . '<td>';
+			$instancesCopy = array_values ($instances);
+			$firstInstance = array_shift ($instancesCopy);
+			$html .= "\n<h3><strong>^{$diacritic}</strong><br />" . htmlspecialchars ($firstInstance['description']) . '</h3>';
+			
+			# Add the inner data table
+			$table = array ();
+			foreach ($instances as $instance) {
+				if ($instance['instances'] == 0) {continue;}	// This is done at this level, rather than the getData stage, so that all diacritic modifiers end up being listed
+				$letter = "<a href=\"{$this->baseUrl}/search/?casesensitive=1&anywhere={$instance['letter']}^{$diacritic}\"><strong>{$instance['letter']}</strong>^{$diacritic}</a>";
+				$table[$letter] = array (
+					'muscat'	=> $letter,
+					'unicode'	=> $diacritics["{$instance['letter']}^{$diacritic}"],
+					'instances'	=> $instance['instances'],
+				);
+			}
+			$html .= application::htmlTable ($table, array (), $class = 'lines compressed small', $keyAsFirstColumn = false, false, $allowHtml = true, false, $addCellClasses = true, false, array (), false, $showHeadings = false);
+			$html .= "\n\t" . '</td>';
+		}
+		$html .= "\n\t" . '</tr>';
+		$html .= "\n" . '</table>';
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Report showing instances of journal titles
+	private function report_journaltitles ()
+	{
+		return $this->createFieldListingReport ('journaltitle');
+	}
+	
+	
+	# Report showing instances of series titles
+	private function report_seriestitles ()
+	{
+		return $this->createFieldListingReport ('seriestitle');
+	}
+	
+	
+	# Function to create a report all values of a specified field
+	private function createFieldListingReport ($field)
+	{
+		# Create the table
+		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.listing_{$field}s;";
+		$this->databaseConnection->execute ($sql);
+		$sql = "CREATE TABLE IF NOT EXISTS `listing_{$field}s` (
+			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
+			`title` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Series title',
+			`instances` int(11) NOT NULL COMMENT 'Instances',
+			PRIMARY KEY (`id`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of series title instances'
+		;";
+		$this->databaseConnection->execute ($sql);
+		
+		# Select the data and insert it into the new table
+		$query = "SELECT
+				{$field} AS title,
+				COUNT(*) AS instances
+			FROM `fieldsindex`
+			WHERE {$field} IS NOT NULL AND {$field} != ''
+			GROUP BY {$field}
+			ORDER BY " . $this->databaseConnection->trimSql ($field);
+		$query = "INSERT INTO listing_{$field}s (title, instances) \n {$query};";
+		$result = $this->databaseConnection->execute ($query);
+		
+		# Return the result
+		return true;
+	}
+	
+	
+	# View for report_seriestitles
+	private function report_journaltitles_view ()
+	{
+		return $html = $this->reportListing ('listing_journaltitles', 'distinct journal titles', 'journaltitle');
+	}
+	
+	
+	# View for report_seriestitles
+	private function report_seriestitles_view ()
+	{
+		return $html = $this->reportListing ('listing_seriestitles', 'distinct series titles', 'seriestitle');
+	}
+	
+	
+	# Helper function to get a listing
+	private function reportListing ($table, $description, $searchField, $idField = false, $query = false)
+	{
+		# Start the HTML
+		$html = '';
+		
+		# Obtain the data, using a manually-defined query if necessary
+		if ($query) {
+			$data = $this->databaseConnection->getData ($query);
+		} else {
+			$data = $this->databaseConnection->select ($this->settings['database'], $table, array (), array (), true, $orderBy = 'instances DESC,id');
+		}
+		if (!$data) {
+			return $html = "\n<p>There is no data. Please re-run the report generation from the <a href=\"{$this->baseUrl}/import/\">import page</a>.</p>";
+		}
+		
+		# If instances data is present, determine total records, by summing the instances values; NB this assumes there is no crossover between entries
+		$totalInstances = 0;
+		foreach ($data as $entry) {
+			if (isSet ($entry['instances'])) {
+				$totalInstances += $entry['instances'];
+			}
+		}
+		
+		# Show count of matches and of total records
+		$html .= "\n<p>There are <strong>" . number_format (count ($data)) . '</strong> ' . $description . ($totalInstances ? ', representing <strong>' . number_format ($totalInstances) . ' records</strong> affected' : '') . ':</p>';
+		
+		# Render the table
+		$html .= $this->valuesTable ($data, $searchField, false, $idField);
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Function to render a table of values
+	private function valuesTable ($data, $searchField = false, $linkPrefix = false, $idField = false, $enableSortability = true)
+	{
+		# Add links to each title if required (search implementation)
+		if ($searchField) {
+			foreach ($data as $index => $record) {
+				$title = htmlspecialchars ($record['title']);
+				$data[$index]['title'] = "<a href=\"{$this->baseUrl}/search/?casesensitive=1&{$searchField}=" . urlencode ($title) . "\">{$title}</a>";
+			}
+		}
+		
+		# Add links to each title if required (link prefix implementation)
+		if ($linkPrefix) {
+			foreach ($data as $index => $record) {
+				$title = htmlspecialchars ($record['title']);
+				#!# Using htmlspecialchars seems to cause double-encoding of &amp; or, e.g. the link becomes buggy on /fields/pu/values/ for value = '("Optimus")'
+				# Note that a value containing only a dot is not possible to create a link for: http://stackoverflow.com/questions/3856693/a-url-resource-that-is-a-dot-2e
+				$data[$index]['title'] = "<a href=\"{$this->baseUrl}{$linkPrefix}" . urlencode ($record['title']) . "/\">{$title}</a>";
+			}
+		}
+		
+		# Add links to record IDs if required
+		if ($idField) {
+			foreach ($data as $index => $record) {
+				$data[$index][$idField] = "<a href=\"{$this->baseUrl}/records/{$record[$idField]}/\">{$record[$idField]}</a>";
+			}
+		}
+		
+		# Compile the HTML
+		$tableHeadingSubstitutions = array ('id' => '#');
+		$html = '';
+		if ($enableSortability) {
+			$html .= "\n" . '<!-- Enable table sortability: --><script language="javascript" type="text/javascript" src="http://www.geog.cam.ac.uk/sitetech/sorttable.js"></script>';
+		}
+		$html .= application::htmlTable ($data, $tableHeadingSubstitutions, $class = 'lines compressed sortable" id="sortable', $keyAsFirstColumn = false, $uppercaseHeadings = true, $allowHtml = true);
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Listing of articles without a matching serial (journal) title in another record (variant 1)
+	private function report_seriestitlemismatches1 ()
+	{
+		$this->report_seriestitlemismatches (1, $locCondition = "= 'Periodical'");
+	}
+	
+	
+	# Listing of articles without a matching serial (journal) title in another record (variant 2)
+	private function report_seriestitlemismatches2 ()
+	{
+		$this->report_seriestitlemismatches (2, $locCondition = "= ''");
+	}
+	
+	
+	# Listing of articles without a matching serial (journal) title in another record (variant 3)
+	private function report_seriestitlemismatches3 ()
+	{
+		$this->report_seriestitlemismatches (3, $locCondition = "NOT IN ('', 'Periodical')");
+	}
+	
+	
+	# Listing of articles without a matching serial (journal) title in another record; function is used by three variants
+	private function report_seriestitlemismatches ($variantNumber, $locCondition)
+	{
+		# Create the table
+		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.listing_seriestitlemismatches{$variantNumber};";
+		$this->databaseConnection->execute ($sql);
+		$sql = "CREATE TABLE IF NOT EXISTS `listing_seriestitlemismatches{$variantNumber}` (
+			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
+			`title` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Series title',
+			`instances` int(11) NOT NULL COMMENT 'Instances',
+			PRIMARY KEY (`id`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of series title mismatches'
+		;";
+		$this->databaseConnection->execute ($sql);
+		
+		# Select the data and insert it into the new table
+		$query = "
+			SELECT
+				DISTINCT articles.title,
+				COUNT(*) AS instances
+			FROM (
+				
+				/* Subquery to extract the serial title within the record, where the record is not a pamphlet */
+				/* NB As of 8/May/2014: matches 89,603 records */
+				SELECT
+					id,
+					EXTRACTVALUE(xml, 'art/j/tg/t') AS title
+				FROM catalogue_xml
+					WHERE
+						EXTRACTVALUE(xml, 'art/j') != ''							/* I.e. is in journal */
+					AND EXTRACTVALUE(xml, 'art/j/loc/location') NOT LIKE 'Pam %'	/* I.e. has a location which is not pamphlet */
+					AND EXTRACTVALUE(xml, 'art/j/loc/location') NOT LIKE 'Special Collection %'	/* I.e. has a location which is not in the special collection (historic materials, bound copies together, early pamphlets) */
+					AND EXTRACTVALUE(xml, 'status') = ''
+					AND EXTRACTVALUE(xml, 'art/j/loc/location') {$locCondition}
+				) AS articles
+				
+			LEFT OUTER JOIN (
+				
+				/* Subquery to extract the title from the parent serials */
+				SELECT
+					EXTRACTVALUE(xml, 'ser/tg/t') AS title
+				FROM catalogue_xml
+					WHERE EXTRACTVALUE(xml, 'ser/tg/t') != ''		/* Implicit within this that it is a serial */
+				) AS serials
+				
+			ON (articles.title = serials.title)
+			WHERE serials.title IS NULL
+			GROUP BY articles.title
+			ORDER BY instances DESC, " . $this->databaseConnection->trimSql ('articles.title') . "
+		";
+		$query = "INSERT INTO listing_seriestitlemismatches{$variantNumber} (title, instances) \n {$query};";
+		$result = $this->databaseConnection->execute ($query);
+		
+		# Return the result
+		return true;
+	}
+	
+	
+	# View for report_seriestitlemismatches
+	private function report_seriestitlemismatches1_view ()
+	{
+		return $html = $this->reportListing ('listing_seriestitlemismatches1', 'distinct series titles which do not match any parent serial title', 'journaltitle');
+	}
+	
+	
+	# View for report_seriestitlemismatches
+	private function report_seriestitlemismatches2_view ()
+	{
+		return $html = $this->reportListing ('listing_seriestitlemismatches2', 'distinct series titles which do not match any parent serial title', 'journaltitle');
+	}
+	
+	
+	# View for report_seriestitlemismatches
+	private function report_seriestitlemismatches3_view ()
+	{
+		return $html = $this->reportListing ('listing_seriestitlemismatches3', 'distinct series titles which do not match any parent serial title', 'journaltitle');
+	}
+	
+	
+	# Report showing instances of series titles
+	private function report_languages ()
+	{
+		// No action needed - the data is created in the fieldsindex stage
+		return true;
+	}
+	
+	
+	# View for report_seriestitles
+	private function report_languages_view ()
+	{
+		# Define a manual query
+		$query = "
+			SELECT
+				TRIM(LEADING '@' FROM TRIM(TRAILING '@' FROM language)) AS title,
+				COUNT(*) AS instances
+			FROM {$this->settings['database']}.fieldsindex
+			GROUP BY language
+			ORDER BY language
+		;";
+		
+		# Obtain the listing HTML
+		$html = $this->reportListing ('fieldsindex', 'language values', 'language', false, $query);
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Report showing instances of transliterations
+	private function report_reversetransliterations ()
+	{
+		// No action needed - the data is created in the fieldsindex stage
+		return true;
+	}
+	
+	
+	# View for report_reversetransliterations
+	private function report_reversetransliterations_view ()
+	{
+		# Define a manual query
+		$query = "
+			SELECT
+				id,
+				title,
+				title_latin AS 'Transliteration in Muscat'
+			FROM {$this->settings['database']}.reversetransliterations
+			ORDER BY id
+		;";
+		
+		# Obtain the listing HTML
+		$html = $this->reportListing (NULL, 'transliterations', false, 'id', $query);
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+/*
+	# Records without abstracts
+	private function report_emptyabstract ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'misformattedad' AS report,
+				recordId
+			FROM catalogue_rawdata
+			WHERE
+				recordId IN
+					(
+					-- Subquery to create list of IDs
+					SELECT recordId
+					FROM catalogue_rawdata
+					LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+					WHERE
+						    fieldslist LIKE '%@status@%'
+						AND field = 'status'
+						AND value NOT IN('RECEIVED', 'ON ORDER', 'CANCELLED')
+					)
+				AND
+					(
+						(field = 'abs' AND (value IS NULL OR value = ''))
+						OR
+		#!# Won't work:
+						(fieldsindex NOT LIKE '%@abs@%')
+					)
+		";
+		
+		# Return the query
+		return $query;
+	}
+*/
+}
+
+
+# Useful link: http://stackoverflow.com/questions/4287822/need-a-mysql-query-for-selecting-from-a-table-storing-key-value-pairs
+
+
+/*
+# http://stackoverflow.com/questions/4666042/sql-query-to-get-total-rows-and-total-rows-matching-specific-condition
+
+SELECT
+	COUNT(CASE WHEN fields LIKE '%|q0|%' THEN 1 END) as has_q0,
+	COUNT(CASE WHEN fields NOT LIKE '%|q0|%' THEN 1 END) as has_no_q0
+FROM
+	(SELECT recordId, CONCAT('|', GROUP_CONCAT(field SEPARATOR '||'), '|') As fields FROM catalogue GROUP BY recordId) AS records
+WHERE 1;
+
+*/
+
+
+?>

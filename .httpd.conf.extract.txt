@@ -1,0 +1,71 @@
+# Muscat conversion project Apache directives
+
+# Load using:
+#	# Muscat conversion project
+#	Include /path/to/muscat-conversion/.httpd.conf.extract
+#	Use MacroMuscatConversion /library/catalogue "spqr1 abc123" "/path/to/site/:/path/to/events-portal/:/path/to/php/libraries/"
+
+
+<Macro MacroMuscatConversion $baseUrl $usersList $includePath>
+	
+	# Include path
+	<LocationMatch $baseUrl>
+		php_value include_path "$includePath"
+	</LocationMatch>
+	
+	# Auth, limited to specified users
+	<Location $baseUrl/>
+		AuthType Ucam-WebAuth
+		AADescription "Authorisation needed"
+		Require user $usersList
+		php_value memory_limit 1000M
+	</Location>
+
+	# Front controller application support
+	Use MacroFrontControllerApplication "$baseUrl/" "Muscat conversion project"
+	
+	# Application routing
+	RewriteRule ^$baseUrl/(reports|fields|statistics|import|export)/$ $baseUrl/index.html?action=$1 [L]
+	RewriteRule ^$baseUrl/(schema|marcparser|transliterator).html$ $baseUrl/index.html?action=$1 [L]
+	RewriteRule ^$baseUrl/(records|search)/$ $baseUrl/index.html?action=$1 [L,QSA]
+	RewriteRule ^$baseUrl/(search)/page([0-9]+).html$ $baseUrl/index.html?action=$1&page=$2 [L,QSA]
+	RewriteRule ^$baseUrl/(reports|records|search|fields|statistics|import|export)$ $baseUrl/$1/ [R]
+	RewriteRule ^$baseUrl/fields/([a-z0-9]+)/values/$ $baseUrl/index.html?action=fields&values=1&item=$1 [L]
+	RewriteRule ^$baseUrl/fields/([a-z0-9]+)/values/page([1-9][0-9]*).html$ $baseUrl/index.html?action=fields&values=1&item=$1&page=$2 [L]
+	# Allow %2F (encoded /) to appear in the URLs, e.g. <baseUrl>/fields/n1/values/n%2Fa/ ; see: http://httpd.apache.org/docs/current/mod/core.html#allowencodedslashes and http://stackoverflow.com/a/9308318/180733
+	AllowEncodedSlashes NoDecode
+	RewriteRule ^$baseUrl/fields/([a-z0-9]+)/values/([^/]+)/$ $baseUrl/index.html?action=fields&values=1&item=$1&value=$2 [L]
+	RewriteRule ^$baseUrl/fields/([a-z0-9]+)/values/([^/]+)$ $baseUrl/fields/$1/values/$2/ [R]
+	RewriteRule ^$baseUrl/fields/([a-z0-9]+)/values/([^/]+)/page([1-9][0-9]*).html$ $baseUrl/index.html?action=fields&values=1&item=$1&value=$2&page=$3 [L]
+	RewriteRule ^$baseUrl/fields/([a-z0-9]+)/values$ $baseUrl/fields/$1/values/ [R]
+	RewriteRule ^$baseUrl/fields/([a-z0-9]+)/$ $baseUrl/index.html?action=fields&item=$1 [L]
+	RewriteRule ^$baseUrl/fields/([a-z0-9]+)/page([0-9]+).html$ $baseUrl/index.html?action=fields&item=$1&page=$2 [L]
+	RewriteRule ^$baseUrl/fields/([a-z0-9]+)$ $baseUrl/fields/$1/ [R]
+	RewriteRule ^$baseUrl/records/([0-9]+)/$ $baseUrl/index.html?action=records&item=$1 [L]
+	RewriteRule ^$baseUrl/records/([0-9]+)$ $baseUrl/records/$1/ [R]
+	RewriteRule ^$baseUrl/records/([0-9]+)k/$ $baseUrl/index.html?action=records&thousand=$1 [L]
+	RewriteRule ^$baseUrl/records/([0-9]+)k$ $baseUrl/records/$1k/ [R]
+	RewriteRule ^$baseUrl/(reports)/([a-z0-9]+)/$ $baseUrl/index.html?action=$1&item=$2 [L,QSA]
+	RewriteRule ^$baseUrl/(reports)/([a-z0-9]+)/page([0-9]+).html$ $baseUrl/index.html?action=$1&item=$2&page=$3 [L,QSA]
+	RewriteRule ^$baseUrl/(reports)/([a-z0-9]+)$ $baseUrl/$1/$2/ [R]
+	# NB \1 is a backreference in the test
+	RewriteRule ^$baseUrl/reports/([a-z0-9]+)/\1.csv$ $baseUrl/index.html?action=reportdownload&item=$1 [L,QSA]
+	<LocationMatch ^$baseUrl/reports/([a-z0-9]+)/\1.csv$>
+		php_value auto_prepend_file none
+		php_value auto_append_file none
+	</LocationMatch>
+	RewriteRule $baseUrl/export/marc(.txt|.mrc|.error.txt) $baseUrl/marc$1
+	<LocationMatch ^$baseUrl/export/marc(.txt|.mrc|.error.txt)$>
+		Order allow,deny
+		Allow from all
+		Satisfy any
+	</LocationMatch>
+	
+	# High memory required for import
+	<Location $baseUrl/import/>
+		php_value upload_max_filesize 1000M
+		php_value post_max_size 1000M
+		php_value memory_limit 1000M
+	</Location>
+	
+</Macro>
