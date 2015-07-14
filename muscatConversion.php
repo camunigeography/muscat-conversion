@@ -37,6 +37,7 @@ class muscatConversion extends frontControllerApplication
 		'artwithk2' => 'linked analytics: *art records with *k2',
 		'docwithkb' => '*doc records with *kb',
 		'artinnokg' => 'records with *in but no *kg',
+		'artinnokglocation' => "records with *in but no *kg, excluding records where the location is 'Pam*' or 'Not in SPRI'",
 		'loclocfiltered1' => "Records with two or more locations, having first filtered out any locations whose location is 'Not in SPRI'",
 		'loclocfiltered2' => "Records with two or more locations, having first filtered out any locations whose location is 'Not in SPRI'/'Periodical'/'Basement IGS Collection'/'Basement Seligman *'",
 		'loclocfiltered3' => "Records with two or more locations, where no location is 'Not in SPRI', having first filtered out any matching a whitelist of internal locations",
@@ -5372,7 +5373,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# records with *in but no *kg
+	# Records with *in but no *kg
 	private function report_artinnokg ()
 	{
 		# Define the query
@@ -5383,6 +5384,32 @@ class muscatConversion extends frontControllerApplication
 			FROM fieldsindex
 			WHERE fieldslist LIKE '%@in@%'
 			  AND fieldslist NOT LIKE '%@kg@%'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with *in but no *kg, excluding records where the location is 'Pam*' or 'Not in SPRI'
+	private function report_artinnokglocation ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'artinnokglocation' AS report,
+				catalogue_rawdata.recordId
+			FROM catalogue_rawdata
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist LIKE '%@in@%'
+				AND fieldslist NOT LIKE '%@kg@%'
+				AND fieldslist REGEXP '@location@'
+				AND field = 'location'
+				AND (
+					    value NOT LIKE 'Pam%'
+					AND value != 'Not in SPRI'
+				)
 			";
 		
 		# Return the query
