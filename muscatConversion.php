@@ -47,6 +47,8 @@ class muscatConversion extends frontControllerApplication
 		'loccamuniinspri' => 'records with location matching Cambridge University, in SPRI',
 		'onordercancelled' => 'items on order or cancelled',
 		'invalidacquisitiondate' => 'items with an invalid acquisition date',
+		'onorderold' => 'Items on order before 2013/09/01',
+		'onorderrecent' => 'Items on order since 2013/09/01',
 		'ordercancelled' => 'items where the order is cancelled',
 		'absitalics' => 'records with italics in the abstract',
 		'isbninvalid' => 'records with invalid ISBN numbers',
@@ -5682,6 +5684,46 @@ class muscatConversion extends frontControllerApplication
 					    EXTRACTVALUE(xml, '//acq/date') REGEXP '.+'
 					AND EXTRACTVALUE(xml, '//acq/date') NOT REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Require YYYY/MM/DD
 					AND EXTRACTVALUE(xml, '//acq/date') NOT REGEXP '^[0-9]{4}$'						-- But also permit year only
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Items on order before 2013/09/01
+	private function report_onorderold ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'onorderold' AS report,
+				id AS recordId
+				FROM catalogue_xml
+				WHERE
+					    EXTRACTVALUE(xml, '//status') IN ('On Order', 'On Order (O/P)', 'On Order (O/S)')
+					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
+					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('2013-09-01 00:00:00')
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Items on order since 2013/09/01
+	private function report_onorderrecent ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'onorderrecent' AS report,
+				id AS recordId
+				FROM catalogue_xml
+				WHERE
+					    EXTRACTVALUE(xml, '//status') IN ('On Order', 'On Order (O/P)', 'On Order (O/S)')
+					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
+					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) > UNIX_TIMESTAMP('2013-09-01 00:00:00')
 		";
 		
 		# Return the query
