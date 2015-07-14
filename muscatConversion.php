@@ -62,13 +62,14 @@ class muscatConversion extends frontControllerApplication
 		'unknowndiacritics' => 'records with unknown diacritics',
 	//	'emptyabstract' => 'records without abstracts',
 		'locationunknown' => 'records where location is unknown, for records whether the status is not present or is GLACIOPAMS',
-		'multiplecopies' => 'records where there appear to be multiple copies, in notes field',
 		'multiplesourcesser' => 'records with multiple sources (*ser)',
 		'multiplesourcesdocart' => 'records with multiple sources (*doc/*art)',
+		'multiplecopies' => 'records where there appear to be multiple copies, in notes field',
 	);
 	
 	# Listing reports
 	private $listings = array (
+		'multiplecopiesvalues' => 'records where there appear to be multiple copies, in notes field - unique values',
 		'diacritics' => 'listing: counts of diacritics used in the raw data',
 		'journaltitles' => 'listing: journal titles',
 		'seriestitles' => 'listing: series titles',
@@ -6535,7 +6536,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Report for distinctn1notfollowedbyn2
+	# Distinct values of all *n1 fields that are not immediately followed by a *n2 field
 	private function report_distinctn1notfollowedbyn2 ()
 	{
 		// No action needed - the view is created dynamically
@@ -6543,7 +6544,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# View for distinctn1notfollowedbyn2
+	# View for distinct values of all *n1 fields that are not immediately followed by a *n2 field
 	private function report_distinctn1notfollowedbyn2_view ()
 	{
 		# Define a manual query
@@ -6569,7 +6570,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Report for distinctn2notprecededbyn1
+	# Distinct values of all *n2 fields that are not immediately preceded by a *n1 field
 	private function report_distinctn2notprecededbyn1 ()
 	{
 		// No action needed - the view is created dynamically
@@ -6577,7 +6578,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# View for distinctn2notprecededbyn1
+	# View for distinct values of all *n2 fields that are not immediately preceded by a *n1 field
 	private function report_distinctn2notprecededbyn1_view ()
 	{
 		# Define a manual query
@@ -6593,6 +6594,39 @@ class muscatConversion extends frontControllerApplication
 				AND field = 'n2'
 			GROUP BY value
 			ORDER BY " . $this->databaseConnection->trimSql ('value') . "
+		;";
+		
+		# Obtain the listing HTML
+		$html = $this->reportListing (NULL, 'values', false, false, $query);
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Records where there appear to be multiple copies, in notes field - unique values
+	private function report_multiplecopiesvalues ()
+	{
+		// No action needed - the view is created dynamically
+		return true;
+	}
+	
+	
+	# View for records where there appear to be multiple copies, in notes field - unique values
+	private function report_multiplecopiesvalues_view ()
+	{
+		# Define a manual query
+		$query = "
+			SELECT
+				value,
+				COUNT(recordId) AS instances
+			FROM catalogue_processed
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    field IN('note', 'local')
+				AND value LIKE 'SPRI has%'
+			GROUP BY value
+			ORDER BY value
 		;";
 		
 		# Obtain the listing HTML
