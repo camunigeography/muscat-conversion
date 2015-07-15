@@ -2827,16 +2827,20 @@ class muscatConversion extends frontControllerApplication
 			'A^g' => chr(0xc3).chr(0x80),			//  0x00C0
 			'E^g' => chr(0xc3).chr(0x88),			//  0x00C8
 			
-			// ^c cedilla [though some actually are suspected to be Polish/Lithuanian Ogonek; see: http://www.twardoch.com/download/polishhowto/ogonek.html ]
-			'a^c' => chr(0xc4).chr(0x85),			//  0x0105),	// http://www.fileformat.info/info/unicode/char/0105/index.htm ; see also http://scriptsource.org/cms/scripts/page.php?item_id=character_detail&key=SEQ0061_0327
+			// ^c for Polish/Lithuanian Ogonek; see: http://www.twardoch.com/download/polishhowto/ogonek.html ]
+			'a^c' => chr(0xc4).chr(0x85),			//  0x0105,	// http://www.fileformat.info/info/unicode/char/0105/index.htm ; see also http://scriptsource.org/cms/scripts/page.php?item_id=character_detail&key=SEQ0061_0327
+			'i^c' => chr(0xc4).chr(0xaf),			//  0x012f,	// http://www.fileformat.info/info/unicode/char/12f/index.htm
+			
+			// ^c for Dene but treated as Ogonek
+			'u^c' => chr(0xc5).chr(0xb3),			//  0x0173,	// http://www.fileformat.info/info/unicode/char/0173/index.htm ; see also http://scriptsource.org/cms/scripts/page.php?item_id=character_detail&key=SEQ0075_0327
+			
+			// ^c cedilla
 			'c^c' => chr(0xc3).chr(0xa7),			//  0x00E7
 			'e^c' => chr(0xc8).chr(0xa9),			//  0x0229
-			'i^c' => chr(0xc4).chr(0xaf),			//  0x012f),	// http://www.fileformat.info/info/unicode/char/12f/index.htm
 			'k^c' => chr(0xc4).chr(0xb7),			//  0x0137
 			'l^c' => chr(0xc4).chr(0xbc),			//  0x013C
 			's^c' => chr(0xc5).chr(0x9f),			//  0x015F
 			't^c' => chr(0xc5).chr(0xa3),			//  0x0163
-			'u^c' => chr(0xc5).chr(0xb3),			//  0x0173),	// http://www.fileformat.info/info/unicode/char/0173/index.htm ; see also http://scriptsource.org/cms/scripts/page.php?item_id=character_detail&key=SEQ0075_0327
 			'C^c' => chr(0xc3).chr(0x87),			//  0x00C7
 			
 			// ^u umlaut
