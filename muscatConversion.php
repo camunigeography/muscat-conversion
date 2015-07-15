@@ -2868,8 +2868,6 @@ class muscatConversion extends frontControllerApplication
 			'V^m' => chr(0x56).chr(0xcc).chr(0x84),	//  0x0056).0x0304			// #!# Suspect wrong
 			'2^m' => '2' . chr(0xCC).chr(0x85),		//  0x0305; records 119571 and 125394, which have e.g. 112^m1 which should be 1121 where there is a line over the 2; see http://en.wikipedia.org/wiki/Overline#Unicode for Unicode handling
 			
-			// ^j ligature ('join', i.e. line above two letters)
-			'h^j' => chr(0x68),	//  0x0068	),	// #!# Not sure what this supposed to be
 			
 			// ^z '/' (stroke) through letter
 			'a^z' => chr(0xe2).chr(0xb1).chr(0xa5),	//  0x2C65),	// http://www.fileformat.info/info/unicode/char/2c65/index.htm
