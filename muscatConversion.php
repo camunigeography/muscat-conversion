@@ -2912,8 +2912,6 @@ class muscatConversion extends frontControllerApplication
 			
 			// ^o for 'o' (ring) over a letter
 			'a^o' => chr(0xc3).chr(0xa5),			//  0x00E5
-//			'e^o' => chr(0x65).chr(0xcc).chr(0x8a),	//  0x0065).0x030a			// \u0065 + \u030a
-			'o^o' => chr(0x6f).chr(0xcc).chr(0x8a),	//  0x006f).0x030a			// \u006F + \u030a
 			'u^o' => chr(0xc5).chr(0xaf),			//  0x016F
 			'A^o' => chr(0xc3).chr(0x85),			//  0x00C5
 			
