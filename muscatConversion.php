@@ -67,7 +67,7 @@ class muscatConversion extends frontControllerApplication
 		'multiplecopies' => 'records where there appear to be multiple copies, in notes field',
 	);
 	
-	# Listing reports
+	# Listing (values) reports
 	private $listings = array (
 		'multiplecopiesvalues' => 'records where there appear to be multiple copies, in notes field - unique values',
 		'diacritics' => 'listing: counts of diacritics used in the raw data',
@@ -80,6 +80,7 @@ class muscatConversion extends frontControllerApplication
 		'reversetransliterations' => 'listing: reverse-transliterated titles',
 		'distinctn1notfollowedbyn2' => 'Distinct values of all *n1 fields that are not immediately followed by a *n2 field',
 		'distinctn2notprecededbyn1' => 'Distinct values of all *n2 fields that are not immediately preceded by a *n1 field',
+		'kwunknown' => 'records where kw is unknown, showing the bibliographer concerned',
 	);
 	
 	# Define the types
@@ -6636,6 +6637,35 @@ class muscatConversion extends frontControllerApplication
 		return $html;
 	}
 	
+	
+	# Records where kw is unknown, showing the bibliographer concerned
+	private function report_kwunknown ()
+	{
+		// No action needed - the view is created dynamically
+		return true;
+	}
+	
+	
+	# View for records where kw is unknown, showing the bibliographer concerned
+	private function report_kwunknown_view ()
+	{
+		# Define a manual query
+		$query = "
+			SELECT
+				id,
+				IFNULL( NULLIF( EXTRACTVALUE(xml, '//acc/recr'), ''), '?') AS value
+			FROM catalogue_xml
+			WHERE
+				EXTRACTVALUE(xml, '//k/kw') LIKE '%UNKNOWN%'
+			ORDER BY value
+		;";
+		
+		# Obtain the listing HTML
+		$html = $this->reportListing (NULL, 'records', false, $idField = 'id', $query);
+		
+		# Return the HTML
+		return $html;
+	}
 	
 	
 /*
