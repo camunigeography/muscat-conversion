@@ -2871,9 +2871,9 @@ class muscatConversion extends frontControllerApplication
 			'V^m' => 'V' . chr(0xe2).chr(0x80).chr(0xbe),		//	0x203E, // http://www.fileformat.info/info/unicode/char/203e/index.htm
 			
 			// ^z '/' (stroke) through letter
-			'a^z' => chr(0xe2).chr(0xb1).chr(0xa5),	//  0x2C65),	// http://www.fileformat.info/info/unicode/char/2c65/index.htm
-			'd^z' => chr(0xc4).chr(0x91),			//  0x0111),	// http://www.fileformat.info/info/unicode/char/0111/index.htm
-			'j^z' => chr(0xc9).chr(0x89),			//  0x0249),	// http://www.fileformat.info/info/unicode/char/0249/index.htm
+			'a^z' => chr(0xe2).chr(0xb1).chr(0xa5),	//  0x2C65,	// http://www.fileformat.info/info/unicode/char/2c65/index.htm
+			'd^z' => chr(0xc4).chr(0x91),			//  0x0111,	// http://www.fileformat.info/info/unicode/char/0111/index.htm which does indeed have the stroke not across the middle
+			'j^z' => chr(0xc9).chr(0x89),			//  0x0249,	// http://www.fileformat.info/info/unicode/char/0249/index.htm
 			'l^z' => chr(0xc5).chr(0x82),			//  0x0142
 			'o^z' => chr(0xc3).chr(0xb8),			//  0x00F8
 			'L^z' => chr(0xc5).chr(0x81),			//  0x0141
