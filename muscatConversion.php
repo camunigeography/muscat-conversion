@@ -6219,10 +6219,11 @@ class muscatConversion extends frontControllerApplication
 			$table = array ();
 			foreach ($instances as $instance) {
 				if ($instance['instances'] == 0) {continue;}	// This is done at this level, rather than the getData stage, so that all diacritic modifiers end up being listed
-				$letter = "<a href=\"{$this->baseUrl}/search/?casesensitive=1&anywhere={$instance['letter']}^{$diacritic}\"><strong>{$instance['letter']}</strong>^{$diacritic}</a>";
+				$unicodeSymbol = $diacritics["{$instance['letter']}^{$diacritic}"];
+				$letter = "<a href=\"{$this->baseUrl}/search/?casesensitive=1&anywhere=" . urlencode ($unicodeSymbol) . "\"><strong>{$instance['letter']}</strong>^{$diacritic}</a>";
 				$table[$letter] = array (
 					'muscat'	=> $letter,
-					'unicode'	=> $diacritics["{$instance['letter']}^{$diacritic}"],
+					'unicode'	=> $unicodeSymbol,
 					'instances'	=> $instance['instances'],
 				);
 			}
