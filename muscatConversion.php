@@ -2855,7 +2855,7 @@ class muscatConversion extends frontControllerApplication
 			'O^u' => chr(0xc3).chr(0x96),			//  0x00D6
 			'U^u' => chr(0xc3).chr(0x9c),			//  0x00DC
 			
-			// ^m macron (i.e. horizontal line over letter)
+			// ^m macron (i.e. horizontal line over letter/number)
 			'a^m' => chr(0xc4).chr(0x81),			//  0x0101
 			'e^m' => chr(0xc4).chr(0x93),			//  0x0113
 			'i^m' => chr(0xc4).chr(0xab),			//  0x012B
@@ -2865,9 +2865,10 @@ class muscatConversion extends frontControllerApplication
 			'A^m' => chr(0xc4).chr(0x80),			//  0x0100
 			'O^m' => chr(0xc5).chr(0x8c),			//  0x014C
 			'U^m' => chr(0xc5).chr(0xaa),			//  0x016A
-			'V^m' => chr(0x56).chr(0xcc).chr(0x84),	//  0x0056).0x0304			// #!# Suspect wrong
 			'2^m' => '2' . chr(0xCC).chr(0x85),		//  0x0305; records 119571 and 125394, which have e.g. 112^m1 which should be 1121 where there is a line over the 2; see http://en.wikipedia.org/wiki/Overline#Unicode for Unicode handling
 			
+			// Standalone overline character used in a formula; only appears in record 149163
+			'V^m' => 'V' . chr(0xe2).chr(0x80).chr(0xbe),		//	0x203E, // http://www.fileformat.info/info/unicode/char/203e/index.htm
 			
 			// ^z '/' (stroke) through letter
 			'a^z' => chr(0xe2).chr(0xb1).chr(0xa5),	//  0x2C65),	// http://www.fileformat.info/info/unicode/char/2c65/index.htm
