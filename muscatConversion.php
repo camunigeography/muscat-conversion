@@ -5212,8 +5212,7 @@ class muscatConversion extends frontControllerApplication
 			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
 			WHERE
 				    fieldslist LIKE '%@doc@%'
-				AND fieldslist LIKE '%@location@%'
-				AND fieldslist NOT REGEXP '@location@.*@location@'	/* NOT two locations, i.e. exactly one */
+				AND (LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@location@','')))/LENGTH('@location@') = 1		/* NOT two locations, i.e. exactly one */
 				AND field = 'location'
 				AND value = 'Periodical'
 			";
