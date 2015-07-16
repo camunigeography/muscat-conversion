@@ -5207,14 +5207,13 @@ class muscatConversion extends frontControllerApplication
 		$query = "
 			SELECT
 				'doclocationperiodical' AS report,
-				catalogue_rawdata.recordId
-			FROM catalogue_rawdata
-			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+				catalogue_xml.id AS recordId
+			FROM catalogue_xml
+			LEFT JOIN fieldsindex ON catalogue_xml.id = fieldsindex.id
 			WHERE
 				    fieldslist LIKE '%@doc@%'
 				AND (LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@location@','')))/LENGTH('@location@') = 1		/* NOT two locations, i.e. exactly one */
-				AND field = 'location'
-				AND value = 'Periodical'
+				AND EXTRACTVALUE(xml, '//location') = 'Periodical'
 			";
 		
 		# Return the query
