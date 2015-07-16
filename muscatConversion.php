@@ -81,6 +81,7 @@ class muscatConversion extends frontControllerApplication
 		'distinctn1notfollowedbyn2' => 'Distinct values of all *n1 fields that are not immediately followed by a *n2 field',
 		'distinctn2notprecededbyn1' => 'Distinct values of all *n2 fields that are not immediately preceded by a *n1 field',
 		'kwunknown' => 'records where kw is unknown, showing the bibliographer concerned',
+		'doclocationperiodicaltsvalues' => '*doc records with one *location, which is Periodical - distinct *ts values',
 	);
 	
 	# Define the types
@@ -6666,6 +6667,41 @@ class muscatConversion extends frontControllerApplication
 		# Return the HTML
 		return $html;
 	}
+	
+	
+	# *doc records with one *location, which is Periodical - distinct *ts values
+	private function report_doclocationperiodicaltsvalues ()
+	{
+		// No action needed - the view is created dynamically
+		return true;
+	}
+	
+	
+	# View for report of *doc records with one *location, which is Periodical - distinct *ts values
+	private function report_doclocationperiodicaltsvalues_view ()
+	{
+		# Define a manual query
+		$query = "
+			SELECT
+				EXTRACTVALUE(xml, '//ts') AS value,
+				COUNT(catalogue_xml.id) AS instances
+			FROM catalogue_xml
+			LEFT JOIN fieldsindex ON catalogue_xml.id = fieldsindex.id
+			WHERE
+				    fieldslist LIKE '%@doc@%'
+				AND (LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@location@','')))/LENGTH('@location@') = 1		/* NOT two locations, i.e. exactly one */
+				AND EXTRACTVALUE(xml, '//location') = 'Periodical'
+			GROUP BY value
+			ORDER BY value
+			";
+		
+		# Obtain the listing HTML
+		$html = $this->reportListing (NULL, 'values', false, false, $query);
+		
+		# Return the HTML
+		return $html;
+	}
+	
 	
 	
 /*
