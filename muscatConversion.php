@@ -1893,7 +1893,7 @@ class muscatConversion extends frontControllerApplication
 	private function getRecordTitles ($ids)
 	{
 		# Get the titles
-		$data = $this->databaseConnection->selectPairs ($this->settings['database'], 'catalogue_rawdata', $conditions = array ('field' => 'tc', 'recordId' => $ids), $columns = array ('recordId', 'value'), true, $orderBy = 'recordId');
+		$data = $this->databaseConnection->selectPairs ($this->settings['database'], 'catalogue_processed', $conditions = array ('field' => 'tc', 'recordId' => $ids), $columns = array ('recordId', 'value'), true, $orderBy = 'recordId');
 		return $data;
 	}
 	
