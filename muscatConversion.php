@@ -2678,6 +2678,10 @@ class muscatConversion extends frontControllerApplication
 		# "In order to italicise a Latin name in the middle of a line of Roman text, prefix the words to be italicised by '\v' and end the words with '\n'"
 		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBlackslash}v','<em>');";
 		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBlackslash}n','</em>');";	// \n does not mean anything special in REPLACE()
+		# Also convert \V and \N similarly
+		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBlackslash}V','<em>');";
+		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBlackslash}N','</em>');";	// \n does not mean anything special in REPLACE()
+		
 		
 		# Diacritics (query takes 135 seconds)
 		$diacritics = $this->diacriticsTable ();
