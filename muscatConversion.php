@@ -65,6 +65,8 @@ class muscatConversion extends frontControllerApplication
 		'multiplesourcesser' => 'records with multiple sources (*ser)',
 		'multiplesourcesdocart' => 'records with multiple sources (*doc/*art)',
 		'multiplecopies' => 'records where there appear to be multiple copies, in notes field',
+		'multiplein' => 'records containing more than one *in field',
+		'multiplej' => 'records containing more than one *j field',
 	);
 	
 	# Listing (values) reports
@@ -6067,6 +6069,40 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				    field IN('note', 'local')
 				AND value LIKE 'SPRI has%'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records containing more than one *in field
+	private function report_multiplein ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'multiplein' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE ((LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@in@',''))) / LENGTH('@in@')) > 1
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records containing more than one *j field
+	private function report_multiplej ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'multiplej' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE ((LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@j@',''))) / LENGTH('@j@')) > 1
 			";
 		
 		# Return the query
