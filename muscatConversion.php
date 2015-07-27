@@ -512,7 +512,7 @@ class muscatConversion extends frontControllerApplication
 		# Start the HTML With the description
 		$html  = "\n<div class=\"graybox\">";
 		if (!$this->isListing ($id)) {
-			$html .= "\n<p class=\"right\"><a href=\"{$this->baseUrl}/reports/{$id}/{$id}.csv\">Export as CSV</a></p>";
+			$html .= "\n<p id=\"exportlink\" class=\"right\"><a href=\"{$this->baseUrl}/reports/{$id}/{$id}.csv\">Export as CSV</a></p>";
 		}
 		$html .= "\n<p><strong>" . htmlspecialchars ($description) . '</strong></p>';
 		$html .= "\n</div>";
@@ -562,7 +562,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Add previous/next links
 		$previousNextLinks = $this->previousNextLinks ($id);
-		$html .= "<p>Record #<strong>{$id}</strong>:</p>";
+		$html .= "\n<p>Record #<strong>{$id}</strong>:</p>";
 		$html .= $previousNextLinks;
 		
 		# Get the data, in order, starting with the most basic version, ending if any fail
@@ -1212,7 +1212,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to create a record form
+	# Function to create a record search form
 	private function recordForm (&$html, $miniform = false)
 	{
 		# Cache _GET and remove the action, to avoid ultimateForm thinking the form has been submitted
@@ -1229,7 +1229,7 @@ class muscatConversion extends frontControllerApplication
 			'get' => true,
 			'name' => false,
 			'nullText' => false,
-			'div' => 'ultimateform ' . ($miniform ? 'miniform' : 'largesearch'),
+			'div' => 'ultimateform ' . ($miniform ? 'miniform recordsearch' : 'largesearch'),
 			'submitTo' => $this->baseUrl . '/records/',
 			'display'		=> 'template',
 			'displayTemplate' => ($miniform ? '<!--{[[PROBLEMS]]}-->' : '{[[PROBLEMS]]}') /* Slightly hacky way of ensuring the problems list doesn't appear twice on the page */ . '<p>{q} {[[SUBMIT]]}</p>',

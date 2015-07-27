@@ -1,4 +1,4 @@
-#muscatconversion .miniform {clear: right; float: right; position: relative; top: 42px;}
+#muscatconversion .recordsearch {clear: right; float: right; position: relative; top: 42px;}
 #muscatconversion #exportdate {clear: right; float: right; font-size: 0.83em; margin: 0; padding: 0; position: relative; top: -1.2em; color: gray;}
 #muscatconversion .fieldstabs {clear: right; margin-left: 20px;}
 #muscatconversion .reportsjumplist {font-size: 0.83em; text-align: right; position: relative; top: -2.6em;}
@@ -8,6 +8,7 @@
 #muscatconversion .reportsjumplist select, #muscatconversion .reportsjumplist input, #muscatconversion .fieldsjumplist select, #muscatconversion .fieldsjumplist input {font-size: 1em;}
 #muscatconversion .fieldsjumplist select {margin: 0;}
 #muscatconversion .listing {clear: right;}	/* Clear right following fieldstabs */
+#muscatconversion .listing h3 {margin-top: 1.2em;}
 #muscatconversion ul.tabs li.selected {font-weight: bold;}
 #muscatconversion table.lines.regulated tr td:first-child {width: 60px;}
 #muscatconversion table.record tr td.description {color: gray;}
@@ -26,3 +27,9 @@
 #muscatconversion table.diacritics table tr td.unicode {font-size: 1.4em;}
 #muscatconversion table.fieldslisting td.Description {width: 400px;}
 
+/* Print styles */
+@media print {
+	#muscatconversion ul.tabs, #muscatconversion .reportsjumplist, #muscatconversion .recordsearch, #muscatconversion #exportlink, #muscatconversion ul.paginationlinks li:not(.root), #muscatconversion .listing form input[type=submit], #muscatconversion ul.previousnextlinks {display: none;}
+	#muscatconversion {font-size: 81%; line-height: 1.25;}
+	#muscatconversion p {font-size: 1em;}
+}
