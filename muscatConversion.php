@@ -174,6 +174,7 @@ class muscatConversion extends frontControllerApplication
 			'debugMode' => false,
 			'paginationRecordsPerPageDefault' => 50,
 			'div' => strtolower (__CLASS__),
+			'useFeedback' => false,
 		);
 		
 		# Return the defaults
