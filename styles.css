@@ -30,6 +30,7 @@
 /* Print styles */
 @media print {
 	#muscatconversion ul.tabs, #muscatconversion .reportsjumplist, #muscatconversion .recordsearch, #muscatconversion #exportlink, #muscatconversion ul.paginationlinks li:not(.root), #muscatconversion .listing form input[type=submit], #muscatconversion ul.previousnextlinks {display: none;}
-	#muscatconversion {font-size: 81%; line-height: 1.25;}
+	#muscatconversion {font-size: 82%;}
 	#muscatconversion p {font-size: 1em;}
+	#muscatconversion table.lines td {padding: 0; line-height: 1.3;}
 }
