@@ -4795,8 +4795,8 @@ class muscatConversion extends frontControllerApplication
 	# 008 pos. 00-05: Date entered on file
 	private function generate008_00_05 ($xml)
 	{
-#!# Todo
-		return '/' . str_repeat ('-', 6 - 1);
+		# Date entered on system [format: yymmdd]
+		return date ('ymd');
 	}
 	
 	
@@ -4851,16 +4851,14 @@ class muscatConversion extends frontControllerApplication
 	# 008 pos. 38: Modified record
 	private function generate008_38 ($xml)
 	{
-#!# Todo
-		return '/' . str_repeat ('-', 1 - 1);
+		return '#';
 	}
 	
 	
 	# 008 pos. 39: Cataloguing source
 	private function generate008_39 ($xml)
 	{
-#!# Todo
-		return '/' . str_repeat ('-', 1 - 1);
+		return 'd';
 	}
 	
 	
