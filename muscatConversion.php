@@ -2178,13 +2178,8 @@ class muscatConversion extends frontControllerApplication
 			return false;
 		}
 		
-		# Get the file lising
-		if (!$files = directories::listFiles ($this->exportsDirectory, array ('txt'), true, false)) {
-			if ($showErrors) {
-				echo "\n<p class=\"warning\">No export file was found. It should be in the location {$this->exportsDirectory}.</p>";
-			}
-			return false;
-		}
+		# Get the file listing or end
+		if (!$files = directories::listFiles ($this->exportsDirectory, array ('txt'), true, false)) {return false;}
 		
 		# Do checks on each file
 		foreach ($files as $filename => $file) {
