@@ -140,7 +140,63 @@ class generate008
 	# 008 pos. 18-34: Material specific coded elements: 18-20
 	private function generate008_18_34__18_20 ($xml, $recordType, $form)
 	{
+		if ($this->isMultimediaish ($form)) {
+			switch ($form) {
+				case '3.5 floppy disk':
+				case 'CD-ROM':
+				case 'DVD-ROM':
+					return str_repeat ('#', 3);
+				case 'Map':
+				case 'CD':
+				case 'Sound cassette':
+				case 'Sound disc':
+					return str_repeat ('|', 3);
+				case 'Poster':
+					return str_repeat ('n', 3);
+				case 'DVD':
+				case 'Videorecording':
+					
+					$p = $this->muscatConversion->xPathValue ($xml, $recordType . '//p');
+					if (!substr_count ($p, ' min')) {
+						return str_repeat ('|', 3);
+					}
+					if (!preg_match ('/([0-9]+) min/', $p, $matches)) {return NULL;}
+					$minutes = $matches[1];
+					if ($minutes > 999) {
+						return '000';
+					}
+					return str_pad ($minutes, 3, '0', STR_PAD_LEFT);
+			}
+		}
 		
+		switch ($recordType) {
+			case '/doc':
+			case '/art/in':
+				
+				# Add codes to stack of maximum three characters based on either *p or *pt, padding missing characters to the right with #
+				$strings = array (
+					'ill|diag'	=> 'a',	# If *p or *pt contains 'ill*' OR 'diag*' => a in pos. 18
+					'map'		=> 'b',	# If *p or *pt contains 'map*' => b in pos. 18 unless full, in which case => b in pos. 19
+					'plate'		=> 'f',	# If *p or *pt contains 'plate*' => f in pos. 18 unless full, in which case => f in pos. 19 unless full, in which case => f in pos. 20
+				);
+				$stack = '';
+				$p = $this->muscatConversion->xPathValue ($xml, $recordType . '//p');
+				$pt = $this->muscatConversion->xPathValue ($xml, $recordType . '//pt');
+				foreach ($strings as $searchList => $result) {
+					if (preg_match ('/\b(' . $searchList . ')/', $p) || preg_match ('/\b(' . $searchList . ')/', $pt)) {
+						$stack .= $result;
+					}
+				}
+				return str_pad ($stack, 3, '#', STR_PAD_RIGHT);	// e.g. 'abf', 'ab#', 'a##', '###'
+				
+			case '/ser':
+			case '/art/j':
+				
+				$freq = $this->muscatConversion->xPathValue ($xml, $recordType . '//freq');
+				return $this->journalFrequency ($freq) . '#';
+		}
+		
+		# Flag error
 		return NULL;
 	}
 	
