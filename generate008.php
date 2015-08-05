@@ -79,6 +79,39 @@ class generate008
 	# 008 pos. 18-34: Material specific coded elements
 	private function position_18_34 ()
 	{
+		# Determine the record type or end
+		if (!$this->recordType = $this->recordType ()) {
+			#!# Need to flag error
+			return '/' . str_repeat ('?', 17 - 1);
+		}
+		
+		# Determine the *form value
+		$this->form = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '/form');
+		
+		# Determine if the record form is roughly digital/multimedia
+		$this->isMultimediaish = $this->isMultimediaish ($this->form);
+		
+		# Compile the value by delegating each part
+		$value  = $this->position_18_34__18_20 ();
+		$value .= $this->position_18_34__21    ();
+		$value .= $this->position_18_34__22    ();
+		$value .= $this->position_18_34__23    ();
+		$value .= $this->position_18_34__24_27 ();
+		$value .= $this->position_18_34__28    ();
+		$value .= $this->position_18_34__29    ();
+		$value .= $this->position_18_34__30_31 ();
+		$value .= $this->position_18_34__32    ();
+		$value .= $this->position_18_34__33    ();
+		$value .= $this->position_18_34__34    ();
+		
+		# Return the string
+		return $value;
+	}
+	
+	
+	# Helper function to determine the record type
+	private function recordType ()
+	{
 		# Determine the record type, used by subroutines
 		$recordTypes = array (
 			'/art/in',
@@ -88,32 +121,12 @@ class generate008
 		);
 		foreach ($recordTypes as $recordType) {
 			if ($this->muscatConversion->xPathValue ($this->xml, $recordType)) {
-				break;	// $recordType will now be set
+				return $recordType;	// Match found
 			}
 		}
 		
-		# Flag error if no record type
-#!# Need to flag error
-		if (!$recordType) {return '/' . str_repeat ('?', 17 - 1);}
-		
-		# Get the *form value
-		$form = $this->muscatConversion->xPathValue ($this->xml, $recordType . '/form');
-		
-		# Compile the value by delegating each part
-		$value  = $this->position_18_34__18_20 ($recordType, $form);
-		$value .= $this->position_18_34__21    ($recordType, $form);
-		$value .= $this->position_18_34__22    ($recordType, $form);
-		$value .= $this->position_18_34__23    ($recordType, $form);
-		$value .= $this->position_18_34__24_27 ($recordType, $form);
-		$value .= $this->position_18_34__28    ($recordType, $form);
-		$value .= $this->position_18_34__29    ($recordType, $form);
-		$value .= $this->position_18_34__30_31 ($recordType, $form);
-		$value .= $this->position_18_34__32    ($recordType, $form);
-		$value .= $this->position_18_34__33    ($recordType, $form);
-		$value .= $this->position_18_34__34    ($recordType, $form);
-		
-		# Return the string
-		return $value;
+		# Not found
+		return NULL;
 	}
 	
 	
@@ -141,10 +154,10 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 18-20
-	private function position_18_34__18_20 ($recordType, $form)
+	private function position_18_34__18_20 ()
 	{
-		if ($this->isMultimediaish ($form)) {
-			switch ($form) {
+		if ($this->isMultimediaish) {
+			switch ($this->form) {
 				case '3.5 floppy disk':
 				case 'CD-ROM':
 				case 'DVD-ROM':
@@ -159,7 +172,7 @@ class generate008
 				case 'DVD':
 				case 'Videorecording':
 					
-					$p = $this->muscatConversion->xPathValue ($this->xml, $recordType . '//p');
+					$p = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '//p');
 					if (!substr_count ($p, ' min')) {
 						return str_repeat ('|', 3);
 					}
@@ -172,7 +185,7 @@ class generate008
 			}
 		}
 		
-		switch ($recordType) {
+		switch ($this->recordType) {
 			case '/doc':
 			case '/art/in':
 				
@@ -183,8 +196,8 @@ class generate008
 					'plate'		=> 'f',	# If *p or *pt contains 'plate*' => f in pos. 18 unless full, in which case => f in pos. 19 unless full, in which case => f in pos. 20
 				);
 				$stack = '';
-				$p = $this->muscatConversion->xPathValue ($this->xml, $recordType . '//p');
-				$pt = $this->muscatConversion->xPathValue ($this->xml, $recordType . '//pt');
+				$p = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '//p');
+				$pt = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '//pt');
 				foreach ($strings as $searchList => $result) {
 					if (preg_match ('/\b(' . $searchList . ')/', $p) || preg_match ('/\b(' . $searchList . ')/', $pt)) {
 						$stack .= $result;
@@ -195,7 +208,7 @@ class generate008
 			case '/ser':
 			case '/art/j':
 				
-				$freq = $this->muscatConversion->xPathValue ($this->xml, $recordType . '//freq');
+				$freq = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '//freq');
 				return $this->journalFrequency ($freq) . '#';
 		}
 		
@@ -314,10 +327,10 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 21
-	private function position_18_34__21 ($recordType, $form)
+	private function position_18_34__21 ()
 	{
-		if ($this->isMultimediaish ($form)) {
-			switch ($form) {
+		if ($this->isMultimediaish) {
+			switch ($this->form) {
 				case '3.5 floppy disk':
 				case 'CD-ROM':
 				case 'DVD-ROM':
@@ -330,7 +343,7 @@ class generate008
 			}
 		}
 		
-		switch ($recordType) {
+		switch ($this->recordType) {
 			case '/doc':
 			case '/art/in':
 				return '#';
@@ -345,10 +358,10 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 22
-	private function position_18_34__22 ($recordType, $form)
+	private function position_18_34__22 ()
 	{
-		if ($this->isMultimediaish ($form)) {
-			switch ($form) {
+		if ($this->isMultimediaish) {
+			switch ($this->form) {
 				case 'DVD':
 				case 'Videorecording':
 				case 'Poster':
@@ -358,16 +371,16 @@ class generate008
 			}
 		}
 		
-		switch ($recordType) {
+		switch ($this->recordType) {
 			case '/doc':
 			case '/art/in':
 				return '|';
 			case '/ser':
 			case '/art/j':
 				
-				if (!$form) {return '#';}
+				if (!$this->form) {return '#';}
 				
-				switch ($form) {
+				switch ($this->form) {
 					case 'Internet resource':
 						return 'o';
 					case 'Microfiche':
@@ -387,10 +400,10 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 23
-	private function position_18_34__23 ($recordType, $form)
+	private function position_18_34__23 ()
 	{
-		if ($this->isMultimediaish ($form)) {
-			switch ($form) {
+		if ($this->isMultimediaish) {
+			switch ($this->form) {
 				case '3.5 floppy disk':
 				case 'CD-ROM':
 				case 'DVD-ROM':
@@ -408,9 +421,9 @@ class generate008
 			}
 		}
 		
-		if (!$form) {return '#';}
+		if (!$this->form) {return '#';}
 		
-		switch ($form) {
+		switch ($this->form) {
 			case 'Internet resource':
 				return 'o';
 			case 'Microfiche':
@@ -429,7 +442,7 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 24-27
-	private function position_18_34__24_27 ($recordType, $form)
+	private function position_18_34__24_27 ()
 	{
 #!# Todo
 		$value = '-';
@@ -441,7 +454,7 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 28
-	private function position_18_34__28 ($recordType, $form)
+	private function position_18_34__28 ()
 	{
 #!# Todo
 		$value = '-';
@@ -453,7 +466,7 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 29
-	private function position_18_34__29 ($recordType, $form)
+	private function position_18_34__29 ()
 	{
 #!# Todo
 		$value = '-';
@@ -465,7 +478,7 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 30-31
-	private function position_18_34__30_31 ($recordType, $form)
+	private function position_18_34__30_31 ()
 	{
 #!# Todo
 		$value = '-';
@@ -477,14 +490,14 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 32
-	private function position_18_34__32 ($recordType, $form)
+	private function position_18_34__32 ()
 	{
 		return '#';
 	}
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 33
-	private function position_18_34__33 ($recordType, $form)
+	private function position_18_34__33 ()
 	{
 #!# Todo
 		$value = '-';
@@ -496,7 +509,7 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 34
-	private function position_18_34__34 ($recordType, $form)
+	private function position_18_34__34 ()
 	{
 #!# Todo
 		$value = '-';
