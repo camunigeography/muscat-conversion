@@ -3,30 +3,33 @@
 class generate008
 {
 	# Constructor
-	public function __construct ($muscatConversion)
+	public function __construct ($muscatConversion, $xml)
 	{
 		# Create a class property handle to the parent class
 		$this->muscatConversion = $muscatConversion;
+		
+		# Create a handle to the XML
+		$this->xml = $xml;
 		
 	}
 	
 	
 	# Main
-	public function main ($xml)
+	public function main ()
 	{
 		# Start the value
 		$value = '';
 		
 		# Delegate the creation of the value for each set of positions
-		$value .= $this->position_00_05 ($xml);
-		$value .= $this->position_06 ($xml);
-		$value .= $this->position_07_10 ($xml);
-		$value .= $this->position_11_14 ($xml);
-		$value .= $this->position_15_17 ($xml);
-		$value .= $this->position_18_34 ($xml);
-		$value .= $this->position_35_37 ($xml);
-		$value .= $this->position_38 ($xml);
-		$value .= $this->position_39 ($xml);
+		$value .= $this->position_00_05 ();
+		$value .= $this->position_06    ();
+		$value .= $this->position_07_10 ();
+		$value .= $this->position_11_14 ();
+		$value .= $this->position_15_17 ();
+		$value .= $this->position_18_34 ();
+		$value .= $this->position_35_37 ();
+		$value .= $this->position_38    ();
+		$value .= $this->position_39    ();
 		
 		# Return the value
 		return $value;
@@ -34,7 +37,7 @@ class generate008
 	
 	
 	# 008 pos. 00-05: Date entered on file
-	private function position_00_05 ($xml)
+	private function position_00_05 ()
 	{
 		# Date entered on system [format: yymmdd]
 		return date ('ymd');
@@ -42,7 +45,7 @@ class generate008
 	
 	
 	# 008 pos. 06: Type of date/Publication status
-	private function position_06 ($xml)
+	private function position_06 ()
 	{
 #!# Todo
 		return '/' . str_repeat ('-', 1 - 1);
@@ -50,7 +53,7 @@ class generate008
 	
 	
 	# 008 pos. 07-10: Date 1
-	private function position_07_10 ($xml)
+	private function position_07_10 ()
 	{
 #!# Todo
 		return '/' . str_repeat ('-', 4 - 1);
@@ -58,7 +61,7 @@ class generate008
 	
 	
 	# 008 pos. 11-14: Date 2
-	private function position_11_14 ($xml)
+	private function position_11_14 ()
 	{
 #!# Todo
 		return '/' . str_repeat ('-', 4 - 1);
@@ -66,7 +69,7 @@ class generate008
 	
 	
 	# 008 pos. 15-17: Place of publication, production, or execution
-	private function position_15_17 ($xml)
+	private function position_15_17 ()
 	{
 #!# Todo
 		return '/' . str_repeat ('-', 3 - 1);
@@ -74,7 +77,7 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements
-	private function position_18_34 ($xml)
+	private function position_18_34 ()
 	{
 		# Determine the record type, used by subroutines
 		$recordTypes = array (
@@ -84,7 +87,7 @@ class generate008
 			'/ser',
 		);
 		foreach ($recordTypes as $recordType) {
-			if ($this->muscatConversion->xPathValue ($xml, $recordType)) {
+			if ($this->muscatConversion->xPathValue ($this->xml, $recordType)) {
 				break;	// $recordType will now be set
 			}
 		}
@@ -94,20 +97,20 @@ class generate008
 		if (!$recordType) {return '/' . str_repeat ('?', 17 - 1);}
 		
 		# Get the *form value
-		$form = $this->muscatConversion->xPathValue ($xml, $recordType . '/form');
+		$form = $this->muscatConversion->xPathValue ($this->xml, $recordType . '/form');
 		
 		# Compile the value by delegating each part
-		$value  = $this->position_18_34__18_20 ($xml, $recordType, $form);
-		$value .= $this->position_18_34__21    ($xml, $recordType, $form);
-		$value .= $this->position_18_34__22    ($xml, $recordType, $form);
-		$value .= $this->position_18_34__23    ($xml, $recordType, $form);
-		$value .= $this->position_18_34__24_27 ($xml, $recordType, $form);
-		$value .= $this->position_18_34__28    ($xml, $recordType, $form);
-		$value .= $this->position_18_34__29    ($xml, $recordType, $form);
-		$value .= $this->position_18_34__30_31 ($xml, $recordType, $form);
-		$value .= $this->position_18_34__32    ($xml, $recordType, $form);
-		$value .= $this->position_18_34__33    ($xml, $recordType, $form);
-		$value .= $this->position_18_34__34    ($xml, $recordType, $form);
+		$value  = $this->position_18_34__18_20 ($recordType, $form);
+		$value .= $this->position_18_34__21    ($recordType, $form);
+		$value .= $this->position_18_34__22    ($recordType, $form);
+		$value .= $this->position_18_34__23    ($recordType, $form);
+		$value .= $this->position_18_34__24_27 ($recordType, $form);
+		$value .= $this->position_18_34__28    ($recordType, $form);
+		$value .= $this->position_18_34__29    ($recordType, $form);
+		$value .= $this->position_18_34__30_31 ($recordType, $form);
+		$value .= $this->position_18_34__32    ($recordType, $form);
+		$value .= $this->position_18_34__33    ($recordType, $form);
+		$value .= $this->position_18_34__34    ($recordType, $form);
 		
 		# Return the string
 		return $value;
@@ -138,7 +141,7 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 18-20
-	private function position_18_34__18_20 ($xml, $recordType, $form)
+	private function position_18_34__18_20 ($recordType, $form)
 	{
 		if ($this->isMultimediaish ($form)) {
 			switch ($form) {
@@ -156,7 +159,7 @@ class generate008
 				case 'DVD':
 				case 'Videorecording':
 					
-					$p = $this->muscatConversion->xPathValue ($xml, $recordType . '//p');
+					$p = $this->muscatConversion->xPathValue ($this->xml, $recordType . '//p');
 					if (!substr_count ($p, ' min')) {
 						return str_repeat ('|', 3);
 					}
@@ -180,8 +183,8 @@ class generate008
 					'plate'		=> 'f',	# If *p or *pt contains 'plate*' => f in pos. 18 unless full, in which case => f in pos. 19 unless full, in which case => f in pos. 20
 				);
 				$stack = '';
-				$p = $this->muscatConversion->xPathValue ($xml, $recordType . '//p');
-				$pt = $this->muscatConversion->xPathValue ($xml, $recordType . '//pt');
+				$p = $this->muscatConversion->xPathValue ($this->xml, $recordType . '//p');
+				$pt = $this->muscatConversion->xPathValue ($this->xml, $recordType . '//pt');
 				foreach ($strings as $searchList => $result) {
 					if (preg_match ('/\b(' . $searchList . ')/', $p) || preg_match ('/\b(' . $searchList . ')/', $pt)) {
 						$stack .= $result;
@@ -192,7 +195,7 @@ class generate008
 			case '/ser':
 			case '/art/j':
 				
-				$freq = $this->muscatConversion->xPathValue ($xml, $recordType . '//freq');
+				$freq = $this->muscatConversion->xPathValue ($this->xml, $recordType . '//freq');
 				return $this->journalFrequency ($freq) . '#';
 		}
 		
@@ -311,7 +314,7 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 21
-	private function position_18_34__21 ($xml, $recordType, $form)
+	private function position_18_34__21 ($recordType, $form)
 	{
 		if ($this->isMultimediaish ($form)) {
 			switch ($form) {
@@ -342,7 +345,7 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 22
-	private function position_18_34__22 ($xml, $recordType, $form)
+	private function position_18_34__22 ($recordType, $form)
 	{
 		if ($this->isMultimediaish ($form)) {
 			switch ($form) {
@@ -384,7 +387,7 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 23
-	private function position_18_34__23 ($xml, $recordType, $form)
+	private function position_18_34__23 ($recordType, $form)
 	{
 		if ($this->isMultimediaish ($form)) {
 			switch ($form) {
@@ -426,7 +429,7 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 24-27
-	private function position_18_34__24_27 ($xml, $recordType, $form)
+	private function position_18_34__24_27 ($recordType, $form)
 	{
 #!# Todo
 		$value = '-';
@@ -438,7 +441,7 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 28
-	private function position_18_34__28 ($xml, $recordType, $form)
+	private function position_18_34__28 ($recordType, $form)
 	{
 #!# Todo
 		$value = '-';
@@ -450,7 +453,7 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 29
-	private function position_18_34__29 ($xml, $recordType, $form)
+	private function position_18_34__29 ($recordType, $form)
 	{
 #!# Todo
 		$value = '-';
@@ -462,7 +465,7 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 30-31
-	private function position_18_34__30_31 ($xml, $recordType, $form)
+	private function position_18_34__30_31 ($recordType, $form)
 	{
 #!# Todo
 		$value = '-';
@@ -474,14 +477,14 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 32
-	private function position_18_34__32 ($xml, $recordType, $form)
+	private function position_18_34__32 ($recordType, $form)
 	{
 		return '#';
 	}
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 33
-	private function position_18_34__33 ($xml, $recordType, $form)
+	private function position_18_34__33 ($recordType, $form)
 	{
 #!# Todo
 		$value = '-';
@@ -493,7 +496,7 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 34
-	private function position_18_34__34 ($xml, $recordType, $form)
+	private function position_18_34__34 ($recordType, $form)
 	{
 #!# Todo
 		$value = '-';
@@ -504,7 +507,7 @@ class generate008
 	}
 	
 	# 008 pos. 35-37: Language
-	private function position_35_37 ($xml)
+	private function position_35_37 ()
 	{
 #!# Todo
 		return '/' . str_repeat ('-', 3 - 1);
@@ -512,14 +515,14 @@ class generate008
 	
 	
 	# 008 pos. 38: Modified record
-	private function position_38 ($xml)
+	private function position_38 ()
 	{
 		return '#';
 	}
 	
 	
 	# 008 pos. 39: Cataloguing source
-	private function position_39 ($xml)
+	private function position_39 ()
 	{
 		return 'd';
 	}

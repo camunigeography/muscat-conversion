@@ -4770,8 +4770,8 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Subclass, due to the complexity of this field
 		require_once ('generate008.php');
-		$generate008 = new generate008 ($this);
-		$value = $generate008->main ($xml);
+		$generate008 = new generate008 ($this, $xml);
+		$value = $generate008->main ();
 		
 		# Return the value
 		return $value;
