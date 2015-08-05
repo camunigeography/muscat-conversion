@@ -1,4 +1,10 @@
 
+Bugs:
+-----
+
+"}2{" in /records/36805/
+"p.\g 285" in /records/30729/
+
 
 
 Items 140709:
