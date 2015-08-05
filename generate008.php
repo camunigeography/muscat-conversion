@@ -311,7 +311,12 @@ class generate008
 	# 008 pos. 18-34: Material specific coded elements: 32
 	private function generate008_18_34__32 ($xml, $recordType, $form)
 	{
-		return '#';
+#!# Todo
+		$value = '-';
+		
+		
+		# Return the string
+		return $value;
 	}
 	
 	
