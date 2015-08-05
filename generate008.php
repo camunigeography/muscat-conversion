@@ -221,12 +221,42 @@ class generate008
 	# 008 pos. 18-34: Material specific coded elements: 23
 	private function generate008_18_34__23 ($xml, $recordType, $form)
 	{
-		#!# Todo
-		$value = '-';
+		if ($this->isMultimediaish ($form)) {
+			switch ($form) {
+				case '3.5 floppy disk':
+				case 'CD-ROM':
+				case 'DVD-ROM':
+					return 'q';
+				case 'Map':
+					return '|';
+				case 'CD':
+				case 'Sound cassette':
+				case 'Sound disc':
+					return 'q';
+				case 'DVD':
+				case 'Videorecording':
+				case 'Poster':
+					return '#';
+			}
+		}
 		
+		if (!$form) {return '#';}
 		
-		# Return the string
-		return $value;
+		switch ($form) {
+			case 'Internet resource':
+				return 'o';
+			case 'Microfiche':
+				return 'b';
+			case 'Microfilm':
+				return 'a';
+			case 'Online publication':
+				return 'o';
+			case 'PDF':
+				return 's';
+		}
+		
+		# Flag error
+		return NULL;
 	}
 	
 	
