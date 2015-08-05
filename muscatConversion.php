@@ -4565,7 +4565,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to get an XPath value
-	private function xPathValue ($xml, $xPath)
+	public function xPathValue ($xml, $xPath)
 	{
 		$result = @$xml->xpath ('/root' . $xPath);
 		if (!$result) {return false;}
@@ -4770,7 +4770,7 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Subclass, due to the complexity of this field
 		require_once ('generate008.php');
-		$generate008 = new generate008 ();
+		$generate008 = new generate008 ($this);
 		$value = $generate008->main ($xml);
 		
 		# Return the value

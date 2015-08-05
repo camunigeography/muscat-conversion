@@ -3,9 +3,11 @@
 class generate008
 {
 	# Constructor
-	public function __construct ()
+	public function __construct ($muscatConversion)
 	{
-		// Do nothing
+		# Create a class property handle to the parent class
+		$this->muscatConversion = $muscatConversion;
+		
 	}
 	
 	
@@ -28,7 +30,6 @@ class generate008
 		
 		# Return the value
 		return $value;
-		
 	}
 	
 	
@@ -75,10 +76,165 @@ class generate008
 	# 008 pos. 18-34: Material specific coded elements
 	private function generate008_18_34 ($xml)
 	{
-#!# Todo
-		return '/' . str_repeat ('-', 17 - 1);
+		# Determine the record type, used by subroutines
+		$recordTypes = array (
+			'/art/in',
+			'/art/j',
+			'/doc',
+			'/ser',
+		);
+		foreach ($recordTypes as $recordType) {
+			if ($this->muscatConversion->xPathValue ($xml, $recordType)) {
+				break;	// $recordType will now be set
+			}
+		}
+		
+		# Flag error if no record type
+#!# Need to flag error
+		if (!$recordType) {return '/' . str_repeat ('?', 17 - 1);}
+		
+		# Get the *form value
+		$form = $this->muscatConversion->xPathValue ($xml, $recordType . '/form');
+		
+		# Compile the value by delegating each part
+		$value  = $this->generate008_18_34__18_20 ($xml, $recordType, $form);
+		$value .= $this->generate008_18_34__21    ($xml, $recordType, $form);
+		$value .= $this->generate008_18_34__22    ($xml, $recordType, $form);
+		$value .= $this->generate008_18_34__23    ($xml, $recordType, $form);
+		$value .= $this->generate008_18_34__24_27 ($xml, $recordType, $form);
+		$value .= $this->generate008_18_34__28    ($xml, $recordType, $form);
+		$value .= $this->generate008_18_34__29    ($xml, $recordType, $form);
+		$value .= $this->generate008_18_34__30_31 ($xml, $recordType, $form);
+		$value .= $this->generate008_18_34__32    ($xml, $recordType, $form);
+		$value .= $this->generate008_18_34__33    ($xml, $recordType, $form);
+		$value .= $this->generate008_18_34__34    ($xml, $recordType, $form);
+		
+		# Return the string
+		return $value;
 	}
 	
+	
+	# 008 pos. 18-34: Material specific coded elements: 18-20
+	private function generate008_18_34__18_20 ($xml, $recordType, $form)
+	{
+		
+		return NULL;
+	}
+	
+	
+	# 008 pos. 18-34: Material specific coded elements: 21
+	private function generate008_18_34__21 ($xml, $recordType, $form)
+	{
+		#!# Todo
+		$value = '-';
+		
+		
+		# Return the string
+		return $value;
+	}
+	
+	
+	# 008 pos. 18-34: Material specific coded elements: 22
+	private function generate008_18_34__22 ($xml, $recordType, $form)
+	{
+		#!# Todo
+		$value = '-';
+		
+		
+		# Return the string
+		return $value;
+	}
+	
+	
+	# 008 pos. 18-34: Material specific coded elements: 23
+	private function generate008_18_34__23 ($xml, $recordType, $form)
+	{
+		#!# Todo
+		$value = '-';
+		
+		
+		# Return the string
+		return $value;
+	}
+	
+	
+	# 008 pos. 18-34: Material specific coded elements: 24-27
+	private function generate008_18_34__24_27 ($xml, $recordType, $form)
+	{
+#!# Todo
+		$value = '-';
+		
+		
+		# Return the string
+		return $value;
+	}
+	
+	
+	# 008 pos. 18-34: Material specific coded elements: 28
+	private function generate008_18_34__28 ($xml, $recordType, $form)
+	{
+#!# Todo
+		$value = '-';
+		
+		
+		# Return the string
+		return $value;
+	}
+	
+	
+	# 008 pos. 18-34: Material specific coded elements: 29
+	private function generate008_18_34__29 ($xml, $recordType, $form)
+	{
+#!# Todo
+		$value = '-';
+		
+		
+		# Return the string
+		return $value;
+	}
+	
+	
+	# 008 pos. 18-34: Material specific coded elements: 30-31
+	private function generate008_18_34__30_31 ($xml, $recordType, $form)
+	{
+#!# Todo
+		$value = '-';
+		
+		
+		# Return the string
+		return $value;
+	}
+	
+	
+	# 008 pos. 18-34: Material specific coded elements: 32
+	private function generate008_18_34__32 ($xml, $recordType, $form)
+	{
+		return '#';
+	}
+	
+	
+	# 008 pos. 18-34: Material specific coded elements: 33
+	private function generate008_18_34__33 ($xml, $recordType, $form)
+	{
+#!# Todo
+		$value = '-';
+		
+		
+		# Return the string
+		return $value;
+	}
+	
+	
+	# 008 pos. 18-34: Material specific coded elements: 34
+	private function generate008_18_34__34 ($xml, $recordType, $form)
+	{
+#!# Todo
+		$value = '-';
+		
+		
+		# Return the string
+		return $value;
+	}
 	
 	# 008 pos. 35-37: Language
 	private function generate008_35_37 ($xml)
