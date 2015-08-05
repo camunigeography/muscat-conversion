@@ -145,6 +145,115 @@ class generate008
 	}
 	
 	
+	# Function to determine the Journal frequency and regularity
+	private function journalFrequency ($freq)
+	{
+		# If no frequency, convert to string below
+		if (!$freq) {$freq = 'No *freq';}
+		
+		# Define the lookup table
+		$lookupTable = '
+			*freq	Frequency	Regularity
+			No *freq	#	u
+			-	#	u
+			10-12 issues p.a.	m	n
+			12 issues per vol. until 1959, irregular thereafter, with Neue Folge issued as sequential monographic series	#	u
+			12 p.a.	m	r
+			2 issues P.A.	f	r
+			3 issues p.a.	t	r
+			3 issues per year	t	r
+			3 per year	t	r
+			3 times yearly	t	r
+			4 issues p.a.	q	r
+			4 times per year	q	r
+			4-6 issues p.a.	z	n
+			5 issues p.a.	q	x
+			54 issues per year	w	x
+			6 issues p.a.	b	r
+			8 issues p.a.	b	x
+			9 issues p.a.	m	x
+			annual	a	r
+			annual (2008-)	a	r
+			annual from 2009	a	r
+			annual?	a	r
+			Annually	a	r
+			bi-annual	f	r
+			bi-annually	f	r
+			bi-monthly	b	r
+			bi-weekly	e	r
+			biannual	f	r
+			Biannually	f	r
+			biennial	g	r
+			biennual	g	r
+			bimonthly	b	r
+			biweekly	e	r
+			daily	d	r
+			Eight to ten issues per year, mostly published two at a time. From 1985, five issues per year	q	x
+			Five issues in 1996 (73e Anne^ae). Quarterly from 1997 (74e Anne^ae)	q	n
+			five issues p.a.	q	x
+			Five issues per year	q	x
+			fornightly	e	r
+			fortnightly	e	r
+			four times per year	q	r
+			Initially annual, later quarterly	q	r
+			iregular	#	x
+			irregular	#	x
+			monthly	m	r
+			Monthly (except Jan., Apr., Jul., and Oct.)	b	n
+			Monthly, later weekly	w	r
+			normally 3 issues p.a.	t	r
+			occasional	#	x
+			Pilot issue	#	x
+			Quarterly	q	r
+			quarterly (1970-2007).	q	r
+			[Quarterly]	q	r
+			quaterly	q	r
+			regular	z	r
+			semi-annual	f	r
+			semiannual	f	r
+			Six times per year	b	r
+			Three times a year	t	r
+			three times per year	t	r
+			Tri-annual	t	r
+			Triannual	#	n
+			trienially	h	r
+			triennially	h	r
+			Twice a year	f	r
+			twice yearly	f	r
+			Unknown	#	u
+			varies	#	x
+			weekly	w	r
+		';
+		
+		# Trim whitespace from each line
+		$lookupTable = implode ("\n", array_map ('trim', explode ("\n", trim ($lookupTable))));
+		
+		# Convert to TSV
+		require_once ('csv.php');
+		$lookupTable = csv::tsvToArray ($lookupTable, $firstColumnIsId = true);
+		
+		# Sanity-check
+		foreach ($lookupTable as $entry => $values) {
+			if ((strlen ($values['Frequency']) != 1) || (strlen ($values['Regularity']) != 1)) {
+				echo "<p class=\"warning\">In the journalFrequency definition, <em>{$entry}</em> has invalid syntax.</p>";
+				return NULL;
+			}
+		}
+		
+		# Ensure the string is present
+		if (!isSet ($lookupTable[$freq])) {
+			echo "<p class=\"warning\">In journalFrequency, {$freq} is not present in the table.</p>";
+			return NULL;
+		}
+		
+		# Compile the result
+		$value = $lookupTable[$freq]['Frequency'] . $lookupTable[$freq]['Regularity'];
+		
+		# Return the result
+		return $value;
+	}
+	
+	
 	# 008 pos. 18-34: Material specific coded elements: 21
 	private function generate008_18_34__21 ($xml, $recordType, $form)
 	{
