@@ -114,6 +114,29 @@ class generate008
 	}
 	
 	
+	# Helper function to determine if the record form is roughly digital/multimedia
+	private function isMultimediaish ($form)
+	{
+		# Define forms which come under this grouping
+		$forms = array (
+			'3.5 floppy disk',
+			'CD-ROM',
+			'DVD-ROM',
+			'Map',
+			'CD',
+			'Sound cassette',
+			'Sound disc',
+			'DVD',
+			'Videorecording',
+			'Poster',
+		);
+		
+		# Return whether the supplied form is one of the supported types
+		return (in_array ($form, $forms));
+	}
+	
+	
+	
 	# 008 pos. 18-34: Material specific coded elements: 18-20
 	private function generate008_18_34__18_20 ($xml, $recordType, $form)
 	{
