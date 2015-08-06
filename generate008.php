@@ -477,9 +477,12 @@ class generate008
 		
 		# If *k contains '061.3' OR *loc contains '061.3' => 1
 		# NB All records have been checked that there are no "061.3[0-9]"
-		$ks = $this->muscatConversion->xPathValue ($this->xml, '//ks');
+		$ksValues = $this->muscatConversion->xPathValues ($this->xml, '//k[%i]/ks');
+		foreach ($ksValues as $ks) {
+			if (preg_match ('/\b061\.3/', $ks)) {return 'd';}
+		}
 		$location = $this->muscatConversion->xPathValue ($this->xml, '//location');
-		if (preg_match ('/\b061\.3/', $ks) || preg_match ('/\b061\.3/', $location)) {return 'd';}
+		if (preg_match ('/\b061\.3/', $location)) {return 'd';}
 		
 		# Else => 0
 		return '0';
@@ -532,15 +535,15 @@ class generate008
 			case '/art/in':
 				
 				# Check for specific *k values
-				$kValues = $this->muscatConversion->xPathValues ($this->xml, '//k[%i]/ks');
+				$ksValues = $this->muscatConversion->xPathValues ($this->xml, '//k[%i]/ks');
 				$strings = array (
 					'82-1' => 'p',
 					'82-2' => 'd',
 					'82-3' => '1',
 				);
 				foreach ($strings as $search => $result) {
-					foreach ($kValues as $k) {
-						if (preg_match ('/^' . $search . '/', $k)) {	// E.g. "82-1[something]" is a correct match
+					foreach ($ksValues as $ks) {
+						if (preg_match ('/^' . $search . '/', $ks)) {	// E.g. "82-1[something]" is a correct match
 							return $result;
 						}
 					}
@@ -693,8 +696,10 @@ class generate008
 				if (preg_match ('/\b92\(08\)/', $location)) {return 'c';}
 				
 				# Else if record contains *k '92[*' or *k '92(08)' => d
-				$ks = $this->muscatConversion->xPathValue ($this->xml, '//ks');
-				if (preg_match ('/\b(92\[|92\(08\))/', $ks)) {return 'd';}
+				$ksValues = $this->muscatConversion->xPathValues ($this->xml, '//k[%i]/ks');
+				foreach ($ksValues as $ks) {
+					if (preg_match ('/\b(92\[|92\(08\))/', $ks)) {return 'd';}
+				}
 				
 				# Else => #
 				return '#';
