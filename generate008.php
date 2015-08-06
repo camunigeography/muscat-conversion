@@ -447,12 +447,33 @@ class generate008
 	# 008 pos. 18-34: Material specific coded elements: 29
 	private function position_18_34__29 ()
 	{
-#!# Todo
-		$value = '-';
+		if ($this->isMultimediaish) {
+			switch ($this->form) {
+				case '3.5 floppy disk':
+				case 'CD-ROM':
+				case 'DVD-ROM':
+					return '#';
+				case 'Map':
+				case 'CD':
+				case 'Sound cassette':
+				case 'Sound disc':
+					return '|';
+				case 'DVD':
+				case 'Videorecording':
+					return 'q';
+				case 'Poster':
+					return 'r';
+			}
+		}
 		
+		# If *k contains '061.3' OR *loc contains '061.3' => 1
+		# NB All records have been checked that there are no "061.3[0-9]"
+		$ks = $this->muscatConversion->xPathValue ($this->xml, '//ks');
+		$location = $this->muscatConversion->xPathValue ($this->xml, '//location');
+		if (preg_match ('/\b061\.3/', $ks) || preg_match ('/\b061\.3/', $location)) {return 'd';}
 		
-		# Return the string
-		return $value;
+		# Else => 0
+		return '0';
 	}
 	
 	
