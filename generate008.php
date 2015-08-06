@@ -435,12 +435,21 @@ class generate008
 	# 008 pos. 18-34: Material specific coded elements: 28
 	private function position_18_34__28 ()
 	{
-#!# Todo
-		$value = '-';
+		switch ($this->form) {
+			case 'CD':
+			case 'Sound cassette':
+			case 'Sound disc':
+				return '|';
+		}
 		
+		# If record has *kw 'Organizations, government' => o
+		$kwValues = $this->muscatConversion->xPathValues ($this->xml, '//k[%i]/kw');
+		foreach ($kwValues as $kw) {
+			if ($kw == 'Organizations, government') {return 'o';}
+		}
 		
-		# Return the string
-		return $value;
+		# Else => |
+		return '|';
 	}
 	
 	
