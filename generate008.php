@@ -628,12 +628,55 @@ class generate008
 	# 008 pos. 18-34: Material specific coded elements: 34
 	private function position_18_34__34 ()
 	{
-#!# Todo
-		$value = '-';
+		if ($this->isMultimediaish) {
+			switch ($this->form) {
+				case '3.5 floppy disk':
+				case 'CD-ROM':
+				case 'DVD-ROM':
+					return '#';
+				case 'Map':
+					return '|';
+				case 'CD':
+				case 'Sound cassette':
+				case 'Sound disc':
+					return '#';
+				case 'DVD':
+				case 'Videorecording':
+				case 'Poster':
+					return '|';
+			}
+		}
 		
+		switch ($this->recordType) {
+			case '/doc':
+			case '/art/in':
+				
+				# If *t contains 'autobiography' => a
+				$t = $this->muscatConversion->xPathValue ($this->xml, '//t');
+				if (preg_match ('/\bautobiography\b/i', $t)) {return 'a';}
+				
+				# Else if *location contains '92[*' => b
+				$location = $this->muscatConversion->xPathValue ($this->xml, '//location');
+				if (preg_match ('/\b92\[/', $location)) {return 'b';}
+				
+				# Else if *location contains '92(08)' => c
+				if (preg_match ('/\b92\(08\)/', $location)) {return 'c';}
+				
+				# Else if record contains *k '92[*' or *k '92(08)' => d
+				$ks = $this->muscatConversion->xPathValue ($this->xml, '//ks');
+				if (preg_match ('/\b(92\[|92\(08\))/', $ks)) {return 'd';}
+				
+				# Else => #
+				return '#';
+				
+			case '/ser':
+			case '/art/j':
+				
+				return '|';
+		}
 		
-		# Return the string
-		return $value;
+		# Flag error
+		return NULL;
 	}
 	
 	# 008 pos. 35-37: Language
