@@ -476,16 +476,30 @@ class generate008
 		}
 		
 		# If *k contains '061.3' OR *loc contains '061.3' => 1
-		# NB All records have been checked that there are no "061.3[0-9]"
-		$ksValues = $this->muscatConversion->xPathValues ($this->xml, '//k[%i]/ks');
-		foreach ($ksValues as $ks) {
-			if (preg_match ('/\b061\.3/', $ks)) {return 'd';}
-		}
-		$location = $this->muscatConversion->xPathValue ($this->xml, '//location');
-		if (preg_match ('/\b061\.3/', $location)) {return 'd';}
+		if ($this->kContains0613 () || $this->locationContains0613 ()) {return 'd';}
 		
 		# Else => 0
 		return '0';
+	}
+	
+	
+	# Helper function to check for k having 061.3
+	private function kContains0613 ()
+	{
+		# NB All records have been checked that there are no "061.3[0-9]"
+		$ksValues = $this->muscatConversion->xPathValues ($this->xml, '//k[%i]/ks');
+		foreach ($ksValues as $ks) {
+			if (preg_match ('/\b061\.3/', $ks)) {return true;}
+		}
+		return false;
+	}
+	
+	
+	# Helper function to check for location having 061.3
+	private function locationContains0613 ()
+	{
+		$location = $this->muscatConversion->xPathValue ($this->xml, '//location');
+		return (preg_match ('/\b061\.3/', $location));
 	}
 	
 	
@@ -535,17 +549,14 @@ class generate008
 			case '/art/in':
 				
 				# Check for specific *k values
-				$ksValues = $this->muscatConversion->xPathValues ($this->xml, '//k[%i]/ks');
 				$strings = array (
 					'82-1' => 'p',
 					'82-2' => 'd',
 					'82-3' => '1',
 				);
-				foreach ($strings as $search => $result) {
-					foreach ($ksValues as $ks) {
-						if (preg_match ('/^' . $search . '/', $ks)) {	// E.g. "82-1[something]" is a correct match
-							return $result;
-						}
+				foreach ($strings as $type => $valueIfMatched) {
+					if ($this->ksStartsWith ($type)) {
+						return $valueIfMatched;
 					}
 				}
 				return 0;
@@ -559,6 +570,19 @@ class generate008
 		
 		# Flag error
 		return NULL;
+	}
+	
+	
+	# Helper function to deal with k having 82-1, etc.
+	private function ksStartsWith ($type)
+	{
+		$ksValues = $this->muscatConversion->xPathValues ($this->xml, '//k[%i]/ks');
+		foreach ($ksValues as $ks) {
+			if (preg_match ('/^' . $type . '/', $ks)) {	// E.g. "82-1[something]" is a correct match
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	
@@ -685,8 +709,7 @@ class generate008
 			case '/art/in':
 				
 				# If *t contains 'autobiography' => a
-				$t = $this->muscatConversion->xPathValue ($this->xml, '//t');
-				if (preg_match ('/\bautobiography\b/i', $t)) {return 'a';}
+				if ($this->tContainsAutobiography ()) {return 'a';}
 				
 				# Else if *location contains '92[*' => b
 				$location = $this->muscatConversion->xPathValue ($this->xml, '//location');
@@ -696,10 +719,7 @@ class generate008
 				if (preg_match ('/\b92\(08\)/', $location)) {return 'c';}
 				
 				# Else if record contains *k '92[*' or *k '92(08)' => d
-				$ksValues = $this->muscatConversion->xPathValues ($this->xml, '//k[%i]/ks');
-				foreach ($ksValues as $ks) {
-					if (preg_match ('/\b(92\[|92\(08\))/', $ks)) {return 'd';}
-				}
+				if ($this->kContains92Bracket9208 ()) {return 'd';}
 				
 				# Else => #
 				return '#';
@@ -713,6 +733,26 @@ class generate008
 		# Flag error
 		return NULL;
 	}
+	
+	
+	# Helper function to check for *t containing autobiograph(y|ies)
+	private function tContainsAutobiography ()
+	{
+		$t = $this->muscatConversion->xPathValue ($this->xml, '//t');
+		return (preg_match ('/\bautobiograph/i', $t));
+	}
+	
+	
+	# Helper function to check for *k containing 92[ or 92(08)
+	private function kContains92Bracket9208 ()
+	{
+		$ksValues = $this->muscatConversion->xPathValues ($this->xml, '//k[%i]/ks');
+		foreach ($ksValues as $ks) {
+			if (preg_match ('/\b(92\[|92\(08\))/', $ks)) {return true;}
+		}
+		return false;
+	}
+	
 	
 	# 008 pos. 35-37: Language
 	private function position_35_37 ()
