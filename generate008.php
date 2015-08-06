@@ -506,12 +506,89 @@ class generate008
 	# 008 pos. 18-34: Material specific coded elements: 30-31
 	private function position_18_34__30_31 ()
 	{
-#!# Todo
-		$value = '-';
+		switch ($this->form) {
+			
+			case '3.5 floppy disk':
+			case 'CD-ROM':
+			case 'DVD-ROM':
+				return '##';
+				
+			case 'Map':
+				return '#|';
+				
+			case 'CD':
+			case 'Sound cassette':
+			case 'Sound disc':
+				
+				# Start a stack of values, which will be truncated to or filled-out to 2 characters
+				$stack = '';
+				
+				# If *t contains 'autobiography' => a
+				if ($this->tContainsAutobiography ()) {$stack .= 'a';}
+				
+				# If record contains *k '92[*' or *k '92(08)' => b
+				if ($this->kContains92Bracket9208 ()) {$stack .= 'b';}
+				
+				# If *k contains '061.3' OR *loc contains '061.3' => c
+				if ($this->kContains0613 () || $this->locationContains0613 ()) {$stack .= 'c';}
+				
+				# If record contains *k '82-2' => d
+				if ($this->ksStartsWith ('82-2')) {$stack .= 'd';}
+				
+				# If record contains *k '82-3' => f
+				if ($this->ksStartsWith ('82-3')) {$stack .= 'f';}
+				
+				# If record contains *k '93*' => h
+				# NB 93 have been checked to ensure all are exactly 93 or 93"...
+				if ($this->ksStartsWith ('93')) {$stack .= 'h';}
+				
+				# If *t contains 'memoir*' => m
+				$t = $this->muscatConversion->xPathValue ($this->xml, '//t');
+				if (preg_match ('/\bmemoir/i', $t)) {$stack .= 'm';}
+				
+				# If record contains *k '398' => o
+				# NB Judged that ^398 is sufficient
+				if ($this->ksStartsWith ('398')) {$stack .= 'o';}
+				
+				# If record contains *k '82-1' => p
+				if ($this->ksStartsWith ('82-2')) {$stack .= 'p';}
+				
+				# If *t contains 'interview*' => t
+				$t = $this->muscatConversion->xPathValue ($this->xml, '//t');
+				if (preg_match ('/\binterview/i', $t)) {$stack .= 't';}
+				
+				# Truncate to 2 characters
+				if (strlen ($stack) > 2) {
+					$stack = substr ($stack, 0, 2);
+				}
+				
+				# If any of pos. 30 or 31 are still empty => # in each empty position
+				return str_pad ($stack, 2, '#', STR_PAD_RIGHT);	// e.g. 'ab', 'a#', '##'
+			
+			case 'DVD':
+			case 'Videorecording':
+			case 'Poster':
+				return '##';
+		}
 		
-		
-		# Return the string
-		return $value;
+		switch ($this->recordType) {
+			
+			case '/doc':
+			case '/art/in':
+				
+				# If *t contains Festschrift => 1 then |
+				$t = $this->muscatConversion->xPathValue ($this->xml, '//t');
+				$tt = $this->muscatConversion->xPathValue ($this->xml, '//tt');
+				if (preg_match ('/Festsxchrift/i', $t) || preg_match ('/Festxschrift/i', $tt)) {	// Simple match to deal with cases of records having two *t like 13607
+					return '1' . '|';
+				} else {
+					return '|' . '|';
+				}
+			
+			case '/ser':
+			case '/art/j':
+				return '##';
+		}
 	}
 	
 	
