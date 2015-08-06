@@ -209,7 +209,11 @@ class generate008
 			case '/art/j':
 				
 				$freq = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '//freq');
-				return $this->journalFrequency ($freq) . '#';
+				$value  = $this->lookupValue ('journalFrequencyTable', $freq, 'Frequency', 'No *freq');
+				$value .= $this->lookupValue ('journalFrequencyTable', $freq, 'Regularity', 'No *freq');
+				$value .= '#';
+				
+				return $value;
 		}
 		
 		# Flag error
@@ -218,13 +222,10 @@ class generate008
 	
 	
 	# Function to determine the Journal frequency and regularity
-	private function journalFrequency ($freq)
+	private function journalFrequencyTable ()
 	{
-		# If no frequency, convert to string below
-		if (!$freq) {$freq = 'No *freq';}
-		
 		# Define the lookup table
-		$lookupTable = '
+		return $lookupTable = '
 			*freq	Frequency	Regularity
 			No *freq	#	u
 			-	#	u
@@ -296,33 +297,6 @@ class generate008
 			varies	#	x
 			weekly	w	r
 		';
-		
-		# Trim whitespace from each line
-		$lookupTable = implode ("\n", array_map ('trim', explode ("\n", trim ($lookupTable))));
-		
-		# Convert to TSV
-		require_once ('csv.php');
-		$lookupTable = csv::tsvToArray ($lookupTable, $firstColumnIsId = true);
-		
-		# Sanity-check
-		foreach ($lookupTable as $entry => $values) {
-			if ((strlen ($values['Frequency']) != 1) || (strlen ($values['Regularity']) != 1)) {
-				echo "<p class=\"warning\">In the journalFrequency definition, <em>{$entry}</em> has invalid syntax.</p>";
-				return NULL;
-			}
-		}
-		
-		# Ensure the string is present
-		if (!isSet ($lookupTable[$freq])) {
-			echo "<p class=\"warning\">In journalFrequency, {$freq} is not present in the table.</p>";
-			return NULL;
-		}
-		
-		# Compile the result
-		$value = $lookupTable[$freq]['Frequency'] . $lookupTable[$freq]['Regularity'];
-		
-		# Return the result
-		return $value;
 	}
 	
 	
@@ -538,6 +512,44 @@ class generate008
 	private function position_39 ()
 	{
 		return 'd';
+	}
+	
+	
+	# Generalised lookup table function
+	private function lookupValue ($tableFunction, $value, $field, $ifEmptyUseValueFor = false)
+	{
+		# If the supplied value is empty, and a fallback is defined, treat the value as the fallback, which will then be looked up
+		if ($ifEmptyUseValueFor) {
+			if (!$value) {$value = $ifEmptyUseValueFor;}
+		}
+		
+		# Get the data table
+		$lookupTable = $this->{$tableFunction} ();
+		
+		# Convert to TSV
+		$lookupTable = implode ("\n", array_map ('trim', explode ("\n", trim ($lookupTable))));
+		require_once ('csv.php');
+		$lookupTable = csv::tsvToArray ($lookupTable, $firstColumnIsId = true);
+		
+		# Sanity-check
+		foreach ($lookupTable as $entry => $values) {
+			if (strlen ($values[$field]) != 1) {
+				echo "<p class=\"warning\">In the {$tableFunction} definition, <em>{$entry}</em> for field <em>{$field}</em> has invalid syntax.</p>";
+				return NULL;
+			}
+		}
+		
+		# Ensure the string is present
+		if (!isSet ($lookupTable[$value])) {
+			echo "<p class=\"warning\">In {$tableFunction}, {$value} is not present in the table.</p>";
+			return NULL;
+		}
+		
+		# Compile the result
+		$result = $lookupTable[$value][$field];
+		
+		# Return the result
+		return $result;
 	}
 }
 
