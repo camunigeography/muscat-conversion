@@ -22,6 +22,18 @@ class generate008
 	# Main
 	public function main ()
 	{
+		# Determine the record type or end
+		if (!$this->recordType = $this->recordType ()) {
+			#!# Need to flag error
+			return '/' . str_repeat ('?', 17 - 1);
+		}
+		
+		# Determine the *form value
+		$this->form = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '/form');
+		
+		# Determine if the record form is roughly digital/multimedia
+		$this->isMultimediaish = $this->isMultimediaish ($this->form);
+		
 		# Start the value
 		$value = '';
 		
@@ -84,18 +96,6 @@ class generate008
 	# 008 pos. 18-34: Material specific coded elements
 	private function position_18_34 ()
 	{
-		# Determine the record type or end
-		if (!$this->recordType = $this->recordType ()) {
-			#!# Need to flag error
-			return '/' . str_repeat ('?', 17 - 1);
-		}
-		
-		# Determine the *form value
-		$this->form = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '/form');
-		
-		# Determine if the record form is roughly digital/multimedia
-		$this->isMultimediaish = $this->isMultimediaish ($this->form);
-		
 		# Compile the value by delegating each part
 		$value  = $this->position_18_34__18_20 ();
 		$value .= $this->position_18_34__21    ();
