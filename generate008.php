@@ -88,8 +88,9 @@ class generate008
 	# 008 pos. 15-17: Place of publication, production, or execution
 	private function position_15_17 ()
 	{
-#!# Todo
-		return '/' . str_repeat ('-', 3 - 1);
+		# Extract the value and look it up in the country codes table
+		$pl = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '//pl');
+		return $this->lookupValue ('countryCodesTable', $pl, 'MARC Country Code', '');
 	}
 	
 	
@@ -895,6 +896,15 @@ class generate008
 		
 		# Return the result
 		return $result;
+	}
+	
+	
+	
+	# Function to determine the country code table
+	private function countryCodesTable ()
+	{
+		# Load and return the table
+		return file_get_contents ($this->muscatConversion->applicationRoot . '/tables/countryCodes.tsv');
 	}
 }
 
