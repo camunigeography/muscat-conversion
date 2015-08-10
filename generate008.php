@@ -90,7 +90,7 @@ class generate008
 	{
 		# Extract the value and look it up in the country codes table
 		$pl = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '//pl');
-		return $this->lookupValue ('countryCodesTable', $pl, 'MARC Country Code', '');
+		return $this->lookupValue ('countryCodes', $pl, 'MARC Country Code', '');
 	}
 	
 	
@@ -215,8 +215,8 @@ class generate008
 			case '/art/j':
 				
 				$freq = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '//freq');
-				$value  = $this->lookupValue ('journalFrequencyTable', $freq, 'Frequency', 'No *freq');
-				$value .= $this->lookupValue ('journalFrequencyTable', $freq, 'Regularity', 'No *freq');
+				$value  = $this->lookupValue ('journalFrequencies', $freq, 'Frequency', 'No *freq');
+				$value .= $this->lookupValue ('journalFrequencies', $freq, 'Regularity', 'No *freq');
 				$value .= '#';
 				
 				return $value;
@@ -224,14 +224,6 @@ class generate008
 		
 		# Flag error
 		return NULL;
-	}
-	
-	
-	# Function to determine the Journal frequency and regularity
-	private function journalFrequencyTable ()
-	{
-		# Load and return the table
-		return file_get_contents ($this->muscatConversion->applicationRoot . '/tables/journalFrequencies.tsv');
 	}
 	
 	
@@ -572,7 +564,7 @@ class generate008
 			case '/art/j':
 				
 				$lang = $this->muscatConversion->xPathValue ($this->xml, '//lang');
-				return $this->lookupValue ('languageCodeTable', $lang, 'Script Code', 'English');
+				return $this->lookupValue ('languageCodes', $lang, 'Script Code', 'English');
 		}
 		
 		# Flag error
@@ -596,14 +588,6 @@ class generate008
 			}
 		}
 		return false;
-	}
-	
-	
-	# Function to determine the language code table
-	private function languageCodeTable ()
-	{
-		# Load and return the table
-		return file_get_contents ($this->muscatConversion->applicationRoot . '/tables/languageCodes.tsv');
 	}
 	
 	
@@ -683,7 +667,7 @@ class generate008
 	private function position_35_37 ()
 	{
 		$lang = $this->muscatConversion->xPathValue ($this->xml, '//lang[1]');
-		return $this->lookupValue ('languageCodeTable', $lang, 'MARC Code', 'English');
+		return $this->lookupValue ('languageCodes', $lang, 'MARC Code', 'English');
 	}
 	
 	
@@ -702,13 +686,13 @@ class generate008
 	
 	
 	# Generalised lookup table function
-	private function lookupValue ($tableFunction, $value, $field, $ifEmptyUseValueFor)
+	private function lookupValue ($table, $value, $field, $ifEmptyUseValueFor)
 	{
 		# If the supplied value is empty, and a fallback is defined, treat the value as the fallback, which will then be looked up
 		if (!$value) {$value = $ifEmptyUseValueFor;}
 		
 		# Get the data table
-		$lookupTable = $this->{$tableFunction} ();
+		$lookupTable = file_get_contents ($this->muscatConversion->applicationRoot . '/tables/' . $table . '.tsv');
 		
 		# Convert to TSV
 		$lookupTable = implode ("\n", array_map ('trim', explode ("\n", trim ($lookupTable))));
@@ -717,10 +701,10 @@ class generate008
 		
 		/*
 		# Sanity-check while developing
-		$expectedLength = 1;	// Manually needs to be changed to 3 for languageCodeTable -> Marc Code
+		$expectedLength = 1;	// Manually needs to be changed to 3 for languageCodes -> Marc Code
 		foreach ($lookupTable as $entry => $values) {
 			if (strlen ($values[$field]) != $expectedLength) {
-				echo "<p class=\"warning\">In the {$tableFunction} definition, <em>{$entry}</em> for field <em>{$field}</em> has invalid syntax.</p>";
+				echo "<p class=\"warning\">In the {$table} definition, <em>{$entry}</em> for field <em>{$field}</em> has invalid syntax.</p>";
 				return NULL;
 			}
 		}
@@ -728,7 +712,7 @@ class generate008
 		
 		# Ensure the string is present
 		if (!isSet ($lookupTable[$value])) {
-			echo "<p class=\"warning\">In {$tableFunction}, {$value} is not present in the table.</p>";
+			echo "<p class=\"warning\">In the {$table} table, value '<em>{$value}</em>' is not present in the table.</p>";
 			return NULL;
 		}
 		
@@ -737,15 +721,6 @@ class generate008
 		
 		# Return the result
 		return $result;
-	}
-	
-	
-	
-	# Function to determine the country code table
-	private function countryCodesTable ()
-	{
-		# Load and return the table
-		return file_get_contents ($this->muscatConversion->applicationRoot . '/tables/countryCodes.tsv');
 	}
 }
 
