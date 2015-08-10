@@ -840,8 +840,8 @@ class generate008
 	# 008 pos. 35-37: Language
 	private function position_35_37 ()
 	{
-#!# Todo
-		return '/' . str_repeat ('-', 3 - 1);
+		$lang = $this->muscatConversion->xPathValue ($this->xml, '//lang[1]');
+		return $this->lookupValue ('languageCodeTable', $lang, 'MARC Code', 'English');
 	}
 	
 	
