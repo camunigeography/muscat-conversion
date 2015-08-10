@@ -860,12 +860,10 @@ class generate008
 	
 	
 	# Generalised lookup table function
-	private function lookupValue ($tableFunction, $value, $field, $ifEmptyUseValueFor = false)
+	private function lookupValue ($tableFunction, $value, $field, $ifEmptyUseValueFor)
 	{
 		# If the supplied value is empty, and a fallback is defined, treat the value as the fallback, which will then be looked up
-		if ($ifEmptyUseValueFor) {
-			if (!$value) {$value = $ifEmptyUseValueFor;}
-		}
+		if (!$value) {$value = $ifEmptyUseValueFor;}
 		
 		# Get the data table
 		$lookupTable = $this->{$tableFunction} ();
