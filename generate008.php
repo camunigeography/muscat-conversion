@@ -4,7 +4,7 @@
 #!# Characters like ^t need to be converted in lookups
 
 
-# Class to generate the complex 008 field
+# Class to generate the complex 008 field; see: http://www.loc.gov/marc/bibliographic/bd008.html
 class generate008
 {
 	# Constructor
