@@ -64,8 +64,30 @@ class generate008
 	# 008 pos. 06: Type of date/Publication status
 	private function position_06 ()
 	{
-#!# Todo
-		return '/' . str_repeat ('-', 1 - 1);
+		# If *d in *doc or *art, or *r in *ser does not contain at least one year (e.g. '[n.d.]'), designator is 'n';
+		$yearField = ($this->recordType == '/ser' ? 'r' : 'd');
+		$year = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . "//{$yearField}");
+		if (!preg_match ('/([0-9]{4})/', $year)) {
+			return 'n';
+		}
+		
+		# If record is *ser, designator is 'm'.
+		if ($this->recordType == '/ser') {
+			return 'm';
+		}
+		
+		# For *doc and *art [which will be guaranteed if we have reached this point], if *d contains '?', '-', or is enclosed in square brackets, designator is 'q';
+		if (substr_count ($year, '?')) {return 'q';}
+		if (substr_count ($year, '-')) {return 'q';}
+		if (preg_match ('/\[.+\]/', $year)) {return 'q';}
+		
+		# If *d is of the format '1984 (2014 printing)', designator is 'r';
+		if (preg_match ('/^([0-9]{4}) \((.+) printing\)$/', $year)) {
+			return 'r';
+		}
+		
+		# Otherwise designator is 's'
+		return 's';
 	}
 	
 	
