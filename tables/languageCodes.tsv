@@ -1,0 +1,60 @@
+Muscat Language	MARC Code	Script Code
+Afrikaans	afr	b
+Aleut	ale	b
+Altay	alt	c
+Ahtna, Athapaskan, Dena'ina, Dene	ath	b
+Byelorussian	bel	c
+Buryat	bua	c
+Bulgarian	bul	b
+Catalan	cat	b
+Chinese	chi	e
+Church Slavonic	chu	c
+Cree	cre	z
+Czech	cze	b
+Danish	dan	b
+Dutch, Flemish	dut	b
+English [also use if *lang is empty or not present]	eng	a
+Esperanto	epo	b
+Estonian	est	b
+Faroese	fao	b
+Finnish	fin	b
+Khanty, Mansi, Veps	fiu	z
+French	fre	b
+German	ger	b
+Gwich'in	gwi	b
+Hebrew	heb	h
+Hindi	hin	j
+Croatian	hrv	b
+Hungarian	hun	b
+Icelandic	ice	b
+Inuktitut, Inuit, Inuktituk	iku	z
+Inupiat, In^tupiat	ipk	b
+Italian	ita	b
+Japanese	jpn	d
+Greenlandic, Kalaallisut	kal	b
+Komi	kom	c
+Korean	kor	k
+Karelian	krl	b
+Latin	lat	a
+Latvian	lav	b
+Lithuanian	lit	b
+Chukchi, Itel'men, Ket, Koryak, Negidal, Nenets, Nganasan, Nivkh, Yukagir	mis	c
+Norwegian	nor	b
+Chippewa	oji	z
+Polish	pol	b
+Portuguese	por	b
+Romanian	rum	b
+Russian	rus	c
+Sakha, Yakut	sah	c
+Sel'kup	sel	c
+Slovak	slo	b
+Slovene	slv	b
+Saami	smi	z
+Saami (Inari)	smn	b
+Spanish	spa	b
+Swedish	swe	b
+Dolgan, Even, Evenki, Lamut, Nanay, Oroch, Teleut, Udege, Udegey	tut	z
+Tuvan	tyv	c
+Ukrainian	ukr	c
+Yiddish	yid	h
+Yup'ik	ypk	z
