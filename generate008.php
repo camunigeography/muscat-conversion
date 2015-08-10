@@ -695,7 +695,7 @@ class generate008
 		$lookupTable = file_get_contents ($this->muscatConversion->applicationRoot . '/tables/' . $table . '.tsv');
 		
 		# Convert to TSV
-		$lookupTable = implode ("\n", array_map ('trim', explode ("\n", trim ($lookupTable))));
+		$lookupTable = trim ($lookupTable);
 		require_once ('csv.php');
 		$lookupTable = csv::tsvToArray ($lookupTable, $firstColumnIsId = true);
 		
@@ -718,6 +718,9 @@ class generate008
 		
 		# Compile the result
 		$result = $lookupTable[$value][$field];
+		
+		# Trim, in case of line-ends
+		$result = trim ($result);
 		
 		# Return the result
 		return $result;
