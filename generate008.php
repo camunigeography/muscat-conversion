@@ -533,14 +533,14 @@ class generate008
 				if ($this->kContains0613 () || $this->locationContains0613 ()) {$stack .= 'c';}
 				
 				# If record contains *k '82-2' => d
-				if ($this->ksStartsWith ('82-2')) {$stack .= 'd';}
+				if ($this->kFieldStartsWith ('ks', '82-2')) {$stack .= 'd';}
 				
 				# If record contains *k '82-3' => f
-				if ($this->ksStartsWith ('82-3')) {$stack .= 'f';}
+				if ($this->kFieldStartsWith ('ks', '82-3')) {$stack .= 'f';}
 				
 				# If record contains *k '93*' => h
 				# NB 93 have been checked to ensure all are exactly 93 or 93"...
-				if ($this->ksStartsWith ('93')) {$stack .= 'h';}
+				if ($this->kFieldStartsWith ('ks', '93')) {$stack .= 'h';}
 				
 				# If *t contains 'memoir*' => m
 				$t = $this->muscatConversion->xPathValue ($this->xml, '//t');
@@ -548,10 +548,10 @@ class generate008
 				
 				# If record contains *k '398' => o
 				# NB Judged that ^398 is sufficient
-				if ($this->ksStartsWith ('398')) {$stack .= 'o';}
+				if ($this->kFieldStartsWith ('ks', '398')) {$stack .= 'o';}
 				
 				# If record contains *k '82-1' => p
-				if ($this->ksStartsWith ('82-2')) {$stack .= 'p';}
+				if ($this->kFieldStartsWith ('ks', '82-2')) {$stack .= 'p';}
 				
 				# If *t contains 'interview*' => t
 				$t = $this->muscatConversion->xPathValue ($this->xml, '//t');
@@ -632,7 +632,7 @@ class generate008
 					'82-3' => '1',
 				);
 				foreach ($strings as $type => $valueIfMatched) {
-					if ($this->ksStartsWith ($type)) {
+					if ($this->kFieldStartsWith ('ks', $type)) {
 						return $valueIfMatched;
 					}
 				}
@@ -651,11 +651,11 @@ class generate008
 	
 	
 	# Helper function to deal with k having 82-1, etc.
-	private function ksStartsWith ($type)
+	private function kFieldStartsWith ($kField, $string)
 	{
-		$ksValues = $this->muscatConversion->xPathValues ($this->xml, '//k[%i]/ks');
-		foreach ($ksValues as $ks) {
-			if (preg_match ('/^' . $type . '/', $ks)) {	// E.g. "82-1[something]" is a correct match
+		$values = $this->muscatConversion->xPathValues ($this->xml, "//k[%i]/{$kField}");
+		foreach ($values as $value) {
+			if (preg_match ('/^' . $string . '/', $value)) {	// E.g. "82-1[something]" is a correct match
 				return true;
 			}
 		}
