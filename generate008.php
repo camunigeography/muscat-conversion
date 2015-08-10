@@ -524,7 +524,7 @@ class generate008
 				$stack = '';
 				
 				# If *t contains 'autobiography' => a
-				if ($this->tContainsAutobiography ()) {$stack .= 'a';}
+				if ($this->fieldContainsBoundedStart ('t', 'autobiograph')) {$stack .= 'a';}
 				
 				# If record contains *k '92[*' or *k '92(08)' => b
 				if ($this->kContains92Bracket9208 ()) {$stack .= 'b';}
@@ -786,7 +786,7 @@ class generate008
 			case '/art/in':
 				
 				# If *t contains 'autobiography' => a
-				if ($this->tContainsAutobiography ()) {return 'a';}
+				if ($this->fieldContainsBoundedStart ('t', 'autobiograph')) {return 'a';}
 				
 				# Else if *location contains '92[*' => b
 				$location = $this->muscatConversion->xPathValue ($this->xml, '//location');
@@ -812,11 +812,11 @@ class generate008
 	}
 	
 	
-	# Helper function to check for *t containing autobiograph(y|ies)
-	private function tContainsAutobiography ()
+	# Helper function to check for a field containing a string, tied at the start to a word boundary
+	private function fieldContainsBoundedStart ($field, $string)
 	{
-		$t = $this->muscatConversion->xPathValue ($this->xml, '//t');
-		return (preg_match ('/\bautobiograph/i', $t));
+		$t = $this->muscatConversion->xPathValue ($this->xml, "//{$field}");
+		return (preg_match ('/\b' . $string . '/i', $t));
 	}
 	
 	
