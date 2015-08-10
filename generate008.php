@@ -563,7 +563,7 @@ class generate008
 			case '/ser':
 			case '/art/j':
 				
-				$lang = $this->muscatConversion->xPathValue ($this->xml, '//lang');
+				$lang = $this->muscatConversion->xPathValue ($this->xml, '(//lang)[1]', false);
 				return $this->lookupValue ('languageCodes', $lang, 'Script Code', 'English');
 		}
 		
@@ -666,7 +666,7 @@ class generate008
 	# 008 pos. 35-37: Language
 	private function position_35_37 ()
 	{
-		$lang = $this->muscatConversion->xPathValue ($this->xml, '//lang[1]');
+		$lang = $this->muscatConversion->xPathValue ($this->xml, '(//lang)[1]', false);
 		return $this->lookupValue ('languageCodes', $lang, 'MARC Code', 'English');
 	}
 	
