@@ -875,13 +875,16 @@ class generate008
 		require_once ('csv.php');
 		$lookupTable = csv::tsvToArray ($lookupTable, $firstColumnIsId = true);
 		
-		# Sanity-check
+		/*
+		# Sanity-check while developing
+		$expectedLength = 1;	// Manually needs to be changed to 3 for languageCodeTable -> Marc Code
 		foreach ($lookupTable as $entry => $values) {
-			if (strlen ($values[$field]) != 1) {
+			if (strlen ($values[$field]) != $expectedLength) {
 				echo "<p class=\"warning\">In the {$tableFunction} definition, <em>{$entry}</em> for field <em>{$field}</em> has invalid syntax.</p>";
 				return NULL;
 			}
 		}
+		*/
 		
 		# Ensure the string is present
 		if (!isSet ($lookupTable[$value])) {
