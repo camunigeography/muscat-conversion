@@ -2,7 +2,10 @@ Muscat Language	MARC Code	Script Code
 Afrikaans	afr	b
 Aleut	ale	b
 Altay	alt	c
-Ahtna, Athapaskan, Dena'ina, Dene	ath	b
+Ahtna	ath	b
+Athapaskan	ath	b
+Dena'ina	ath	b
+Dene	ath	b
 Byelorussian	bel	c
 Buryat	bua	c
 Bulgarian	bul	b
@@ -12,13 +15,16 @@ Church Slavonic	chu	c
 Cree	cre	z
 Czech	cze	b
 Danish	dan	b
-Dutch, Flemish	dut	b
+Dutch	dut	b
+Flemish	dut	b
 English	eng	a
 Esperanto	epo	b
 Estonian	est	b
 Faroese	fao	b
 Finnish	fin	b
-Khanty, Mansi, Veps	fiu	z
+Khanty	fiu	z
+Mansi	fiu	z
+Veps	fiu	z
 French	fre	b
 German	ger	b
 Gwich'in	gwi	b
@@ -27,25 +33,38 @@ Hindi	hin	j
 Croatian	hrv	b
 Hungarian	hun	b
 Icelandic	ice	b
-Inuktitut, Inuit, Inuktituk	iku	z
-Inupiat, In^tupiat	ipk	b
+Inuktitut	iku	z
+Inuit	iku	z
+Inuktituk	iku	z
+Inupiat	ipk	b
+In^tupiat	ipk	b
 Italian	ita	b
 Japanese	jpn	d
-Greenlandic, Kalaallisut	kal	b
+Greenlandic	kal	b
+Kalaallisut	kal	b
 Komi	kom	c
 Korean	kor	k
 Karelian	krl	b
 Latin	lat	a
 Latvian	lav	b
 Lithuanian	lit	b
-Chukchi, Itel'men, Ket, Koryak, Negidal, Nenets, Nganasan, Nivkh, Yukagir	mis	c
+Chukchi	mis	c
+Itel'men	mis	c
+Ket	mis	c
+Koryak	mis	c
+Negidal	mis	c
+Nenets	mis	c
+Nganasan	mis	c
+Nivkh	mis	c
+Yukagir	mis	c
 Norwegian	nor	b
 Chippewa	oji	z
 Polish	pol	b
 Portuguese	por	b
 Romanian	rum	b
 Russian	rus	c
-Sakha, Yakut	sah	c
+Sakha	sah	c
+Yakut	sah	c
 Sel'kup	sel	c
 Slovak	slo	b
 Slovene	slv	b
@@ -53,7 +72,15 @@ Saami	smi	z
 Saami (Inari)	smn	b
 Spanish	spa	b
 Swedish	swe	b
-Dolgan, Even, Evenki, Lamut, Nanay, Oroch, Teleut, Udege, Udegey	tut	z
+Dolgan	tut	z
+Even	tut	z
+Evenki	tut	z
+Lamut	tut	z
+Nanay	tut	z
+Oroch	tut	z
+Teleut	tut	z
+Udege	tut	z
+Udegey	tut	z
 Tuvan	tyv	c
 Ukrainian	ukr	c
 Yiddish	yid	h
