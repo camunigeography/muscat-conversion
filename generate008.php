@@ -1,20 +1,19 @@
 <?php
 
-
-#!# Characters like ^t need to be converted in lookups
-
-
 # Class to generate the complex 008 field; see: http://www.loc.gov/marc/bibliographic/bd008.html
 class generate008
 {
 	# Constructor
-	public function __construct ($muscatConversion, $xml)
+	public function __construct ($muscatConversion, $xml, $diacriticsTable)
 	{
 		# Create a class property handle to the parent class
 		$this->muscatConversion = $muscatConversion;
 		
 		# Create a handle to the XML
 		$this->xml = $xml;
+		
+		# Create a handle to the diacritics table
+		$this->diacriticsTable = $diacriticsTable;
 		
 	}
 	
@@ -795,7 +794,14 @@ class generate008
 		# Convert to TSV
 		$lookupTable = trim ($lookupTable);
 		require_once ('csv.php');
-		$lookupTable = csv::tsvToArray ($lookupTable, $firstColumnIsId = true);
+		$lookupTableRaw = csv::tsvToArray ($lookupTable, $firstColumnIsId = true);
+		
+		# Convert diacritics
+		$lookupTable = array ();
+		foreach ($lookupTableRaw as $key => $values) {
+			$key = strtr ($key, $this->diacriticsTable);
+			$lookupTable[$key] = $values;
+		}
 		
 		/*
 		# Sanity-check while developing

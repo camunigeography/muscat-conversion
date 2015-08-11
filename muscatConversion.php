@@ -4773,9 +4773,12 @@ class muscatConversion extends frontControllerApplication
 	# Macro for generating the 008 field
 	private function macro_generate008 ($value, $xml)
 	{
+		# Obtain required resources
+		$diacriticsTable = $this->diacriticsTable ();
+		
 		# Subclass, due to the complexity of this field
 		require_once ('generate008.php');
-		$generate008 = new generate008 ($this, $xml);
+		$generate008 = new generate008 ($this, $xml, $diacriticsTable);
 		$value = $generate008->main ();
 		
 		# Return the value
