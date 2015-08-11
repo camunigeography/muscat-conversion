@@ -1943,157 +1943,57 @@ class muscatConversion extends frontControllerApplication
 	# Needs privileges: SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, DROP
 	public function import ()
 	{
-		# Prevent timeouts
-		ini_set ('max_execution_time', 0);
-		
-		# Start the HTML
-		$html = '';
-		
 		# Ensure the transliteration module is present
 		if (!is_dir ($this->cpanDir)) {
-			$html .= "\n<div class=\"graybox\">";
+			$html  = "\n<div class=\"graybox\">";
 			$html .= "\n<p class=\"warning\">The transliteration module was not found. The Webmaster needs to ensure that {$this->cpanDir} is present.</p>";
 			$html .= "\n</div>";
 			echo $html;
 			return true;
 		}
 		
-		# Start a timer
-		$startTime = time ();
+		# Import files
+		$importFiles = array ('muscatview', 'rawdata');
 		
-		# Determine the date of a Muscat export that would be dated today
+		# Define the import types
+		$importTypes = array (
+			'full'					=> 'FULL import (c. 2 hours)',
+			'recordlinkage'			=> 'Record linkage',
+			'marc'					=> 'Regenerate MARC only (c. 30 minutes)',
+			'reports'				=> 'Regenerate reports only (c. 3 minutes)',
+			'listings'				=> 'Regenerate listings reports only (c. 34 minutes)',
+		);
+		
+		# Define the introduction HTML
+		$fileCreationInstructionsHtml  = "\n\t" . '<p>Open a Muscat terminal and type the following. Note that this can take a while to create.</p>';
+		$fileCreationInstructionsHtml .= "\n\t" . '<p>Be aware that you may have to wait until your colleagues are not using Muscat to do an export, as exporting may lock Muscat access.</p>';
+		$fileCreationInstructionsHtml .= "\n\t\t\t" . "<tt>c-extract first 00001 last 999999 to gctemp</tt><br />";
 		$today = date ('Ymd');
+		$fileCreationInstructionsHtml .= "\n\t\t\t" . "<tt>c-list from gctemp to muscat{$today}muscatview.txt</tt><br />";
+		$fileCreationInstructionsHtml .= "\n\t\t\t" . "<tt>c-list_allfields from gctemp to muscat{$today}rawdata.txt</tt>";
 		
-		# Start the HTML with instructions
-		$html .= "\n" . '<p>At present, automatic imports each night are not yet running. Therefore, imports need to be done manually, as follows:</p>';
-		$html .= "\n" . '<ol class="spaced" start="0">';
-		$html .= "\n\t" . '<li>Be aware that you may have to wait until your colleagues are not using Muscat to do an export, as exporting may lock Muscat access.</li>';
-		$html .= "\n\t" . '<li><p><strong>Create the exports</strong>, by opening a Muscat terminal and typing the following. Note that this can take a while to create.</p>';
-		$html .= "\n\t\t" . '<div class="graybox">';
-		$html .= "\n\t\t\t" . "<tt>c-extract first 00001 last 999999 to gctemp</tt><br />";
-		$html .= "\n\t\t\t" . "<tt>c-list from gctemp to muscat{$today}muscatview.txt</tt><br />";
-		$html .= "\n\t\t\t" . "<tt>c-list_allfields from gctemp to muscat{$today}rawdata.txt</tt>";
-		$html .= "\n\t\t" . '</div></li>';
-		$html .= "\n\t" . "<li><p><strong>Upload the export files</strong> to this website, using this form. Note that this can take several minutes, so please be patient.</p>";
-		$html .= $this->uploadFilesForImporting ($today);
-		$html .= "\n\t" . '</li>';
-		$html .= "\n\t" . '<li><p><strong>Run the import</strong> using the form below. This will reset the data in this reporting system.</p>';
-		$html .= $this->doImport ($done);
-		$html .= "\n\t" . '</li>';
-		$html .= "\n" . '</ol>';
-		
-		# Show how long the import took
-		if ($done) {
-			$finishTime = time ();
-			$seconds = $finishTime - $startTime;
-			$html .= "\n<p>The import took: {$seconds} seconds.</p>";
-		}
-		
-		# Show the HTML
-		echo $html;
-	}
-	
-	
-	# Function to create an upload form for importing
-	private function uploadFilesForImporting ($today)
-	{
-		# Start the HTML
-		$html = '';
-		
-		# Create the form
-		$form = new form (array (
-			'submitButtonText' => 'Upload!',
-			'name' => 'upload',
-			'div' => false,
-			'displayRestrictions' => false,
-			'formCompleteText' => false,
-			'requiredFieldIndicator' => false,
-			'submitButtonAccesskey' => false,
-		));
-		$form->upload (array (
-			'name'					=> 'muscatviewfile',
-			'title'					=> "muscat{$today}muscatview.txt file",
-			'directory'				=> $this->exportsDirectory,
-			// 'output'				=> array ('processing' => 'compiled'),
-			'required'				=> 1,
-			'enableVersionControl'	=> true,
-			'forcedFileName'		=> "muscat{$today}muscatview",
-			'allowedExtensions'		=> array ('txt'),
-			'lowercaseExtension'	=> true,
-		));
-		$form->upload (array (
-			'name'					=> 'rawdatafile',
-			'title'					=> "muscat{$today}rawdata.txt file",
-			'directory'				=> $this->exportsDirectory,
-			// 'output'				=> array ('processing' => 'compiled'),
-			'required'				=> 1,
-			'enableVersionControl'	=> true,
-			'forcedFileName'		=> "muscat{$today}rawdata",
-			'allowedExtensions'		=> array ('txt'),
-			'lowercaseExtension'	=> true,
-		));
-		
-		# Process the form, and show a message when done
-		if ($result = $form->process ($html)) {
-			$html = "\n" . "<p>{$this->tick} The files should now be listed in the import box below.</p>";
-		}
-		
-		# Surround with a box
-		$html = "\n<div class=\"graybox\">\n" . $html . "\n</div>";
-		
-		# Return the HTML
-		return $html;
+		# Run the import UI
+		$this->importUi ($importFiles, $importTypes, $fileCreationInstructionsHtml, 'txt');
 	}
 	
 	
 	# Function to do the actual import
-	private function doImport (&$done = false)
+	public function doImport ($exportFiles, $importType, &$html)
 	{
 		# Start the HTML
 		$html = '';
-		
-		# Determine the export files, or end
-		if (!$exportFiles = $this->getExportFiles (true)) {
-			$html .= "\n<div class=\"graybox\">";
-			$html .= "\n<p class=\"warning\">No export file sets were found. Please follow the instructions above to create a set.</p>";
-			$html .= "\n</div>";
-			return $html;
-		}
-		
-		# Ensure another import is not running
-		if ($importHtml = $this->importInProgress ()) {
-			$html .= $importHtml;
-			return $html;
-		}
-		
-		# Create the form
-		if (!$result = $this->runImportForm ($exportFiles, $html)) {
-			return $html;
-		}
-		
-		/*
-		# State that the import is now running
-		$html = "\n<p>Import now running (can take 5-10 minutes)&hellip;</p>";
-		
-		# Flush the HTML so far
-		echo $html;
-		ob_flush ();
-		flush ();
-		*/
-		
-		# Write the lockfile
-		file_put_contents ($this->lockfile, $_SERVER['REMOTE_USER'] . ' ' . date ('Y-m-d H:i:s'));
 		
 		# Ensure that GROUP_CONCAT fields do not overflow
 		$sql = "SET SESSION group_concat_max_len := @@max_allowed_packet;";		// Otherwise GROUP_CONCAT truncates the combined strings
 		$this->databaseConnection->execute ($sql);
 		
 		# Skip the main import if required
-		if ($result['importtype'] == 'full') {
+		if ($importType == 'full') {
 			
 			# Add each of the two Muscat data formats
-			$tableComment = $this->processMuscatFile ($result['date'], 'muscatview');
-			$tableComment = $this->processMuscatFile ($result['date'], 'rawdata');
+			foreach ($exportFiles as $type => $exportFile) {
+				$tableComment = $this->processMuscatFile ($exportFile, $type);
+			}
 			
 			# Create the processed table
 			#  Dependencies: catalogue_rawdata
@@ -2130,108 +2030,54 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Deal with record linkage, if required
-		if (($result['importtype'] == 'full') || ($result['importtype'] == 'recordlinkage')) {
+		if (($importType == 'full') || ($importType == 'recordlinkage')) {
 			$this->recordLinkage ();
 			$html .= "\n<p>{$this->tick} Record linkage has been done.</p>";
 		}
 		
 		# Create the MARC table
-		if (($result['importtype'] == 'full') || ($result['importtype'] == 'marc')) {
+		if (($importType == 'full') || ($importType == 'marc')) {
 			if ($this->createMarcRecords ()) {
 				$html .= "\n<p>{$this->tick} The MARC versions of the records have been generated.</p>";
 			}
 		}
 		
 		# Run (pre-process) the reports
-		if (($result['importtype'] == 'full') || ($result['importtype'] == 'reports')) {
+		if (($importType == 'full') || ($importType == 'reports')) {
 			$this->runReports ();
 			$html .= "\n<p>{$this->tick} The <a href=\"{$this->baseUrl}/reports/\">reports</a> have been generated.</p>";
 		}
 		
 		# Run (pre-process) the reports
-		if (($result['importtype'] == 'full') || ($result['importtype'] == 'listings')) {
+		if (($importType == 'full') || ($importType == 'listings')) {
 			$this->runListings ();
 			$html .= "\n<p>{$this->tick} The <a href=\"{$this->baseUrl}/reports/\">listings reports</a> have been generated.</p>";
 		}
 		
-		# Remove the lockfile
-		unlink ($this->lockfile);
-		
-		# Flag that an import has been done
-		$done = true;
-		
-		# Return the HTML
-		return $html;
+		# Signal success
+		return true;
 	}
 	
 	
-	# Function to get the latest export file
-	private function getExportFiles ($showErrors)
+	# Function to process each of the Muscat files into the database
+	private function processMuscatFile ($exportFile, $type)
 	{
-		# Get required libraries
-		require_once ('directories.php');
+		# Parse the file to a CSV
+		$csvFilename = $this->exportsProcessingTmp . "catalogue_{$type}.csv";
+		$this->parseFileToCsv ($exportFile, $csvFilename);
 		
-		# Ensure the directory is readable
-		if (!is_readable ($this->exportsDirectory)) {
-			if ($showErrors) {
-				echo "\n<p class=\"warning\">The directory {$this->exportsDirectory} could not be accessed. Please check the file permissions.</p>";
-			}
-			return false;
-		}
+		# Insert the CSV data into the database
+		$tableComment = 'Data from Muscat dated: ' . $this->dateString ($exportFile);
+		$this->insertCsvToDatabase ($csvFilename, $type, $tableComment);
 		
-		# Get the file listing or end
-		if (!$files = directories::listFiles ($this->exportsDirectory, array ('txt'), true, false)) {return false;}
+		# Add indexing for performance
+		$sql = "ALTER TABLE {$this->settings['database']}.catalogue_{$type} ADD INDEX (`recordId`);";
+		$this->databaseConnection->execute ($sql);
+		$sql = "ALTER TABLE {$this->settings['database']}.catalogue_{$type} ADD INDEX (`field`);";
+		$this->databaseConnection->execute ($sql);
 		
-		# Do checks on each file
-		foreach ($files as $filename => $file) {
-			
-			# Complain if any file is not in the yymmdd format
-			if (!preg_match ('/^muscat201[0-9][0-1][0-9][0-3][0-9](muscatview|rawdata)\.txt$/', $filename)) {
-				if ($showErrors) {
-					echo "\n<p class=\"warning\">The file <em>{$filename}</em> has the wrong filename format. It should be <em>yymmdd.txt</em> .</p>";
-				}
-				return false;
-			}
-			
-			# Ensure each file is readable
-			if (!is_readable ($this->exportsDirectory . $filename)) {
-				if ($showErrors) {
-					echo "\n<p class=\"warning\">The export file {$filename} is not readable.</p>";
-				}
-				return false;
-			}
-			
-			# Ensure each file is not zero-length
-			if (!filesize ($this->exportsDirectory . $filename)) {
-				if ($showErrors) {
-					echo "\n<p class=\"warning\">The export file {$filename} has no content - it must not be zero bytes in size.</p>";
-				}
-				return false;
-			}
-		}
-		
-		# Rearrange i.e. grouped containing 'all' or 'muscatview' type
-		$groups = array ();
-		foreach ($files as $filename => $attributes) {
-			preg_match ('/muscat([0-9]{8})(muscatview|rawdata).txt$/', $filename, $matches);
-			$date = $matches[1];
-			$type = $matches[2];
-			$groups[$date][$type] = $filename;
-		}
-		
-		# Filter to those having pairs only, as array(date=>dateString)
-		$listing = array ();
-		foreach ($groups as $date => $files) {
-			if (count ($files) == 2) {
-				$listing[$date] = $this->dateString ($this->exportsDirectory . 'muscat' . $date . '.txt');
-			}
-		}
-		
-		# Reverse the order to be most-recent first
-		krsort ($listing);
-		
-		# Return the file path
-		return $listing;
+		# Return the table comment
+		return $tableComment;
 	}
 	
 	
@@ -2250,73 +2096,8 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to create the run import form
-	private function runImportForm ($exportFiles, &$html)
-	{
-		# Determine the most recent file
-		$exportFilesKeys = array_keys ($exportFiles);
-		$mostRecent = reset ($exportFilesKeys);
-		
-		# Create the form
-		$form = new form (array (
-			'submitButtonText' => 'Begin import!',
-			'div' => 'graybox',
-			'name' => 'import',
-		));
-		$form->select (array ( 
-		    'name'		=> 'date', 
-		    'title'		=> 'Select export files dated', 
-		    'values'	=> $exportFiles,
-		    'required'	=> true,
-			'default'	=> $mostRecent,
-		));
-		$form->select (array ( 
-		    'name'		=> 'importtype', 
-		    'title'		=> 'Import type', 
-		    'values'	=> array (
-				'full'					=> 'FULL import (c. 2 hours)',
-				'recordlinkage'			=> 'Record linkage',
-				'marc'					=> 'Regenerate MARC only (c. 30 minutes)',
-				'reports'				=> 'Regenerate reports only (c. 3 minutes)',
-				'listings'				=> 'Regenerate listings reports only (c. 34 minutes)',
-			),
-		    'required'	=> true,
-			'default'	=> 'full',
-		));
-		
-		# End if not submitted
-		$result = $form->process ($html);
-		
-		# Return the status
-		return $result;
-	}
-	
-	
-	# Function to process each of the Muscat files into the database
-	private function processMuscatFile ($date, $type)
-	{
-		# Parse the file to a CSV
-		$csvFilename = $this->exportsProcessingTmp . "catalogue_{$type}.csv";
-		$importFile = $this->exportsDirectory . "muscat{$date}{$type}.txt";
-		$this->parseFileToCsv ($csvFilename, $importFile);
-		
-		# Insert the CSV data into the database
-		$tableComment = 'Data from Muscat dated: ' . $this->dateString ($importFile);
-		$this->insertCsvToDatabase ($csvFilename, $type, $tableComment);
-		
-		# Add indexing for performance
-		$sql = "ALTER TABLE {$this->settings['database']}.catalogue_{$type} ADD INDEX (`recordId`);";
-		$this->databaseConnection->execute ($sql);
-		$sql = "ALTER TABLE {$this->settings['database']}.catalogue_{$type} ADD INDEX (`field`);";
-		$this->databaseConnection->execute ($sql);
-		
-		# Return the table comment
-		return $tableComment;
-	}
-	
-	
 	# Main parser
-	private function parseFileToCsv ($csvFilename, $exportFile)
+	private function parseFileToCsv ($exportFile, $csvFilename)
 	{
 		# Create the file, doing a zero-byte write to create the file; the operations which follow are appends
 		file_put_contents ($csvFilename, '');
