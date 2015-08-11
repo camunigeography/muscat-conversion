@@ -134,7 +134,7 @@ class generate008
 	private function position_15_17 ()
 	{
 		# Extract the value and look it up in the country codes table
-		$pl = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '//pl');
+		$pl = $this->muscatConversion->xPathValue ($this->xml, '(//pl)[1]', false);
 		return $this->lookupValue ('countryCodes', $pl, 'MARC Country Code', '');
 	}
 	
