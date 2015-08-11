@@ -67,6 +67,7 @@ class muscatConversion extends frontControllerApplication
 		'multiplecopies' => 'records where there appear to be multiple copies, in notes field',
 		'multiplein' => 'records containing more than one *in field',
 		'multiplej' => 'records containing more than one *j field',
+		'invaliddatestring' => 'records with an invalid date string',
 	);
 	
 	# Listing (values) reports
@@ -6127,6 +6128,29 @@ class muscatConversion extends frontControllerApplication
 			FROM fieldsindex
 			WHERE ((LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@j@',''))) / LENGTH('@j@')) > 1
 			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with an invalid date string
+	private function report_invaliddatestring ()
+	{
+		# Find cases matching .^.
+		$query = "
+			SELECT DISTINCT
+				'invaliddatestring' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field = 'r'
+				AND value REGEXP '([0-9]{3}[-0-9])'
+				AND (
+					   value NOT REGEXP '[-0-9]$'
+					OR value REGEXP '([0-9]{4})-([0-9]{2})([^0-9])'
+				)
+		";
 		
 		# Return the query
 		return $query;
