@@ -33,23 +33,32 @@ class generate008
 		# Determine if the record form is roughly digital/multimedia
 		$this->isMultimediaish = $this->isMultimediaish ($this->form);
 		
-		# Start the value
+		# Define the positions and their expected lengths
+		$positions = array (
+			'00-05'	=> 6,
+			'06-14'	=> 9,
+			'15-17'	=> 3,
+			'18-34'	=> 17,
+			'35-37'	=> 3,
+			'38'	=> 1,
+			'39'	=> 1,
+		);
+		
+		# Create each position
 		$value = '';
-		
-		# Delegate the creation of the value for each set of positions
-		$value .= $this->position_00_05 ();
-		$value .= $this->position_06_14 ();
-		$value .= $this->position_15_17 ();
-		$value .= $this->position_18_34 ();
-		$value .= $this->position_35_37 ();
-		$value .= $this->position_38    ();
-		$value .= $this->position_39    ();
-		
-		# Sanity-check that the string length is 40
-		$length = strlen ($value);
-		if ($length != 40) {
-			$error = "008 field: Length of 008 field is {$length} but should be 40";
-			return false;
+		foreach ($positions as $positions => $expectedLength) {
+			
+			# Get and append the value
+			$function = 'position_' . str_replace ('-', '_', $positions);
+			$string = $this->{$function} ();
+			$value .= $string;
+			
+			# Sanity-check that the string length is 40
+			$length = strlen ($string);
+			if ($length != $expectedLength) {
+				$error = "008 field " . (substr_count ($positions, '-') ? 'positions' : 'position') . " {$positions}: Length of is {$length} but should be {$expectedLength}";
+				return false;
+			}
 		}
 		
 		# Return the value
