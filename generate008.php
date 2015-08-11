@@ -19,12 +19,12 @@ class generate008
 	
 	
 	# Main
-	public function main ()
+	public function main (&$error = false)
 	{
 		# Determine the record type or end
 		if (!$this->recordType = $this->recordType ()) {
-			#!# Need to flag error
-			return '/' . str_repeat ('?', 17 - 1);
+			$error = '008 field: Could not determine record type';
+			return false;
 		}
 		
 		# Determine the *form value

@@ -4779,7 +4779,9 @@ class muscatConversion extends frontControllerApplication
 		# Subclass, due to the complexity of this field
 		require_once ('generate008.php');
 		$generate008 = new generate008 ($this, $xml, $diacriticsTable);
-		$value = $generate008->main ();
+		if (!$value = $generate008->main ($error)) {
+			echo "\n<p class=\"warning\"><strong>Error:</strong> " . htmlspecialchars ($error) . '</p>';
+		}
 		
 		# Return the value
 		return $value;
