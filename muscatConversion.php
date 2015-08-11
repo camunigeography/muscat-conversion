@@ -4582,12 +4582,9 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to get a set of XPath values for a field known to have multiple entries
-	public function xPathValues ($xml, $xPath, $autoPrependRoot = true)
+	public function xPathValues ($xml, $xPath)
 	{
 		# Get each value
-		if ($autoPrependRoot) {
-			$xPath = '/root' . $xPath;
-		}
 		$values = array ();
 		$maxItems = 20;
 		for ($i = 1; $i <= $maxItems; $i++) {
