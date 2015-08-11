@@ -677,8 +677,19 @@ class generate008
 	# Helper function to check for a field containing a string, tied at the start to a word boundary
 	private function fieldContainsBoundedStart ($field, $string)
 	{
-		$t = $this->muscatConversion->xPathValue ($this->xml, "//{$field}");
-		return (preg_match ('/\b' . $string . '/i', $t));
+		$value = $this->muscatConversion->xPathValue ($this->xml, "//{$field}");
+		return (preg_match ('/\b' . $string . '/i', $value));
+	}
+	
+	
+	# Helper function to check for a repeatable field containing a string, tied at the start to a word boundary
+	private function fieldRepeatableContainsBoundedStart ($field, $string)
+	{
+		$values = $this->muscatConversion->xPathValues ($this->xml, "//{$field}[%i]");
+		foreach ($values as $value) {
+			if (preg_match ('/\b' . $string . '/i', $value)) {return true;}
+		}
+		return false;
 	}
 	
 	
