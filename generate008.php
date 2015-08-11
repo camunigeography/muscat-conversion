@@ -39,8 +39,7 @@ class generate008
 		
 		# Delegate the creation of the value for each set of positions
 		$value .= $this->position_00_05 ();
-		$value .= $this->position_06_10 ();
-		$value .= $this->position_11_14 ();
+		$value .= $this->position_06_14 ();
 		$value .= $this->position_15_17 ();
 		$value .= $this->position_18_34 ();
 		$value .= $this->position_35_37 ();
@@ -60,51 +59,59 @@ class generate008
 	}
 	
 	
-	# 008 pos. 06: Type of date/Publication status, and 07-10: Date 1
-	private function position_06_10 ()
+	# 008 pos. 06: Type of date/Publication status, and 07-10: Date 1, and pos. 11-14: Date 2
+	private function position_06_14 ()
 	{
 		# If *d in *doc or *art, or *r in *ser does not contain at least one year (e.g. '[n.d.]'), designator is 'n'
 		# Note that decade-wide dates like "199-" are considered a valid year
 		# If 06 is 'n', 07-10 contain 'uuuu'
+		# If 06 is 'n', 'q' or 's', 11-14 contain '####'
 		$yearField = ($this->recordType == '/ser' ? 'r' : 'd');
 		$yearString = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . "//{$yearField}");
 		if (!preg_match ('/([0-9]{3}[-0-9])/', $yearString, $yearMatches)) {
-			return 'n' . 'uuuu';
+			return 'n' . 'uuuu' . '####';
 		}
 		
 		# If record is *ser, designator is 'm'
 		# if 06 is 'm', 07-10 contain first year in *r
 		# In the context of a *ser, - does not mean unknown digit; instead it is used only for a range
 		if ($this->recordType == '/ser') {
-			return 'm' . $yearMatches[1];
+			
+			# For continuing serials, e.g. ends with "1990-", there is no end date
+			if (preg_match ('/-$/', $yearString)) {
+				return 'm' . $yearMatches[1] . '####';
+			}
+			
+			# Normalise cases of incorrect data specified as YYYY-YY, e.g. "1990-95" which should be "1990-1995"; all manually checked that these are all 19xx dates (not 18xx/20xx/etc.)
+			$yearString = preg_replace ('/([0-9]{4})-([0-9]{2})($|[^0-9])/', '\1-19\2\3', $yearString);
+			
+			# If 06 is 'm', 11-14 contain last present year in *r (which could validly be the same as the first year if the string is just "1990" - this would mean a serial that starts and 1990 and ends in 1990)
+			preg_match_all ('/([0-9]{4})/', $yearString, $lastYearMatches, PREG_SET_ORDER);		// See: http://stackoverflow.com/questions/23343087/
+			$lastYear = end ($lastYearMatches);
+			return 'm' . $yearMatches[1] . $lastYear[1];
 		}
 		
 		# For *doc and *art [which will be guaranteed if we have reached this point], if *d contains '?', '-', or is enclosed in square brackets, designator is 'q'
 		# if 06 is 'q', 07-10 contain the year from *d (i.e. no other characters e.g. '[', ']' or '?'); any digits replaced by hyphens in Muscat should be replaced by 'u' in Voyager
+		# If 06 is 'n', 'q' or 's', 11-14 contain '####'
 		$yearMatch = str_replace ('-', 'u', $yearMatches[1]);
-		if (substr_count ($yearString, '?')) {return 'q' . $yearMatch;}
-		if (substr_count ($yearString, '-')) {return 'q' . $yearMatch;}
-		if (preg_match ('/\[.+\]/', $yearString)) {return 'q' . $yearMatch;}
+		if (substr_count ($yearString, '?'))		{return 'q' . $yearMatch . '####';}
+		if (substr_count ($yearString, '-'))		{return 'q' . $yearMatch . '####';}
+		if (preg_match ('/\[.+\]/', $yearString))	{return 'q' . $yearMatch . '####';}
 		
 		# If *d is of the format '1984 (2014 printing)', designator is 'r'
 		# if 06 is 'r', 07-10 contain the later of the two years, i.e. '2014' if *d is '1984 (2014 printing)'
 		# NB /records/12681/ which has "1924 (December printing)" intentionally does not comply
 		# The printing year never has a - in practice, so for this reason we do not to worry about - => u replacement
+		# If 06 is 'r', 11-14 contain the earlier of the two years, i.e. '1984' if *d is '1984 (2014 printing)'
 		if (preg_match ('/^([0-9]{3}[-0-9]) \(([0-9]{4}) printing\)$/', $yearString, $printingMatches)) {
-			return 'r' . $printingMatches[2];
+			return 'r' . $printingMatches[2] . $printingMatches[1];
 		}
 		
 		# Otherwise designator is 's'
 		# if 06 is 's', 07-10 contain year from *d
-		return 's' . $yearMatches[1];
-	}
-	
-	
-	# 008 pos. 11-14: Date 2
-	private function position_11_14 ()
-	{
-#!# Todo
-		return '/' . str_repeat ('-', 4 - 1);
+		# If 06 is 'n', 'q' or 's', 11-14 contain '####'
+		return 's' . $yearMatches[1] . '####';
 	}
 	
 	
