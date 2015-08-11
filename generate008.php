@@ -45,6 +45,13 @@ class generate008
 		$value .= $this->position_38    ();
 		$value .= $this->position_39    ();
 		
+		# Sanity-check that the string length is 40
+		$length = strlen ($value);
+		if ($length != 40) {
+			$error = "008 field: Length of 008 field is {$length} but should be 40";
+			return false;
+		}
+		
 		# Return the value
 		return $value;
 	}
