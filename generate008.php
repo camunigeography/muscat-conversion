@@ -39,8 +39,7 @@ class generate008
 		
 		# Delegate the creation of the value for each set of positions
 		$value .= $this->position_00_05 ();
-		$value .= $this->position_06    ();
-		$value .= $this->position_07_10 ();
+		$value .= $this->position_06_10 ();
 		$value .= $this->position_11_14 ();
 		$value .= $this->position_15_17 ();
 		$value .= $this->position_18_34 ();
@@ -61,41 +60,43 @@ class generate008
 	}
 	
 	
-	# 008 pos. 06: Type of date/Publication status
-	private function position_06 ()
+	# 008 pos. 06: Type of date/Publication status, and 07-10: Date 1
+	private function position_06_10 ()
 	{
-		# If *d in *doc or *art, or *r in *ser does not contain at least one year (e.g. '[n.d.]'), designator is 'n';
+		# If *d in *doc or *art, or *r in *ser does not contain at least one year (e.g. '[n.d.]'), designator is 'n'
+		# Note that decade-wide dates like "199-" are considered a valid year
+		# If 06 is 'n', 07-10 contain 'uuuu'
 		$yearField = ($this->recordType == '/ser' ? 'r' : 'd');
-		$year = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . "//{$yearField}");
-		if (!preg_match ('/([0-9]{4})/', $year)) {
-			return 'n';
+		$yearString = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . "//{$yearField}");
+		if (!preg_match ('/([0-9]{3}[-0-9])/', $yearString, $yearMatches)) {
+			return 'n' . 'uuuu';
 		}
 		
-		# If record is *ser, designator is 'm'.
+		# If record is *ser, designator is 'm'
+		# if 06 is 'm', 07-10 contain first year in *r
+		# In the context of a *ser, - does not mean unknown digit; instead it is used only for a range
 		if ($this->recordType == '/ser') {
-			return 'm';
+			return 'm' . $yearMatches[1];
 		}
 		
-		# For *doc and *art [which will be guaranteed if we have reached this point], if *d contains '?', '-', or is enclosed in square brackets, designator is 'q';
-		if (substr_count ($year, '?')) {return 'q';}
-		if (substr_count ($year, '-')) {return 'q';}
-		if (preg_match ('/\[.+\]/', $year)) {return 'q';}
+		# For *doc and *art [which will be guaranteed if we have reached this point], if *d contains '?', '-', or is enclosed in square brackets, designator is 'q'
+		# if 06 is 'q', 07-10 contain the year from *d (i.e. no other characters e.g. '[', ']' or '?'); any digits replaced by hyphens in Muscat should be replaced by 'u' in Voyager
+		$yearMatch = str_replace ('-', 'u', $yearMatches[1]);
+		if (substr_count ($yearString, '?')) {return 'q' . $yearMatch;}
+		if (substr_count ($yearString, '-')) {return 'q' . $yearMatch;}
+		if (preg_match ('/\[.+\]/', $yearString)) {return 'q' . $yearMatch;}
 		
-		# If *d is of the format '1984 (2014 printing)', designator is 'r';
-		if (preg_match ('/^([0-9]{4}) \((.+) printing\)$/', $year)) {
-			return 'r';
+		# If *d is of the format '1984 (2014 printing)', designator is 'r'
+		# if 06 is 'r', 07-10 contain the later of the two years, i.e. '2014' if *d is '1984 (2014 printing)'
+		# NB /records/12681/ which has "1924 (December printing)" intentionally does not comply
+		# The printing year never has a - in practice, so for this reason we do not to worry about - => u replacement
+		if (preg_match ('/^([0-9]{3}[-0-9]) \(([0-9]{4}) printing\)$/', $yearString, $printingMatches)) {
+			return 'r' . $printingMatches[2];
 		}
 		
 		# Otherwise designator is 's'
-		return 's';
-	}
-	
-	
-	# 008 pos. 07-10: Date 1
-	private function position_07_10 ()
-	{
-#!# Todo
-		return '/' . str_repeat ('-', 4 - 1);
+		# if 06 is 's', 07-10 contain year from *d
+		return 's' . $yearMatches[1];
 	}
 	
 	
