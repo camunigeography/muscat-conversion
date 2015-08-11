@@ -375,12 +375,69 @@ class generate008
 	# 008 pos. 18-34: Material specific coded elements: 24-27
 	private function position_18_34__24_27 ()
 	{
-#!# Todo
-		$value = '-';
+		if ($this->isMultimediaish) {
+			switch ($this->form) {
+				case '3.5 floppy disk':
+				case 'CD-ROM':
+				case 'DVD-ROM':
+					return '##|#';
+				case 'Map':
+					return '#|##';
+				case 'CD':
+				case 'Sound cassette':
+				case 'Sound disc':
+					return '||||';
+				case 'DVD':
+				case 'Videorecording':
+				case 'Poster':
+					return '####';
+			}
+		}
 		
+		# Start a stack of values, which will be truncated to or filled-out to 4 characters
+		$stack = '';
 		
-		# Return the string
-		return $value;
+		# For /ser and /art/j, 24 is always '|'
+		if (in_array ($this->recordType, array ('/ser', '/art/j'))) {
+			$stack .= '|';
+		}
+		
+		# If record starts with *kw 'Bibliograph(y|ies)' => b
+		if ($this->kFieldMatches ('kw', 'Bibliograph')) {$stack .= 'b';}
+		
+		# If record starts with *kw 'Dictionaries*' => d
+		if ($this->kFieldMatches ('kw', 'Dictionar')) {$stack .= 'd';}
+		
+		# If record starts with *kw 'Law*' => g
+		if ($this->kFieldMatches ('kw', 'Law')) {$stack .= 'g';}
+		
+  		# If *loc contains (as bounded search) 'Theses' => m
+		if ($this->fieldContainsBoundedStart ('location', 'Theses')) {$stack .= 'm';}
+		
+		# If record contains (as bounded search) *kw 'Directories' => r
+		if ($this->kFieldMatches ('kw', 'Director(y|ies)', '\b')) {$stack .= 'r';}
+		
+		# If record starts with *kw 'Statistics' => s
+		if ($this->kFieldMatches ('kw', 'Statistic')) {$stack .= 's';}
+		
+		# If record starts with *kw 'Treaties, international*' => z
+		if ($this->kFieldMatches ('kw', 'Treaties, international')) {$stack .= 'z';}
+		
+		# For /doc and /art/in, if *local and/or *note contain 'offprint' => 2
+		if (in_array ($this->recordType, array ('/doc', '/art/in'))) {
+			if ($this->fieldRepeatableContainsBoundedStart ('local', 'offprint') || $this->fieldRepeatableContainsBoundedStart ('note', 'offprint')) {$stack .= '2';}
+		}
+		
+		# If *t contains [could be anywhere in the title] 'calendar*' => 5
+		if ($this->fieldContainsBoundedStart ('t', 'calendar')) {$stack .= '5';}
+		
+		# Truncate to 4 characters
+		if (strlen ($stack) > 4) {
+			$stack = substr ($stack, 0, 4);
+		}
+		
+		# If any of are still empty => # in each empty position, e.g. 'bdgm', 'bdg#', 'bd##', 'b###', '####', or '|bdg', '|bd#', '|b##', '|###'
+		return str_pad ($stack, 4, '#', STR_PAD_RIGHT);
 	}
 	
 	
