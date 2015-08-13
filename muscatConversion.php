@@ -2086,8 +2086,7 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Determine the filename
 		$basename = pathinfo ($exportFile, PATHINFO_FILENAME);
-		$basename = preg_replace ('/^muscat/', '', $basename);
-		$basename = preg_replace ('/(muscatview|rawdata)$/', '', $basename);
+		$basename = preg_replace ('/^(muscatview|rawdata)/', '', $basename);
 		$date = date_create_from_format ('Ymd', $basename);
 		$string = date_format ($date, 'jS F Y');
 		
