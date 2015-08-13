@@ -2372,7 +2372,7 @@ class muscatConversion extends frontControllerApplication
 				$innerSelectSql = "
 					SELECT
 						recordId AS id,
-						CONCAT('{$concatSeparator}', GROUP_CONCAT(value SEPARATOR '{$concatSeparator}'), '{$concatSeparator}') AS value
+						" . ($source != 'lang' ? "CONCAT('{$concatSeparator}', " : '') . "GROUP_CONCAT(value SEPARATOR '{$concatSeparator}')" . ($source != 'lang' ? ", '{$concatSeparator}')" : '') . " AS value
 					FROM catalogue_processed "
 					. ($source == '*' ? '' : "WHERE field = '{$source}'")
 					. " GROUP BY recordId
@@ -6378,7 +6378,7 @@ class muscatConversion extends frontControllerApplication
 		# Define a manual query
 		$query = "
 			SELECT
-				TRIM(LEADING '@' FROM TRIM(TRAILING '@' FROM language)) AS title,
+				language AS title,
 				COUNT(*) AS instances
 			FROM {$this->settings['database']}.fieldsindex
 			GROUP BY language
