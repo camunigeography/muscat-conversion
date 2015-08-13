@@ -10,6 +10,7 @@ class muscatConversion extends frontControllerApplication
 		'missingcategory' => 'records without a category (*doc/*art/*ser)',
 		'missingd' => 'records without a *d that are not *ser and either no status or status is GLACIOPAMS',
 		'missingacc' => 'records without a *acc',
+		'missingt' => 'records without a *t',
 		'sermissingr' => '*ser records without a *r, except where location is Not in SPRI',
 		'kbk2mismatch' => 'records where a *kb/*k2 is present but not both',
 		'artwithoutlocstatus' => '*art records where there is no *loc and no *status',
@@ -4641,6 +4642,23 @@ class muscatConversion extends frontControllerApplication
 				id AS recordId
 			FROM fieldsindex
 			WHERE fieldslist NOT LIKE '%@acc@%'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records without a *t
+	private function report_missingt ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'missingt' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE fieldslist NOT LIKE '%@t@%'
 			";
 		
 		# Return the query
