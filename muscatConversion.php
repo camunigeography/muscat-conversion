@@ -1957,9 +1957,9 @@ class muscatConversion extends frontControllerApplication
 		
 		# Define the import types
 		$importTypes = array (
-			'full'					=> 'FULL import (c. 2 hours)',
+			'full'					=> 'FULL import (c. 7 hours)',
 			'recordlinkage'			=> 'Record linkage',
-			'marc'					=> 'Regenerate MARC only (c. 30 minutes)',
+			'marc'					=> 'Regenerate MARC only (c. 5.5 hours)',
 			'reports'				=> 'Regenerate reports only (c. 3 minutes)',
 			'listings'				=> 'Regenerate listings reports only (c. 34 minutes)',
 		);
@@ -5356,7 +5356,7 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				/* If 'Not in SPRI' is present anywhere, then any other location values are irrelevant */
 				    all_locations NOT LIKE '%|Not in SPRI|%'
-				/* Require two or more locations to be present */
+				/* Require two or more locations to be present, e.g. '|Not in SPRI||Cambridge University Library|' */
 				AND all_locations LIKE '%||%'
 			";
 		
