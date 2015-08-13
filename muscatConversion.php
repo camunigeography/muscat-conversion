@@ -5350,7 +5350,7 @@ class muscatConversion extends frontControllerApplication
 				FROM catalogue_processed
 				WHERE
 					    field = 'location'
-					AND value NOT REGEXP ('^Periodical|^Basement|^Pam|^Shelf|^153-158 Wubbold Room$|^Archive|^Atlas|^Cupboard|^Folio|^Large Atlas|^Library Office|^Map Room|^Picture Library|^Russian|^Special Collection|^Theses$')
+					AND value NOT REGEXP '(^Periodical|^Basement|^Pam|^Shelf|^153-158 Wubbold Room$|^Archive|^Atlas|^Cupboard|^Folio|^Large Atlas|^Library Office|^Map Room|^Picture Library|^Russian|^Special Collection|^Theses$)'
 				GROUP BY recordId
 			) AS rawdata_combined
 			WHERE
