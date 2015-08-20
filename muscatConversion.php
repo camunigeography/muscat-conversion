@@ -3615,6 +3615,11 @@ class muscatConversion extends frontControllerApplication
 		# Process the record
 		$record = $this->convertToMarc_ProcessRecord ($datastructure, $errorString);
 		
+		# Determine the length, in bytes, which is the first five characters of the 000 (Leader), padded
+		$bytes = mb_strlen ($record);
+		$bytes = str_pad ($bytes, 5, '0', STR_PAD_LEFT);
+		$record = preg_replace ('/^000 (_____)/m', "000 {$bytes}", $record);
+		
 		# Return the record
 		return $record;
 	}
@@ -4549,6 +4554,120 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the string
 		return $output;
+	}
+	
+	
+	# Macro for generating the Leader
+	private function macro_generateLeader ($value, $xml)
+	{
+		# Start the string
+		$string = '';
+		
+		# Positions 00-04: "Computer-generated, five-character number equal to the length of the entire record, including itself and the record terminator. The number is right justified and unused positions contain zeros."
+		$string .= '_____';		// Will be fixed-up later in post-processing, as at this point we do not know the length of the record
+		
+		# Position 05: One-character alphabetic code that indicates the relationship of the record to a file for file maintenance purposes.
+		$string .= 'n';		// Indicates record is newly-input
+		
+		# Position 06: One-character alphabetic code used to define the characteristics and components of the record.
+		$recordType = $this->recordType ($xml);
+		$form = $this->xPathValue ($xml, $recordType . '/form');
+		switch ($form) {
+			case 'Internet resource':
+			case 'Microfiche':
+			case 'Microfilm':
+			case 'Online publication':
+			case 'PDF':
+				$value06 = 'a'; break;
+			case 'Map':
+				$value06 = 'e'; break;
+			case 'DVD':
+			case 'Videorecording':
+				$value06 = 'g'; break;
+			case 'CD':
+			case 'Sound cassette':
+			case 'Sound disc':
+				$value06 = 'i'; break;
+			case 'Poster':
+				$value06 = 'k'; break;
+			case '3.5 floppy disk':
+			case 'CD-ROM':
+			case 'DVD-ROM':
+				$value06 = 'm'; break;
+		}
+		if (!$form) {$value06 = 'a';}
+		$string .= $value06;
+		
+		# Position 07: Bibliographic level
+		$position7Values = array (
+			'/art/in'	=> 'a',
+			'/art/j'	=> 'b',
+			'/doc'		=> 'm',
+			'/ser'		=> 's',
+		);
+		$string .= $position7Values[$recordType];
+		
+		# Position 08: Type of control
+		$string .= '#';
+		
+		# Position 09: Character coding scheme
+		$string .= 'a';
+		
+		# Position 10: Indicator count: Computer-generated number 2 that indicates the number of character positions used for indicators in a variable data field. 
+		$string .= '2';
+		
+		# Position 11: Subfield code count: Computer-generated number 2 that indicates the number of character positions used for each subfield code in a variable data field. 
+		$string .= '2';
+		
+		# Positions 12-16: Base address of data: Computer-generated, five-character numeric string that indicates the first character position of the first variable control field in a record.
+		# "This is calculated and updated when the bib record is loaded into the Voyager database, so you if you're not able to calculate it at your end you could just set it to 00000."
+		$string .= '00000';
+		
+		# Position 17: Encoding level: One-character alphanumeric code that indicates the fullness of the bibliographic information and/or content designation of the MARC record. 
+		$string .= '#';
+		
+		# Position 18: Descriptive cataloguing form
+		$string .= 'a';	// Denotes AACR2
+		
+		# Position 19: Multipart resource record level
+		$string .= '#';	// Denotes not specified or not applicable
+		
+		# Position 20: Length of the length-of-field portion: Always contains a 4.
+		$string .= '4';
+		
+		# Position 21: Length of the starting-character-position portion: Always contains a 5.
+		$string .= '5';
+		
+		# Position 22: Length of the implementation-defined portion: Always contains a 0.
+		$string .= '0';
+		
+		# Position 23: Undefined: Always contains a 0.
+		$string .= '0';
+		
+		# Return the string
+		return $string;
+	}
+	
+	
+	# Helper function to determine the record type
+	#!# Copied from generate008 class
+	private function recordType ($xml)
+	{
+		# Determine the record type, used by subroutines
+		$recordTypes = array (
+			'/art/in',
+			'/art/j',
+			'/doc',
+			'/ser',
+		);
+		foreach ($recordTypes as $recordType) {
+			if ($this->xPathValue ($xml, $recordType)) {
+				return $recordType;	// Match found
+			}
+		}
+		
+		# Not found
+		return NULL;
 	}
 	
 	
