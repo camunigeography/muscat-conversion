@@ -4671,6 +4671,14 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro for generating the 005 field
+	private function macro_generate005 ($value, $xml)
+	{
+		# Date and Time of Latest Transaction; see: http://www.loc.gov/marc/bibliographic/bd005.html
+		return date ('YmdHis.0');
+	}
+	
+	
 	# Macro for generating the 008 field
 	private function macro_generate008 ($value, $xml)
 	{
