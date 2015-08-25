@@ -4215,7 +4215,8 @@ class muscatConversion extends frontControllerApplication
 	
 	# Macro for constructing an author name; see also http://www.loc.gov/marc/bibliographic/bd100.html
 	# NB for future: Spreadsheet is being updated such that this macro will also take into account *ad, as well as other more detailed logic
-	private function macro_authorName ($value, $xml, $parameter, $is245Format = false)
+	#!# Revert to private when generateAuthors no longer using this function
+	public function macro_authorName ($value, $xml, $parameter, $is245Format = false)
 	{
 		# Obtain *n1, *n2, *nd (e.g. Forename, Surname, Jnr)
 		$n1 = $this->xPathValue ($xml, "{$parameter}/n1");
@@ -4689,6 +4690,21 @@ class muscatConversion extends frontControllerApplication
 		require_once ('generate008.php');
 		$generate008 = new generate008 ($this, $xml, $diacriticsTable);
 		if (!$value = $generate008->main ($error)) {
+			echo "\n<p class=\"warning\"><strong>Error:</strong> " . htmlspecialchars ($error) . '</p>';
+		}
+		
+		# Return the value
+		return $value;
+	}
+	
+	
+	# Macro for generating the 100 field
+	private function macro_generate100 ($value, $xml)
+	{
+		# Subclass, due to the complexity of this field
+		require_once ('generateAuthors.php');
+		$generateAuthors = new generateAuthors ($this, $xml);
+		if (!$value = $generateAuthors->generate100 ($error)) {
 			echo "\n<p class=\"warning\"><strong>Error:</strong> " . htmlspecialchars ($error) . '</p>';
 		}
 		
