@@ -67,6 +67,7 @@ class muscatConversion extends frontControllerApplication
 		'multiplej' => 'records containing more than one *j field',
 		'invaliddatestring' => 'records with an invalid date string',
 		'serlocloc' => '*ser records with two or more locations',
+		'artinperiodical' => '*art/*in records with location=Periodical',
 	);
 	
 	# Listing (values) reports
@@ -6021,6 +6022,28 @@ class muscatConversion extends frontControllerApplication
 			FROM fieldsindex
 			WHERE
 				(LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@location@','')))/LENGTH('@location@') > 1
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *art/*in records with location=Periodical
+	private function report_artinperiodical ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'artinperiodical' AS report,
+				recordId
+			FROM catalogue_processed
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist LIKE '%@art@%'
+				AND fieldslist LIKE '%@in@%'
+				AND field = 'location'
+				AND value = 'Periodical'
 			";
 		
 		# Return the query
