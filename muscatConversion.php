@@ -4703,11 +4703,9 @@ class muscatConversion extends frontControllerApplication
 		# Subclass, due to the complexity of this field
 		require_once ('generateAuthors.php');
 		$generateAuthors = new generateAuthors ($this, $xml);
-		if (!$value = $generateAuthors->generate100 ($error)) {
-			echo "\n<p class=\"warning\"><strong>Error:</strong> " . htmlspecialchars ($error) . '</p>';
-		}
+		$value = $generateAuthors->generate100 ();
 		
-		# Return the value
+		# Return the value (which may be false, meaning no 100 field should be created)
 		return $value;
 	}
 	
