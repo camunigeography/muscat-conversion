@@ -4711,6 +4711,22 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro for generating the 110 field
+	private function macro_generate110 ($value, $xml, $ignored, $authorsFields)
+	{
+		# Return the value
+		return $authorsFields[110];
+	}
+	
+	
+	# Macro for generating the 111 field
+	private function macro_generate111 ($value, $xml, $ignored, $authorsFields)
+	{
+		# Return the value
+		return $authorsFields[111];
+	}
+	
+	
 	# Macro for generating the 700 field
 	private function macro_generate700 ($value, $xml, $ignored, $authorsFields)
 	{

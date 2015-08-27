@@ -16,7 +16,13 @@ class generateAuthors
 		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
 		
 		# Generate each field
-		$fields = array (100, 700, );
+		$fields = array (
+			100,
+			110,
+			111,
+			700,
+			#!# TODO remaining
+		);
 		$this->values = array ();
 		foreach ($fields as $field) {
 			$function = 'generate' . $field;
@@ -69,6 +75,30 @@ class generateAuthors
 		
 		# Return the value
 		return $value;
+	}
+	
+	
+	# Generate 110
+	public function generate110 ()
+	{
+		# End if not enabled by the 100 process
+		if (!isSet ($this->enable110Processing)) {return false;}
+		
+		// #!# TODO
+		return 'todo-generate-110';
+		
+	}
+	
+	
+	# Generate 111
+	public function generate111 ()
+	{
+		# End if not enabled by the 100 process
+		if (!isSet ($this->enable111Processing)) {return false;}
+		
+		// #!# TODO
+		return 'todo-generate-111';
+		
 	}
 	
 	
@@ -172,12 +202,12 @@ class generateAuthors
 		if ($match) {
 			
 			# Create 111 field instead of 100 field
-#!# TODO Register that the 111 field flowchart should be triggered
+			$this->enable111Processing = true;
 			return false;
 		}
 		
 		# Create 110 field instead of 100 field
-#!# TODO Register that the 110 field flowchart should be triggered
+		$this->enable110Processing = true;
 		return false;
 	}
 	
