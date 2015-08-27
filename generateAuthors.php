@@ -16,7 +16,7 @@ class generateAuthors
 		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
 		
 		# Generate each field
-		$fields = array (100, );
+		$fields = array (100, 700, );
 		$this->values = array ();
 		foreach ($fields as $field) {
 			$function = 'generate' . $field;
@@ -36,7 +36,7 @@ class generateAuthors
 	}
 	
 	
-	# Main
+	# Generate 100
 	public function generate100 ()
 	{
 		# Start the value
@@ -69,6 +69,13 @@ class generateAuthors
 		
 		# Return the value
 		return $value;
+	}
+	
+	
+	# Generate 700
+	public function generate700 ()
+	{
+		// #!# TODO
 	}
 	
 	
@@ -406,6 +413,15 @@ class generateAuthors
 	# Function to classify *ad field
 	private function classifyAdField ($value)
 	{
+		/*
+			If running in a 7** context
+				at this point the "Are you creating the 700 field for a *a?" check happens.
+				This means that if we have gone through a *a then trigger the
+					"Classify *e Field" subroutine as an additional item in the logic here
+		*/
+		
+		
+		
 		# Look at the first or only *doc/*ag OR *art/*ag
 		$ad = $this->muscatConversion->xPathValue ($this->xml, '//ag/ad');
 		if (strlen ($ad)) {
@@ -462,8 +478,8 @@ class generateAuthors
 		if (substr_count ($value, "{$this->doubleDagger}e editor") || substr_count ($value, "{$this->doubleDagger}e compiler")) {
 			
 			# Change 100 field to 700 field: all indicators, fields and subfields remain the same
-#!# TODO mutate the record to 700
-			return false;
+			$this->values[700] = $value;
+			return false;	// for 100
 		}
 		
 		# Return the value
