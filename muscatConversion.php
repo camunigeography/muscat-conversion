@@ -6019,7 +6019,8 @@ class muscatConversion extends frontControllerApplication
 				id AS recordId
 			FROM fieldsindex
 			WHERE
-				(LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@location@','')))/LENGTH('@location@') > 1
+				    fieldslist LIKE '%@ser@%'
+				AND (LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@location@','')))/LENGTH('@location@') > 1
 			";
 		
 		# Return the query
