@@ -68,6 +68,7 @@ class muscatConversion extends frontControllerApplication
 		'invaliddatestring' => 'records with an invalid date string',
 		'serlocloc' => '*ser records with two or more locations',
 		'artinperiodical' => '*art/*in records with location=Periodical',
+		'multipleal' => 'records with multiple *al values',
 	);
 	
 	# Listing (values) reports
@@ -6043,6 +6044,24 @@ class muscatConversion extends frontControllerApplication
 				AND fieldslist LIKE '%@in@%'
 				AND field = 'location'
 				AND value = 'Periodical'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# records with multiple *al values
+	private function report_multipleal ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'multipleal' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				(LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@al@','')))/LENGTH('@al@') > 1
 			";
 		
 		# Return the query
