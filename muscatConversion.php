@@ -66,6 +66,7 @@ class muscatConversion extends frontControllerApplication
 		'multiplein' => 'records containing more than one *in field',
 		'multiplej' => 'records containing more than one *j field',
 		'invaliddatestring' => 'records with an invalid date string',
+		'serlocloc' => '*ser records with two or more locations',
 	);
 	
 	# Listing (values) reports
@@ -6003,6 +6004,24 @@ class muscatConversion extends frontControllerApplication
 					OR value REGEXP '([0-9]{4})-([0-9]{2})([^0-9])'
 				)
 		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *ser records with two or more locations
+	private function report_serlocloc ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'serlocloc' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				(LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@location@','')))/LENGTH('@location@') > 1
+			";
 		
 		# Return the query
 		return $query;
