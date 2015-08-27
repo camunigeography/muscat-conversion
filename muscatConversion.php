@@ -3606,8 +3606,13 @@ class muscatConversion extends frontControllerApplication
 		$record = $xmlProlog . "\n<root>" . "\n" . $record . "\n</root>";
 		$xml = new SimpleXMLElement ($record);
 		
+		# Up-front, process complex records
+		require_once ('generateAuthors.php');
+		$generateAuthors = new generateAuthors ($this, $xml);
+		$authorsFields = $generateAuthors->getResult ();
+		
 		# Perform XPath replacements
-		if (!$datastructure = $this->convertToMarc_PerformXpathReplacements ($datastructure, $xml, $errorString)) {return false;}
+		if (!$datastructure = $this->convertToMarc_PerformXpathReplacements ($datastructure, $xml, $authorsFields, $errorString)) {return false;}
 		
 		# Expand repeatable fields
 		if (!$datastructure = $this->convertToMarc_ExpandRepeatableFields ($datastructure, $errorString)) {return false;}
@@ -3727,7 +3732,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to perform Xpath replacements
-	private function convertToMarc_PerformXpathReplacements ($datastructure, $xml, &$errorString = '')
+	private function convertToMarc_PerformXpathReplacements ($datastructure, $xml, $authorsFields, &$errorString = '')
 	{
 		# Perform XPath replacements
 		$compileFailures = array ();
@@ -3794,10 +3799,10 @@ class muscatConversion extends frontControllerApplication
 						# For a repeatable field, process each value; otherwise process the compiled string
 						if ($isRepeatable) {
 							foreach ($value as $index => $subValue) {
-								$value[$index] = $this->processMacros ($xml, $subValue, $macros);
+								$value[$index] = $this->processMacros ($xml, $subValue, $macros, $authorsFields);
 							}
 						} else {
-							$value = $this->processMacros ($xml, $value, $macros);
+							$value = $this->processMacros ($xml, $value, $macros, $authorsFields);
 						}
 					}
 					
@@ -4074,7 +4079,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to process strings through macros; macros should return a processed string, or false upon failure
-	private function processMacros ($xml, $string, $macros)
+	private function processMacros ($xml, $string, $macros, $authorsFields)
 	{
 		# Pass the string through each macro in turn
 		foreach ($macros as $macro) {
@@ -4099,9 +4104,9 @@ class muscatConversion extends frontControllerApplication
 			# Pass the string through the macro
 			$macroMethod = 'macro_' . $macro;
 			if (is_null ($parameter)) {
-				$string = $this->{$macroMethod} ($string, $xml);
+				$string = $this->{$macroMethod} ($string, $xml, NULL, $authorsFields);
 			} else {
-				$string = $this->{$macroMethod} ($string, $xml, $parameter);
+				$string = $this->{$macroMethod} ($string, $xml, $parameter, $authorsFields);
 			}
 			
 			# In negative-match mode, if a string has been returned, then use the string unmodified
@@ -4699,15 +4704,10 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Macro for generating the 100 field
-	private function macro_generate100 ($value, $xml)
+	private function macro_generate100 ($value, $xml, $ignored, $authorsFields)
 	{
-		# Subclass, due to the complexity of this field
-		require_once ('generateAuthors.php');
-		$generateAuthors = new generateAuthors ($this, $xml);
-		$value = $generateAuthors->generate100 ();
-		
 		# Return the value (which may be false, meaning no 100 field should be created)
-		return $value;
+		return $authorsFields[100];
 	}
 	
 	
