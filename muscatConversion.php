@@ -12,9 +12,7 @@ class muscatConversion extends frontControllerApplication
 		'missingacc' => 'records without a *acc',
 		'missingt' => 'records without a *t',
 		'sermissingr' => '*ser records without a *r, except where location is Not in SPRI',
-		'kbk2mismatch' => 'records where a *kb/*k2 is present but not both',
 		'artwithoutlocstatus' => '*art records where there is no *loc and no *status',
-		'artlocationpam' => '*art records where *location begins with Pam',
 		'tcnotone' => 'records without exactly one *tc',
 		'tgmismatch' => 'records whose *tg count does not match *t',
 		'missingrpl' => 'records without a *rpl',
@@ -33,7 +31,6 @@ class muscatConversion extends frontControllerApplication
 		'artnotjt' => '*art records with a *j where *t does not immediately follow *j',
 		'sernonuniquet' => '*ser records where t is not unique',
 		'artbecomedoc' => 'records classified as articles which need to become documents',
-//		'orphanedart' => '*art records who have become orphaned',
 		'arttoplevelp' => '*art records with a top-level *p',
 		'artwithk2' => 'linked analytics: *art records with *k2',
 		'docwithkb' => '*doc records with *kb',
@@ -4831,25 +4828,6 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Records where a *kb/*k2 is present but not both
-	private function report_kbk2mismatch ()
-	{
-		# Define the query
-		$query = "
-			SELECT
-				'kbk2mismatch' AS report,
-				id AS recordId
-			FROM fieldsindex
-			WHERE
-				   (fieldslist LIKE '%@kb@%' AND fieldslist NOT LIKE '%@k2@%')
-				OR (fieldslist LIKE '%@k2@%' AND fieldslist NOT LIKE '%@kb@%')
-			";
-		
-		# Return the query
-		return $query;
-	}
-	
-	
 	# *art records where there is no *loc and no *status
 	private function report_artwithoutlocstatus ()
 	{
@@ -4863,48 +4841,6 @@ class muscatConversion extends frontControllerApplication
 			  AND fieldslist NOT LIKE '%@loc@%'
 			  AND fieldslist NOT LIKE '%@status@%'
 			";
-		
-		# Return the query
-		return $query;
-	}
-	
-	
-	# *art records where *location begins with Pam
-	private function report_artlocationpam ()
-	{
-		# Define the query
-		$query = "
-			SELECT
-				'artlocationpam' AS report,
-				catalogue_rawdata.recordId
-				/* ,
-				catalogue_rawdata.field,
-				catalogue_rawdata.value,
-				fieldsindex.fieldslist
-				*/
-			FROM catalogue_rawdata
-			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
-			WHERE
-				    fieldslist LIKE '%@art@%'
-				AND fieldslist LIKE '%@location@%'
-				AND field = 'location'
-				AND value LIKE 'Pam%'
-			";
-		
-		/*
-		# Define the query; see http://stackoverflow.com/questions/4287822 for queries using the Entity-Attribute-Value (key-value-store) pattern
-		$query = "
-			SELECT
-				'artlocationpam' AS report,
-				location.id AS recordId
-			FROM fieldsindex
-			JOIN catalogue_rawdata AS location ON fieldsindex.id = location.id AND location.field = 'location'
-			WHERE
-				    fieldslist LIKE '%@art@%'
-				AND fieldslist LIKE '%@location@%'
-				AND location.value LIKE 'Pam%'
-			";
-		*/
 		
 		# Return the query
 		return $query;
@@ -5301,31 +5237,6 @@ class muscatConversion extends frontControllerApplication
 		# Return the query
 		return $query;
 	}
-	
-	
-	/*
-	# *art records who have become orphaned
-	private function report_orphanedart ()
-	{
-		# Define the query
-		$query = "
-			SELECT
-				'orphanedart' AS report,
-				catalogue_rawdata.recordId,
-				fieldsindex.title
-			FROM catalogue_rawdata
-			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
-			WHERE
-				    fieldslist LIKE '%@art@%'
-				AND fieldslist LIKE '%@j@tg@t@%'
-				AND field = 'location'
-				AND value = 'Periodical'
-			";
-		
-		# Return the query
-		return $query;
-	}
-	*/
 	
 	
 	# *art records with a top-level *p
