@@ -267,8 +267,8 @@ class generate008
 			case '/art/j':
 				
 				$freq = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '//freq');
-				$value  = $this->lookupValue ('journalFrequencies', $freq, 'Frequency', 'No *freq');
-				$value .= $this->lookupValue ('journalFrequencies', $freq, 'Regularity', 'No *freq');
+				$value  = $this->lookupValue ('journalFrequencies', $freq, 'Frequency', 'No *freq', false);
+				$value .= $this->lookupValue ('journalFrequencies', $freq, 'Regularity', 'No *freq', false);
 				$value .= '#';
 				
 				return $value;
