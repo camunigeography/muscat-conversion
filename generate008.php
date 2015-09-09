@@ -133,8 +133,15 @@ class generate008
 	# 008 pos. 15-17: Place of publication, production, or execution
 	private function position_15_17 ()
 	{
-		# Extract the value and look it up in the country codes table
+		# Extract the value
 		$pl = $this->muscatConversion->xPathValue ($this->xml, '(//pl)[1]', false);
+		
+		# Remove surrounding brackets if present, e.g. "[Frankfurt]" => "Frankfurt"
+		if (preg_match ('/^\[(.+)\]$/', $pl, $matches)) {
+			$pl = $matches[1];
+		}
+		
+		# Look it up in the country codes table
 		return $this->lookupValue ('countryCodes', $pl, 'MARC Country Code', '');
 	}
 	
