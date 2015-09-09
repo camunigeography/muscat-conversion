@@ -806,7 +806,7 @@ class generate008
 	
 	
 	# Generalised lookup table function
-	private function lookupValue ($table, $value, $field, $ifEmptyUseValueFor)
+	private function lookupValue ($table, $value, $field, $ifEmptyUseValueFor, $caseSensitiveComparison = true)
 	{
 		# If the supplied value is empty, and a fallback is defined, treat the value as the fallback, which will then be looked up
 		if (!$value) {$value = $ifEmptyUseValueFor;}
@@ -824,6 +824,21 @@ class generate008
 		foreach ($lookupTableRaw as $key => $values) {
 			$key = strtr ($key, $this->diacriticsTable);
 			$lookupTable[$key] = $values;
+		}
+		
+		# If doing case-insensitive comparison, convert both sides to lower case
+		if (!$caseSensitiveComparison) {
+			
+			# Lower-case the value
+			$value = mb_strtolower ($value);
+			
+			# Lower-case the lookup table
+			$lookupTableRawLowercaseKeys = array ();
+			foreach ($lookupTableRaw as $key => $values) {
+				$key = mb_strtolower ($key);
+				$lookupTableRawLowercaseKeys[$key] = $values;
+			}
+			$lookupTableRaw = $lookupTableRawLowercaseKeys;
 		}
 		
 		/*
