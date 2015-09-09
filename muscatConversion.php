@@ -4695,7 +4695,8 @@ class muscatConversion extends frontControllerApplication
 		require_once ('generate008.php');
 		$generate008 = new generate008 ($this, $xml, $diacriticsTable);
 		if (!$value = $generate008->main ($error)) {
-			echo "\n<p class=\"warning\"><strong>Error:</strong> " . htmlspecialchars ($error) . '</p>';
+			$recordId = $this->xPathValue ($xml, '//q0');
+			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';
 		}
 		
 		# Return the value
