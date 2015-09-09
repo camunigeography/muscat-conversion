@@ -3011,7 +3011,7 @@ class muscatConversion extends frontControllerApplication
 					$html .= "\n<div class=\"graybox\">\n<h3>Stack debug:</h3>" . nl2br ($debugString) . "\n</div>";
 					$html .= "\n<div class=\"graybox\">\n<h3>Target schema:</h3>" . application::dumpData ($schemaFlattenedXmlWithContainership, false, true) . "\n</div>";
 					echo $html;
-					return false;
+					$xml = "<q0>{$id}</q0>";
 				}
 				$inserts[$id] = array (
 					'id' => $id,
