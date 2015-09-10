@@ -833,12 +833,12 @@ class generate008
 			$value = mb_strtolower ($value);
 			
 			# Lower-case the lookup table
-			$lookupTableRawLowercaseKeys = array ();
-			foreach ($lookupTableRaw as $key => $values) {
+			$lookupTableLowercaseKeys = array ();
+			foreach ($lookupTable as $key => $values) {
 				$key = mb_strtolower ($key);
-				$lookupTableRawLowercaseKeys[$key] = $values;
+				$lookupTableLowercaseKeys[$key] = $values;
 			}
-			$lookupTableRaw = $lookupTableRawLowercaseKeys;
+			$lookupTable = $lookupTableLowercaseKeys;
 		}
 		
 		/*
