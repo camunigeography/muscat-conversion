@@ -139,8 +139,8 @@ class generate008
 		# Extract the value
 		$pl = $this->muscatConversion->xPathValue ($this->xml, '(//pl)[1]', false);
 		
-		# Remove surrounding brackets if present, e.g. "[Frankfurt]" => "Frankfurt"
-		if (preg_match ('/^\[(.+)\]$/', $pl, $matches)) {
+		# Strip surrounding square/round brackets if present, e.g. "[Frankfurt]" => "Frankfurt" or "(Frankfurt)" => "Frankfurt"
+		if (preg_match ('/^[\[|\(](.+)[\]|\)]$/', $pl, $matches)) {
 			$pl = $matches[1];
 		}
 		
@@ -865,9 +865,9 @@ class generate008
 			# Convert diacritics
 			$key = strtr ($key, $this->diacriticsTable);
 			
-			# Strip surrounding square brackets if required
+			# Strip surrounding square/round brackets if present, e.g. "[Frankfurt]" => "Frankfurt" or "(Frankfurt)" => "Frankfurt"
 			if ($stripBrackets) {
-				if (preg_match ('/^\[(.+)\]$/', $key, $matches)) {
+				if (preg_match ('/^[\[|\(](.+)[\]|\)]$/', $key, $matches)) {
 					$key = $matches[1];
 				}
 				
