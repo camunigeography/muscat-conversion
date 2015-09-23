@@ -1487,7 +1487,7 @@ class muscatConversion extends frontControllerApplication
 			$value = $_GET['value'];
 			
 			# Define a query
-			$query = "SELECT DISTINCT recordId FROM catalogue_processed WHERE field = :field AND value = :value;";
+			$query = "SELECT DISTINCT recordId FROM catalogue_processed WHERE field = :field AND value = BINARY :value;";
 			$preparedStatementValues = array ('field' => $field, 'value' => $value);
 			
 			# Create a listing
@@ -1500,7 +1500,7 @@ class muscatConversion extends frontControllerApplication
 		} else if ($showDistinctValues) {
 			
 			# Get the total number of results as a known total to seed the paginator, overriding automatic counting (which will fail for a GROUP BY query)
-			$countingQuery = "SELECT COUNT( DISTINCT(value) ) AS total FROM catalogue_processed WHERE field = :field;";
+			$countingQuery = "SELECT COUNT( DISTINCT(BINARY value) ) AS total FROM catalogue_processed WHERE field = :field;";
 			$preparedStatementValues = array ('field' => $field);
 			$knownTotalAvailable = $this->databaseConnection->getOneField ($countingQuery, 'total', $preparedStatementValues);
 			
@@ -1510,7 +1510,7 @@ class muscatConversion extends frontControllerApplication
 					COUNT(*) AS instances
 				FROM `catalogue_processed`
 				WHERE field = :field
-				GROUP BY value
+				GROUP BY BINARY value
 				ORDER BY " . $this->databaseConnection->trimSql ('value') . "
 			;";
 			
