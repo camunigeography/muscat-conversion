@@ -142,7 +142,7 @@ class generate008
 		}
 		
 		# Look it up in the country codes table
-		return $this->lookupValue ('countryCodes', $pl, 'MARC Country Code', '', true, $stripBrackets = true);
+		return $this->lookupValue ('countryCodes', '', true, $stripBrackets = true, $pl, 'MARC Country Code');
 	}
 	
 	
@@ -267,8 +267,8 @@ class generate008
 			case '/art/j':
 				
 				$freq = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '//freq');
-				$value  = $this->lookupValue ('journalFrequencies', $freq, 'Frequency', 'No *freq', false);
-				$value .= $this->lookupValue ('journalFrequencies', $freq, 'Regularity', 'No *freq', false);
+				$value  = $this->lookupValue ('journalFrequencies', 'No *freq', false, false, $freq, 'Frequency');
+				$value .= $this->lookupValue ('journalFrequencies', 'No *freq', false, false, $freq, 'Regularity');
 				$value .= '#';
 				
 				return $value;
@@ -673,7 +673,7 @@ class generate008
 			case '/art/j':
 				
 				$lang = $this->muscatConversion->xPathValue ($this->xml, '(//lang)[1]', false);
-				return $this->lookupValue ('languageCodes', $lang, 'Script Code', 'English');
+				return $this->lookupValue ('languageCodes', 'English', true, false, $lang, 'Script Code');
 		}
 		
 		# Flag error
@@ -787,7 +787,7 @@ class generate008
 	private function position_35_37 ()
 	{
 		$lang = $this->muscatConversion->xPathValue ($this->xml, '(//lang)[1]', false);
-		return $this->lookupValue ('languageCodes', $lang, 'MARC Code', 'English');
+		return $this->lookupValue ('languageCodes', 'English', true, false, $lang, 'MARC Code');
 	}
 	
 	
@@ -806,7 +806,35 @@ class generate008
 	
 	
 	# Generalised lookup table function
-	private function lookupValue ($table, $value, $field, $ifEmptyUseValueFor, $caseSensitiveComparison = true, $stripBrackets = false)
+	private function lookupValue ($table, $fallbackKey, $caseSensitiveComparison = true, $stripBrackets = false, $value, $field)
+	{
+		# Load the lookup table
+		$lookupTable = $this->loadLookupTable ($table, $fallbackKey, $caseSensitiveComparison, $stripBrackets);
+		
+		# If doing case-insensitive comparison, convert the supplied value to lower case
+		if (!$caseSensitiveComparison) {
+			$value = mb_strtolower ($value);
+		}
+		
+		# Ensure the string is present
+		if (!isSet ($lookupTable[$value])) {
+			echo "<p class=\"warning\">In the {$table} table, value '<em>{$value}</em>' is not present in the table.</p>";
+			return NULL;
+		}
+		
+		# Compile the result
+		$result = $lookupTable[$value][$field];
+		
+		# Trim, in case of line-ends
+		$result = trim ($result);
+		
+		# Return the result
+		return $result;
+	}
+	
+	
+	# Function to load and process a lookup table
+	private function loadLookupTable ($table, $fallbackKey, $caseSensitiveComparison, $stripBrackets)
 	{
 		# Get the data table
 		$lookupTable = file_get_contents ($this->muscatConversion->applicationRoot . '/tables/' . $table . '.tsv');
@@ -849,13 +877,8 @@ class generate008
 			$lookupTable[$key] = $values;
 		}
 		
-		# If doing case-insensitive comparison, convert both sides to lower case
+		# If doing case-insensitive comparison, convert values to lower case
 		if (!$caseSensitiveComparison) {
-			
-			# Lower-case the value
-			$value = mb_strtolower ($value);
-			
-			# Lower-case the lookup table
 			$lookupTableLowercaseKeys = array ();
 			foreach ($lookupTable as $key => $values) {
 				$key = mb_strtolower ($key);
@@ -875,20 +898,8 @@ class generate008
 		}
 		*/
 		
-		# Ensure the string is present
-		if (!isSet ($lookupTable[$value])) {
-			echo "<p class=\"warning\">In the {$table} table, value '<em>{$value}</em>' is not present in the table.</p>";
-			return NULL;
-		}
-		
-		# Compile the result
-		$result = $lookupTable[$value][$field];
-		
-		# Trim, in case of line-ends
-		$result = trim ($result);
-		
-		# Return the result
-		return $result;
+		# Return the table
+		return $lookupTable;
 	}
 }
 
