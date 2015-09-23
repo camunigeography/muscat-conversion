@@ -3,6 +3,10 @@
 # Class to generate the complex 008 field; see: http://www.loc.gov/marc/bibliographic/bd008.html
 class generate008
 {
+	# Class properties
+	private $lookupTablesCache = array ();
+	
+	
 	# Constructor
 	public function __construct ($muscatConversion, $xml, $diacriticsTable)
 	{
@@ -836,6 +840,11 @@ class generate008
 	# Function to load and process a lookup table
 	private function loadLookupTable ($table, $fallbackKey, $caseSensitiveComparison, $stripBrackets)
 	{
+		# Lookup from cache if present
+		if (isSet ($this->lookupTablesCache[$table])) {
+			return $this->lookupTablesCache[$table];
+		}
+		
 		# Get the data table
 		$lookupTable = file_get_contents ($this->muscatConversion->applicationRoot . '/tables/' . $table . '.tsv');
 		
@@ -898,6 +907,9 @@ class generate008
 			}
 		}
 		*/
+		
+		# Register to cache; this assumes that parameters will be consistent
+		$this->lookupTablesCache[$table] = $lookupTable;
 		
 		# Return the table
 		return $lookupTable;
