@@ -142,7 +142,7 @@ class generate008
 		}
 		
 		# Look it up in the country codes table
-		return $this->lookupValue ('countryCodes', $pl, 'MARC Country Code', '');
+		return $this->lookupValue ('countryCodes', $pl, 'MARC Country Code', '', true, $stripBrackets = true);
 	}
 	
 	
@@ -806,7 +806,7 @@ class generate008
 	
 	
 	# Generalised lookup table function
-	private function lookupValue ($table, $value, $field, $ifEmptyUseValueFor, $caseSensitiveComparison = true)
+	private function lookupValue ($table, $value, $field, $ifEmptyUseValueFor, $caseSensitiveComparison = true, $stripBrackets = false)
 	{
 		# If the supplied value is empty, and a fallback is defined, treat the value as the fallback, which will then be looked up
 		if (!$value) {$value = $ifEmptyUseValueFor;}
@@ -819,10 +819,31 @@ class generate008
 		require_once ('csv.php');
 		$lookupTableRaw = csv::tsvToArray ($lookupTable, $firstColumnIsId = true);
 		
-		# Convert diacritics
+		# Perform conversions on the key names
 		$lookupTable = array ();
 		foreach ($lookupTableRaw as $key => $values) {
+			
+			# Convert diacritics
 			$key = strtr ($key, $this->diacriticsTable);
+			
+			# Strip surrounding square brackets if required
+			if ($stripBrackets) {
+				if (preg_match ('/^\[(.+)\]$/', $key, $matches)) {
+					$key = $matches[1];
+				}
+				
+				/*
+				# Sanity-checking test while developing
+				if (isSet ($lookupTable[$key])) {
+					if ($values !== $lookupTable[$key]) {
+						echo "<p class=\"warning\">In the {$table} definition, <em>{$key}</em> for field <em>{$field}</em> has inconsistent value when comapring the bracketed and non-bracketed versions.</p>";
+						return NULL;
+					}
+				}
+				*/
+			}
+			
+			# Register the converted value
 			$lookupTable[$key] = $values;
 		}
 		
@@ -842,7 +863,7 @@ class generate008
 		}
 		
 		/*
-		# Sanity-check while developing
+		# Sanity-checking test while developing
 		$expectedLength = 1;	// Manually needs to be changed to 3 for languageCodes -> Marc Code
 		foreach ($lookupTable as $entry => $values) {
 			if (strlen ($values[$field]) != $expectedLength) {
