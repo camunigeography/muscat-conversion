@@ -845,9 +845,10 @@ class generate008
 		$lookupTableRaw = csv::tsvToArray ($lookupTable, $firstColumnIsId = true);
 		
 		# Define the fallback value in case that is needed
-		if ($fallbackKey) {
-			$lookupTableRaw[false] = $lookupTableRaw[$fallbackKey];		// Boolean false is used because the value comes from an xPathValue() lookup, which will be false if no match
+		if (!isSet ($lookupTableRaw[''])) {
+			$lookupTableRaw['']		= $lookupTableRaw[$fallbackKey];
 		}
+		$lookupTableRaw[false]	= $lookupTableRaw[$fallbackKey];	// Boolean false also needs to be defined because no-match value from an xPathValue() lookup will be false
 		
 		# Perform conversions on the key names
 		$lookupTable = array ();
