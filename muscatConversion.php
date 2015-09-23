@@ -159,6 +159,10 @@ class muscatConversion extends frontControllerApplication
 		'Russian' => 'BGN PCGN 1947',	// Filename becomes bgn_pcgn_1947.xml
 	);
 	
+	# Caches
+	private $generate008LookupTablesCache = array ();
+	
+	
 	# Function to assign defaults additional to the general application defaults
 	public function defaults ()
 	{
@@ -4693,7 +4697,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Subclass, due to the complexity of this field
 		require_once ('generate008.php');
-		$generate008 = new generate008 ($this, $xml, $diacriticsTable);
+		$generate008 = new generate008 ($this, $xml, $diacriticsTable, $this->generate008LookupTablesCache);
 		if (!$value = $generate008->main ($error)) {
 			$recordId = $this->xPathValue ($xml, '//q0');
 			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';

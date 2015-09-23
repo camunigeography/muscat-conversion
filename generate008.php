@@ -3,12 +3,8 @@
 # Class to generate the complex 008 field; see: http://www.loc.gov/marc/bibliographic/bd008.html
 class generate008
 {
-	# Class properties
-	private $lookupTablesCache = array ();
-	
-	
 	# Constructor
-	public function __construct ($muscatConversion, $xml, $diacriticsTable)
+	public function __construct ($muscatConversion, $xml, $diacriticsTable, &$lookupTablesCache)
 	{
 		# Create a class property handle to the parent class
 		$this->muscatConversion = $muscatConversion;
@@ -18,6 +14,9 @@ class generate008
 		
 		# Create a handle to the diacritics table
 		$this->diacriticsTable = $diacriticsTable;
+		
+		# Create a reference to the lookup tables cache, making the cache effective across multiple records
+		$this->lookupTablesCache = &$lookupTablesCache;
 		
 	}
 	
