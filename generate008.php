@@ -808,9 +808,6 @@ class generate008
 	# Generalised lookup table function
 	private function lookupValue ($table, $value, $field, $ifEmptyUseValueFor, $caseSensitiveComparison = true, $stripBrackets = false)
 	{
-		# If the supplied value is empty, and a fallback is defined, treat the value as the fallback, which will then be looked up
-		if (!$value) {$value = $ifEmptyUseValueFor;}
-		
 		# Get the data table
 		$lookupTable = file_get_contents ($this->muscatConversion->applicationRoot . '/tables/' . $table . '.tsv');
 		
@@ -818,6 +815,11 @@ class generate008
 		$lookupTable = trim ($lookupTable);
 		require_once ('csv.php');
 		$lookupTableRaw = csv::tsvToArray ($lookupTable, $firstColumnIsId = true);
+		
+		# Define the fallback value in case that is needed
+		if ($fallbackKey) {
+			$lookupTableRaw[false] = $lookupTableRaw[$fallbackKey];		// Boolean false is used because the value comes from an xPathValue() lookup, which will be false if no match
+		}
 		
 		# Perform conversions on the key names
 		$lookupTable = array ();
