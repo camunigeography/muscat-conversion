@@ -1,6 +1,6 @@
 #muscatconversion .recordsearch {clear: right; float: right; position: relative; top: 42px;}
 #muscatconversion #exportdate {clear: right; float: right; font-size: 0.83em; margin: 0; padding: 0; position: relative; top: -1.2em; color: gray;}
-#muscatconversion .fieldstabs {clear: right; margin-left: 20px;}
+#muscatconversion .fieldstabs {clear: right; margin-left: 20px; width: 35em;}
 #muscatconversion .reportsjumplist {font-size: 0.83em; text-align: right; position: relative; top: -2.6em;}
 #muscatconversion .fieldsjumplist {font-size: 0.83em; display: inline; padding-right: 8px;}
 #muscatconversion .reportsjumplist *, #muscatconversion .fieldsjumplist * {display: inline;}
