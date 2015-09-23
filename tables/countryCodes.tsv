@@ -928,8 +928,8 @@ Christchurch, Newzealand	nz#
 Christchurch, NZ	nz#
 [Christchurch, NZ]	nz#
 Christchurch, Wellington, etc.	nz#
-(Christchurch)	xx#
-[Christchurch]	xx#
+(Christchurch)	nz#
+[Christchurch]	nz#
 Christiana	no#
 Christiania	no#
 Christiania [Oslo]	no#
@@ -1786,7 +1786,7 @@ Hanna, Alberta	abc
 Hannover	gw#
 Hannover, Germany	gw#
 (Hannover, NH)	nhu
-Hanover	gw#
+Hanover	xx#
 Hanover and London	gw#
 Hanover, Germany	gw#
 Hanover, MD	mdu
@@ -1797,7 +1797,7 @@ Hanover, New Hampshire, USA	nhu
 Hanover, NH	nhu
 (Hanover, NH)	nhu
 [Hanover, NH]	nhu
-[Hanover]	nuh
+[Hanover]	xx#
 Hanscom AFB, MA	mau
 Hanscom Air Force Base, MA	mau
 Hanscom Air Force Base, Massachusetts	mau
@@ -4313,7 +4313,7 @@ St Andrews	stk
 St Anthony Falls, MN	mnu
 St Catharines, Ont.	onc
 St John, NB	nbc
-St John's	xx#
+St John's	nfc
 (St John's College, Cambridge)	enk
 St John's, Newfoundland	nfc
 [St John's, Newfoundland]	nfc
@@ -4599,11 +4599,10 @@ Tasmania	tma
 Tasmania, TA	tma
 [Tasmania]	tma
 Tasmanian	tma
-Taunton	mau
+Taunton	enk
 Taunton, MA	mau
 Taunton, MD	mdu
 Taunton, UK	enk
-[Taunton]	enk
 Tavistock	enk
 [tbc]	xx#
 Tbilisi	gs#
@@ -4842,7 +4841,8 @@ University of Cape Town	sa#
 (University of Tsukuba)	ja#
 [University of Wyoming]	wyu
 University Park, PA	pau
-[University Park, PA]	oay
+[University Park, PA]	pau
+[University Park, PN]	pau
 University Park, PN	oay
 Unpublished	xx#
 Upper Saddle River, NJ	nju
@@ -5034,32 +5034,32 @@ Warszawa Zagospodarowania	pl#
 (Warszawa)	pl#
 Warwick	enk
 Warzawa	pl#
-Washdington, DC	xxu
-Washington	wau
-Washington 25 D.C	xxu
-Washington City [Washington, DC]	xxu
-[Washington D. C.]	xxu
-Washington D.C	xxu
-Washington D.C.	xxu
-[Washington D.C.]	xxu
-Washington DC	xxu
-Washington DC, USA	xxu
-(Washington DC)	xxu
-[Washington DC]	xxu
+Washdington, DC	dcu
+Washington	xxu
+Washington 25 D.C	dcu
+Washington City [Washington, DC]	dcu
+[Washington D. C.]	dcu
+Washington D.C	dcu
+Washington D.C.	dcu
+[Washington D.C.]	dcu
+Washington DC	dcu
+Washington DC, USA	dcu
+(Washington DC)	dcu
+[Washington DC]	dcu
 Washington,	xxu
-Washington, CD	xxu
-Washington, D.C.	xxu
-(Washington, D.C. )	xxu
-(Washington, D.C.)	xxu
-[Washington, D.C.]	xxu
-Washington, DC	xxu
-Washington, DC and New York	xxu
-Washington, DC, USA	xxu
-Washington, DC.	xxu
-(Washington, DC)	xxu
-[Washington, DC]	xxu
+Washington, CD	dcu
+Washington, D.C.	dcu
+(Washington, D.C. )	dcu
+(Washington, D.C.)	dcu
+[Washington, D.C.]	dcu
+Washington, DC	dcu
+Washington, DC and New York	dcu
+Washington, DC, USA	dcu
+Washington, DC.	dcu
+(Washington, DC)	dcu
+[Washington, DC]	dcu
 Washington, USA	xxu
-Washington,DC	xxu
+Washington,DC	dcu
 Washington.	xxu
 (Washington)	xxu
 [Washington]	xxu
