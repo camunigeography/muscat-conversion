@@ -3142,16 +3142,16 @@ class muscatConversion extends frontControllerApplication
 			$offset += $limit;
 		}
 		
-		# Reformat to Voyager input style
-		$text = preg_replace ("/{$this->doubleDagger}([a-z])/", '$\1', $text);				// Replace double-dagger
-		$text = preg_replace ('/^([LDR0-9]{3}) #(.) (.+)$/m', '\1 \\\2 \3', $text);		// Replace # marker in position 1 with \
-		$text = preg_replace ('/^([LDR0-9]{3}) (.)# (.+)$/m', '\1 \2\\ \3', $text);		// Replace # marker in position 2 with \
-		$text = preg_replace ('/^([0-9LDR]{3}) (.+)$/m', '\1  \2', $text);				// Add double-space
-		$text = preg_replace ('/^([0-9LDR]{3})  (.)(.) (.+)$/m', '\1  \2\3\4', $text);	// Remove space after marker
-		$text = preg_replace ('/^(.+)$/m', '=\1', $text);								// Add = at start
-		
 		# Save the file
 		file_put_contents ($filename, $text);
+		
+		# Reformat to Voyager input style; this is done using shelled-out inline sed/perl, rather than preg_replace, to avoid an out-of-memory crash
+		exec ("sed -i 's" . "/{$this->doubleDagger}\([a-z0-9]\)/" . '\$\1' . "/g' {$filename}");	// Replace double-dagger(s) with $
+		exec ("perl -pi -e 's" . '/^([0-9]{3}) #(.) (.+)$/' . '\1 \\\\\2 \3' . "/' {$filename}");	// Replace # marker in position 1 with \
+		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.)# (.+)$/' . '\1 \2\\\\ \3' . "/' {$filename}");	// Replace # marker in position 2 with \
+		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.+)$/' . '\1  \2' . "/' {$filename}");				// Add double-space
+		exec ("perl -pi -e 's" . '/^([0-9]{3})  (.)(.) (.+)$/' . '\1  \2\3\4' . "/' {$filename}");	// Remove space after marker
+		exec ("perl -pi -e 's" . '/^(000) /' . '=\1 ' . "/' {$filename}");							// Add = at start
 		
 		# Create a binary version
 		$this->marcBinaryConversion ($directory);
