@@ -3186,7 +3186,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Define and execute the command for converting the text version to binary; see: http://marcedit.reeset.net/ and http://marcedit.reeset.net/wiki/content/cmarceditexe-using-command-line
-		$command = "cd {$this->applicationDirectory}/libraries/bibcheck/ ; perl lint_test.pl {$directory}/marc.mrc 2>> errors.txt ; mv errors.txt {$filename}";
+		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; perl lint_test.pl {$directory}/marc.mrc 2>> errors.txt ; mv errors.txt {$filename}";
 		shell_exec ($command);
 	}
 	
