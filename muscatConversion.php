@@ -3109,11 +3109,15 @@ class muscatConversion extends frontControllerApplication
 	# Function to generate the MARC21 output as text
 	private function createMarcExport ()
 	{
-		# Clear the current file
+		# Clear the current file(s)
 		$directory = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl;
-		$filename = $directory . '/marc.txt';
-		if (file_exists ($filename)) {
-			unlink ($filename);
+		$filenameMarcTxt = $directory . '/marc.txt';
+		if (file_exists ($filenameMarcTxt)) {
+			unlink ($filenameMarcTxt);
+		}
+		$filenameVoyagerTxt = $directory . '/marc-voyager.txt';
+		if (file_exists ($filenameVoyagerTxt)) {
+			unlink ($filenameVoyagerTxt);
 		}
 		
 		# Get the total records in the table
@@ -3142,16 +3146,19 @@ class muscatConversion extends frontControllerApplication
 			$offset += $limit;
 		}
 		
-		# Save the file
-		file_put_contents ($filename, $text);
+		# Save the file, in the standard MARC format
+		file_put_contents ($filenameMarcTxt, $text);
 		
-		# Reformat to Voyager input style; this is done using shelled-out inline sed/perl, rather than preg_replace, to avoid an out-of-memory crash
-		exec ("sed -i 's" . "/{$this->doubleDagger}\([a-z0-9]\)/" . '\$\1' . "/g' {$filename}");	// Replace double-dagger(s) with $
-		exec ("perl -pi -e 's" . '/^([0-9]{3}) #(.) (.+)$/' . '\1 \\\\\2 \3' . "/' {$filename}");	// Replace # marker in position 1 with \
-		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.)# (.+)$/' . '\1 \2\\\\ \3' . "/' {$filename}");	// Replace # marker in position 2 with \
-		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.+)$/' . '\1  \2' . "/' {$filename}");				// Add double-space
-		exec ("perl -pi -e 's" . '/^([0-9]{3})  (.)(.) (.+)$/' . '\1  \2\3\4' . "/' {$filename}");	// Remove space after marker
-		exec ("perl -pi -e 's" . '/^(000) /' . '=\1 ' . "/' {$filename}");							// Add = at start
+		# Copy, so that a Voyager-specific formatted version can be created
+		copy ($filenameMarcTxt, $filenameVoyagerTxt);
+		
+		# Reformat to Voyager input style; this process is done using shelled-out inline sed/perl, rather than preg_replace, to avoid an out-of-memory crash
+		exec ("sed -i 's" . "/{$this->doubleDagger}\([a-z0-9]\)/" . '\$\1' . "/g' {$filenameVoyagerTxt}");	// Replace double-dagger(s) with $
+		exec ("perl -pi -e 's" . '/^([0-9]{3}) #(.) (.+)$/' . '\1 \\\\\2 \3' . "/' {$filenameVoyagerTxt}");	// Replace # marker in position 1 with \
+		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.)# (.+)$/' . '\1 \2\\\\ \3' . "/' {$filenameVoyagerTxt}");	// Replace # marker in position 2 with \
+		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.+)$/' . '\1  \2' . "/' {$filenameVoyagerTxt}");				// Add double-space
+		exec ("perl -pi -e 's" . '/^([0-9]{3})  (.)(.) (.+)$/' . '\1  \2\3\4' . "/' {$filenameVoyagerTxt}");	// Remove space after marker
+		exec ("perl -pi -e 's" . '/^(000) /' . '=\1 ' . "/' {$filenameVoyagerTxt}");							// Add = at start
 		
 		# Create a binary version
 		$this->marcBinaryConversion ($directory);
