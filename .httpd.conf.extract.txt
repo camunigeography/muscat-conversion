@@ -54,7 +54,7 @@
 		php_value auto_prepend_file none
 		php_value auto_append_file none
 	</LocationMatch>
-	RewriteRule $baseUrl/export/marc(.txt|.mrc|.error.txt) $baseUrl/marc$1
+	RewriteRule $baseUrl/export/marc(.txt|-voyager.txt|.mrc|.error.txt) $baseUrl/marc$1
 	<LocationMatch ^$baseUrl/export/marc(.txt|.mrc|.error.txt)$>
 		Order allow,deny
 		Allow from all

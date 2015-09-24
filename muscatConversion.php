@@ -3569,6 +3569,7 @@ class muscatConversion extends frontControllerApplication
 		$html  = "\n<h3>Downloads</h3>";
 		$html .= "\n<ul class=\"downloads actions left spaced\">";
 		$html .= "\n\t<li><a class=\"actions\" href=\"{$this->baseUrl}/export/marc.txt\">MARC21 data (text)</a></li>";
+		$html .= "\n\t<li><a class=\"actions\" href=\"{$this->baseUrl}/export/marc-voyager.txt\">MARC21 data (text, Voyager format)</a></li>";
 		$html .= "\n\t<li><a class=\"actions\" href=\"{$this->baseUrl}/export/marc.mrc\">MARC21 data (binary .mrc)</a></li>";
 		$html .= "\n</ul>";
 		
