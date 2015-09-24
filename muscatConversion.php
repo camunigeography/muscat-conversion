@@ -3153,10 +3153,11 @@ class muscatConversion extends frontControllerApplication
 		copy ($filenameMarcTxt, $filenameVoyagerTxt);
 		
 		# Reformat to Voyager input style; this process is done using shelled-out inline sed/perl, rather than preg_replace, to avoid an out-of-memory crash
-		exec ("sed -i 's" . "/{$this->doubleDagger}\([a-z0-9]\)/" . '\$\1' . "/g' {$filenameVoyagerTxt}");	// Replace double-dagger(s) with $
-		exec ("perl -pi -e 's" . '/^([0-9]{3}) #(.) (.+)$/' . '\1 \\\\\2 \3' . "/' {$filenameVoyagerTxt}");	// Replace # marker in position 1 with \
-		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.)# (.+)$/' . '\1 \2\\\\ \3' . "/' {$filenameVoyagerTxt}");	// Replace # marker in position 2 with \
+		exec ("sed -i 's" . "/{$this->doubleDagger}\([a-z0-9]\)/" . '\$\1' . "/g' {$filenameVoyagerTxt}");		// Replace double-dagger(s) with $
+		exec ("sed -i '/^LDR /s/#/\\\\/g' {$filenameVoyagerTxt}");												// Replace all instances of a # marker in the LDR field with \
 		exec ("sed -i '/^008 /s/#/\\\\/g' {$filenameVoyagerTxt}");												// Replace all instances of a # marker in the 008 field with \
+		exec ("perl -pi -e 's" . '/^([0-9]{3}) #(.) (.+)$/' . '\1 \\\\\2 \3' . "/' {$filenameVoyagerTxt}");		// Replace # marker in position 1 with \
+		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.)# (.+)$/' . '\1 \2\\\\ \3' . "/' {$filenameVoyagerTxt}");		// Replace # marker in position 2 with \
 		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.+)$/' . '\1  \2' . "/' {$filenameVoyagerTxt}");				// Add double-space
 		exec ("perl -pi -e 's" . '/^([0-9]{3})  (.)(.) (.+)$/' . '\1  \2\3\4' . "/' {$filenameVoyagerTxt}");	// Remove space after marker
 		exec ("perl -pi -e 's" . '/^(.+)$/' . '=\1' . "/' {$filenameVoyagerTxt}");								// Add = at start of each line
