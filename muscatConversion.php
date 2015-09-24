@@ -3179,7 +3179,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Define and execute the command for converting the text version to binary; see: http://marcedit.reeset.net/ and http://marcedit.reeset.net/cmarcedit-exe-using-the-command-line and http://blog.reeset.net/?s=cmarcedit
-		$command = "mono /usr/local/bin/marcedit/cmarcedit.exe -s {$directory}/marc.txt -d {$filename} -pd -make";
+		$command = "mono /usr/local/bin/marcedit/cmarcedit.exe -s {$directory}/marc-voyager.txt -d {$filename} -pd -make";
 		shell_exec ($command);
 	}
 	
