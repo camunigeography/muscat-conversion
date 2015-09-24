@@ -3158,7 +3158,7 @@ class muscatConversion extends frontControllerApplication
 		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.)# (.+)$/' . '\1 \2\\\\ \3' . "/' {$filenameVoyagerTxt}");	// Replace # marker in position 2 with \
 		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.+)$/' . '\1  \2' . "/' {$filenameVoyagerTxt}");				// Add double-space
 		exec ("perl -pi -e 's" . '/^([0-9]{3})  (.)(.) (.+)$/' . '\1  \2\3\4' . "/' {$filenameVoyagerTxt}");	// Remove space after marker
-		exec ("perl -pi -e 's" . '/^(000) /' . '=\1 ' . "/' {$filenameVoyagerTxt}");							// Add = at start
+		exec ("perl -pi -e 's" . '/^(.+)$/' . '=\1' . "/' {$filenameVoyagerTxt}");								// Add = at start of each line
 		
 		# Create a binary version
 		$this->marcBinaryConversion ($directory);
