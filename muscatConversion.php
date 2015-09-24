@@ -3635,7 +3635,7 @@ class muscatConversion extends frontControllerApplication
 		# Determine the length, in bytes, which is the first five characters of the 000 (Leader), padded
 		$bytes = mb_strlen ($record);
 		$bytes = str_pad ($bytes, 5, '0', STR_PAD_LEFT);
-		$record = preg_replace ('/^000 (_____)/m', "000 {$bytes}", $record);
+		$record = preg_replace ('/^LDR (_____)/m', "LDR {$bytes}", $record);
 		
 		# Return the record
 		return $record;
