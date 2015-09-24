@@ -3177,7 +3177,7 @@ class muscatConversion extends frontControllerApplication
 			unlink ($filename);
 		}
 		
-		# Define and execute the command for converting the text version to binary; see: http://marcedit.reeset.net/ and http://marcedit.reeset.net/wiki/content/cmarceditexe-using-command-line
+		# Define and execute the command for converting the text version to binary; see: http://marcedit.reeset.net/ and http://marcedit.reeset.net/cmarcedit-exe-using-the-command-line and http://blog.reeset.net/?s=cmarcedit
 		$command = "mono /usr/local/bin/marcedit/cmarcedit.exe -s {$directory}/marc.txt -d {$filename} -pd -make";
 		shell_exec ($command);
 	}
@@ -3192,7 +3192,7 @@ class muscatConversion extends frontControllerApplication
 			unlink ($filename);
 		}
 		
-		# Define and execute the command for converting the text version to binary; see: http://marcedit.reeset.net/ and http://marcedit.reeset.net/wiki/content/cmarceditexe-using-command-line
+		# Define and execute the command for converting the text version to binary
 		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; perl lint_test.pl {$directory}/marc.mrc 2>> errors.txt ; mv errors.txt {$filename}";
 		shell_exec ($command);
 	}
