@@ -3559,7 +3559,7 @@ class muscatConversion extends frontControllerApplication
 	{
 		# End if no output
 		$directory = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl;
-		if (!file_exists ("{$directory}/marc.txt") || !file_exists ("{$directory}/marc.mrc") || !file_exists ("{$directory}/marc.errors.txt")) {
+		if (!file_exists ("{$directory}/marc.txt") || !file_exists ("{$directory}/marc-voyager.txt") || !file_exists ("{$directory}/marc.mrc") || !file_exists ("{$directory}/marc.errors.txt")) {
 			$html = "\n<p>There is no MARC output yet. Please <a href=\"{$this->baseUrl}/import/\">run an import</a> first.</p>";
 			echo $html;
 			return;
