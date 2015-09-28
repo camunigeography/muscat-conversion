@@ -59,7 +59,7 @@ class generate008
 			# Sanity-check that the string length is 40
 			$length = strlen ($string);
 			if ($length != $expectedLength) {
-				$error = "008 field " . (substr_count ($positions, '-') ? 'positions' : 'position') . " {$positions}: Length of is {$length} but should be {$expectedLength}";
+				$error = "008 field " . (substr_count ($positions, '-') ? 'positions' : 'position') . " {$positions}: Length is {$length} but should be {$expectedLength}";
 				return false;
 			}
 		}
