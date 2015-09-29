@@ -139,11 +139,6 @@ class generate008
 		# Extract the value
 		$pl = $this->muscatConversion->xPathValue ($this->xml, '(//pl)[1]', false);
 		
-		# Strip surrounding square/round brackets if present, e.g. "[Frankfurt]" => "Frankfurt" or "(Frankfurt)" => "Frankfurt"
-		if (preg_match ('/^[\[|\(](.+)[\]|\)]$/', $pl, $matches)) {
-			$pl = $matches[1];
-		}
-		
 		# Look it up in the country codes table
 		return $this->lookupValue ('countryCodes', '', true, $stripBrackets = true, $pl, 'MARC Country Code');
 	}
@@ -814,6 +809,14 @@ class generate008
 		# Load the lookup table
 		$lookupTable = $this->loadLookupTable ($table, $fallbackKey, $caseSensitiveComparison, $stripBrackets);
 		
+		# If required, strip surrounding square/round brackets if present, e.g. "[Frankfurt]" => "Frankfurt" or "(Frankfurt)" => "Frankfurt"
+		$valueOriginal = $value;	// Cache
+		if ($stripBrackets) {
+			if (preg_match ('/^[\[|\(](.+)[\]|\)]$/', $value, $matches)) {
+				$value = $matches[1];
+			}
+		}
+		
 		# If doing case-insensitive comparison, convert the supplied value to lower case
 		if (!$caseSensitiveComparison) {
 			$value = mb_strtolower ($value);
@@ -821,7 +824,7 @@ class generate008
 		
 		# Ensure the string is present
 		if (!isSet ($lookupTable[$value])) {
-			echo "<p class=\"warning\">In the {$table} table, value '<em>{$value}</em>' is not present in the table.</p>";
+			echo "<p class=\"warning\">In the {$table} table, the value '<em>{$valueOriginal}</em>' is not present in the table.</p>";
 			return NULL;
 		}
 		
