@@ -3675,14 +3675,8 @@ class muscatConversion extends frontControllerApplication
 			$datastructure[$lineNumber]['xpathReplacements'] = array ();
 			$datastructure[$lineNumber]['macros'] = array ();
 			
-			# Special-case the leader
-			if (preg_match ('/^LDR(.+)$/', trim ($line))) {
-				$datastructure[$lineNumber]['line'] = trim ($line);
-				continue;
-			}
-			
 			# Validate and extract the syntax
-			if (!preg_match ('/^([A-Z]*)\s+([0-9]{3} .{3}.+)$/', $line, $matches)) {
+			if (!preg_match ('/^([A-Z]*)\s+([0-9|LDR]{3} .{3}.+)$/', $line, $matches)) {
 				$errorString = 'Line ' . ($lineNumber + 1) . ' does not have the right syntax.';
 				return false;
 			}
