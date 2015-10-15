@@ -69,3 +69,8 @@ twice yearly	f	r
 Unknown	#	u
 varies	#	x
 weekly	w	r
+quarterly; irregular	q	n
+[Annual]	a	u
+Semi-annually	f	r
+Twice annually	f	u
+5 times per year	q	u
