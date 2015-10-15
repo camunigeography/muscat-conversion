@@ -31,7 +31,7 @@ class generate008
 		}
 		
 		# Determine the *form value
-		$this->form = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '/form');
+		$this->form = $this->muscatConversion->xPathValue ($this->xml, '(//form)[1]', false);
 		
 		# Determine if the record form is roughly digital/multimedia
 		$this->isMultimediaish = $this->isMultimediaish ($this->form);

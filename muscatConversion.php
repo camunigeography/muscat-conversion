@@ -4584,8 +4584,7 @@ class muscatConversion extends frontControllerApplication
 		$string .= 'n';		// Indicates record is newly-input
 		
 		# Position 06: One-character alphabetic code used to define the characteristics and components of the record.
-		$recordType = $this->recordType ($xml);
-		$form = $this->xPathValue ($xml, $recordType . '/form');
+		$form = $this->xPathValue ($xml, '(//form)[1]', false);
 		switch ($form) {
 			case 'Internet resource':
 			case 'Microfiche':
@@ -4619,6 +4618,7 @@ class muscatConversion extends frontControllerApplication
 			'/doc'		=> 'm',
 			'/ser'		=> 's',
 		);
+		$recordType = $this->recordType ($xml);
 		$string .= $position7Values[$recordType];
 		
 		# Position 08: Type of control
