@@ -1962,9 +1962,9 @@ class muscatConversion extends frontControllerApplication
 		
 		# Define the import types
 		$importTypes = array (
-			'full'					=> 'FULL import (c. 2.25 hours)',
+			'full'					=> 'FULL import (c. 2 hours)',
 			'recordlinkage'			=> 'Record linkage',
-			'marc'					=> 'Regenerate MARC only (c. 100 minutes)',
+			'marc'					=> 'Regenerate MARC only (c. 65 minutes)',
 			'reports'				=> 'Regenerate reports only (c. 3 minutes)',
 			'listings'				=> 'Regenerate listings reports only (c. 34 minutes)',
 		);
