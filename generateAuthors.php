@@ -566,6 +566,7 @@ class generateAuthors
 			'Innocent of Kamchatka',
 			'Inspector and doctor',
 			'J.K.',
+			'J.M.W.',
 			'J.W.G.',
 			'Jorsep',
 			'K.B.',
