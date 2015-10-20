@@ -3756,7 +3756,7 @@ class muscatConversion extends frontControllerApplication
 		$compileFailures = array ();
 		foreach ($datastructure as $lineNumber => $line) {
 			
-			# Determine if the line is vertically-repeatable; e.g. AH 999 $a{//k/kw} would mean R 999 $a{//k/kw[1]} $a{//k/kw[2]} $a{//k/kw[3]} ...
+			# Determine if the line is vertically-repeatable
 			$isVerticallyRepeatable = (in_array ('V', $datastructure[$lineNumber]['controlCharacters']));
 			
 			# Work through each Xpath replacement
