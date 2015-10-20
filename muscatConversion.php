@@ -241,6 +241,7 @@ class muscatConversion extends frontControllerApplication
 				'icon' => 'tag',
 				'parent' => 'admin',
 				'administrator' => true,
+				'allowDuringImport' => true,
 			),
 			'marcparser' => array (
 				'description' => 'MARC21 parser definition',
@@ -249,6 +250,7 @@ class muscatConversion extends frontControllerApplication
 				'icon' => 'chart_line',
 				'parent' => 'admin',
 				'administrator' => true,
+				'allowDuringImport' => true,
 			),
 			'transliterator' => array (
 				'description' => 'Reverse-transliteration definition',
@@ -257,6 +259,7 @@ class muscatConversion extends frontControllerApplication
 				'icon' => 'arrow_refresh',
 				'parent' => 'admin',
 				'administrator' => true,
+				'allowDuringImport' => true,
 			),
 			'export' => array (
 				'description' => 'Export MARC21 output',
@@ -264,6 +267,7 @@ class muscatConversion extends frontControllerApplication
 				'url' => 'export/',
 				'icon' => 'database_go',
 				'administrator' => true,
+				'allowDuringImport' => true,
 			),
 		);
 		
@@ -310,8 +314,11 @@ class muscatConversion extends frontControllerApplication
 		
 		# Ensure an import is not running
 		if ($importHtml = $this->importInProgress ()) {
-			echo $importHtml;
-			return false;
+			$allowedDuringImport = (isSet ($this->actions[$this->action]['allowDuringImport']) && $this->actions[$this->action]['allowDuringImport']);
+			if (!$allowedDuringImport) {
+				echo $importHtml;
+				return false;
+			}
 		}
 		
 		# Determine and show the export date
