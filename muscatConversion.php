@@ -3519,6 +3519,7 @@ class muscatConversion extends frontControllerApplication
 		$form->heading ('p', 'The parser uses <a target="_blank" href="http://msdn.microsoft.com/en-us/library/ms256122.aspx">XPath operators</a>, enclosed in { } brackets, used to target parts of the <a target="_blank" href="' . $this->baseUrl . '/schema.html">schema</a>.');
 		$form->heading ('p', 'Control characters may exist at the start of the line: A = All must result in a match for the line to be displayed; R = Vertically-repeatable field.');
 		$form->heading ('p', "A subfield can be set as optional by adding ?, e.g. {$this->doubleDagger}b?{//acq/ref} . Optional blocks found to be empty are removed before an A (all) control character is considered.");
+		$form->heading ('p', "A subfield can be set as horizontally-repeatable by adding R, e.g. {$this->doubleDagger}b?R{//acq/ref} . Horizontal repeatability of a subfield takes precendence over vertical repeatability.");
 		$form->heading ('p', 'Macros available, written as <tt>{xpath..|macro:<em>macroname</em>}</tt>, are: <tt>' . implode ('</tt>, <tt>', $supportedMacros) . '</tt>. (Those for use in the two indicator positions are prefixed with <tt>indicators</tt>).');
 		$form->heading ('p', 'Lines starting with # are comments.');
 		$form->textarea (array (
@@ -3693,10 +3694,12 @@ class muscatConversion extends frontControllerApplication
 			$datastructure[$lineNumber]['line'] = $matches[2];
 			
 			# Extract all XPath references, whichever line they are on
-			preg_match_all ('/({([^}]+)})/U', $line, $matches, PREG_SET_ORDER);
+			preg_match_all ('/' . "({$this->doubleDagger}[a-z0-9])?" . '\\??' . '((R?){([^}]+)})' . '/U', $line, $matches, PREG_SET_ORDER);
 			foreach ($matches as $match) {
-				$findBlock = $match[1];	// e.g. '{//somexpath}'
-				$xpath = $match[2];
+				$subfieldIndicator = $match[1];		// e.g. $a (actually a dagger not a $)
+				$findBlock = $match[2];	// e.g. '{//somexpath}'
+				$isHorizontallyRepeatable = $match[3];
+				$xpath = $match[4];
 				
 				# Firstly, register macro requirements by stripping these from the end of the XPath, e.g. {/*/isbn|macro:validisbn|macro:foobar} results in $datastructure[$lineNumber]['macros'][/*/isbn|macro] = array ('xpath' => 'validisbn', 'macrosThisXpath' => 'foobar')
 				$macrosThisXpath = array ();
@@ -3710,6 +3713,9 @@ class muscatConversion extends frontControllerApplication
 				
 				# Register the XPath
 				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['xPath'] = $xpath;
+				
+				# If the subfield is horizontally-repeatable, save the subfield indicator that should be used for imploding, resulting in e.g. $aFoo$aBar
+				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['horizontalRepeatability'] = ($isHorizontallyRepeatable ? $subfieldIndicator : false);
 			}
 		}
 		
@@ -3780,6 +3786,14 @@ class muscatConversion extends frontControllerApplication
 					$value = array ();
 					foreach ($result as $node) {
 						$value[] = (string) $node;
+					}
+					
+					# If horizontally-repeatable, compile with the subfield indicator as the implode string
+					if (count ($value) > 1) {
+						if ($xpathReplacementSpec['horizontalRepeatability']) {
+							$horizontallyRepeatedValue = implode ($xpathReplacementSpec['horizontalRepeatability'], $value);
+							$value = array ($horizontallyRepeatedValue);	// Replace structure with single value
+						}
 					}
 					
 					/*
