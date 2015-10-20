@@ -3517,7 +3517,7 @@ class muscatConversion extends frontControllerApplication
 		));
 		$form->heading ('p', "Here you can define the translation of the Muscat data's XML representation to MARC21.");
 		$form->heading ('p', 'The parser uses <a target="_blank" href="http://msdn.microsoft.com/en-us/library/ms256122.aspx">XPath operators</a>, enclosed in { } brackets, used to target parts of the <a target="_blank" href="' . $this->baseUrl . '/schema.html">schema</a>.');
-		$form->heading ('p', 'Control characters may exist at the start of the line: A = All must result in a match for the line to be displayed; R = Repeatable field.');
+		$form->heading ('p', 'Control characters may exist at the start of the line: A = All must result in a match for the line to be displayed; R = Vertically-repeatable field.');
 		$form->heading ('p', "A subfield can be set as optional by adding ?, e.g. {$this->doubleDagger}b?{//acq/ref} . Optional blocks found to be empty are removed before an A (all) control character is considered.");
 		$form->heading ('p', 'Macros available, written as <tt>{xpath..|macro:<em>macroname</em>}</tt>, are: <tt>' . implode ('</tt>, <tt>', $supportedMacros) . '</tt>. (Those for use in the two indicator positions are prefixed with <tt>indicators</tt>).');
 		$form->heading ('p', 'Lines starting with # are comments.');
@@ -3635,8 +3635,8 @@ class muscatConversion extends frontControllerApplication
 		# Perform XPath replacements
 		if (!$datastructure = $this->convertToMarc_PerformXpathReplacements ($datastructure, $xml, $authorsFields, $errorString)) {return false;}
 		
-		# Expand repeatable fields
-		if (!$datastructure = $this->convertToMarc_ExpandRepeatableFields ($datastructure, $errorString)) {return false;}
+		# Expand vertically-repeatable fields
+		if (!$datastructure = $this->convertToMarc_ExpandVerticallyRepeatableFields ($datastructure, $errorString)) {return false;}
 		
 		# Process the record
 		$record = $this->convertToMarc_ProcessRecord ($datastructure, $errorString);
@@ -3756,8 +3756,8 @@ class muscatConversion extends frontControllerApplication
 		$compileFailures = array ();
 		foreach ($datastructure as $lineNumber => $line) {
 			
-			# Determine if the line is repeatable
-			$isRepeatable = (in_array ('R', $datastructure[$lineNumber]['controlCharacters']));
+			# Determine if the line is vertically-repeatable; e.g. AH 999 $a{//k/kw} would mean R 999 $a{//k/kw[1]} $a{//k/kw[2]} $a{//k/kw[3]} ...
+			$isVerticallyRepeatable = (in_array ('R', $datastructure[$lineNumber]['controlCharacters']));
 			
 			# Work through each Xpath replacement
 			foreach ($line['xpathReplacements'] as $find => $xpath) {
@@ -3787,11 +3787,11 @@ class muscatConversion extends frontControllerApplication
 					  
 					  Below are two steps:
 					  
-					  1) Assemble the string components (unless repeatable) into a single string
+					  1) Assemble the string components (unless vertically-repeatable) into a single string
 					     e.g. {//k/kw} may end up with values 'Foo' 'Bar' 'Zog'
 						 therefore these become imploded to:
 						 FooBarZog
-						 However, if the R (Repeatable) flag is present at the very start of the line, then that will be stored as
+						 However, if the V (Vertically-repeatable) flag is present at the very start of the line, then that will be stored as
 						 array('Foo', 'Bar', 'Zog')
 						 
 					  2) Run the value through any macros that have been defined for this XPath on this line
@@ -3803,8 +3803,8 @@ class muscatConversion extends frontControllerApplication
 					  So, currently, the code does the merging first, then macro processing on each element.
 					*/
 					
-					# Assemble the string components (unless repeatable) into a single string
-					if (!$isRepeatable) {
+					# Assemble the string components (unless vertically-repeatable) into a single string
+					if (!$isVerticallyRepeatable) {
 						$value = implode ('', $value);
 					}
 					
@@ -3814,8 +3814,8 @@ class muscatConversion extends frontControllerApplication
 						# Determine the macro(s) for this Xpath
 						$macros = $datastructure[$lineNumber]['macros'][$find]['macrosThisXpath'];
 						
-						# For a repeatable field, process each value; otherwise process the compiled string
-						if ($isRepeatable) {
+						# For a vertically-repeatable field, process each value; otherwise process the compiled string
+						if ($isVerticallyRepeatable) {
 							foreach ($value as $index => $subValue) {
 								$value[$index] = $this->processMacros ($xml, $subValue, $macros, $authorsFields);
 							}
@@ -3843,25 +3843,25 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to expand repeatable fields
-	private function convertToMarc_ExpandRepeatableFields ($datastructureUnexpanded, &$errorString = '')
+	# Function to expand vertically-repeatable fields
+	private function convertToMarc_ExpandVerticallyRepeatableFields ($datastructureUnexpanded, &$errorString = '')
 	{
 		$datastructure = array ();	// Expanded version, replacing the original
 		foreach ($datastructureUnexpanded as $lineNumber => $line) {
 			
-			# If not repeatable, copy the attributes across unamended, and move on
+			# If not vertically-repeatable, copy the attributes across unamended, and move on
 			if (!in_array ('R', $line['controlCharacters'])) {
 				$datastructure[$lineNumber] = $line;
 				continue;
 			}
 			
-			# For repeatable, first check the counts are consistent (e.g. if //k/kw generated 7 items, and //a/b generated 5, throw an exception, as behaviour is undefined)
+			# For vertically-repeatable, first check the counts are consistent (e.g. if //k/kw generated 7 items, and //a/b generated 5, throw an exception, as behaviour is undefined)
 			$counts = array ();
 			foreach ($line['xpathReplacements'] as $find => $values) {
 				$counts[$find] = count ($values);
 			}
 			if (count (array_count_values ($counts)) != 1) {
-				$errorString = 'Line ' . ($lineNumber + 1) . ' is a repeatable field, but the number of generated values in the subfields are not consistent:' . application::dumpData ($counts, false, true);
+				$errorString = 'Line ' . ($lineNumber + 1) . ' is a vertically-repeatable field, but the number of generated values in the subfields are not consistent:' . application::dumpData ($counts, false, true);
 				return false;
 			}
 			
