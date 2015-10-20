@@ -4705,230 +4705,30 @@ class muscatConversion extends frontControllerApplication
 	# Macro for generating the 007 field, Physical Description Fixed Field; see: http://www.loc.gov/marc/bibliographic/bd007.html
 	private function macro_generate007 ($value, $xml)
 	{
-		# Start the string
-		$string = '';
+		# No form value
+		if (!$this->form) {return 'ta';}
 		
-		# Position 00
-		switch ($this->form) {
-			case 'Map':
-				$value00 = 'a'; break;
-			case '3.5 floppy disk':
-			case 'CD-ROM':
-			case 'DVD-ROM':
-			case 'Internet resource':
-			case 'Online publication':
-			case 'PDF':
-				$value00 = 'c'; break;
-			case 'Microfiche':
-			case 'Microfilm':
-				$value00 = 'h'; break;
-			case 'Poster':
-				$value00 = 'k'; break;
-			case 'CD':
-			case 'Sound cassette':
-			case 'Sound disc':
-				$value00 = 's'; break;
-			case 'DVD':
-			case 'Videorecording':
-				$value00 = 'v'; break;
-		}
-		if (!$this->form) {$value00 = 't';}
-		$string .= $value00;
+		# Define the values
+		$field007values = array (
+			'Map'					=> 'aj#|||||',
+			'3.5 floppy disk'		=> 'cj#|a|||||||||',
+			'CD-ROM'				=> 'co#|g|||||||||',
+			'DVD-ROM'				=> 'co#|g|||||||||',
+			'Internet resource'		=> 'cr#|n|||||||||',
+			'Online publication'	=> 'cr#|n|||||||||',
+			'PDF'					=> 'cu#|n||||a||||',
+			'Microfiche'			=> 'h|#||||||||||',
+			'Microfilm'				=> 'h|#||||||||||',
+			'Poster'				=> 'kk#|||',
+			'CD'					=> 'sd#|||gnn|||||',
+			'Sound cassette'		=> 'ss#|||||||||||',
+			'Sound disc'			=> 'sd#||||nn|||||',
+			'DVD'					=> 'vd#|v||z|',
+			'Videorecording'		=> 'vu#|u||u|',
+		);
 		
-		# Position 01
-		switch ($value00) {
-			case 't':
-				$value01 = 'a'; break;
-			case 's':
-				if ($this->form == 'CD') {$value01 = 'd'; break;}
-				if ($this->form == 'Sound disc') {$value01 = 'd'; break;}
-				if ($this->form == 'Sound cassette') {$value01 = 's'; break;}
-			case 'v':
-				if ($this->form == 'DVD') {$value01 = 'd'; break;}
-				if ($this->form == 'Videorecording') {$value01 = 'u'; break;}
-			case 'a':
-				$value01 = 'j'; break;
-			case 'c':
-				if ($this->form == '3.5 floppy disk') {$value01 = 'j'; break;}
-				if ($this->form == 'CD-ROM') {$value01 = 'o'; break;}
-				if ($this->form == 'DVD-ROM') {$value01 = 'o'; break;}
-				if ($this->form == 'Internet resource') {$value01 = 'r'; break;}
-				if ($this->form == 'Online publication') {$value01 = 'r'; break;}
-				if ($this->form == 'PDF') {$value01 = 'u'; break;}
-			case 'k':
-				$value01 = 'k'; break;
-			case 'h':
-				$value01 = '|'; break;
-		}
-		$string .= $value01;
-		
-		# Positions 02, 03
-		switch ($value00) {
-			case 't':
-				$value02 = '';	// Empty
-				$value03 = '';	// Empty
-				break;
-			case 'a':
-			case 'c':
-			case 'h':
-			case 'k':
-			case 's':
-			case 'v':
-				$value02 = '#';
-				$value03 = '|';
-				break;
-		}
-		$string .= $value02;
-		$string .= $value03;
-		
-		# Position 04
-		switch ($value00) {
-			case 't':
-				$value04 = ''; break;	// Empty
-			case 'c':
-				if ($this->form == '3.5 floppy disk') {$value04 = 'a'; break;}
-				if ($this->form == 'CD-ROM') {$value04 = 'g'; break;}
-				if ($this->form == 'DVD-ROM') {$value04 = 'g'; break;}
-				if ($this->form == 'Internet resource') {$value04 = 'n'; break;}
-				if ($this->form == 'Online publication') {$value04 = 'n'; break;}
-				if ($this->form == 'PDF') {$value04 = 'n'; break;}
-			case 'v':
-				if ($this->form == 'Videorecording') {$value04 = 'u'; break;}
-				if ($this->form == 'DVD') {$value04 = 'v'; break;}
-			case 'a':
-			case 'h':
-			case 'k':
-			case 's':
-				$value04 = '|'; break;	// Empty
-		}
-		$string .= $value04;
-		
-		# Position 05
-		switch ($value00) {
-			case 't':
-				$value05 = '';	// Empty
-				break;
-			case 'a':
-			case 'c':
-			case 'h':
-			case 'k':
-			case 's':
-			case 'v':
-				$value05 = '|';
-				break;
-		}
-		$string .= $value05;
-		
-		# Position 06
-		switch ($value00) {
-			case 'k':
-			case 't':
-				$value06 = ''; break;	// Empty
-			case 's':
-				if ($this->form == 'CD') {$value06 = 'g'; break;}
-				if ($this->form != 'CD') {$value06 = '|'; break;}
-			case 'a':
-			case 'c':
-			case 'h':
-			case 'v':
-				$value06 = '|'; break;
-		}
-		$string .= $value06;
-		
-		# Position 07
-		switch ($value00) {
-			case 'k':
-			case 't':
-				$value07 = ''; break;	// Empty
-			case 's':
-				if ($this->form == 'CD') {$value07 = 'n'; break;}
-				if ($this->form == 'Sound disc') {$value07 = 'n'; break;}
-				if ($this->form == 'Sound cassette') {$value07 = '|'; break;}
-			case 'v':
-				if ($this->form == 'Videorecording') {$value07 = 'u'; break;}
-				if ($this->form == 'DVD') {$value07 = 'z'; break;}
-			case 'a':
-			case 'c':
-			case 'h':
-				$value07 = '|'; break;
-		}
-		$string .= $value07;
-		
-		# Position 08
-		switch ($value00) {
-			case 'a':
-			case 'k':
-			case 't':
-				$value08 = ''; break;	// Empty
-			case 's':
-				if ($this->form == 'CD') {$value08 = 'n'; break;}
-				if ($this->form == 'Sound disc') {$value08 = 'n'; break;}
-				if ($this->form == 'Sound cassette') {$value08 = '|'; break;}
-			case 'c':
-			case 'v':
-			case 'h':
-				$value08 = '|'; break;
-		}
-		$string .= $value08;
-		
-		# Position 09
-		switch ($value00) {
-			case 'a':
-			case 'k':
-			case 't':
-			case 'v':
-				$value09 = ''; break;	// Empty
-			case 'c':
-				if ($this->form == 'PDF') {$value09 = 'a'; break;}
-				if ($this->form != 'PDF') {$value09 = '|'; break;}
-			case 'h':
-			case 's':
-				$value09 = '|'; break;
-		}
-		$string .= $value09;
-		
-		# Positions 10, 11, 12
-		switch ($value00) {
-			case 'a':
-			case 'k':
-			case 't':
-			case 'v':
-				$value10 = '';	// Empty
-				$value11 = '';	// Empty
-				$value12 = '';	// Empty
-				break;
-			case 'c':
-			case 'h':
-			case 's':
-				$value10 = '|';
-				$value11 = '|';
-				$value12 = '|';
-				break;
-		}
-		$string .= $value10;
-		$string .= $value11;
-		$string .= $value12;
-		
-		# Position 13
-		switch ($value00) {
-			case 'a':
-			case 'h':
-			case 'k':
-			case 't':
-			case 'v':
-				$value13 = ''; break;	// Empty
-			case 'c':
-			case 's':
-				$value13 = '|'; break;
-		}
-		$string .= $value13;
-		
-		# Positions 14-22: blank
-		$values14_22 = '';
-		$string .= $values14_22;
-		
-		# Return the string
-		return $string;
+		# Look up the value and return it
+		return $field007values[$this->form];
 	}
 	
 	
