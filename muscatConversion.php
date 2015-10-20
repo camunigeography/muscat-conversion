@@ -3908,11 +3908,11 @@ class muscatConversion extends frontControllerApplication
 					# Determine if the item is an optional block, which has the effect of overriding an 'A' (all) control character, and wipes out the block
 					$optionalBlock = false;
 					$delimiter = '/';
-					$completeBlockMatch = $delimiter . "(({$this->doubleDagger}[a-z])\?(" . preg_quote ($find, $delimiter) . ")(\s*))({$this->doubleDagger}|$)" . $delimiter . 'u';
+					$completeBlockMatch = $delimiter . "(({$this->doubleDagger}[a-z0-9])\?(" . preg_quote ($find, $delimiter) . ")(\s*))({$this->doubleDagger}|$)" . $delimiter . 'u';
 					if (preg_match ($completeBlockMatch, $line, $matches)) {
 						$optionalBlock = true;
 						
-						# If there is a value, remove the ? modifer; if there is no value, wipe out the optional block from the line entirely
+						# If there is a value, remove the ? modifier; if there is no value, wipe out the optional block from the line entirely
 						//application::dumpData ($matches);
 						if (strlen ($replace)) {
 							$line = preg_replace ($completeBlockMatch, '\2\3\4\5', $line);	// i.e. "?b?{//acq/ref} ?c..." becomes "?b{//acq/ref} ?c..."
