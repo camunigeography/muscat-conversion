@@ -160,8 +160,7 @@ class muscatConversion extends frontControllerApplication
 	);
 	
 	# Caches
-	private $generate008LookupTablesCache = array ();
-	
+	private $lookupTablesCache = array ();
 	
 	# Function to assign defaults additional to the general application defaults
 	public function defaults ()
@@ -4751,12 +4750,9 @@ class muscatConversion extends frontControllerApplication
 	# Macro for generating the 008 field
 	private function macro_generate008 ($value, $xml)
 	{
-		# Obtain required resources
-		$diacriticsTable = $this->diacriticsTable ();
-		
 		# Subclass, due to the complexity of this field
 		require_once ('generate008.php');
-		$generate008 = new generate008 ($this, $xml, $diacriticsTable, $this->generate008LookupTablesCache);
+		$generate008 = new generate008 ($this, $xml);
 		if (!$value = $generate008->main ($error)) {
 			$recordId = $this->xPathValue ($xml, '//q0');
 			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';
@@ -4796,6 +4792,124 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Return the value
 		return $authorsFields[700];
+	}
+	
+	
+	# Generalised lookup table function
+	public function lookupValue ($table, $fallbackKey, $caseSensitiveComparison = true, $stripBrackets = false, $value, $field)
+	{
+		# Load the lookup table
+		$lookupTable = $this->loadLookupTable ($table, $fallbackKey, $caseSensitiveComparison, $stripBrackets);
+		
+		# If required, strip surrounding square/round brackets if present, e.g. "[Frankfurt]" => "Frankfurt" or "(Frankfurt)" => "Frankfurt"
+		$valueOriginal = $value;	// Cache
+		if ($stripBrackets) {
+			if (preg_match ('/^[\[|\(](.+)[\]|\)]$/', $value, $matches)) {
+				$value = $matches[1];
+			}
+		}
+		
+		# If doing case-insensitive comparison, convert the supplied value to lower case
+		if (!$caseSensitiveComparison) {
+			$value = mb_strtolower ($value);
+		}
+		
+		# Ensure the string is present
+		if (!isSet ($lookupTable[$value])) {
+			echo "<p class=\"warning\">In the {$table} table, the value '<em>{$valueOriginal}</em>' is not present in the table.</p>";
+			return NULL;
+		}
+		
+		# Compile the result
+		$result = $lookupTable[$value][$field];
+		
+		# Trim, in case of line-ends
+		$result = trim ($result);
+		
+		# Return the result
+		return $result;
+	}
+	
+	
+	# Function to load and process a lookup table
+	private function loadLookupTable ($table, $fallbackKey, $caseSensitiveComparison, $stripBrackets)
+	{
+		# Lookup from cache if present
+		if (isSet ($this->lookupTablesCache[$table])) {
+			return $this->lookupTablesCache[$table];
+		}
+		
+		# Get the data table
+		$lookupTable = file_get_contents ($this->applicationRoot . '/tables/' . $table . '.tsv');
+		
+		# Convert to TSV
+		$lookupTable = trim ($lookupTable);
+		require_once ('csv.php');
+		$lookupTableRaw = csv::tsvToArray ($lookupTable, $firstColumnIsId = true);
+		
+		# Define the fallback value in case that is needed
+		if (!isSet ($lookupTableRaw[''])) {
+			$lookupTableRaw['']		= $lookupTableRaw[$fallbackKey];
+		}
+		$lookupTableRaw[false]	= $lookupTableRaw[$fallbackKey];	// Boolean false also needs to be defined because no-match value from an xPathValue() lookup will be false
+		
+		# Obtain required resources
+		$diacriticsTable = $this->diacriticsTable ();
+		
+		# Perform conversions on the key names
+		$lookupTable = array ();
+		foreach ($lookupTableRaw as $key => $values) {
+			
+			# Convert diacritics
+			$key = strtr ($key, $diacriticsTable);
+			
+			# Strip surrounding square/round brackets if present, e.g. "[Frankfurt]" => "Frankfurt" or "(Frankfurt)" => "Frankfurt"
+			if ($stripBrackets) {
+				if (preg_match ('/^[\[|\(](.+)[\]|\)]$/', $key, $matches)) {
+					$key = $matches[1];
+				}
+				
+				/*
+				# Sanity-checking test while developing
+				if (isSet ($lookupTable[$key])) {
+					if ($values !== $lookupTable[$key]) {
+						echo "<p class=\"warning\">In the {$table} definition, <em>{$key}</em> for field <em>{$field}</em> has inconsistent value when comapring the bracketed and non-bracketed versions.</p>";
+						return NULL;
+					}
+				}
+				*/
+			}
+			
+			# Register the converted value
+			$lookupTable[$key] = $values;
+		}
+		
+		# If doing case-insensitive comparison, convert values to lower case
+		if (!$caseSensitiveComparison) {
+			$lookupTableLowercaseKeys = array ();
+			foreach ($lookupTable as $key => $values) {
+				$key = mb_strtolower ($key);
+				$lookupTableLowercaseKeys[$key] = $values;
+			}
+			$lookupTable = $lookupTableLowercaseKeys;
+		}
+		
+		/*
+		# Sanity-checking test while developing
+		$expectedLength = 1;	// Manually needs to be changed to 3 for languageCodes -> Marc Code
+		foreach ($lookupTable as $entry => $values) {
+			if (strlen ($values[$field]) != $expectedLength) {
+				echo "<p class=\"warning\">In the {$table} definition, <em>{$entry}</em> for field <em>{$field}</em> has invalid syntax.</p>";
+				return NULL;
+			}
+		}
+		*/
+		
+		# Register to cache; this assumes that parameters will be consistent
+		$this->lookupTablesCache[$table] = $lookupTable;
+		
+		# Return the table
+		return $lookupTable;
 	}
 	
 	
