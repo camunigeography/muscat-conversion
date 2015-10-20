@@ -3517,7 +3517,7 @@ class muscatConversion extends frontControllerApplication
 		));
 		$form->heading ('p', "Here you can define the translation of the Muscat data's XML representation to MARC21.");
 		$form->heading ('p', 'The parser uses <a target="_blank" href="http://msdn.microsoft.com/en-us/library/ms256122.aspx">XPath operators</a>, enclosed in { } brackets, used to target parts of the <a target="_blank" href="' . $this->baseUrl . '/schema.html">schema</a>.');
-		$form->heading ('p', 'Control characters may exist at the start of the line: A = All must result in a match for the line to be displayed; V = Vertically-repeatable field.');
+		$form->heading ('p', 'Control characters may exist at the start of the line: A = All must result in a match for the line to be displayed; R = Vertically-repeatable field.');
 		$form->heading ('p', "A subfield can be set as optional by adding ?, e.g. {$this->doubleDagger}b?{//acq/ref} . Optional blocks found to be empty are removed before an A (all) control character is considered.");
 		$form->heading ('p', 'Macros available, written as <tt>{xpath..|macro:<em>macroname</em>}</tt>, are: <tt>' . implode ('</tt>, <tt>', $supportedMacros) . '</tt>. (Those for use in the two indicator positions are prefixed with <tt>indicators</tt>).');
 		$form->heading ('p', 'Lines starting with # are comments.');
@@ -3757,7 +3757,7 @@ class muscatConversion extends frontControllerApplication
 		foreach ($datastructure as $lineNumber => $line) {
 			
 			# Determine if the line is vertically-repeatable
-			$isVerticallyRepeatable = (in_array ('V', $datastructure[$lineNumber]['controlCharacters']));
+			$isVerticallyRepeatable = (in_array ('R', $datastructure[$lineNumber]['controlCharacters']));
 			
 			# Work through each Xpath replacement
 			foreach ($line['xpathReplacements'] as $find => $xpath) {
@@ -3850,7 +3850,7 @@ class muscatConversion extends frontControllerApplication
 		foreach ($datastructureUnexpanded as $lineNumber => $line) {
 			
 			# If not vertically-repeatable, copy the attributes across unamended, and move on
-			if (!in_array ('V', $line['controlCharacters'])) {
+			if (!in_array ('R', $line['controlCharacters'])) {
 				$datastructure[$lineNumber] = $line;
 				continue;
 			}
