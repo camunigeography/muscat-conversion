@@ -3749,6 +3749,9 @@ class muscatConversion extends frontControllerApplication
 	# Function to perform Xpath replacements
 	private function convertToMarc_PerformXpathReplacements ($datastructure, $xml, $authorsFields, &$errorString = '')
 	{
+		# Lookup XPath values from the record which are needed multiple times, for efficiency
+		$this->form = $this->xPathValue ($xml, '(//form)[1]', false);
+		
 		# Perform XPath replacements
 		$compileFailures = array ();
 		foreach ($datastructure as $lineNumber => $line) {
@@ -4591,8 +4594,7 @@ class muscatConversion extends frontControllerApplication
 		$string .= 'n';		// Indicates record is newly-input
 		
 		# Position 06: One-character alphabetic code used to define the characteristics and components of the record.
-		$form = $this->xPathValue ($xml, '(//form)[1]', false);
-		switch ($form) {
+		switch ($this->form) {
 			case 'Internet resource':
 			case 'Microfiche':
 			case 'Microfilm':
@@ -4615,7 +4617,7 @@ class muscatConversion extends frontControllerApplication
 			case 'DVD-ROM':
 				$value06 = 'm'; break;
 		}
-		if (!$form) {$value06 = 'a';}
+		if (!$this->form) {$value06 = 'a';}
 		$string .= $value06;
 		
 		# Position 07: Bibliographic level
