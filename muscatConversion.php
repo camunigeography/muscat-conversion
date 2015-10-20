@@ -3709,7 +3709,7 @@ class muscatConversion extends frontControllerApplication
 				}
 				
 				# Register the XPath
-				$datastructure[$lineNumber]['xpathReplacements'][$findBlock] = $xpath;
+				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['xPath'] = $xpath;
 			}
 		}
 		
@@ -3761,9 +3761,10 @@ class muscatConversion extends frontControllerApplication
 			$isVerticallyRepeatable = (in_array ('R', $datastructure[$lineNumber]['controlCharacters']));
 			
 			# Work through each Xpath replacement
-			foreach ($line['xpathReplacements'] as $find => $xpath) {
+			foreach ($line['xpathReplacements'] as $find => $xpathReplacementSpec) {
 				
 				# Attempt to parse
+				$xpath = $xpathReplacementSpec['xPath'];	// Extract from structure
 				$result = @$xml->xpath ('/root' . $xpath);
 				
 				# Check for compile failures
