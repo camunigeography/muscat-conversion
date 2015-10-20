@@ -232,6 +232,9 @@ class generate008
 					if (!substr_count ($p, ' min')) {
 						return str_repeat ('|', 3);
 					}
+					if ($p == '[? mins]') {
+						return str_repeat ('|', 3);
+					}
 					if (!preg_match ('/([0-9]+) min/', $p, $matches)) {return NULL;}
 					$minutes = $matches[1];
 					if ($minutes > 999) {
