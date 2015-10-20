@@ -3693,9 +3693,10 @@ class muscatConversion extends frontControllerApplication
 			$datastructure[$lineNumber]['line'] = $matches[2];
 			
 			# Extract all XPath references, whichever line they are on
-			preg_match_all ("|{([^}]+)}|U", $line, $matches, PREG_SET_ORDER);
+			preg_match_all ('/({([^}]+)})/U', $line, $matches, PREG_SET_ORDER);
 			foreach ($matches as $match) {
-				$xpath = $match[1];
+				$findBlock = $match[1];	// e.g. '{//somexpath}'
+				$xpath = $match[2];
 				
 				# Firstly, register macro requirements by stripping these from the end of the XPath, e.g. {/*/isbn|macro:validisbn|macro:foobar} results in $datastructure[$lineNumber]['macros'][/*/isbn|macro] = array ('xpath' => 'validisbn', 'macrosThisXpath' => 'foobar')
 				$macrosThisXpath = array ();
@@ -3704,11 +3705,11 @@ class muscatConversion extends frontControllerApplication
 					$xpath = $macroMatches[1];
 				}
 				if ($macrosThisXpath) {
-					$datastructure[$lineNumber]['macros'][$match[0]] = array ('xpath' => $xpath, 'macrosThisXpath' => $macrosThisXpath);	// Note that using [xpath]=>macrosThisXpath is not sufficient as lines can use the same xXath more than once
+					$datastructure[$lineNumber]['macros'][$findBlock] = array ('xpath' => $xpath, 'macrosThisXpath' => $macrosThisXpath);	// Note that using [xpath]=>macrosThisXpath is not sufficient as lines can use the same xXath more than once
 				}
 				
-				# Register the XPaths
-				$datastructure[$lineNumber]['xpathReplacements'][$match[0]] = $xpath;
+				# Register the XPath
+				$datastructure[$lineNumber]['xpathReplacements'][$findBlock] = $xpath;
 			}
 		}
 		
