@@ -3707,7 +3707,7 @@ class muscatConversion extends frontControllerApplication
 					$xpath = $macroMatches[1];
 				}
 				if ($macrosThisXpath) {
-					$datastructure[$lineNumber]['macros'][$findBlock] = array ('xpath' => $xpath, 'macrosThisXpath' => $macrosThisXpath);	// Note that using [xpath]=>macrosThisXpath is not sufficient as lines can use the same xXath more than once
+					$datastructure[$lineNumber]['macros'][$findBlock]['macrosThisXpath'] = $macrosThisXpath;	// Note that using [xpath]=>macrosThisXpath is not sufficient as lines can use the same xPath more than once
 				}
 				
 				# Register the XPath
