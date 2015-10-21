@@ -3770,7 +3770,7 @@ class muscatConversion extends frontControllerApplication
 			# Determine if the line is vertically-repeatable
 			$isVerticallyRepeatable = (in_array ('R', $datastructure[$lineNumber]['controlCharacters']));
 			
-			# Work through each Xpath replacement
+			# Work through each XPath replacement
 			foreach ($line['xpathReplacements'] as $find => $xpathReplacementSpec) {
 				
 				# Attempt to parse
@@ -3845,9 +3845,9 @@ class muscatConversion extends frontControllerApplication
 					}
 					
 					# Register the processed value
-					$datastructure[$lineNumber]['xpathReplacements'][$find] = $value;	// $value is usually a string, but an array if repeatable
+					$datastructure[$lineNumber]['xpathReplacements'][$find]['replacement'] = $value;	// $value is usually a string, but an array if repeatable
 				} else {
-					$datastructure[$lineNumber]['xpathReplacements'][$find] = '';
+					$datastructure[$lineNumber]['xpathReplacements'][$find]['replacement'] = '';
 				}
 			}
 		}
@@ -3877,8 +3877,9 @@ class muscatConversion extends frontControllerApplication
 			
 			# For vertically-repeatable, first check the counts are consistent (e.g. if //k/kw generated 7 items, and //a/b generated 5, throw an exception, as behaviour is undefined)
 			$counts = array ();
-			foreach ($line['xpathReplacements'] as $find => $values) {
-				$counts[$find] = count ($values);
+			foreach ($line['xpathReplacements'] as $find => $xpathReplacementSpec) {
+				$replacementValues = $xpathReplacementSpec['replacement'];
+				$counts[$find] = count ($replacementValues);
 			}
 			if (count (array_count_values ($counts)) != 1) {
 				$errorString = 'Line ' . ($lineNumber + 1) . ' is a vertically-repeatable field, but the number of generated values in the subfields are not consistent:' . application::dumpData ($counts, false, true);
@@ -3886,14 +3887,15 @@ class muscatConversion extends frontControllerApplication
 			}
 			
 			# If there are no values on this line, then no expansion is needed, so copy the attributes across unamended, and move on
-			if (!$values) {	// Reuse the last $values - it will be confirmed as being the same as all subfields will have
+			if (!$replacementValues) {	// Reuse the last replacementValues - it will be confirmed as being the same as all subfields will have
 				$datastructure[$lineNumber] = $line;
 				continue;
 			}
 			
 			# Split each original line then discard the original
-			foreach ($line['xpathReplacements'] as $find => $values) {
-				foreach ($values as $index => $value) {
+			foreach ($line['xpathReplacements'] as $find => $xpathReplacementSpec) {
+				$replacementValues = $xpathReplacementSpec['replacement'];
+				foreach ($replacementValues as $index => $value) {
 					
 					# Assign the new key (original key, plus the subvalue index)
 					$newLineNumber = "{$lineNumber}_{$index}";
@@ -3902,7 +3904,7 @@ class muscatConversion extends frontControllerApplication
 					$datastructure[$newLineNumber] = $line;
 					
 					# Overwrite the subfield value, so it contains only this subfield value, not the whole array of values
-					$datastructure[$newLineNumber]['xpathReplacements'][$find] = $value;
+					$datastructure[$newLineNumber]['xpathReplacements'][$find]['replacement'] = $value;
 				}
 			}
 		}
@@ -3922,7 +3924,9 @@ class muscatConversion extends frontControllerApplication
 			
 			# Perform XPath replacements if any, working through each replacement
 			if ($datastructure[$lineNumber]['xpathReplacements']) {
-				foreach ($datastructure[$lineNumber]['xpathReplacements'] as $find => $replace) {
+				$replacements = array ();
+				foreach ($datastructure[$lineNumber]['xpathReplacements'] as $find => $xpathReplacementSpec) {
+					$replacementValue = $xpathReplacementSpec['replacement'];
 					
 					# Determine if the item is an optional block, which has the effect of overriding an 'A' (all) control character, and wipes out the block
 					$optionalBlock = false;
@@ -3933,7 +3937,7 @@ class muscatConversion extends frontControllerApplication
 						
 						# If there is a value, remove the ? modifier; if there is no value, wipe out the optional block from the line entirely
 						//application::dumpData ($matches);
-						if (strlen ($replace)) {
+						if (strlen ($replacementValue)) {
 							$line = preg_replace ($completeBlockMatch, '\2\3\4\5', $line);	// i.e. "?b?{//acq/ref} ?c..." becomes "?b{//acq/ref} ?c..."
 						} else {
 							$line = preg_replace ($completeBlockMatch, '\5', $line);		// i.e. "?b?{//acq/ref} ?c..." becomes "?c..."
@@ -3944,13 +3948,16 @@ class muscatConversion extends frontControllerApplication
 					#!# Currently this takes no account of the use of a macro in the nonfiling-character section (e.g. 02), i.e. those macros prefixed with indicators; however in practice that should always return a string
 					if (in_array ('A', $datastructure[$lineNumber]['controlCharacters'])) {
 						if (!$optionalBlock) {
-							if (!strlen ($replace)) {continue 2;}
+							if (!strlen ($replacementValue)) {continue 2;}
 						}
 					}
+					
+					# Register the replacement
+					$replacements[$find] = $replacementValue;
 				}
 				
 				# Perform string translation on each line
-				$line = strtr ($line, $datastructure[$lineNumber]['xpathReplacements']);
+				$line = strtr ($line, $replacements);
 			}
 			
 			# Register the value
