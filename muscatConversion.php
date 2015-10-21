@@ -4259,6 +4259,17 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro to implode subvalues
+	private function macro_implode ($value, $xml, $parameter)
+	{
+		# Return empty string if no values
+		if (!$value) {return '';}
+		
+		# Implode
+		return implode ($parameter, $value);
+	}
+	
+	
 	# Macro for constructing an author name; see also http://www.loc.gov/marc/bibliographic/bd100.html
 	# NB for future: Spreadsheet is being updated such that this macro will also take into account *ad, as well as other more detailed logic
 	#!# Revert to private when generateAuthors no longer using this function
