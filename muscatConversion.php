@@ -4251,6 +4251,14 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro to get multiple values as an array
+	private function macro_multipleValues ($value_ignored, $xml, $parameter)
+	{
+		$parameter .= '[%i]';
+		return $values = $this->xPathValues ($xml, $parameter);
+	}
+	
+	
 	# Macro for constructing an author name; see also http://www.loc.gov/marc/bibliographic/bd100.html
 	# NB for future: Spreadsheet is being updated such that this macro will also take into account *ad, as well as other more detailed logic
 	#!# Revert to private when generateAuthors no longer using this function
