@@ -4189,6 +4189,17 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro to prepend a string if there is a value
+	private function macro_prepend ($value, $xml, $text)
+	{
+		# Return unmodified if no value
+		if (!$value) {return $value;}
+		
+		# Prepend the text
+		return $text . $value;
+	}
+	
+	
 	# Splitting of strings with colons in
 	private function macro_colonSplit ($value, $xml, $splitMarker)
 	{
