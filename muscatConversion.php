@@ -3521,6 +3521,7 @@ class muscatConversion extends frontControllerApplication
 		$form->heading ('p', "A subfield can be set as horizontally-repeatable by adding R, e.g. {$this->doubleDagger}b?R{//acq/ref} . Horizontal repeatability of a subfield takes precendence over vertical repeatability.");
 		$form->heading ('p', 'Macros available, written as <tt>{xpath..|macro:<em>macroname</em>}</tt>, are: <tt>' . implode ('</tt>, <tt>', $supportedMacros) . '</tt>. (Those for use in the two indicator positions are prefixed with <tt>indicators</tt>).');
 		$form->heading ('p', 'Lines starting with # are comments.');
+		$form->heading ('p', 'Macro blocks preceeded with i indicates that this is an indicator block macro.');
 		$form->textarea (array (
 			'name'		=> 'definition',
 			'title'		=> 'Parser definition',
@@ -3693,12 +3694,13 @@ class muscatConversion extends frontControllerApplication
 			$datastructure[$lineNumber]['line'] = $matches[2];
 			
 			# Extract all XPath references, whichever line they are on
-			preg_match_all ('/' . "({$this->doubleDagger}[a-z0-9])?" . '\\??' . '((R?){([^}]+)})' . '/U', $line, $matches, PREG_SET_ORDER);
+			preg_match_all ('/' . "({$this->doubleDagger}[a-z0-9])?" . '\\??' . '((R?)(i?){([^}]+)})' . '/U', $line, $matches, PREG_SET_ORDER);
 			foreach ($matches as $match) {
 				$subfieldIndicator = $match[1];		// e.g. $a (actually a dagger not a $)
 				$findBlock = $match[2];	// e.g. '{//somexpath}'
-				$isHorizontallyRepeatable = $match[3];
-				$xpath = $match[4];
+				$isHorizontallyRepeatable = $match[3];	// The 'R' flag
+				$isIndicatorBlockMacro = $match[4];	// The 'i' flag
+				$xpath = $match[5];
 				
 				# Firstly, register macro requirements by stripping these from the end of the XPath, e.g. {/*/isbn|macro:validisbn|macro:foobar} results in $datastructure[$lineNumber]['macros'][/*/isbn|macro] = array ('xpath' => 'validisbn', 'macrosThisXpath' => 'foobar')
 				$macrosThisXpath = array ();
@@ -3709,6 +3711,9 @@ class muscatConversion extends frontControllerApplication
 				if ($macrosThisXpath) {
 					$datastructure[$lineNumber]['macros'][$findBlock]['macrosThisXpath'] = $macrosThisXpath;	// Note that using [xpath]=>macrosThisXpath is not sufficient as lines can use the same xPath more than once
 				}
+				
+				# Register whether this xPath replacement is in the indicator block
+				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['isIndicatorBlockMacro'] = (bool) $isIndicatorBlockMacro;
 				
 				# Register the XPath
 				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['xPath'] = $xpath;
