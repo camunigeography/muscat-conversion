@@ -4463,21 +4463,6 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	
-	# Macro for 508 fields (note relating to the additional author specification), which uses ad; see: http://www.loc.gov/marc/bibliographic/bd508.html
-	private function macro_generate508 ($value)
-	{
-		# Return false if not in the 'and X others' format
-		if (!preg_match ('/^and ([1-9][0-9]*) others$/', $value, $matches)) {return false;}
-		
-		# Assemble the text
-		$value = 'Statement of responsibility includes: ' . $matches[1] . ' others';
-		
-		# Return the value
-		return $value;
-	}
-	
-	
 	# Macro to generate the stop word count; this does not actually modify the string itself - just returns a number
 	private function macro_indicatorsStopWordsCount ($value, $xml)
 	{
