@@ -3680,8 +3680,8 @@ class muscatConversion extends frontControllerApplication
 			
 			# Initialise arrays to ensure attributes for each line are present
 			$datastructure[$lineNumber]['controlCharacters'] = array ();
-			$datastructure[$lineNumber]['xpathReplacements'] = array ();
 			$datastructure[$lineNumber]['macros'] = array ();
+			$datastructure[$lineNumber]['xpathReplacements'] = array ();
 			
 			# Validate and extract the syntax
 			if (!preg_match ('/^([A-Z]*)\s+([0-9|LDR]{3} .{3}.+)$/', $line, $matches)) {
@@ -3898,11 +3898,10 @@ class muscatConversion extends frontControllerApplication
 					# Assign the new key (original key, plus the subvalue index)
 					$newLineNumber = "{$lineNumber}_{$index}";
 					
-					# Clone the line to a new line, and do the same for control characters
-					$datastructure[$newLineNumber]['line'] = $line['line'];
-					$datastructure[$newLineNumber]['controlCharacters'] = $line['controlCharacters'];
+					# Clone the line, as-is
+					$datastructure[$newLineNumber] = $line;
 					
-					# Move each subfield value so that it is indexed by line
+					# Overwrite the subfield value, so it contains only this subfield value, not the whole array of values
 					$datastructure[$newLineNumber]['xpathReplacements'][$find] = $value;
 				}
 			}
