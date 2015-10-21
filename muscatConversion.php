@@ -4200,6 +4200,20 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro to implement a ternary check
+	private function macro_ifElse ($value_ignored /* If empty, the macro will not even be called, so the value has to be passed in by parameter */, $xml, $parameters)
+	{
+		# Parse the parameters
+		list ($xPath, $ifValue, $elseValue) = explode (',', $parameters, 3);
+		
+		# Determine the value
+		$value = $this->xPathValue ($xml, $xPath);
+		
+		# Return the result
+		return ($value ? $ifValue : $elseValue);
+	}
+	
+	
 	# Splitting of strings with colons in
 	private function macro_colonSplit ($value, $xml, $splitMarker)
 	{
