@@ -3084,38 +3084,51 @@ class muscatConversion extends frontControllerApplication
 		$query = 'SET SESSION max_allowed_packet = ' . $maxQueryLength . ';';
 		$this->databaseConnection->execute ($query);
 		
-		# Process the records in chunks
-		$chunksOf = 500;	// Change max_allowed_packet above if necessary
-		while (true) {	// Until the break
+		# Process records in the given order, so that processing of field 773 will have access to *doc/*ser processed records up-front
+		$recordProcessingOrder = array ('/doc', '/ser', '/art/in', '/art/j');
+		foreach ($recordProcessingOrder as $recordType) {
 			
-			# Get the next chunk of record IDs to update, until all are done
-			$query = "SELECT id FROM catalogue_marc WHERE marc IS NULL AND id >= 1000 LIMIT {$chunksOf};";
-			if (!$ids = $this->databaseConnection->getPairs ($query)) {break;}
-			
-			# Get the records for this chunk
-			$records = $this->getRecords ($ids, 'xml');
-			
-			# Arrange as a set of inserts
-			$inserts = array ();
-			foreach ($records as $id => $record) {
-				$marc = $this->convertToMarc ($marcParserDefinition, $record['xml'], $errorString);
-				if ($errorString) {
-					$html  = "<p class=\"warning\">Record <a href=\"{$this->baseUrl}/records/{$id}/\">{$id}</a> could not be converted to MARC:</p>";
-					$html .= "\n<p><img src=\"/images/icons/exclamation.png\" class=\"icon\" /> {$errorString}</p>";
-					echo $html;
+			# Process the records in chunks
+			$chunksOf = 500;	// Change max_allowed_packet above if necessary
+			while (true) {	// Until the break
+				
+				# Get the next chunk of record IDs to update for this type, until all are done
+				$query = "SELECT
+					id
+				FROM catalogue_marc
+				WHERE
+					    type = '{$recordType}'
+					AND marc IS NULL
+					AND id >= 1000
+				LIMIT {$chunksOf}
+				;";
+				if (!$ids = $this->databaseConnection->getPairs ($query)) {break;}	// Break the while (true) loop and move to next record type
+				
+				# Get the records for this chunk
+				$records = $this->getRecords ($ids, 'xml');
+				
+				# Arrange as a set of inserts
+				$inserts = array ();
+				foreach ($records as $id => $record) {
+					$marc = $this->convertToMarc ($marcParserDefinition, $record['xml'], $errorString);
+					if ($errorString) {
+						$html  = "<p class=\"warning\">Record <a href=\"{$this->baseUrl}/records/{$id}/\">{$id}</a> could not be converted to MARC:</p>";
+						$html .= "\n<p><img src=\"/images/icons/exclamation.png\" class=\"icon\" /> {$errorString}</p>";
+						echo $html;
+						return false;
+					}
+					$inserts[$id] = array (
+						'id' => $id,
+						'marc' => $marc,
+					);
+				}
+				
+				# Insert the records; ON DUPLICATE KEY UPDATE is a dirty but useful method of getting a multiple update at once (as this doesn't require a WHERE clause, which can't be used as there is more than one record to be inserted)
+				if (!$this->databaseConnection->insertMany ($this->settings['database'], 'catalogue_marc', $inserts, false, $onDuplicateKeyUpdate = true)) {
+					echo "<p class=\"warning\">Error generating MARC, stopping at batched ({$id}):</p>";
+					echo application::dumpData ($this->databaseConnection->error (), false, true);
 					return false;
 				}
-				$inserts[$id] = array (
-					'id' => $id,
-					'marc' => $marc,
-				);
-			}
-			
-			# Insert the records; ON DUPLICATE KEY UPDATE is a dirty but useful method of getting a multiple update at once (as this doesn't require a WHERE clause, which can't be used as there is more than one record to be inserted)
-			if (!$this->databaseConnection->insertMany ($this->settings['database'], 'catalogue_marc', $inserts, false, $onDuplicateKeyUpdate = true)) {
-				echo "<p class=\"warning\">Error generating MARC, stopping at batched ({$id}):</p>";
-				echo application::dumpData ($this->databaseConnection->error (), false, true);
-				return false;
 			}
 		}
 		
