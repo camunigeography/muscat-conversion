@@ -3516,12 +3516,12 @@ class muscatConversion extends frontControllerApplication
 		));
 		$form->heading ('p', "Here you can define the translation of the Muscat data's XML representation to MARC21.");
 		$form->heading ('p', 'The parser uses <a target="_blank" href="http://msdn.microsoft.com/en-us/library/ms256122.aspx">XPath operators</a>, enclosed in { } brackets, used to target parts of the <a target="_blank" href="' . $this->baseUrl . '/schema.html">schema</a>.');
-		$form->heading ('p', 'Control characters may exist at the start of the line:<br />A = All must result in a match for the line to be displayed (ignoring indicator block macros);<br />R = Vertically-repeatable field.');
+		$form->heading ('p', 'Control characters may exist at the start of the line:<br />A = All (non-optional) must result in a match for the line to be displayed (ignoring indicator block macros);<br />E = Any (<em>E</em>ither) of the values must result in a match for the line to be displayed (ignoring indicator block macros);<br />R = Vertically-repeatable field.');
 		$form->heading ('p', "A subfield can be set as optional by adding ?, e.g. {$this->doubleDagger}b?{//acq/ref} . Optional blocks found to be empty are removed before an A (all) control character is considered.");
 		$form->heading ('p', "A subfield can be set as horizontally-repeatable by adding R, e.g. {$this->doubleDagger}b?R{//acq/ref} . Horizontal repeatability of a subfield takes precendence over vertical repeatability.");
 		$form->heading ('p', 'Macros available, written as <tt>{xpath..|macro:<em>macroname</em>}</tt>, are: <tt>' . implode ('</tt>, <tt>', $supportedMacros) . '</tt>. (Those for use in the two indicator positions are prefixed with <tt>indicators</tt>).');
 		$form->heading ('p', 'Lines starting with # are comments.');
-		$form->heading ('p', 'Macro blocks preceeded with i indicates that this is an indicator block macro; these are for use with control character A, as detailed above.');
+		$form->heading ('p', 'Macro blocks preceeded with i indicates that this is an indicator block macro; these are for use with control character(s) A/E, as detailed above.');
 		$form->textarea (array (
 			'name'		=> 'definition',
 			'title'		=> 'Parser definition',
@@ -3925,6 +3925,7 @@ class muscatConversion extends frontControllerApplication
 			# Perform XPath replacements if any, working through each replacement
 			if ($datastructure[$lineNumber]['xpathReplacements']) {
 				$replacements = array ();
+				$hasContent = false;
 				foreach ($datastructure[$lineNumber]['xpathReplacements'] as $find => $xpathReplacementSpec) {
 					$replacementValue = $xpathReplacementSpec['replacement'];
 					
@@ -3947,17 +3948,31 @@ class muscatConversion extends frontControllerApplication
 					# Perform control character checks if the macro is a normal (general value-creation) macro, not an indicator block macro
 					if (!$xpathReplacementSpec['isIndicatorBlockMacro']) {
 						
-						# If there is an 'A' (all) control character, require all placeholders to have resulted in text
+						# If this content macro has resulted in a value, set the flag
+						if (strlen ($replacementValue)) {
+							$hasContent = true;
+						}
+						
+						# If there is an 'A' (all) control character, require all non-optional placeholders to have resulted in text
 						#!# Currently this takes no account of the use of a macro in the nonfiling-character section (e.g. 02), i.e. those macros prefixed with indicators; however in practice that should always return a string
 						if (in_array ('A', $datastructure[$lineNumber]['controlCharacters'])) {
 							if (!$optionalBlock) {
-								if (!strlen ($replacementValue)) {continue 2;}
+								if (!strlen ($replacementValue)) {
+									continue 2;	// i.e. skip the line registration below
+								}
 							}
 						}
 					}
 					
 					# Register the replacement
 					$replacements[$find] = $replacementValue;
+				}
+				
+				# If there is an 'E' ('any') control character, require at least one replacement, i.e. that content (after the field number and indicators) exists
+				if (in_array ('E', $datastructure[$lineNumber]['controlCharacters'])) {
+					if (!$hasContent) {
+						continue;	// i.e. skip the line registration below
+					}
 				}
 				
 				# Perform string translation on each line
