@@ -3053,6 +3053,7 @@ class muscatConversion extends frontControllerApplication
 		$sql = "
 			CREATE TABLE IF NOT EXISTS catalogue_marc (
 				id int(11) NOT NULL COMMENT 'Record number',
+				type ENUM('/art/in','/art/j','/doc','/ser') DEFAULT NULL COMMENT 'Type of record',
 				marc text COLLATE utf8_unicode_ci COMMENT 'MARC representation of Muscat record',
 			  PRIMARY KEY (id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC representation of Muscat records';
@@ -3061,6 +3062,18 @@ class muscatConversion extends frontControllerApplication
 		
 		# Cross insert the IDs
 		$query = "INSERT INTO catalogue_marc (id) (SELECT DISTINCT(recordId) FROM catalogue_rawdata);";
+		$this->databaseConnection->execute ($query);
+		
+		# Determine the type
+		$query = "UPDATE catalogue_marc
+			JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
+			SET type = CASE
+				WHEN LENGTH( EXTRACTVALUE(xml, '//art/in')) > 0 THEN '/art/in'
+				WHEN LENGTH( EXTRACTVALUE(xml, '//art/j' )) > 0 THEN '/art/j'
+				WHEN LENGTH( EXTRACTVALUE(xml, '//doc'   )) > 0 THEN '/doc'
+				WHEN LENGTH( EXTRACTVALUE(xml, '//ser'   )) > 0 THEN '/ser'
+			END
+		;";
 		$this->databaseConnection->execute ($query);
 		
 		# Get the schema
