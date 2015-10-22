@@ -3834,9 +3834,15 @@ class muscatConversion extends frontControllerApplication
 							foreach ($value as $index => $subValue) {
 								$value[$index] = $this->processMacros ($xml, $subValue, $macros, $authorsFields);
 							}
+							
 						} else {
 							$value = $this->processMacros ($xml, $value, $macros, $authorsFields);
 						}
+					}
+					
+					# For horizontally-repeatable fields, apply uniqueness after macro processing; e.g. if Lang1, Lang2, Lang3 becomes translatedlangA, translatedlangB, translatedlangB, unique to translatedlangA, translatedlangB
+					if ($isHorizontallyRepeatable) {
+						$value = array_unique ($value);		// Key numbering may now have holes, but the next operation is imploding anyway
 					}
 					
 					# If horizontally-repeatable, compile with the subfield indicator as the implode string
