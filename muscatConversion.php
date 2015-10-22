@@ -4634,6 +4634,13 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro to convert a language to a language code
+	private function macro_languageToCode ($lang)
+	{
+		return $this->lookupValue ('languageCodes', 'English', true, false, $lang, 'MARC Code');
+	}
+	
+	
 	# Macro to generate the stop word count
 	private function macro_language066c ($value)
 	{
@@ -5284,7 +5291,7 @@ class muscatConversion extends frontControllerApplication
 			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
 			WHERE
 				(LENGTH(value)-LENGTH(REPLACE(value,'{','')))/LENGTH('{') !=	/* i.e. substr_count('{') */
-				(LENGTH(value)-LENGTH(REPLACE(value,'}','')))/LENGTH('}')
+				(LENGTH(value)-LENGTH(REPLACE(value,'}','')))/LENGTH('}')		/* i.e. substr_count('}') */
 			";
 		
 		# Return the query
