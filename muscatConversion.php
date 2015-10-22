@@ -69,6 +69,8 @@ class muscatConversion extends frontControllerApplication
 		'serlocloc' => '*ser records with two or more locations',
 		'artinperiodical' => '*art/*in records with location=Periodical',
 		'multipleal' => 'records with multiple *al values',
+		'541ccombinations' => 'records with combinations of multiple *fund/*kb/*sref values (for 541c)',
+		'541ccombinations2' => 'records with combinations of multiple *fund/*kb/*sref values (for 541c), excluding sref+fund',
 	);
 	
 	# Listing (values) reports
@@ -6337,6 +6339,51 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				(LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@al@','')))/LENGTH('@al@') > 1
 			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with combinations of multiple *fund/*kb/*sref values (for 541c)
+	private function report_541ccombinations ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'541ccombinations' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				   (LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@fund@','')))/LENGTH('@fund@') > 1
+				OR (LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@kb@','')))/LENGTH('@kb@') > 1
+				OR (LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@sref@','')))/LENGTH('@sref@') > 1
+				OR (fieldslist LIKE '%@fund@%' AND fieldslist LIKE '%@kb@%')
+				OR (fieldslist LIKE '%@kb@%' AND fieldslist LIKE '%@sref@%')
+				OR (fieldslist LIKE '%@fund@%' AND fieldslist LIKE '%@sref@%')
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with combinations of multiple *fund/*kb/*sref values (for 541c), excluding sref+fund
+	private function report_541ccombinations2 ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'541ccombinations2' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				   (LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@fund@','')))/LENGTH('@fund@') > 1
+				OR (LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@kb@','')))/LENGTH('@kb@') > 1
+				OR (LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@sref@','')))/LENGTH('@sref@') > 1
+				OR (fieldslist LIKE '%@fund@%' AND fieldslist LIKE '%@kb@%')
+				OR (fieldslist LIKE '%@kb@%' AND fieldslist LIKE '%@sref@%')
+		";
 		
 		# Return the query
 		return $query;
