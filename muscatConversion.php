@@ -3783,6 +3783,9 @@ class muscatConversion extends frontControllerApplication
 					continue;
 				}
 				
+				# Determine if horizontally-repeatable
+				$isHorizontallyRepeatable = (bool) $xpathReplacementSpec['horizontalRepeatability'];
+				
 				# If there was a match, show it
 				if ($result) {
 					
@@ -3792,14 +3795,6 @@ class muscatConversion extends frontControllerApplication
 						$value[] = (string) $node;
 					}
 					
-					# If horizontally-repeatable, compile with the subfield indicator as the implode string
-					if (count ($value) > 1) {
-						if ($xpathReplacementSpec['horizontalRepeatability']) {
-							$horizontallyRepeatedValue = implode ($xpathReplacementSpec['horizontalRepeatability'], $value);
-							$value = array ($horizontallyRepeatedValue);	// Replace structure with single value
-						}
-					}
-					
 					/*
 					  NOTE:
 					  
@@ -3807,11 +3802,11 @@ class muscatConversion extends frontControllerApplication
 					  
 					  Below are two steps:
 					  
-					  1) Assemble the string components (unless vertically-repeatable) into a single string
+					  1) Assemble the string components (unless vertically-repeatable/horizontally-repeatable) into a single string:
 					     e.g. {//k/kw} may end up with values 'Foo' 'Bar' 'Zog'
 						 therefore these become imploded to:
 						 FooBarZog
-						 However, if the V (Vertically-repeatable) flag is present at the very start of the line, then that will be stored as
+						 However, if either the R (vertically-repeatable at start of line, or horizontally-repeatable attached to macro) flag is present, then that will be stored as:
 						 array('Foo', 'Bar', 'Zog')
 						 
 					  2) Run the value through any macros that have been defined for this XPath on this line
@@ -3823,8 +3818,8 @@ class muscatConversion extends frontControllerApplication
 					  So, currently, the code does the merging first, then macro processing on each element.
 					*/
 					
-					# Assemble the string components (unless vertically-repeatable) into a single string
-					if (!$isVerticallyRepeatable) {
+					# Assemble the string components (unless vertically-repeatable or horizontally-repeatable) into a single string
+					if (!$isVerticallyRepeatable && !$isHorizontallyRepeatable) {
 						$value = implode ('', $value);
 					}
 					
@@ -3835,13 +3830,18 @@ class muscatConversion extends frontControllerApplication
 						$macros = $datastructure[$lineNumber]['macros'][$find]['macrosThisXpath'];
 						
 						# For a vertically-repeatable field, process each value; otherwise process the compiled string
-						if ($isVerticallyRepeatable) {
+						if ($isVerticallyRepeatable || $isHorizontallyRepeatable) {
 							foreach ($value as $index => $subValue) {
 								$value[$index] = $this->processMacros ($xml, $subValue, $macros, $authorsFields);
 							}
 						} else {
 							$value = $this->processMacros ($xml, $value, $macros, $authorsFields);
 						}
+					}
+					
+					# If horizontally-repeatable, compile with the subfield indicator as the implode string
+					if ($isHorizontallyRepeatable) {
+						$value = implode ($xpathReplacementSpec['horizontalRepeatability'], $value);
 					}
 					
 					# Register the processed value
