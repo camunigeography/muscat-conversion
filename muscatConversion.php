@@ -3712,7 +3712,7 @@ class muscatConversion extends frontControllerApplication
 			$datastructure[$lineNumber]['xpathReplacements'] = array ();
 			
 			# Validate and extract the syntax
-			if (!preg_match ('/^([A-Z]*)\s+([0-9|LDR]{3} .{3}.+)$/', $line, $matches)) {
+			if (!preg_match ('/^([AER]*)\s+([0-9|LDR]{3} .{3}.+)$/', $line, $matches)) {
 				$errorString = 'Line ' . ($lineNumber + 1) . ' does not have the right syntax.';
 				return false;
 			}
