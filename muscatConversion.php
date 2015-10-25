@@ -3712,10 +3712,13 @@ class muscatConversion extends frontControllerApplication
 			$datastructure[$lineNumber]['xpathReplacements'] = array ();
 			
 			# Validate and extract the syntax
-			if (!preg_match ('/^([AER]*)\s+([0-9|LDR]{3} .{3}.+)$/', $line, $matches)) {
+			if (!preg_match ('/^([AER]*)\s+(([0-9|LDR]{3}) .{3}.+)$/', $line, $matches)) {
 				$errorString = 'Line ' . ($lineNumber + 1) . ' does not have the right syntax.';
 				return false;
 			}
+			
+			# Determine the MARC code; examples are: LDR, 008, 100, 245, 852 etc.
+			$datastructure[$lineNumber]['marcCode'] = $matches[3];
 			
 			# Strip away (and cache) the control characters
 			$datastructure[$lineNumber]['controlCharacters'] = str_split ($matches[1]);
