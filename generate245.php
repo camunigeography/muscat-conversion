@@ -182,7 +182,61 @@ class generate245
 		$statementOfResponsibility = " /{$this->doubleDagger}c";
 		
 		# Look at first or only *doc/*ag/*a OR *art/*ag/*a
-		$statementOfResponsibility .= $this->classifyNdField ("{$this->mainRecordTypePrefix}/ag[1]/a[1]");
+		# THEN: Is there another *a in the parent  *doc/*ag OR *art/*ag which has not already been included in this 245 field? E.g. see /records/181939/
+		# THEN: Is there another *ag in the parent  *doc OR *art, whose *a fields have not already been included in this 245 field?
+		$agIndex = 1;
+		while ($this->muscatConversion->xPathValue ($this->xml, "{$this->mainRecordTypePrefix}/ag[$agIndex]")) {		// Check if *ag container exists
+			
+			# Separate multiple author groups with a semicolon-space
+			if ($agIndex > 1) {
+				$statementOfResponsibility .= '; ';
+			}
+			
+			# Loop through each *a (author) in this *ag (author group)
+			$aIndex = 1;	// XPaths are indexed from 1, not 0
+			while ($string = $this->classifyNdField ("{$this->mainRecordTypePrefix}/ag[$agIndex]/a[{$aIndex}]")) {
+				
+				# Separate multiple authors with a comma-space
+				if ($aIndex > 1) {
+					$statementOfResponsibility .= ', ';
+				}
+				
+				# Register this value
+				$statementOfResponsibility .= $string;
+				
+				# Next a
+				$aIndex++;
+			}
+			
+			# Is there a *ad in the parent  *doc/*ag OR *art/*ag?
+			# Does the *ad have the value '-'?
+			if ($ad = $this->muscatConversion->xPathValue ($this->xml, "{$this->mainRecordTypePrefix}/ag[$agIndex]/ad")) {
+				if ($ad != '-') {
+					$statementOfResponsibility .= ', ' . $ad;
+				}
+			}
+			
+			# Next ag
+			$agIndex++;
+		}
+		
+		# Does the record contain at least one *e?
+		$eIndex = 1;
+		while ($this->muscatConversion->xPathValue ($this->xml, "//e[$eIndex]")) {		// Check if *ag container exists
+			
+			# Add to 245 field: ; <*e/*role>
+			$role = $this->muscatConversion->xPathValue ($this->xml, "//e[$eIndex]/role") . ' ';
+			$statementOfResponsibility .= '; ' . $role;
+			
+			# Add the entry
+			$statementOfResponsibility .= $this->classifyNdField ("//e[$eIndex]/n");
+			
+			# Next e
+			$eIndex++;
+		}
+		
+		# End with dot
+		$statementOfResponsibility .= '.';
 		
 		# Return the Statement of Responsibility
 		return $statementOfResponsibility;
