@@ -4897,6 +4897,22 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro for generating the 245 field
+	private function macro_generate245 ($value, $xml, $ignored, $authorsFields)
+	{
+		# Subclass, due to the complexity of this field
+		require_once ('generate245.php');
+		$generate245 = new generate245 ($this, $xml, $authorsFields);
+		if (!$value = $generate245->main ($error)) {
+			$recordId = $this->xPathValue ($xml, '//q0');
+			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';
+		}
+		
+		# Return the value
+		return $value;
+	}
+	
+	
 	# Macro for generating the 700 field
 	private function macro_generate700 ($value, $xml, $ignored, $authorsFields)
 	{
