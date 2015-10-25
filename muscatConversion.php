@@ -4016,8 +4016,15 @@ class muscatConversion extends frontControllerApplication
 				$line = strtr ($line, $replacements);
 			}
 			
+			# Determine the key to use for the line output
+			$i = 0;
+			$lineOutputKey = $attributes['marcCode'] . '_' . $i++;	// Examples: LDR_0, 001_0, 100_0, 650_0
+			while (isSet ($outputLines[$lineOutputKey])) {
+				$lineOutputKey = $attributes['marcCode'] . '_' . $i++;	// e.g. 650_1 for the second 650 record, 650_2 for the third, etc.
+			}
+			
 			# Register the value
-			$outputLines[] = $line;
+			$outputLines[$lineOutputKey] = $line;
 		}
 		
 		# Compile the record
