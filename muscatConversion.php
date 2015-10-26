@@ -4074,7 +4074,8 @@ class muscatConversion extends frontControllerApplication
 		$record = implode ("\n", $outputLines);
 		
 		# Strip tags (introduced in specialCharacterParsing) across the record: "in MARC there isn't a way to represent text in italics in a MARC record and get it to display in italics in the OPAC/discovery layer, so the HTML tags will need to be stripped."
-		$record = strip_tags ($record);
+		$record = str_replace ('<em>', '', $record);
+		$record = str_replace ('</em>', '', $record);
 		
 		# Return the record
 		return $record;
