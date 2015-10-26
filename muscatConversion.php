@@ -2048,7 +2048,7 @@ class muscatConversion extends frontControllerApplication
 			$html .= "\n<p>{$this->tick} Record linkage has been done.</p>";
 		}
 		
-		# Create the MARC table
+		# Create the MARC records
 		if (($importType == 'full') || ($importType == 'marc')) {
 			if ($this->createMarcRecords ()) {
 				$html .= "\n<p>{$this->tick} The MARC versions of the records have been generated.</p>";
@@ -3045,7 +3045,10 @@ class muscatConversion extends frontControllerApplication
 	# Function to create MARC records
 	private function createMarcRecords ()
 	{
-		# Clean out the XML table
+		# Create the periodical locations table, used by the periodicalLocation macro
+		$this->createPeriodicalLocationsTable ();
+		
+		# Clean out the MARC table
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.catalogue_marc;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -3137,6 +3140,46 @@ class muscatConversion extends frontControllerApplication
 		
 		# Signal success
 		return true;
+	}
+	
+	
+	# Function to create a table of periodical locations
+	private function createPeriodicalLocationsTable ()
+	{
+		# Create the table, clearing it out first if existing from a previous import
+		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.periodicallocations;";
+		$this->databaseConnection->execute ($sql);
+		$sql = "CREATE TABLE IF NOT EXISTS `periodicallocations` (
+			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
+			`recordId` int(6) NOT NULL COMMENT 'Record number',
+			`title` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title (/ser/tg/t)',
+			`location` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Location (/ser/loc/location)',
+			PRIMARY KEY (`id`),
+			INDEX(`title`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of periodical locations'
+		;";
+		$this->databaseConnection->execute ($sql);
+		
+		# Insert the data
+		$sql = "
+			INSERT INTO `periodicallocations` (recordId, title, location)
+			SELECT
+				id AS recordId,
+				EXTRACTVALUE(xml, '//ser/tg/t') AS title,
+				EXTRACTVALUE(xml, '//ser/loc/location') AS location
+			FROM catalogue_xml
+			WHERE EXTRACTVALUE(xml, '//ser') != ''	/* i.e. is a *ser */
+		";
+		$this->databaseConnection->execute ($sql);
+		
+		# Fix entities; e.g. see /records/23956/ ; see: https://stackoverflow.com/questions/30194976/
+		$sql = "
+			UPDATE `periodicallocations`
+			SET
+				title    = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( title   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"),
+				location = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( location, '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
+		;";
+		$this->databaseConnection->execute ($sql);
 	}
 	
 	
@@ -5036,6 +5079,34 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the table
 		return $lookupTable;
+	}
+	
+	
+	# Macro to lookup periodical locations
+	private function macro_periodicalLocation ($value, $xml)
+	{
+		# Apply transformation only to /art/j records; return unmodified for others
+		$recordType = $this->recordType ($xml);
+		if ($recordType != '/art/j') {return $value;}
+		
+		# Apply only to value 'Periodical'
+		if ($value != 'Periodical') {return $value;}
+		
+		# Obtain the record matching /art/j/tg/t; e.g. for /records/23956/ it would be 'Explorers Journal' which is present in /ser/tg/t
+		$serialTitle = $this->xPathValue ($xml, '/art/j/tg/t');
+		
+		# Lookup the value
+		$location = $this->databaseConnection->selectOneField ($this->settings['database'], 'periodicallocations', 'location', array ('title' => $serialTitle));
+		
+		# Flag error if no location
+		if (!$location) {
+			$recordId = $this->xPathValue ($xml, '//q0');
+			$error = "The serial title '{$serialTitle}' does not have a record with a matching location";
+			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';
+		}
+		
+		# Return the location
+		return $location;
 	}
 	
 	
