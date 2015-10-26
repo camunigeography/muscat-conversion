@@ -71,6 +71,7 @@ class muscatConversion extends frontControllerApplication
 		'multipleal' => 'records with multiple *al values',
 		'541ccombinations' => 'records with combinations of multiple *fund/*kb/*sref values (for 541c)',
 		'541ccombinations2' => 'records with combinations of multiple *fund/*kb/*sref values (for 541c), excluding sref+fund',
+		'serlocationlocation' => '*ser records with two or more *locations',
 	);
 	
 	# Listing (values) reports
@@ -6507,6 +6508,26 @@ class muscatConversion extends frontControllerApplication
 				OR (LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@sref@','')))/LENGTH('@sref@') > 1
 				OR (fieldslist LIKE '%@fund@%' AND fieldslist LIKE '%@kb@%')
 				OR (fieldslist LIKE '%@kb@%' AND fieldslist LIKE '%@sref@%')
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *ser records with two or more *locations
+	private function report_serlocationlocation ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'serlocationlocation' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				    fieldslist LIKE '%@ser@%'
+				AND fieldslist LIKE '%@location@%'
+				AND fieldslist REGEXP '@location@.*@location@'	/* At least two locations */
 		";
 		
 		# Return the query
