@@ -3847,14 +3847,20 @@ class muscatConversion extends frontControllerApplication
 			
 			# Work through each XPath replacement
 			foreach ($line['xpathReplacements'] as $find => $xpathReplacementSpec) {
+				$xPath = $xpathReplacementSpec['xPath'];	// Extract from structure
 				
-				# Attempt to parse
-				$xpath = $xpathReplacementSpec['xPath'];	// Extract from structure
-				$result = @$xml->xpath ('/root' . $xpath);
+				# Deal with fixed strings
+				if (preg_match ("/^'(.+)'$/", $xPath, $matches)) {
+					$result = array ($matches[1]);
+				} else {
+					
+					# Attempt to parse
+					$result = @$xml->xpath ('/root' . $xPath);
+				}
 				
 				# Check for compile failures
 				if ($result === false) {
-					$compileFailures[] = $xpath;
+					$compileFailures[] = $xPath;
 					continue;
 				}
 				
