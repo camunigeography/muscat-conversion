@@ -4325,6 +4325,13 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro to check existence
+	private function macro_ifValue ($value, $xml, $xPath)
+	{
+		return ($this->xPathValue ($xml, $xPath) ? $value : false);
+	}
+	
+	
 	# Macro to implement a ternary check
 	private function macro_ifElse ($value_ignored /* If empty, the macro will not even be called, so the value has to be passed in by parameter */, $xml, $parameters)
 	{
