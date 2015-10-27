@@ -4971,6 +4971,44 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro for generating the 490 field
+	private function macro_generate490 ($value, $xml)
+	{
+		# Obtain the *ts value or end
+		if (!$ts = $this->xPathValue ($xml, '//ts')) {return false;}
+		
+		# Strip tags before normalisation phase
+		$ts = strip_tags ($ts);
+		
+		# Normalise any trailing volume number strings
+		$ts = preg_replace ("/^(.+)\s*,?Nos?\.?\s*([0-9]\(?[-0-9]+\)?)$/", '\1 \2', $ts);	// /records/12219/
+		$ts = preg_replace ("/^(.+)\s*\(([0-9]+)\)$/", '\1 \2', $ts);		// e.g. /records/68248/
+		// #!# More patterns in /fields/ts/values/ todo
+		#   65-21A, GA-112, 29/F, No. 17a, Chapter 15, Profil IV und V, 27, No. 38, 63-3D, Series 154, XXVIII.1, C 46, " ; 1111"
+		
+		# Divide into string and trailing volume number
+		preg_match ("/^(.+)\s*([-0-9]*)$/U", $ts, $matches);		// Use of /U is an ungreedy match to deal with the trailing number being optional
+		$seriesTitle = $matches[1];
+		$volumeNumber = $matches[2];
+		
+		# If there is a *vno, use that
+		if ($vno = $this->xPathValue ($xml, '//vno')) {
+			$volumeNumber = $vno;
+		}
+		
+		# Start with the $a subfield
+		$string = $this->doubleDagger . 'a' . $seriesTitle;
+		
+		# Add the volume number
+		if (strlen ($volumeNumber)) {
+			$string .= ' ' . $this->doubleDagger . 'v' . $volumeNumber;
+		}
+		
+		# Return the string
+		return $string;
+	}
+	
+	
 	# Macro for generating the 700 field
 	private function macro_generate700 ($value, $xml, $ignored, $authorsFields)
 	{
