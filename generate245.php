@@ -151,7 +151,7 @@ class generate245
 		} else {
 			
 			# Add title
-			$title .= $this->doubleDagger . 'a ' . $this->t;
+			$title .= $this->doubleDagger . 'a' . $this->t;
 			
 			# If there is a *form, Add to 245 field
 			if ($form) {
