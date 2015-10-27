@@ -4621,7 +4621,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Macro to generate the stop word count; this does not actually modify the string itself - just returns a number
-	public function macro_indicatorsStopWordsCount ($value, $xml)
+	public function macro_nfCount ($value, $xml)
 	{
 		# Get the stop words list, indexed by language
 		$stopWords = $this->stopWords ();

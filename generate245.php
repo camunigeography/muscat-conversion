@@ -90,7 +90,7 @@ class generate245
 		$this->t = $this->muscatConversion->xPathValue ($this->xml, "/{$this->mainRecordTypePrefix}/tg/t");
 		
 		# Does the *t start with a leading article?
-		$leadingArticleCharacterCount = $this->muscatConversion->macro_indicatorsStopWordsCount ($this->t, $this->xml);
+		$leadingArticleCharacterCount = $this->muscatConversion->macro_nfCount ($this->t, $this->xml);
 		
 		# Return the stop words count
 		return $leadingArticleCharacterCount;
