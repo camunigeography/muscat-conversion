@@ -5026,6 +5026,35 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Function to load the UDC translation table
+	private function loadUdcTranslationTable ()
+	{
+		# Load the file, and normalise newlines
+		$lookupTable = file_get_contents ($this->applicationRoot . '/tables/' . 'UDCMAP_pic.TXT');
+		$lookupTable = str_replace ("\r\n", "\n", $lookupTable);
+		
+		# Remove line-breaks that are not the end of a line
+		$lookupTable = preg_replace ("/([^#])\n/sm", '\1 ', $lookupTable);
+		
+		# Parse into lines
+		/*  Example lines:
+		 *  *k 803.98 * *ksub Danish language #
+		 *  *k 93"15" * *ksub Sixteenth century #
+		 *  *k 39(091) * *ksub Ethnohistory #
+		 *  *k 77.041.5 * * ksub Portrait phtography, portraits #
+		 */
+		preg_match_all ("/^\*k\s([^\s]+) \* \*k\s?(?:sub|geo) ([^#]+) #/sm", $lookupTable, $matches, PREG_SET_ORDER);
+		
+		# Convert to pairs
+		$this->udcTranslationTable = array ();
+		foreach ($matches as $match) {
+			$key = $match[1];
+			$value = $match[2];
+			$this->udcTranslationTable[$key] = $value;
+		}
+	}
+	
+	
 	# Macro to look up a *rpl value
 	private function macro_lookupRplValue ($value, $xml)
 	{
