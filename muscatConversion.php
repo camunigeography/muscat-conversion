@@ -4395,6 +4395,9 @@ class muscatConversion extends frontControllerApplication
 	# Ending strings with dots
 	private function macro_dotEnd ($value)
 	{
+		# End if no value
+		if (!strlen ($value)) {return $value;}
+		
 		# Return unmodified if no split
 		if (preg_match ('/^(.+)\.$/', $value, $matches)) {
 			return $value;
