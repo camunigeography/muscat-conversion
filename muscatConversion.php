@@ -5012,6 +5012,20 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro to determine if a value is not surrounded by round brackets
+	private function macro_isNotRoundBracketed ($value)
+	{
+		return ((substr ($value, 0, 1) != '(') || (substr ($value, -1) != ')') ? $value : false);
+	}
+	
+	
+	# Macro to determine if a value is surrounded by round brackets
+	private function macro_isRoundBracketed ($value)
+	{
+		return ((substr ($value, 0, 1) == '(') && (substr ($value, -1) == ')') ? $value : false);
+	}
+	
+	
 	# Macro to look up a *rpl value
 	private function macro_lookupRplValue ($value, $xml)
 	{
