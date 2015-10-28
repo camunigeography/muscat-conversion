@@ -90,6 +90,7 @@ class muscatConversion extends frontControllerApplication
 		'distinctn2notprecededbyn1' => 'Distinct values of all *n2 fields that are not immediately preceded by a *n1 field',
 		'kwunknown' => 'records where kw is unknown, showing the bibliographer concerned',
 		'doclocationperiodicaltsvalues' => '*doc records with one *location, which is Periodical - distinct *ts values',
+		'unrecognisedksvalues' => 'records with unrecognised *ks values - distinct *ks values',
 	);
 	
 	# Define the types
@@ -7396,6 +7397,46 @@ class muscatConversion extends frontControllerApplication
 		
 		# Obtain the listing HTML
 		$html = $this->reportListing (NULL, 'records', false, $idField = 'id', $query);
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Records with unrecognised *ks values - distinct *ks values
+	private function report_unrecognisedksvalues ()
+	{
+		// No action needed - the view is created dynamically
+		return true;
+	}
+	
+	
+	# View for records with unrecognised *ks values - distinct *ks values
+	private function report_unrecognisedksvalues_view ()
+	{
+		# Define a manual query
+		$query = "
+			SELECT
+				DISTINCT value,
+				COUNT(recordId) AS instances
+			FROM (
+				/* Create a table of ks values with any [...] portion stripped */
+				SELECT
+					recordId,
+					IF (INSTR(value,'[') > 0, LEFT(value,LOCATE('[',value) - 1), value) AS value
+				FROM catalogue_processed
+				WHERE field = 'ks'
+				AND value != ''
+				) AS ksValues
+			LEFT JOIN udctranslations ON ksValues.value = udctranslations.ks
+			WHERE
+				    value NOT IN ('" . implode ("', '", $this->ignoreKsValues) . "')
+				AND ks IS NULL
+			GROUP BY value
+			";
+		
+		# Obtain the listing HTML
+		$html = $this->reportListing (NULL, 'values', false, false, $query);
 		
 		# Return the HTML
 		return $html;
