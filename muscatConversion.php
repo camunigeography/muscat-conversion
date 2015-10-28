@@ -5009,6 +5009,77 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro to look up a *rpl value
+	private function macro_lookupRplValue ($value, $xml)
+	{
+		# Fix up incorrect data
+		if ($value == 'E1') {$value = 'E2';}
+		if ($value == 'H' ) {$value = 'H1';}
+		
+		# Define the *rpl mappings
+		$mappings = array (
+			'A'		=> 'Geophysical sciences (general)',
+			'B'		=> 'Geology and soil sciences',
+			'C'		=> 'Oceanography, hydrography and hydrology',
+			'D'		=> 'Atmospheric sciences',
+			// 'E1'	=> '',	// Error in original data: should be E2
+			'E2'	=> 'Glaciology: general',
+			'E3'	=> 'Glaciology: instruments and methods',
+			'E4'	=> 'Glaciology: physics and chemistry of ice',
+			'E5'	=> 'Glaciology: land ice',
+			'E6'	=> 'Glaciology: floating ice',
+			'E7'	=> 'Glaciology: glacial geology and ice ages',
+			'E8'	=> 'Glaciology: frost action and permafrost',
+			'E9'	=> 'Glaciology: meteorology and climatology',
+			'E10'	=> 'Glaciology: snow and avalanches',
+			'E11'	=> 'Glaciology: glaciohydrology',
+			'E12'	=> 'Glaciology: frozen ground / snow and ice engineering',
+			'E13'	=> 'Glaciology: glacioastronomy',
+			'E14'	=> 'Glaciology: biological aspects of ice and snow',
+			'F'		=> 'Biological sciences',
+			'G'		=> 'Botany',
+			// 'H'	=> '',	// Error in original data: should be H1
+			'H1'	=> 'Zoology: general',
+			'H2'	=> 'Zoology: invertebrates',
+			'H3'	=> 'Zoology: vertebrates',
+			'H4'	=> 'Zoology: fish',
+			'H5'	=> 'Zoology: birds',
+			'H6'	=> 'Zoology: mammals',
+			'I'		=> 'Medicine and health',
+			'J'		=> 'Social sciences',
+			'K'		=> 'Economics and economic development',
+			'L'		=> 'Communication and transportation',
+			'M'		=> 'Engineering and construction',
+			'N'		=> 'Renewable resources',
+			'O'		=> 'Not in Polar and Glaciological Abstracts',
+			'P'		=> 'Non-renewable resources',
+			'Q'		=> 'Land use, planning and recreation',
+			'R'		=> 'Arts',
+			'S'		=> 'Literature and Language',
+			'T'		=> 'Social anthropology and ethnography',
+			'U'		=> 'Archaeology',
+			'V'		=> 'History',
+			'W'		=> 'Expeditions and exploration',
+			'X'		=> 'Biographies and obituaries',
+			'Y'		=> 'Descriptive general accounts',
+			'Z'		=> 'Miscellaneous',
+		);
+		
+		# Ensure the value is in the table
+		if (!isSet ($mappings[$value])) {
+			$recordId = $this->xPathValue ($xml, '//q0');
+			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> 650 field {$value} is not a valid PGA category.</p>";
+			return false;
+		}
+		
+		# Construct the result string
+		$string = $value . ' -- ' . $mappings[$value] . '.' . $this->doubleDagger . '2' . 'PGA';
+		
+		# Return the result string
+		return $string;
+	}
+	
+	
 	# Macro for generating the 700 field
 	private function macro_generate700 ($value, $xml, $ignored, $authorsFields)
 	{
