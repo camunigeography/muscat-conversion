@@ -6776,11 +6776,17 @@ class muscatConversion extends frontControllerApplication
 			SELECT
 				'unrecognisedks' AS report,
 				recordId
-			FROM catalogue_processed
-			LEFT JOIN udctranslations ON catalogue_processed.value = udctranslations.ks
-			WHERE
-				    field = 'ks'
-				AND ks IS NULL
+			FROM (
+				/* Create a table of ks values with any [...] portion stripped */
+				SELECT
+					recordId,
+					IF (INSTR(value,'[') > 0, LEFT(value,LOCATE('[',value) - 1), value) AS value
+				FROM catalogue_processed
+				WHERE field = 'ks'
+				AND value != ''
+				) AS ksValues
+			LEFT JOIN udctranslations ON ksValues.value = udctranslations.ks
+			WHERE ks IS NULL
 			GROUP BY recordId
 		";
 		
