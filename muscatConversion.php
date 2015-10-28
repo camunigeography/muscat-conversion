@@ -163,6 +163,9 @@ class muscatConversion extends frontControllerApplication
 		'Russian' => 'BGN PCGN 1947',	// Filename becomes bgn_pcgn_1947.xml
 	);
 	
+	# Define known *ks values to be ignored
+	private $ignoreKsValues = array ('MISSING', 'AK', 'CC', 'GLEN', 'HS', 'HSO', 'HSSB', 'HSSB1', 'HSSB2', 'HSSB3', 'IW', 'IWO', 'JHR', 'JHRO', 'JHR1', 'JW', 'JW1', 'MPO', 'MPP', 'NOM', 'PGA', 'PGA1', 'RF', );
+	
 	# Caches
 	private $lookupTablesCache = array ();
 	
@@ -5105,6 +5108,9 @@ class muscatConversion extends frontControllerApplication
 			$description = $matches[2];
 		}
 		
+		# Skip if a known value (before brackes, which are now stripped) to be ignored
+		if (in_array ($value, $this->ignoreKsValues)) {return false;}
+		
 		# Ensure the value is in the table
 		if (!isSet ($this->udcTranslations[$value])) {
 			$recordId = $this->xPathValue ($xml, '//q0');
@@ -6786,7 +6792,9 @@ class muscatConversion extends frontControllerApplication
 				AND value != ''
 				) AS ksValues
 			LEFT JOIN udctranslations ON ksValues.value = udctranslations.ks
-			WHERE ks IS NULL
+			WHERE
+				    value NOT IN ('" . implode ("', '", $this->ignoreKsValues) . "')
+				AND ks IS NULL
 			GROUP BY recordId
 		";
 		
