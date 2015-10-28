@@ -1975,7 +1975,7 @@ class muscatConversion extends frontControllerApplication
 			'full'					=> 'FULL import (c. 2 hours)',
 			'recordlinkage'			=> 'Record linkage',
 			'marc'					=> 'Regenerate MARC only (c. 65 minutes)',
-			'reports'				=> 'Regenerate reports only (c. 3 minutes)',
+			'reports'				=> 'Regenerate reports only (c. 4 minutes)',
 			'listings'				=> 'Regenerate listings reports only (c. 34 minutes)',
 		);
 		
@@ -5098,6 +5098,13 @@ class muscatConversion extends frontControllerApplication
 			$this->udcTranslations = $this->databaseConnection->selectPairs ($this->settings['database'], 'udctranslations', array (), array ('ks', 'kw'));
 		}
 		
+		# Split out any additional description string
+		$description = false;
+		if (preg_match ("/^(.+)\[(.+)\]$/", $value, $matches)) {
+			$value = $matches[1];
+			$description = $matches[2];
+		}
+		
 		# Ensure the value is in the table
 		if (!isSet ($this->udcTranslations[$value])) {
 			$recordId = $this->xPathValue ($xml, '//q0');
@@ -5106,7 +5113,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Construct the result string
-		$string = $value . ' -- ' . $this->udcTranslations[$value] . '.' . $this->doubleDagger . '2' . 'UDC';
+		$string = $value . ' -- ' . $this->udcTranslations[$value] . ($description ? ": {$description}" : false) . '.' . $this->doubleDagger . '2' . 'UDC';
 		
 		# Return the result string
 		return $string;
