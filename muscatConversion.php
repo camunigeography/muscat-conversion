@@ -72,6 +72,7 @@ class muscatConversion extends frontControllerApplication
 		'541ccombinations' => 'records with combinations of multiple *fund/*kb/*sref values (for 541c)',
 		'541ccombinations2' => 'records with combinations of multiple *fund/*kb/*sref values (for 541c), excluding sref+fund',
 		'serlocationlocation' => '*ser records with two or more *locations',
+		'unrecognisedks' => 'records with unrecognised *ks values',
 	);
 	
 	# Listing (values) reports
@@ -6758,6 +6759,28 @@ class muscatConversion extends frontControllerApplication
 		# Return the query
 		return $query;
 	}
+	
+	
+	# Eecords with unrecognised *ks values
+	private function report_unrecognisedks ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'unrecognisedks' AS report,
+				recordId
+			FROM catalogue_processed
+			LEFT JOIN udctranslations ON catalogue_processed.value = udctranslations.ks
+			WHERE
+				    field = 'ks'
+				AND ks IS NULL
+			GROUP BY recordId
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
 	
 	
 	# Records with multiple sources (*ser)
