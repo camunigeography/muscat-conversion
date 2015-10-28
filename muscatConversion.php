@@ -5026,6 +5026,32 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro to look up a *ks (UDC) value
+	private function macro_addLookedupKsValue ($value, $xml)
+	{
+		# End if no value
+		if (!strlen ($value)) {return $value;}
+		
+		# Load the UDC translation table if not already loaded
+		if (!isSet ($this->udcTranslationTable)) {
+			$this->loadUdcTranslationTable ();
+		}
+		
+		# Ensure the value is in the table
+		if (!isSet ($this->udcTranslationTable[$value])) {
+			$recordId = $this->xPathValue ($xml, '//q0');
+			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> 650 UDC field {$value} is not a valid UDC code.</p>";
+			return false;
+		}
+		
+		# Construct the result string
+		$string = $value . ' -- ' . $this->udcTranslationTable[$value] . '.' . $this->doubleDagger . '2' . 'UDC';
+		
+		# Return the result string
+		return $string;
+	}
+	
+	
 	# Function to load the UDC translation table
 	private function loadUdcTranslationTable ()
 	{
@@ -5114,7 +5140,7 @@ class muscatConversion extends frontControllerApplication
 		# Ensure the value is in the table
 		if (!isSet ($mappings[$value])) {
 			$recordId = $this->xPathValue ($xml, '//q0');
-			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> 650 field {$value} is not a valid PGA category.</p>";
+			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> 650 PGA field {$value} is not a valid PGA code letter.</p>";
 			return false;
 		}
 		
