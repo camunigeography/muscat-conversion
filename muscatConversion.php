@@ -5113,7 +5113,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Construct the result string
-		$string = $value . ' -- ' . $this->udcTranslations[$value] . ($description ? ": {$description}" : false) . '.' . $this->doubleDagger . '2' . 'UDC';
+		$string = str_replace ('@*', '*', $value) . ' -- ' . $this->udcTranslations[$value] . ($description ? ": {$description}" : false) . '.' . $this->doubleDagger . '2' . 'UDC';
 		
 		# Return the result string
 		return $string;
