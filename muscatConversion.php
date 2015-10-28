@@ -3049,6 +3049,9 @@ class muscatConversion extends frontControllerApplication
 		# Create the periodical locations table, used by the periodicalLocation macro
 		$this->createPeriodicalLocationsTable ();
 		
+		# Create the UDC translations table, used by the addLookedupKsValue macro
+		$this->createUdcTranslationsTable ();
+		
 		# Clean out the MARC table
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.catalogue_marc;";
 		$this->databaseConnection->execute ($sql);
@@ -3181,6 +3184,63 @@ class muscatConversion extends frontControllerApplication
 				location = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( location, '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
 		;";
 		$this->databaseConnection->execute ($sql);
+	}
+	
+	
+	# Function to create a table of UDC translations
+	private function createUdcTranslationsTable ()
+	{
+		# Create the table, clearing it out first if existing from a previous import
+		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.udctranslations;";
+		$this->databaseConnection->execute ($sql);
+		$sql = "CREATE TABLE IF NOT EXISTS `udctranslations` (
+			`ks` VARCHAR(20) NOT NULL COMMENT '*ks',
+			`kw` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT '*kw equivalent, looked-up',
+			PRIMARY KEY (`ks`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of UDC translations'
+		;";
+		$this->databaseConnection->execute ($sql);
+		
+		# Parse the table file
+		$udcTranslations = $this->parseUdcTranslationTable ();
+		
+		# Arrange the values
+		$inserts = array ();
+		foreach ($udcTranslations as $udcTranslation) {
+			$inserts[] = array (
+				'ks'	=> $udcTranslation[1],
+				'kw'	=> $udcTranslation[2],
+			);
+		}
+		
+		# Insert the data
+		$this->databaseConnection->insertMany ($this->settings['database'], 'udctranslations', $inserts);
+	}
+	
+	
+	# Function to parse the UDC translation table
+	private function parseUdcTranslationTable ()
+	{
+		# Load the file, and normalise newlines
+		$lookupTable = file_get_contents ($this->applicationRoot . '/tables/' . 'UDCMAP_pic.TXT');
+		$lookupTable = str_replace ("\r\n", "\n", $lookupTable);
+		
+		# Remove line-breaks that are not the end of a line
+		$lookupTable = preg_replace ("/([^#])\n/sm", '\1 ', $lookupTable);
+		
+		# Parse into lines
+		/*  Example lines:
+		 *  *k 803.98 * *ksub Danish language #
+		 *  *k 93"15" * *ksub Sixteenth century #
+		 *  *k 39(091) * *ksub Ethnohistory #
+		 *  *k 77.041.5 * * ksub Portrait phtography, portraits #
+		 */
+		preg_match_all ("/^\*k\s([^\s]+) \* \*k\s?(?:sub|geo) ([^#]+) #/sm", $lookupTable, $matches, PREG_SET_ORDER);
+		
+		#!# Needs to be run through the diacritics conversion
+		
+		# Return the matches
+		return $matches;
 	}
 	
 	
@@ -5033,51 +5093,22 @@ class muscatConversion extends frontControllerApplication
 		if (!strlen ($value)) {return $value;}
 		
 		# Load the UDC translation table if not already loaded
-		if (!isSet ($this->udcTranslationTable)) {
-			$this->loadUdcTranslationTable ();
+		if (!isSet ($this->udcTranslations)) {
+			$this->udcTranslations = $this->databaseConnection->selectPairs ($this->settings['database'], 'udctranslations', array (), array ('ks', 'kw'));
 		}
 		
 		# Ensure the value is in the table
-		if (!isSet ($this->udcTranslationTable[$value])) {
+		if (!isSet ($this->udcTranslations[$value])) {
 			$recordId = $this->xPathValue ($xml, '//q0');
 			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> 650 UDC field {$value} is not a valid UDC code.</p>";
 			return false;
 		}
 		
 		# Construct the result string
-		$string = $value . ' -- ' . $this->udcTranslationTable[$value] . '.' . $this->doubleDagger . '2' . 'UDC';
+		$string = $value . ' -- ' . $this->udcTranslations[$value] . '.' . $this->doubleDagger . '2' . 'UDC';
 		
 		# Return the result string
 		return $string;
-	}
-	
-	
-	# Function to load the UDC translation table
-	private function loadUdcTranslationTable ()
-	{
-		# Load the file, and normalise newlines
-		$lookupTable = file_get_contents ($this->applicationRoot . '/tables/' . 'UDCMAP_pic.TXT');
-		$lookupTable = str_replace ("\r\n", "\n", $lookupTable);
-		
-		# Remove line-breaks that are not the end of a line
-		$lookupTable = preg_replace ("/([^#])\n/sm", '\1 ', $lookupTable);
-		
-		# Parse into lines
-		/*  Example lines:
-		 *  *k 803.98 * *ksub Danish language #
-		 *  *k 93"15" * *ksub Sixteenth century #
-		 *  *k 39(091) * *ksub Ethnohistory #
-		 *  *k 77.041.5 * * ksub Portrait phtography, portraits #
-		 */
-		preg_match_all ("/^\*k\s([^\s]+) \* \*k\s?(?:sub|geo) ([^#]+) #/sm", $lookupTable, $matches, PREG_SET_ORDER);
-		
-		# Convert to pairs
-		$this->udcTranslationTable = array ();
-		foreach ($matches as $match) {
-			$key = $match[1];
-			$value = $match[2];
-			$this->udcTranslationTable[$key] = $value;
-		}
 	}
 	
 	
