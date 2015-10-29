@@ -7417,7 +7417,7 @@ class muscatConversion extends frontControllerApplication
 		# Define a manual query
 		$query = "
 			SELECT
-				DISTINCT value,
+				DISTINCT value AS title,
 				COUNT(recordId) AS instances
 			FROM (
 				/* Create a table of ks values with any [...] portion stripped */
@@ -7436,7 +7436,7 @@ class muscatConversion extends frontControllerApplication
 			";
 		
 		# Obtain the listing HTML
-		$html = $this->reportListing (NULL, 'values', false, false, $query);
+		$html = $this->reportListing (NULL, 'values', 'anywhere', false, $query);
 		
 		# Return the HTML
 		return $html;
