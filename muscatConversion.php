@@ -167,6 +167,9 @@ class muscatConversion extends frontControllerApplication
 	# Define known *ks values to be ignored
 	private $ignoreKsValues = array ('MISSING', 'AK', 'CC', 'GLEN', 'HS', 'HSO', 'HSSB', 'HSSB1', 'HSSB2', 'HSSB3', 'IW', 'IWO', 'JHR', 'JHRO', 'JHR1', 'JW', 'JW1', 'MPO', 'MPP', 'NOM', 'PGA', 'PGA1', 'RF', );
 	
+	# Index for 880 subfield 6
+	private $field880subfield6Index = 0;
+	
 	# Caches
 	private $lookupTablesCache = array ();
 	
@@ -5004,6 +5007,26 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Return the value (which may be false, meaning no 100 field should be created)
 		return $authorsFields[100];
+	}
+	
+	
+	# Macro to add in the 880 subfield index
+	private function macro_880subfield6 ($value, $xml, $masterField)
+	{
+		# End if no value
+		if (!$value) {return $value;}
+		
+		# Advance the index, which is incremented globally across the record; starting from 1
+		$this->field880subfield6Index++;
+		
+		# Assemble the subfield
+		$subfield6 = $this->doubleDagger . '6' . $masterField . '-' . str_pad ($this->field880subfield6Index, 2, '0', STR_PAD_LEFT);
+		
+		# Insert the subfield after the indicators
+		$value = preg_replace ('/^(.{2}) (.+)$/', "\\1 {$subfield6} \\2", $value);
+		
+		# Return the modified value
+		return $value;
 	}
 	
 	
