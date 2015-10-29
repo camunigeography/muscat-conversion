@@ -51,15 +51,26 @@ class generateAuthors
 	 */
 	public function generate100 ()
 	{
-		# Start the value
-		$value = '';
-		
 		# 100 is not relevant for *ser or *art/*in/*ag, so end at this point if matches these
 		$ser = $this->muscatConversion->xPathValue ($this->xml, '//ser');
-		$artInAg = $this->muscatConversion->xPathValue ($this->xml, '//art/in/ag');
-		if ($ser || $artInAg) {
+		$artIn = $this->muscatConversion->xPathValue ($this->xml, '//art/in');
+		if ($ser || $artIn) {
 			return false;
 		}
+		
+		# Do the classification
+		$value = $this->doClassification ();
+		
+		# Return the value
+		return $value;
+	}
+	
+	
+	# Function providing an entry point into the main classification, which switches between the name format
+	private function doClassification ()
+	{
+		# Start the value
+		$value = '';
 		
 		# Look at the first or only *doc/*ag/*a OR *art/*ag/*a
 		# Does the *a contain a *n2?
