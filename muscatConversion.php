@@ -5002,11 +5002,11 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Macro for generating the 100 field
-	private function macro_generate100 ($value, $xml, $ignored, $authorsFields)
+	# Macro for generating an authors field, e.g. 100
+	private function macro_generateAuthors ($value, $xml, $fieldNumber, $authorsFields)
 	{
-		# Return the value (which may be false, meaning no 100 field should be created)
-		return $authorsFields[100];
+		# Return the value (which may be false, meaning no field should be created)
+		return $authorsFields[$fieldNumber];
 	}
 	
 	
@@ -5027,22 +5027,6 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the modified value
 		return $value;
-	}
-	
-	
-	# Macro for generating the 110 field
-	private function macro_generate110 ($value, $xml, $ignored, $authorsFields)
-	{
-		# Return the value
-		return $authorsFields[110];
-	}
-	
-	
-	# Macro for generating the 111 field
-	private function macro_generate111 ($value, $xml, $ignored, $authorsFields)
-	{
-		# Return the value
-		return $authorsFields[111];
 	}
 	
 	
@@ -5218,14 +5202,6 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the result string
 		return $string;
-	}
-	
-	
-	# Macro for generating the 700 field
-	private function macro_generate700 ($value, $xml, $ignored, $authorsFields)
-	{
-		# Return the value
-		return $authorsFields[700];
 	}
 	
 	
