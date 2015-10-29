@@ -5003,8 +5003,16 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Macro for generating an authors field, e.g. 100
-	private function macro_generateAuthors ($value, $xml, $fieldNumber, $authorsFields)
+	private function macro_generateAuthors ($value, $xml, $arg, $authorsFields)
 	{
+		# Parse the arguments
+		$fieldNumber = $arg;	// Default single argument representing the field number
+		if (substr_count ($arg, ',')) {
+			list ($fieldNumber, $flag) = explode (',', $arg, 2);
+		}
+		
+		#!# TODO use flag = 'transliterated'
+		
 		# Return the value (which may be false, meaning no field should be created)
 		return $authorsFields[$fieldNumber];
 	}
