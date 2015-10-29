@@ -3879,8 +3879,8 @@ class muscatConversion extends frontControllerApplication
 		foreach ($datastructure as $lineNumber => $line) {
 			foreach ($line['macros'] as $find => $attributes) {
 				foreach ($attributes['macrosThisXpath'] as $macro) {
-					$macro = preg_replace ('/^!([a-zA-Z]+)/', '\1', $macro);	// Strip any prefixed !
-					$macro = preg_replace ('/^([a-zA-Z]+)\([^)]+\)/', '\1', $macro);	// Strip any prefixed (..) argument
+					$macro = preg_replace ('/^!([a-zA-Z0-9]+)/', '\1', $macro);	// Strip any prefixed !
+					$macro = preg_replace ('/^([a-zA-Z0-9]+)\([^)]+\)/', '\1', $macro);	// Strip any prefixed (..) argument
 					if (!in_array ($macro, $supportedMacros)) {
 						$unknownMacros[] = $macro;
 					}
