@@ -78,7 +78,7 @@ class generateAuthors
 		if (strlen ($n2)) {
 			
 			# Add to 100 field: 1# ‡a <*a/*n1>,
-			$value .= "1# {$this->doubleDagger}a {$n1}, ";
+			$value .= "1# {$this->doubleDagger}a{$n1}, ";
 			
 			# Classify *n2 field
 			$value = $this->classifyN2Field ($value, $n2);
@@ -173,7 +173,7 @@ class generateAuthors
 		if (application::iin_array ($n1, $strings)) {
 			
 			# Add to 100 field
-			$value .= "0# {$this->doubleDagger}a Anonymous";
+			$value .= "0# {$this->doubleDagger}aAnonymous";
 			
 			# GO TO: Classify *ad Field
 			$value = $this->classifyAdField ($value);
@@ -187,7 +187,7 @@ class generateAuthors
 		if (in_array ($n1, $strings)) {
 			
 			# Add to 100 field
-			$value .= "0# {$this->doubleDagger}a {$n1}";
+			$value .= "0# {$this->doubleDagger}a{$n1}";
 			
 			# Classify *nd Field
 			$value = $this->classifyNdField ($value);
@@ -201,7 +201,7 @@ class generateAuthors
 		if (in_array ($n1, $surnameOnly)) {
 			
 			# Add to 100 field
-			$value .= "1# {$this->doubleDagger}a {$n1}";
+			$value .= "1# {$this->doubleDagger}a{$n1}";
 			
 			# Classify *nd Field
 			$value = $this->classifyNdField ($value);
