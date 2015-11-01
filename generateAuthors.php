@@ -59,7 +59,7 @@ class generateAuthors
 		}
 		
 		# Do the classification; look at the first or only *doc/*ag/*a OR *art/*ag/*a
-		$value = $this->doClassification ('(/root/*/ag/a)[1]');
+		$value = $this->doClassification ('/*/ag/a[1]');
 		
 		# Return the value
 		return $value;
@@ -73,8 +73,8 @@ class generateAuthors
 		$value = '';
 		
 		# Does the *a contain a *n2?
-		$n2 = $this->muscatConversion->xPathValue ($this->xml, $path . '/n2', false);
-		$n1 = $this->muscatConversion->xPathValue ($this->xml, $path . '/n1', false);
+		$n2 = $this->muscatConversion->xPathValue ($this->xml, $path . '/n2');
+		$n1 = $this->muscatConversion->xPathValue ($this->xml, $path . '/n1');
 		if (strlen ($n2)) {
 			
 			# Add to 100 field: 1# ‡a <*a/*n1>,
