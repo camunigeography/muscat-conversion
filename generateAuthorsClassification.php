@@ -467,23 +467,8 @@ class generateAuthorsClassification
 		$n1 = $this->muscatConversion->xPathValue ($this->xml, '//e/n/n1');
 		#!# Exactly equal? Currently this does not match the *e/*n check
 		if (preg_match ('/the author/', $n1)) {
-			
-			# Add to 100 field:
-			# For each matching word / phrase, add:
-			$e = $this->muscatConversion->xPathValue ($this->xml, '//e/role');	// Obtain the *e, having determined that *n1 matches "the author"
-			$relatorTerms = $this->getRelatorTerms ($e);
-			$replacements = array ();
-			foreach ($relatorTerms as $relatorTerm => $replacement) {
-				if (substr_count ($e, $relatorTerm)) {
-					$replacements[$relatorTerm] = $replacement;
-				}
-			}
-			if ($replacements) {
-				$replacements = array_unique ($replacements);
-				foreach ($replacements as $replacement) {
-					$value .= ", {$this->doubleDagger}e {$replacement}";
-				}
-			}
+			$role = $this->muscatConversion->xPathValue ($this->xml, '//e/role');	// Obtain the $role, having determined that *n1 matches "the author"
+			$value .= $this->addRelatorTermsEField ($role);
 		}
 		
 		# Does 100 field currently end with a punctuation mark?
@@ -497,6 +482,33 @@ class generateAuthorsClassification
 			# Change 100 field to 700 field: all indicators, fields and subfields remain the same
 			$this->values[700] = $value;
 			return false;	// for 100
+		}
+		
+		# Return the value
+		return $value;
+	}
+	
+	
+	# Function to add the relator term as a $e field
+	private function addRelatorTermsEField ($role)
+	{
+		# Start a value
+		$value = '';
+		
+		# Add to 100 field:
+		# For each matching word / phrase, add:
+		$relatorTerms = $this->getRelatorTerms ($role);
+		$replacements = array ();
+		foreach ($relatorTerms as $relatorTerm => $replacement) {
+			if (substr_count ($role, $relatorTerm)) {
+				$replacements[$relatorTerm] = $replacement;
+			}
+		}
+		if ($replacements) {
+			$replacements = array_unique ($replacements);
+			foreach ($replacements as $replacement) {
+				$value .= ", {$this->doubleDagger}e{$replacement}";
+			}
 		}
 		
 		# Return the value
