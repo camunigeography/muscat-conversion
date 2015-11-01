@@ -505,10 +505,10 @@ class generateAuthors
 	private function addAffField ($value)
 	{
 		# Is there a *aff in *doc/*ag OR *art/*ag?
-		# If so, Add to 100 field
+		# If so, Add to 100 field; example: /records/121449/
 		$aff = $this->muscatConversion->xPathValue ($this->xml, '//ag/aff');
 		if (strlen ($aff)) {
-			$value = ", {$this->doubleDagger}u {$aff}";
+			$value .= ", {$this->doubleDagger}u {$aff}";
 		}
 		
 		# Does the record contain a *doc/*e/*n/*n1 OR *art/*e/*n/*n1 that is equal to 'the author'?
