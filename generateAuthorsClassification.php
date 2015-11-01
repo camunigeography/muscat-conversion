@@ -429,14 +429,15 @@ class generateAuthorsClassification
 	# Function to classify *ad field
 	private function classifyAdField ($path, $value)
 	{
-		/*
-			If running in a 7** context
-				at this point the "Are you creating the 700 field for a *a?" check happens.
-				This means that if we have gone through a *a then trigger the
-					"Classify *e Field" subroutine as an additional item in the logic here
-		*/
-		
-		
+		# If running in a 7** context, and going through *e/*n, trigger the "Classify *e Field" subroutine check
+		#!# Not clear this is necessary; in /records/147053/ this ends up getting $e anyway even if this block is not here
+		if (!$this->context1xx) {
+			if (preg_match ('|^/\*/e|', $path)) {
+				$role = $this->muscatConversion->xPathValue ($this->xml, $path . '/preceding-sibling::role');
+				$value .= $this->addRelatorTermsEField ($role);
+				return $value;
+			}
+		}
 		
 		# Look at the first or only *doc/*ag OR *art/*ag; example: /records/1165/
 		$ad = $this->muscatConversion->xPathValue ($this->xml, $path . '/following-sibling::ad');
