@@ -6,6 +6,8 @@ class generateAuthorsClassification
 	# Class properties
 	private $enable110Processing = false;
 	private $enable111Processing = false;
+	private $enable710Processing = false;
+	private $enable711Processing = false;
 	
 	
 	# Constructor
@@ -34,8 +36,22 @@ class generateAuthorsClassification
 	}
 	
 	
+	# Getter for 710 processing
+	public function getEnable710Processing ()
+	{
+		return $this->enable710Processing;
+	}
+	
+	
+	# Getter for 711 processing
+	public function getEnable711Processing ()
+	{
+		return $this->enable711Processing;
+	}
+	
+	
 	# Function providing an entry point into the main classification, which switches between the name format
-	public function main ($xml, $path, $secondIndicator = '#')
+	public function main ($xml, $path, $context1xx = false, $secondIndicator = '#')
 	{
 		# Start the value
 		$value = '';
@@ -45,6 +61,9 @@ class generateAuthorsClassification
 		
 		# Create a handle to the second indicator
 		$this->secondIndicator = $secondIndicator;
+		
+		# Create a handle to the context1xx flag
+		$this->context1xx = $context1xx;
 		
 		# Does the *a contain a *n2?
 		$n2 = $this->muscatConversion->xPathValue ($this->xml, $path . '/n2');
@@ -160,13 +179,21 @@ class generateAuthorsClassification
 		}
 		if ($match) {
 			
-			# Create 111 field instead of 100 field
-			$this->enable111Processing = true;
+			# Create 111/711 field instead of 100/700 field
+			if ($this->context1xx) {
+				$this->enable111Processing = true;
+			} else {
+				$this->enable711Processing = true;
+			}
 			return false;
 		}
 		
-		# Create 110 field instead of 100 field
-		$this->enable110Processing = true;
+		# Create 110/710 field instead of 100/700 field
+		if ($this->context1xx) {
+			$this->enable110Processing = true;
+		} else {
+			$this->enable710Processing = true;
+		}
 		return false;
 	}
 	
