@@ -16,7 +16,7 @@ class generateAuthorsClassification
 	
 	
 	# Function providing an entry point into the main classification, which switches between the name format
-	public function main ($xml, $path)
+	public function main ($xml, $path, $secondIndicator = '#')
 	{
 		# Start the value
 		$value = '';
@@ -24,13 +24,16 @@ class generateAuthorsClassification
 		# Create a handle to the XML
 		$this->xml = $xml;
 		
+		# Create a handle to the second indicator
+		$this->secondIndicator = $secondIndicator;
+		
 		# Does the *a contain a *n2?
 		$n2 = $this->muscatConversion->xPathValue ($this->xml, $path . '/n2');
 		$n1 = $this->muscatConversion->xPathValue ($this->xml, $path . '/n1');
 		if (strlen ($n2)) {
 			
-			# Add to 100 field: 1# ‡a <*a/*n1>,
-			$value .= "1# {$this->doubleDagger}a{$n1}, ";
+			# Add to 100 field: 1, second indicator, ‡a <*a/*n1>,
+			$value .= "1{$this->secondIndicator} {$this->doubleDagger}a{$n1}, ";
 			
 			# Classify *n2 field
 			$value = $this->classifyN2Field ($path, $value, $n2);
@@ -75,7 +78,7 @@ class generateAuthorsClassification
 		if (application::iin_array ($n1, $strings)) {
 			
 			# Add to 100 field
-			$value .= "0# {$this->doubleDagger}aAnonymous";
+			$value .= "0{$this->secondIndicator} {$this->doubleDagger}aAnonymous";
 			
 			# GO TO: Classify *ad Field
 			$value = $this->classifyAdField ($path, $value);
@@ -89,7 +92,7 @@ class generateAuthorsClassification
 		if (in_array ($n1, $strings)) {
 			
 			# Add to 100 field
-			$value .= "0# {$this->doubleDagger}a{$n1}";
+			$value .= "0{$this->secondIndicator} {$this->doubleDagger}a{$n1}";
 			
 			# Classify *nd Field
 			$value = $this->classifyNdField ($path, $value);
@@ -103,7 +106,7 @@ class generateAuthorsClassification
 		if (in_array ($n1, $surnameOnly)) {
 			
 			# Add to 100 field
-			$value .= "1# {$this->doubleDagger}a{$n1}";
+			$value .= "1{$this->secondIndicator} {$this->doubleDagger}a{$n1}";
 			
 			# Classify *nd Field
 			$value = $this->classifyNdField ($path, $value);
