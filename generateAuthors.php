@@ -487,8 +487,8 @@ class generateAuthors
 		
 		
 		
-		# Look at the first or only *doc/*ag OR *art/*ag
-		$ad = $this->muscatConversion->xPathValue ($this->xml, '//ag/ad');
+		# Look at the first or only *doc/*ag OR *art/*ag; example: /records/1165/
+		$ad = $this->muscatConversion->xPathValue ($this->xml, '/*/ag/a[1]/following-sibling::ad');
 		if (strlen ($ad)) {
 			$value = $this->_classifySingleValueNdOrAdField ($value, $ad, true);
 		}
@@ -506,7 +506,7 @@ class generateAuthors
 	{
 		# Is there a *aff in *doc/*ag OR *art/*ag?
 		# If so, Add to 100 field; example: /records/121449/
-		$aff = $this->muscatConversion->xPathValue ($this->xml, '//ag/aff');
+		$aff = $this->muscatConversion->xPathValue ($this->xml, '/*/ag/a[1]/following-sibling::aff');
 		if (strlen ($aff)) {
 			$value .= ", {$this->doubleDagger}u {$aff}";
 		}
