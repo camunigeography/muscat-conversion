@@ -204,7 +204,7 @@ class generate245
 				# Register this value
 				$statementOfResponsibility .= $string;
 				
-				# Next a
+				# Next *a
 				$aIndex++;
 			}
 			
@@ -216,7 +216,7 @@ class generate245
 				}
 			}
 			
-			# Next ag
+			# Next *ag
 			$agIndex++;
 		}
 		

@@ -81,12 +81,12 @@ class generateAuthors
 			$value .= "1# {$this->doubleDagger}a{$n1}, ";
 			
 			# Classify *n2 field
-			$value = $this->classifyN2Field ($value, $n2);
+			$value = $this->classifyN2Field ($path, $value, $n2);
 			
 		} else {
 			
 			# Classify *n1 field
-			$value = $this->classifyN1Field ($value, $n1);
+			$value = $this->classifyN1Field ($path, $value, $n1);
 		}
 		
 		# Return the value
@@ -145,7 +145,7 @@ class generateAuthors
 	
 	
 	# Function to classify *n1 field
-	private function classifyN1Field ($value, $n1)
+	private function classifyN1Field ($path, $value, $n1)
 	{
 		# Start the value for this section
 		$value = '';
@@ -176,7 +176,7 @@ class generateAuthors
 			$value .= "0# {$this->doubleDagger}aAnonymous";
 			
 			# GO TO: Classify *ad Field
-			$value = $this->classifyAdField ($value);
+			$value = $this->classifyAdField ($path, $value);
 			
 			# End
 			return $value;
@@ -190,7 +190,7 @@ class generateAuthors
 			$value .= "0# {$this->doubleDagger}a{$n1}";
 			
 			# Classify *nd Field
-			$value = $this->classifyNdField ($value);
+			$value = $this->classifyNdField ($path, $value);
 			
 			# End
 			return $value;
@@ -204,7 +204,7 @@ class generateAuthors
 			$value .= "1# {$this->doubleDagger}a{$n1}";
 			
 			# Classify *nd Field
-			$value = $this->classifyNdField ($value);
+			$value = $this->classifyNdField ($path, $value);
 			
 			# End
 			return $value;
@@ -248,7 +248,7 @@ class generateAuthors
 	
 	
 	# Function to classify *n2 field
-	private function classifyN2Field ($value, $n2)
+	private function classifyN2Field ($path, $value, $n2)
 	{
 		# Is the *n2 exactly equal to a set of specific names?
 		$names = array (
@@ -278,7 +278,7 @@ class generateAuthors
 		}
 		
 		# Classify *nd Field
-		$value = $this->classifyNdField ($value);
+		$value = $this->classifyNdField ($path, $value);
 		
 		# Return the value
 		return $value;
@@ -286,14 +286,14 @@ class generateAuthors
 	
 	
 	# Function to classify *nd field
-	private function classifyNdField ($value)
+	private function classifyNdField ($path, $value)
 	{
 		# Does the *a contain a *nd?
-		$nd = $this->muscatConversion->xPathValue ($this->xml, '(//ag/a)[1]/nd', false);
+		$nd = $this->muscatConversion->xPathValue ($this->xml, $path . '/nd');
 		if (!strlen ($nd)) {
 			
 			# If no, GO TO: Classify *ad Field
-			$value = $this->classifyAdField ($value);
+			$value = $this->classifyAdField ($path, $value);
 			
 			# Return the value
 			return $value;
@@ -322,7 +322,7 @@ class generateAuthors
 		}
 		
 		# GO TO: Classify *ad Field
-		$value = $this->classifyAdField ($value);
+		$value = $this->classifyAdField ($path, $value);
 		
 		# Return the value
 		return $value;
@@ -476,7 +476,7 @@ class generateAuthors
 	
 	
 	# Function to classify *ad field
-	private function classifyAdField ($value)
+	private function classifyAdField ($path, $value)
 	{
 		/*
 			If running in a 7** context
@@ -488,13 +488,13 @@ class generateAuthors
 		
 		
 		# Look at the first or only *doc/*ag OR *art/*ag; example: /records/1165/
-		$ad = $this->muscatConversion->xPathValue ($this->xml, '/*/ag/a[1]/following-sibling::ad');
+		$ad = $this->muscatConversion->xPathValue ($this->xml, $path . '/following-sibling::ad');
 		if (strlen ($ad)) {
 			$value = $this->_classifySingleValueNdOrAdField ($value, $ad, true);
 		}
 		
 		# GO TO: Add *aff Field
-		$value = $this->addAffField ($value);
+		$value = $this->addAffField ($path, $value);
 		
 		# Return the value
 		return $value;
@@ -502,11 +502,11 @@ class generateAuthors
 	
 	
 	# Function to add *aff field
-	private function addAffField ($value)
+	private function addAffField ($path, $value)
 	{
 		# Is there a *aff in *doc/*ag OR *art/*ag?
 		# If so, Add to 100 field; example: /records/121449/
-		$aff = $this->muscatConversion->xPathValue ($this->xml, '/*/ag/a[1]/following-sibling::aff');
+		$aff = $this->muscatConversion->xPathValue ($this->xml, $path . '/following-sibling::aff');
 		if (strlen ($aff)) {
 			$value .= ", {$this->doubleDagger}u {$aff}";
 		}
