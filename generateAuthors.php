@@ -25,7 +25,8 @@ class generateAuthors
 			110,
 			111,
 			700,
-			#!# TODO remaining
+			710,
+			711,
 		);
 		$this->values = array ();
 		foreach ($fields as $field) {
@@ -117,6 +118,30 @@ class generateAuthors
 	public function generate700 ()
 	{
 		// #!# TODO
+	}
+	
+	
+	# Generate 710
+	public function generate710 ()
+	{
+		# End if not enabled by the 100 process
+		if (!$this->generateAuthorsClassification->getEnable710Processing ()) {return false;}
+		
+		// #!# TODO
+		return 'todo-generate-710';
+		
+	}
+	
+	
+	# Generate 711
+	public function generate711 ()
+	{
+		# End if not enabled by the 100 process
+		if (!$this->generateAuthorsClassification->getEnable711Processing ()) {return false;}
+		
+		// #!# TODO
+		return 'todo-generate-711';
+		
 	}
 }
 
