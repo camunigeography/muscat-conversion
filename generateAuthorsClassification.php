@@ -465,6 +465,7 @@ class generateAuthorsClassification
 		# Does the record contain a *doc/*e/*n/*n1 OR *art/*e/*n/*n1 that is equal to 'the author'?
 		# E.g. *e containing "Illustrated and translated by" and *n1 "the author"
 		$n1 = $this->muscatConversion->xPathValue ($this->xml, '//e/n/n1');
+		#!# Exactly equal? Currently this does not match the *e/*n check
 		if (preg_match ('/the author/', $n1)) {
 			
 			# Add to 100 field:

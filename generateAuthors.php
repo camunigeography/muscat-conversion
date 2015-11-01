@@ -8,6 +8,8 @@ class generateAuthors
 	{
 		# Create a class property handle to the parent class
 		$this->muscatConversion = $muscatConversion;
+		$this->databaseConnection = $muscatConversion->databaseConnection;
+		$this->settings = $muscatConversion->settings;
 		
 		# Create a handle to the XML
 		$this->xml = $xml;
@@ -102,22 +104,146 @@ class generateAuthors
 	 * This creates multiple 700 lines, the lines being created as the outcome of the loop below
 	 * Each "contributor block" referenced below refers to the author components, which are basically the 'classify' functions elsewhere in this class
 	 * 
-	 * - Checks there is *doc/*ag or *art/*ag (i.e. *ser records will be ignored)
-	 * - Loops through each *ag
+	 * - Check there is *doc/*ag or *art/*ag (i.e. *ser records will be ignored)
+	 * - Loop through each *ag
 	 * - Within each *ag, for each *a and *al add the contributor block
 	 * - In the case of each *ag/*al, the "*al Detail" block (and ", ‡g (alternative name)", once only) is added
 	 * - Loop through each *e
 	 * - Within each *e, for each *n add the contributor block
 	 * - In the case of each *e/*n, *role, with Relator Term lookup substitution, is incorporated
 	 * - When considering the *e/*n, there is a guard clause to skip cases of 'the author' as the 100 field would have already pulled in that person (e.g. the 100 field could create "<name> $eIllustrator" indicating the author <name> is also the illustrator)
-	 * - Checks for a *ke which is a flag indicating that there are analytic (child) records, e.g. as present in /records/7463/
-	 * - Looks up the records whose *kg matches, e.g. /records/9375/ has *kg=7463, so this indicates that 9375 (which will be an *art) is a child of 7463
-	 * - For each *kg's *art (i.e. child *art record): take the first *art/*ag/*a/ (only the first) in that record within the *ag block, i.e. /records/9375/ /art/ag/a "contributor block", and also add the title of the (i.e. *art/*tg/*t); the second indicator is set to '2' to indicate that this 700 line is an 'Analytical entry'
+	 * - Check for a *ke which is a flag indicating that there are analytic (child) records, e.g. as present in /records/7463/
+	 * - Look up the records whose *kg matches, e.g. /records/9375/ has *kg=7463, so this indicates that 9375 (which will be an *art) is a child of 7463
+	 * - For each *kg's *art (i.e. child *art record): take the first *art/*ag/*a/ (only the first) in that record within the *ag block, i.e. /records/9375/ /art/ag/a "contributor block", and also add the title (i.e. *art/*tg/*t); the second indicator is set to '2' to indicate that this 700 line is an 'Analytical entry'
 	 * - Every 700 has a fixed string ", ‡5 UkCU-P" at the end (representing the Institution to which field applies)
 	 */
 	public function generate700 ()
 	{
-		// #!# TODO
+		# Start a list of 700 line values
+		$lines = array ();
+		
+#!# Should an /art record with no ag but with e succeed?
+		# Check there is *doc/*ag or *art/*ag (i.e. *ser records will be ignored)
+		$docAg = $this->muscatConversion->xPathValue ($this->xml, '/doc/ag');
+		$artAg = $this->muscatConversion->xPathValue ($this->xml, '/art/ag');
+		if (!$docAg && !$artAg) {
+			return false;
+		}
+		
+		# Loop through each *ag
+		$agIndex = 1;
+		while ($this->muscatConversion->xPathValue ($this->xml, "/*/ag[$agIndex]")) {
+			
+			# Loop through each *a (author) in this *ag (author group)
+			$aIndex = 1;	// XPaths are indexed from 1, not 0
+			while ($this->muscatConversion->xPathValue ($this->xml, "/*/ag[$agIndex]/a[{$aIndex}]")) {
+				
+				# Skip the first /*ag/*a
+				if ($agIndex == 1 && $aIndex == 1) {
+					$aIndex++;
+					continue;
+				}
+				
+				# Obtain the value
+				$lines[] = $this->generateAuthorsClassification->main ($this->xml, "/*/ag[$agIndex]/a[{$aIndex}]", false);
+				
+				# Next *a
+				$aIndex++;
+			}
+			
+			# Loop through each *al (author) in this *ag (author group)
+			$alIndex = 1;	// XPaths are indexed from 1, not 0
+			while ($this->muscatConversion->xPathValue ($this->xml, "/*/ag[$agIndex]/al[{$alIndex}]")) {
+				
+				# Obtain the value
+				$line = $this->generateAuthorsClassification->main ($this->xml, "/*/ag[$agIndex]/al[{$alIndex}]", false);
+				
+				# The "*al Detail" block (and ", ‡g (alternative name)", once only) is added
+				#!# Not yet checked cases for when a $g might already exist, to check this works
+				if (!substr_count ($line, "{$this->doubleDagger}g")) {
+					$line .= ", {$this->doubleDagger}g" . '(alternative name)';
+				}
+				
+				# Register the line
+				$lines[] = $line;
+				
+				# Next *al
+				$alIndex++;
+			}
+			
+			# Next *ag
+			$agIndex++;
+		}
+		
+		# Loop through each *e
+		$eIndex = 1;
+		while ($this->muscatConversion->xPathValue ($this->xml, "/*/e[$eIndex]")) {
+			
+			# Within each *e, for each *n add the contributor block
+			$nIndex = 1;	// XPaths are indexed from 1, not 0
+			while ($this->muscatConversion->xPathValue ($this->xml, "/*/e[$eIndex]/n[{$nIndex}]")) {
+				
+				# When considering the *e/*n, there is a guard clause to skip cases of 'the author' as the 100 field would have already pulled in that person (e.g. the 100 field could create "<name> $eIllustrator" indicating the author <name> is also the illustrator); e.g. /records/147053/
+				#!# Move this check into the generateAuthorsClassification class?
+				#!# Check this is as expected for e.g. /records/147053/
+				$n1 = $this->muscatConversion->xPathValue ($this->xml, "/*/e[$eIndex]/n[{$nIndex}]/n1");
+				if ($n1 == 'the author') {
+					$nIndex++;
+					continue;
+				}
+				
+				# Obtain the value
+				# In the case of each *e/*n, *role, with Relator Term lookup substitution, is incorporated; example: /records/47079/ ; this is done inside classifyAdField ()
+				$line = $this->generateAuthorsClassification->main ($this->xml, "/*/e[$eIndex]/n[{$nIndex}]", false);
+				
+				# Register the line
+				$lines[] = $line;
+				
+				# Next *n
+				$nIndex++;
+			}
+			
+			# Next *e
+			$eIndex++;
+		}
+		
+		# Check for a *ke which is a flag indicating that there are analytic (child) records; e.g.: /records/7463/
+		if ($this->muscatConversion->xPathValue ($this->xml, '//ke')) {		// Is just a flag, not a useful value; e.g. record 7463 contains "\&lt;b&gt; Analytics \&lt;b(l) ~l 1000/&quot;ME7463&quot;/ ~&gt;" which creates a button in the Muscat GUI
+			
+			# Look up the records whose *kg matches, e.g. /records/9375/ has *kg=7463, so this indicates that 9375 (which will be an *art) is a child of 7463
+			$currentRecordId = $this->muscatConversion->xPathValue ($this->xml, '/q0');
+			if ($children = $this->getAnalyticChildren ($currentRecordId)) {	// Returns records as array (id=>xmlObject, ...)
+				
+				# Loop through each *kg's *art (i.e. child *art record)
+				foreach ($children as $id => $childRecordXml) {
+					
+					# Take the first *art/*ag/*a/ (only the first) in that record within the *ag block, i.e. /records/9375/ /art/ag/a "contributor block"; the second indicator is set to '2' to indicate that this 700 line is an 'Analytical entry'
+					$line = $this->generateAuthorsClassification->main ($childRecordXml, "/*/ag[1]/a[1]", false, '2');
+					
+					# Add the title (i.e. *art/*tg/*t)
+					$line .= ", {$this->doubleDagger}2" . $this->muscatConversion->xPathValue ($childRecordXml, '/*/tg/t');
+					
+					# Register the line
+					$lines[] = $line;
+				}
+			}
+		}
+		
+		# End if no lines
+		if (!$lines) {return false;}
+		
+		# Every 700 has a fixed string ", ‡5 UkCU-P" at the end (representing the Institution to which field applies)
+		#!# Should this be "UkCU-P" or "UkCU-P." ?
+		foreach ($lines as $index => $line) {
+			$lines[$index] .= ", {$this->doubleDagger}5" . 'UkCU-P';
+		}
+		
+		# Implode the lines
+		$newLine = "\n" . '700 ';
+		$multilineString = implode ($newLine, $lines);
+		
+		# Return the value, which will be a special multiline string
+		return $multilineString;
 	}
 	
 	
@@ -142,6 +268,26 @@ class generateAuthors
 		// #!# TODO
 		return 'todo-generate-711';
 		
+	}
+	
+	
+	# Function to obtain the analytic children
+	private function getAnalyticChildren ($parentId)
+	{
+		# Get the children
+		$childIds = $this->databaseConnection->selectPairs ($this->settings['database'], 'catalogue_processed', array ('field' => 'kg', 'value' => $parentId), array ('recordId'));
+		
+		# Load the XML records for the children
+		$children = $this->databaseConnection->selectPairs ($this->settings['database'], 'catalogue_xml', array ('id' => $childIds), array ('id', 'xml'));
+		
+		# Convert each XML record string to an XML object
+		$childrenRecords = array ();
+		foreach ($children as $id => $record) {
+			$childrenRecords[$id] = $this->muscatConversion->loadXmlRecord ($record);
+		}
+		
+		# Return the records
+		return $childrenRecords;
 	}
 }
 
