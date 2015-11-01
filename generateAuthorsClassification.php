@@ -51,7 +51,7 @@ class generateAuthorsClassification
 	
 	
 	# Function providing an entry point into the main classification, which switches between the name format
-	public function main ($xml, $path, $context1xx = false, $secondIndicator = '#')
+	public function main ($xml, $path, $context1xx = true, $secondIndicator = '#')
 	{
 		# Start the value
 		$value = '';
