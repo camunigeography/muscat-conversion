@@ -3764,9 +3764,7 @@ class muscatConversion extends frontControllerApplication
 		if (!$this->convertToMarc_MacrosAllSupported ($datastructure, $errorString)) {return false;}
 		
 		# Load the record as a valid XML object
-		$xmlProlog = '<' . '?xml version="1.0" encoding="utf-8"?' . '>';
-		$record = $xmlProlog . "\n<root>" . "\n" . $record . "\n</root>";
-		$xml = new SimpleXMLElement ($record);
+		$xml = $this->loadXmlRecord ($record);
 		
 		# Up-front, process complex records
 		require_once ('generateAuthors.php');
@@ -3789,6 +3787,17 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the record
 		return $record;
+	}
+	
+	
+	# Function to load an XML record string as XML
+	public function loadXmlRecord ($record)
+	{
+		# Load the record as a valid XML object
+		$xmlProlog = '<' . '?xml version="1.0" encoding="utf-8"?' . '>';
+		$record = $xmlProlog . "\n<root>" . "\n" . $record . "\n</root>";
+		$xml = new SimpleXMLElement ($record);
+		return $xml;
 	}
 	
 	
