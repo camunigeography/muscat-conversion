@@ -3,6 +3,11 @@
 # Class to create the classification of author elements
 class generateAuthorsClassification
 {
+	# Class properties
+	private $enable110Processing = false;
+	private $enable111Processing = false;
+	
+	
 	# Constructor
 	public function __construct ($muscatConversion)
 	{
@@ -12,6 +17,20 @@ class generateAuthorsClassification
 		# Define unicode symbols
 		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
 		
+	}
+	
+	
+	# Getter for 110 processing
+	public function getEnable110Processing ()
+	{
+		return $this->enable110Processing;
+	}
+	
+	
+	# Getter for 111 processing
+	public function getEnable111Processing ()
+	{
+		return $this->enable111Processing;
 	}
 	
 	

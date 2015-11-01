@@ -74,7 +74,7 @@ class generateAuthors
 	public function generate110 ()
 	{
 		# End if not enabled by the 100 process
-		if (!isSet ($this->enable110Processing)) {return false;}
+		if (!$this->generateAuthorsClassification->getEnable110Processing ()) {return false;}
 		
 		// #!# TODO
 		return 'todo-generate-110';
@@ -86,7 +86,7 @@ class generateAuthors
 	public function generate111 ()
 	{
 		# End if not enabled by the 100 process
-		if (!isSet ($this->enable111Processing)) {return false;}
+		if (!$this->generateAuthorsClassification->getEnable111Processing ()) {return false;}
 		
 		// #!# TODO
 		return 'todo-generate-111';
