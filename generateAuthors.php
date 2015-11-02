@@ -406,9 +406,32 @@ class generateAuthors
 		# Set the master field
 		$this->field = 110;
 		
+		# Start the value for this section
+		$value = '';
+		
+		# Look at the first or only *doc/*ag/*a OR *art/*ag/*a
+		$path = '/*/ag/a[1]';
+		$n1 = $this->muscatConversion->xPathValue ($this->xml, $path . '/n1');
+		
+		# Does the *a/*n1 contain '. ' (i.e. full stop followed by a space)?
+		# Is the *n1 exactly equal to one of the names listed in the 'Full Stop Space Exceptions' tab?
+		if (substr_count ($n1, '. ') && !in_array ($n1, $this->fullStopExceptionsList ())) {
+			
+			# Add to 110 field: 2# ‡a <*a/*n1 [portion up to and including first full stop]> ‡b  <*a/*n1 [everything after first full stop]>
+			$n1Components = explode ('.', $n1, 2);
+			$value .= "2# {$this->doubleDagger}a{$n1Components[0]} {$this->doubleDagger}b{$n1Components[1]}";
+			
+		} else {
+			
+			# Add to 110 field: 2# ‡a <*a/*n1>
+			$value .= "2# {$this->doubleDagger}a{$n1}";
+		}
+		
+		# GO TO: Classify *nd Field
+		$value = $this->classifyNdField ($path, $value);
 		
 		# Write the value into the values registry
-		$this->values[110] = 'todo-generate-110';
+		$this->values[110] = $value;
 	}
 	
 	
@@ -731,8 +754,8 @@ class generateAuthors
 		if ($this->context1xx) {
 			if (substr_count ($value, "{$this->doubleDagger}e editor") || substr_count ($value, "{$this->doubleDagger}e compiler")) {
 				
-				# Change 100 field to 700 field: all indicators, fields and subfields remain the same
-				$fieldNumber = $this->field + 600;		// 100->700
+				# Change 1XX field to 7XX field: all indicators, fields and subfields remain the same; e.g. /records/31105/
+				$fieldNumber = $this->field + 600;		// 100->700, 110->710
 				$this->values[$fieldNumber] = $value;
 				return false;	// for 100
 			}
@@ -1652,6 +1675,49 @@ class generateAuthors
 	{
 		return array (
 			'1863-1945',
+		);
+	}
+	
+	
+	# Full stop exceptions list
+	private function fullStopExceptionsList ()
+	{
+		return array (
+			'Alpine (Double Glazing) Co. Ltd.',
+			'Commander Chr. Christensen Whaling Museum',
+			'D.F. Dickins and Associates Ltd',
+			'[David T. Abercrombie Co.]',
+			'[F. Ellis Brigham]',
+			'F.F. Slaney & Company Limited',
+			'Frederick A. Cook Society',
+			'G.K. Yuill and Associates Ltd.',
+			'H.J. Ruitenbeek Resource Consulting Ltd.',
+			'Hubert P. Wenger Foundation',
+			'[Istituto Geografico Polare "S. Zavatti"]',
+			'J. Lauritzen Lines',
+			'L.J. Cutler and Associates Pty Ltd',
+			'[L.L. Bean, Inc.]',
+			'L.S. Navigational Consulting Services Ltd.',
+			'[M.R. Publishing]',
+			'P.J. Usher Consulting Services',
+			'[R. Burns Ltd.]',
+			'R.M. Hardy & Associates Ltd',
+			'R.M. Hardy and Associates Ltd',
+			'Robert R. Nathan Associates',
+			'Roland C. Bailey & Associates',
+			'S.L. Ross Environmental Research Limited',
+			"St. Andrew's University",
+			'St. Helena. Government',
+			'St. John Ambulance Association',
+			"[St. Paul's Cathedral]",
+			'St.Helena. Government',
+			'Stephen R. Braund & Associates',
+			'T.W. Beak Consultants Ltd.',
+			'Terry G. Spragg & Associates',
+			'Thorpe St. Andrew School',
+			'W.F. Baird and Associates',
+			'W.J. Francl & Associates',
+			'Z.J. Loussac Public Library',
 		);
 	}
 }
