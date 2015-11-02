@@ -51,6 +51,12 @@ class generateAuthors
 		# Create a handle to the XML
 		$this->mainRecordXml = $mainRecordXml;
 		
+		# Initialise all fields
+		$fields = array (100, 110, 111, 700, 710, 711);
+		foreach ($fields as $field) {
+			$this->values[$field] = false;
+		}
+		
 		# Define unicode symbols
 		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
 		
@@ -80,10 +86,6 @@ class generateAuthors
 	{
 		# Assume 100 by default
 		$this->field = 100;
-		
-		# By default, assume no mutation
-		$this->values[110] = false;
-		$this->values[111] = false;
 		
 		# 100 is not relevant for *ser or *art/*in/*ag, so end at this point if matches these
 		$ser = $this->muscatConversion->xPathValue ($this->mainRecordXml, '//ser');
@@ -125,10 +127,6 @@ class generateAuthors
 	{
 		# Assume 700 by default
 		$this->field = 700;
-		
-		# By default, assume no mutation
-		$this->values[710] = false;
-		$this->values[711] = false;
 		
 		# Start a list of 700 line values
 		$lines = array ();
