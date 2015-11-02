@@ -115,7 +115,7 @@ class generateAuthors
 	 * - Check for a *ke which is a flag indicating that there are analytic (child) records, e.g. as present in /records/7463/
 	 * - Look up the records whose *kg matches, e.g. /records/9375/ has *kg=7463, so this indicates that 9375 (which will be an *art) is a child of 7463
 	 * - For each *kg's *art (i.e. child *art record): take the first *art/*ag/*a/ (only the first) in that record within the *ag block, i.e. /records/9375/ /art/ag/a "contributor block", and also add the title (i.e. *art/*tg/*t); the second indicator is set to '2' to indicate that this 700 line is an 'Analytical entry'
-	 * - Every 700 has a fixed string ", ‡5 UkCU-P" at the end (representing the Institution to which field applies)
+	 * - Every 700 has a fixed string ", ‡5 UkCU-P." at the end (representing the Institution to which field applies)
 	 */
 	public function generate700 ()
 	{
@@ -232,10 +232,9 @@ class generateAuthors
 		# End if no lines
 		if (!$lines) {return false;}
 		
-		# Every 700 has a fixed string ", ‡5 UkCU-P" at the end (representing the Institution to which field applies)
-		#!# Should this be "UkCU-P" or "UkCU-P." ?
+		# Every 700 has a fixed string ", ‡5 UkCU-P." at the end (representing the Institution to which field applies)
 		foreach ($lines as $index => $line) {
-			$lines[$index] .= ", {$this->doubleDagger}5" . 'UkCU-P';
+			$lines[$index] .= ", {$this->doubleDagger}5" . 'UkCU-P.';
 		}
 		
 		# Implode the lines
