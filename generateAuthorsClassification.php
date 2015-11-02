@@ -22,6 +22,14 @@ class generateAuthorsClassification
 	}
 	
 	
+	# Getter to return the values
+	public function getValues ()
+	{
+		# Return the values
+		return $this->values;
+	}
+	
+	
 	# Getter for 110 processing
 	public function getEnable110Processing ()
 	{

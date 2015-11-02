@@ -39,8 +39,8 @@ class generateAuthors
 	}
 	
 	
-	# Getter to return the result
-	public function getResult ()
+	# Getter to return the values
+	public function getValues ()
 	{
 		# Return the values
 		return $this->values;
