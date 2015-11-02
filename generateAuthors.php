@@ -710,11 +710,13 @@ class generateAuthors
 		}
 		
 		# Does 100 field include either or both of the following specified relator terms
-		if (substr_count ($value, "{$this->doubleDagger}e editor") || substr_count ($value, "{$this->doubleDagger}e compiler")) {
-			
-			# Change 100 field to 700 field: all indicators, fields and subfields remain the same
-			$this->values[700] = $value;
-			return false;	// for 100
+		if ($this->context1xx) {
+			if (substr_count ($value, "{$this->doubleDagger}e editor") || substr_count ($value, "{$this->doubleDagger}e compiler")) {
+				
+				# Change 100 field to 700 field: all indicators, fields and subfields remain the same
+				$this->values[700] = $value;
+				return false;	// for 100
+			}
 		}
 		
 		# Return the value
