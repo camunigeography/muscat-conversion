@@ -1,6 +1,39 @@
 <?php
 
 # Class to generate the complex author fields
+
+/* Mutations can happen as follows:
+	
+	First round: looks at the very first entity (person/company/conference) where person is author/editor/etc.
+		For this item:
+			Start, assuming it is a 100
+				Obtain the value
+					|
+					|---> Value that has been found can stay as 100 then Add to record; end further processing of first round
+					|
+					|---> A mutatation into 110 may be detected; at this point any value is thrown away; then 110 processing starts
+					      |---> 110 routine generates a value; then Add to record; end further processing of first round
+					      |---> OR value can mutate into 710 then Add to record; end further processing of first round
+					|
+					|---> A mutatation into 111 may be detected; at this point any value is thrown away; then 111 processing starts
+					      |---> 710 routine generates a value; then Add to record; end further processing of first round
+					      |---> OR value can mutate into 711 then Add to record; end further processing of first round
+					|
+					|---> Value that has been found can become 700 then Add to record; end further processing of first round
+					
+	Second round: looks each each other entity
+		For each one:
+			Start, assuming it is a 700
+				Obtain the value
+					|
+					|---> Value can stay as 700 then Add to record; go to next in loop
+					|
+					|---> Value can mutate into 710 then Add to record; go to next in loop
+					|
+					|---> Value can mutate into 711 then Add to record; go to next in loop
+	
+*/
+
 class generateAuthors
 {
 	# Class properties
@@ -22,8 +55,8 @@ class generateAuthors
 		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
 		
 		# Launch the two main entry points; each may include a mutation to a different field number
-		$this->generate100 ();
-		$this->generate700 ();
+		$this->generateFirstEntity ();		// Round one: first entity
+		$this->generateOtherEntities ();	// Round two: all other entities
 		
 	}
 	
@@ -36,16 +69,16 @@ class generateAuthors
 	}
 	
 	
-	# 100 field generation entry point
+	# First entity generation entry point, which assumes 100 but may become 110/111/700/710/711
 	/*
 	 * This is basically the first author.
-	 * It may end up switching to 110/111 instead.
+	 * It may end up switching to 110/111/700/710/711 instead.
 	 * Everyone else involved in the production ends put in 7xx fields.
 	 *
 	 */
-	private function generate100 ()
+	private function generateFirstEntity ()
 	{
-		# Set the master field
+		# Assume 100 by default
 		$this->field = 100;
 		
 		# By default, assume no mutation
@@ -68,7 +101,7 @@ class generateAuthors
 	}
 	
 	
-	# 700 field generation entry point; see: http://www.loc.gov/marc/bibliographic/bd700.html
+	# Other entities generation entry point, which assumes 700 but may become 710/711; see: http://www.loc.gov/marc/bibliographic/bd700.html
 	/*
 	 * This is basically all the people involved in the book except the first author, which if present is covered in 100/110/111.
 	 * It includes people in the analytic (child) records, but limited to the first of them for each such child record
@@ -88,9 +121,9 @@ class generateAuthors
 	 * - For each *kg's *art (i.e. child *art record): take the first *art/*ag/*a/ (only the first) in that record within the *ag block, i.e. /records/9375/ /art/ag/a "contributor block", and also add the title (i.e. *art/*tg/*t); the second indicator is set to '2' to indicate that this 700 line is an 'Analytical entry'
 	 * - Every 700 has a fixed string ", ‡5 UkCU-P." at the end (representing the Institution to which field applies)
 	 */
-	private function generate700 ()
+	private function generateOtherEntities ()
 	{
-		# Set the master field
+		# Assume 700 by default
 		$this->field = 700;
 		
 		# By default, assume no mutation
