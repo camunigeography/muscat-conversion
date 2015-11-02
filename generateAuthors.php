@@ -91,7 +91,7 @@ class generateAuthors
 		$ser = $this->muscatConversion->xPathValue ($this->mainRecordXml, '//ser');
 		$artIn = $this->muscatConversion->xPathValue ($this->mainRecordXml, '//art/in');
 		if ($ser || $artIn) {
-			$this->values[100] = false;
+			$this->values[$this->field] = false;
 			return;
 		}
 		
@@ -99,7 +99,7 @@ class generateAuthors
 		$value = $this->main ($this->mainRecordXml, '/*/ag/a[1]');
 		
 		# Write the value into the values registry
-		$this->values[100] = $value;
+		$this->values[$this->field] = $value;
 	}
 	
 	
@@ -136,7 +136,7 @@ class generateAuthors
 		$docAg = $this->muscatConversion->xPathValue ($this->mainRecordXml, '/doc/ag');
 		$artAg = $this->muscatConversion->xPathValue ($this->mainRecordXml, '/art/ag');
 		if (!$docAg && !$artAg) {
-			$this->values[700] = false;
+			$this->values[$this->field] = false;
 			return;
 		}
 		
@@ -241,7 +241,7 @@ class generateAuthors
 		
 		# End if no lines
 		if (!$lines) {
-			$this->values[700] = false;
+			$this->values[$this->field] = false;
 			return;
 		}
 		
@@ -255,7 +255,7 @@ class generateAuthors
 		$value = implode ($newLine, $lines);
 		
 		# Write the value, which will be a special multiline string, into the values registry
-		$this->values[700] = $value;
+		$this->values[$this->field] = $value;
 	}
 	
 	
@@ -473,7 +473,7 @@ class generateAuthors
 		$value = $this->classifyNdField ($path, $value);
 		
 		# Write the value into the values registry
-		$this->values[110] = $value;
+		$this->values[$this->field] = $value;
 	}
 	
 	
@@ -509,7 +509,7 @@ class generateAuthors
 		
 		
 		# Write the value into the values registry
-		$this->values[711] = 'todo-generate-710';
+		$this->values[$this->field] = 'todo-generate-710';
 	}
 	
 	
