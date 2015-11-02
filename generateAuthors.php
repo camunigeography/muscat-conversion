@@ -194,7 +194,7 @@ class generateAuthors
 					$line = $this->main ($childRecordXml, "/*/ag[1]/a[1]", false, '2');
 					
 					# Add the title (i.e. *art/*tg/*t)
-					$line .= ", {$this->doubleDagger}2" . $this->muscatConversion->xPathValue ($childRecordXml, '/*/tg/t');
+					$line .= ", {$this->doubleDagger}t" . $this->muscatConversion->xPathValue ($childRecordXml, '/*/tg/t');
 					
 					# Register the line
 					$lines[] = $line;
