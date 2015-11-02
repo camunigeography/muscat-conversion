@@ -384,31 +384,8 @@ class generateAuthors
 			return $value;
 		}
 		
-		# Does the *n1 contain any of the following specific strings?
-		$strings = array (
-			'colloque',
-			'colloquy',
-			'conference',
-			'congr&eacute;s',
-			'congreso',
-			'congress', // but NOT 'United States'
-			'konferentsiya',
-			'konferenzen',
-			'inqua',
-			'polartech',
-			'symposium',
-			'tagung',
-		);
-		$strings = $this->entitiesToUtf8List ($strings);
-		$match = false;
-		foreach ($strings as $string) {
-			if (substr_count (strtolower ($n1), strtolower ($string))) {
-				if (($string == 'congress') && (substr_count (strtolower ($n1), strtolower ('United States')))) {continue;}		// Whitelist this one
-				$match = true;
-				break;
-			}
-		}
-		if ($match) {
+		# Is the *n1 a conference?
+		if ($this->isConference ($n1)) {
 			
 			# Create 111/711 field instead of 100/700 field
 			if ($this->context1xx) {
@@ -429,6 +406,41 @@ class generateAuthors
 		}
 		
 		# No value for 100/700 field
+		return false;
+	}
+	
+	
+	# Helper function to determine if an *n1 is conference-like
+	private function isConference ($n1)
+	{
+		# Does the *n1 contain any of the following specific strings?
+		$strings = array (
+			'colloque',
+			'colloquy',
+			'conference',
+			'congr&eacute;s',
+			'congreso',
+			'congress', // but NOT 'United States'
+			'konferentsiya',
+			'konferenzen',
+			'inqua',
+			'polartech',
+			'symposium',
+			'tagung',
+		);
+		$strings = $this->entitiesToUtf8List ($strings);
+		
+		# Search for a match
+		foreach ($strings as $string) {
+			if (substr_count (strtolower ($n1), strtolower ($string))) {
+				if (($string == 'congress') && (substr_count (strtolower ($n1), strtolower ('United States')))) {continue;}		// Whitelist this one
+				
+				# Match is found
+				return true;
+			}
+		}
+		
+		# No match found
 		return false;
 	}
 	
