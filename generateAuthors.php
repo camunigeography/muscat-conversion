@@ -45,6 +45,9 @@ class generateAuthors
 	 */
 	private function generate100 ()
 	{
+		# Set the master field
+		$this->field = 100;
+		
 		# By default, assume no mutation
 		$this->values[110] = false;
 		$this->values[111] = false;
@@ -87,6 +90,9 @@ class generateAuthors
 	 */
 	private function generate700 ()
 	{
+		# Set the master field
+		$this->field = 700;
+		
 		# By default, assume no mutation
 		$this->values[710] = false;
 		$this->values[711] = false;
@@ -242,7 +248,7 @@ class generateAuthors
 	}
 	
 	
-	# Function providing an entry point into the main classification, which switches between the name format
+	# Function providing an entry point into the main classification block, which switches between the name format
 	private function main ($xml, $path, $context1xx = true, $secondIndicator = '#')
 	{
 		# Start the value
@@ -397,6 +403,9 @@ class generateAuthors
 	# Generate 110
 	private function generate110 ()
 	{
+		# Set the master field
+		$this->field = 110;
+		
 		
 		# Write the value into the values registry
 		$this->values[110] = 'todo-generate-110';
@@ -406,6 +415,9 @@ class generateAuthors
 	# Generate 111
 	private function generate111 ()
 	{
+		# Set the master field
+		$this->field = 111;
+		
 		
 		# Write the value into the values registry
 		$this->values[111] = 'todo-generate-111';
@@ -415,6 +427,9 @@ class generateAuthors
 	# Generate 710
 	private function generate710 ()
 	{
+		# Set the master field
+		$this->field = 710;
+		
 		
 		# Write the value into the values registry
 		$this->values[710] = 'todo-generate-710';
@@ -424,6 +439,9 @@ class generateAuthors
 	# Generate 711
 	private function generate711 ()
 	{
+		# Set the master field
+		$this->field = 711;
+		
 		
 		# Write the value into the values registry
 		$this->values[711] = 'todo-generate-710';
@@ -714,7 +732,8 @@ class generateAuthors
 			if (substr_count ($value, "{$this->doubleDagger}e editor") || substr_count ($value, "{$this->doubleDagger}e compiler")) {
 				
 				# Change 100 field to 700 field: all indicators, fields and subfields remain the same
-				$this->values[700] = $value;
+				$fieldNumber = $this->field + 600;		// 100->700
+				$this->values[$fieldNumber] = $value;
 				return false;	// for 100
 			}
 		}
