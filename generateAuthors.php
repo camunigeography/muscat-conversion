@@ -3,6 +3,10 @@
 # Class to generate the complex author fields
 class generateAuthors
 {
+	# Class properties
+	private $values = array ();
+	
+	
 	# Constructor
 	public function __construct ($muscatConversion, $mainRecordXml)
 	{
@@ -17,26 +21,9 @@ class generateAuthors
 		# Define unicode symbols
 		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
 		
-		# Flags
-		$this->enable110Processing = false;
-		$this->enable111Processing = false;
-		$this->enable710Processing = false;
-		$this->enable711Processing = false;
-		
-		# Generate each field
-		$fields = array (
-			100,
-			110,
-			111,
-			700,
-			710,
-			711,
-		);
-		$this->values = array ();
-		foreach ($fields as $field) {
-			$function = 'generate' . $field;
-			$this->{$function} ();
-		}
+		# Launch the two main entry points; each may include a mutation to a different field number
+		$this->generate100 ();
+		$this->generate700 ();
 		
 	}
 	
@@ -49,7 +36,7 @@ class generateAuthors
 	}
 	
 	
-	# Generate 100
+	# 100 field generation entry point
 	/*
 	 * This is basically the first author.
 	 * It may end up switching to 110/111 instead.
@@ -58,6 +45,10 @@ class generateAuthors
 	 */
 	private function generate100 ()
 	{
+		# By default, assume no mutation
+		$this->values[110] = false;
+		$this->values[111] = false;
+		
 		# 100 is not relevant for *ser or *art/*in/*ag, so end at this point if matches these
 		$ser = $this->muscatConversion->xPathValue ($this->mainRecordXml, '//ser');
 		$artIn = $this->muscatConversion->xPathValue ($this->mainRecordXml, '//art/in');
@@ -74,35 +65,7 @@ class generateAuthors
 	}
 	
 	
-	# Generate 110
-	public function generate110 ()
-	{
-		# End if not enabled by the 100 process
-		if (!$this->enable110Processing) {
-			$this->values[110] = false;
-			return false;
-		}
-		
-		# Write the value into the values registry
-		$this->values[110] = 'todo-generate-110';
-	}
-	
-	
-	# Generate 111
-	public function generate111 ()
-	{
-		# End if not enabled by the 100 process
-		if (!$this->enable111Processing) {
-			$this->values[111] = false;
-			return;
-		}
-		
-		# Write the value into the values registry
-		$this->values[111] = 'todo-generate-111';
-	}
-	
-	
-	# Generate 700; see: http://www.loc.gov/marc/bibliographic/bd700.html
+	# 700 field generation entry point; see: http://www.loc.gov/marc/bibliographic/bd700.html
 	/*
 	 * This is basically all the people involved in the book except the first author, which if present is covered in 100/110/111.
 	 * It includes people in the analytic (child) records, but limited to the first of them for each such child record
@@ -124,6 +87,10 @@ class generateAuthors
 	 */
 	private function generate700 ()
 	{
+		# By default, assume no mutation
+		$this->values[710] = false;
+		$this->values[711] = false;
+		
 		# Start a list of 700 line values
 		$lines = array ();
 		
@@ -252,34 +219,6 @@ class generateAuthors
 		
 		# Write the value, which will be a special multiline string, into the values registry
 		$this->values[700] = $value;
-	}
-	
-	
-	# Generate 710
-	public function generate710 ()
-	{
-		# End if not enabled by the 700 process
-		if (!$this->enable710Processing) {
-			$this->values[710] = false;
-			return false;
-		}
-		
-		# Write the value into the values registry
-		$this->values[710] = 'todo-generate-710';
-	}
-	
-	
-	# Generate 711
-	public function generate711 ()
-	{
-		# End if not enabled by the 700 process
-		if (!$this->enable711Processing) {
-			$this->values[711] = false;
-			return;
-		}
-		
-		# Write the value into the values registry
-		$this->values[711] = 'todo-generate-711';
 	}
 	
 	
@@ -434,20 +373,60 @@ class generateAuthors
 			
 			# Create 111/711 field instead of 100/700 field
 			if ($this->context1xx) {
-				$this->enable111Processing = true;
+				$this->generate111 ();
 			} else {
-				$this->enable711Processing = true;
+				$this->generate711 ();
 			}
+			
+			# No value for 100/700 field
 			return false;
 		}
 		
 		# Create 110/710 field instead of 100/700 field
 		if ($this->context1xx) {
-			$this->enable110Processing = true;
+			$this->generate110 ();
 		} else {
-			$this->enable710Processing = true;
+			$this->generate710 ();
 		}
+		
+		# No value for 100/700 field
 		return false;
+	}
+	
+	
+	# Generate 110
+	private function generate110 ()
+	{
+		
+		# Write the value into the values registry
+		$this->values[110] = 'todo-generate-110';
+	}
+	
+	
+	# Generate 111
+	private function generate111 ()
+	{
+		
+		# Write the value into the values registry
+		$this->values[111] = 'todo-generate-111';
+	}
+	
+	
+	# Generate 710
+	private function generate710 ()
+	{
+		
+		# Write the value into the values registry
+		$this->values[710] = 'todo-generate-710';
+	}
+	
+	
+	# Generate 711
+	private function generate711 ()
+	{
+		
+		# Write the value into the values registry
+		$this->values[711] = 'todo-generate-710';
 	}
 	
 	
