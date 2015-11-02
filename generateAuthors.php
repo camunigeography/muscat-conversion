@@ -390,7 +390,7 @@ class generateAuthors
 		
 		# Create 110/710 field instead of 100/700 field
 		if ($this->context1xx) {
-			$this->generate110 ();
+			$this->generate110 ($path);
 		} else {
 			$this->generate710 ();
 		}
@@ -401,7 +401,7 @@ class generateAuthors
 	
 	
 	# Generate 110
-	private function generate110 ()
+	private function generate110 ($path)
 	{
 		# Set the master field
 		$this->field = 110;
@@ -410,7 +410,6 @@ class generateAuthors
 		$value = '';
 		
 		# Look at the first or only *doc/*ag/*a OR *art/*ag/*a
-		$path = '/*/ag/a[1]';
 		$n1 = $this->muscatConversion->xPathValue ($this->xml, $path . '/n1');
 		
 		# Does the *a/*n1 contain '. ' (i.e. full stop followed by a space)?
