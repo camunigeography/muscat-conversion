@@ -235,8 +235,8 @@ class generate245
 			$eIndex++;
 		}
 		
-		# End with dot
-		$statementOfResponsibility .= '.';
+		# Ensure the value ends with a dot (if not already present)
+		if (substr ($statementOfResponsibility, -1) != '.') {$statementOfResponsibility .= '.';}
 		
 		# Return the Statement of Responsibility
 		return $statementOfResponsibility;
