@@ -4409,6 +4409,13 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro to upper-case the first character
+	private function macro_ucfirst ($value, $xml)
+	{
+		return ucfirst ($value);
+	}
+	
+	
 	# Macro to implement a ternary check
 	private function macro_ifElse ($value_ignored /* If empty, the macro will not even be called, so the value has to be passed in by parameter */, $xml, $parameters)
 	{
