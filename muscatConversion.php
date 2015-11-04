@@ -165,7 +165,7 @@ class muscatConversion extends frontControllerApplication
 	);
 	
 	# Define known *ks values to be ignored
-	private $ignoreKsValues = array ('MISSING', 'AK', 'CC', 'GLEN', 'HS', 'HSO', 'HSSB', 'HSSB1', 'HSSB2', 'HSSB3', 'IW', 'IWO', 'JHR', 'JHRO', 'JHR1', 'JW', 'JW1', 'MPO', 'MPP', 'NOM', 'PGA', 'PGA1', 'RF', );
+	private $ignoreKsValues = array ('AGI', 'AGI', 'AGI1', 'AK', 'AM', 'AM/HL', 'BL', 'C', 'C?', 'CC', 'D', 'D?', 'GLEN', 'GLEN', 'HL', 'HS', 'HS', 'HSO', 'HS (RS)', 'HS(RS)', 'HS/RUS', 'HSSB', 'HSSB1', 'HSSB2', 'HSSB3', 'IW', 'IW', 'IWO', 'JHR', 'JHRprob', 'JHR1', 'JHRO', 'JP', 'JW', 'JW', 'JW1', 'LASTPGA', 'MG', 'MISSING', 'MISSING', 'MPO', 'MPP', 'NOM', 'OM', 'PARTIAL RECORD', 'PGA', 'PGA', 'PGA1', 'RF', 'RF', 'RS', 'SS', 'WM', 'Y', );
 	
 	# Index for 880 subfield 6
 	private $field880subfield6Index = 0;
