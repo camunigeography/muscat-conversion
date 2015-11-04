@@ -90,8 +90,7 @@ class generateAuthors
 		$ser = $this->muscatConversion->xPathValue ($this->mainRecordXml, '//ser');
 		$artIn = $this->muscatConversion->xPathValue ($this->mainRecordXml, '//art/in');
 		if ($ser || $artIn) {
-			$this->values[$this->field] = false;
-			return;
+			return;		// The entry in $this->values for this field will be left as when initialised, i.e. false
 		}
 		
 		# Do the classification; look at the first or only *doc/*ag/*a OR *art/*ag/*a
@@ -138,8 +137,7 @@ class generateAuthors
 		
 		# End if no lines
 		if (!$lines) {
-			$this->values[$this->field] = false;
-			return false;
+			return false;		// The entry in $this->values for this field will be left as when initialised, i.e. false
 		}
 		
 		# Every 700/710/711 has a fixed string ", ‡5 UkCU-P." at the end (representing the Institution to which field applies)
@@ -497,7 +495,7 @@ class generateAuthors
 		# Is the *n1 exactly equal to one of the names listed in the 'Full Stop Space Exceptions' tab?
 		if (substr_count ($n1, '. ') && !in_array ($n1, $this->fullStopExceptionsList ())) {
 			
-			# Add to 110 field: 2# ‡a <*a/*n1 [portion up to and including first full stop]> ‡b  <*a/*n1 [everything after first full stop]>
+			# Add to 110 field: 2# ‡a <*a/*n1 [portion up to and including first full stop]> ‡b <*a/*n1 [everything after first full stop]>
 			$n1Components = explode ('.', $n1, 2);
 			$value .= "2# {$this->doubleDagger}a{$n1Components[0]} {$this->doubleDagger}b{$n1Components[1]}";
 			
