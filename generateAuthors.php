@@ -419,12 +419,8 @@ class generateAuthors
 		# Is the *n1 a conference?
 		if ($this->isConference ($n1)) {
 			
-			# Create 111/711 field instead of 100/700 field
-			if ($this->context1xx) {
-				$value = $this->generate111 ();
-			} else {
-				$value = $this->generate711 ();
-			}
+			# Mutate to 111/711 field instead of 100/700 field
+			$value = $this->generateX11 ($path);
 			
 		} else {
 			
@@ -506,27 +502,21 @@ class generateAuthors
 	}
 	
 	
-	# Generate 111
-	private function generate111 ()
+	# Function to generate a 111/711 field
+	private function generateX11 ($path)
 	{
-		# Set the master field
-		$this->field = 111;
+		# Assume 111/711 by default
+		$this->field += 11;		// 100->111, 700->711
+		
+		# Start the value for this section
+		$value = '';
 		
 		
-		# Write the value into the values registry
-		$this->values[111] = 'todo-generate-111';
-	}
-	
-	
-	# Generate 711
-	private function generate711 ()
-	{
-		# Set the master field
-		$this->field = 711;
+		$value = 'generate-x11-todo';
 		
 		
-		# Write the value into the values registry
-		$this->values[$this->field] = 'todo-generate-710';
+		# Return the value
+		return $value;
 	}
 	
 	
