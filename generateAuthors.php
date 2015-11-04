@@ -511,11 +511,72 @@ class generateAuthors
 		# Start the value for this section
 		$value = '';
 		
+		# Look at the first or only *doc/*ag/*a OR *art/*ag/*a
+		$n1 = $this->muscatConversion->xPathValue ($this->xml, $path . '/n1');
 		
-		$value = 'generate-x11-todo';
+		# Parse the conference name
+		$value = $this->parseConferenceTitle ($n1);
 		
+		# Classify *nd field
+		$value = $this->classifyNdField ($path, $value);
 		
 		# Return the value
+		return $value;
+	}
+	
+	
+	# Function to parse a conference title
+	#!# This could be simplified
+	private function parseConferenceTitle ($n1)
+	{
+		# Start the value for this section
+		$value = "2# {$this->doubleDagger}a ";
+		
+		# Does the *a/*n1 end with a four-digit year, starting with '19'?
+		# If not, add to 111 field: 2# ‡a <*a/*n1>
+		if (!preg_match ('/(19[0-9]{2})$/', $n1, $matches)) {
+			$value .= $n1;
+			return $value;
+		}
+		$year = $matches[1];
+		
+		# After an initial text string, does the *a/*n1 contain ', ' (i.e. comma followed by space), then a one or two-digit number immediately followed by 'nd', 'rd' or 'th' (e.g. 2nd, 3rd, 28th)? ; e.g. /records/58187/
+		#!# Matching and extraction are inconsistent in the spec
+		if (preg_match ('/^([^,]+), ([0-9]{1,2})(nd|rd|th), (.+), (19[0-9]{2})$/', $n1, $matches)) {
+			
+			# This is the NUMBER
+			$number = $matches[2] . $matches[3];	// e.g. 28th
+			
+			# The text string preceding the comma space before the NUMBER is the NAME
+			$name = $matches[1];
+			
+			# The text string that follows the comma space after the NUMBER and that precedes the comma space before the YEAR, but which does not include either of these comma spaces is the LOCATION
+			$location = $matches[4];
+			
+			# Add to 111 field: 2# ‡a <NAME> ‡n (<NUMBER> : ‡d <YEAR> : ‡c <LOCATION>)
+			$value .= "{$name} {$this->doubleDagger}n ({$number} : {$this->doubleDagger}d {$year} : {$this->doubleDagger}c {$location})";
+			return $value;
+		}
+		
+		# Is the YEAR preceded by a comma space, which is itself preceded by one of a set of known values? ; e.g.: /records/56643/
+		if (preg_match ('/^(.+), (Calgary|Lule.|Moskva|Strasbourg|Washington, D.C.), (19[0-9]{2})$/u', $n1, $matches)) {		// Luleå shown as Lule. to avoid potential UTF-8 mis-matching
+			
+			# This is the LOCATION
+			$location = $matches[2];
+			
+			# The text string preceding the comma space before the LOCATION is the NAME
+			$name = $matches[1];
+			
+			# Add to 111 field: 2# ‡a <NAME> ‡d (<YEAR> : ‡c <LOCATION>)
+			$value .= "{$name} {$this->doubleDagger}d ({$year} : {$this->doubleDagger}c {$location})";
+			return $value;
+		}
+		
+		# The text string preceding the comma space before the YEAR is the NAME
+		# Add to 111 field: 2# ‡a <NAME> ‡d (<YEAR>)
+		preg_match ('/^(.+), (19[0-9]{2})$/', $n1, $matches);
+		$name = $matches[1];
+		$value .= "{$name} {$this->doubleDagger}d ({$year})";
 		return $value;
 	}
 	
