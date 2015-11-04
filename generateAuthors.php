@@ -382,29 +382,27 @@ class generateAuthors
 			return $value;
 		}
 		
+		# Explicitly throw away the so-far generated value
+		$value = false;
+		
 		# Is the *n1 a conference?
 		if ($this->isConference ($n1)) {
 			
 			# Create 111/711 field instead of 100/700 field
 			if ($this->context1xx) {
-				$this->generate111 ();
+				$value = $this->generate111 ();
 			} else {
-				$this->generate711 ();
+				$value = $this->generate711 ();
 			}
 			
-			# No value for 100/700 field
-			return false;
-		}
-		
-		# Create 110/710 field instead of 100/700 field
-		if ($this->context1xx) {
-			$this->generate110 ($path);
 		} else {
-			$this->generate710 ();
+			
+			# Mutate to 110/710 field instead of 100/700 field
+			$value = $this->generateX10 ($path);
 		}
 		
-		# No value for 100/700 field
-		return false;
+		# Return the overwritten value
+		return $value;
 	}
 	
 	
@@ -443,11 +441,11 @@ class generateAuthors
 	}
 	
 	
-	# Generate 110
-	private function generate110 ($path)
+	# Function to generate a 110/710 field
+	private function generateX10 ($path)
 	{
-		# Set the master field
-		$this->field = 110;
+		# Assume 110/710 by default
+		$this->field += 10;		// 100->110, 700->710
 		
 		# Start the value for this section
 		$value = '';
@@ -472,8 +470,8 @@ class generateAuthors
 		# GO TO: Classify *nd Field
 		$value = $this->classifyNdField ($path, $value);
 		
-		# Write the value into the values registry
-		$this->values[$this->field] = $value;
+		# Return the value
+		return $value;
 	}
 	
 	
@@ -486,18 +484,6 @@ class generateAuthors
 		
 		# Write the value into the values registry
 		$this->values[111] = 'todo-generate-111';
-	}
-	
-	
-	# Generate 710
-	private function generate710 ()
-	{
-		# Set the master field
-		$this->field = 710;
-		
-		
-		# Write the value into the values registry
-		$this->values[710] = 'todo-generate-710';
 	}
 	
 	
@@ -797,9 +783,7 @@ class generateAuthors
 			if (substr_count ($value, "{$this->doubleDagger}e editor") || substr_count ($value, "{$this->doubleDagger}e compiler")) {
 				
 				# Change 1XX field to 7XX field: all indicators, fields and subfields remain the same; e.g. /records/31105/
-				$fieldNumber = $this->field + 600;		// 100->700, 110->710
-				$this->values[$fieldNumber] = $value;
-				return false;	// for 100
+				$this->field += 600;		// 100->700, 110->710
 			}
 		}
 		
