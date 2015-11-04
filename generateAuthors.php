@@ -134,7 +134,7 @@ class generateAuthors
 			return false;
 		}
 		
-		# Every 700 has a fixed string ", ‡5 UkCU-P." at the end (representing the Institution to which field applies)
+		# Every 700/710/711 has a fixed string ", ‡5 UkCU-P." at the end (representing the Institution to which field applies)
 		foreach ($lines as $index => $line) {
 			$lines[$index] .= ", {$this->doubleDagger}5" . 'UkCU-P.';
 		}
