@@ -125,19 +125,50 @@ class generateAuthors
 	 */
 	private function generateOtherEntities ()
 	{
+		# Generate the 700 line values
+		$lines = $this->generateOtherEntitiesLines ();
+		
+		# End if no lines
+		if (!$lines) {
+			$this->values[$this->field] = false;
+			return false;
+		}
+		
+		# Every 700 has a fixed string ", ‡5 UkCU-P." at the end (representing the Institution to which field applies)
+		foreach ($lines as $index => $line) {
+			$lines[$index] .= ", {$this->doubleDagger}5" . 'UkCU-P.';
+		}
+		
+		# Implode the lines
+		$newLine = "\n" . '700 ';
+		$value = implode ($newLine, $lines);
+		
+		# Write the value, which will be a special multiline string, into the values registry
+		$this->values[$this->field] = $value;
+	}
+	
+	
+	# Inner function for generateOtherEntities, covering everything except the final compilation of lines into a single string
+	private function generateOtherEntitiesLines ()
+	{
 		# Assume 700 by default
 		$this->field = 700;
 		
 		# Start a list of 700 line values
 		$lines = array ();
 		
+		# If there is already a 700 field arising from generateFirstEntity, which will be a standard scalar string, register this first by transfering it into the lines format and resetting the 700 registry
+		if ($this->values[700]) {
+			$lines[] = $this->values[700];
+			$this->values[700] = false;		// Reset
+		}
+		
 #!# Should an /art record with no ag but with e succeed?
 		# Check there is *doc/*ag or *art/*ag (i.e. *ser records will be ignored)
 		$docAg = $this->muscatConversion->xPathValue ($this->mainRecordXml, '/doc/ag');
 		$artAg = $this->muscatConversion->xPathValue ($this->mainRecordXml, '/art/ag');
 		if (!$docAg && !$artAg) {
-			$this->values[$this->field] = false;
-			return;
+			return $lines;
 		}
 		
 		# Loop through each *ag
@@ -239,23 +270,8 @@ class generateAuthors
 			}
 		}
 		
-		# End if no lines
-		if (!$lines) {
-			$this->values[$this->field] = false;
-			return;
-		}
-		
-		# Every 700 has a fixed string ", ‡5 UkCU-P." at the end (representing the Institution to which field applies)
-		foreach ($lines as $index => $line) {
-			$lines[$index] .= ", {$this->doubleDagger}5" . 'UkCU-P.';
-		}
-		
-		# Implode the lines
-		$newLine = "\n" . '700 ';
-		$value = implode ($newLine, $lines);
-		
-		# Write the value, which will be a special multiline string, into the values registry
-		$this->values[$this->field] = $value;
+		# Return the lines
+		return $lines;
 	}
 	
 	
