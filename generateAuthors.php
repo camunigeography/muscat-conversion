@@ -31,7 +31,6 @@
 					|---> Value can mutate into 710 then Add to record; go to next in loop
 					|
 					|---> Value can mutate into 711 then Add to record; go to next in loop
-	
 */
 
 class generateAuthors
@@ -122,9 +121,18 @@ class generateAuthors
 	 * - Look up the records whose *kg matches, e.g. /records/9375/ has *kg=7463, so this indicates that 9375 (which will be an *art) is a child of 7463
 	 * - For each *kg's *art (i.e. child *art record): take the first *art/*ag/*a/ (only the first) in that record within the *ag block, i.e. /records/9375/ /art/ag/a "contributor block", and also add the title (i.e. *art/*tg/*t); the second indicator is set to '2' to indicate that this 700 line is an 'Analytical entry'
 	 * - Every 700 has a fixed string ", ‡5 UkCU-P." at the end (representing the Institution to which field applies)
+	 * 
+	 * Handling of multiple entries:
+	 * - If there are multiple entries, e.g. 700 [...], 700 [...], 710 [...], 700 [...], etc., these are then exploded as new lines
+	 * - After each line is registered, the field number is reset to 700 to ensure that a switch to say 710 is not leaky into the next entry
+	 * - The resulting multiline string is 'hooked onto' the first one in the list; e.g. 710 [...], 700 [...], 700 [...] results in this attached to $this->values[710] as that is the first
+	 * - The ordering of 7xx fields does correctly reflect the record order; it is not problematic that a MARC record can have ordering such as 710,700,700,710,711,700 for instance
 	 */
 	private function generateOtherEntities ()
 	{
+		# Assume 700 by default
+		$this->field = 700;
+		
 		# Generate the 700 line values
 		$lines = $this->generateOtherEntitiesLines ();
 		
@@ -140,8 +148,11 @@ class generateAuthors
 		}
 		
 		# Implode the lines
-		$newLine = "\n" . '700 ';
+		$newLine = "\n";
 		$value = implode ($newLine, $lines);
+		
+		# As a special-case, remove the field code from the first line, as the $this->field number will be already present in the MARC parser definition
+		$value = substr ($value, 4);	// I.e. chop first four characters, e.g. "700 "
 		
 		# Write the value, which will be a special multiline string, into the values registry
 		$this->values[$this->field] = $value;
@@ -186,7 +197,11 @@ class generateAuthors
 				}
 				
 				# Obtain the value
-				$lines[] = $this->main ($this->mainRecordXml, "/*/ag[$agIndex]/a[{$aIndex}]", false);
+				$line = $this->main ($this->mainRecordXml, "/*/ag[$agIndex]/a[{$aIndex}]", false);
+				$lines[] = $this->field . ' ' . $line;
+				
+				# Reset next possible line entry to 700
+				$this->field = 700;
 				
 				# Next *a
 				$aIndex++;
@@ -206,7 +221,10 @@ class generateAuthors
 				}
 				
 				# Register the line
-				$lines[] = $line;
+				$lines[] = $this->field . ' ' . $line;
+				
+				# Reset next possible line entry to 700
+				$this->field = 700;
 				
 				# Next *al
 				$alIndex++;
@@ -238,7 +256,10 @@ class generateAuthors
 				$line = $this->main ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]", false);
 				
 				# Register the line
-				$lines[] = $line;
+				$lines[] = $this->field . ' ' . $line;
+				
+				# Reset next possible line entry to 700
+				$this->field = 700;
 				
 				# Next *n
 				$nIndex++;
@@ -265,7 +286,10 @@ class generateAuthors
 					$line .= ", {$this->doubleDagger}t" . $this->muscatConversion->xPathValue ($childRecordXml, '/*/tg/t');
 					
 					# Register the line
-					$lines[] = $line;
+					$lines[] = $this->field . ' ' . $line;
+					
+					# Reset next possible line entry to 700
+					$this->field = 700;
 				}
 			}
 		}
