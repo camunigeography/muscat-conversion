@@ -94,7 +94,7 @@ class generateAuthors
 		}
 		
 		# Do the classification; look at the first or only *doc/*ag/*a OR *art/*ag/*a
-		$value = $this->main ($this->mainRecordXml, '/*/ag/a[1]');
+		$value = $this->main ($this->mainRecordXml, '/*/ag/a[1]', 100);
 		
 		# Write the value into the values registry
 		$this->values[$this->field] = $value;
@@ -195,11 +195,10 @@ class generateAuthors
 				}
 				
 				# Obtain the value
-				$line = $this->main ($this->mainRecordXml, "/*/ag[$agIndex]/a[{$aIndex}]", false);
-				$lines[] = $this->field . ' ' . $line;
+				$line = $this->main ($this->mainRecordXml, "/*/ag[$agIndex]/a[{$aIndex}]", 700);
 				
-				# Reset next possible line entry to 700
-				$this->field = 700;
+				# Register the line, adding the field code, which may have been modified in main()
+				$lines[] = $this->field . ' ' . $line;
 				
 				# Next *a
 				$aIndex++;
@@ -210,7 +209,7 @@ class generateAuthors
 			while ($this->muscatConversion->xPathValue ($this->mainRecordXml, "/*/ag[$agIndex]/al[{$alIndex}]")) {
 				
 				# Obtain the value
-				$line = $this->main ($this->mainRecordXml, "/*/ag[$agIndex]/al[{$alIndex}]", false);
+				$line = $this->main ($this->mainRecordXml, "/*/ag[$agIndex]/al[{$alIndex}]", 700);
 				
 				# The "*al Detail" block (and ", ‡g (alternative name)", once only) is added
 				#!# Not yet checked cases for when a $g might already exist, to check this works
@@ -218,11 +217,8 @@ class generateAuthors
 					$line .= ", {$this->doubleDagger}g" . '(alternative name)';
 				}
 				
-				# Register the line
+				# Register the line, adding the field code, which may have been modified in main()
 				$lines[] = $this->field . ' ' . $line;
-				
-				# Reset next possible line entry to 700
-				$this->field = 700;
 				
 				# Next *al
 				$alIndex++;
@@ -251,13 +247,10 @@ class generateAuthors
 				
 				# Obtain the value
 				# In the case of each *e/*n, *role, with Relator Term lookup substitution, is incorporated; example: /records/47079/ ; this is done inside classifyAdField ()
-				$line = $this->main ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]", false);
+				$line = $this->main ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]", 700);
 				
-				# Register the line
+				# Register the line, adding the field code, which may have been modified in main()
 				$lines[] = $this->field . ' ' . $line;
-				
-				# Reset next possible line entry to 700
-				$this->field = 700;
 				
 				# Next *n
 				$nIndex++;
@@ -278,16 +271,13 @@ class generateAuthors
 				foreach ($children as $id => $childRecordXml) {
 					
 					# Take the first *art/*ag/*a/ (only the first) in that record within the *ag block, i.e. /records/9375/ /art/ag/a "contributor block"; the second indicator is set to '2' to indicate that this 700 line is an 'Analytical entry'
-					$line = $this->main ($childRecordXml, "/*/ag[1]/a[1]", false, '2');
+					$line = $this->main ($childRecordXml, "/*/ag[1]/a[1]", 700, '2');
 					
 					# Add the title (i.e. *art/*tg/*t)
 					$line .= ", {$this->doubleDagger}t" . $this->muscatConversion->xPathValue ($childRecordXml, '/*/tg/t');
 					
-					# Register the line
+					# Register the line, adding the field code, which may have been modified in main()
 					$lines[] = $this->field . ' ' . $line;
-					
-					# Reset next possible line entry to 700
-					$this->field = 700;
 				}
 			}
 		}
@@ -318,19 +308,22 @@ class generateAuthors
 	
 	
 	# Function providing an entry point into the main classification block, which switches between the name format
-	private function main ($xml, $path, $context1xx = true, $secondIndicator = '#')
+	private function main ($xml, $path, $defaultFieldCode, $secondIndicator = '#')
 	{
 		# Start the value
 		$value = '';
+		
+		# Set (or reset) the field code so that every processing is guaranteed to have a clean start
+		$this->field = $defaultFieldCode;
+		
+		# Create a handle to the context1xx flag
+		$this->context1xx = (substr ($defaultFieldCode, 0, 1) == 1);	// i.e. true if 1xx but not 7xx
 		
 		# Create a handle to the XML for this field
 		$this->xml = $xml;
 		
 		# Create a handle to the second indicator
 		$this->secondIndicator = $secondIndicator;
-		
-		# Create a handle to the context1xx flag
-		$this->context1xx = $context1xx;
 		
 		# Does the *a contain a *n2?
 		$n2 = $this->muscatConversion->xPathValue ($this->xml, $path . '/n2');
