@@ -1,6 +1,7 @@
 index.html
 
-tables/UDCMAP_pic.TXT
+tables/UDCMAP_pic.txt
+tables/UDCMAP_pic_additions.txt
 
 exports/*
 !exports/.gitignore

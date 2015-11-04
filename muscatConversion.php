@@ -3201,7 +3201,7 @@ class muscatConversion extends frontControllerApplication
 		# Create the table, clearing it out first if existing from a previous import
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.udctranslations;";
 		$this->databaseConnection->execute ($sql);
-		$sql = "CREATE TABLE IF NOT EXISTS `udctranslations` (
+		$sql = "CREATE TABLE IF NOT EXISTS udctranslations (
 			`ks` VARCHAR(20) NOT NULL COMMENT '*ks',
 			`kw` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT '*kw equivalent, looked-up',
 			PRIMARY KEY (`ks`)
@@ -3230,7 +3230,8 @@ class muscatConversion extends frontControllerApplication
 	private function parseUdcTranslationTable ()
 	{
 		# Load the file, and normalise newlines
-		$lookupTable = file_get_contents ($this->applicationRoot . '/tables/' . 'UDCMAP_pic.TXT');
+		$lookupTable  = file_get_contents ($this->applicationRoot . '/tables/' . 'UDCMAP_pic.txt');
+		$lookupTable .= file_get_contents ($this->applicationRoot . '/tables/' . 'UDCMAP_pic_additions.txt');
 		$lookupTable = str_replace ("\r\n", "\n", $lookupTable);
 		
 		# Remove line-breaks that are not the end of a line
@@ -3769,7 +3770,7 @@ class muscatConversion extends frontControllerApplication
 		# Up-front, process complex records
 		require_once ('generateAuthors.php');
 		$generateAuthors = new generateAuthors ($this, $xml);
-		$authorsFields = $generateAuthors->getResult ();
+		$authorsFields = $generateAuthors->getValues ();
 		
 		# Perform XPath replacements
 		if (!$datastructure = $this->convertToMarc_PerformXpathReplacements ($datastructure, $xml, $authorsFields, $errorString)) {return false;}
