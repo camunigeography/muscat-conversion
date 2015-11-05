@@ -3280,7 +3280,7 @@ class muscatConversion extends frontControllerApplication
 		while ($recordsRemaining > 0) {
 			
 			# Get the records
-			$query = "SELECT * FROM {$this->settings['database']}.catalogue_marc LIMIT {$offset},{$limit};";
+			$query = "SELECT id,marc FROM {$this->settings['database']}.catalogue_marc LIMIT {$offset},{$limit};";
 			$data = $this->databaseConnection->getPairs ($query);
 			
 			# Add each record
