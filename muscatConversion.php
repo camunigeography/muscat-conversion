@@ -5133,9 +5133,6 @@ class muscatConversion extends frontControllerApplication
 		# Obtain the *ts value or end
 		if (!$ts) {return false;}
 		
-		# Strip tags before normalisation phase
-		$ts = strip_tags ($ts);
-		
 		# Load the regexp list
 		$lookupTable = file_get_contents ($this->applicationRoot . '/tables/' . 'volumeRegexps.txt');
 		$lookupTable = trim ($lookupTable);
@@ -5180,9 +5177,20 @@ class muscatConversion extends frontControllerApplication
 		# Start with the $a subfield
 		$string = $this->doubleDagger . 'a' . $seriesTitle;
 		
-		# Add the volume number
+		# Deal with optional volume number
 		if (strlen ($volumeNumber)) {
-			$string .= ' ' . $this->doubleDagger . 'v' . $volumeNumber;
+			
+			# Strip any trailing ,. character in $a, and re-trim
+			$string = preg_replace ('/^(.+)[.,]$/', '\1', $string);
+			$string = trim ($string);
+			
+			# Add space-semicolon to $a if not already present
+			if (substr ($string, -1) != ';') {
+				$string .= ' ;';
+			}
+			
+			# Add the volume number
+			$string .= $this->doubleDagger . 'v' . $volumeNumber;
 		}
 		
 		# Return the string
