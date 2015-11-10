@@ -4553,6 +4553,18 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro to strip values like - or ??
+	private function macro_excludeNoneValue ($value)
+	{
+		# Return false on match
+		if ($value == '-') {return false;}
+		if ($value == '??') {return false;}
+		
+		# Return the value
+		return $value;
+	}
+	
+	
 	# Macro to get multiple values as an array
 	private function macro_multipleValues ($value_ignored, $xml, $parameter)
 	{
