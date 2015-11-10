@@ -4540,7 +4540,7 @@ class muscatConversion extends frontControllerApplication
 		# End if no value
 		if (!strlen ($value)) {return $value;}
 		
-		# Return unmodified if no split
+		# Return unmodified if dot already present
 		if (preg_match ('/^(.+)\.$/', $value, $matches)) {
 			return $value;
 		}
@@ -5313,7 +5313,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Construct the result string
-		$string = strtolower ('PGA') . $this->doubleDagger . 'a' . $value . ' -- ' . $mappings[$value];
+		$string = 'local' . $this->doubleDagger . 'a' . $value . ' -- ' . $mappings[$value];
 		
 		# Return the result string
 		return $string;
