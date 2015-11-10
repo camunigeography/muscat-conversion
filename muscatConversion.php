@@ -5241,7 +5241,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Construct the result string
-		$string = strtolower ('UDC') . '.' . $this->doubleDagger . 'a' . str_replace ('@*', '*', $value) . ' -- ' . $this->udcTranslations[$value] . ($description ? ": {$description}" : false);
+		$string = strtolower ('UDC') . $this->doubleDagger . 'a' . str_replace ('@*', '*', $value) . ' -- ' . $this->udcTranslations[$value] . ($description ? ": {$description}" : false);
 		
 		# Return the result string
 		return $string;
@@ -5312,7 +5312,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Construct the result string
-		$string = strtolower ('PGA') . '.' . $this->doubleDagger . 'a' . $value . ' -- ' . $mappings[$value];
+		$string = strtolower ('PGA') . $this->doubleDagger . 'a' . $value . ' -- ' . $mappings[$value];
 		
 		# Return the result string
 		return $string;
