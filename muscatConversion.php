@@ -3274,6 +3274,7 @@ class muscatConversion extends frontControllerApplication
 			id int(11) NOT NULL COMMENT 'Automatic key',
 			ts VARCHAR(255) NOT NULL COMMENT '*ts value',
 			result VARCHAR(255) DEFAULT NULL COMMENT 'Result of translation',
+			matchedRegexp VARCHAR(255) DEFAULT NULL COMMENT 'Result of translation',
 			PRIMARY KEY (id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of volume numbers'
 		;";
@@ -3296,7 +3297,11 @@ class muscatConversion extends frontControllerApplication
 		# Generate the result
 		$updates = array ();
 		foreach ($data as $recordId => $ts) {
-			$updates[$recordId] = array ('result' => $this->macro_generate490 ($ts, NULL));
+			$result = $this->macro_generate490 ($ts, NULL, NULL, NULL, $matchedRegexp);
+			$updates[$recordId] = array (
+				'result' => $result,
+				'matchedRegexp' => $matchedRegexp,
+			);
 		}
 		
 		# Update the table to add the results of the macro generation
@@ -5123,7 +5128,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Macro for generating the 490 field
-	private function macro_generate490 ($ts, $xml)
+	private function macro_generate490 ($ts, $xml, $ignored, $authorsFieldsIgnored, &$matchedRegexp = false)
 	{
 		# Obtain the *ts value or end
 		if (!$ts) {return false;}
@@ -5135,21 +5140,28 @@ class muscatConversion extends frontControllerApplication
 		$lookupTable = file_get_contents ($this->applicationRoot . '/tables/' . 'volumeRegexps.txt');
 		$lookupTable = trim ($lookupTable);
 		$lookupTable = str_replace ("\r\n", "\n", $lookupTable);
-		$regexps = explode ("\n", $lookupTable);
+		$regexpsBase = explode ("\n", $lookupTable);
 		
 		# Add implicit boundaries to each regexp
-		foreach ($regexps as $index => $regexp) {
+		$regexps = array ();
+		foreach ($regexpsBase as $index => $regexp) {
 			$regexps[$index] = '^(.+)\s+(' . $regexp . ')$';
 		}
 		
+		# Ensure the matched regexp is reset
+		$matchedRegexp = false;
+		
 		# Normalise any trailing volume number strings
+		$i = 0;
 		foreach ($regexps as $index => $regexp) {
+			$i++;
 			
 			# Find the first match, then stop
 			$delimeter = '~';	// Known not to be in the list
 			if (preg_match ($delimeter . $regexp . $delimeter, $ts, $matches)) {	// Regexps are permitted to have their own captures; matches 3 onwards are just ignored
 				$seriesTitle = $matches[1];
 				$volumeNumber = $matches[2];
+				$matchedRegexp = $i . ': ' . $regexpsBase[$index];	// Pass back by reference the matched regexp
 				break;	// Relevant regexp found
 			}
 			
@@ -7589,7 +7601,8 @@ class muscatConversion extends frontControllerApplication
 			SELECT
 				id,
 				ts,
-				result
+				result,
+				matchedRegexp
 			FROM {$this->settings['database']}.volumenumbers
 			ORDER BY id
 		;";
