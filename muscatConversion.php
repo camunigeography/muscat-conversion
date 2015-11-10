@@ -5131,16 +5131,32 @@ class muscatConversion extends frontControllerApplication
 		# Strip tags before normalisation phase
 		$ts = strip_tags ($ts);
 		
-		# Normalise any trailing volume number strings
-		$ts = preg_replace ("/^(.+)\s*,?Nos?\.?\s*([0-9]\(?[-0-9]+\)?)$/", '\1 \2', $ts);	// /records/12219/
-		$ts = preg_replace ("/^(.+)\s*\(([0-9]+)\)$/", '\1 \2', $ts);		// e.g. /records/68248/
-		// #!# More patterns in /fields/ts/values/ todo
-		#   65-21A, GA-112, 29/F, No. 17a, Chapter 15, Profil IV und V, 27, No. 38, 63-3D, Series 154, XXVIII.1, C 46, " ; 1111"
+		# Load the regexp list
+		$lookupTable = file_get_contents ($this->applicationRoot . '/tables/' . 'volumeRegexps.txt');
+		$lookupTable = trim ($lookupTable);
+		$lookupTable = str_replace ("\r\n", "\n", $lookupTable);
+		$regexps = explode ("\n", $lookupTable);
 		
-		# Divide into string and trailing volume number
-		preg_match ("/^(.+)\s*([-0-9]*)$/U", $ts, $matches);		// Use of /U is an ungreedy match to deal with the trailing number being optional
-		$seriesTitle = $matches[1];
-		$volumeNumber = $matches[2];
+		# Add implicit boundaries to each regexp
+		foreach ($regexps as $index => $regexp) {
+			$regexps[$index] = '^(.+)\s+(' . $regexp . ')$';
+		}
+		
+		# Normalise any trailing volume number strings
+		foreach ($regexps as $index => $regexp) {
+			
+			# Find the first match, then stop
+			$delimeter = '~';	// Known not to be in the list
+			if (preg_match ($delimeter . $regexp . $delimeter, $ts, $matches)) {	// Regexps are permitted to have their own captures; matches 3 onwards are just ignored
+				$seriesTitle = $matches[1];
+				$volumeNumber = $matches[2];
+				break;	// Relevant regexp found
+			}
+			
+			# If no match, treat as simple series title without volume number
+			$seriesTitle = $ts;
+			$volumeNumber = NULL;
+		}
 		
 		# If there is a *vno, use that
 		if ($xml) {		// I.e. if running in MARC generation context, rather than for report generation
