@@ -3262,9 +3262,9 @@ class muscatConversion extends frontControllerApplication
 		if (file_exists ($filenameMarcTxt)) {
 			unlink ($filenameMarcTxt);
 		}
-		$filenameVoyagerTxt = $directory . '/marc-voyager.txt';
-		if (file_exists ($filenameVoyagerTxt)) {
-			unlink ($filenameVoyagerTxt);
+		$filenameMarcExchange = $directory . '/marc.mrk';
+		if (file_exists ($filenameMarcExchange)) {
+			unlink ($filenameMarcExchange);
 		}
 		
 		# Get the total records in the table
@@ -3297,17 +3297,17 @@ class muscatConversion extends frontControllerApplication
 		file_put_contents ($filenameMarcTxt, $text);
 		
 		# Copy, so that a Voyager-specific formatted version can be created
-		copy ($filenameMarcTxt, $filenameVoyagerTxt);
+		copy ($filenameMarcTxt, $filenameMarcExchange);
 		
 		# Reformat to Voyager input style; this process is done using shelled-out inline sed/perl, rather than preg_replace, to avoid an out-of-memory crash
-		exec ("sed -i 's" . "/{$this->doubleDagger}\([a-z0-9]\)/" . '\$\1' . "/g' {$filenameVoyagerTxt}");		// Replace double-dagger(s) with $
-		exec ("sed -i '/^LDR /s/#/\\\\/g' {$filenameVoyagerTxt}");												// Replace all instances of a # marker in the LDR field with \
-		exec ("sed -i '/^008 /s/#/\\\\/g' {$filenameVoyagerTxt}");												// Replace all instances of a # marker in the 008 field with \
-		exec ("perl -pi -e 's" . '/^([0-9]{3}) #(.) (.+)$/' . '\1 \\\\\2 \3' . "/' {$filenameVoyagerTxt}");		// Replace # marker in position 1 with \
-		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.)# (.+)$/' . '\1 \2\\\\ \3' . "/' {$filenameVoyagerTxt}");		// Replace # marker in position 2 with \
-		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.+)$/' . '\1  \2' . "/' {$filenameVoyagerTxt}");				// Add double-space
-		exec ("perl -pi -e 's" . '/^([0-9]{3})  (.)(.) (.+)$/' . '\1  \2\3\4' . "/' {$filenameVoyagerTxt}");	// Remove space after marker
-		exec ("perl -pi -e 's" . '/^(.+)$/' . '=\1' . "/' {$filenameVoyagerTxt}");								// Add = at start of each line
+		exec ("sed -i 's" . "/{$this->doubleDagger}\([a-z0-9]\)/" . '\$\1' . "/g' {$filenameMarcExchange}");		// Replace double-dagger(s) with $
+		exec ("sed -i '/^LDR /s/#/\\\\/g' {$filenameMarcExchange}");												// Replace all instances of a # marker in the LDR field with \
+		exec ("sed -i '/^008 /s/#/\\\\/g' {$filenameMarcExchange}");												// Replace all instances of a # marker in the 008 field with \
+		exec ("perl -pi -e 's" . '/^([0-9]{3}) #(.) (.+)$/' . '\1 \\\\\2 \3' . "/' {$filenameMarcExchange}");		// Replace # marker in position 1 with \
+		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.)# (.+)$/' . '\1 \2\\\\ \3' . "/' {$filenameMarcExchange}");		// Replace # marker in position 2 with \
+		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.+)$/' . '\1  \2' . "/' {$filenameMarcExchange}");				// Add double-space
+		exec ("perl -pi -e 's" . '/^([0-9]{3})  (.)(.) (.+)$/' . '\1  \2\3\4' . "/' {$filenameMarcExchange}");	// Remove space after marker
+		exec ("perl -pi -e 's" . '/^(.+)$/' . '=\1' . "/' {$filenameMarcExchange}");								// Add = at start of each line
 		
 		# Create a binary version
 		$this->marcBinaryConversion ($directory);
@@ -3327,7 +3327,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Define and execute the command for converting the text version to binary; see: http://marcedit.reeset.net/ and http://marcedit.reeset.net/cmarcedit-exe-using-the-command-line and http://blog.reeset.net/?s=cmarcedit
-		$command = "mono /usr/local/bin/marcedit/cmarcedit.exe -s {$directory}/marc-voyager.txt -d {$filename} -pd -make";
+		$command = "mono /usr/local/bin/marcedit/cmarcedit.exe -s {$directory}/marc.mrk -d {$filename} -pd -make";
 		shell_exec ($command);
 	}
 	
@@ -3710,7 +3710,7 @@ class muscatConversion extends frontControllerApplication
 	{
 		# End if no output
 		$directory = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl;
-		if (!file_exists ("{$directory}/marc.txt") || !file_exists ("{$directory}/marc-voyager.txt") || !file_exists ("{$directory}/marc.mrc") || !file_exists ("{$directory}/marc.errors.txt")) {
+		if (!file_exists ("{$directory}/marc.txt") || !file_exists ("{$directory}/marc.mrk") || !file_exists ("{$directory}/marc.mrc") || !file_exists ("{$directory}/marc.errors.txt")) {
 			$html = "\n<p>There is no MARC output yet. Please <a href=\"{$this->baseUrl}/import/\">run an import</a> first.</p>";
 			echo $html;
 			return;
@@ -3720,7 +3720,7 @@ class muscatConversion extends frontControllerApplication
 		$html  = "\n<h3>Downloads</h3>";
 		$html .= "\n<ul class=\"downloads actions left spaced\">";
 		$html .= "\n\t<li><a class=\"actions\" href=\"{$this->baseUrl}/export/marc.txt\">MARC21 data (text)</a></li>";
-		$html .= "\n\t<li><a class=\"actions\" href=\"{$this->baseUrl}/export/marc-voyager.txt\">MARC21 data (text, Voyager format)</a></li>";
+		$html .= "\n\t<li><a class=\"actions\" href=\"{$this->baseUrl}/export/marc.mrk\">MARC21 text (text, .mrk)</a></li>";
 		$html .= "\n\t<li><a class=\"actions\" href=\"{$this->baseUrl}/export/marc.mrc\">MARC21 data (binary .mrc)</a></li>";
 		$html .= "\n</ul>";
 		
