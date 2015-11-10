@@ -3067,6 +3067,9 @@ class muscatConversion extends frontControllerApplication
 		# Create the UDC translations table, used by the addLookedupKsValue macro
 		$this->createUdcTranslationsTable ();
 		
+		# Create the volume numbers table, used for observation of the effect of the generate490 macro
+		$this->createVolumeNumbersTable ();
+		
 		# Clean out the MARC table
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.catalogue_marc;";
 		$this->databaseConnection->execute ($sql);
@@ -3257,6 +3260,46 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the matches
 		return $matches;
+	}
+	
+	
+	# Function to create the volume numbers table, used for observation of the effect of the generate490 macro
+	private function createVolumeNumbersTable ()
+	{
+		# Create the table, clearing it out first if existing from a previous import
+		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.volumenumbers;";
+		$this->databaseConnection->execute ($sql);
+		$sql = "CREATE TABLE IF NOT EXISTS volumenumbers (
+			id int(11) NOT NULL COMMENT 'Automatic key',
+			ts VARCHAR(255) NOT NULL COMMENT '*ts value',
+			result VARCHAR(255) DEFAULT NULL COMMENT 'Result of translation',
+			PRIMARY KEY (id)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of volume numbers'
+		;";
+		$this->databaseConnection->execute ($sql);
+		
+		# Insert the data
+		$sql = "
+			INSERT INTO volumenumbers (id, ts)
+			SELECT
+				id,
+				EXTRACTVALUE(xml, '//ts') AS ts
+			FROM catalogue_xml
+			WHERE EXTRACTVALUE(xml, '//ts') != ''	/* i.e. is a *ser */
+		";
+		$this->databaseConnection->execute ($sql);
+		
+		# Obtain the values
+		$data = $this->databaseConnection->selectPairs ($this->settings['database'], 'volumenumbers', array (), array ('id', 'ts'));
+		
+		# Generate the result
+		$updates = array ();
+		foreach ($data as $recordId => $ts) {
+			$updates[$recordId] = array ('result' => $this->macro_generate490 ($ts, NULL));
+		}
+		
+		# Update the table to add the results of the macro generation
+		$this->databaseConnection->updateMany ($this->settings['database'], 'volumenumbers', $updates);
 	}
 	
 	
@@ -5099,8 +5142,10 @@ class muscatConversion extends frontControllerApplication
 		$volumeNumber = $matches[2];
 		
 		# If there is a *vno, use that
-		if ($vno = $this->xPathValue ($xml, '//vno')) {
-			$volumeNumber = $vno;
+		if ($xml) {		// I.e. if running in MARC generation context, rather than for report generation
+			if ($vno = $this->xPathValue ($xml, '//vno')) {
+				$volumeNumber = $vno;
+			}
 		}
 		
 		# Start with the $a subfield
@@ -5110,8 +5155,6 @@ class muscatConversion extends frontControllerApplication
 		if (strlen ($volumeNumber)) {
 			$string .= ' ' . $this->doubleDagger . 'v' . $volumeNumber;
 		}
-		
-		application::dumpData ($string);
 		
 		# Return the string
 		return $string;
