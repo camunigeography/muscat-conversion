@@ -73,6 +73,7 @@ class muscatConversion extends frontControllerApplication
 		'541ccombinations2' => 'records with combinations of multiple *fund/*kb/*sref values (for 541c), excluding sref+fund',
 		'serlocationlocation' => '*ser records with two or more *locations',
 		'unrecognisedks' => 'records with unrecognised *ks values',
+		'offprints' => 'records that contain photocopy/offprint in *note/*local/*priv',
 	);
 	
 	# Listing (values) reports
@@ -6888,7 +6889,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Eecords with unrecognised *ks values
+	# Records with unrecognised *ks values
 	private function report_unrecognisedks ()
 	{
 		# Define the query
@@ -6916,6 +6917,25 @@ class muscatConversion extends frontControllerApplication
 		return $query;
 	}
 	
+	
+	# Records that contain photocopy/offprint in *note/*local/*priv
+	private function report_offprints ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'offprints' AS report,
+				recordId
+			FROM catalogue_processed
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    field IN ('note', 'local', 'priv')
+				AND (value LIKE '%photocopy%' OR value LIKE '%offprint%')
+			";
+		
+		# Return the query
+		return $query;
+	}
 	
 	
 	# Records with multiple sources (*ser)
