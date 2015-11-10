@@ -5072,10 +5072,10 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Macro for generating the 490 field
-	private function macro_generate490 ($value, $xml)
+	private function macro_generate490 ($ts, $xml)
 	{
 		# Obtain the *ts value or end
-		if (!$ts = $this->xPathValue ($xml, '//ts')) {return false;}
+		if (!$ts) {return false;}
 		
 		# Strip tags before normalisation phase
 		$ts = strip_tags ($ts);
@@ -5103,6 +5103,8 @@ class muscatConversion extends frontControllerApplication
 		if (strlen ($volumeNumber)) {
 			$string .= ' ' . $this->doubleDagger . 'v' . $volumeNumber;
 		}
+		
+		application::dumpData ($string);
 		
 		# Return the string
 		return $string;
