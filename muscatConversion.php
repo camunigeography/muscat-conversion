@@ -91,6 +91,7 @@ class muscatConversion extends frontControllerApplication
 		'kwunknown' => 'records where kw is unknown, showing the bibliographer concerned',
 		'doclocationperiodicaltsvalues' => '*doc records with one *location, which is Periodical - distinct *ts values',
 		'unrecognisedksvalues' => 'records with unrecognised *ks values - distinct *ks values',
+		'volumenumbers' => 'volume number results arising from 490 macro',
 	);
 	
 	# Define the types
@@ -7547,6 +7548,41 @@ class muscatConversion extends frontControllerApplication
 		
 		# Obtain the listing HTML
 		$html = $this->reportListing (NULL, 'values', false, false, $query);
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Report showing volume number conversions
+	private function report_volumenumbers ()
+	{
+		// No action needed - the data is created in the MARC creation stage
+		return true;
+	}
+	
+	
+	# View for report_volume volume number conversions
+	private function report_volumenumbers_view ()
+	{
+		# (Re-)generate the data
+		$this->createVolumeNumbersTable ();
+		
+		# Define a manual query
+		$query = "
+			SELECT
+				id,
+				ts,
+				result
+			FROM {$this->settings['database']}.volumenumbers
+			ORDER BY id
+		;";
+		
+		# Obtain the listing HTML
+		$html = $this->reportListing (NULL, 'volume strings', false, 'id', $query);
+		
+		# Highlight subfields
+		$html = $this->highlightSubfields ($html);
 		
 		# Return the HTML
 		return $html;
