@@ -2490,15 +2490,12 @@ class muscatConversion extends frontControllerApplication
 		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBlackslash}V','<em>');";
 		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBlackslash}N','</em>');";	// \n does not mean anything special in REPLACE()
 		
-		
 		# Diacritics (query takes 135 seconds)
 		$diacritics = $this->diacriticsTable ();
 		$queries[] = "UPDATE catalogue_processed SET value = " . $this->databaseConnection->replaceSql ($diacritics, 'value', "'") . ';';
 		
 		# Subscripts, e.g. "H{2}SO{4} will print out as H2SO4 with both 2 and 4 as subscripts"
-		$superscriptsFound = array_merge (array ('+', '-', '=', '(', ')', 'n'), range (0, 99), range (-99, -1), array ('103', '118', '125', '127', '129', '134', '137', '143', '144', '181', '187', '188', '204', '206', '207', '210', '222', '226', '228', '230', '231', '232', '234', '235', '238', '239', '240', '241', '548', '552'));
-		$subscriptsFound = array_merge (array ('+', '-', '=', '(', ')'), range (0, 9), range (-99, -1), array ('10', '11', '12', '13', '14', '15', '16', '17', '18', '20', '21', '22', '23', '25', '26', '27', '28', '29', '30', '31', '33', '35', '37', '40', '43', '45', '50', '60', '63', '64', '86', '90', '115', '128', '137', '200', '210', '238', '241', '500', '700', '0001', '1010', '1120', '2021'));
-		$superscriptsSubscriptsReplacements = $this->superscriptsSubscripts ($superscriptsFound, $subscriptsFound);
+		$superscriptsSubscriptsReplacements = $this->getSuperscriptsSubscriptsReplacementsDefinition ();
 		$queries[] = "UPDATE catalogue_processed SET value = " . $this->databaseConnection->replaceSql ($superscriptsSubscriptsReplacements, 'value', "'") . ';';
 		
 		# Greek characters; see also report_specialcharscase which enables the librarians to normalise \gGamMA to \gGamma
@@ -2539,8 +2536,8 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Conversion of superscripts and subscripts
-	private function superscriptsSubscripts ($superscriptsFound, $subscriptsFound)
+	# Function to create a key/value replacement pairs for superscripts and subscripts
+	private function getSuperscriptsSubscriptsReplacementsDefinition ()
 	{
 		/*
 		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'}e{',CHAR(0xE284AF USING utf8)) WHERE `value` LIKE '%}e{%';";	// Natural exponent U+212F
@@ -2555,13 +2552,23 @@ class muscatConversion extends frontControllerApplication
 		}
 		*/
 		
-		# Determine the unicode code points for 1...9+- for both subscripts and superscripts; see: http://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts#Superscripts_and_subscripts_block
+		# Determine the unicode code points for characters 1...9+- for both subscripts and superscripts; see: http://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts#Superscripts_and_subscripts_block
+		
+		# Subscripts 0-9 and then special characters
 		$unicodeSubscripts = array ();
-		$unicodeSuperscripts = array ();
 		$oneDigitNumbers = range (0, 9);
 		foreach ($oneDigitNumbers as $oneDigitNumber) {
-			
-			# Superscripts: more awkward than subscripts as code points include three ASCII-position characters; see: http://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts#Superscripts_and_subscripts_block
+			$unicodeSubscripts[$oneDigitNumber] = chr(0xE2).chr(0x82).chr(0x80 + $oneDigitNumber);
+		}
+		$unicodeSubscripts['+'] = chr(0xE2).chr(0x82).chr(0x8A);
+		$unicodeSubscripts['-'] = chr(0xE2).chr(0x82).chr(0x8B);
+		$unicodeSubscripts['='] = chr(0xE2).chr(0x82).chr(0x8C);
+		$unicodeSubscripts['('] = chr(0xE2).chr(0x82).chr(0x8D);
+		$unicodeSubscripts[')'] = chr(0xE2).chr(0x82).chr(0x8E);
+		
+		# Superscripts: more awkward than subscripts as code points include three ASCII-position characters; see: http://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts#Superscripts_and_subscripts_block
+		$unicodeSuperscripts = array ();
+		foreach ($oneDigitNumbers as $oneDigitNumber) {
 			switch ($oneDigitNumber) {
 				case 1:
 					$unicodeSuperscripts[$oneDigitNumber] = chr(0xC2).chr(0xB9);
@@ -2573,9 +2580,6 @@ class muscatConversion extends frontControllerApplication
 				default:
 					$unicodeSuperscripts[$oneDigitNumber] = chr(0xE2).chr(0x81).chr(0xB0 + $oneDigitNumber);
 			}
-			
-			# Subscripts
-			$unicodeSubscripts[$oneDigitNumber] = chr(0xE2).chr(0x82).chr(0x80 + $oneDigitNumber);
 		}
 		$unicodeSuperscripts['+'] = chr(0xE2).chr(0x81).chr(0xBA);
 		$unicodeSuperscripts['-'] = chr(0xE2).chr(0x81).chr(0xBB);
@@ -2583,19 +2587,28 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSuperscripts['('] = chr(0xE2).chr(0x81).chr(0xBD);
 		$unicodeSuperscripts[')'] = chr(0xE2).chr(0x81).chr(0xBE);
 		$unicodeSuperscripts['n'] = chr(0xE2).chr(0x81).chr(0xBF);
-		$unicodeSubscripts['+'] = chr(0xE2).chr(0x82).chr(0x8A);
-		$unicodeSubscripts['-'] = chr(0xE2).chr(0x82).chr(0x8B);
-		$unicodeSubscripts['='] = chr(0xE2).chr(0x82).chr(0x8C);
-		$unicodeSubscripts['('] = chr(0xE2).chr(0x82).chr(0x8D);
-		$unicodeSubscripts[')'] = chr(0xE2).chr(0x82).chr(0x8E);
 		
-		# Perform the replacements
+		# Define superscripts known to be in the data, e.g. {+}, {-}, }+{, }-{, etc.; all characters in these listings must have been defined above
+		$superscriptsPresentInData = array_merge (
+			array ('+', '-', '=', '(', ')', 'n'),
+			range (0, 99),
+			range (-99, -1),
+			array ('103', '118', '125', '127', '129', '134', '137', '143', '144', '181', '187', '188', '204', '206', '207', '210', '222', '226', '228', '230', '231', '232', '234', '235', '238', '239', '240', '241', '548', '552')
+		);
+		$subscriptsPresentInData = array_merge (
+			array ('+', '-', '=', '(', ')'),
+			range (0, 9),
+			range (-99, -1),
+			array ('10', '11', '12', '13', '14', '15', '16', '17', '18', '20', '21', '22', '23', '25', '26', '27', '28', '29', '30', '31', '33', '35', '37', '40', '43', '45', '50', '60', '63', '64', '86', '90', '115', '128', '137', '200', '210', '238', '241', '500', '700', '0001', '1010', '1120', '2021')
+		);
+		
+		# Assemble key/value pairs of search=>replace, e.g. {+} => +
 		$replacements = array ();
-		foreach ($superscriptsFound as $superscript) {
+		foreach ($superscriptsPresentInData as $superscript) {
 			$find = '}' . $superscript . '{';
 			$replacements[$find] = strtr ($superscript, $unicodeSuperscripts);
 		}
-		foreach ($subscriptsFound as $subscript) {
+		foreach ($subscriptsPresentInData as $subscript) {
 			$find = '{' . $subscript . '}';
 			$replacements[$find] = strtr ($subscript, $unicodeSubscripts);
 		}
