@@ -5046,6 +5046,10 @@ class muscatConversion extends frontControllerApplication
 		# Obtain the *ts value or end
 		if (!$ts) {return false;}
 		
+		# Series titles: 
+		# Decided not to treat "Series [0-9]+$" as a special case that avoids the splitting into $a... ;$v...
+		# This is because there is clear inconsistency in the records, e.g.: "Field Columbian Museum, Zoological Series 2", "Burt Franklin Research and Source Works Series 60"
+		
 		# Load the regexp list
 		$lookupTable = file_get_contents ($this->applicationRoot . '/tables/' . 'volumeRegexps.txt');
 		$lookupTable = trim ($lookupTable);
