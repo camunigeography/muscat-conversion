@@ -2590,6 +2590,8 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSuperscripts['('] = chr(0xE2).chr(0x81).chr(0xBD);
 		$unicodeSuperscripts[')'] = chr(0xE2).chr(0x81).chr(0xBE);
 		$unicodeSuperscripts['n'] = chr(0xE2).chr(0x81).chr(0xBF);
+		$unicodeSuperscripts['a'] = chr(0xC2).chr(0xAA);	// FEMININE ORDINAL INDICATOR (U+00AA); see: http://www.fileformat.info/info/unicode/char/00aa/index.htm and https://en.wikipedia.org/wiki/Ordinal_indicator#Usage
+		$unicodeSuperscripts['o'] = chr(0xC2).chr(0xBA);	// MASCULINE ORDINAL INDICATOR (U+00BA); see: http://www.fileformat.info/info/unicode/char/00ba/index.htm and https://en.wikipedia.org/wiki/Ordinal_indicator#Usage
 		
 		# Define superscripts known to be in the data, e.g. {+}, {-}, }+{, }-{, etc.; all characters in these listings must have been defined above
 		$subscriptsPresentInData = array_merge (
@@ -2599,7 +2601,7 @@ class muscatConversion extends frontControllerApplication
 			array ('10', '11', '12', '13', '14', '15', '16', '17', '18', '20', '21', '22', '23', '25', '26', '27', '28', '29', '30', '31', '33', '35', '37', '40', '43', '45', '50', '60', '63', '64', '86', '90', '115', '128', '137', '200', '210', '238', '241', '500', '700', '0001', '1010', '1120', '2021')
 		);
 		$superscriptsPresentInData = array_merge (
-			array ('+', '-', '=', '(', ')', 'n'),
+			array ('+', '-', '=', '(', ')', 'n', 'a', 'o'),
 			range (0, 99),
 			range (-99, -1),
 			array ('103', '118', '125', '127', '129', '134', '137', '143', '144', '181', '187', '188', '204', '206', '207', '210', '222', '226', '228', '230', '231', '232', '234', '235', '238', '239', '240', '241', '548', '552')
