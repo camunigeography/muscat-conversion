@@ -172,11 +172,8 @@ class generateAuthors
 			$this->values[700] = false;		// Reset
 		}
 		
-#!# Should an /art record with no ag but with e succeed?
-		# Check there is *doc/*ag or *art/*ag (i.e. *ser records will be ignored)
-		$docAg = $this->muscatConversion->xPathValue ($this->mainRecordXml, '/doc/ag');
-		$artAg = $this->muscatConversion->xPathValue ($this->mainRecordXml, '/art/ag');
-		if (!$docAg && !$artAg) {
+		# Check it is *doc/*ag or *art/*ag (i.e. ignore *ser records)
+		if ($ser = $this->muscatConversion->xPathValue ($this->mainRecordXml, '/ser')) {
 			return $lines;
 		}
 		
