@@ -2497,9 +2497,9 @@ class muscatConversion extends frontControllerApplication
 		$diacritics = $this->diacriticsTable ();
 		$queries[] = "UPDATE catalogue_processed SET value = " . $this->databaseConnection->replaceSql ($diacritics, 'value', "'") . ';';
 		
-		# Subscripts, e.g. "H{2}SO{4} will print out as H2SO4 with both 2 and 4 as subscripts"
-		$superscriptsSubscriptsReplacements = $this->getSuperscriptsSubscriptsReplacementsDefinition ();
-		$queries[] = "UPDATE catalogue_processed SET value = " . $this->databaseConnection->replaceSql ($superscriptsSubscriptsReplacements, 'value', "'") . ';';
+		# Subscripts and superscripts, e.g. "H{2}SO{4} will print out as H2SO4 with both 2 and 4 as subscripts"
+		$subscriptsSuperscriptsReplacements = $this->getSubscriptsSuperscriptsReplacementsDefinition ();
+		$queries[] = "UPDATE catalogue_processed SET value = " . $this->databaseConnection->replaceSql ($subscriptsSuperscriptsReplacements, 'value', "'") . ';';
 		
 		# Greek characters; see also report_specialcharscase which enables the librarians to normalise \gGamMA to \gGamma
 		# Assumes this catalogue rule has been eliminated: "When '\g' is followed by a word, the case of the first letter is significant. The remaining letters can be in either upper or lower case however. Thus '\gGamma' is a capital gamma, and the forms '\gGAMMA', '\gGAmma' etc. will also represent capital gamma."
@@ -2539,8 +2539,8 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to create a key/value replacement pairs for superscripts and subscripts
-	private function getSuperscriptsSubscriptsReplacementsDefinition ()
+	# Function to create a key/value replacement pairs for subscripts and superscripts
+	private function getSubscriptsSuperscriptsReplacementsDefinition ()
 	{
 		/*
 		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'}e{',CHAR(0xE284AF USING utf8)) WHERE `value` LIKE '%}e{%';";	// Natural exponent U+212F
@@ -2592,29 +2592,31 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSuperscripts['n'] = chr(0xE2).chr(0x81).chr(0xBF);
 		
 		# Define superscripts known to be in the data, e.g. {+}, {-}, }+{, }-{, etc.; all characters in these listings must have been defined above
-		$superscriptsPresentInData = array_merge (
-			array ('+', '-', '=', '(', ')', 'n'),
-			range (0, 99),
-			range (-99, -1),
-			array ('103', '118', '125', '127', '129', '134', '137', '143', '144', '181', '187', '188', '204', '206', '207', '210', '222', '226', '228', '230', '231', '232', '234', '235', '238', '239', '240', '241', '548', '552')
-		);
 		$subscriptsPresentInData = array_merge (
 			array ('+', '-', '=', '(', ')'),
 			range (0, 9),
 			range (-99, -1),
 			array ('10', '11', '12', '13', '14', '15', '16', '17', '18', '20', '21', '22', '23', '25', '26', '27', '28', '29', '30', '31', '33', '35', '37', '40', '43', '45', '50', '60', '63', '64', '86', '90', '115', '128', '137', '200', '210', '238', '241', '500', '700', '0001', '1010', '1120', '2021')
 		);
+		$superscriptsPresentInData = array_merge (
+			array ('+', '-', '=', '(', ')', 'n'),
+			range (0, 99),
+			range (-99, -1),
+			array ('103', '118', '125', '127', '129', '134', '137', '143', '144', '181', '187', '188', '204', '206', '207', '210', '222', '226', '228', '230', '231', '232', '234', '235', '238', '239', '240', '241', '548', '552')
+		);
 		
 		# Assemble key/value pairs of search=>replace, e.g. {+} => +
 		$replacements = array ();
-		foreach ($superscriptsPresentInData as $superscript) {
-			$find = '}' . $superscript . '{';
-			$replacements[$find] = strtr ($superscript, $unicodeSuperscripts);
-		}
 		foreach ($subscriptsPresentInData as $subscript) {
 			$find = '{' . $subscript . '}';
 			$replacements[$find] = strtr ($subscript, $unicodeSubscripts);
 		}
+		foreach ($superscriptsPresentInData as $superscript) {
+			$find = '}' . $superscript . '{';
+			$replacements[$find] = strtr ($superscript, $unicodeSuperscripts);
+		}
+		
+		// application::dumpData ($replacements);
 		
 		# Return the replacements
 		return $replacements;
