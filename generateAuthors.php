@@ -525,58 +525,62 @@ class generateAuthors
 	}
 	
 	
-	# Function to parse a conference title
-	#!# This could be simplified
+	# Function to parse a conference title; see: http://www.loc.gov/marc/bibliographic/bd111.html
 	private function parseConferenceTitle ($n1)
 	{
-		# Start the value for this section
-		$value = "2# {$this->doubleDagger}a ";
+		# Convert separator used in the data from , to ;
+		$n1 = str_replace (', ', '; ', $n1);
 		
-		# Does the *a/*n1 end with a four-digit year, starting with '19'?
-		# If not, add to 111 field: 2# ‡a <*a/*n1>
-		if (!preg_match ('/(19[0-9]{2})$/', $n1, $matches)) {
-			$value .= $n1;
-			return $value;
+		# Revert real commas that are not separators
+		$whitelistStrings = array (
+			// Present in meeting name:
+			'Aerosols, Condensation',
+			'Mass-Balance, Fluctuations',
+			// Present in Location of meeting:
+			'Washington, D.C.',
+			'Edmonton, Alberta',
+			'Yakutsk, Siberia, U.S.S.R',
+			'Washington, D.C.',
+		);
+		$replacements = array ();
+		foreach ($whitelistStrings as $whitelistString) {
+			$find = str_replace (', ', '; ', $whitelistString);
+			$replacements[$find] = $whitelistString;	// e.g. 'Washington; D.C.' => 'Washington, D.C.'
 		}
-		$year = $matches[1];
+		$n1 = strtr ($n1, $replacements);
 		
-		# After an initial text string, does the *a/*n1 contain ', ' (i.e. comma followed by space), then a one or two-digit number immediately followed by 'nd', 'rd' or 'th' (e.g. 2nd, 3rd, 28th)? ; e.g. /records/58187/
-		#!# Matching and extraction are inconsistent in the spec
-		if (preg_match ('/^([^,]+), ([0-9]{1,2})(nd|rd|th), (.+), (19[0-9]{2})$/', $n1, $matches)) {
+		# Explode the components
+		$conferenceAttributes = explode ('; ', $n1);
+		
+		# Start the value for this section, which is $a<conferencename>
+		$value = "2# {$this->doubleDagger}a" . $conferenceAttributes[0];
+		
+		# Assemble according to number of parts
+		$totalParts = count ($conferenceAttributes);
+		switch ($totalParts) {
 			
-			# This is the NUMBER
-			$number = $matches[2] . $matches[3];	// e.g. 28th
-			
-			# The text string preceding the comma space before the NUMBER is the NAME
-			$name = $matches[1];
-			
-			# The text string that follows the comma space after the NUMBER and that precedes the comma space before the YEAR, but which does not include either of these comma spaces is the LOCATION
-			$location = $matches[4];
-			
-			# Add to 111 field: 2# ‡a <NAME> ‡n (<NUMBER> : ‡d <YEAR> : ‡c <LOCATION>)
-			$value .= "{$name} {$this->doubleDagger}n ({$number} : {$this->doubleDagger}d {$year} : {$this->doubleDagger}c {$location})";
-			return $value;
+			# Simple conference name; e.g. 'Arctic Science Conference'
+			case 1:
+				// No addition
+				break;
+				
+			# Conference and date; e.g. 'Symposium on Antarctic Resources, 1978'
+			case 2:
+				$value .= " {$this->doubleDagger}d({$conferenceAttributes[1]})";
+				break;
+				
+			# Conference, date and location; e.g. 'Conference on Antarctica, Washington, D.C., 1959'
+			case 3:
+				$value .= " {$this->doubleDagger}d({$conferenceAttributes[2]} :{$this->doubleDagger}c{$conferenceAttributes[1]})";
+				break;
+				
+			# Conference, number, date and location; e.g. 'Conference on Antarctica, Washington, D.C., 1959'
+			case 4:
+				$value .= " {$this->doubleDagger}n({$conferenceAttributes[1]} :{$this->doubleDagger}d{$conferenceAttributes[3]} :{$this->doubleDagger}c{$conferenceAttributes[2]})";
+				break;
 		}
 		
-		# Is the YEAR preceded by a comma space, which is itself preceded by one of a set of known values? ; e.g.: /records/56643/
-		if (preg_match ('/^(.+), (Calgary|Lule.|Moskva|Strasbourg|Washington, D.C.), (19[0-9]{2})$/u', $n1, $matches)) {		// Luleå shown as Lule. to avoid potential UTF-8 mis-matching
-			
-			# This is the LOCATION
-			$location = $matches[2];
-			
-			# The text string preceding the comma space before the LOCATION is the NAME
-			$name = $matches[1];
-			
-			# Add to 111 field: 2# ‡a <NAME> ‡d (<YEAR> : ‡c <LOCATION>)
-			$value .= "{$name} {$this->doubleDagger}d ({$year} : {$this->doubleDagger}c {$location})";
-			return $value;
-		}
-		
-		# The text string preceding the comma space before the YEAR is the NAME
-		# Add to 111 field: 2# ‡a <NAME> ‡d (<YEAR>)
-		preg_match ('/^(.+), (19[0-9]{2})$/', $n1, $matches);
-		$name = $matches[1];
-		$value .= "{$name} {$this->doubleDagger}d ({$year})";
+		# Return the value
 		return $value;
 	}
 	
