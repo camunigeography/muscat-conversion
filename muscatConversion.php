@@ -93,6 +93,7 @@ class muscatConversion extends frontControllerApplication
 		'doclocationperiodicaltsvalues' => '*doc records with one *location, which is Periodical - distinct *ts values',
 		'unrecognisedksvalues' => 'records with unrecognised *ks values - distinct *ks values',
 		'volumenumbers' => 'volume number results arising from 490 macro',
+		'voyagerlocations' => 'Muscat locations that do not map to Voyager locations',
 	);
 	
 	# Define the types
@@ -7531,6 +7532,38 @@ class muscatConversion extends frontControllerApplication
 		
 		# Obtain the listing HTML
 		$html = $this->reportListing (NULL, 'values', 'anywhere', false, $query);
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Muscat locations that do not map to Voyager locations
+	private function report_voyagerlocations ()
+	{
+		// No action needed - the view is created dynamically
+		return true;
+	}
+	
+	
+	# View for Muscat locations that do not map to Voyager locations
+	private function report_voyagerlocations_view ()
+	{
+		# Define a manual query
+		$query = "
+			SELECT
+				value AS title,
+				COUNT(recordId) AS instances
+			FROM catalogue_processed
+			WHERE
+				    field = 'location'
+				AND value NOT REGEXP \"^([0-9]{1,3}[A-Z]|Archives|Atlas|Basement|Bibliographers' Office|Cupboard|Folio|Large Atlas|Librarian's Office|Library Office|Map Room|Pam|Picture Library Office|Picture Library Store|Reference|Russian|Shelf|Special Collection|Theses|IGS|International Glaciological Society|Shelved with|Not in SPRI|Periodical)\"
+			GROUP BY value
+			ORDER BY title
+		";
+		
+		# Obtain the listing HTML
+		$html = $this->reportListing (NULL, 'locations', 'location', false, $query);
 		
 		# Return the HTML
 		return $html;
