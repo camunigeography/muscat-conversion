@@ -168,6 +168,9 @@ class muscatConversion extends frontControllerApplication
 		'Russian' => 'BGN PCGN 1947',	// Filename becomes bgn_pcgn_1947.xml
 	);
 	
+	# Define the file sets
+	private $filesets = array ('migrate' , 'suppress', 'ignore');
+	
 	# Define known *ks values to be ignored
 	private $ignoreKsValues = array ('AGI', 'AGI', 'AGI1', 'AK', 'AK1', 'AM', 'AM/HL', 'BL', 'C', 'C?', 'CC', 'D', 'D?', 'GLEN', 'GLEN', 'HL', 'HS', 'HSO', 'HS1', 'HS (RS)', 'HS(RS)', 'HS/RUS', 'HSSB', 'HSSB1', 'HSSB2', 'HSSB3', 'IW', 'IW', 'IWO', 'JHR', 'JHRprob', 'JHR1', 'JHRO', 'JP', 'JW', 'JW', 'JW1', 'LASTPGA', 'MG', 'MISSING', 'MISSING', 'MPO', 'MPP', 'NOM', 'NOM1', 'NOMO', 'OM', 'PARTIAL RECORD', 'PGA', 'PGA', 'PGA1', 'RF', 'RF', 'RS', 'SS', 'WM', 'Y', );
 	
@@ -3185,8 +3188,10 @@ class muscatConversion extends frontControllerApplication
 			}
 		}
 		
-		# Also generate a compiled text file and binary output
-		$this->createMarcExport ();
+		# Generate the output files
+		foreach ($this->filesets as $fileset) {
+			$this->createMarcExport ($fileset);
+		}
 		
 		# Signal success
 		return true;
@@ -3401,21 +3406,21 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to generate the MARC21 output as text
-	private function createMarcExport ()
+	private function createMarcExport ($fileset)
 	{
 		# Clear the current file(s)
 		$directory = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl;
-		$filenameMarcTxt = $directory . '/marc.txt';
+		$filenameMarcTxt = $directory . "/spri-marc-{$fileset}.txt";
 		if (file_exists ($filenameMarcTxt)) {
 			unlink ($filenameMarcTxt);
 		}
-		$filenameMarcExchange = $directory . '/marc.mrk';
+		$filenameMarcExchange = $directory . "/spri-marc-{$fileset}.mrk";
 		if (file_exists ($filenameMarcExchange)) {
 			unlink ($filenameMarcExchange);
 		}
 		
 		# Get the total records in the table
-		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], 'catalogue_marc');
+		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], 'catalogue_marc', "WHERE status='{$fileset}'");
 		
 		# Start the output
 		$text = '';
@@ -3427,7 +3432,7 @@ class muscatConversion extends frontControllerApplication
 		while ($recordsRemaining > 0) {
 			
 			# Get the records
-			$query = "SELECT id,marc FROM {$this->settings['database']}.catalogue_marc LIMIT {$offset},{$limit};";
+			$query = "SELECT id,marc FROM {$this->settings['database']}.catalogue_marc WHERE status='{$fileset}' LIMIT {$offset},{$limit};";
 			$data = $this->databaseConnection->getPairs ($query);
 			
 			# Add each record
@@ -3457,39 +3462,39 @@ class muscatConversion extends frontControllerApplication
 		exec ("perl -pi -e 's" . '/^(.+)$/' . '=\1' . "/' {$filenameMarcExchange}");								// Add = at start of each line
 		
 		# Create a binary version
-		$this->marcBinaryConversion ($directory);
+		$this->marcBinaryConversion ($fileset, $directory);
 		
 		# Check the output
-		$this->marcLintTest ($directory);
+		$this->marcLintTest ($fileset, $directory);
 	}
 	
 	
 	# Function to convert the MARC text to binary format
-	private function marcBinaryConversion ($directory)
+	private function marcBinaryConversion ($fileset, $directory)
 	{
 		# Clear file if it currently exists
-		$filename = "{$directory}/marc.mrc";
+		$filename = "{$directory}/spri-marc-{$fileset}.mrc";
 		if (file_exists ($filename)) {
 			unlink ($filename);
 		}
 		
 		# Define and execute the command for converting the text version to binary; see: http://marcedit.reeset.net/ and http://marcedit.reeset.net/cmarcedit-exe-using-the-command-line and http://blog.reeset.net/?s=cmarcedit
-		$command = "mono /usr/local/bin/marcedit/cmarcedit.exe -s {$directory}/marc.mrk -d {$filename} -pd -make";
+		$command = "mono /usr/local/bin/marcedit/cmarcedit.exe -s {$directory}/spri-marc-{$fileset}.mrk -d {$filename} -pd -make";
 		shell_exec ($command);
 	}
 	
 	
 	# Function to do a lint test
-	private function marcLintTest ($directory)
+	private function marcLintTest ($fileset, $directory)
 	{
 		# Clear file if it currently exists
-		$filename = "{$directory}/marc.errors.txt";
+		$filename = "{$directory}/spri-marc-{$fileset}.errors.txt";
 		if (file_exists ($filename)) {
 			unlink ($filename);
 		}
 		
 		# Define and execute the command for converting the text version to binary
-		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; perl lint_test.pl {$directory}/marc.mrc 2>> errors.txt ; mv errors.txt {$filename}";
+		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; perl lint_test.pl {$directory}/spri-marc-{$fileset}.mrc 2>> errors.txt ; mv errors.txt {$filename}";
 		shell_exec ($command);
 	}
 	
@@ -3857,7 +3862,7 @@ class muscatConversion extends frontControllerApplication
 	{
 		# End if no output
 		$directory = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl;
-		if (!file_exists ("{$directory}/marc.txt") || !file_exists ("{$directory}/marc.mrk") || !file_exists ("{$directory}/marc.mrc") || !file_exists ("{$directory}/marc.errors.txt")) {
+		if (!file_exists ("{$directory}/spri-marc-migrate.txt")) {
 			$html = "\n<p>There is no MARC output yet. Please <a href=\"{$this->baseUrl}/import/\">run an import</a> first.</p>";
 			echo $html;
 			return;
@@ -3865,22 +3870,30 @@ class muscatConversion extends frontControllerApplication
 		
 		# Compile the HTML
 		$html  = "\n<h3>Downloads</h3>";
-		$html .= "\n<ul class=\"downloads actions left spaced\">";
-		$html .= "\n\t<li><a class=\"actions\" href=\"{$this->baseUrl}/export/marc.txt\">MARC21 data (text)</a></li>";
-		$html .= "\n\t<li><a class=\"actions\" href=\"{$this->baseUrl}/export/marc.mrk\">MARC21 text (text, .mrk)</a></li>";
-		$html .= "\n\t<li><a class=\"actions\" href=\"{$this->baseUrl}/export/marc.mrc\">MARC21 data (binary .mrc)</a></li>";
-		$html .= "\n\t<li><a class=\"actions\" href=\"{$this->baseUrl}/export/marc.errors.txt\">Errors</a></li>";
-		$html .= "\n</ul>";
+		$html .= "\n<table class=\"lines spaced\">";
+		foreach ($this->filesets as $fileset) {
+			$html .= "\n\t<tr>";
+			$html .= "\n\t\t<td>" . ucfirst ($fileset) . ':</td>';
+			$html .= "\n\t\t<td><a class=\"actions\" href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.txt\">MARC21 data (text)</a></td>";
+			$html .= "\n\t\t<td><a class=\"actions\" href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrk\"><strong>MARC21 text (text, .mrk)</strong></a></td>";
+			$html .= "\n\t\t<td><a class=\"actions\" href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrc\">MARC21 data (binary .mrc)</a></td>";
+			$html .= "\n\t\t<td><a class=\"actions\" href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.errors.txt\">Errors</a></li>";
+			$html .= "\n\t</tr>";
+		}
+		$html .= "\n</table>";
 		
 		# Show errors
 		$html .= "\n<h3>Errors</h3>";
-		$filename = $directory . '/marc.errors.txt';
-		$errors = file_get_contents ($filename);
-		$html .= "\n<div class=\"graybox\">";
-		$html .= "\n<pre>";
-		$html .= htmlspecialchars ($errors);
-		$html .= "\n</pre>";
-		$html .= "\n</div>";
+		foreach ($this->filesets as $fileset) {
+			$html .= "\n<h4>Errors: {$fileset}</h4>";
+			$filename = $directory . "/spri-marc-{$fileset}.errors.txt";
+			$errors = file_get_contents ($filename);
+			$html .= "\n<div class=\"graybox\">";
+			$html .= "\n<pre>";
+			$html .= htmlspecialchars ($errors);
+			$html .= "\n</pre>";
+			$html .= "\n</div>";
+		}
 		
 		# Show the HTML
 		echo $html;
