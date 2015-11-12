@@ -3273,6 +3273,7 @@ class muscatConversion extends frontControllerApplication
 			`recordId` int(6) NOT NULL COMMENT 'Record number',
 			`title` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title (/ser/tg/t)',
 			`location` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Location (/ser/loc/location)',
+			`code` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Voyager location code',
 			PRIMARY KEY (`id`),
 			INDEX(`title`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of periodical locations'
@@ -3298,6 +3299,35 @@ class muscatConversion extends frontControllerApplication
 				title    = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( title   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"),
 				location = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( location, '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
 		;";
+		$this->databaseConnection->execute ($sql);
+		
+		# Add in the location codes
+		$locationCodes = array (
+			'[0-9]'						=> 'SPRI-SER',
+			'Archives'					=> 'SPRI-ARC',
+			'Atlas'						=> 'SPRI-ATL',
+			'Basement'					=> 'SPRI-BMT',
+			"Bibliographers' Office"	=> 'SPRI-BIB',
+			'Cupboard'					=> 'SPRI-CBD',
+			'Folio'						=> 'SPRI-FOL',
+			'Large Atlas'				=> 'SPRI-LAT',
+			"Librarian's Office"		=> 'SPRI-LIO',
+			'Library Office'			=> 'SPRI-LIO',
+			'Map Room'					=> 'SPRI-MAP',
+			'Pam'						=> 'SPRI-PAM',
+			'Picture Library Office'	=> 'SPRI-PIC',
+			'Picture Library Store'		=> 'SPRI-PIC',
+			'Reference'					=> 'SPRI-REF',
+			'Russian'					=> 'SPRI-RUS',
+			'Shelf'						=> 'SPRI-SHF',
+			'Special Collection'		=> 'SPRI-SPC',
+			'Theses'					=> 'SPRI-THE',
+		);
+		$sql  = "UPDATE periodicallocations SET code = CASE ";
+		foreach ($locationCodes as $location => $code) {
+			$sql .= "\n WHEN location REGEXP \"^{$location}\" then '{$code}'";
+		}
+		$sql .= "\n ELSE NULL\nEND;";
 		$this->databaseConnection->execute ($sql);
 	}
 	
