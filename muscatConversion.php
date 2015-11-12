@@ -7194,8 +7194,7 @@ class muscatConversion extends frontControllerApplication
 		# Add links to each title if required (search implementation)
 		if ($searchField) {
 			foreach ($data as $index => $record) {
-				$title = htmlspecialchars ($record['title']);
-				$data[$index]['title'] = "<a href=\"{$this->baseUrl}/search/?casesensitive=1&{$searchField}=" . urlencode ($title) . "\">{$title}</a>";
+				$data[$index]['title'] = "<a href=\"{$this->baseUrl}/search/?casesensitive=1&{$searchField}=" . urlencode ($record['title']) . '">' . htmlspecialchars ($record['title']) . '</a>';
 			}
 		}
 		
