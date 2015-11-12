@@ -7469,7 +7469,7 @@ class muscatConversion extends frontControllerApplication
 		# Define a manual query
 		$query = "
 			SELECT
-				value,
+				value AS title,
 				COUNT(recordId) AS instances
 			FROM catalogue_processed
 			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
@@ -7481,7 +7481,7 @@ class muscatConversion extends frontControllerApplication
 		;";
 		
 		# Obtain the listing HTML
-		$html = $this->reportListing (NULL, 'values', false, false, $query);
+		$html = $this->reportListing (NULL, 'values', 'anywhere', false, $query);
 		
 		# Return the HTML
 		return $html;
