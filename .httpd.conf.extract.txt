@@ -64,8 +64,8 @@
 	
 	# Output files
 	AddType text/plain .mrk
-	RewriteRule $baseUrl/export/marc\.(txt|mrk|mrc|error.txt) $baseUrl/marc.$1
-	<LocationMatch ^$baseUrl/export/marc\.(txt|mrk|mrc|error.txt)$>
+	RewriteRule $baseUrl/export/marc\.(txt|mrk|mrc|errors.txt) $baseUrl/marc.$1
+	<LocationMatch ^$baseUrl/export/marc\.(txt|mrk|mrc|errors.txt)$>
 		Order allow,deny
 		Allow from all
 		Satisfy any
