@@ -5307,6 +5307,13 @@ class muscatConversion extends frontControllerApplication
 			}
 		}
 		
+		# Split off any trailing (...) sections
+		foreach ($this->udcTranslations as $ks => $kw) {
+			if (substr_count ($kw, '(')) {
+				$this->udcTranslations[$ks] = preg_replace ('/( ?\(([^)]+)\))/', '', $kw);
+			}
+		}
+		
 		# Construct the result string
 		$string = strtolower ('UDC') . $this->doubleDagger . 'a' . str_replace ('@*', '*', $value) . ' -- ' . $this->udcTranslations[$value] . ($description ? ": {$description}" : false);
 		
