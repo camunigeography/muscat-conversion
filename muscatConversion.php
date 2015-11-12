@@ -3103,6 +3103,7 @@ class muscatConversion extends frontControllerApplication
 			CREATE TABLE IF NOT EXISTS catalogue_marc (
 				id int(11) NOT NULL COMMENT 'Record number',
 				type ENUM('/art/in','/art/j','/doc','/ser') DEFAULT NULL COMMENT 'Type of record',
+				status ENUM('migrate','suppress','ignore') NULL DEFAULT NULL COMMENT 'Status',
 				marc text COLLATE utf8_unicode_ci COMMENT 'MARC representation of Muscat record',
 			  PRIMARY KEY (id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC representation of Muscat records';
@@ -3124,6 +3125,9 @@ class muscatConversion extends frontControllerApplication
 			END
 		;";
 		$this->databaseConnection->execute ($query);
+		
+		# Add in the supress/migrate/ignore status for each record
+		$this->marcRecordsSetStatus ();
 		
 		# Get the schema
 		if (!$marcParserDefinition = $this->getMarcParserDefinition ()) {return false;}
@@ -3186,6 +3190,70 @@ class muscatConversion extends frontControllerApplication
 		
 		# Signal success
 		return true;
+	}
+	
+	
+	# Function to set the status of each MARC record
+	private function marcRecordsSetStatus ()
+	{
+		# NB Unfortunately CASE does not seem to support compound statements, so these three statements are basically a CASE in reverse; see: http://stackoverflow.com/a/18170014/180733
+		
+		# Default to migrate
+		$query = "UPDATE catalogue_marc SET status = 'migrate';";
+		$this->databaseConnection->execute ($query);
+		
+		# Records to suppress
+		$query = "UPDATE catalogue_marc
+			LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
+			LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
+			SET status = 'suppress'
+			WHERE
+			   (field = 'status' AND value = 'RECEIVED')	-- 8339 records
+				OR (
+					    EXTRACTVALUE(xml, '//status') IN('O/P', 'ON ORDER', 'ON ORDER (O/P)', 'ON ORDER (O/S)')
+					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
+					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('2015-01-01 00:00:00')
+					)	-- 36 records
+				OR (
+					    field = 'location'
+					AND (
+						   value IN('', '-', '??', 'Not in SPRI', 'Periodical')
+						OR value LIKE '%?%'
+						OR value LIKE '%Cambridge University%'
+						)
+					)	-- 92075 records
+				OR (
+					    field IN('note', 'local', 'priv')
+					AND (
+						   value LIKE '%offprint%'
+						OR value LIKE '%photocopy%'
+						)
+					)	-- 1916 records
+				OR (
+					    EXTRACTVALUE(xml, '//doc/tg/t') = ''
+					AND EXTRACTVALUE(xml, '//art/tg/t') = ''
+					AND EXTRACTVALUE(xml, '//ser/tg/t') = ''
+					)	-- 172 records
+				-- 100292 records in total
+		;";
+		$this->databaseConnection->execute ($query);
+		
+		# Records to ignore (highest priority)
+		$query = "UPDATE catalogue_marc
+			LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
+			LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
+			SET status = 'ignore'
+			WHERE
+				   (field = 'status' AND value = 'ORDER CANCELLED')
+				OR (
+					    EXTRACTVALUE(xml, '//status') IN('O/P', 'ON ORDER', 'ON ORDER (O/P)', 'ON ORDER (O/S)')
+					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
+					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('2015-01-01 00:00:00')
+					)
+				OR (field = 'location' AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection'))
+			-- 1846 records in total
+		;";
+		$this->databaseConnection->execute ($query);
 	}
 	
 	
