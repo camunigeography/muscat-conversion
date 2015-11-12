@@ -74,6 +74,7 @@ class muscatConversion extends frontControllerApplication
 		'serlocationlocation' => '*ser records with two or more *locations',
 		'unrecognisedks' => 'records with unrecognised *ks values',
 		'offprints' => 'records that contain photocopy/offprint in *note/*local/*priv',
+		'duplicatedlocations' => 'records with more than one identical location',
 	);
 	
 	# Listing (values) reports
@@ -6894,6 +6895,25 @@ class muscatConversion extends frontControllerApplication
 				    field IN ('note', 'local', 'priv')
 				AND (value LIKE '%photocopy%' OR value LIKE '%offprint%')
 			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with more than one identical location
+	private function report_duplicatedlocations ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'duplicatedlocations' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE field = 'location'
+			GROUP BY recordId,value
+			HAVING COUNT(value) > 1
+		";
 		
 		# Return the query
 		return $query;
