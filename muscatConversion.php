@@ -7703,7 +7703,7 @@ class muscatConversion extends frontControllerApplication
 			FROM catalogue_processed
 			WHERE
 				    field = 'location'
-				AND value NOT REGEXP \"^([0-9]{1,3}[A-Z]|Archives|Atlas|Basement|Bibliographers' Office|Cupboard|Folio|Large Atlas|Librarian's Office|Library Office|Map Room|Pam|Picture Library Office|Picture Library Store|Reference|Russian|Shelf|Special Collection|Theses|IGS|International Glaciological Society|Shelved with|Not in SPRI|Periodical)\"
+				AND value NOT REGEXP \"^([0-9]{1,3} ?[A-Z]|Archives|Atlas|Basement|Bibliographers' Office|Cupboard|Folio|Large Atlas|Librarian's Office|Library Office|Map Room|Pam|Picture Library Office|Picture Library Store|Reference|Russian|Shelf|Special Collection|Theses|IGS|International Glaciological Society|Shelved with|Not in SPRI|Periodical)\"
 			GROUP BY value
 			ORDER BY title
 		";
