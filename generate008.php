@@ -74,14 +74,14 @@ class generate008
 	# 008 pos. 06: Type of date/Publication status, and 07-10: Date 1, and pos. 11-14: Date 2
 	private function position_06_14 ()
 	{
-		# If *d in *doc or *art, or *r in *ser does not contain at least one year (e.g. '[n.d.]'), designator is 'n'
+		# If *d in *doc or *art does not contain at least one year (e.g. '[n.d.]'), designator is 'n'; if *r in *ser does not contain at least one year (e.g. '[n.d.]'), designator is 'u'
 		# Note that decade-wide dates like "199-" are considered a valid year
-		# If 06 is 'n', 07-10 contain 'uuuu'
-		# If 06 is 'n', 'q' or 's', 11-14 contain '####'
+		# If 06 is 'n' or 'u', 07-10 contain 'uuuu'
+		# If 06 is 'n', 'q' or 's', 11-14 contain '####'; if 06 is 'u', 11-14 contain 'uuuu'
 		$yearField = ($this->recordType == '/ser' ? 'r' : 'd');
 		$yearString = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . "//{$yearField}");
 		if (!preg_match ('/([0-9]{3}[-0-9])/', $yearString, $yearMatches)) {
-			return 'n' . 'uuuu' . '####';
+			return ($this->recordType == '/ser' ? 'u' : 'n') . 'uuuu' . ($this->recordType == '/ser' ? 'uuuu' : '####');
 		}
 		
 		# If record is *ser, designator is 'm'
@@ -97,7 +97,7 @@ class generate008
 			# Normalise cases of incorrect data specified as YYYY-YY, e.g. "1990-95" which should be "1990-1995"; all manually checked that these are all 19xx dates (not 18xx/20xx/etc.)
 			$yearString = preg_replace ('/([0-9]{4})-([0-9]{2})($|[^0-9])/', '\1-19\2\3', $yearString);
 			
-			# If 06 is 'm', 11-14 contain last present year in *r (which could validly be the same as the first year if the string is just "1990" - this would mean a serial that starts and 1990 and ends in 1990)
+			# If 06 is 'm', 11-14 contain last present year in *r (which could validly be the same as the first year if the string is just "1990" - this would mean a serial that starts in 1990 and ends in 1990)
 			preg_match_all ('/([0-9]{4})/', $yearString, $lastYearMatches, PREG_SET_ORDER);		// See: http://stackoverflow.com/questions/23343087/
 			$lastYear = end ($lastYearMatches);
 			return 'm' . $yearMatches[1] . $lastYear[1];
