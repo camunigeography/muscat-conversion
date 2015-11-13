@@ -5314,6 +5314,9 @@ class muscatConversion extends frontControllerApplication
 			}
 		}
 		
+		# Data fixes
+		$this->udcTranslations['(@*501)'] = 'Russia (Federation)';
+		
 		# Construct the result string
 		$string = strtolower ('UDC') . $this->doubleDagger . 'a' . str_replace ('@*', '*', $value) . ' -- ' . $this->udcTranslations[$value] . ($description ? ": {$description}" : false);
 		
