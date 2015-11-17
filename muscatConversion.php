@@ -2495,12 +2495,13 @@ class muscatConversion extends frontControllerApplication
 		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBlackslash}V','<em>');";
 		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBlackslash}N','</em>');";	// \n does not mean anything special in REPLACE()
 		
-		# Correct the use of }o{ which has mistakenly been used to mean \deg, except for V}o{ which is a Ordinal indicator: https://en.wikipedia.org/wiki/Ordinal_indicator
-		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'}o{','{$replaceBlackslash}deg') WHERE value NOT LIKE '%V}o{%';";	// NB Have manually checked that record with V}o{ has no other use of }/{ characters
+		# Correct the use of }o{ which has mistakenly been used to mean \gdeg, except for V}o{ which is a Ordinal indicator: https://en.wikipedia.org/wiki/Ordinal_indicator
+		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'}o{','{$replaceBlackslash}gdeg') WHERE value NOT LIKE '%V}o{%';";	// NB Have manually checked that record with V}o{ has no other use of }/{ characters
 		
 		# Diacritics (query takes 135 seconds)
 		$diacritics = $this->diacriticsTable ();
 		$queries[] = "UPDATE catalogue_processed SET value = " . $this->databaseConnection->replaceSql ($diacritics, 'value', "'") . ';';
+*/
 		
 		# Subscripts and superscripts, e.g. "H{2}SO{4} will print out as H2SO4 with both 2 and 4 as subscripts"
 		$subscriptsSuperscriptsReplacements = $this->getSubscriptsSuperscriptsReplacementsDefinition ();
