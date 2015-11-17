@@ -2501,7 +2501,6 @@ class muscatConversion extends frontControllerApplication
 		# Diacritics (query takes 135 seconds)
 		$diacritics = $this->diacriticsTable ();
 		$queries[] = "UPDATE catalogue_processed SET value = " . $this->databaseConnection->replaceSql ($diacritics, 'value', "'") . ';';
-*/
 		
 		# Subscripts and superscripts, e.g. "H{2}SO{4} will print out as H2SO4 with both 2 and 4 as subscripts"
 		$subscriptsSuperscriptsReplacements = $this->getSubscriptsSuperscriptsReplacementsDefinition ();
