@@ -5993,7 +5993,7 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				    fieldslist LIKE '%@doc@%'
 				AND fieldslist LIKE '%@location@%'
-				AND fieldslist REGEXP '@location@.*@location@'	/* At least two locations */
+				AND (fieldslist REGEXP '@location@.*@location@' OR fieldslist LIKE '%@location@location@%')	/* At least two locations */
 				AND field = 'location'
 				AND value = 'Periodical'
 			";
