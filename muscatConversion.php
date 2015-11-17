@@ -2505,7 +2505,10 @@ class muscatConversion extends frontControllerApplication
 		
 		# Subscripts and superscripts, e.g. "H{2}SO{4} will print out as H2SO4 with both 2 and 4 as subscripts"
 		$subscriptsSuperscriptsReplacements = $this->getSubscriptsSuperscriptsReplacementsDefinition ();
-		$queries[] = "UPDATE catalogue_processed SET value = " . $this->databaseConnection->replaceSql ($subscriptsSuperscriptsReplacements, 'value', "'") . ';';
+		$subscriptsSuperscriptsReplacementsChunks = array_chunk ($subscriptsSuperscriptsReplacements, $chunksOf = 25, true);
+		foreach ($subscriptsSuperscriptsReplacementsChunks as $subscriptsSuperscriptsReplacementsChunk) {
+			$queries[] = "UPDATE catalogue_processed SET value = " . $this->databaseConnection->replaceSql ($subscriptsSuperscriptsReplacementsChunk, 'value', "'") . ';';
+		}
 		
 		# Greek characters; see also report_specialcharscase which enables the librarians to normalise \gGamMA to \gGamma
 		# Assumes this catalogue rule has been eliminated: "When '\g' is followed by a word, the case of the first letter is significant. The remaining letters can be in either upper or lower case however. Thus '\gGamma' is a capital gamma, and the forms '\gGAMMA', '\gGAmma' etc. will also represent capital gamma."
