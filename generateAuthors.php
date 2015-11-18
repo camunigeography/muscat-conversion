@@ -40,7 +40,7 @@ class generateAuthors
 	
 	
 	# Constructor
-	public function __construct ($muscatConversion, $mainRecordXml)
+	public function __construct ($muscatConversion, $mainRecordXml, $languageModes)
 	{
 		# Create a class property handle to the parent class
 		$this->muscatConversion = $muscatConversion;
@@ -50,18 +50,33 @@ class generateAuthors
 		# Create a handle to the XML
 		$this->mainRecordXml = $mainRecordXml;
 		
-		# Initialise all fields
-		$fields = array (100, 110, 111, 700, 710, 711);
-		foreach ($fields as $field) {
-			$this->values[$field] = false;
-		}
-		
 		# Define unicode symbols
 		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
 		
-		# Launch the two main entry points; each may include a mutation to a different field number
-		$this->generateFirstEntity ();		// Round one: first entity
-		$this->generateOtherEntities ();	// Round two: all other entities
+		# Determine the language of the record
+		$recordLanguages = $this->muscatConversion->xPathValues ($mainRecordXml, '//lang[%i]', false);
+		
+		# Process both normal and transliterated modes
+		foreach ($languageModes as $languageMode) {
+			
+			# Initialise all fields
+			$fields = array (100, 110, 111, 700, 710, 711);
+			foreach ($fields as $field) {
+				$this->values[$languageMode][$field] = false;
+			}
+			
+			# For the non-default language mode, if the current language mode does not match a language of the record, skip processing
+			#!# Russian may only be one of the languages and not the relevant one
+			if ($languageMode != 'default') {
+				if (!in_array ($languageMode, $recordLanguages)) {
+					continue;
+				}
+			}
+			
+			# Launch the two main entry points; each may include a mutation to a different field number
+			$this->generateFirstEntity ($languageMode);		// Round one: first entity
+			$this->generateOtherEntities ($languageMode);	// Round two: all other entities
+		}
 		
 	}
 	
@@ -81,10 +96,13 @@ class generateAuthors
 	 * Everyone else involved in the production ends put in 7xx fields.
 	 *
 	 */
-	private function generateFirstEntity ()
+	private function generateFirstEntity ($languageMode)
 	{
 		# Assume 100 by default
 		$this->field = 100;
+		
+		# Set the language mode
+		$this->languageMode = $languageMode;
 		
 		# 100 is not relevant for *ser or *art/*in/*ag, so end at this point if matches these
 		$ser = $this->muscatConversion->xPathValue ($this->mainRecordXml, '//ser');
@@ -97,7 +115,7 @@ class generateAuthors
 		$value = $this->main ($this->mainRecordXml, '/*/ag/a[1]', 100);
 		
 		# Write the value into the values registry
-		$this->values[$this->field] = $value;
+		$this->values[$this->languageMode][$this->field] = $value;
 	}
 	
 	
@@ -124,20 +142,23 @@ class generateAuthors
 	 * Handling of multiple entries:
 	 * - If there are multiple entries, e.g. 700 [...], 700 [...], 710 [...], 700 [...], etc., these are then exploded as new lines
 	 * - After each line is registered, the field number is reset to 700 to ensure that a switch to say 710 is not leaky into the next entry
-	 * - The resulting multiline string is 'hooked onto' the first one in the list; e.g. 710 [...], 700 [...], 700 [...] results in this attached to $this->values[710] as that is the first
+	 * - The resulting multiline string is 'hooked onto' the first one in the list; e.g. 710 [...], 700 [...], 700 [...] results in this attached to $this->values[$this->languageMode][710] as that is the first
 	 * - The ordering of 7xx fields does correctly reflect the record order; it is not problematic that a MARC record can have ordering such as 710,700,700,710,711,700 for instance
 	 */
-	private function generateOtherEntities ()
+	private function generateOtherEntities ($languageMode)
 	{
 		# Assume 700 by default
 		$this->field = 700;
+		
+		# Set the language mode
+		$this->languageMode = $languageMode;
 		
 		# Generate the 700 line values
 		$lines = $this->generateOtherEntitiesLines ();
 		
 		# End if no lines
 		if (!$lines) {
-			return false;		// The entry in $this->values for this field will be left as when initialised, i.e. false
+			return false;		// The entry in $this->values[$this->languageMode] for this field will be left as when initialised, i.e. false
 		}
 		
 		# Every 700/710/711 has a fixed string ", ‡5 UkCU-P." at the end (representing the Institution to which field applies)
@@ -153,7 +174,7 @@ class generateAuthors
 		$value = substr ($value, 4);	// I.e. chop first four characters, e.g. "700 "
 		
 		# Write the value, which will be a special multiline string, into the values registry
-		$this->values[$this->field] = $value;
+		$this->values[$this->languageMode][$this->field] = $value;
 	}
 	
 	
@@ -167,9 +188,9 @@ class generateAuthors
 		$lines = array ();
 		
 		# If there is already a 700 field arising from generateFirstEntity, which will be a standard scalar string, register this first by transfering it into the lines format and resetting the 700 registry
-		if ($this->values[700]) {
-			$lines[] = $this->values[700];
-			$this->values[700] = false;		// Reset
+		if ($this->values[$this->languageMode][700]) {
+			$lines[] = $this->values[$this->languageMode][700];
+			$this->values[$this->languageMode][700] = false;		// Reset
 		}
 		
 		# Check it is *doc/*ag or *art/*ag (i.e. ignore *ser records)

@@ -3961,9 +3961,10 @@ class muscatConversion extends frontControllerApplication
 		# Load the record as a valid XML object
 		$xml = $this->loadXmlRecord ($record);
 		
-		# Up-front, process complex records
+		# Up-front, process author fields
 		require_once ('generateAuthors.php');
-		$generateAuthors = new generateAuthors ($this, $xml);
+		$languageModes = array_merge (array ('default'), array_keys ($this->supportedReverseTransliterationLanguages));		// Feed in the languages list, with 'default' as the first
+		$generateAuthors = new generateAuthors ($this, $xml, $languageModes);
 		$authorsFields = $generateAuthors->getValues ();
 		
 		# Perform XPath replacements
@@ -5138,14 +5139,23 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Parse the arguments
 		$fieldNumber = $arg;	// Default single argument representing the field number
+		$flag = false;			// E.g. 'transliterated'
 		if (substr_count ($arg, ',')) {
 			list ($fieldNumber, $flag) = explode (',', $arg, 2);
 		}
 		
-		#!# TODO use flag = 'transliterated'
+		# If running in transliteration mode, require a supported language
+		$languageMode = 'default';
+		if ($flag == 'transliterated') {
+			#!# Currently checking only the first language
+			$language = $this->xPathValue ($xml, '//lang[1]');
+			if ($language && isSet ($this->supportedReverseTransliterationLanguages[$language])) {
+				$languageMode = $language;
+			}
+		}
 		
 		# Return the value (which may be false, meaning no field should be created)
-		return $authorsFields[$fieldNumber];
+		return $authorsFields[$languageMode][$fieldNumber];
 	}
 	
 	
