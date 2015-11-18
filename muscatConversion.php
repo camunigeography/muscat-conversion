@@ -171,6 +171,37 @@ class muscatConversion extends frontControllerApplication
 	# Define the file sets
 	private $filesets = array ('migrate' , 'suppress', 'ignore');
 	
+	# Define the location codes
+	private $locationCodes = array (
+		'[0-9]+'									=> 'SPRI-SER',
+		'Periodical'								=> 'SPRI-SER',
+		'Archives'									=> 'SPRI-ARC',
+		'Atlas'										=> 'SPRI-ATL',
+		'Basement'									=> 'SPRI-BMT',
+		"Bibliographers' Office"					=> 'SPRI-BIB',
+		'Cupboard'									=> 'SPRI-CBD',
+		'Folio'										=> 'SPRI-FOL',
+		'Large Atlas'								=> 'SPRI-LAT',
+		"Librarian's Office"						=> 'SPRI-LIO',
+		'Library Office'							=> 'SPRI-LIO',
+		'Map Room'									=> 'SPRI-MAP',
+		'Pam'										=> 'SPRI-PAM',
+		'Picture Library'							=> 'SPRI-PIC',
+		'Reference'									=> 'SPRI-REF',
+		'Russian Gallery'							=> 'SPRI-RUS',
+		'Russian'									=> 'SPRI-RUS',
+		'Shelf'										=> 'SPRI-SHF',
+		'Special Collection'						=> 'SPRI-SPC',
+		'Theses'									=> 'SPRI-THE',
+		'Digital Repository'						=> 'SPRI-ELE',
+		'F:/public/session'							=> 'SPRI-ELE',
+		'F:/public/session/electronic publications'	=> 'SPRI-ELE',
+		'Online'									=> 'SPRI-ELE',
+		'World Wide Web'							=> 'SPRI-ELE',
+		'WWW'										=> 'SPRI-ELE',
+		"Friends' Room"								=> 'SPRI-FRI',
+	);
+	
 	# Define known *ks values to be ignored
 	private $ignoreKsValues = array ('AGI', 'AGI', 'AGI1', 'AK', 'AK1', 'AM', 'AM/HL', 'BL', 'C', 'C?', 'CC', 'D', 'D?', 'GLEN', 'GLEN', 'HL', 'HS', 'HSO', 'HS1', 'HS (RS)', 'HS(RS)', 'HS/RUS', 'HSSB', 'HSSB1', 'HSSB2', 'HSSB3', 'IW', 'IW', 'IWO', 'JHR', 'JHRprob', 'JHR1', 'JHRO', 'JP', 'JW', 'JW', 'JW1', 'LASTPGA', 'MG', 'MISSING', 'MISSING', 'MPO', 'MPP', 'NOM', 'NOM1', 'NOMO', 'OM', 'PARTIAL RECORD', 'PGA', 'PGA', 'PGA1', 'RF', 'RF', 'RS', 'SS', 'WM', 'Y', );
 	
@@ -3305,29 +3336,8 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($sql);
 		
 		# Add in the location codes
-		$locationCodes = array (
-			'[0-9]'						=> 'SPRI-SER',
-			'Archives'					=> 'SPRI-ARC',
-			'Atlas'						=> 'SPRI-ATL',
-			'Basement'					=> 'SPRI-BMT',
-			"Bibliographers' Office"	=> 'SPRI-BIB',
-			'Cupboard'					=> 'SPRI-CBD',
-			'Folio'						=> 'SPRI-FOL',
-			'Large Atlas'				=> 'SPRI-LAT',
-			"Librarian's Office"		=> 'SPRI-LIO',
-			'Library Office'			=> 'SPRI-LIO',
-			'Map Room'					=> 'SPRI-MAP',
-			'Pam'						=> 'SPRI-PAM',
-			'Picture Library Office'	=> 'SPRI-PIC',
-			'Picture Library Store'		=> 'SPRI-PIC',
-			'Reference'					=> 'SPRI-REF',
-			'Russian'					=> 'SPRI-RUS',
-			'Shelf'						=> 'SPRI-SHF',
-			'Special Collection'		=> 'SPRI-SPC',
-			'Theses'					=> 'SPRI-THE',
-		);
 		$sql  = "UPDATE periodicallocations SET code = CASE ";
-		foreach ($locationCodes as $location => $code) {
+		foreach ($this->locationCodes as $location => $code) {
 			$sql .= "\n WHEN location REGEXP \"^{$location}\" then '{$code}'";
 		}
 		$sql .= "\n ELSE NULL\nEND;";
@@ -5532,37 +5542,6 @@ class muscatConversion extends frontControllerApplication
 		# Start a list of results
 		$resultLines = array ();
 		
-		# Define the location codes
-		$locationCodes = array (
-			'[0-9]+'									=> 'SPRI-SER',
-			'Periodical'								=> 'SPRI-SER',
-			'Archives'									=> 'SPRI-ARC',
-			'Atlas'										=> 'SPRI-ATL',
-			'Basement'									=> 'SPRI-BMT',
-			"Bibliographers' Office"					=> 'SPRI-BIB',
-			'Cupboard'									=> 'SPRI-CBD',
-			'Folio'										=> 'SPRI-FOL',
-			'Large Atlas'								=> 'SPRI-LAT',
-			"Librarian's Office"						=> 'SPRI-LIO',
-			'Library Office'							=> 'SPRI-LIO',
-			'Map Room'									=> 'SPRI-MAP',
-			'Pam'										=> 'SPRI-PAM',
-			'Picture Library'							=> 'SPRI-PIC',
-			'Reference'									=> 'SPRI-REF',
-			'Russian Gallery'							=> 'SPRI-RUS',
-			'Russian'									=> 'SPRI-RUS',
-			'Shelf'										=> 'SPRI-SHF',
-			'Special Collection'						=> 'SPRI-SPC',
-			'Theses'									=> 'SPRI-THE',
-			'Digital Repository'						=> 'SPRI-ELE',
-			'F:/public/session'							=> 'SPRI-ELE',
-			'F:/public/session/electronic publications'	=> 'SPRI-ELE',
-			'Online'									=> 'SPRI-ELE',
-			'World Wide Web'							=> 'SPRI-ELE',
-			'WWW'										=> 'SPRI-ELE',
-			"Friends' Room"								=> 'SPRI-FRI',
-		);
-		
 		# Get the locations
 		$locations = $this->xPathValues ($xml, '//loc[%i]/location');
 		
@@ -5602,7 +5581,7 @@ class muscatConversion extends frontControllerApplication
 				# This *location will be referred to as *location_original; does *location_original appear in the location codes list?
 				$locationStartsWith = false;
 				$locationCode = false;
-				foreach ($locationCodes as $startsWith => $code) {
+				foreach ($this->locationCodes as $startsWith => $code) {
 					if (preg_match ("|^{$startsWith}|", $location)) {
 						$locationStartsWith = $startsWith;
 						$locationCode = $code;
