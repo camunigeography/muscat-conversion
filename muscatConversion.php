@@ -5526,31 +5526,142 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Macro to lookup periodical locations
-	private function macro_periodicalLocation ($value, $xml)
+	# Macro to lookup periodical locations, which may generate a multiline result
+	private function macro_generate852 ($value, $xml)
 	{
-		# Apply transformation only to /art/j records; return unmodified for others
-		$recordType = $this->recordType ($xml);
-		if ($recordType != '/art/j') {return $value;}
+		# Start a list of results
+		$resultLines = array ();
 		
-		# Apply only to value 'Periodical'
-		if ($value != 'Periodical') {return $value;}
+		# Define the location codes
+		$locationCodes = array (
+			'[0-9]+'									=> 'SPRI-SER',
+			'Periodical'								=> 'SPRI-SER',
+			'Archives'									=> 'SPRI-ARC',
+			'Atlas'										=> 'SPRI-ATL',
+			'Basement'									=> 'SPRI-BMT',
+			"Bibliographers' Office"					=> 'SPRI-BIB',
+			'Cupboard'									=> 'SPRI-CBD',
+			'Folio'										=> 'SPRI-FOL',
+			'Large Atlas'								=> 'SPRI-LAT',
+			"Librarian's Office"						=> 'SPRI-LIO',
+			'Library Office'							=> 'SPRI-LIO',
+			'Map Room'									=> 'SPRI-MAP',
+			'Pam'										=> 'SPRI-PAM',
+			'Picture Library'							=> 'SPRI-PIC',
+			'Reference'									=> 'SPRI-REF',
+			'Russian Gallery'							=> 'SPRI-RUS',
+			'Russian'									=> 'SPRI-RUS',
+			'Shelf'										=> 'SPRI-SHF',
+			'Special Collection'						=> 'SPRI-SPC',
+			'Theses'									=> 'SPRI-THE',
+			'Digital Repository'						=> 'SPRI-ELE',
+			'F:/public/session'							=> 'SPRI-ELE',
+			'F:/public/session/electronic publications'	=> 'SPRI-ELE',
+			'Online'									=> 'SPRI-ELE',
+			'World Wide Web'							=> 'SPRI-ELE',
+			'WWW'										=> 'SPRI-ELE',
+			"Friends' Room"								=> 'SPRI-FRI',
+		);
 		
-		# Obtain the record matching /art/j/tg/t; e.g. for /records/23956/ it would be 'Explorers Journal' which is present in /ser/tg/t
-		$serialTitle = $this->xPathValue ($xml, '/art/j/tg/t');
+		# Get the locations
+		$locations = $this->xPathValues ($xml, '//loc[%i]/location');
 		
-		# Lookup the value
-		$location = $this->databaseConnection->selectOneField ($this->settings['database'], 'periodicallocations', 'location', array ('title' => $serialTitle));
-		
-		# Flag error if no location
-		if (!$location) {
-			$recordId = $this->xPathValue ($xml, '//q0');
-			$error = "The serial title '{$serialTitle}' does not have a record with a matching location";
-			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';
+		# Loop through each location
+		foreach ($locations as $index => $location) {
+			
+			# Start record with 852 7#  ‡2camdept
+			$result = 'camdept';	// NB The initial "852 7#  ‡2" is stated within the parser definition and line splitter
+			
+			# Is *location 'Not in SPRI' OR does *location start with 'Shelved with'?
+			if ($location == 'Not in SPRI' || preg_match ('/^Shelved with/', $location)) {
+				
+				# Does the record contain another *location field?
+				if (count ($locations) > 1) {
+					
+					# Does the record contain any  other *location fields that have not already been mapped to 852 fields?; If not, skip to next, or end
+					continue;
+					
+				} else {
+					
+					# Is *location 'Not in SPRI'?; if yes, add to record: ‡z Not in SPRI; if no, Add to record: ‡c <*location>
+					if ($location == 'Not in SPRI') {
+						$result .= " {$this->doubleDagger}zNot in SPRI";
+					} else {
+						$result .= " {$this->doubleDagger}c" . $location;
+					}
+					
+					# Register this result
+					$resultLines[] = $result;
+					
+					# End 852 field; No more 852 fields required
+					break;	// Break main foreach loop
+				}
+				
+			} else {
+				
+				# This *location will be referred to as *location_original; does *location_original appear in the location codes list?
+				$locationStartsWith = false;
+				$locationCode = false;
+				foreach ($locationCodes as $startsWith => $code) {
+					if (preg_match ("|^{$startsWith}|", $location)) {
+						$locationStartsWith = $startsWith;
+						$locationCode = $code;
+						break;
+					}
+				}
+				if ($locationCode) {
+					
+					# Add corresponding Voyager location code to record: ‡b SPRI-XXX
+					$result .= " {$this->doubleDagger}b" . $locationCode;
+					
+					# Does the record contain another *location field that starts with 'Shelved with'?; See: /records/204332/
+					if ($shelvedWithIndex = application::preg_match_array ('^Shelved with', $locations, true)) {
+						
+						# This *location will be referred to as *location_shelved; Add to record: ‡c <*location_shelved>
+						$result .= " {$this->doubleDagger}c" . $locations[$shelvedWithIndex];
+					}
+					
+					# Does *location_original start with a number?
+					if (preg_match ('/^[0-9]/', $location)) {
+						
+						# Add to record: ‡h <*location_original>
+						$result .= " {$this->doubleDagger}h" . $location;
+						
+					} else {
+						
+						# Remove the portion of *location that maps to a Voyager location code (i.e. the portion that appears in the location codes list) - the remainder will be referred to as *location_trimmed
+						$locationTrimmed = preg_replace ("/^{$locationStartsWith}/", '', $location);
+						$locationTrimmed = trim ($locationTrimmed);
+						
+						# Is *location_trimmed empty?; If no, Add to record: ‡h <*location_trimmed>
+						if (strlen ($locationTrimmed)) {
+							$result .= " {$this->doubleDagger}h" . $locationTrimmed;
+						}
+					}
+					
+				} else {
+					
+					# Add to record: ‡a <*location_original>
+					$result .= " {$this->doubleDagger}a" . $location;
+				}
+				
+				# Does the record contain another *location field that is equal to 'Not in SPRI'?
+				if ($notInSpriLocationIndex = application::preg_match_array ('^Not in SPRI$', $locations, true)) {
+					
+					# Add to record: ‡z Not in SPRI
+					$result .= " {$this->doubleDagger}z" . 'Not in SPRI';
+				}
+			}
+			
+			# Register this result
+			$resultLines[] = trim ($result);
 		}
 		
-		# Return the location
-		return $location;
+		# Implode the list
+		$result = implode ("\n" . "852 7# {$this->doubleDagger}2", $resultLines);
+		
+		# Return the result
+		return $result;
 	}
 	
 	
