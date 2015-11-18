@@ -171,37 +171,6 @@ class muscatConversion extends frontControllerApplication
 	# Define the file sets
 	private $filesets = array ('migrate' , 'suppress', 'ignore');
 	
-	# Define the location codes
-	private $locationCodes = array (
-		'[0-9]+'									=> 'SPRI-SER',
-		'Periodical'								=> 'SPRI-SER',
-		'Archives'									=> 'SPRI-ARC',
-		'Atlas'										=> 'SPRI-ATL',
-		'Basement'									=> 'SPRI-BMT',
-		"Bibliographers' Office"					=> 'SPRI-BIB',
-		'Cupboard'									=> 'SPRI-CBD',
-		'Folio'										=> 'SPRI-FOL',
-		'Large Atlas'								=> 'SPRI-LAT',
-		"Librarian's Office"						=> 'SPRI-LIO',
-		'Library Office'							=> 'SPRI-LIO',
-		'Map Room'									=> 'SPRI-MAP',
-		'Pam'										=> 'SPRI-PAM',
-		'Picture Library'							=> 'SPRI-PIC',
-		'Reference'									=> 'SPRI-REF',
-		'Russian Gallery'							=> 'SPRI-RUS',
-		'Russian'									=> 'SPRI-RUS',
-		'Shelf'										=> 'SPRI-SHF',
-		'Special Collection'						=> 'SPRI-SPC',
-		'Theses'									=> 'SPRI-THE',
-		'Digital Repository'						=> 'SPRI-ELE',
-		'F:/public/session'							=> 'SPRI-ELE',
-		'F:/public/session/electronic publications'	=> 'SPRI-ELE',
-		'Online'									=> 'SPRI-ELE',
-		'World Wide Web'							=> 'SPRI-ELE',
-		'WWW'										=> 'SPRI-ELE',
-		"Friends' Room"								=> 'SPRI-FRI',
-	);
-	
 	# Define known *ks values to be ignored
 	private $ignoreKsValues = array ('AGI', 'AGI', 'AGI1', 'AK', 'AK1', 'AM', 'AM/HL', 'BL', 'C', 'C?', 'CC', 'D', 'D?', 'GLEN', 'GLEN', 'HL', 'HS', 'HSO', 'HS1', 'HS (RS)', 'HS(RS)', 'HS/RUS', 'HSSB', 'HSSB1', 'HSSB2', 'HSSB3', 'IW', 'IW', 'IWO', 'JHR', 'JHRprob', 'JHR1', 'JHRO', 'JP', 'JW', 'JW', 'JW1', 'LASTPGA', 'MG', 'MISSING', 'MISSING', 'MPO', 'MPP', 'NOM', 'NOM1', 'NOMO', 'OM', 'PARTIAL RECORD', 'PGA', 'PGA', 'PGA1', 'RF', 'RF', 'RS', 'SS', 'WM', 'Y', );
 	
@@ -3306,10 +3275,9 @@ class muscatConversion extends frontControllerApplication
 			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
 			`recordId` int(6) NOT NULL COMMENT 'Record number',
 			`title` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title (/ser/tg/t)',
-			`location` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Location (/ser/loc/location)',
-			`code` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Voyager location code',
-			PRIMARY KEY (`id`),
-			INDEX(`title`)
+			PRIMARY KEY (id),
+			INDEX(recordId),
+			INDEX(title)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of periodical locations'
 		;";
 		$this->databaseConnection->execute ($sql);
@@ -3319,8 +3287,7 @@ class muscatConversion extends frontControllerApplication
 			INSERT INTO `periodicallocations` (recordId, title, location)
 			SELECT
 				id AS recordId,
-				EXTRACTVALUE(xml, '//ser/tg/t') AS title,
-				EXTRACTVALUE(xml, '//ser/loc/location') AS location
+				EXTRACTVALUE(xml, '//ser/tg/t') AS title
 			FROM catalogue_xml
 			WHERE EXTRACTVALUE(xml, '//ser') != ''	/* i.e. is a *ser */
 		";
@@ -3329,19 +3296,11 @@ class muscatConversion extends frontControllerApplication
 		# Fix entities; e.g. see /records/23956/ ; see: https://stackoverflow.com/questions/30194976/
 		$sql = "
 			UPDATE `periodicallocations`
-			SET
-				title    = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( title   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"),
-				location = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( location, '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
+			SET title = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( title   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
 		;";
 		$this->databaseConnection->execute ($sql);
 		
-		# Add in the location codes
-		$sql  = "UPDATE periodicallocations SET code = CASE ";
-		foreach ($this->locationCodes as $location => $code) {
-			$sql .= "\n WHEN location REGEXP \"^{$location}\" then '{$code}'";
-		}
-		$sql .= "\n ELSE NULL\nEND;";
-		$this->databaseConnection->execute ($sql);
+		
 	}
 	
 	
@@ -5542,6 +5501,37 @@ class muscatConversion extends frontControllerApplication
 		# Start a list of results
 		$resultLines = array ();
 		
+		# Define the location codes
+		$locationCodes = array (
+			'[0-9]+'									=> 'SPRI-SER',
+			'Periodical'								=> 'SPRI-SER',
+			'Archives'									=> 'SPRI-ARC',
+			'Atlas'										=> 'SPRI-ATL',
+			'Basement'									=> 'SPRI-BMT',
+			"Bibliographers' Office"					=> 'SPRI-BIB',
+			'Cupboard'									=> 'SPRI-CBD',
+			'Folio'										=> 'SPRI-FOL',
+			'Large Atlas'								=> 'SPRI-LAT',
+			"Librarian's Office"						=> 'SPRI-LIO',
+			'Library Office'							=> 'SPRI-LIO',
+			'Map Room'									=> 'SPRI-MAP',
+			'Pam'										=> 'SPRI-PAM',
+			'Picture Library'							=> 'SPRI-PIC',
+			'Reference'									=> 'SPRI-REF',
+			'Russian Gallery'							=> 'SPRI-RUS',
+			'Russian'									=> 'SPRI-RUS',
+			'Shelf'										=> 'SPRI-SHF',
+			'Special Collection'						=> 'SPRI-SPC',
+			'Theses'									=> 'SPRI-THE',
+			'Digital Repository'						=> 'SPRI-ELE',
+			'F:/public/session'							=> 'SPRI-ELE',
+			'F:/public/session/electronic publications'	=> 'SPRI-ELE',
+			'Online'									=> 'SPRI-ELE',
+			'World Wide Web'							=> 'SPRI-ELE',
+			'WWW'										=> 'SPRI-ELE',
+			"Friends' Room"								=> 'SPRI-FRI',
+		);
+		
 		# Get the locations
 		$locations = $this->xPathValues ($xml, '//loc[%i]/location');
 		
@@ -5581,7 +5571,7 @@ class muscatConversion extends frontControllerApplication
 				# This *location will be referred to as *location_original; does *location_original appear in the location codes list?
 				$locationStartsWith = false;
 				$locationCode = false;
-				foreach ($this->locationCodes as $startsWith => $code) {
+				foreach ($locationCodes as $startsWith => $code) {
 					if (preg_match ("|^{$startsWith}|", $location)) {
 						$locationStartsWith = $startsWith;
 						$locationCode = $code;
