@@ -171,7 +171,10 @@ class generateAuthors
 		$value = implode ($newLine, $lines);
 		
 		# As a special-case, remove the field code from the first line, as the $this->field number will be already present in the MARC parser definition
-		$value = mb_substr ($value, 4);	// I.e. chop first four characters, e.g. "700 "
+		#!# This whole block may not be needed - not clear
+		if (preg_match ('/^([0-9]{3} )/', $value)) {
+			$value = mb_substr ($value, 4);	// I.e. chop first four characters, e.g. "700 "
+		}
 		
 		# Write the value, which will be a special multiline string, into the values registry
 		$this->values[$this->languageMode][$this->field] = $value;
