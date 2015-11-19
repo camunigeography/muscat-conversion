@@ -5616,8 +5616,8 @@ class muscatConversion extends frontControllerApplication
 					
 				} else {
 					
-					# Add to record: ‡a <*location_original>
-					$result .= " {$this->doubleDagger}a" . $location;
+					# Add to record: ‡x <*location_original>
+					$result .= " {$this->doubleDagger}x" . $location;
 				}
 				
 				# Does the record contain another *location field that is equal to 'Not in SPRI'?
