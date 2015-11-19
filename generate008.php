@@ -82,53 +82,53 @@ class generate008
 		# Note that decade-wide dates like "199-" are considered a valid year
 		$hasYear = preg_match ('/([0-9]{3}[-0-9])/', $yearString, $yearMatches);
 		
-		# If *d in *doc or *art does not contain at least one year (e.g. '[n.d.]'), designator is 'n'; if *r in *ser does not contain at least one year (e.g. '[n.d.]'), designator is 'u'
-		# Note that decade-wide dates like "199-" are considered a valid year
-		# If 06 is 'n' or 'u', 07-10 contain 'uuuu'
-		# If 06 is 'n', 'q' or 's', 11-14 contain '####'; if 06 is 'u', 11-14 contain 'uuuu'
-		if (!$hasYear) {
-			return ($this->recordType == '/ser' ? 'u' : 'n') . 'uuuu' . ($this->recordType == '/ser' ? 'uuuu' : '####');
-		}
-		
-		# If record is *ser, designator is 'm'
-		# if 06 is 'm', 07-10 contain first year in *r
-		# In the context of a *ser, - does not mean unknown digit; instead it is used only for a range
+		# 06:    if record is *ser, designator is 'u'.
+		# 07-10: If 06 is 'u', 07-10 contain first year in *r (if *r contains no year, 07-10 contain 'uuuu');
+		# 11-14: if 06 is 'u', 11-14 contain second year in *r (if *r contains no year or no second year in a "1990-" -style range, 11-14 contain 'uuuu');
 		if ($this->recordType == '/ser') {
 			
 			# For continuing serials, e.g. ends with "1990-", there is no end date
+			# Example: /records/1036/
 			if (preg_match ('/-$/', $yearString)) {
-				return 'm' . $yearMatches[1] . '####';
+				return 'u' . $yearMatches[1] . 'uuuu';
 			}
 			
 			# Normalise cases of incorrect data specified as YYYY-YY, e.g. "1990-95" which should be "1990-1995"; all manually checked that these are all 19xx dates (not 18xx/20xx/etc.)
+			# Example: /records/1034/
 			$yearString = preg_replace ('/([0-9]{4})-([0-9]{2})($|[^0-9])/', '\1-19\2\3', $yearString);
 			
-			# If 06 is 'm', 11-14 contain last present year in *r (which could validly be the same as the first year if the string is just "1990" - this would mean a serial that starts in 1990 and ends in 1990)
-			preg_match_all ('/([0-9]{4})/', $yearString, $lastYearMatches, PREG_SET_ORDER);		// See: http://stackoverflow.com/questions/23343087/
-			$lastYear = end ($lastYearMatches);
-			return 'm' . $yearMatches[1] . $lastYear[1];
+			# Determine the last present year in *r (which could validly be the same as the first year if the string is just "1990" - this would mean a serial that starts in 1990 and ends in 1990)
+			# Example: /records/1052/
+			preg_match_all ('/([0-9]{4})/', $yearString, $lastYearMatches, PREG_PATTERN_ORDER);		// See: http://stackoverflow.com/questions/23343087/
+			$lastYear = end ($lastYearMatches[0]);
+			
+			# Return the u
+			return 'u' . ($hasYear ? $yearMatches[1] . $lastYear : 'uuuu' . 'uuuu');
 		}
 		
-		# For *doc and *art [which will be guaranteed if we have reached this point], if *d contains '?', '-', or is enclosed in square brackets, designator is 'q'
-		# if 06 is 'q', 07-10 contain the year from *d (i.e. no other characters e.g. '[', ']' or '?'); any digits replaced by hyphens in Muscat should be replaced by 'u' in Voyager
-		# If 06 is 'n', 'q' or 's', 11-14 contain '####'
-		$yearMatch = str_replace ('-', 'u', $yearMatches[1]);
-		if (substr_count ($yearString, '?'))		{return 'q' . $yearMatch . '####';}
-		if (substr_count ($yearString, '-'))		{return 'q' . $yearMatch . '####';}
-		if (preg_match ('/\[.+\]/', $yearString))	{return 'q' . $yearMatch . '####';}
+		# 06:    If *d in *doc or *art does not contain at least one year (e.g. '[n.d.]', '-', '?'), designator is 'n';
+		# 07-10: If 06 is 'n', 07-10 contain 'uuuu';
+		# 11-14: If 06 is 'n' or 's', 11-14 contain '####';
+		# Example: /records/1306/ , /records/1102/
+		if (!$hasYear) {
+			return 'n' . 'uuuu' . '####';
+		}
 		
-		# If *d is of the format '1984 (2014 printing)', designator is 'r'
-		# if 06 is 'r', 07-10 contain the later of the two years, i.e. '2014' if *d is '1984 (2014 printing)'
-		# NB /records/12681/ which has "1924 (December printing)" intentionally does not comply
+		# 06:    For *doc and *art, if *d is of the format '1984 (2014 printing)', designator is 'r';
+		# 07-10: if 06 is 'r', 07-10 contain the later of the two years, i.e. '2014' if *d is '1984 (2014 printing)';
+		# 11-14: if 06 is 'r', 11-14 contain the earlier of the two years, i.e. '1984' if *d is '1984 (2014 printing)'
+		# NB /records/12681/ which has "1924 (December printing)" intentionally does not comply; so this will fall through to s
 		# The printing year never has a - in practice, so for this reason we do not to worry about - => u replacement
-		# If 06 is 'r', 11-14 contain the earlier of the two years, i.e. '1984' if *d is '1984 (2014 printing)'
+		# Example: /records/12522/
 		if (preg_match ('/^([0-9]{3}[-0-9]) \(([0-9]{4}) printing\)$/', $yearString, $printingMatches)) {
 			return 'r' . $printingMatches[2] . $printingMatches[1];
 		}
 		
-		# Otherwise designator is 's'
-		# if 06 is 's', 07-10 contain year from *d
-		# If 06 is 'n', 'q' or 's', 11-14 contain '####'
+		# 06:    otherwise designator is 's'
+		# 07-10: if 06 is 's', 07-10 contain the year from *d (i.e. no other characters e.g. '[', ']' or '?') - any digits replaced by hyphens in Muscat should be replaced by 'u' in Voyager
+		# 11-14: If 06 is 'n' or 's', 11-14 contain '####';
+		# Example: /records/11150/
+		$yearMatches[1] = str_replace ('-', 'u', $yearMatches[1]);
 		return 's' . $yearMatches[1] . '####';
 	}
 	
