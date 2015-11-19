@@ -40,6 +40,7 @@ class muscatConversion extends frontControllerApplication
 		'loclocfiltered2' => "records with two or more locations, having first filtered out any locations whose location is 'Not in SPRI'/'Periodical'/'Basement IGS Collection'/'Basement Seligman *'",
 		'externallocations' => "records where no location is 'Not in SPRI', having first filtered out any matching a whitelist of internal locations",
 		'loclocloc' => 'records with three or more locations',
+		'singleexternallocation' => 'records with only one location, which is not on the whitelist',
 		'arttitlenoser' => 'articles without a matching serial title, that are not pamphlets or in the special collection',
 		'notinspri' => 'items not in SPRI',
 		'loccamuninotinspri' => 'records with location matching Cambridge University, not in SPRI',
@@ -6382,6 +6383,28 @@ class muscatConversion extends frontControllerApplication
 				/* If 'Not in SPRI' is present anywhere, then any other location values are irrelevant */
 				    all_locations NOT LIKE '%|Not in SPRI|%'
 			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with only one location, which is not on the whitelist
+	private function report_singleexternallocation ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'singleexternallocation' AS report,
+				recordId
+			FROM catalogue_processed
+			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+			WHERE
+				    fieldslist NOT REGEXP '@location.*@location@'
+				AND field = 'location'
+				AND value NOT REGEXP '(^Not in SPRI$|^Periodical|^Basement|^Pam|^Shelf|^153-158 Wubbold Room$|^Archive|^Atlas|^Cupboard|^Folio|^Large Atlas|^Library Office|^Map Room|^Picture Library|^Russian|^Special Collection|^Theses|^Shelved with|^[0-9]|^Reference|^Bibliographers\' Office|^Librarian\'s Office|^Friends\' Room|^International Glaciological Society|^IGS-)'
+				AND value != '??'	/* Not done in the regexp to avoid possible backlash-related errors */
+		";
 		
 		# Return the query
 		return $query;
