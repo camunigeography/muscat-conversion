@@ -686,8 +686,7 @@ class muscatConversion extends frontControllerApplication
 				}
 			/*
 			*/
-				
-				$output  = "\n<div class=\"graybox marc\">" . "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($record[$type])) . "\n</pre>\n</div>";
+				$output .= "\n<div class=\"graybox marc\">" . "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($record[$type])) . "\n</pre>\n</div>";
 				$output .= "\n<p>This is generated using the <a href=\"{$this->baseUrl}/marcparser.html\">MARC21 parser definition</a>.</p>";
 				break;
 				
