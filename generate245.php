@@ -236,7 +236,7 @@ class generate245
 		}
 		
 		# Ensure the value ends with a dot (if not already present)
-		if (substr ($statementOfResponsibility, -1) != '.') {$statementOfResponsibility .= '.';}
+		if (mb_substr ($statementOfResponsibility, -1) != '.') {$statementOfResponsibility .= '.';}
 		
 		# Return the Statement of Responsibility
 		return $statementOfResponsibility;

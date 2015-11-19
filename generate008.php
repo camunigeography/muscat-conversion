@@ -450,7 +450,7 @@ class generate008
 		
 		# Truncate to 4 characters
 		if (strlen ($stack) > 4) {
-			$stack = substr ($stack, 0, 4);
+			$stack = mb_substr ($stack, 0, 4);
 		}
 		
 		# If any of are still empty => # in each empty position, e.g. 'bdgm', 'bdg#', 'bd##', 'b###', '####', or '|bdg', '|bd#', '|b##', '|###'
@@ -585,7 +585,7 @@ class generate008
 				
 				# Truncate to 2 characters
 				if (strlen ($stack) > 2) {
-					$stack = substr ($stack, 0, 2);
+					$stack = mb_substr ($stack, 0, 2);
 				}
 				
 				# If any of pos. 30 or 31 are still empty => # in each empty position

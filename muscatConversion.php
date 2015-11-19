@@ -494,7 +494,7 @@ class muscatConversion extends frontControllerApplication
 		$droplist[$frontpage] = '';
 		foreach ($this->reports as $report => $description) {
 			$link = $this->reportLink ($report);
-			$description = (strlen ($description) > 50 ? substr ($description, 0, 50) . '...' : $description);	// Truncate
+			$description = (strlen ($description) > 50 ? mb_substr ($description, 0, 50) . '...' : $description);	// Truncate
 			$droplist[$link] = ucfirst ($description) . ($this->isListing ($report) ? '' : ' (' . number_format ($counts[$report]) . ')');
 		}
 		
@@ -2210,7 +2210,7 @@ class muscatConversion extends frontControllerApplication
 		foreach ($record as $lineNumber => $line) {
 			
 			# Determine if the line has a key. before trimming to avoid the situation of an intended carry-over string that begins with a * in the text
-			$keyed = (substr ($line, 0, 1) == '*');
+			$keyed = (mb_substr ($line, 0, 1) == '*');
 			
 			# Trim the line, which will be guaranteed not-empty after trimming
 			$record[$lineNumber] = trim ($record[$lineNumber]);
@@ -3986,7 +3986,7 @@ class muscatConversion extends frontControllerApplication
 			if (!trim ($line)) {unset ($lines[$lineNumber]);}
 			
 			# Skip comment lines
-			if (substr ($line, 0, 1) == '#') {unset ($lines[$lineNumber]); continue;}
+			if (mb_substr ($line, 0, 1) == '#') {unset ($lines[$lineNumber]); continue;}
 		}
 		
 		# Start the datastructure by loading each line
@@ -5232,7 +5232,7 @@ class muscatConversion extends frontControllerApplication
 			$string = trim ($string);
 			
 			# Add space-semicolon to $a if not already present
-			if (substr ($string, -1) != ';') {
+			if (mb_substr ($string, -1) != ';') {
 				$string .= ' ;';
 			}
 			
@@ -5248,14 +5248,14 @@ class muscatConversion extends frontControllerApplication
 	# Macro to determine if a value is not surrounded by round brackets
 	private function macro_isNotRoundBracketed ($value)
 	{
-		return ((substr ($value, 0, 1) != '(') || (substr ($value, -1) != ')') ? $value : false);
+		return ((mb_substr ($value, 0, 1) != '(') || (mb_substr ($value, -1) != ')') ? $value : false);
 	}
 	
 	
 	# Macro to determine if a value is surrounded by round brackets
 	private function macro_isRoundBracketed ($value)
 	{
-		return ((substr ($value, 0, 1) == '(') && (substr ($value, -1) == ')') ? $value : false);
+		return ((mb_substr ($value, 0, 1) == '(') && (mb_substr ($value, -1) == ')') ? $value : false);
 	}
 	
 	

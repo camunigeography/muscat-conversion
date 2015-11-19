@@ -171,7 +171,7 @@ class generateAuthors
 		$value = implode ($newLine, $lines);
 		
 		# As a special-case, remove the field code from the first line, as the $this->field number will be already present in the MARC parser definition
-		$value = substr ($value, 4);	// I.e. chop first four characters, e.g. "700 "
+		$value = mb_substr ($value, 4);	// I.e. chop first four characters, e.g. "700 "
 		
 		# Write the value, which will be a special multiline string, into the values registry
 		$this->values[$this->languageMode][$this->field] = $value;
@@ -335,7 +335,7 @@ class generateAuthors
 		$this->field = $defaultFieldCode;
 		
 		# Create a handle to the context1xx flag
-		$this->context1xx = (substr ($defaultFieldCode, 0, 1) == 1);	// i.e. true if 1xx but not 7xx
+		$this->context1xx = (mb_substr ($defaultFieldCode, 0, 1) == 1);	// i.e. true if 1xx but not 7xx
 		
 		# Create a handle to the XML for this field
 		$this->xml = $xml;
