@@ -36,9 +36,9 @@ class muscatConversion extends frontControllerApplication
 		'docwithkb' => '*doc records with *kb',
 		'artinnokg' => 'records with *in but no *kg',
 		'artinnokglocation' => "records with *in but no *kg, excluding records where the location is 'Pam*' or 'Not in SPRI'",
-		'loclocfiltered1' => "Records with two or more locations, having first filtered out any locations whose location is 'Not in SPRI'",
-		'loclocfiltered2' => "Records with two or more locations, having first filtered out any locations whose location is 'Not in SPRI'/'Periodical'/'Basement IGS Collection'/'Basement Seligman *'",
-		'loclocfiltered3' => "Records with two or more locations, where no location is 'Not in SPRI', having first filtered out any matching a whitelist of internal locations",
+		'loclocfiltered1' => "records with two or more locations, having first filtered out any locations whose location is 'Not in SPRI'",
+		'loclocfiltered2' => "records with two or more locations, having first filtered out any locations whose location is 'Not in SPRI'/'Periodical'/'Basement IGS Collection'/'Basement Seligman *'",
+		'externallocations' => "records where no location is 'Not in SPRI', having first filtered out any matching a whitelist of internal locations",
 		'loclocloc' => 'records with three or more locations',
 		'arttitlenoser' => 'articles without a matching serial title, that are not pamphlets or in the special collection',
 		'notinspri' => 'items not in SPRI',
@@ -6347,18 +6347,23 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Records with two or more locations, where no location is 'Not in SPRI', having first filtered out any matching a whitelist of internal locations
+	# Records where no location is 'Not in SPRI', having first filtered out any matching a whitelist of internal locations
 	/*
+		i.e.
+		1) Ignore locations within a record that are on the whitelist of internal locations
+		2) Ignore any records which have a location 'Not in SPRI'
+		3) List records that have any locations left
+		
 		Note that "Not in SPRI" should be treated as a special case beyond the general rule:
 		- Example: locations are: "Not in SPRI" and "Library of Congress" --> DOES NOT appear in report
 		- Example: locations are: "Periodical" and "Library of Congress" --> DOES appear in report
 	*/
-	private function report_loclocfiltered3 ()
+	private function report_externallocations ()
 	{
 		# Define the query
 		$query = "
 		SELECT
-			'loclocfiltered3' AS report,
+			'externallocations' AS report,
 			recordId
 		FROM
 			(
@@ -6369,14 +6374,13 @@ class muscatConversion extends frontControllerApplication
 				FROM catalogue_processed
 				WHERE
 					    field = 'location'
-					AND value NOT REGEXP '(^Periodical|^Basement|^Pam|^Shelf|^153-158 Wubbold Room$|^Archive|^Atlas|^Cupboard|^Folio|^Large Atlas|^Library Office|^Map Room|^Picture Library|^Russian|^Special Collection|^Theses$)'
+					AND value NOT REGEXP '(^Periodical|^Basement|^Pam|^Shelf|^153-158 Wubbold Room$|^Archive|^Atlas|^Cupboard|^Folio|^Large Atlas|^Library Office|^Map Room|^Picture Library|^Russian|^Special Collection|^Theses|^Shelved with|^[0-9]|^Reference|^Bibliographers\' Office|^Librarian\'s Office|^Friends\' Room|^International Glaciological Society|^IGS-)'
+					AND value != '??'	/* Not done in the regexp to avoid possible backlash-related errors */
 				GROUP BY recordId
 			) AS rawdata_combined
 			WHERE
 				/* If 'Not in SPRI' is present anywhere, then any other location values are irrelevant */
 				    all_locations NOT LIKE '%|Not in SPRI|%'
-				/* Require two or more locations to be present, e.g. '|Not in SPRI||Cambridge University Library|' */
-				AND all_locations LIKE '%||%'
 			";
 		
 		# Return the query
