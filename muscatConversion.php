@@ -682,7 +682,7 @@ class muscatConversion extends frontControllerApplication
 				$record['marc'] = $this->convertToMarc ($marcParserDefinition, $data['xml'], $errorString);
 				$output  = "\n<p>The MARC output uses the <a target=\"_blank\" href=\"{$this->baseUrl}/marcparser.html\">parser definition</a> to do the translation from the XML representation.</p>";
 				if ($errorString) {
-					$output .= "\n<p><img src=\"/images/icons/exclamation.png\" class=\"icon\" /> {$errorString}</p>";
+					$output .= "\n<p class=\"warning\">{$errorString}</p>";
 				}
 			/*
 			*/
