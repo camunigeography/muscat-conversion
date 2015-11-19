@@ -3949,6 +3949,13 @@ class muscatConversion extends frontControllerApplication
 		$bytes = str_pad ($bytes, 5, '0', STR_PAD_LEFT);
 		$record = preg_replace ('/^LDR (_____)/m', "LDR {$bytes}", $record);
 		
+		# Report any UTF-8 problems
+		if (!htmlspecialchars ($record)) {
+			$recordId = $this->xPathValue ($xml, '//q0');
+			$errorString .= "UTF-8 conversion failed in record <a href=\"{$this->baseUrl}/records/{$recordId}/\">#{$recordId}</a>.";
+			return false;
+		}
+		
 		# Return the record
 		return $record;
 	}
