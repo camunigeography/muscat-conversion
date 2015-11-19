@@ -74,13 +74,19 @@ class generate008
 	# 008 pos. 06: Type of date/Publication status, and 07-10: Date 1, and pos. 11-14: Date 2
 	private function position_06_14 ()
 	{
+		# Obtain the year string
+		$yearField = ($this->recordType == '/ser' ? 'r' : 'd');
+		$yearString = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . "//{$yearField}");
+		
+		# Determine if the record has a year
+		# Note that decade-wide dates like "199-" are considered a valid year
+		$hasYear = preg_match ('/([0-9]{3}[-0-9])/', $yearString, $yearMatches);
+		
 		# If *d in *doc or *art does not contain at least one year (e.g. '[n.d.]'), designator is 'n'; if *r in *ser does not contain at least one year (e.g. '[n.d.]'), designator is 'u'
 		# Note that decade-wide dates like "199-" are considered a valid year
 		# If 06 is 'n' or 'u', 07-10 contain 'uuuu'
 		# If 06 is 'n', 'q' or 's', 11-14 contain '####'; if 06 is 'u', 11-14 contain 'uuuu'
-		$yearField = ($this->recordType == '/ser' ? 'r' : 'd');
-		$yearString = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . "//{$yearField}");
-		if (!preg_match ('/([0-9]{3}[-0-9])/', $yearString, $yearMatches)) {
+		if (!$hasYear) {
 			return ($this->recordType == '/ser' ? 'u' : 'n') . 'uuuu' . ($this->recordType == '/ser' ? 'uuuu' : '####');
 		}
 		
