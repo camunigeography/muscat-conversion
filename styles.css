@@ -16,7 +16,7 @@
 #muscatconversion ul.previousnextlinks li {display: inline; margin: 0; padding: 0;}
 #muscatconversion ul.previousnextlinks li a {border: 0;}
 #muscatconversion div.marc {overflow-x: scroll;}
-#muscatconversion div.marc strong, #muscatconversion table.reportlisting strong {color: #603; font-weight: normal; background-color: #ddd; opacity: 0.7;}
+#muscatconversion div.marc pre strong, #muscatconversion table.reportlisting strong {color: #603; font-weight: normal; background-color: #ddd; opacity: 0.7;}
 #muscatconversion #form_definition {font-family: Lucida Console, courier, monospace; line-height: 1.5em; padding: 10px;}
 #muscatconversion ul.downloads li a {font-weight: bold; width: 18em;}
 #muscatconversion img.extension.file-txt {display: none;}
@@ -26,6 +26,8 @@
 #muscatconversion table.diacritics table tr td:first-child {text-align: right;}
 #muscatconversion table.diacritics table tr td.unicode {font-size: 1.4em;}
 #muscatconversion table.fieldslisting td.Description {width: 400px;}
+#muscatconversion p#exporttarget {text-align: right;}
+#muscatconversion p#exporttarget strong {border: 1px solid #ddd; padding: 2px;}
 
 /* Print styles */
 @media print {

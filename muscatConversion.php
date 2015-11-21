@@ -692,7 +692,10 @@ class muscatConversion extends frontControllerApplication
 				}
 			/*
 			*/
-				$output .= "\n<div class=\"graybox marc\">" . "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($record[$type])) . "\n</pre>\n</div>";
+				$output .= "\n<div class=\"graybox marc\">";
+				$output .= "\n<p id=\"exporttarget\">Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->migrationStatus ($id) . "</strong></p>";
+				$output .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($record[$type])) . "\n</pre>";
+				$output .= "\n</div>";
 				$output .= "\n<p>This is generated using the <a href=\"{$this->baseUrl}/marcparser.html\">MARC21 parser definition</a>.</p>";
 				break;
 				
@@ -722,6 +725,20 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the HTML/XML
 		return $output;
+	}
+	
+	
+	# Function to obtain the migration status for a MARC record
+	private function migrationStatus ($id)
+	{
+		# Obtain the status
+		$status = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'status', $conditions = array ('id' => $id));
+		
+		# Assign label
+		$label = $this->filesets[$status];
+		
+		# Return the label for the status
+		return $label;
 	}
 	
 	
