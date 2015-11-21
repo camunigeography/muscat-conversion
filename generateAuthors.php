@@ -114,6 +114,9 @@ class generateAuthors
 		# Do the classification; look at the first or only *doc/*ag/*a OR *art/*ag/*a
 		$value = $this->main ($this->mainRecordXml, '/*/ag[1]/a[1]', 100);
 		
+		# Subfield ‡u, if present, needs to go before subfield ‡e
+		$value = $this->shiftSubfieldU ($value);
+		
 		# Write the value into the values registry
 		$this->values[$this->languageMode][$this->field] = $value;
 	}
@@ -159,6 +162,11 @@ class generateAuthors
 		# End if no lines
 		if (!$lines) {
 			return false;		// The entry in $this->values[$this->languageMode] for this field will be left as when initialised, i.e. false
+		}
+		
+		# Subfield ‡u, if present, needs to go before subfield ‡e
+		foreach ($lines as $index => $line) {
+			$lines[$index] = $this->shiftSubfieldU ($line);
 		}
 		
 		# Implode the lines
@@ -300,6 +308,22 @@ class generateAuthors
 		
 		# Return the lines
 		return $lines;
+	}
+	
+	
+	# Function to shift subfield ‡u, if present, to go before subfield ‡e; e.g. /records/127378/ , /records/134669/ , /records/135235/
+	private function shiftSubfieldU ($line)
+	{
+		# Take no action if both $u and $e are present
+		if (!substr_count ($line, "{$this->doubleDagger}u") || !substr_count ($line, "{$this->doubleDagger}e")) {
+			return $line;
+		}
+		
+		# Move $u block to just before $e, leaving all others in place
+		$line = preg_replace ("/^(.*)(, {$this->doubleDagger}e.*)(, {$this->doubleDagger}u[^{$this->doubleDagger}]+)(.*\.)$/u", '\1\3\2\4', $line);
+		
+		# Return the result
+		return $line;
 	}
 	
 	
@@ -658,9 +682,9 @@ class generateAuthors
 		
 		# Is the *nd exactly equal to set of specific strings?
 		$strings = array (
-			'Sr SGM'				=> ", {$this->doubleDagger}c Sr, {$this->doubleDagger}u SGM",
+			'Sr SGM'				=> ", {$this->doubleDagger}c Sr, {$this->doubleDagger}uSGM",
 			'Lord, 1920-1999'		=> ", {$this->doubleDagger}c Lord, {$this->doubleDagger}d 1920-1999",
-			'Rev., O.M.I.'			=> ", {$this->doubleDagger}c Rev., {$this->doubleDagger}u O.M.I.",
+			'Rev., O.M.I.'			=> ", {$this->doubleDagger}c Rev., {$this->doubleDagger}uO.M.I.",
 			'I, Prince of Monaco'	=> ", {$this->doubleDagger}b I, {$this->doubleDagger}c Prince of Monaco",
 			'Baron, 1880-1957'		=> ", {$this->doubleDagger}c Baron, {$this->doubleDagger}d 1880-1957",
 		);
@@ -730,7 +754,7 @@ class generateAuthors
 		# Do one or more words or phrases in the $fieldValue appear in the Relator terms list?
 		$relatorTerms = $this->getRelatorTerms ($fieldValue);
 		if (array_key_exists ($fieldValue, $relatorTerms)) {
-			$value .= ", {$this->doubleDagger}e {$relatorTerms[$fieldValue]}";
+			$value .= ", {$this->doubleDagger}e{$relatorTerms[$fieldValue]}";
 			return $value;
 		}
 		
@@ -744,7 +768,7 @@ class generateAuthors
 		# Does the value of the $fieldValue appear on the Affiliation list?
 		$affiliationList = $this->affiliationList ();
 		if (in_array ($fieldValue, $affiliationList)) {
-			$value .= ", {$this->doubleDagger}u {$fieldValue}";
+			$value .= ", {$this->doubleDagger}u{$fieldValue}";
 			return $value;
 		}
 		
@@ -863,7 +887,7 @@ class generateAuthors
 		# If so, Add to 100 field; example: /records/121449/
 		$aff = $this->muscatConversion->xPathValue ($this->xml, $path . '/following-sibling::aff');
 		if (strlen ($aff)) {
-			$value .= ", {$this->doubleDagger}u {$aff}";
+			$value .= ", {$this->doubleDagger}u{$aff}";
 		}
 		
 		# Does the record contain a *doc/*e/*n/*n1 OR *art/*e/*n/*n1 that is equal to 'the author'?
@@ -881,7 +905,7 @@ class generateAuthors
 		
 		# Does 100 field include either or both of the following specified relator terms
 		if ($this->context1xx) {
-			if (substr_count ($value, "{$this->doubleDagger}e editor") || substr_count ($value, "{$this->doubleDagger}e compiler")) {
+			if (substr_count ($value, "{$this->doubleDagger}eeditor") || substr_count ($value, "{$this->doubleDagger}ecompiler")) {
 				
 				# Change 1XX field to 7XX field: all indicators, fields and subfields remain the same; e.g. /records/31105/
 				$this->field += 600;		// 100->700, 110->710
