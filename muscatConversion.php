@@ -5171,6 +5171,19 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro for generating the 250 $b subfield
+	private function macro_generate250b ($value, $xml, $ignored, $authorsFields)
+	{
+		# Use the role-and-siblings part of the 245 processor
+		require_once ('generate245.php');
+		$generate245 = new generate245 ($this, $xml, $authorsFields);
+		$value = $generate245->roleAndSiblings ('//ee');
+		
+		# Return the value
+		return $value;
+	}
+	
+	
 	# Macro for generating the 490 field
 	private function macro_generate490 ($ts, $xml, $ignored, $authorsFieldsIgnored, &$matchedRegexp = false)
 	{

@@ -239,8 +239,8 @@ class generate245
 	}
 	
 	
-	# Function to deal with a role and siblings
-	private function roleAndSiblings ($path)
+	# Function to deal with a role and siblings; NB this is also used directly by the generate250b macro
+	public function roleAndSiblings ($path)
 	{
 		# Start the result
 		$result = '';
