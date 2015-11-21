@@ -112,7 +112,7 @@ class generateAuthors
 		}
 		
 		# Do the classification; look at the first or only *doc/*ag/*a OR *art/*ag/*a
-		$value = $this->main ($this->mainRecordXml, '/*/ag/a[1]', 100);
+		$value = $this->main ($this->mainRecordXml, '/*/ag[1]/a[1]', 100);
 		
 		# Write the value into the values registry
 		$this->values[$this->languageMode][$this->field] = $value;
