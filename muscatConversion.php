@@ -3027,6 +3027,17 @@ class muscatConversion extends frontControllerApplication
 		# Ensure language is supported
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return $string;}
 		
+		# Protect HTML tags with strings that will not be affected by any transliteration operation
+		$tags = array (
+			'<em>'		=> '<^^^^^^^^^^>',
+			'</em>'		=> '</^^^^^^^^^^>',
+			'<sub>'		=> '<@@@@@@@@@@>',
+			'</sub>'	=> '</@@@@@@@@@@>',
+			'<sup>'		=> '<%%%%%%%%%%>',
+			'</sup>'	=> '</%%%%%%%%%%>',
+		);
+		$string = strtr ($string, $tags);
+		
 		# Extract any English translation already present
 		$englishPart = false;
 		if (preg_match ('/^(.+) \[(.+)\]$/', trim ($string), $matches)) {
@@ -3042,6 +3053,9 @@ class muscatConversion extends frontControllerApplication
 		if ($englishPart) {
 			$reverseTransliteration .= ' [' . $englishPart . ']';
 		}
+		
+		# Replace HTML tags
+		$reverseTransliteration = strtr ($reverseTransliteration, array_flip ($tags));
 		
 		# Return the transliteration
 		return $reverseTransliteration;
