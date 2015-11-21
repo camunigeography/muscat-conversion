@@ -3366,6 +3366,17 @@ class muscatConversion extends frontControllerApplication
 			WHERE child.field = 'location' AND child.value = 'Periodical'
 		;";
 		$this->databaseConnection->execute ($sql);
+		
+		# Replace location=Periodical in the processed records with the real, looked-up values
+		$sql = "
+			UPDATE catalogue_processed
+			LEFT JOIN periodicallocationmatches ON catalogue_processed.recordId = periodicallocationmatches.recordId
+			SET value = parentLocation
+			WHERE
+				    field = 'Location' AND value = 'Periodical'
+				AND parentLocation IS NOT NULL
+			;";
+		$this->databaseConnection->execute ($sql);
 	}
 	
 	
