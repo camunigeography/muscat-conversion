@@ -3335,7 +3335,37 @@ class muscatConversion extends frontControllerApplication
 		;";
 		$this->databaseConnection->execute ($sql);
 		
+		# Create the table of matches, clearing it out first if existing from a previous import
+		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.periodicallocationmatches;";
+		$this->databaseConnection->execute ($sql);
+		$sql = "CREATE TABLE IF NOT EXISTS `periodicallocationmatches` (
+			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
+			`recordId` int(6) NOT NULL COMMENT 'Record number of child',
+			`title` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title in child',
+			`parentRecordId` int(6) NULL COMMENT 'Record number of parent',
+			`parentLocation` varchar(255) COLLATE utf8_unicode_ci NULL COMMENT 'Parent location',
+			PRIMARY KEY (id),
+			INDEX(recordId),
+			INDEX(parentRecordId)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of periodical location matches'
+		;";
+		$this->databaseConnection->execute ($sql);
 		
+		# Insert the data; note that the periodicallocations table is no longer needed after this
+		$sql = "
+			INSERT INTO `periodicallocationmatches` (recordId, title, parentRecordId, parentLocation)
+			SELECT
+				child.recordId,
+			    EXTRACTVALUE(xml, '//j/tg/t') AS title,
+			    periodicallocations.recordId AS parentRecordId,
+			    parent.value AS parentLocation
+			FROM catalogue_processed AS child
+			LEFT JOIN catalogue_xml ON child.recordId = catalogue_xml.id
+			LEFT JOIN periodicallocations ON EXTRACTVALUE(xml, '//j/tg/t') = periodicallocations.title
+			LEFT JOIN catalogue_processed AS parent ON periodicallocations.recordId = parent.recordId AND parent.field = 'Location'
+			WHERE child.field = 'location' AND child.value = 'Periodical'
+		;";
+		$this->databaseConnection->execute ($sql);
 	}
 	
 	
