@@ -2016,7 +2016,6 @@ class muscatConversion extends frontControllerApplication
 		# Define the import types
 		$importTypes = array (
 			'full'					=> 'FULL import (c. 2 hours)',
-			'recordlinkage'			=> 'Record linkage',
 			'marc'					=> 'Regenerate MARC only (c. 65 minutes)',
 			'reports'				=> 'Regenerate reports only (c. 4 minutes)',
 			'listings'				=> 'Regenerate listings reports only (c. 34 minutes)',
@@ -2085,12 +2084,6 @@ class muscatConversion extends frontControllerApplication
 			
 			# Confirm output
 			$html .= "\n<p>{$this->tick} The data has been imported.</p>";
-		}
-		
-		# Deal with record linkage, if required
-		if (($importType == 'full') || ($importType == 'recordlinkage')) {
-			$this->recordLinkage ();
-			$html .= "\n<p>{$this->tick} Record linkage has been done.</p>";
 		}
 		
 		# Create the MARC records
@@ -2918,14 +2911,6 @@ class muscatConversion extends frontControllerApplication
 			$result = $this->databaseConnection->query ($query);
 			// application::dumpData ($this->databaseConnection->error ());
 		}
-	}
-	
-	
-	# Function to perform record linkage
-	private function recordLinkage ()
-	{
-		// todo
-		
 	}
 	
 	
