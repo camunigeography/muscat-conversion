@@ -2577,6 +2577,10 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSubscripts['='] = chr(0xE2).chr(0x82).chr(0x8C);
 		$unicodeSubscripts['('] = chr(0xE2).chr(0x82).chr(0x8D);
 		$unicodeSubscripts[')'] = chr(0xE2).chr(0x82).chr(0x8E);
+		$subscriptsNonUnicodeable = array ('c', 'E', 'h', 'H', 's', 'y');		// E.g. shown as {h}
+		foreach ($subscriptsNonUnicodeable as $subscriptNonUnicodeable) {
+			$unicodeSubscripts[$subscriptNonUnicodeable] = '<sub>' . $subscriptNonUnicodeable . '</sub>';	// Will be stripped in final record
+		}
 		
 		# Superscripts: more awkward than subscripts as code points include three ASCII-position characters; see: http://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts#Superscripts_and_subscripts_block
 		$unicodeSuperscripts = array ();
@@ -2599,18 +2603,27 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSuperscripts['('] = chr(0xE2).chr(0x81).chr(0xBD);
 		$unicodeSuperscripts[')'] = chr(0xE2).chr(0x81).chr(0xBE);
 		$unicodeSuperscripts['n'] = chr(0xE2).chr(0x81).chr(0xBF);
-		$unicodeSuperscripts['a'] = chr(0xC2).chr(0xAA);	// FEMININE ORDINAL INDICATOR (U+00AA); see: http://www.fileformat.info/info/unicode/char/00aa/index.htm and https://en.wikipedia.org/wiki/Ordinal_indicator#Usage
-		$unicodeSuperscripts['o'] = chr(0xC2).chr(0xBA);	// MASCULINE ORDINAL INDICATOR (U+00BA); see: http://www.fileformat.info/info/unicode/char/00ba/index.htm and https://en.wikipedia.org/wiki/Ordinal_indicator#Usage
+		$unicodeSuperscripts['2+'] = chr(0xC2).chr(0xB0 + 2) . chr(0xE2).chr(0x81).chr(0xBA);
+		
+		# Ordinal indicators; only a and o have proper Unicode characters: https://en.wikipedia.org/wiki/Ordinal_indicator#Usage
+		$unicodeSuperscripts['a'] = chr(0xC2).chr(0xAA);	// FEMININE ORDINAL INDICATOR (U+00AA); see: http://www.fileformat.info/info/unicode/char/00aa/index.htm
+		$unicodeSuperscripts['o'] = chr(0xC2).chr(0xBA);	// MASCULINE ORDINAL INDICATOR (U+00BA); see: http://www.fileformat.info/info/unicode/char/00ba/index.htm
+		$superscriptsNonUnicodeable = array ('c', 'e', 'er', 'ieme', 'ne');		// E.g. shown as }e{
+		foreach ($superscriptsNonUnicodeable as $superscriptNonUnicodeable) {
+			$unicodeSuperscripts[$superscriptNonUnicodeable] = '<sup>' . $superscriptNonUnicodeable . '</sup>';	// Will be stripped in final record
+		}
 		
 		# Define superscripts known to be in the data, e.g. {+}, {-}, }+{, }-{, etc.; all characters in these listings must have been defined above
 		$subscriptsPresentInData = array_merge (
 			array ('+', '-', '=', '(', ')'),
+			$subscriptsNonUnicodeable,
 			range (0, 9),
 			range (-99, -1),
 			array ('10', '11', '12', '13', '14', '15', '16', '17', '18', '20', '21', '22', '23', '25', '26', '27', '28', '29', '30', '31', '33', '35', '37', '40', '43', '45', '50', '60', '63', '64', '86', '90', '115', '128', '137', '200', '210', '238', '241', '500', '700', '0001', '1010', '1120', '2021')
 		);
 		$superscriptsPresentInData = array_merge (
 			array ('+', '-', '=', '(', ')', 'n', 'a', 'o'),
+			$superscriptsNonUnicodeable,
 			range (0, 99),
 			range (-99, -1),
 			array ('103', '118', '125', '127', '129', '134', '137', '143', '144', '181', '187', '188', '204', '206', '207', '210', '222', '226', '228', '230', '231', '232', '234', '235', '238', '239', '240', '241', '548', '552')
@@ -4331,7 +4344,7 @@ class muscatConversion extends frontControllerApplication
 		$record = implode ("\n", $outputLines);
 		
 		# Strip tags (introduced in specialCharacterParsing) across the record: "in MARC there isn't a way to represent text in italics in a MARC record and get it to display in italics in the OPAC/discovery layer, so the HTML tags will need to be stripped."
-		$tags = array ('<em>', '</em>');
+		$tags = array ('<em>', '</em>', '<sub>', '</sub>', '<sup>', '</sup>');
 		$record = str_replace ($tags, '', $record);
 		
 		# Return the record
