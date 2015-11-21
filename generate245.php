@@ -220,16 +220,12 @@ class generate245
 			$agIndex++;
 		}
 		
-		# Does the record contain at least one *e?
+		# Does the record contain at least one *e?; e.g. /records/2930/
 		$eIndex = 1;
-		while ($this->muscatConversion->xPathValue ($this->xml, "//e[$eIndex]")) {		// Check if *ag container exists
+		while ($this->muscatConversion->xPathValue ($this->xml, "//e[$eIndex]")) {		// Check if *e container exists
 			
 			# Add to 245 field: ; <*e/*role>
-			$role = $this->muscatConversion->xPathValue ($this->xml, "//e[$eIndex]/role") . ' ';
-			$statementOfResponsibility .= '; ' . $role;
-			
-			# Add the entry
-			$statementOfResponsibility .= $this->classifyNdField ("//e[$eIndex]/n");
+			$statementOfResponsibility .= '; ' . $this->roleAndSiblings ("//e[$eIndex]");
 			
 			# Next e
 			$eIndex++;
@@ -240,6 +236,24 @@ class generate245
 		
 		# Return the Statement of Responsibility
 		return $statementOfResponsibility;
+	}
+	
+	
+	# Function to deal with a role and siblings
+	private function roleAndSiblings ($path)
+	{
+		# Start the result
+		$result = '';
+		
+		# Obtain the role value
+		$role = $this->muscatConversion->xPathValue ($this->xml, $path . '/role') . ' ';
+		$result .= $role;
+		
+		# Add the entry
+		$result .= $this->classifyNdField ($path . '/n');
+		
+		# Return the value
+		return $result;
 	}
 	
 	
