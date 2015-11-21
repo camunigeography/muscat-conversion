@@ -170,8 +170,12 @@ class muscatConversion extends frontControllerApplication
 		'Russian' => 'BGN PCGN 1947',	// Filename becomes bgn_pcgn_1947.xml
 	);
 	
-	# Define the file sets
-	private $filesets = array ('migrate' , 'suppress', 'ignore');
+	# Define the file sets and their labels
+	private $filesets = array (
+		'migrate'	=> 'Migrate to Voyager',
+		'suppress'	=> 'Suppress from OPAC',
+		'ignore'	=> 'Ignore record',
+	);
 	
 	# Define known *ks values to be ignored
 	private $ignoreKsValues = array ('AGI', 'AGI', 'AGI1', 'AK', 'AK1', 'AM', 'AM/HL', 'BL', 'C', 'C?', 'CC', 'D', 'D?', 'GLEN', 'GLEN', 'HL', 'HS', 'HSO', 'HS1', 'HS (RS)', 'HS(RS)', 'HS/RUS', 'HSSB', 'HSSB1', 'HSSB2', 'HSSB3', 'IW', 'IW', 'IWO', 'JHR', 'JHRprob', 'JHR1', 'JHRO', 'JP', 'JW', 'JW', 'JW1', 'LASTPGA', 'MG', 'MISSING', 'MISSING', 'MPO', 'MPP', 'NOM', 'NOM1', 'NOMO', 'OM', 'PARTIAL RECORD', 'PGA', 'PGA', 'PGA1', 'RF', 'RF', 'RS', 'SS', 'WM', 'Y', );
@@ -3206,7 +3210,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Generate the output files
-		foreach ($this->filesets as $fileset) {
+		foreach ($this->filesets as $fileset => $label) {
 			$this->createMarcExport ($fileset);
 		}
 		
@@ -3887,9 +3891,9 @@ class muscatConversion extends frontControllerApplication
 		# Compile the HTML
 		$html  = "\n<h3>Downloads</h3>";
 		$html .= "\n<table class=\"lines spaced\">";
-		foreach ($this->filesets as $fileset) {
+		foreach ($this->filesets as $fileset => $label) {
 			$html .= "\n\t<tr>";
-			$html .= "\n\t\t<td>" . ucfirst ($fileset) . ':</td>';
+			$html .= "\n\t\t<td>{$label}:</td>";
 			$html .= "\n\t\t<td><a class=\"actions\" href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.txt\">MARC21 data (text)</a></td>";
 			$html .= "\n\t\t<td><a class=\"actions\" href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrk\"><strong>MARC21 text (text, .mrk)</strong></a></td>";
 			$html .= "\n\t\t<td><a class=\"actions\" href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrc\">MARC21 data (binary .mrc)</a></td>";
@@ -3900,8 +3904,8 @@ class muscatConversion extends frontControllerApplication
 		
 		# Show errors
 		$html .= "\n<h3>Errors</h3>";
-		foreach ($this->filesets as $fileset) {
-			$html .= "\n<h4>Errors: {$fileset}</h4>";
+		foreach ($this->filesets as $fileset => $label) {
+			$html .= "\n<h4>Errors: {$label}</h4>";
 			$filename = $directory . "/spri-marc-{$fileset}.errors.txt";
 			$errors = file_get_contents ($filename);
 			$html .= "\n<div class=\"graybox\">";
