@@ -2018,6 +2018,7 @@ class muscatConversion extends frontControllerApplication
 			'full'					=> 'FULL import (c. 3 hours)',
 			'xml'					=> 'Regenerate XML only (c. 5 minutes)',
 			'marc'					=> 'Regenerate MARC only (c. 65 minutes)',
+			'outputstatus'			=> 'Regenerate output status only (c. 7 minutes)',
 			'reports'				=> 'Regenerate reports only (c. 4 minutes)',
 			'listings'				=> 'Regenerate listings reports only (c. 2 hours)',
 		);
@@ -2097,6 +2098,11 @@ class muscatConversion extends frontControllerApplication
 			if ($this->createMarcRecords ()) {
 				$html .= "\n<p>{$this->tick} The MARC versions of the records have been generated.</p>";
 			}
+		}
+		
+		# Run option to set the MARC record status (included within the 'marc' (and therefore 'full') option above) if required
+		if ($importType == 'outputstatus') {
+			$this->marcRecordsSetStatus ();
 		}
 		
 		# Run (pre-process) the reports
@@ -3158,7 +3164,7 @@ class muscatConversion extends frontControllerApplication
 		;";
 		$this->databaseConnection->execute ($query);
 		
-		# Add in the supress/migrate/ignore status for each record
+		# Add in the supress/migrate/ignore status for each record; also available as a standalone option in the import
 		$this->marcRecordsSetStatus ();
 		
 		# Get the schema
