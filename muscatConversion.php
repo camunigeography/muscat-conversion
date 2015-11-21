@@ -3284,7 +3284,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Insert the data
 		$sql = "
-			INSERT INTO `periodicallocations` (recordId, title, location)
+			INSERT INTO `periodicallocations` (recordId, title)
 			SELECT
 				id AS recordId,
 				EXTRACTVALUE(xml, '//ser/tg/t') AS title
