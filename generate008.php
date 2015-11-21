@@ -108,10 +108,10 @@ class generate008
 		
 		# 06:    If *d in *doc or *art does not contain at least one year (e.g. '[n.d.]', '-', '?'), designator is 'n';
 		# 07-10: If 06 is 'n', 07-10 contain 'uuuu';
-		# 11-14: If 06 is 'n' or 's', 11-14 contain '####';
+		# 11-14: If 06 is 'n' or 's', 11-14 contain 'uuuu';
 		# Example: /records/1306/ , /records/1102/
 		if (!$hasYear) {
-			return 'n' . 'uuuu' . '####';
+			return 'n' . 'uuuu' . 'uuuu';
 		}
 		
 		# 06:    For *doc and *art, if *d is of the format '1984 (2014 printing)', designator is 'r';
