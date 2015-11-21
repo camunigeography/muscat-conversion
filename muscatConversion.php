@@ -2016,6 +2016,7 @@ class muscatConversion extends frontControllerApplication
 		# Define the import types
 		$importTypes = array (
 			'full'					=> 'FULL import (c. 3 hours)',
+			'xml'					=> 'Regenerate XML only (c. 5 minutes)',
 			'marc'					=> 'Regenerate MARC only (c. 65 minutes)',
 			'reports'				=> 'Regenerate reports only (c. 4 minutes)',
 			'listings'				=> 'Regenerate listings reports only (c. 2 hours)',
@@ -2071,7 +2072,7 @@ class muscatConversion extends frontControllerApplication
 			# Finish character processing stage
 			$html .= "\n<p>{$this->tick} The character processing has been done.</p>";
 			
-			# Create the XML table
+			# Create the XML table; also available as a standalone option below
 			#   Depencies: catalogue_processed
 			$this->createXmlTable ();
 			
@@ -2084,6 +2085,11 @@ class muscatConversion extends frontControllerApplication
 			
 			# Confirm output
 			$html .= "\n<p>{$this->tick} The data has been imported.</p>";
+		}
+		
+		# Run option to create XML table only (included in the 'full' option above) if required
+		if ($importType == 'xml') {
+			$this->createXmlTable ();
 		}
 		
 		# Create the MARC records
@@ -3097,7 +3103,7 @@ class muscatConversion extends frontControllerApplication
 				);
 			}
 			
-			# Update the records
+			# Update these records
 			// if (!$this->databaseConnection->insertMany ($this->settings['database'], 'catalogue_xml', $inserts, false, $onDuplicateKeyUpdate = true)) {
 			if (!$this->databaseConnection->replaceMany ($this->settings['database'], 'catalogue_xml', $inserts)) {
 				echo "<p class=\"warning\">Error generating XML, stopping at batch ({$id}):</p>";
