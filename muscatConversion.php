@@ -3931,12 +3931,16 @@ class muscatConversion extends frontControllerApplication
 			return;
 		}
 		
+		# Get the fileset counts
+		$query = "SELECT status, COUNT(*) AS total FROM catalogue_marc GROUP BY status";
+		$totals = $this->databaseConnection->getPairs ($query);
+		
 		# Compile the HTML
 		$html  = "\n<h3>Downloads</h3>";
 		$html .= "\n<table class=\"lines spaced\">";
 		foreach ($this->filesets as $fileset => $label) {
 			$html .= "\n\t<tr>";
-			$html .= "\n\t\t<td>{$label}:</td>";
+			$html .= "\n\t\t<td><strong>{$label}</strong>:<br />" . number_format ($totals[$fileset]) . ' records</td>';
 			$html .= "\n\t\t<td><a class=\"actions\" href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.txt\">MARC21 data (text)</a></td>";
 			$html .= "\n\t\t<td><a class=\"actions\" href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrk\"><strong>MARC21 text (text, .mrk)</strong></a></td>";
 			$html .= "\n\t\t<td><a class=\"actions\" href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrc\">MARC21 data (binary .mrc)</a></td>";
