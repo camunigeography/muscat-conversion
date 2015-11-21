@@ -161,11 +161,6 @@ class generateAuthors
 			return false;		// The entry in $this->values[$this->languageMode] for this field will be left as when initialised, i.e. false
 		}
 		
-		# Every 700/710/711 has a fixed string ", ‡5 UkCU-P." at the end (representing the Institution to which field applies)
-		foreach ($lines as $index => $line) {
-			$lines[$index] .= ", {$this->doubleDagger}5" . 'UkCU-P.';
-		}
-		
 		# Implode the lines
 		$newLine = "\n";
 		$value = implode ($newLine, $lines);
