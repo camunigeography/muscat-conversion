@@ -170,8 +170,7 @@ class generateAuthors
 		}
 		
 		# Implode the lines
-		$newLine = "\n";
-		$value = implode ($newLine, $lines);
+		$value = implode ("\n", $lines);
 		
 		# As a special-case, remove the field code from the first line, as the $this->field number will be already present in the MARC parser definition
 		#!# This whole block may not be needed - not clear
