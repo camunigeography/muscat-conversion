@@ -76,6 +76,7 @@ class muscatConversion extends frontControllerApplication
 		'unrecognisedks' => 'records with unrecognised *ks values',
 		'offprints' => 'records that contain photocopy/offprint in *note/*local/*priv',
 		'duplicatedlocations' => 'records with more than one identical location',
+		'subscriptssuperscripts' => 'records still containing superscript brackets',
 	);
 	
 	# Listing (values) reports
@@ -7190,6 +7191,25 @@ class muscatConversion extends frontControllerApplication
 			WHERE field = 'location'
 			GROUP BY recordId,value
 			HAVING COUNT(value) > 1
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records still containing superscript brackets
+	private function report_subscriptssuperscripts ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'subscriptssuperscripts' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				   value LIKE '%{%'
+				OR value LIKE '%}%'
 		";
 		
 		# Return the query
