@@ -3131,15 +3131,15 @@ class muscatConversion extends frontControllerApplication
 				return false;
 			}
 		}
+		
+		# Replace location=Periodical in the processed records with the real, looked-up values
+		$this->processPeriodicalLocations ();
 	}
 	
 	
 	# Function to create MARC records
 	private function createMarcRecords ()
 	{
-		# Create the periodical locations table, used by the periodicalLocation macro
-		$this->createPeriodicalLocationsTable ();
-		
 		# Create the UDC translations table, used by the addLookedupKsValue macro
 		$this->createUdcTranslationsTable ();
 		
@@ -3311,8 +3311,8 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to create a table of periodical locations
-	private function createPeriodicalLocationsTable ()
+	# Function to replace location=Periodical in the processed records with the real, looked-up values
+	private function processPeriodicalLocations ()
 	{
 		# Create the table, clearing it out first if existing from a previous import
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.periodicallocations;";
