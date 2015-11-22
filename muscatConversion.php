@@ -4370,22 +4370,22 @@ class muscatConversion extends frontControllerApplication
 			if ($datastructure[$lineNumber]['xpathReplacements']) {
 				$replacements = array ();
 				$hasContent = false;
-				foreach ($datastructure[$lineNumber]['xpathReplacements'] as $find => $xpathReplacementSpec) {
+				foreach ($datastructure[$lineNumber]['xpathReplacements'] as $macroBlock => $xpathReplacementSpec) {
 					$replacementValue = $xpathReplacementSpec['replacement'];
 					
 					# Determine if the item is an optional block, which has the effect of overriding an 'A' (all) control character, and wipes out the block
 					$optionalBlock = false;
 					$delimiter = '/';
-					$completeBlockMatch = $delimiter . "(({$this->doubleDagger}[a-z0-9])\?(" . preg_quote ($find, $delimiter) . ")(\s*))({$this->doubleDagger}|$)" . $delimiter . 'u';
+					$completeBlockMatch = $delimiter . "(({$this->doubleDagger}[a-z0-9])\?(" . preg_quote ($macroBlock, $delimiter) . ")(\s*))({$this->doubleDagger}|$)" . $delimiter . 'u';
 					if (preg_match ($completeBlockMatch, $line, $matches)) {
 						$optionalBlock = true;
 						
 						# If there is a value, remove the ? modifier; if there is no value, wipe out the optional block from the line entirely
 						//application::dumpData ($matches);
 						if (strlen ($replacementValue)) {
-							$line = preg_replace ($completeBlockMatch, '\2\3\4\5', $line);	// i.e. "?b?{//acq/ref} ?c..." becomes "?b{//acq/ref} ?c..."
+							$line = preg_replace ($completeBlockMatch, '\2\3\4\5', $line);	// i.e. "$b?{//acq/ref} $c..." becomes "$b{//acq/ref} $c..."	(actually, $ is a double-dagger)
 						} else {
-							$line = preg_replace ($completeBlockMatch, '\5', $line);		// i.e. "?b?{//acq/ref} ?c..." becomes "?c..."
+							$line = preg_replace ($completeBlockMatch, '\5', $line);		// i.e. "$b?{//acq/ref} $c..." becomes "$c..."	(actually, $ is a double-dagger)
 						}
 					}
 					
@@ -4409,7 +4409,7 @@ class muscatConversion extends frontControllerApplication
 					}
 					
 					# Register the replacement
-					$replacements[$find] = $replacementValue;
+					$replacements[$macroBlock] = $replacementValue;
 				}
 				
 				# If there is an 'E' ('any') control character, require at least one replacement, i.e. that content (after the field number and indicators) exists
