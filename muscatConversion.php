@@ -4126,7 +4126,7 @@ class muscatConversion extends frontControllerApplication
 			$datastructure[$lineNumber]['line'] = $matches[2];
 			
 			# Extract all XPath references
-			preg_match_all ('/' . "({$this->doubleDagger}[a-z0-9])?" . '(\\??)' . '((R?)(i?){([^}]+)})' . '/U', $line, $matches, PREG_SET_ORDER);
+			preg_match_all ('/' . "({$this->doubleDagger}[a-z0-9])?" . '(\\??)' . '((R?)(i?){([^}]+)})' . "(\s*?)" /* Use of *? makes this capture ungreedy, so we catch any trailing space(s) */ . '/U', $line, $matches, PREG_SET_ORDER);
 			foreach ($matches as $match) {
 				$subfieldIndicator = $match[1];		// e.g. $a (actually a dagger not a $)
 				$optionalBlockIndicator = $match[2];
@@ -4134,6 +4134,7 @@ class muscatConversion extends frontControllerApplication
 				$isHorizontallyRepeatable = $match[4];	// The 'R' flag
 				$isIndicatorBlockMacro = $match[5];	// The 'i' flag
 				$xpath = $match[6];
+				$trailingSpace = $match[7];		// Trailing space(s), if any, so that these can be preserved during replacement
 				
 				# Firstly, register macro requirements by stripping these from the end of the XPath, e.g. {/*/isbn|macro:validisbn|macro:foobar} results in $datastructure[$lineNumber]['macros'][/*/isbn|macro] = array ('xpath' => 'validisbn', 'macrosThisXpath' => 'foobar')
 				$macrosThisXpath = array ();
@@ -4144,6 +4145,12 @@ class muscatConversion extends frontControllerApplication
 				if ($macrosThisXpath) {
 					$datastructure[$lineNumber]['macros'][$findBlock]['macrosThisXpath'] = $macrosThisXpath;	// Note that using [xpath]=>macrosThisXpath is not sufficient as lines can use the same xPath more than once
 				}
+				
+				# Register the full block; e.g. '‡b{//recr} ' including any trailing space
+				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['fullBlock'] = $match[0];
+				
+				# Register the subfield indicator
+				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['subfieldIndicator'] = $subfieldIndicator;
 				
 				# Register whether the block is an optional block
 				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['isOptionalBlock'] = (bool) $optionalBlockIndicator;
@@ -4156,6 +4163,9 @@ class muscatConversion extends frontControllerApplication
 				
 				# If the subfield is horizontally-repeatable, save the subfield indicator that should be used for imploding, resulting in e.g. $aFoo$aBar
 				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['horizontalRepeatability'] = ($isHorizontallyRepeatable ? $subfieldIndicator : false);
+				
+				# Register any trailing space(s)
+				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['trailingSpace'] = $trailingSpace;
 			}
 		}
 		
@@ -4377,26 +4387,23 @@ class muscatConversion extends frontControllerApplication
 				foreach ($datastructure[$lineNumber]['xpathReplacements'] as $macroBlock => $xpathReplacementSpec) {
 					$replacementValue = $xpathReplacementSpec['replacement'];
 					
-					# If the item is an optional block, this has the effect of overriding an 'A' (all) control character, and wipes out the block if not present
-					if ($xpathReplacementSpec['isOptionalBlock']) {
-						
-						# Define a complete block regexp
-						$delimiter = '/';
-						$completeBlockMatch = $delimiter . "(({$this->doubleDagger}[a-z0-9])\?(" . preg_quote ($macroBlock, $delimiter) . ")(\s*))({$this->doubleDagger}|$)" . $delimiter . 'u';
-
-						# If there is a value, remove the ? modifier; if there is no value, wipe out the optional block from the line entirely
-						if (strlen ($replacementValue)) {
-							$line = preg_replace ($completeBlockMatch, '\2\3\4\5', $line);	// i.e. "$b?{//acq/ref} $c..." becomes "$b{//acq/ref} $c..."	(actually, $ is a double-dagger)
-						} else {
-							$line = preg_replace ($completeBlockMatch, '\5', $line);		// i.e. "$b?{//acq/ref} $c..." becomes "$c..."	(actually, $ is a double-dagger)
-						}
+					# Determine if there is content
+					#!# "strlen() expects parameter 1 to be string, array given" in /records/2326/
+					$blockHasValue = strlen ($replacementValue);
+					
+					# Register replacements
+					$fullBlock = $xpathReplacementSpec['fullBlock'];	// The original block, which includes any trailing space(s), e.g. "‡a{/*/edn} "
+					if ($blockHasValue) {
+						$replacements[$fullBlock] = $xpathReplacementSpec['subfieldIndicator'] . $replacementValue . $xpathReplacementSpec['trailingSpace'];
+					} else {
+						$replacements[$fullBlock] = '';		// Erase the block
 					}
 					
 					# Perform control character checks if the macro is a normal (general value-creation) macro, not an indicator block macro
 					if (!$xpathReplacementSpec['isIndicatorBlockMacro']) {
 						
 						# If this content macro has resulted in a value, set the flag
-						if (strlen ($replacementValue)) {
+						if ($blockHasValue) {
 							$hasContent = true;
 						}
 						
@@ -4404,15 +4411,12 @@ class muscatConversion extends frontControllerApplication
 						#!# Currently this takes no account of the use of a macro in the nonfiling-character section (e.g. 02), i.e. those macros prefixed with indicators; however in practice that should always return a string
 						if (in_array ('A', $datastructure[$lineNumber]['controlCharacters'])) {
 							if (!$xpathReplacementSpec['isOptionalBlock']) {
-								if (!strlen ($replacementValue)) {
+								if (!$blockHasValue) {
 									continue 2;	// i.e. skip the line registration below
 								}
 							}
 						}
 					}
-					
-					# Register the replacement
-					$replacements[$macroBlock] = $replacementValue;
 				}
 				
 				# If there is an 'E' ('any') control character, require at least one replacement, i.e. that content (after the field number and indicators) exists
