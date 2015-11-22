@@ -4433,6 +4433,10 @@ class muscatConversion extends frontControllerApplication
 				$lineOutputKey = $attributes['marcCode'] . '_' . $i++;	// e.g. 650_1 for the second 650 record, 650_2 for the third, etc.
 			}
 			
+			# Trim the line; NB This will not trim within multiline output lines
+			#!# Need to check multiline outputs to ensure they are trimming
+			$line = trim ($line);
+			
 			# Register the value
 			$outputLines[$lineOutputKey] = $line;
 		}
