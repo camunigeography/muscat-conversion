@@ -4990,6 +4990,19 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro to set an indicator based on the presence of a 100/110 field; e.g. /records/1844/
+	private function macro_indicator1xxPresent ($defaultValue, $xml, $setValueIfAuthorsPresent, $authorsFields)
+	{
+		# If authors field present, return the new value
+		if (strlen ($authorsFields['default'][100]) || strlen ($authorsFields['default'][110])) {
+			return $setValueIfAuthorsPresent;
+		}
+		
+		# Otherwise return the default
+		return $defaultValue;
+	}
+	
+	
 	# Lookup table for stop words in various languages
 	private function stopWords ()
 	{
