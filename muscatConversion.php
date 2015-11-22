@@ -4125,14 +4125,15 @@ class muscatConversion extends frontControllerApplication
 			$datastructure[$lineNumber]['controlCharacters'] = str_split ($matches[1]);
 			$datastructure[$lineNumber]['line'] = $matches[2];
 			
-			# Extract all XPath references, whichever line they are on
-			preg_match_all ('/' . "({$this->doubleDagger}[a-z0-9])?" . '\\??' . '((R?)(i?){([^}]+)})' . '/U', $line, $matches, PREG_SET_ORDER);
+			# Extract all XPath references
+			preg_match_all ('/' . "({$this->doubleDagger}[a-z0-9])?" . '(\\??)' . '((R?)(i?){([^}]+)})' . '/U', $line, $matches, PREG_SET_ORDER);
 			foreach ($matches as $match) {
 				$subfieldIndicator = $match[1];		// e.g. $a (actually a dagger not a $)
-				$findBlock = $match[2];	// e.g. '{//somexpath}'
-				$isHorizontallyRepeatable = $match[3];	// The 'R' flag
-				$isIndicatorBlockMacro = $match[4];	// The 'i' flag
-				$xpath = $match[5];
+				$optionalBlockIndicator = $match[2];
+				$findBlock = $match[3];	// e.g. '{//somexpath}'
+				$isHorizontallyRepeatable = $match[4];	// The 'R' flag
+				$isIndicatorBlockMacro = $match[5];	// The 'i' flag
+				$xpath = $match[6];
 				
 				# Firstly, register macro requirements by stripping these from the end of the XPath, e.g. {/*/isbn|macro:validisbn|macro:foobar} results in $datastructure[$lineNumber]['macros'][/*/isbn|macro] = array ('xpath' => 'validisbn', 'macrosThisXpath' => 'foobar')
 				$macrosThisXpath = array ();
@@ -4143,6 +4144,9 @@ class muscatConversion extends frontControllerApplication
 				if ($macrosThisXpath) {
 					$datastructure[$lineNumber]['macros'][$findBlock]['macrosThisXpath'] = $macrosThisXpath;	// Note that using [xpath]=>macrosThisXpath is not sufficient as lines can use the same xPath more than once
 				}
+				
+				# Register whether the block is an optional block
+				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['isOptionalBlock'] = (bool) $optionalBlockIndicator;
 				
 				# Register whether this xPath replacement is in the indicator block
 				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['isIndicatorBlockMacro'] = (bool) $isIndicatorBlockMacro;
@@ -4373,15 +4377,14 @@ class muscatConversion extends frontControllerApplication
 				foreach ($datastructure[$lineNumber]['xpathReplacements'] as $macroBlock => $xpathReplacementSpec) {
 					$replacementValue = $xpathReplacementSpec['replacement'];
 					
-					# Determine if the item is an optional block, which has the effect of overriding an 'A' (all) control character, and wipes out the block
-					$optionalBlock = false;
-					$delimiter = '/';
-					$completeBlockMatch = $delimiter . "(({$this->doubleDagger}[a-z0-9])\?(" . preg_quote ($macroBlock, $delimiter) . ")(\s*))({$this->doubleDagger}|$)" . $delimiter . 'u';
-					if (preg_match ($completeBlockMatch, $line, $matches)) {
-						$optionalBlock = true;
+					# If the item is an optional block, this has the effect of overriding an 'A' (all) control character, and wipes out the block if not present
+					if ($xpathReplacementSpec['isOptionalBlock']) {
 						
+						# Define a complete block regexp
+						$delimiter = '/';
+						$completeBlockMatch = $delimiter . "(({$this->doubleDagger}[a-z0-9])\?(" . preg_quote ($macroBlock, $delimiter) . ")(\s*))({$this->doubleDagger}|$)" . $delimiter . 'u';
+
 						# If there is a value, remove the ? modifier; if there is no value, wipe out the optional block from the line entirely
-						//application::dumpData ($matches);
 						if (strlen ($replacementValue)) {
 							$line = preg_replace ($completeBlockMatch, '\2\3\4\5', $line);	// i.e. "$b?{//acq/ref} $c..." becomes "$b{//acq/ref} $c..."	(actually, $ is a double-dagger)
 						} else {
@@ -4400,7 +4403,7 @@ class muscatConversion extends frontControllerApplication
 						# If there is an 'A' (all) control character, require all non-optional placeholders to have resulted in text
 						#!# Currently this takes no account of the use of a macro in the nonfiling-character section (e.g. 02), i.e. those macros prefixed with indicators; however in practice that should always return a string
 						if (in_array ('A', $datastructure[$lineNumber]['controlCharacters'])) {
-							if (!$optionalBlock) {
+							if (!$xpathReplacementSpec['isOptionalBlock']) {
 								if (!strlen ($replacementValue)) {
 									continue 2;	// i.e. skip the line registration below
 								}
