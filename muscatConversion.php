@@ -4821,6 +4821,28 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro to create *pl; see: https://www.loc.gov/marc/bibliographic/bd260.html
+	private function macro_generate260aPl ($value_ignored, $xml)
+	{
+		# Obtain the value; we cannot pass this in, as an empty value would mean the macro is not executed (due to the if(result) in convertToMarc_PerformXpathReplacements) but we need to return an empty value
+		$plValue = $this->xPathValue ($xml, '//pg/pl');
+		
+		# *pl [if *pl is '[n.p.]' or '-', this should be replaced with '[S.l.]' ]. ; e.g. /records/1102/ , /records/1787/
+		# If no *pl, put '[S.l.]'. ; e.g. /records/1006/
+		if ($plValue == '[n.p.]' || $plValue == '-' || !strlen ($plValue)) {
+			return '[S.l.]';
+		}
+		
+		# Preserve square brackets, but remove round brackets if present. ; e.g. /records/2027/ , /records/5942/
+		if (preg_match ('/^\((.+)\)$/', $plValue, $matches)) {
+			return $matches[1];
+		}
+		
+		# Otherwise, return the value unmodified; e.g. /records/1011/
+		return $plValue;
+	}
+	
+	
 	# Function to get an XPath value
 	public function xPathValue ($xml, $xPath, $autoPrependRoot = true)
 	{
