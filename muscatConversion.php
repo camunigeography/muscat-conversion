@@ -5077,18 +5077,6 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Macro to generate the stop word count
-	private function macro_language066c ($value)
-	{
-		if ($value == 'Russian') {
-			return '(N';
-		}
-		
-		# Return false if no matches
-		return false;
-	}
-	
-	
 	# Macro to perform transliteration
 	private function macro_transliterate ($value, $xml)
 	{
