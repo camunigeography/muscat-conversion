@@ -4959,14 +4959,16 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Macro to generate the stop word count; this does not actually modify the string itself - just returns a number
-	public function macro_nfCount ($value, $xml)
+	public function macro_nfCount ($value, $xml, $language = false)
 	{
 		# Get the stop words list, indexed by language
 		$stopWords = $this->stopWords ();
 		
-		# Obtain the language value for the record
-		$xPath = '//lang[1]';	// Choose first only
-		$language = $this->xPathValue ($xml, $xPath);
+		# If a forced language is not specified, obtain the language value for the record
+		if (!$language) {
+			$xPath = '//lang[1]';	// Choose first only
+			$language = $this->xPathValue ($xml, $xPath);
+		}
 		
 		#!# Note /records/2071/ has "546    ?aFrenchFrench"
 		
