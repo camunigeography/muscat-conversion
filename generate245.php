@@ -245,11 +245,13 @@ class generate245
 		# Start the result
 		$result = '';
 		
-		# Obtain the role value
-		$role = $this->muscatConversion->xPathValue ($this->xml, $path . '/role') . ' ';
-		$result .= $role;
+		# Obtain the role value, or end if none
+		if (!$role = $this->muscatConversion->xPathValue ($this->xml, $path . '/role')) {
+			return false;
+		}
 		
-		# Add the entry
+		# Compile the entry
+		$result .= $role . ' ';
 		$result .= $this->classifyNdField ($path . '/n');
 		
 		# Return the value
