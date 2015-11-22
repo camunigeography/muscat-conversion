@@ -4806,45 +4806,6 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Macro for constructing an author name; see also http://www.loc.gov/marc/bibliographic/bd100.html
-	# NB for future: Spreadsheet is being updated such that this macro will also take into account *ad, as well as other more detailed logic
-	#!# Revert to private when generateAuthors no longer using this function
-	public function macro_authorName ($value, $xml, $parameter, $is245Format = false)
-	{
-		# Obtain *n1, *n2, *nd (e.g. Forename, Surname, Jnr)
-		$n1 = $this->xPathValue ($xml, "{$parameter}/n1");
-		$n2 = $this->xPathValue ($xml, "{$parameter}/n2");
-		$nd = $this->xPathValue ($xml, "{$parameter}/nd");
-		
-		# Determine prefix/suffix based on value of $nd
-		#!# More needed - updated list to follow
-		$prefixes = array ('Dame', 'Field Marshall', 'Earl of', "\vAdmiral Sir\n", "\vCommander\n", "\vEnsign\n", "\vFreiherr\n", "\vGeneral Sir\n", "\vHon\n", "\vReverend\n", "\vSir\n", "Abbe^a", "Admiral", "Admiral Lord", "Admiral of the Fleet, Sir", "Admiral Sir", "Admiral, Sir", "Amiral", "Archdeacon", "Archpriest", "Baron", "Baroness", "Bishop", "Brigadier", "Brigadier-General", "Capita^an", "Capitan", "Capt.", "Captain", "Captaine de fre^agate", "Cdr", "Cdr.", "Chief Justice", "Chief-Justice", "Cmdr", "Col.", "Colonel", "Commandant", "Commandante", "Commander", "Commodore", "Conte", "Contre-Amiral", "Coronel", "Count", "Doctor", "Dom", "Dr", "Dr.", "Father", "Fr", "Freiherr", "General", "General, Count", "General, Sir", "Graf", "Hon.", "Kapita^un", "Kommando^zrkaptajn", "Korv. Kapt.", "L'Abbe^a", "l'amiral", "Lady", "Lieut", "Lieut.", "Lieutenant Colonel", "Lieutenant General", "Lord", "Lt", "Lt Cdr", "Lt.", "Lt. Col.", "Maj. Gen.", "Major", "Major General", "Mme", "Mme.", "Mrs", "Mrs J.S.C.", "Mrs Tom", "Mrs.", "Prince", "Prince San Donato", "Professor", "Protoierey", "Rear Admiral", "Rear-Admiral", "Rev", "Rev.", "Rev. Dr.", "Rev'd", "Revd", "Reverend", "Right Hon. Lord", "Ritter", "Rt. Hon.", "Sir", "Sister", "The Venerable", "Vice Admiral Sir", "Vice-Admiral", "Viscount");
-		$suffixes = array ("... [et al.]", "\vII\n", "\vIII\n", "\vJr, M.D.\n", "\vJr.\n", "\vJr\n", "\vKapt. zur See\n", "\vM.D.\n", "\vOMI\n", "\vR.N.\n", "\vSr SGM\n", "\vSr\n", "10th Baron Strabolgi", "1797-1823", "1st Baron", "1st Baron Mountevans", "1st baron Moyne", "1st Baron Tweedsmuir", "1st Marquis of Dufferin and Ava", "2nd Baron", "2nd Baron Tweedsmuir", "4th Baron", "Archbishop of Uppsala", "Baron Ashburton", "Baron de", "Baron von", "Baroness Tweedsmuir", "Bishop of Exeter", "Bishop of Keewatin", "Bishop of Kingston", "Bishop of Tasmania", "C.B., R.D., Commander R.N.R., Marine Superintendent", "Campsterianus", "Capt. US Navy (Ret)", "Chevalier de", "Col USAF (Ret.) Lt", "Director", "Duc d'", "Duchess of Bedford", "Duke of", "Earl", "Earl of", "Earl of Northbrook", "Earl of Southesk", "H.E. Ambassador", "II", "II.", "III", "Ing.", "IV", "Jnr", "Jr", "Jr eds", "Jr, MD", "Jr.", "Junior", "K.C.B. K.C.", "King of Norway", "l'Aine^a", "Lord Kennet", "Lord of Roberval", "Lord, 1920-1999", "Lt. Colonel, USAF-Retired", "M.D.", "MA, Phd", "Major, D.S.O.", "Marquis of", "O.M.", "O.M.I.", "OMI", "Prince di Cannino", "Prince of Monaco", "Prince of Wales, 1948-", "Rear Admiral, USN (Ret.)", "Rear Admiral, USN (Ret)", "Rev., O.M.I.", "Sir, C.B., F.R.S., President of the Royal Geographical Society, and ", "President of the Hakluyt Society", "Sister, S.S.A.", "SJ", "Sr", "Sr.", "Third Baron");
-		$prefix = (in_array ($nd, $prefixes) ? $nd . ' ' : false);
-		$suffix = (in_array ($nd, $suffixes) ? ($is245Format? ' ' : ",{$this->doubleDagger}") . $nd : false);
-		
-		# If no result, return false
-		if (!strlen ($n1)) {return false;}
-		
-		# If 'Anon', return only that
-		if ($n1 == 'Anon') {return $n1;}
-		
-		# Assemble into a single string
-		if ($is245Format) {
-			$value = "{$prefix}{$n2} {$n1}{$suffix}";		// For 245, prefix/suffix is: "Dame Elizabeth Smith", "John Smith Jr."
-		} else {
-			#!# Need to check "$aSmith, John,$cJr."
-			$value = "{$n1}, {$prefix}{$n2}{$suffix}";				// For 100/700, prefix/suffix is: "Smith, Dame Elizabeth", "$aSmith, John,$cJr."
-		}
-		
-		# Remove extraneous spaces
-		$value = str_replace ('  ', ' ', trim ($value));
-		
-		# Return the string
-		return $value;
-	}
-	
-	
 	# Function to get an XPath value
 	public function xPathValue ($xml, $xPath, $autoPrependRoot = true)
 	{
