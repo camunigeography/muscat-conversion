@@ -98,6 +98,7 @@ class muscatConversion extends frontControllerApplication
 		'unrecognisedksvalues' => 'records with unrecognised *ks values - distinct *ks values',
 		'volumenumbers' => 'volume number results arising from 490 macro',
 		'voyagerlocations' => 'Muscat locations that do not map to Voyager locations',
+		'translationnotevalues' => 'records containing a note regarding translation - distinct values',
 	);
 	
 	# Define the types
@@ -8127,6 +8128,38 @@ class muscatConversion extends frontControllerApplication
 		
 		# Highlight subfields
 		$html = $this->highlightSubfields ($html);
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Records containing a note regarding translation - distinct values
+	private function report_translationnotevalues ()
+	{
+		// No action needed - the view is created dynamically
+		return true;
+	}
+	
+	
+	# View for report of records containing a note regarding translation - distinct values; for use in diagnosing best regexp for languages041 macro
+	private function report_translationnotevalues_view ()
+	{
+		# Define a manual query
+		$query = "
+			SELECT
+				value AS title,
+				COUNT(recordId) AS instances
+			FROM catalogue_processed
+			WHERE
+				    field = 'note'
+				AND value LIKE '%translat%'
+			GROUP BY value
+			ORDER BY instances DESC
+		";
+		
+		# Obtain the listing HTML
+		$html = $this->reportListing (NULL, 'values', 'anywhere', false, $query);
 		
 		# Return the HTML
 		return $html;
