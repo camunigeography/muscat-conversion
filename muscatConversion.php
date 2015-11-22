@@ -4856,6 +4856,72 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro to generate the 300 field (Physical Description); 300 is a Minimum standard field; see: https://www.loc.gov/marc/bibliographic/bd300.html
+	#!# The spec for this section needs tightening
+	private function macro_generate300 ($value_ignored, $xml)
+	{
+		# Start a result
+		$result = '';
+		
+		# Obtain the record type
+		$recordType = $this->recordType ($xml);
+		
+		# Obtain *p or *pt
+		$p = $this->xPathValue ($xml, '//p');
+		$pt = $this->xPathValue ($xml, '//pt');
+		#!# Precedence needs to be confirmed
+		$value = (strlen ($p) ? $p : $pt);
+		
+		# End if no value
+		#!# Need to check whether this should end the whole routine
+		if (!strlen ($value)) {return false;}
+		
+		# Split by colon, retaining any colon in the first part
+		preg_match ('/^([^:]+:?)(.*)$/', trim ($value), $pMatches);
+		
+		# $a (R) (Extent, pagination): If record is *doc with any or no *form, or *art with *form CD, CD-ROM, DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording: "(*v), (*p or *pt)" [all text up to and including ':']
+		# $a (R) (Extent, pagination): If record is *art with no *form or *form other than listed above: 'p. '*pt [number range after ':' and before ',']
+		# A check in the data has established there are no records with more than one *p
+		if (($recordType == '/doc') || (substr_count ($recordType, '/art') && in_array ($this->form, array ('CD', 'CD-ROM', 'DVD', 'DVD-ROM', 'Sound Cassette', 'Sound Disc' or 'Videorecording')))) {
+			$v = $this->xPathValue ($xml, '//v');
+			if (strlen ($v)) {$result .= "({$v}), ";}
+			$result .= $pMatches[1];
+		} else if (substr_count ($recordType, '/art')) {		// Not in the list of *form above
+			#!# What happens to "7" in /records/152332/ ?
+			preg_match ('/^([^,]+),?(.*)$/', trim ($pMatches[2]), $pAfterColonBeforeCommaMatches);
+			$result .= 'p. ' . $pAfterColonBeforeCommaMatches[1];
+		}
+		
+		# $b (NR) (Other physical details): *p [all text after ':' and before, but not including, '+'] or *pt [all text after the ',' - i.e. after the number range following the ':']
+		if (strlen ($p)) {
+			if (substr_count ($p, ':')) {
+				preg_match ('/^([^+]*)\+?(.*)$/', trim ($pMatches[2]), $pAfterColonBeforePlusMatches);
+				$result .= "{$this->doubleDagger}b" . $pAfterColonBeforePlusMatches[1];
+			}
+		} else if (strlen ($pt)) {
+			if (substr_count ($pt, ':')) {
+				preg_match ('/^([^,]+),?(.*)$/', trim ($pMatches[2]), $pAfterColonBeforeCommaMatches);
+				$result .= "{$this->doubleDagger}b" . $pAfterColonBeforeCommaMatches[2];
+			}
+		}
+		
+		# $c (R) (Dimensions): *size ; e.g. /records/4329/
+		$size = $this->xPathValues ($xml, '//size[%i]');
+		if ($size) {
+			$result .= "{$this->doubleDagger}c" . implode ("{$this->doubleDagger}c", $size);
+		}
+		
+		# $e (NR) (Accompanying material): If included, '+' appears before ‡e; ‡e is then followed by *p [all text after '+']
+		if (substr_count ($p, '+')) {
+			$pPlusMatches = explode ('+', $p, 2);	// Results in 0,1
+			$result .= " +{$this->doubleDagger}e" . trim ($pPlusMatches[1]);
+		}
+		
+		# Return the result
+		return $result;
+	}
+	
+	
 	# Function to get an XPath value
 	public function xPathValue ($xml, $xPath, $autoPrependRoot = true)
 	{
