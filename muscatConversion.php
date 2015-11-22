@@ -77,6 +77,7 @@ class muscatConversion extends frontControllerApplication
 		'offprints' => 'records that contain photocopy/offprint in *note/*local/*priv',
 		'duplicatedlocations' => 'records with more than one identical location',
 		'subscriptssuperscripts' => 'records still containing superscript brackets',
+		'translationnote' => 'records containing a note regarding translation',
 	);
 	
 	# Listing (values) reports
@@ -7315,6 +7316,25 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				   value LIKE '%{%'
 				OR value LIKE '%}%'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records containing a note regarding translation
+	private function report_translationnote ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'translationnote' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field = 'note'
+				AND value LIKE '%translat%'
 		";
 		
 		# Return the query
