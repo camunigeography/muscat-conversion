@@ -3085,6 +3085,17 @@ class muscatConversion extends frontControllerApplication
 		$query = "INSERT INTO catalogue_xml (id) (SELECT DISTINCT(recordId) FROM catalogue_processed);";
 		$this->databaseConnection->execute ($query);
 		
+		# Create the XML for each record
+		$this->processXmlRecords ();
+		
+		# Replace location=Periodical in the processed records with the real, looked-up values
+		$this->processPeriodicalLocations ();
+	}
+	
+	
+	# Function to do the XML record processing, called from within the main XML table creation function; this will process about 1,000 records a second
+	private function processXmlRecords ()
+	{
 		# Get the schema
 		$schemaFlattenedXmlWithContainership = $this->getSchema (true);
 		
@@ -3098,7 +3109,7 @@ class muscatConversion extends frontControllerApplication
 		while (true) {	// Until the break
 			
 			# Get the next chunk of record IDs to update, until all are done
-			$query = "SELECT id FROM catalogue_xml WHERE xml IS NULL AND id >= 1000 LIMIT {$chunksOf};";
+			$query = "SELECT id FROM catalogue_xml WHERE xml IS NULL AND id >= 1000 LIMIT {$chunksOf};";	// Records 1-999 are internal documentation records
 			if (!$ids = $this->databaseConnection->getPairs ($query)) {break;}
 			
 			# Get the records for this chunk, using the processed data (as that includes character conversions)
@@ -3131,13 +3142,10 @@ class muscatConversion extends frontControllerApplication
 				return false;
 			}
 		}
-		
-		# Replace location=Periodical in the processed records with the real, looked-up values
-		$this->processPeriodicalLocations ();
 	}
 	
 	
-	# Function to replace location=Periodical in the processed records with the real, looked-up values
+	# Function to replace location=Periodical in the processed records with the real, looked-up values; dependencies: catalogue_processed and catalogue_xml
 	private function processPeriodicalLocations ()
 	{
 		# Create the table, clearing it out first if existing from a previous import
