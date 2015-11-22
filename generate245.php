@@ -146,7 +146,7 @@ class generate245
 			}
 			
 			# Add all text after colon
-			$title .= ' : ' . $this->doubleDagger . 'b' . trim ($titleComponents[1]);
+			$title .= ' :' . $this->doubleDagger . 'b' . trim ($titleComponents[1]);
 			
 		} else {
 			
