@@ -5008,10 +5008,62 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Macro to convert a language to a language code
-	private function macro_languageToCode ($lang)
+	# Macro to convert language codes and notes for the 041 field; see: http://www.loc.gov/marc/bibliographic/bd041.html
+	private function macro_languages041 ($value, $xml)
 	{
-		return $this->lookupValue ('languageCodes', 'English', true, false, $lang, 'MARC Code');
+		# Start the string
+		$string = '';
+		
+		# Obtain any languages used in the record
+		$languages = $this->xPathValues ($xml, '//lang[%i]');
+		
+		# Obtain any note containing "translation from [language(s)]"
+		$notes = $this->xPathValues ($xml, '//note[%i]');
+		$translationNotes = array ();
+		foreach ($notes as $note) {
+			#!# Need to check for cases of translated from ... which do not match this pattern, has more than one language at end, or results in invalid languages
+			if (preg_match ('/translat(?:ion|ed) from(?: original|) ([a-zA-Z]+)/i', $note, $matches)) {
+				$translationNotes[$note] = $matches[1];
+			}
+		}
+		
+		// application::dumpData ($languages);
+		// application::dumpData ($translationNotes);
+		
+		# If no *lang field and no note regarding translation, do not include 041 field; e.g. /records/4355/
+		if (!$languages && !$translationNotes) {return false;}
+		
+		# $a: If no *lang field but note regarding translation, use 'eng'; e.g. /records/23776/
+		if (!$languages && $translationNotes) {
+			$languages[] = 'English';
+		}
+		
+		# $a: Map each language listed in *lang field to 3-digit code in Language Codes worksheet and include in separate ‡a subfield;
+		$a = array ();
+		foreach ($languages as $language) {
+			$a[] = $this->lookupValue ('languageCodes', $fallbackKey = false, true, false, $language, 'MARC Code');
+		}
+		$string = implode ("{$this->doubleDagger}a", $a);	// First $a is the parser spec
+		
+		# $h: If *note includes 'translation from [language(s)]', map each language to 3-digit code in Language Codes worksheet and include in separate ‡h subfield; e.g. /records/4353/ , /records/2040/
+		$h = array ();
+		if ($translationNotes) {
+			foreach ($translationNotes as $note => $language) {
+				$marcCode = $this->lookupValue ('languageCodes', $fallbackKey = false, true, false, $language, 'MARC Code');
+				if ($marcCode) {
+					$h[] = $marcCode;
+				} else {
+					$recordId = $this->xPathValue ($xml, '//q0');
+					echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> the record included a language note but the language '<em>{$langauge}</em>'.</p>";
+				}
+			}
+		}
+		if ($h) {
+			$string .= "{$this->doubleDagger}h" . implode ("{$this->doubleDagger}h", $h);	// First $a is the parser spec
+		}
+		
+		# Return the result string
+		return $string;
 	}
 	
 	
