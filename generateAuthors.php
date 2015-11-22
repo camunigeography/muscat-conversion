@@ -681,11 +681,11 @@ class generateAuthors
 		
 		# Is the *nd exactly equal to set of specific strings?
 		$strings = array (
-			'Sr SGM'				=> ", {$this->doubleDagger}c Sr, {$this->doubleDagger}uSGM",
-			'Lord, 1920-1999'		=> ", {$this->doubleDagger}c Lord, {$this->doubleDagger}d 1920-1999",
-			'Rev., O.M.I.'			=> ", {$this->doubleDagger}c Rev., {$this->doubleDagger}uO.M.I.",
-			'I, Prince of Monaco'	=> ", {$this->doubleDagger}b I, {$this->doubleDagger}c Prince of Monaco",
-			'Baron, 1880-1957'		=> ", {$this->doubleDagger}c Baron, {$this->doubleDagger}d 1880-1957",
+			'Sr SGM'				=> ",{$this->doubleDagger}c Sr, {$this->doubleDagger}uSGM",
+			'Lord, 1920-1999'		=> ",{$this->doubleDagger}c Lord, {$this->doubleDagger}d 1920-1999",
+			'Rev., O.M.I.'			=> ",{$this->doubleDagger}c Rev.,{$this->doubleDagger}uO.M.I.",
+			'I, Prince of Monaco'	=> ", {$this->doubleDagger}b I,{$this->doubleDagger}c Prince of Monaco",
+			'Baron, 1880-1957'		=> ",{$this->doubleDagger}c Baron, {$this->doubleDagger}d 1880-1957",
 		);
 		if (array_key_exists ($nd, $strings)) {
 			
@@ -735,7 +735,7 @@ class generateAuthors
 		$suffixes = $this->entitiesToUtf8List ($this->suffixes ());
 		$betweenN1AndN2 = $this->entitiesToUtf8List ($this->betweenN1AndN2 ());
 		if (in_array ($fieldValue, $prefixes) || in_array ($fieldValue, $suffixes) || in_array ($fieldValue, $betweenN1AndN2)) {
-			$value .= ", {$this->doubleDagger}c {$fieldValue}";
+			$value .= ",{$this->doubleDagger}c {$fieldValue}";
 			return $value;
 		}
 		
