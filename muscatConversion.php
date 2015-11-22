@@ -4821,7 +4821,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Macro to create *pl; see: https://www.loc.gov/marc/bibliographic/bd260.html
+	# Macro to create *pl for 260 $a; see: https://www.loc.gov/marc/bibliographic/bd260.html
 	private function macro_generate260aPl ($value_ignored, $xml)
 	{
 		# Obtain the value; we cannot pass this in, as an empty value would mean the macro is not executed (due to the if(result) in convertToMarc_PerformXpathReplacements) but we need to return an empty value
@@ -4840,6 +4840,19 @@ class muscatConversion extends frontControllerApplication
 		
 		# Otherwise, return the value unmodified; e.g. /records/1011/
 		return $plValue;
+	}
+	
+	
+	# Macro to modify *pu for 260 $b; see: https://www.loc.gov/marc/bibliographic/bd260.html
+	private function macro_modifyPu ($puValue)
+	{
+		# *pu [if *pu is '[n.pub.]' or '-', this should be replaced with '[s.n.]' ] ; e.g. /records/1105/ , /records/1745/
+		if ($puValue == '[n.pub.]' || $puValue == '-') {
+			return '[s.n.]';
+		}
+		
+		# Otherwise, return the value unmodified; e.g. /records/1011/
+		return $puValue;
 	}
 	
 	
