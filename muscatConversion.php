@@ -4382,8 +4382,12 @@ class muscatConversion extends frontControllerApplication
 			
 			# Perform XPath replacements if any, working through each replacement
 			if ($datastructure[$lineNumber]['xpathReplacements']) {
+				
+				# Start a flag for whether the line has content
+				$lineHasContent = false;
+				
+				# Loop through each macro block
 				$replacements = array ();
-				$hasContent = false;
 				foreach ($datastructure[$lineNumber]['xpathReplacements'] as $macroBlock => $xpathReplacementSpec) {
 					$replacementValue = $xpathReplacementSpec['replacement'];
 					
@@ -4402,9 +4406,9 @@ class muscatConversion extends frontControllerApplication
 					# Perform control character checks if the macro is a normal (general value-creation) macro, not an indicator block macro
 					if (!$xpathReplacementSpec['isIndicatorBlockMacro']) {
 						
-						# If this content macro has resulted in a value, set the flag
+						# If this content macro has resulted in a value, set the line content flag
 						if ($blockHasValue) {
-							$hasContent = true;
+							$lineHasContent = true;
 						}
 						
 						# If there is an 'A' (all) control character, require all non-optional placeholders to have resulted in text
@@ -4412,7 +4416,7 @@ class muscatConversion extends frontControllerApplication
 						if (in_array ('A', $datastructure[$lineNumber]['controlCharacters'])) {
 							if (!$xpathReplacementSpec['isOptionalBlock']) {
 								if (!$blockHasValue) {
-									continue 2;	// i.e. skip the line registration below
+									continue 2;	// i.e. break out of further processing of blocks on this line (as further ones are irrelevant), and skip the whole line registration below
 								}
 							}
 						}
@@ -4421,8 +4425,8 @@ class muscatConversion extends frontControllerApplication
 				
 				# If there is an 'E' ('any') control character, require at least one replacement, i.e. that content (after the field number and indicators) exists
 				if (in_array ('E', $datastructure[$lineNumber]['controlCharacters'])) {
-					if (!$hasContent) {
-						continue;	// i.e. skip the line registration below
+					if (!$lineHasContent) {
+						continue;	// i.e. skip this line, preventing registration below
 					}
 				}
 				
