@@ -676,8 +676,8 @@ class generateAuthors
 			return $value;
 		}
 		
-		# If present, strip out leading '\v' and trailing '\n'
-		$nd = preg_replace ('|^\\v(.+)\\n$|', '\1', $nd);
+		# If present, strip out leading '\v' and trailing '\n'; e.g. /records/45578/
+		$nd = strip_tags ($nd);
 		
 		# Is the *nd exactly equal to set of specific strings?
 		$strings = array (
