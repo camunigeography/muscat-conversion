@@ -4,6 +4,8 @@ if [ ! -f ./bin/translit ] ; then
 	# Stop on errors
 	set -e
 	
+	sudo apt-get install libxml2-utils
+	
 	mkdir cpan
 	cd cpan/
 	wget http://www.cpan.org/authors/id/A/AL/ALINKE/Lingua-Translit-0.22.tar.gz
