@@ -5020,11 +5020,20 @@ class muscatConversion extends frontControllerApplication
 		
 		# Obtain any note containing "translation from [language(s)]"
 		$notes = $this->xPathValues ($xml, '//note[%i]');
+		$nonLanguageWords = array ('article');
 		$translationNotes = array ();
 		foreach ($notes as $note) {
-			#!# Need to check for cases of translated from ... which do not match this pattern, has more than one language at end, or results in invalid languages
-			if (preg_match ('/translat(?:ion|ed) from(?: original|) ([a-zA-Z]+)/i', $note, $matches)) {
-				$translationNotes[$note] = $matches[1];
+			#!# Need to check for further cases of translated from ... which do not match this pattern, has more than one language at end, or results in invalid languages
+			# Perform a match; this is not using a starting at (^) match e.g. /records/190904/ which starts "English translation from Russian"
+			if (preg_match ('/[Tt]ranslat(?:ion|ed) (?:from|reprint of)(?: original| the|) ([a-zA-Z]+)/i', $note, $matches)) {	// Deliberately not using strip_tags, as that would pick up Translation from <em>publicationname</em> which would not be wanted anyway
+				// application::dumpData ($matches);
+				$language = $matches[1];	// e.g. 'Russian', 'English'
+				
+				# Skip blacklisted non-language words; e.g. /records/44377/ which has "Translation of article from"
+				if (in_array ($language, $nonLanguageWords)) {continue;}
+				
+				# Register the value
+				$translationNotes[$note] = $language;
 			}
 		}
 		
