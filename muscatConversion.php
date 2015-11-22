@@ -4892,24 +4892,6 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Macro for generating the statement of responsibility (and 250a [uses ee])
-	private function macro_generateStatementOfResponsibility250a ($value, $xml)
-	{
-		# If there is no @edn then return false;
-		
-		# Start with @edn
-		
-		# If there is no @ee, return all so far and end
-		
-		# If there is a //e/role then add that
-		
-		# Add each //e/n/ add those using the same "@n1, @n2 @nd" rule as per "@subroutine for author names" block above
-		
-		# Return that value
-		
-	}
-	
-	
 	# Macro to generate the stop word count; this does not actually modify the string itself - just returns a number
 	public function macro_nfCount ($value, $xml)
 	{
