@@ -178,7 +178,7 @@ class generateAuthors
 		
 		# Pass each line through the transliterator if required
 		foreach ($lines as $index => $line) {
-			$line = $this->muscatConversion->transliterateSubfields ($line, $this->transliteratableSubfields, $languageMode);
+			$lines[$index] = $this->muscatConversion->transliterateSubfields ($line, $this->transliteratableSubfields, $languageMode);
 		}
 		
 		# Implode the lines
