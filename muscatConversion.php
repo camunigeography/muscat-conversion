@@ -5085,7 +5085,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Macro to convert language codes and notes for the 041 field; see: http://www.loc.gov/marc/bibliographic/bd041.html
-	private function macro_languages041 ($value, $xml)
+	private function macro_languages041 ($value_ignored, $xml, $indicatorMode = false)
 	{
 		# Start the string
 		$string = '';
@@ -5114,6 +5114,15 @@ class muscatConversion extends frontControllerApplication
 		
 		// application::dumpData ($languages);
 		// application::dumpData ($translationNotes);
+		
+		# In indicator mode, return the indicator at this point
+		if ($indicatorMode) {
+			if (($languages && $languages[1] /* xPathValues indexes from 1, not 0 */ != 'English') || count ($languages) > 1 /* i.e. English plus another language */ || $translationNotes) {
+				return '1';		// "1 - Item is or includes a translation"
+			} else {
+				return '0';		// "0 - Item not a translation/does not include a translation"
+			}
+		}
 		
 		# If no *lang field and no note regarding translation, do not include 041 field; e.g. /records/4355/
 		if (!$languages && !$translationNotes) {return false;}
