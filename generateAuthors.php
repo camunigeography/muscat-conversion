@@ -112,13 +112,13 @@ class generateAuthors
 		}
 		
 		# Do the classification; look at the first or only *doc/*ag/*a OR *art/*ag/*a
-		$value = $this->main ($this->mainRecordXml, '/*/ag[1]/a[1]', 100);
+		$line = $this->main ($this->mainRecordXml, '/*/ag[1]/a[1]', 100);
 		
 		# Subfield ‡u, if present, needs to go before subfield ‡e
-		$value = $this->shiftSubfieldU ($value);
+		$line = $this->shiftSubfieldU ($line);
 		
 		# Write the value into the values registry
-		$this->values[$this->languageMode][$this->field] = $value;
+		$this->values[$this->languageMode][$this->field] = $line;
 	}
 	
 	
