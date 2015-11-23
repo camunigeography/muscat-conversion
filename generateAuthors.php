@@ -38,6 +38,10 @@ class generateAuthors
 	# Class properties
 	private $values = array ();
 	
+	# Define subfields that are capable of being transliterated
+	#!# Probably not to split this by field; e.g. /records/1204/ has wrong result for 880 ‡6 110 $2
+	private $transliteratableSubfields = 'ab';
+	
 	
 	# Constructor
 	public function __construct ($muscatConversion, $mainRecordXml, $languageModes)
@@ -117,6 +121,9 @@ class generateAuthors
 		# Subfield ‡u, if present, needs to go before subfield ‡e
 		$line = $this->shiftSubfieldU ($line);
 		
+		# Pass through the transliterator if required
+		$line = $this->muscatConversion->transliterateSubfields ($line, $this->transliteratableSubfields, $languageMode);
+		
 		# Write the value into the values registry
 		$this->values[$this->languageMode][$this->field] = $line;
 	}
@@ -167,6 +174,11 @@ class generateAuthors
 		# Subfield ‡u, if present, needs to go before subfield ‡e
 		foreach ($lines as $index => $line) {
 			$lines[$index] = $this->shiftSubfieldU ($line);
+		}
+		
+		# Pass each line through the transliterator if required
+		foreach ($lines as $index => $line) {
+			$line = $this->muscatConversion->transliterateSubfields ($line, $this->transliteratableSubfields, $languageMode);
 		}
 		
 		# Implode the lines
