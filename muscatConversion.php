@@ -553,6 +553,9 @@ class muscatConversion extends frontControllerApplication
 			$html .= "\n<p id=\"exportlink\" class=\"right\"><a href=\"{$this->baseUrl}/reports/{$id}/{$id}.csv\">Export as CSV</a></p>";
 		}
 		$html .= "\n<p><strong>" . htmlspecialchars ($description) . '</strong></p>';
+		if ($id == 'reversetransliterations') {
+			$html .= "\n<p>You can <a href=\"{$this->baseUrl}/transliterator.html\">edit the reverse-transliteration definition</a>.</p>";
+		}
 		$html .= "\n</div>";
 		
 		# Show the records for this query (having regard to any page number supplied via the URL)
@@ -4505,8 +4508,10 @@ class muscatConversion extends frontControllerApplication
 		#!# Flash message support needs to be added to ultimateForm natively, as this is a common use-case
 		$successMessage = 'The definition has been updated.';
 		if ($flashValue = application::getFlashMessage ('submission', $this->baseUrl . '/')) {
-			$message = "\n" . "<p>{$this->tick} <strong>" . $successMessage . '</strong></p>';
-			$html .= "\n<div class=\"graybox flashmessage\">" . $message . '</div>';
+			$html .= "\n<div class=\"graybox flashmessage\">";
+			$html .= "\n" . "<p>{$this->tick} <strong>" . $successMessage . '</strong></p>';
+			$html .= "\n" . "<p>You can <a href=\"{$this->baseUrl}/reports/reversetransliterations/\">view the <strong>reverse-transliterated titles report</strong></a>, showing all results.</p>";
+			$html .= '</div>';
 		}
 		
 		# Create a form
@@ -4551,6 +4556,9 @@ class muscatConversion extends frontControllerApplication
 				echo "\n<p class=\"warning\">{$errorHtml}</p>";
 				return false;
 			}
+			
+			# Perform reverse-transliteration to generate the reversetransliterations report
+			$this->doReverseTransliteration ();
 			
 			# Set a flash message
 			$function = __FUNCTION__;
