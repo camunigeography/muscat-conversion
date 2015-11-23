@@ -103,7 +103,11 @@ class generate008
 			$lastYear = end ($lastYearMatches[0]);
 			
 			# Return the u
-			return 'u' . ($hasYear ? $yearMatches[1] . $lastYear : 'uuuu' . 'uuuu');
+			if ($hasYear) {
+				return 'd' . $yearMatches[1] . $lastYear;
+			} else {
+				return 'u' . 'uuuu' . 'uuuu';
+			}
 		}
 		
 		# 06:    If *d in *doc or *art does not contain at least one year (e.g. '[n.d.]', '-', '?'), designator is 'n';
