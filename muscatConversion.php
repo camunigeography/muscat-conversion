@@ -5201,6 +5201,50 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Function to perform transliteration on specified subfields present in a full line; this is basically a tokenisation wrapper to macro_transliterate
+	public function transliterateSubfields ($value, $applyToSubfields, $language)
+	{
+		# Return unmodified if the language mode is default
+		if ($language == 'default') {return $value;}
+		
+		# Explode subfield string and prepend the double-dagger
+		$applyToSubfields = str_split ($applyToSubfields);
+		foreach ($applyToSubfields as $index => $applyToSubfield) {
+			$applyToSubfields[$index] = $this->doubleDagger . $applyToSubfield;
+		}
+		
+		# Tokenise, e.g. array ([0] => "1# ", [1] => "‡a", [2] => "Chalyshev, Aleksandr Vasil'yevich.", [3] => "‡b", [4] => "Something else." ...
+		$tokens = preg_split ("/({$this->doubleDagger}[a-z0-9])/", $value, -1, PREG_SPLIT_DELIM_CAPTURE);
+		
+		# Work through the spread list
+		$subfield = false;
+		foreach ($tokens as $index => $string) {
+			
+			# Register then skip subfield indictors
+			if (preg_match ("/^({$this->doubleDagger}[a-z0-9])$/", $string)) {
+				$subfield = $string;
+				continue;
+			}
+			
+			# Skip if no subfield, i.e. previous field, assigned; this also catches cases of an opening first/second indicator pair
+			if (!$subfield) {continue;}
+			
+			# Skip conversion if the subfield is not required to be converted
+			if (!in_array ($subfield, $applyToSubfields)) {continue;}
+			
+			# Convert subfield contents
+			$tokens[$index] = $this->macro_transliterate ($string, NULL, $language);
+		}
+		
+		# Re-glue the string
+		// application::dumpData ($tokens);
+		$value = implode ($tokens);
+		
+		# Return the value
+		return $value;
+	}
+	
+	
 	# Macro to perform transliteration
 	private function macro_transliterate ($value, $xml, $language = false)
 	{
