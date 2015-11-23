@@ -272,8 +272,10 @@ class generateAuthors
 				# In the case of each *e/*n, *role, with Relator Term lookup substitution, is incorporated; example: /records/47079/ ; this is done inside classifyAdField ()
 				$line = $this->main ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]", 700);
 				
-				# Register the line, adding the field code, which may have been modified in main()
-				$lines[] = $this->field . ' ' . $line;
+				# Register the line, if it has resulted in a line, adding the field code, which may have been modified in main()
+				if ($line) {	// E.g. /records/8988/ which has "others" should not result in a line for /*/e[1]/n[2] due to classifyN1Field having "return false"
+					$lines[] = $this->field . ' ' . $line;
+				}
 				
 				# Next *n
 				$nIndex++;
