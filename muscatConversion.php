@@ -4994,7 +4994,7 @@ class muscatConversion extends frontControllerApplication
 	private function macro_indicator1xxPresent ($defaultValue, $xml, $setValueIfAuthorsPresent, $authorsFields)
 	{
 		# If authors field present, return the new value
-		if (strlen ($authorsFields['default'][100]) || strlen ($authorsFields['default'][110])) {
+		if (strlen ($authorsFields['default'][100]) || strlen ($authorsFields['default'][110]) || strlen ($authorsFields['default'][111])) {
 			return $setValueIfAuthorsPresent;
 		}
 		
