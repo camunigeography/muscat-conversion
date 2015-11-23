@@ -2963,28 +2963,19 @@ class muscatConversion extends frontControllerApplication
 		# Get the data
 		$data = $this->databaseConnection->getPairs ($query, true);
 		
-		# Reverse-transliterate each entry
+		# Compile the inserts, reverse-transliterating each entry
 		$reverseTransliterations = array ();
 		$i = 0;
-		$chunksOf = 500;
-		$lastId = key (array_slice ($data, -1, 1, true));
 		foreach ($data as $id => $string) {
-			
-			# Create a transliterated version for insert
-			$reverseTransliterations[$id] = array (
+			$reverseTransliterations[$i++] = array (
 				'id'			=> $id,
 				'title_latin'	=> $string,
 				'title'			=> $this->reverseTransliterateString ($string, $language),
 			);
-			$i++;
-			
-			# Do insert if required, at the end of a chunk, or the last key
-			if (($i == $chunksOf) || ($id == $lastId)) {
-				$this->databaseConnection->insertMany ($this->settings['database'], 'reversetransliterations', $reverseTransliterations);
-				$reverseTransliterations = array ();
-				$i = 0;
-			}
 		}
+		
+		# Insert the data
+		$this->databaseConnection->insertMany ($this->settings['database'], 'reversetransliterations', $reverseTransliterations, $chunking = 5000);
 		
 		# Cross-update the reverse transliteration values into the processed table, replacing the original values (which remain available in the reversetransliterations table)
 		$query = "
