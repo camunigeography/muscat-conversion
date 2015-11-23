@@ -4562,6 +4562,7 @@ class muscatConversion extends frontControllerApplication
 			make
 			make install
 		*/
+		#!# PL_FILES may be needed to get it to read the local Tables.pm, but a workaround has been put in in the installer for now
 		$command = "cd {$translitDir}/xml/ && make all-tables && cd {$translitDir}/ && make clean && perl Makefile.PL INSTALL_BASE={$translitDir} && make && make install";
 		exec ($command, $output, $unixReturnValue);
 		if ($unixReturnValue != 0) {
