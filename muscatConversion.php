@@ -5254,6 +5254,9 @@ class muscatConversion extends frontControllerApplication
 			$language = $this->xPathValue ($xml, $xPath);
 		}
 		
+		# End without output if no language, i.e. if default
+		if (!$language) {return false;}
+		
 		# Pass the value into the transliterator programme
 		$output = $this->reverseTransliterateString ($value, $language);
 		
