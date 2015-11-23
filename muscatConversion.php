@@ -691,7 +691,7 @@ class muscatConversion extends frontControllerApplication
 				$marcParserDefinition = $this->getMarcParserDefinition ();
 				$record = array ();
 				$record['marc'] = $this->convertToMarc ($marcParserDefinition, $data['xml'], $errorString);
-				$output  = "\n<p>The MARC output uses the <a target=\"_blank\" href=\"{$this->baseUrl}/marcparser.html\">parser definition</a> to do the translation from the XML representation.</p>";
+				$output  = "\n<p>The MARC output uses the <a target=\"_blank\" href=\"{$this->baseUrl}/marcparser.html\">parser definition</a> to do the mapping from the XML representation.</p>";
 				if ($errorString) {
 					$output .= "\n<p class=\"warning\">{$errorString}</p>";
 				}
@@ -2995,8 +2995,8 @@ class muscatConversion extends frontControllerApplication
 		require_once ('csv.php');
 		$tsvTransliteratedRaw = "id" . "\t" . "string" . "\n" . $tsvTransliteratedRaw;		// Add header row
 		$dataTransliterated = csv::tsvToArray ($tsvTransliteratedRaw, true);
-		foreach ($dataTransliterated as $key => $subArray) {
-			$dataTransliterated[$key] = $subArray['string'];	// Flatten the array
+		foreach ($dataTransliterated as $id => $subArray) {
+			$dataTransliterated[$id] = $subArray['string'];	// Flatten the array
 		}
 		
 		# Re-insert the English suffixes
@@ -4369,9 +4369,9 @@ class muscatConversion extends frontControllerApplication
 			
 			# For vertically-repeatable, first check the counts are consistent (e.g. if //k/kw generated 7 items, and //a/b generated 5, throw an exception, as behaviour is undefined)
 			$counts = array ();
-			foreach ($line['xpathReplacements'] as $find => $xpathReplacementSpec) {
+			foreach ($line['xpathReplacements'] as $macroBlock => $xpathReplacementSpec) {
 				$replacementValues = $xpathReplacementSpec['replacement'];
-				$counts[$find] = count ($replacementValues);
+				$counts[$macroBlock] = count ($replacementValues);
 			}
 			if (count (array_count_values ($counts)) != 1) {
 				$errorString = 'Line ' . ($lineNumber + 1) . ' is a vertically-repeatable field, but the number of generated values in the subfields are not consistent:' . application::dumpData ($counts, false, true);
@@ -4385,7 +4385,7 @@ class muscatConversion extends frontControllerApplication
 			}
 			
 			# Split each original line then discard the original
-			foreach ($line['xpathReplacements'] as $find => $xpathReplacementSpec) {
+			foreach ($line['xpathReplacements'] as $macroBlock => $xpathReplacementSpec) {
 				$replacementValues = $xpathReplacementSpec['replacement'];
 				foreach ($replacementValues as $index => $value) {
 					
@@ -4396,7 +4396,7 @@ class muscatConversion extends frontControllerApplication
 					$datastructure[$newLineNumber] = $line;
 					
 					# Overwrite the subfield value, so it contains only this subfield value, not the whole array of values
-					$datastructure[$newLineNumber]['xpathReplacements'][$find]['replacement'] = $value;
+					$datastructure[$newLineNumber]['xpathReplacements'][$macroBlock]['replacement'] = $value;
 				}
 			}
 		}
@@ -5158,9 +5158,9 @@ class muscatConversion extends frontControllerApplication
 		# In indicator mode, return the indicator at this point
 		if ($indicatorMode) {
 			if (($languages && $languages[1] /* xPathValues indexes from 1, not 0 */ != 'English') || count ($languages) > 1 /* i.e. English plus another language */ || $translationNotes) {
-				return '1';		// "1 - Item is or includes a translation"
+				return '1';		// "1 - Item is or includes a translation"; e.g. /records/10009/ , 
 			} else {
-				return '0';		// "0 - Item not a translation/does not include a translation"
+				return '0';		// "0 - Item not a translation/does not include a translation"; e.g. /records/1004/ (there is a single explicit langugage of 'English' in the original record)
 			}
 		}
 		
