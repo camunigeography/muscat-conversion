@@ -2928,7 +2928,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to run reverse-transliteration; takes about 20 minutes to run
+	# Function to run reverse-transliteration; takes about 3 seconds to run
 	#   Depencies: catalogue_processed
 	private function doReverseTransliteration ()
 	{
@@ -2963,14 +2963,54 @@ class muscatConversion extends frontControllerApplication
 		# Get the data
 		$data = $this->databaseConnection->getPairs ($query, true);
 		
-		# Compile the inserts, reverse-transliterating each entry
+		# Capture and strip off English parts to protect them, for re-insertion later
+		$englishParts = array ();
+		foreach ($data as $id => $string) {
+			
+			# Extract any English translation already present
+			$englishPart = false;
+			if (preg_match ('/^(.+) \[(.+)\]$/', trim ($string), $matches)) {
+				
+				# Rewrite the original
+				$data[$id] = $matches[1];
+				
+				# Register the English segment
+				$englishParts[$id] = $matches[2];
+			}
+		}
+		
+		# Compile the strings to a TSV string, tabs never appearing in the original data so safe to use as the separator
+		$tsv = '';
+		foreach ($data as $id => $string) {
+			$tsv .= $id . "\t" . $string . "\n";
+		}
+		
+		# Reverse-transliterate the whole file
+		$tsvTransliteratedRaw = $this->reverseTransliterateString ($tsv, $language);
+		
+		# Convert back to key-value pairs
+		require_once ('csv.php');
+		$tsvTransliteratedRaw = "id" . "\t" . "string" . "\n" . $tsvTransliteratedRaw;		// Add header row
+		$dataTransliterated = csv::tsvToArray ($tsvTransliteratedRaw, true);
+		foreach ($dataTransliterated as $key => $subArray) {
+			$dataTransliterated[$key] = $subArray['string'];	// Flatten the array
+		}
+		
+		# Re-insert the English suffixes
+		foreach ($dataTransliterated as $id => $string) {
+			if (isSet ($englishParts[$id])) {
+				$dataTransliterated[$id] .= ' [' . $englishParts[$id] . ']';
+			}
+		}
+		
+		# Compile the inserts
 		$reverseTransliterations = array ();
 		$i = 0;
 		foreach ($data as $id => $string) {
 			$reverseTransliterations[$i++] = array (
 				'id'			=> $id,
 				'title_latin'	=> $string,
-				'title'			=> $this->reverseTransliterateString ($string, $language),
+				'title'			=> $dataTransliterated[$id],
 			);
 		}
 		
