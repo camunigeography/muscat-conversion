@@ -5202,11 +5202,13 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Macro to perform transliteration
-	private function macro_transliterate ($value, $xml)
+	private function macro_transliterate ($value, $xml, $language = false)
 	{
-		# Obtain the language value for the record
-		$xPath = '//lang[1]';	// Choose first only
-		$language = $this->xPathValue ($xml, $xPath);
+		# If a forced language is not specified, obtain the language value for the record
+		if (!$language) {
+			$xPath = '//lang[1]';	// Choose first only
+			$language = $this->xPathValue ($xml, $xPath);
+		}
 		
 		# Pass the value into the transliterator programme
 		$output = $this->reverseTransliterateString ($value, $language);
