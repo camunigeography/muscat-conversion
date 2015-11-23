@@ -4875,7 +4875,8 @@ class muscatConversion extends frontControllerApplication
 		
 		# End if no value
 		#!# Need to check whether this should end the whole routine
-		if (!strlen ($value)) {return false;}
+		#!# Need to check what this should be - https://www.loc.gov/marc/bibliographic/bd300.html does not document this explicitly
+		if (!strlen ($value)) {return 'Unknown';}
 		
 		# Split by colon, retaining any colon in the first part
 		preg_match ('/^([^:]+:?)(.*)$/', trim ($value), $pMatches);
