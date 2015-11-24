@@ -4255,6 +4255,9 @@ class muscatConversion extends frontControllerApplication
 					$result = array ($matches[1]);
 				} else {
 					
+					# If the specified XPath is just '/', representing the whole record, strip this, so that the resulting expression remains just "/root"
+					if ($xPath == '/') {$xPath = '';}
+					
 					# Attempt to parse
 					$result = @$xml->xpath ('/root' . $xPath);
 				}
