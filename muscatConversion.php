@@ -3466,8 +3466,7 @@ class muscatConversion extends frontControllerApplication
 	private function parseUdcTranslationTable ()
 	{
 		# Load the file, and normalise newlines
-		$lookupTable  = file_get_contents ($this->applicationRoot . '/tables/' . 'UDCMAP_pic.txt');
-		$lookupTable .= file_get_contents ($this->applicationRoot . '/tables/' . 'UDCMAP_pic_additions.txt');
+		$lookupTable = file_get_contents ($this->applicationRoot . '/tables/' . 'UDCMAP.TXT');
 		$lookupTable = str_replace ("\r\n", "\n", $lookupTable);
 		
 		# Remove line-breaks that are not the end of a line
