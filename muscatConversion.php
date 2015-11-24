@@ -3482,6 +3482,16 @@ class muscatConversion extends frontControllerApplication
 		 */
 		preg_match_all ("/^\*k\s([^\s]+) \* \*k\s?(?:sub|geo) ([^#]+) #/sm", $lookupTable, $matches, PREG_SET_ORDER);
 		
+		# Do a duplicates check
+		$ids = array ();
+		foreach ($matches as $match) {
+			$ids[] = $match[1];
+		}
+		$duplicates = array_diff_assoc ($ids, array_unique ($ids));
+		if ($duplicates) {
+			echo "\<p class=\"warning\">The following duplicates were found in the UDC loading phase: <em>" . implode ('</e>, <em>', $duplicates) . ' .</em></p>';
+		}
+		
 		# Return the matches
 		return $matches;
 	}
