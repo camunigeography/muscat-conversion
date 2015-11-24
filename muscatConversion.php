@@ -4392,19 +4392,20 @@ class muscatConversion extends frontControllerApplication
 				continue;
 			}
 			
-			# Split each original line then discard the original
-			foreach ($line['xpathReplacements'] as $macroBlock => $xpathReplacementSpec) {
-				$replacementValues = $xpathReplacementSpec['replacement'];
-				foreach ($replacementValues as $index => $value) {
-					
-					# Assign the new key (original key, plus the subvalue index)
-					$newLineNumber = "{$lineNumber}_{$index}";
-					
-					# Clone the line, as-is
-					$datastructure[$newLineNumber] = $line;
-					
-					# Overwrite the subfield value, so it contains only this subfield value, not the whole array of values
-					$datastructure[$newLineNumber]['xpathReplacements'][$macroBlock]['replacement'] = $value;
+			# Determine the number of line expansions (which the above check should ensure is consistent between each of the counts)
+			$numberOfLineExpansions = application::array_first_value ($counts);		// Take the first count only
+			
+			# Clone the line, one for each subvalue, as-is, assigning a new key (original key, plus the subvalue index)
+			for ($subLine = 0; $subLine < $numberOfLineExpansions; $subLine++) {
+				$newLineId = "{$lineNumber}_{$subLine}";	// e.g. 17_0, 17_1 if there are two line expansion
+				$datastructure[$newLineId] = $line;
+			}
+			
+			# Overwrite the subfield value within the structure, so it contains only this subfield value, not the whole array of values
+			for ($subLine = 0; $subLine < $numberOfLineExpansions; $subLine++) {
+				$newLineId = "{$lineNumber}_{$subLine}";
+				foreach ($line['xpathReplacements'] as $macroBlock => $xpathReplacementSpec) {
+					$datastructure[$newLineId]['xpathReplacements'][$macroBlock]['replacement'] = $xpathReplacementSpec['replacement'][$subLine];
 				}
 			}
 		}
@@ -4434,7 +4435,6 @@ class muscatConversion extends frontControllerApplication
 					$replacementValue = $xpathReplacementSpec['replacement'];
 					
 					# Determine if there is content
-					#!# "strlen() expects parameter 1 to be string, array given" in /records/2326/
 					$blockHasValue = strlen ($replacementValue);
 					
 					# Register replacements
