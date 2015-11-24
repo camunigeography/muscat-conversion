@@ -3616,7 +3616,13 @@ class muscatConversion extends frontControllerApplication
 		
 		# Define and execute the command for converting the text version to binary; see: http://marcedit.reeset.net/ and http://marcedit.reeset.net/cmarcedit-exe-using-the-command-line and http://blog.reeset.net/?s=cmarcedit
 		$command = "mono /usr/local/bin/marcedit/cmarcedit.exe -s {$directory}/spri-marc-{$fileset}.mrk -d {$filename} -pd -make";
-		shell_exec ($command);
+		exec ($command, $output, $unixReturnValue);
+		foreach ($output as $line) {
+			if (preg_match ('/^0 records have been processed/', $line)) {
+				echo "<p class=\"warning\">Error in creation of MARC binary file (spri-marc-{$fileset}.mrc): <tt>" . htmlspecialchars ($line) . "</tt></p>";
+				break;
+			}
+		}
 	}
 	
 	
