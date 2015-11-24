@@ -3340,7 +3340,6 @@ class muscatConversion extends frontControllerApplication
 						$html  = "<p class=\"warning\">Record <a href=\"{$this->baseUrl}/records/{$id}/\">{$id}</a> could not be converted to MARC:</p>";
 						$html .= "\n<p><img src=\"/images/icons/exclamation.png\" class=\"icon\" /> {$errorString}</p>";
 						echo $html;
-						return false;
 					}
 					$inserts[$id] = array (
 						'id' => $id,
@@ -4328,7 +4327,6 @@ class muscatConversion extends frontControllerApplication
 							foreach ($value as $index => $subValue) {
 								$value[$index] = $this->processMacros ($xml, $subValue, $macros, $authorsFields);
 							}
-							
 						} else {
 							$value = $this->processMacros ($xml, $value, $macros, $authorsFields);
 						}
