@@ -3480,7 +3480,7 @@ class muscatConversion extends frontControllerApplication
 		 *  *k 39(091) * *ksub Ethnohistory #
 		 *  *k 77.041.5 * * ksub Portrait phtography, portraits #
 		 */
-		preg_match_all ("/^\*k\s([^\s]+) \* \*k\s?(?:sub|geo) ([^#]+) #/sm", $lookupTable, $matches, PREG_SET_ORDER);
+		preg_match_all ("/^\s?\*k\s([^\s]+) \* \*k\s?(?:sub|geo) ([^#]+) #/sm", $lookupTable, $matches, PREG_SET_ORDER);
 		
 		# Do a duplicates check
 		$ids = array ();
