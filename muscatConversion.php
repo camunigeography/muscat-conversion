@@ -2940,8 +2940,8 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($sql);
 		$sql = "CREATE TABLE IF NOT EXISTS `reversetransliterations` (
 			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Record ID',
-			`title_latin` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title (English), from original data',
 			`title` varchar(255) COLLATE utf8_unicode_ci NULL COMMENT 'Reverse-transliterated title',
+			`title_latin` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title (English), from original data',
 			PRIMARY KEY (`id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of reverse transliterations'
 		;";
@@ -3012,8 +3012,8 @@ class muscatConversion extends frontControllerApplication
 		foreach ($data as $id => $string) {
 			$reverseTransliterations[$i++] = array (
 				'id'			=> $id,
-				'title_latin'	=> $string,
 				'title'			=> $dataTransliterated[$id],
+				'title_latin'	=> $string,
 			);
 		}
 		
@@ -8020,18 +8020,17 @@ class muscatConversion extends frontControllerApplication
 	# View for report_reversetransliterations
 	private function report_reversetransliterations_view ()
 	{
-		# Define a manual query
-		$query = "
-			SELECT
-				id,
-				title,
-				title_latin AS 'Transliteration in Muscat'
-			FROM {$this->settings['database']}.reversetransliterations
-			ORDER BY id
-		;";
+		# Get the data
+		$data = $this->databaseConnection->select ($this->settings['database'], 'reversetransliterations');
 		
-		# Obtain the listing HTML
-		$html = $this->reportListing (NULL, 'transliterations', false, 'id', $query);
+		# Link each record
+		foreach ($data as $id => $record) {
+			$data[$id]['id'] = "<a href=\"{$this->baseUrl}/records/{$id}/\">{$id}</a>";
+		}
+		
+		# Render as HTML; records already may contain tags
+		$tableHeadingSubstitutions = array ('id' => '#', 'title' => 'Title', 'title_latin' => 'Transliteration in Muscat');
+		$html = application::htmlTable ($data, $tableHeadingSubstitutions, 'lines', $keyAsFirstColumn = false, false, $allowHtml = true, false, false, false, array (), $compress = true);
 		
 		# Return the HTML
 		return $html;
