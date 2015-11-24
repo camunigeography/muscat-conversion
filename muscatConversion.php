@@ -3020,17 +3020,6 @@ class muscatConversion extends frontControllerApplication
 		# Insert the data
 		$this->databaseConnection->insertMany ($this->settings['database'], 'reversetransliterations', $reverseTransliterations, $chunking = 5000);
 		
-		# Cross-update the reverse transliteration values into the processed table, replacing the original values (which remain available in the reversetransliterations table)
-		$query = "
-			UPDATE {$this->settings['database']}.catalogue_processed
-			JOIN reversetransliterations ON
-				    recordId = reversetransliterations.id		/* Ensures it exists, i.e. only affects the rows present in the reversetransliterations table */
-				AND field = 'tc'
-			SET catalogue_processed.value = reversetransliterations.title
-			WHERE field = 'tc'
-		;";
-		$this->databaseConnection->execute ($query);
-		
 		# Signal success
 		return true;
 	}
