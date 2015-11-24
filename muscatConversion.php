@@ -4257,13 +4257,12 @@ class muscatConversion extends frontControllerApplication
 				if (preg_match ("/^'(.+)'$/", $xPath, $matches)) {
 					$value = array ($matches[1]);
 					
+				# Handle the special-case where the specified XPath is just '/', representing the whole record; this indicates that the macro will process the record as a whole, ignoring any passed in value; doing this avoids the standard XPath processor resulting in an array of two values of (1) *qo and (2) *doc/*art/*ser
+				} else if ($xPath == '/') {
+					$value = array (true);	// Ensures the result processor continues, but this 'value' is then ignored
+					
 				# Otherwise, handle the standard case
 				} else {
-					
-					# If the specified XPath is just '/', representing the whole record, strip this, so that the resulting expression remains just "/root"
-					if ($xPath == '/') {
-						$xPath = '';
-					}
 					
 					# Attempt to parse
 					$xPathResult = @$xml->xpath ('/root' . $xPath);
