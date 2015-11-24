@@ -4250,35 +4250,39 @@ class muscatConversion extends frontControllerApplication
 			foreach ($line['xpathReplacements'] as $find => $xpathReplacementSpec) {
 				$xPath = $xpathReplacementSpec['xPath'];	// Extract from structure
 				
-				# Deal with fixed strings
-				if (preg_match ("/^'(.+)'$/", $xPath, $matches)) {
-					$result = array ($matches[1]);
-				} else {
-					
-					# If the specified XPath is just '/', representing the whole record, strip this, so that the resulting expression remains just "/root"
-					if ($xPath == '/') {$xPath = '';}
-					
-					# Attempt to parse
-					$result = @$xml->xpath ('/root' . $xPath);
-				}
-				
-				# Check for compile failures
-				if ($result === false) {
-					$compileFailures[] = $xPath;
-					continue;
-				}
-				
 				# Determine if horizontally-repeatable
 				$isHorizontallyRepeatable = (bool) $xpathReplacementSpec['horizontalRepeatability'];
 				
-				# If there was a match, show it
-				if ($result) {
+				# Deal with fixed strings
+				if (preg_match ("/^'(.+)'$/", $xPath, $matches)) {
+					$value = array ($matches[1]);
+					
+				# Otherwise, handle the standard case
+				} else {
+					
+					# If the specified XPath is just '/', representing the whole record, strip this, so that the resulting expression remains just "/root"
+					if ($xPath == '/') {
+						$xPath = '';
+					}
+					
+					# Attempt to parse
+					$xPathResult = @$xml->xpath ('/root' . $xPath);
+					
+					# Check for compile failures
+					if ($xPathResult === false) {
+						$compileFailures[] = $xPath;
+						continue;
+					}
 					
 					# Obtain the value component(s)
 					$value = array ();
-					foreach ($result as $node) {
+					foreach ($xPathResult as $node) {
 						$value[] = (string) $node;
 					}
+				}
+				
+				# If there was a result process it
+				if ($value) {
 					
 					/*
 					  NOTE:
