@@ -4903,19 +4903,20 @@ class muscatConversion extends frontControllerApplication
 		# Start a result
 		$result = '';
 		
-		# Obtain the record type
-		$recordType = $this->recordType ($xml);
-		
 		# Obtain *p or *pt
 		$p = $this->xPathValue ($xml, '//p');
 		$pt = $this->xPathValue ($xml, '//pt');
 		#!# Precedence needs to be confirmed
 		$value = (strlen ($p) ? $p : $pt);
 		
+		# Obtain the record type
+		$recordType = $this->recordType ($xml);
+		
 		# End if no value
 		#!# Need to check whether this should end the whole routine
-		#!# Need to check what this should be - https://www.loc.gov/marc/bibliographic/bd300.html does not document this explicitly
-		if (!strlen ($value)) {return 'Unknown';}
+		if (!strlen ($value)) {
+			return ($recordType == '/ser' ? 'v' : '1 volume');	// e.g. /records/1000/ , /records/1332/
+		}
 		
 		# Split by colon, retaining any colon in the first part
 		preg_match ('/^([^:]+:?)(.*)$/', trim ($value), $pMatches);
