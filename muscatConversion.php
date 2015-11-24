@@ -4923,7 +4923,7 @@ class muscatConversion extends frontControllerApplication
 		# End if no value
 		#!# Need to check whether this should end the whole routine
 		if (!strlen ($value)) {
-			return ($recordType == '/ser' ? 'v' : '1 volume');	// e.g. /records/1000/ , /records/1332/
+			return ($recordType == '/ser' ? 'v.' : ' 1 volume');	// e.g. /records/1000/ , /records/1332/
 		}
 		
 		# Split by colon, retaining any colon in the first part
