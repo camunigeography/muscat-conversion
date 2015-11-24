@@ -3479,7 +3479,7 @@ class muscatConversion extends frontControllerApplication
 		 *  *k 39(091) * *ksub Ethnohistory #
 		 *  *k 77.041.5 * * ksub Portrait phtography, portraits #
 		 */
-		preg_match_all ("/^\s?\*k\s([^\s]+) \* \*k\s?(?:sub|geo) ([^#]+) #/sm", $lookupTable, $matches, PREG_SET_ORDER);
+		preg_match_all ("/^\*k\s([^\s]+) \* \*k\s?(?:sub|geo) ([^#]+) #/sm", $lookupTable, $matches, PREG_SET_ORDER);
 		
 		# Do a duplicates check
 		$ids = array ();
@@ -3491,7 +3491,7 @@ class muscatConversion extends frontControllerApplication
 			echo "\<p class=\"warning\">The following duplicates were found in the UDC loading phase: <em>" . implode ('</e>, <em>', $duplicates) . ' .</em></p>';
 		}
 		
-		# Return the matches
+		# Return the matches; should be 3463 results
 		return $matches;
 	}
 	
