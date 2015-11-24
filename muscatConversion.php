@@ -3493,8 +3493,6 @@ class muscatConversion extends frontControllerApplication
 		 */
 		preg_match_all ("/^\*k\s([^\s]+) \* \*k\s?(?:sub|geo) ([^#]+) #/sm", $lookupTable, $matches, PREG_SET_ORDER);
 		
-		#!# Needs to be run through the diacritics conversion
-		
 		# Return the matches
 		return $matches;
 	}
