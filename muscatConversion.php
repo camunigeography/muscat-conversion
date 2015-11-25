@@ -8023,6 +8023,20 @@ class muscatConversion extends frontControllerApplication
 		# Get the data
 		$data = $this->databaseConnection->select ($this->settings['database'], 'reversetransliterations');
 		
+		# Extract strings to spellcheck as key/value pairs
+		$spellcheck = array ();
+		foreach ($data as $id => $record) {
+			$spellcheck[$id] = $record['title'];
+		}
+		
+		# Spellcheck the strings
+		$spellcheck = application::spellcheck ($spellcheck, 'ru_RU', $this->databaseConnection, $this->settings['database'], $enableSuggestions = true, $protectBlockRegexp = '\[([^]]+)\]', 100);
+		
+		# Substitute the spellchecked HTML versions into the table
+		foreach ($spellcheck as $id => $string) {
+			$data[$id]['title'] = $string;
+		}
+		
 		# Link each record
 		foreach ($data as $id => $record) {
 			$data[$id]['id'] = "<a href=\"{$this->baseUrl}/records/{$id}/\">{$id}</a>";

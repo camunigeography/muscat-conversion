@@ -28,6 +28,7 @@
 #muscatconversion table.fieldslisting td.Description {width: 400px;}
 #muscatconversion p#exporttarget {text-align: right;}
 #muscatconversion p#exporttarget strong {border: 1px solid #ddd; padding: 2px;}
+#muscatconversion span.spelling {text-decoration: underline wavy red;}	/* In Chrome, requires "Enable experimental Web Platform features" in about://flags */
 
 /* Print styles */
 @media print {
