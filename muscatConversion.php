@@ -4581,6 +4581,10 @@ class muscatConversion extends frontControllerApplication
 	# Function to compile the reverse transliteration file
 	private function compileReverseTransliterator ($definition, $language, &$errorHtml = '')
 	{
+		# Reinstall local CPAN each time, as eventually the perl5/perl5/perl5/perl5/... problem will bite otherwise
+		$command = "cd {$this->cpanDir} && cd ../ && rm -rf cpan/ && ./install.sh";
+		exec ($command, $output, $unixReturnValue);
+		
 		# Define the local CPAN directory and the translit compilation directory
 		$translitDir = "{$this->cpanDir}/Lingua-Translit-0.22";
 		
