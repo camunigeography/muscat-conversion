@@ -4532,7 +4532,7 @@ class muscatConversion extends frontControllerApplication
 			'name'		=> 'definition',
 			'title'		=> 'Reverse-transliteration definition',
 			'required'	=> true,
-			'rows'		=> 30,
+			'rows'		=> 40,
 			'cols'		=> 120,
 			'default'	=> $this->getReverseTransliterationDefinition (),
 			'wrap'		=> 'off',
