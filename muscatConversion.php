@@ -553,9 +553,6 @@ class muscatConversion extends frontControllerApplication
 			$html .= "\n<p id=\"exportlink\" class=\"right\"><a href=\"{$this->baseUrl}/reports/{$id}/{$id}.csv\">Export as CSV</a></p>";
 		}
 		$html .= "\n<p><strong>" . htmlspecialchars ($description) . '</strong></p>';
-		if ($id == 'reversetransliterations') {
-			$html .= "\n<p>You can <a href=\"{$this->baseUrl}/transliterator.html\">edit the reverse-transliteration definition</a>.</p>";
-		}
 		$html .= "\n</div>";
 		
 		# Show the records for this query (having regard to any page number supplied via the URL)
@@ -8020,6 +8017,15 @@ class muscatConversion extends frontControllerApplication
 	# View for report_reversetransliterations
 	private function report_reversetransliterations_view ()
 	{
+		# Start the HTML
+		$html = '';
+		
+		# Add a control to enable spell-checking
+		$spellcheckRecords = $this->spellcheckForm (100, $html);
+		
+		# Add link to editing the definition
+		$html .= "\n<p>You can <a href=\"{$this->baseUrl}/transliterator.html\">edit the reverse-transliteration definition</a>.</p>";
+		
 		# Get the data
 		$data = $this->databaseConnection->select ($this->settings['database'], 'reversetransliterations');
 		
@@ -8030,7 +8036,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Spellcheck the strings
-		$spellcheck = application::spellcheck ($spellcheck, 'ru_RU', $this->databaseConnection, $this->settings['database'], $enableSuggestions = true, $protectBlockRegexp = '\[([^]]+)\]', 100);
+		$spellcheck = application::spellcheck ($spellcheck, 'ru_RU', $this->databaseConnection, $this->settings['database'], $enableSuggestions = true, $protectBlockRegexp = '\[([^]]+)\]', $spellcheckRecords);
 		
 		# Substitute the spellchecked HTML versions into the table
 		foreach ($spellcheck as $id => $string) {
@@ -8044,10 +8050,46 @@ class muscatConversion extends frontControllerApplication
 		
 		# Render as HTML; records already may contain tags
 		$tableHeadingSubstitutions = array ('id' => '#', 'title' => 'Title', 'title_latin' => 'Transliteration in Muscat');
-		$html = application::htmlTable ($data, $tableHeadingSubstitutions, 'lines', $keyAsFirstColumn = false, false, $allowHtml = true, false, false, false, array (), $compress = true);
+		$html .= application::htmlTable ($data, $tableHeadingSubstitutions, 'lines', $keyAsFirstColumn = false, false, $allowHtml = true, false, false, false, array (), $compress = true);
 		
 		# Return the HTML
 		return $html;
+	}
+	
+	
+	# Function to provide a number submission form
+	private function spellcheckForm ($default, &$html)
+	{
+		# Create a form
+		$form = new form (array (
+			'displayRestrictions' => false,
+			'name' => 'spellcheck',
+			'nullText' => false,
+			'div' => 'ultimateform',
+			'id' => 'spellcheck',
+			'display' => 'template',
+			'displayTemplate' => "{[[PROBLEMS]]}\n\t\t<p>Spellcheck first {total} records {[[SUBMIT]]}",
+			'submitButtonText' => 'Go!',
+			'submitButtonAccesskey' => false,
+			'formCompleteText' => false,
+			'requiredFieldIndicator' => false,
+			'reappear' => true,
+		));
+		$form->number (array (
+			'name' => 'total',
+			'title' => 'Total',
+			'required' => true,
+			'default' => $default,
+			'maxlength' => 5,
+		));
+		
+		# Process the form and return the result
+		if ($result = $form->process ($html)) {
+			return $result['total'];
+		}
+		
+		# Return the default
+		return $default;
 	}
 	
 	
