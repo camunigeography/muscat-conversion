@@ -3067,6 +3067,19 @@ class muscatConversion extends frontControllerApplication
 			$englishPart = $matches[2];
 		}
 		
+		/* Note:
+		 * Ideally we would use:
+		 *   $t = Transliterator::create("Russian-Latin/BGN", Transliterator::REVERSE);
+		 *   $reverseTransliteration = $t->transliterate ($string);
+		 * which uses Unicode CLDR
+		 * See: http://www.larryullman.com/2012/02/01/transliteration-in-php-5-4/
+		 * Unfortunately, http://cldr.unicode.org/index/cldr-spec/transliteration-guidelines states:
+		 * "Unicode CLDR provides other transliterations based on the U.S. Board on Geographic Names (BGN) transliterations. These are currently unidirectional — to Latin only. The goal is to make them bidirectional in future versions of CLDR."
+		 * and the current implementation of Russiah-Latin/BGN only has 'direction="forward"':
+		 * http://unicode.org/cldr/trac/browser/trunk/common/transforms/Russian-Latin-BGN.xml
+		 * Ticket raised at: http://unicode.org/cldr/trac/ticket/9086
+		 */
+		
 		# Perform transliteration
 		$command = "{$this->cpanDir}/bin/translit -trans '{$this->supportedReverseTransliterationLanguages[$language]}' --reverse";
 		$reverseTransliteration = application::createProcess ($command, $string);
