@@ -4889,9 +4889,13 @@ class muscatConversion extends frontControllerApplication
 		# Obtain the value; we cannot pass this in, as an empty value would mean the macro is not executed (due to the if(result) in convertToMarc_PerformXpathReplacements) but we need to return an empty value
 		$plValue = $this->xPathValue ($xml, '//pg/pl');
 		
+		# If no *pl, put '[S.l.]'. ; e.g. /records/1006/ ; decision made not to make a semantic difference between between a publication that is known to have an unknown publisher (i.e. a check has been done and this is explicitly noted) vs a publication whose check has never been done, so we don't know if there is a publisher or not.
+		if (!strlen ($plValue)) {
+			return '[S.l.]';	// Meaning 'sine loco' ('without a place')
+		}
+		
 		# *pl [if *pl is '[n.p.]' or '-', this should be replaced with '[S.l.]' ]. ; e.g. /records/1102/ , /records/1787/
-		# If no *pl, put '[S.l.]'. ; e.g. /records/1006/
-		if ($plValue == '[n.p.]' || $plValue == '-' || !strlen ($plValue)) {
+		if ($plValue == '[n.p.]' || $plValue == '-') {
 			return '[S.l.]';
 		}
 		
@@ -4910,7 +4914,7 @@ class muscatConversion extends frontControllerApplication
 	{
 		# *pu [if *pu is '[n.pub.]' or '-', this should be replaced with '[s.n.]' ] ; e.g. /records/1105/ , /records/1745/
 		if ($puValue == '[n.pub.]' || $puValue == '-') {
-			return '[s.n.]';
+			return '[s.n.]';	// Meaning 'sine nomine' ('without a name')
 		}
 		
 		# Otherwise, return the value unmodified; e.g. /records/1011/
