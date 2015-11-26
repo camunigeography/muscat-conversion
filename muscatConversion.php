@@ -4834,13 +4834,16 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Ending strings with dots
-	private function macro_dotEnd ($value)
+	private function macro_dotEnd ($value, $xml_ignored, $extendedCharacterList = false)
 	{
 		# End if no value
 		if (!strlen ($value)) {return $value;}
 		
+		# Determine characters to check at the end
+		$characterList = ($extendedCharacterList ? '.])>' : '.');	// e.g. 260 $c shown at https://www.loc.gov/marc/bibliographic/bd260.html
+		
 		# Return unmodified if dot already present
-		if (preg_match ('/^(.+)\.$/', $value, $matches)) {
+		if (preg_match ('/^(.+)[' . preg_quote ($characterList) . ']$/', $value, $matches)) {
 			return $value;
 		}
 		
