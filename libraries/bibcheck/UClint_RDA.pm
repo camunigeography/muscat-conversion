@@ -374,11 +374,12 @@ sub check_record {
     if (not $marc->field(260)){
 	$self->warn("260: No 260 field present, record does not meet minimum standard.");
     }
- #check for original AACR2 records
-
-    if (not $marc->field(035)){
-	$self->warn("This AACR2 record appears to be original cataloguing, all new original records should be RDA standard.");
-    }    
+# DISABLED FOR SPRI:
+# #check for original AACR2 records
+#
+#    if (not $marc->field(035)){
+#	$self->warn("This AACR2 record appears to be original cataloguing, all new original records should be RDA standard.");
+#    }    
 
 #check for RDA fields in AACR2 records
     
@@ -2345,7 +2346,8 @@ if (($marc->field(490)) && ($newsubfields[$#newsubfields] !~ /[\.\)]$/) && ($rda
 #checks that  _c is present
     
     if ( not $field->subfield( "c" ) ) {
-        $self->warn( "300: Must have a subfield _c." );
+# DISABLED FOR SPRI:
+#        $self->warn( "300: Must have a subfield _c." );
     }
     #each subfield c, if present, should be preceded by a semicolon
     else{
