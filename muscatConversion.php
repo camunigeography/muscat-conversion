@@ -4872,7 +4872,9 @@ class muscatConversion extends frontControllerApplication
 	private function macro_multipleValues ($value_ignored, $xml, $parameter)
 	{
 		$parameter = "({$parameter})[%i]";
-		return $this->xPathValues ($xml, $parameter, false);		// e.g. /records/2071/ for 546 $a //lang ; /records/6321/ for 260 $c //d
+		$values = $this->xPathValues ($xml, $parameter, false);		// e.g. /records/2071/ for 546 $a //lang ; /records/6321/ for 260 $c //d
+		$values = array_unique ($values);
+		return $values;
 	}
 	
 	
