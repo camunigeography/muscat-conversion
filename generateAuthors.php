@@ -58,7 +58,7 @@ class generateAuthors
 		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
 		
 		# Determine the language of the record
-		$recordLanguages = $this->muscatConversion->xPathValues ($mainRecordXml, '(//lang)[%i]', false);	// e.g. /records/2071/ , /records/1392/ have multiple languages
+		$recordLanguages = $this->muscatConversion->xPathValues ($mainRecordXml, '(//lang)[%i]', false);	// e.g. /records/2071/ , /records/1392/ , /records/17053/ have multiple languages
 		
 		# Process both normal and transliterated modes
 		foreach ($languageModes as $languageMode) {
