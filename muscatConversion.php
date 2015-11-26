@@ -78,6 +78,7 @@ class muscatConversion extends frontControllerApplication
 		'duplicatedlocations' => 'records with more than one identical location',
 		'subscriptssuperscripts' => 'records still containing superscript brackets',
 		'translationnote' => 'records containing a note regarding translation',
+		'multipletrees' => 'records with two or more parent trees',
 	);
 	
 	# Listing (values) reports
@@ -7588,6 +7589,23 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				    field = 'note'
 				AND value LIKE '%translat%'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with two or more parent trees
+	private function report_multipletrees ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'multipletrees' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE fieldslist REGEXP '@(art|doc|ser).*@(art|doc|ser)@'
 		";
 		
 		# Return the query
