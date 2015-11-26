@@ -108,15 +108,18 @@ class generateAuthors
 		# Set the language mode
 		$this->languageMode = $languageMode;
 		
-		# 100 is not relevant for *ser or *art/*in/*ag, so end at this point if matches these
-		$ser = $this->muscatConversion->xPathValue ($this->mainRecordXml, '/ser');		// e.g. /records/1061/
-		$artIn = $this->muscatConversion->xPathValue ($this->mainRecordXml, '/art/in');	// e.g. /records/4179/
-		if ($ser || $artIn) {
-			return;		// The entry in $this->values for this field will be left as when initialised, i.e. false
+		# Look at the first or only *doc/*ag/*a OR *art/*ag/*a
+		#   *ser     like /records/1062/ would not match
+		#   *doc     like /records/1392/ will match
+		#   *art/in  like /records/4179/ will match; its /art/in/ag/a will be ignored
+		#   *art/in with /art/in/ag/ but not /art/ag like /records/45318/ will not match
+		#   *art/j   like /records/1109/ will match; its /art/in/ag/a will be ignored
+		if (!$a = $this->muscatConversion->xPathValue ($this->mainRecordXml, '//ag[parent::doc|parent::art]/a')) {
+			return false;	// The entry in $this->values for this field will be left as when initialised, i.e. false
 		}
 		
-		# Do the classification; look at the first or only *doc/*ag/*a OR *art/*ag/*a
-		$line = $this->main ($this->mainRecordXml, '/*/ag[1]/a[1]', 100);
+		# Do the classification
+		$line = $this->main ($this->mainRecordXml, '//ag[parent::doc|parent::art][1]/a[1]', 100);
 		
 		# Subfield ‡u, if present, needs to go before subfield ‡e
 		$line = $this->shiftSubfieldU ($line);
