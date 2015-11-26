@@ -4932,8 +4932,7 @@ class muscatConversion extends frontControllerApplication
 		# Obtain *p or *pt
 		$p = $this->xPathValue ($xml, '//p');
 		$pt = $this->xPathValue ($xml, '//pt');
-		#!# Precedence needs to be confirmed
-		$value = (strlen ($p) ? $p : $pt);
+		$value = (strlen ($p) ? $p : $pt);		// Confirmed there are no records with both *p and *pt
 		
 		# Obtain the record type
 		$recordType = $this->recordType ($xml);
