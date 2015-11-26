@@ -5164,6 +5164,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Obtain any languages used in the record
 		$languages = $this->xPathValues ($xml, '(//lang)[%i]', false);	// e.g. /records/2071/ has multiple
+		$languages = array_unique ($languages);
 		
 		# Obtain any note containing "translation from [language(s)]"
 		$notes = $this->xPathValues ($xml, '(//note)[%i]', false);
