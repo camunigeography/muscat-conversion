@@ -4871,8 +4871,8 @@ class muscatConversion extends frontControllerApplication
 	# Macro to get multiple values as an array
 	private function macro_multipleValues ($value_ignored, $xml, $parameter)
 	{
-		$parameter .= '[%i]';
-		return $values = $this->xPathValues ($xml, $parameter);
+		$parameter = "({$parameter})[%i]";
+		return $this->xPathValues ($xml, $parameter, false);		// e.g. /records/2071/ for 546 $a //lang ; /records/6321/ for 260 $c //d
 	}
 	
 	
@@ -4976,8 +4976,8 @@ class muscatConversion extends frontControllerApplication
 			}
 		}
 		
-		# $c (R) (Dimensions): *size ; e.g. /records/4329/
-		$size = $this->xPathValues ($xml, '//size[%i]');
+		# $c (R) (Dimensions): *size ; e.g. multiple in /records/4329/
+		$size = $this->xPathValues ($xml, '(//size)[%i]', false);
 		if ($size) {
 			$result .= "{$this->doubleDagger}c" . implode ("{$this->doubleDagger}c", $size);
 		}
@@ -5161,10 +5161,10 @@ class muscatConversion extends frontControllerApplication
 		$string = '';
 		
 		# Obtain any languages used in the record
-		$languages = $this->xPathValues ($xml, '//lang[%i]');
+		$languages = $this->xPathValues ($xml, '(//lang)[%i]', false);	// e.g. /records/2071/ has multiple
 		
 		# Obtain any note containing "translation from [language(s)]"
-		$notes = $this->xPathValues ($xml, '//note[%i]');
+		$notes = $this->xPathValues ($xml, '(//note)[%i]', false);
 		$nonLanguageWords = array ('article');
 		$translationNotes = array ();
 		foreach ($notes as $note) {
