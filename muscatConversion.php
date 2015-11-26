@@ -5011,14 +5011,14 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to get a set of XPath values for a field known to have multiple entries
-	public function xPathValues ($xml, $xPath)
+	public function xPathValues ($xml, $xPath, $autoPrependRoot = true)
 	{
 		# Get each value
 		$values = array ();
 		$maxItems = 20;
 		for ($i = 1; $i <= $maxItems; $i++) {
 			$xPathThisI = str_replace ('%i', $i, $xPath);	// Convert %i to loop ID if present
-			$value = $this->xPathValue ($xml, $xPathThisI);
+			$value = $this->xPathValue ($xml, $xPathThisI, $autoPrependRoot);
 			if (strlen ($value)) {
 				$values[$i] = $value;
 			}
