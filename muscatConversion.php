@@ -5916,6 +5916,7 @@ class muscatConversion extends frontControllerApplication
 			'World Wide Web'							=> 'SPRI-ELE',
 			'WWW'										=> 'SPRI-ELE',
 			"Friends' Room"								=> 'SPRI-FRI',
+			"Museum Working Collection"					=> 'SPRI-MUS',
 		);
 		
 		# Get the locations
