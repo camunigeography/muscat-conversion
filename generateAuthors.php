@@ -109,8 +109,8 @@ class generateAuthors
 		$this->languageMode = $languageMode;
 		
 		# 100 is not relevant for *ser or *art/*in/*ag, so end at this point if matches these
-		$ser = $this->muscatConversion->xPathValue ($this->mainRecordXml, '//ser');
-		$artIn = $this->muscatConversion->xPathValue ($this->mainRecordXml, '//art/in');
+		$ser = $this->muscatConversion->xPathValue ($this->mainRecordXml, '/ser');		// e.g. /records/1061/
+		$artIn = $this->muscatConversion->xPathValue ($this->mainRecordXml, '/art/in');	// e.g. /records/4179/
 		if ($ser || $artIn) {
 			return;		// The entry in $this->values for this field will be left as when initialised, i.e. false
 		}
