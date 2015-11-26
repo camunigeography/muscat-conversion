@@ -3081,7 +3081,7 @@ class muscatConversion extends frontControllerApplication
 		 */
 		
 		# Perform transliteration
-		$command = "{$this->cpanDir}/bin/translit -trans '{$this->supportedReverseTransliterationLanguages[$language]}' --reverse";
+		$command = "{$this->cpanDir}/bin/translit -trans '{$this->supportedReverseTransliterationLanguages[$language]}'";	//  --reverse
 		$reverseTransliteration = application::createProcess ($command, $string);
 		
 		# Reinstate English part if required
