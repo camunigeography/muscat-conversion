@@ -5540,7 +5540,20 @@ class muscatConversion extends frontControllerApplication
 		# Use the role-and-siblings part of the 245 processor
 		require_once ('generate245.php');
 		$generate245 = new generate245 ($this, $xml, $authorsFields);
-		$value = $generate245->roleAndSiblings ('//ee');
+		
+		# Create the list of subvalues if there is *ee?; e.g. /records/3887/ , /records/45901/ , /records/168490/
+		$subValues = array ();
+		$eeIndex = 1;
+		while ($this->xPathValue ($xml, "//ee[$eeIndex]")) {		// Check if *ee container exists
+			$subValues[] = $generate245->roleAndSiblings ("//ee[$eeIndex]");
+			$eeIndex++;
+		}
+		
+		# Return false if no subvalues
+		if (!$subValues) {return false;}
+		
+		# Implode values
+		$value = implode ('; ', $subValues);
 		
 		# Return the value
 		return $value;
