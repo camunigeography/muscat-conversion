@@ -768,9 +768,8 @@ class generateAuthors
 		}
 		
 		# Do one or more words or phrases in the $fieldValue appear in the Relator terms list?
-		$relatorTerms = $this->getRelatorTerms ($fieldValue);
-		if (array_key_exists ($fieldValue, $relatorTerms)) {
-			$value .= ", {$this->doubleDagger}e{$relatorTerms[$fieldValue]}";
+		if ($relatorTermsEField = $this->relatorTermsEField ($fieldValue)) {
+			$value .= $relatorTermsEField;
 			return $value;
 		}
 		
@@ -877,7 +876,7 @@ class generateAuthors
 		if (!$this->context1xx) {
 			if (preg_match ('|^/\*/e|', $path)) {
 				$role = $this->muscatConversion->xPathValue ($this->xml, $path . '/preceding-sibling::role');
-				$value .= $this->addRelatorTermsEField ($role);
+				$value .= $this->relatorTermsEField ($role);
 				return $value;
 			}
 		}
@@ -911,7 +910,7 @@ class generateAuthors
 		$n1 = $this->muscatConversion->xPathValue ($this->xml, '//e/n/n1');
 		if ($n1 == 'the author') {
 			$role = $this->muscatConversion->xPathValue ($this->xml, '//e/role');	// Obtain the $role, having determined that *n1 matches "the author"
-			$value .= $this->addRelatorTermsEField ($role);
+			$value .= $this->relatorTermsEField ($role);
 		}
 		
 		# Does 100 field currently end with a punctuation mark?
@@ -933,8 +932,8 @@ class generateAuthors
 	}
 	
 	
-	# Function to add the relator term as a $e field
-	private function addRelatorTermsEField ($role)
+	# Function to obtain the relator term as a $e field
+	private function relatorTermsEField ($role)
 	{
 		# Start a value
 		$value = '';
