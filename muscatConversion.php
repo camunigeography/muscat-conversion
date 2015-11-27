@@ -4386,7 +4386,7 @@ class muscatConversion extends frontControllerApplication
 				continue;
 			}
 			
-			# For vertically-repeatable, first check the counts are consistent (e.g. if //k/kw generated 7 items, and //a/b generated 5, throw an exception, as behaviour is undefined)
+			# For vertically-repeatable, first check the counts are consistent (e.g. if //k/kw generated 7 items, and //k/ks generated 5, throw an exception, as behaviour is undefined)
 			$counts = array ();
 			foreach ($line['xpathReplacements'] as $macroBlock => $xpathReplacementSpec) {
 				$replacementValues = $xpathReplacementSpec['replacement'];
@@ -4394,7 +4394,7 @@ class muscatConversion extends frontControllerApplication
 			}
 			if (count (array_count_values ($counts)) != 1) {
 				$errorString = 'Line ' . ($lineNumber + 1) . ' is a vertically-repeatable field, but the number of generated values in the subfields are not consistent:' . application::dumpData ($counts, false, true);
-				return false;
+				continue;
 			}
 			
 			# If there are no values on this line, then no expansion is needed, so copy the attributes across unamended, and move on
