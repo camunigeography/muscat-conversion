@@ -148,6 +148,9 @@ class generate245
 			# Add all text after colon
 			$title .= ' :' . $this->doubleDagger . 'b' . trim ($titleComponents[1]);
 			
+			# Flag that a Statement of Responsibility is required
+			$this->createStatementOfResponsibility = true;
+			
 		} else {
 			
 			# Add title
@@ -156,6 +159,10 @@ class generate245
 			# If there is a *form, Add to 245 field
 			if ($form) {
 				$title .= $this->doubleDagger . 'h[ ' . $form . ']';
+				
+				# Flag that a Statement of Responsibility is required
+				$this->createStatementOfResponsibility = true;
+				
 			} else {
 				
 				# Are you creating this 245 field for a *ser record? If so, add . and end
