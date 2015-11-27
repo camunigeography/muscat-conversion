@@ -4892,25 +4892,37 @@ class muscatConversion extends frontControllerApplication
 	# Macro to create *pl for 260 $a; see: https://www.loc.gov/marc/bibliographic/bd260.html
 	private function macro_generate260aPl ($value_ignored, $xml)
 	{
-		# Obtain the value; we cannot pass this in, as an empty value would mean the macro is not executed (due to the if(result) in convertToMarc_PerformXpathReplacements) but we need to return an empty value
-		$plValue = $this->xPathValue ($xml, '//pg/pl');
+		# Obtain the value(s); we cannot pass this in, as an empty value would mean this macro is not executed (due to the if(result) in convertToMarc_PerformXpathReplacements) but we need to return a value representing an empty value (e.g. '[S.l.]')
+		$plValues = $this->xPathValues ($xml, '(//pg/pl)[%i]', false);	// e.g. /records/1639/ has multiple
 		
 		# If no *pl, put '[S.l.]'. ; e.g. /records/1006/ ; decision made not to make a semantic difference between between a publication that is known to have an unknown publisher (i.e. a check has been done and this is explicitly noted) vs a publication whose check has never been done, so we don't know if there is a publisher or not.
-		if (!strlen ($plValue)) {
+		if (!$plValues) {
 			return '[S.l.]';	// Meaning 'sine loco' ('without a place')
 		}
 		
-		# *pl [if *pl is '[n.p.]' or '-', this should be replaced with '[S.l.]' ]. ; e.g. /records/1102/ , /records/1787/
-		if ($plValue == '[n.p.]' || $plValue == '-') {
-			return '[S.l.]';
+		# Check whether any value needs modifying
+		foreach ($plValues as $index => $plValue) {
+			
+			# *pl [if *pl is '[n.p.]' or '-', this should be replaced with '[S.l.]' ]. ; e.g. /records/1102/ , /records/1787/
+			if ($plValue == '[n.p.]' || $plValue == '-') {
+				$plValues[$index] = '[S.l.]';
+				continue;
+			}
+			
+			# Preserve square brackets, but remove round brackets if present. ; e.g. /records/2027/ , /records/5942/
+			if (preg_match ('/^\((.+)\)$/', $plValue, $matches)) {
+				$plValues[$index] = $matches[1];
+				continue;
+			}
+			
+			# Otherwise, return the value unmodified; e.g. /records/1011/
+			// $plValues[$index] remains unmodified
 		}
 		
-		# Preserve square brackets, but remove round brackets if present. ; e.g. /records/2027/ , /records/5942/
-		if (preg_match ('/^\((.+)\)$/', $plValue, $matches)) {
-			return $matches[1];
-		}
+		# Compile the result, splitting by $a ; see: https://www.loc.gov/marc/bibliographic/bd260.html
+		$plValue = implode (" ;{$this->doubleDagger}a", $plValues);
 		
-		# Otherwise, return the value unmodified; e.g. /records/1011/
+		# Return the value
 		return $plValue;
 	}
 	
