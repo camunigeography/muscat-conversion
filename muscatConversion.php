@@ -6018,7 +6018,7 @@ class muscatConversion extends frontControllerApplication
 					} else {
 						
 						# Remove the portion of *location that maps to a Voyager location code (i.e. the portion that appears in the location codes list) - the remainder will be referred to as *location_trimmed
-						$locationTrimmed = preg_replace ("/^{$locationStartsWith}/", '', $location);
+						$locationTrimmed = preg_replace ("|^{$locationStartsWith}|", '', $location);
 						$locationTrimmed = trim ($locationTrimmed);
 						
 						# Is *location_trimmed empty?; If no, Add to record: ‡h <*location_trimmed>
