@@ -66,6 +66,7 @@ class muscatConversion extends frontControllerApplication
 		'multiplecopies' => 'records where there appear to be multiple copies, in notes field',
 		'multiplein' => 'records containing more than one *in field',
 		'multiplej' => 'records containing more than one *j field',
+		'multipletoptt' => 'records containing more than one top-level *tt field',
 		'invaliddatestring' => 'records with an invalid date string',
 		'serlocloc' => '*ser records with two or more locations',
 		'artinperiodical' => '*art/*in records with location=Periodical',
@@ -7365,6 +7366,23 @@ class muscatConversion extends frontControllerApplication
 			FROM fieldsindex
 			WHERE ((LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@j@',''))) / LENGTH('@j@')) > 1
 			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records containing more than one top-level *tt field
+	private function report_multipletoptt ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'multipletoptt' AS report,
+				id AS recordId
+			FROM catalogue_xml
+			WHERE EXTRACTVALUE(xml, 'count(/*/tg/tt)') > 1
+		";
 		
 		# Return the query
 		return $query;
