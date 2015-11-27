@@ -128,8 +128,8 @@ class generate245
 		# Does the record contain a *form? If multiple *form values, separate using semicolon in same square brackets
 		$form = $this->muscatConversion->xPathValue ($this->xml, '(//form)[1]', false);	// The data is known to have max one form per record
 		
-		# By default, flag that a Statement of Responsibility is not required
-		$this->createStatementOfResponsibility = false;
+		# By default, a Statement of Responsibility is required
+		$this->createStatementOfResponsibility = true;
 		
 		# Does the *t include a colon ':'?
 		if (substr_count ($this->t, ':')) {
@@ -148,9 +148,6 @@ class generate245
 			# Add all text after colon
 			$title .= ' :' . $this->doubleDagger . 'b' . trim ($titleComponents[1]);
 			
-			# Flag that a Statement of Responsibility is required
-			$this->createStatementOfResponsibility = true;
-			
 		} else {
 			
 			# Add title
@@ -160,16 +157,12 @@ class generate245
 			if ($form) {
 				$title .= $this->doubleDagger . 'h[ ' . $form . ']';
 				
-				# Flag that a Statement of Responsibility is required
-				$this->createStatementOfResponsibility = true;
-				
 			} else {
 				
 				# Are you creating this 245 field for a *ser record? If so, add . and end
 				if ($this->recordType == '/ser') {
 					$title .= '.';
-				} else {
-					$this->createStatementOfResponsibility = true;
+					$this->createStatementOfResponsibility = false;		// Flag then picked up below in statementOfResponsibility ()
 				}
 			}
 		}
