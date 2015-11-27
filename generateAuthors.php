@@ -943,10 +943,20 @@ class generateAuthors
 		$relatorTerms = $this->getRelatorTerms ($role);
 		$replacements = array ();
 		foreach ($relatorTerms as $relatorTerm => $replacement) {
-			if (substr_count (strtolower ($role), strtolower ($relatorTerm))) {	// e.g. "Translated from the Icelandic by" would match "translator"; e.g. /records/1639/
+			
+			# Check for an exact match (i.e. right-hand-side of relator terms list), e.g. "editor"; e.g. /records/113955/
+			if (strtolower ($role) == strtolower ($replacement)) {
+				$replacements[$relatorTerm] = $replacement;
+				continue;
+			}
+			
+			# Also check for a substring match, e.g. "Translated from the Icelandic by" would match "translator"; e.g. /records/1639/
+			if (substr_count (strtolower ($role), strtolower ($relatorTerm))) {
 				$replacements[$relatorTerm] = $replacement;
 			}
 		}
+		
+		# Assemble the string if there are replacements
 		if ($replacements) {
 			$replacements = array_unique ($replacements);
 			foreach ($replacements as $replacement) {
