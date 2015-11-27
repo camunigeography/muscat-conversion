@@ -944,7 +944,7 @@ class generateAuthors
 		$relatorTerms = $this->getRelatorTerms ($role);
 		$replacements = array ();
 		foreach ($relatorTerms as $relatorTerm => $replacement) {
-			if (substr_count ($role, $relatorTerm)) {
+			if (substr_count (strtolower ($role), strtolower ($relatorTerm))) {	// e.g. "Translated from the Icelandic by" would match "translator"; e.g. /records/1639/
 				$replacements[$relatorTerm] = $replacement;
 			}
 		}
