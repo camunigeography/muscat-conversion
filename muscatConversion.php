@@ -5573,7 +5573,7 @@ class muscatConversion extends frontControllerApplication
 		$subValues = array ();
 		$eeIndex = 1;
 		while ($this->xPathValue ($xml, "//ee[$eeIndex]")) {		// Check if *ee container exists
-			$subValues[] = $generate245->roleAndSiblings ("//ee[$eeIndex]", false);
+			$subValues[] = $generate245->roleAndSiblings ("//ee[$eeIndex]");
 			$eeIndex++;
 		}
 		
