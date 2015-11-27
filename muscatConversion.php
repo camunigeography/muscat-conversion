@@ -5949,6 +5949,7 @@ class muscatConversion extends frontControllerApplication
 			'WWW'										=> 'SPRI-ELE',
 			"Friends' Room"								=> 'SPRI-FRI',
 			"Museum Working Collection"					=> 'SPRI-MUS',
+			// SPRI-NIS defined in code below
 		);
 		
 		# Get the locations
@@ -5973,6 +5974,8 @@ class muscatConversion extends frontControllerApplication
 					
 					# Is *location 'Not in SPRI'?; if yes, add to record: ‡z Not in SPRI; if no, Add to record: ‡c <*location>
 					if ($location == 'Not in SPRI') {
+						#!# $bSPRI-NIS logic needs checking
+						$result .= " {$this->doubleDagger}bSPRI-NIS";
 						$result .= " {$this->doubleDagger}zNot in SPRI";
 					} else {
 						$result .= " {$this->doubleDagger}c" . $location;
@@ -6037,7 +6040,9 @@ class muscatConversion extends frontControllerApplication
 				if ($notInSpriLocationIndex = application::preg_match_array ('^Not in SPRI$', $locations, true)) {
 					
 					# Add to record: ‡z Not in SPRI
-					$result .= " {$this->doubleDagger}z" . 'Not in SPRI';
+					#!# $bSPRI-NIS logic needs checking
+					$result .= " {$this->doubleDagger}bSPRI-NIS";
+					$result .= " {$this->doubleDagger}zNot in SPRI";
 				}
 			}
 			
