@@ -5964,6 +5964,7 @@ class muscatConversion extends frontControllerApplication
 			'WWW'										=> 'SPRI-ELE',
 			"Friends' Room"								=> 'SPRI-FRI',
 			"Museum Working Collection"					=> 'SPRI-MUS',
+			'153-158 Wubbold Room'						=> 'SPRI-SER',
 			// SPRI-NIS defined in code below
 		);
 		
