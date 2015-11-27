@@ -5487,6 +5487,20 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro to describe Russian transliteration scheme used, for 546 $a
+	#!# Needs to be made consistent with languages041 macro
+	private function macro_isTransliterated ($language)
+	{
+		# Return string
+		if ($language == 'Russian') {
+			return 'Russian transliteration entered into original records using BGN/PCGN 1947 romanization of Russian; Cyrillic text in MARC 880 field(s) reverse transliterated from this by automated process.';
+		}
+		
+		# No match
+		return false;
+	}
+	
+	
 	# Macro for generating an authors field, e.g. 100
 	private function macro_generateAuthors ($value, $xml, $arg, $authorsFields)
 	{
