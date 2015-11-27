@@ -3405,6 +3405,7 @@ class muscatConversion extends frontControllerApplication
 						   value IN('', '-', '??', 'Not in SPRI', 'Periodical')
 						OR value LIKE '%?%'
 						OR value LIKE '%Cambridge University%'
+						OR value LIKE 'Picture Library Store : Video%'
 						)
 					)	-- 92075 records
 				OR (
