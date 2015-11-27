@@ -261,7 +261,7 @@ class generate245
 		}
 		
 		# Compile the entry
-		$result = $role . ' ' . implode (', ', $subValues);
+		$result = $role . ' ' . application::commaAndListing ($subValues);
 		
 		# Return the value
 		return $result;
