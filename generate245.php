@@ -240,19 +240,28 @@ class generate245
 	
 	
 	# Function to deal with a role and siblings; NB this is also used directly by the generate250b macro
-	public function roleAndSiblings ($path)
+	public function roleAndSiblings ($path, $firstOnly = true)
 	{
-		# Start the result
-		$result = '';
-		
 		# Obtain the role value, or end if none
 		if (!$role = $this->muscatConversion->xPathValue ($this->xml, $path . '/role')) {
 			return false;
 		}
 		
+		# Loop through each *a (author) in this *e/*ee
+		$subValues = array ();
+		$nIndex = 1;	// XPaths are indexed from 1, not 0
+		while ($string = $this->classifyNdField ($path . "/n[$nIndex]")) {
+			$subValues[] = $string;
+			
+			# If first only, as in 245, look at only the first
+			if ($firstOnly) {break;}
+			
+			# Next
+			$nIndex++;
+		}
+		
 		# Compile the entry
-		$result .= $role . ' ';
-		$result .= $this->classifyNdField ($path . '/n');
+		$result = $role . ' ' . implode (', ', $subValues);
 		
 		# Return the value
 		return $result;

@@ -5553,11 +5553,11 @@ class muscatConversion extends frontControllerApplication
 		require_once ('generate245.php');
 		$generate245 = new generate245 ($this, $xml, $authorsFields);
 		
-		# Create the list of subvalues if there is *ee?; e.g. /records/3887/ , /records/45901/ , /records/168490/
+		# Create the list of subvalues if there is *ee?; e.g. /records/3887/ , /records/7017/ (has multiple *ee and multiple *n within this) , /records/45901/ , /records/168490/
 		$subValues = array ();
 		$eeIndex = 1;
 		while ($this->xPathValue ($xml, "//ee[$eeIndex]")) {		// Check if *ee container exists
-			$subValues[] = $generate245->roleAndSiblings ("//ee[$eeIndex]");
+			$subValues[] = $generate245->roleAndSiblings ("//ee[$eeIndex]", false);
 			$eeIndex++;
 		}
 		
