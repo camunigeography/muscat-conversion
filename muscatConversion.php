@@ -5937,7 +5937,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Define the location codes
 		$locationCodes = array (
-			'[0-9]+'									=> 'SPRI-SER',
+			'[0-9]{1,3} ?[A-Z]'							=> 'SPRI-SER',
 			'Periodical'								=> 'SPRI-SER',
 			'Archives'									=> 'SPRI-ARC',
 			'Atlas'										=> 'SPRI-ATL',
