@@ -214,6 +214,7 @@ class generateAuthors
 		}
 		
 		# Check it is *doc/*ag or *art/*ag (i.e. ignore *ser records)
+		# After this point, the only looping is through top-level *a* fields, e.g. /*/ag but not /*/in/ag
 		if ($ser = $this->muscatConversion->xPathValue ($this->mainRecordXml, '/ser')) {
 			return $lines;
 		}
