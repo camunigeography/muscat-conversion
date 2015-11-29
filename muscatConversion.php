@@ -182,6 +182,40 @@ class muscatConversion extends frontControllerApplication
 		'ignore'	=> 'Ignore record',
 	);
 	
+	# Define the location codes
+	private $locationCodes = array (
+		'[0-9]{1,3} ?[A-Z]'							=> 'SPRI-SER',
+		'Periodical'								=> 'SPRI-SER',
+		'Archives'									=> 'SPRI-ARC',
+		'Atlas'										=> 'SPRI-ATL',
+		'Basement'									=> 'SPRI-BMT',
+		"Bibliographers' Office"					=> 'SPRI-BIB',
+		'Cupboard'									=> 'SPRI-CBD',
+		'Folio'										=> 'SPRI-FOL',
+		'Large Atlas'								=> 'SPRI-LAT',
+		"Librarian's Office"						=> 'SPRI-LIO',
+		'Library Office'							=> 'SPRI-LIO',
+		'Map Room'									=> 'SPRI-MAP',
+		'Pam'										=> 'SPRI-PAM',
+		'Picture Library'							=> 'SPRI-PIC',
+		'Reference'									=> 'SPRI-REF',
+		'Russian Gallery'							=> 'SPRI-RUS',
+		'Russian'									=> 'SPRI-RUS',
+		'Shelf'										=> 'SPRI-SHF',
+		'Special Collection'						=> 'SPRI-SPC',
+		'Theses'									=> 'SPRI-THE',
+		'Digital Repository'						=> 'SPRI-ELE',
+		'F:/public/session'							=> 'SPRI-ELE',
+		'F:/public/session/electronic publications'	=> 'SPRI-ELE',
+		'Online'									=> 'SPRI-ELE',
+		'World Wide Web'							=> 'SPRI-ELE',
+		'WWW'										=> 'SPRI-ELE',
+		"Friends' Room"								=> 'SPRI-FRI',
+		"Museum Working Collection"					=> 'SPRI-MUS',
+		'153-158 Wubbold Room'						=> 'SPRI-SER',
+		// SPRI-NIS defined in code below
+	);
+	
 	# Define known *ks values to be ignored
 	private $ignoreKsValues = array ('AGI', 'AGI', 'AGI1', 'AK', 'AK1', 'AM', 'AM/HL', 'BL', 'C', 'C?', 'CC', 'D', 'D?', 'GLEN', 'GLEN', 'HL', 'HS', 'HSO', 'HS1', 'HS (RS)', 'HS(RS)', 'HS/RUS', 'HSSB', 'HSSB1', 'HSSB2', 'HSSB3', 'IW', 'IW', 'IW1', 'IWO', 'JHR', 'JHRprob', 'JHR1', 'JHRO', 'JP', 'JW', 'JW', 'JW1', 'LASTPGA', 'MG', 'MISSING', 'MISSING', 'MPO', 'MPP', 'NOM', 'NOM1', 'NOMO', 'OM', 'PARTIAL RECORD', 'PGA', 'PGA', 'PGA1', 'RF', 'RF', 'RS', 'SS', 'WM', 'Y', );
 	
@@ -5935,40 +5969,6 @@ class muscatConversion extends frontControllerApplication
 		# Start a list of results
 		$resultLines = array ();
 		
-		# Define the location codes
-		$locationCodes = array (
-			'[0-9]{1,3} ?[A-Z]'							=> 'SPRI-SER',
-			'Periodical'								=> 'SPRI-SER',
-			'Archives'									=> 'SPRI-ARC',
-			'Atlas'										=> 'SPRI-ATL',
-			'Basement'									=> 'SPRI-BMT',
-			"Bibliographers' Office"					=> 'SPRI-BIB',
-			'Cupboard'									=> 'SPRI-CBD',
-			'Folio'										=> 'SPRI-FOL',
-			'Large Atlas'								=> 'SPRI-LAT',
-			"Librarian's Office"						=> 'SPRI-LIO',
-			'Library Office'							=> 'SPRI-LIO',
-			'Map Room'									=> 'SPRI-MAP',
-			'Pam'										=> 'SPRI-PAM',
-			'Picture Library'							=> 'SPRI-PIC',
-			'Reference'									=> 'SPRI-REF',
-			'Russian Gallery'							=> 'SPRI-RUS',
-			'Russian'									=> 'SPRI-RUS',
-			'Shelf'										=> 'SPRI-SHF',
-			'Special Collection'						=> 'SPRI-SPC',
-			'Theses'									=> 'SPRI-THE',
-			'Digital Repository'						=> 'SPRI-ELE',
-			'F:/public/session'							=> 'SPRI-ELE',
-			'F:/public/session/electronic publications'	=> 'SPRI-ELE',
-			'Online'									=> 'SPRI-ELE',
-			'World Wide Web'							=> 'SPRI-ELE',
-			'WWW'										=> 'SPRI-ELE',
-			"Friends' Room"								=> 'SPRI-FRI',
-			"Museum Working Collection"					=> 'SPRI-MUS',
-			'153-158 Wubbold Room'						=> 'SPRI-SER',
-			// SPRI-NIS defined in code below
-		);
-		
 		# Get the locations
 		$locations = $this->xPathValues ($xml, '//loc[%i]/location');
 		
@@ -6010,7 +6010,7 @@ class muscatConversion extends frontControllerApplication
 				# This *location will be referred to as *location_original; does *location_original appear in the location codes list?
 				$locationStartsWith = false;
 				$locationCode = false;
-				foreach ($locationCodes as $startsWith => $code) {
+				foreach ($this->locationCodes as $startsWith => $code) {
 					if (preg_match ("|^{$startsWith}|", $location)) {
 						$locationStartsWith = $startsWith;
 						$locationCode = $code;
@@ -6809,7 +6809,8 @@ class muscatConversion extends frontControllerApplication
 				FROM catalogue_processed
 				WHERE
 					    field = 'location'
-					AND value NOT REGEXP '(^Periodical|^Basement|^Pam|^Shelf|^153-158 Wubbold Room$|^Archive|^Atlas|^Cupboard|^Folio|^Large Atlas|^Library Office|^Map Room|^Picture Library|^Russian|^Special Collection|^Theses|^Shelved with|^[0-9]|^Reference|^Bibliographers\' Office|^Librarian\'s Office|^Friends\' Room|^International Glaciological Society|^IGS-)'
+					AND value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
+					AND value NOT REGEXP '^(IGS|International Glaciological Society|Shelved with)'
 					AND value != '??'	/* Not done in the regexp to avoid possible backlash-related errors */
 				GROUP BY recordId
 			) AS rawdata_combined
@@ -6836,7 +6837,9 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				    fieldslist NOT REGEXP '@location.*@location@'
 				AND field = 'location'
-				AND value NOT REGEXP '(^Not in SPRI$|^Periodical|^Basement|^Pam|^Shelf|^153-158 Wubbold Room$|^Archive|^Atlas|^Cupboard|^Folio|^Large Atlas|^Library Office|^Map Room|^Picture Library|^Russian|^Special Collection|^Theses|^Shelved with|^[0-9]|^Reference|^Bibliographers\' Office|^Librarian\'s Office|^Friends\' Room|^International Glaciological Society|^IGS-)'
+				AND value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
+				AND value NOT REGEXP '^(IGS|International Glaciological Society|Shelved with)'
+				AND value != 'Not in SPRI'
 				AND value != '??'	/* Not done in the regexp to avoid possible backlash-related errors */
 		";
 		
@@ -8417,7 +8420,8 @@ class muscatConversion extends frontControllerApplication
 			FROM catalogue_processed
 			WHERE
 				    field = 'location'
-				AND value NOT REGEXP \"^([0-9]{1,3} ?[A-Z]|Archives|Atlas|Basement|Bibliographers' Office|Cupboard|Folio|Large Atlas|Librarian's Office|Library Office|Map Room|Pam|Picture Library Office|Picture Library Store|Reference|Russian|Shelf|Special Collection|Theses|IGS|International Glaciological Society|Shelved with|Not in SPRI|Periodical)\"
+				AND value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
+				AND value NOT REGEXP '^(IGS|International Glaciological Society|Shelved with|Not in SPRI)'
 			GROUP BY value
 			ORDER BY title
 		";
