@@ -4993,8 +4993,7 @@ class muscatConversion extends frontControllerApplication
 		# Obtain the record type
 		$recordType = $this->recordType ($xml);
 		
-		# End if no value
-		#!# Need to check whether this should end the whole routine
+		# End if no value; in this scenario, no $c should be created, i.e. the whole routine should be ended
 		if (!strlen ($value)) {
 			return ($recordType == '/ser' ? 'v.' : ' 1 volume (unpaged)');	// e.g. /records/1000/ , /records/1332/
 		}
