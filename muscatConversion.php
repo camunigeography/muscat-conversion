@@ -3436,13 +3436,14 @@ class muscatConversion extends frontControllerApplication
 					)	-- 36 records
 				OR (
 					    field = 'location'
+					AND value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
 					AND (
 						   value IN('', '-', '??', 'Not in SPRI', 'Periodical')
 						OR value LIKE '%?%'
 						OR value LIKE '%Cambridge University%'
 						OR value LIKE 'Picture Library Store : Video%'
 						)
-					)	-- 92075 records
+					)	-- 10006 records
 				OR (
 					    field IN('note', 'local', 'priv')
 					AND (
