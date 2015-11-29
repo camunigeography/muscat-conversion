@@ -75,6 +75,7 @@ class muscatConversion extends frontControllerApplication
 		'541ccombinations2' => 'records with combinations of multiple *fund/*kb/*sref values (for 541c), excluding sref+fund',
 		'serlocationlocation' => '*ser records with two or more *locations',
 		'unrecognisedks' => 'records with unrecognised *ks values',
+		'malformedks' => 'records with malformed *ks values',
 		'offprints' => 'records that contain photocopy/offprint in *note/*local/*priv',
 		'duplicatedlocations' => 'records with more than one identical location',
 		'subscriptssuperscripts' => 'records still containing superscript brackets',
@@ -5710,7 +5711,7 @@ class muscatConversion extends frontControllerApplication
 		# Ensure the value is in the table
 		if (!isSet ($this->udcTranslations[$value])) {
 			$recordId = $this->xPathValue ($xml, '//q0');
-			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> 650 UDC field {$value} is not a valid UDC code.</p>";
+			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> 650 UDC field '<em>{$value}</em>' is not a valid UDC code.</p>";
 			return false;
 		}
 		
@@ -7579,6 +7580,28 @@ class muscatConversion extends frontControllerApplication
 				    value NOT IN ('" . implode ("', '", $this->ignoreKsValues) . "')
 				AND ks IS NULL
 			GROUP BY recordId
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with malformed *ks values
+	private function report_malformedks ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'malformedks' AS report,
+				recordId
+			FROM `catalogue_processed`
+			WHERE
+				    field = 'ks'
+				AND (
+					   (value LIKE '%[%' AND value NOT REGEXP '^(.+)\\[(.+)\\]$')
+					OR value = ''
+				)
 		";
 		
 		# Return the query
