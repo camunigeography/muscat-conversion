@@ -33,6 +33,21 @@
 					|---> Value can mutate into 711 then Add to record; go to next in loop
 */
 
+/* Key checks:
+
+	- the first *art/*ag/*a field should map to the 1XX field			e.g. /records/7195/
+	- any further *art/*ag/*a fields should map to 7XX fields			e.g. /records/8249/
+	- any *art/*ag/*al fields should map to 7XX fields					e.g. /records/1963/
+	- any *art/*e/*n fields should map to 7XX fields					e.g. /records/5126/
+	
+	However...
+	
+	- any *art/*in/*ag/*a fields should NOT map to a 1XX or 7XX field	e.g. /records/1902/
+	- any *art/*in/*ag/*al fields should NOT map to a 7XX field			e.g. /records/3427/
+	- any *art/*in/*e/*n fields should NOT map to a 7XX field			[No cases]
+
+*/
+
 class generateAuthors
 {
 	# Class properties
