@@ -5217,11 +5217,11 @@ class muscatConversion extends frontControllerApplication
 		$languages = array_unique ($languages);
 		
 		# Obtain any note containing "translation from [language(s)]"
+		#!# Should *abs and *role also be considered?; see results from quick query: SELECT * FROM `catalogue_processed` WHERE `value` LIKE '%translated from original%'
 		$notes = $this->xPathValues ($xml, '(//note)[%i]', false);
-		$nonLanguageWords = array ('article');
+		$nonLanguageWords = array ('article', 'published', 'manuscript');	// e.g. /records/32279/ , /records/175067/ , /records/196791/
 		$translationNotes = array ();
 		foreach ($notes as $note) {
-			#!# Need to check for further cases of translated from ... which do not match this pattern, has more than one language at end, or results in invalid languages
 			# Perform a match; this is not using a starting at (^) match e.g. /records/190904/ which starts "English translation from Russian"
 			if (preg_match ('/[Tt]ranslat(?:ion|ed) (?:from|reprint of)(?: original| the|) ([a-zA-Z]+)/i', $note, $matches)) {	// Deliberately not using strip_tags, as that would pick up Translation from <em>publicationname</em> which would not be wanted anyway
 				// application::dumpData ($matches);
