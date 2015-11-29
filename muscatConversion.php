@@ -7027,9 +7027,17 @@ class muscatConversion extends frontControllerApplication
 				id AS recordId
 				FROM catalogue_xml
 				WHERE
-					    EXTRACTVALUE(xml, '//acq/date') REGEXP '.+'
-					AND EXTRACTVALUE(xml, '//acq/date') NOT REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Require YYYY/MM/DD
-					AND EXTRACTVALUE(xml, '//acq/date') NOT REGEXP '^[0-9]{4}$'						-- But also permit year only
+					(
+						    EXTRACTVALUE(xml, '//acq[1]/date') REGEXP '.+'
+						AND EXTRACTVALUE(xml, '//acq[1]/date') NOT REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Require YYYY/MM/DD
+						AND EXTRACTVALUE(xml, '//acq[1]/date') NOT REGEXP '^[0-9]{4}$'						-- But also permit year only
+					)
+					OR
+					(
+						    EXTRACTVALUE(xml, '//acq[2]/date') REGEXP '.+'
+						AND EXTRACTVALUE(xml, '//acq[2]/date') NOT REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Require YYYY/MM/DD
+						AND EXTRACTVALUE(xml, '//acq[2]/date') NOT REGEXP '^[0-9]{4}$'						-- But also permit year only
+					)
 		";
 		
 		# Return the query
