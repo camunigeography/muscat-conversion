@@ -4947,7 +4947,7 @@ class muscatConversion extends frontControllerApplication
 				continue;
 			}
 			
-			# Preserve square brackets, but remove round brackets if present. ; e.g. /records/2027/ , /records/5942/
+			# Preserve square brackets, but remove round brackets if present. ; e.g. /records/2027/ , /records/5942/ , /records/5943/
 			if (preg_match ('/^\((.+)\)$/', $plValue, $matches)) {
 				$plValues[$index] = $matches[1];
 				continue;
@@ -5875,6 +5875,8 @@ class muscatConversion extends frontControllerApplication
 		$lookupTable = $this->loadLookupTable ($table, $fallbackKey, $caseSensitiveComparison, $stripBrackets);
 		
 		# If required, strip surrounding square/round brackets if present, e.g. "[Frankfurt]" => "Frankfurt" or "(Frankfurt)" => "Frankfurt"
+		# Note that '(' is an odd Muscat convention, and '[' is the MARC convention
+		# Note: In the actual data for 260, preserve square brackets, but remove round brackets if present
 		$valueOriginal = $value;	// Cache
 		if ($stripBrackets) {
 			if (preg_match ('/^[\[|\(](.+)[\]|\)]$/', $value, $matches)) {
