@@ -5059,6 +5059,9 @@ class muscatConversion extends frontControllerApplication
 			$result .= " +{$this->doubleDagger}e" . trim ($e);
 		}
 		
+		# Ensure 300 ends in a dot or closing bracket
+		$result = $this->macro_dotEnd (trim ($result), NULL, '.)]');
+		
 		# Return the result
 		return $result;
 	}
