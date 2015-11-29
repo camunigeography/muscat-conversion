@@ -4979,64 +4979,84 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Macro to generate the 300 field (Physical Description); 300 is a Minimum standard field; see: https://www.loc.gov/marc/bibliographic/bd300.html
-	#!# The spec for this section needs tightening
+	# Note: the original data is not normalised, and the spec does not account for all cases, so the implementation here is based also on observation of various records and on examples in the MARC spec, to aim for something that is 'good enough' and similar enough to the MARC examples
+	# At its most basic level, in "16p., ill.", $a is the 16 pages, $b is things after
 	private function macro_generate300 ($value_ignored, $xml)
 	{
 		# Start a result
 		$result = '';
 		
 		# Obtain *p or *pt
-		$p = $this->xPathValue ($xml, '//p');
+		$pValues = $this->xPathValues ($xml, '(//p)[%i]', false);	// Multiple *p, e.g. /records/6002/ , /records/15711/
+		$p = ($pValues ? implode ('; ', $pValues) : '');
 		$pt = $this->xPathValue ($xml, '//pt');
 		$value = (strlen ($p) ? $p : $pt);		// Confirmed there are no records with both *p and *pt
 		
 		# Obtain the record type
 		$recordType = $this->recordType ($xml);
 		
-		# End if no value; in this scenario, no $c should be created, i.e. the whole routine should be ended
-		if (!strlen ($value)) {
-			return ($recordType == '/ser' ? 'v.' : ' 1 volume (unpaged)');	// e.g. /records/1000/ , /records/1332/
+		# Firstly, break off any final + section, for use in $e below; e.g. /records/67235/
+		$e = false;
+		if (substr_count ($value, '+')) {
+			$plusMatches = explode ('+', $value, 2);
+			$e = trim ($plusMatches[1]);
+			$value = trim ($plusMatches[0]);	// Override string to strip out the + section
 		}
 		
-		# Split by colon, retaining any colon in the first part
-		preg_match ('/^([^:]+:?)(.*)$/', trim ($value), $pMatches);
+		# Next split by the keyword which acts as separator between $a and an optional $b
+		$a = trim ($value);
+		$b = false;
+		$splitWords = array ('ill', 'diag', 'map', 'table', 'graph', 'port', 'col');
+		foreach ($splitWords as $word) {
+			if (substr_count ($value, $word)) {
+				$split = explode ($word, $value, 2);	// Explode seems more reliable than preg_split, because it is difficult to get a good regexp that allows multiple delimeters, multiple presence of delimeter, and optional trailing string
+				$a = trim ($split[0]);
+				$b = $word . $split[1];
+				break;
+			}
+		}
 		
 		# $a (R) (Extent, pagination): If record is *doc with any or no *form, or *art with *form CD, CD-ROM, DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording: "(*v), (*p or *pt)" [all text up to and including ':']
 		# $a (R) (Extent, pagination): If record is *art with no *form or *form other than listed above: 'p. '*pt [number range after ':' and before ',']
-		# A check in the data has established there are no records with more than one *p
 		if (($recordType == '/doc') || (substr_count ($recordType, '/art') && in_array ($this->form, array ('CD', 'CD-ROM', 'DVD', 'DVD-ROM', 'Sound Cassette', 'Sound Disc' or 'Videorecording')))) {
 			$v = $this->xPathValue ($xml, '//v');
-			if (strlen ($v)) {$result .= "({$v}), ";}
-			$result .= $pMatches[1];
+			if (strlen ($v)) {
+				$result .= $v . ($a ? ' ' : ($b ? ',' : ''));	// e.g. /records/20704/ , /records/37420/ , /records/175872/ , /records/8988/
+			}
 		} else if (substr_count ($recordType, '/art')) {		// Not in the list of *form above
-			#!# What happens to "7" in /records/152332/ ?
-			preg_match ('/^([^,]+),?(.*)$/', trim ($pMatches[2]), $pAfterColonBeforeCommaMatches);
-			$result .= 'p. ' . $pAfterColonBeforeCommaMatches[1];
+			// $result .= 'p. ';	// Spec unclear - subsequent instruction was "/records/152332/ still contains a spurious 'p' in the $a - please ensure this is not added to the record"
 		}
+		$result .= $a;
+		
+		# Add space between the number and the 'p.' or 'v.' ; e.g. /records/49133/ for p. ; NB No actual cases for v. in the data
+		$result = preg_replace ('/([0-9]+)([pv]\.)/', '\1 \2', $result);
 		
 		# $b (NR) (Other physical details): *p [all text after ':' and before, but not including, '+'] or *pt [all text after the ',' - i.e. after the number range following the ':']
-		if (strlen ($p)) {
-			if (substr_count ($p, ':')) {
-				preg_match ('/^([^+]*)\+?(.*)$/', trim ($pMatches[2]), $pAfterColonBeforePlusMatches);
-				$result .= "{$this->doubleDagger}b" . $pAfterColonBeforePlusMatches[1];
-			}
-		} else if (strlen ($pt)) {
-			if (substr_count ($pt, ':')) {
-				preg_match ('/^([^,]+),?(.*)$/', trim ($pMatches[2]), $pAfterColonBeforeCommaMatches);
-				$result .= "{$this->doubleDagger}b" . $pAfterColonBeforeCommaMatches[2];
-			}
+		if (strlen ($b)) {
+			
+			# Normalise comma/colon at end of $a; e.g. /records/9529/ , /records/152326/
+			$result = trim ($result);
+			$result = preg_replace ('/(.+)[,:]$/', '\1', $result);
+			$result = trim ($result);
+			
+			# Add $b
+			$result .= " :{$this->doubleDagger}b" . trim ($b);	// Trim whitespace at end; there will be none at start due to explicit delimeter
 		}
 		
-		# $c (R) (Dimensions): *size ; e.g. multiple in /records/4329/
+		# End if no value; in this scenario, no $c should be created, i.e. the whole routine should be ended
+		if (!strlen ($result) || $value == 'unpaged') {	 // 'unpaged' at /records/1248/
+			$result = ($recordType == '/ser' ? 'v.' : '1 volume (unpaged)');	// e.g. /records/1000/ , /records/1332/
+		}
+		
+		# $c (R) (Dimensions): *size ; e.g. /records/1103/ , multiple in /records/4329/
 		$size = $this->xPathValues ($xml, '(//size)[%i]', false);
 		if ($size) {
-			$result .= "{$this->doubleDagger}c" . implode ("{$this->doubleDagger}c", $size);
+			$result .= " ;{$this->doubleDagger}c" . implode (" ;{$this->doubleDagger}c", $size);
 		}
 		
-		# $e (NR) (Accompanying material): If included, '+' appears before ‡e; ‡e is then followed by *p [all text after '+']
-		if (substr_count ($p, '+')) {
-			$pPlusMatches = explode ('+', $p, 2);	// Results in 0,1
-			$result .= " +{$this->doubleDagger}e" . trim ($pPlusMatches[1]);
+		# $e (NR) (Accompanying material): If included, '+' appears before ‡e; ‡e is then followed by *p [all text after '+']; e.g. /records/152326/ , /records/67235/
+		if ($e) {
+			$result .= " +{$this->doubleDagger}e" . trim ($e);
 		}
 		
 		# Return the result
