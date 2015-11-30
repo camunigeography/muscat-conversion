@@ -3023,30 +3023,26 @@ class muscatConversion extends frontControllerApplication
 		# Get the data
 		$data = $this->databaseConnection->getPairs ($query, true);
 		
-		# Capture and strip off English parts to protect them, for re-insertion later
-		$englishParts = array ();
-		foreach ($data as $id => $string) {
-			
-			# Extract any English translation already present
-			$englishPart = false;
-			if (preg_match ('/^(.+) \[(.+)\]$/', trim ($string), $matches)) {
-				
-				# Rewrite the original
-				$data[$id] = $matches[1];
-				
-				# Register the English segment
-				$englishParts[$id] = $matches[2];
-			}
-		}
-		
 		# Compile the strings to a TSV string, tabs never appearing in the original data so safe to use as the separator
 		$tsv = '';
 		foreach ($data as $id => $string) {
 			$tsv .= $id . "\t" . $string . "\n";
 		}
 		
+		# Protect trailing English parts, for reversion afterwards, by replacing with strings that will not be affected by any transliteration operation
+		preg_match_all ('/^.+( \[.+\])$/m', $tsv, $matches, PREG_SET_ORDER);
+		$protectedParts = array ();
+		foreach ($matches as $index => $match) {
+			$key = " <||{$index}||> ";	// Pattern likely not to be present in the data
+			$protectedParts[$key] = $match[1];
+		}
+		$tsv = strtr ($tsv, array_flip ($protectedParts));
+		
 		# Reverse-transliterate the whole file
 		$tsvTransliteratedRaw = $this->reverseTransliterateString ($tsv, $language);
+		
+		# Re-insert the protected strings
+		$tsvTransliteratedRaw = strtr ($tsvTransliteratedRaw, $protectedParts);
 		
 		# Convert back to key-value pairs
 		require_once ('csv.php');
@@ -3054,13 +3050,6 @@ class muscatConversion extends frontControllerApplication
 		$dataTransliterated = csv::tsvToArray ($tsvTransliteratedRaw, true);
 		foreach ($dataTransliterated as $id => $subArray) {
 			$dataTransliterated[$id] = $subArray['string'];	// Flatten the array
-		}
-		
-		# Re-insert the English suffixes
-		foreach ($dataTransliterated as $id => $string) {
-			if (isSet ($englishParts[$id])) {
-				$dataTransliterated[$id] .= ' [' . $englishParts[$id] . ']';
-			}
 		}
 		
 		# Compile the inserts
