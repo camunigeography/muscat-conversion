@@ -3029,20 +3029,8 @@ class muscatConversion extends frontControllerApplication
 			$tsv .= $id . "\t" . $string . "\n";
 		}
 		
-		# Protect trailing English parts, for reversion afterwards, by replacing with strings that will not be affected by any transliteration operation
-		preg_match_all ('/^.+( \[.+\])$/m', $tsv, $matches, PREG_SET_ORDER);
-		$protectedParts = array ();
-		foreach ($matches as $index => $match) {
-			$key = " <||{$index}||> ";	// Pattern likely not to be present in the data
-			$protectedParts[$key] = $match[1];
-		}
-		$tsv = strtr ($tsv, array_flip ($protectedParts));
-		
 		# Reverse-transliterate the whole file
 		$tsvTransliteratedRaw = $this->reverseTransliterateString ($tsv, $language);
-		
-		# Re-insert the protected strings
-		$tsvTransliteratedRaw = strtr ($tsvTransliteratedRaw, $protectedParts);
 		
 		# Convert back to key-value pairs
 		require_once ('csv.php');
@@ -3109,12 +3097,14 @@ class muscatConversion extends frontControllerApplication
 		);
 		$string = strtr ($string, $tags);
 		
-		# Extract any English translation already present
-		$englishPart = false;
-		if (preg_match ('/^(.+) \[(.+)\]$/', trim ($string), $matches)) {
-			$string = $matches[1];
-			$englishPart = $matches[2];
+		# Protect trailing English parts, for reversion afterwards, by replacing with strings that will not be affected by any transliteration operation
+		preg_match_all ('/^.+( \[.+\])$/m', $string, $matches, PREG_SET_ORDER);
+		$protectedParts = array ();
+		foreach ($matches as $index => $match) {
+			$key = " <||{$index}||> ";	// Pattern likely not to be present in the data
+			$protectedParts[$key] = $match[1];
 		}
+		$string = strtr ($string, array_flip ($protectedParts));
 		
 		/* Note:
 		 * Ideally we would use:
@@ -3133,10 +3123,8 @@ class muscatConversion extends frontControllerApplication
 		$command = "{$this->cpanDir}/bin/translit -trans '{$this->supportedReverseTransliterationLanguages[$language]}'";	//  --reverse
 		$reverseTransliteration = application::createProcess ($command, $string);
 		
-		# Reinstate English part if required
-		if ($englishPart) {
-			$reverseTransliteration .= ' [' . $englishPart . ']';
-		}
+		# Reinstate the protected strings
+		$reverseTransliteration = strtr ($reverseTransliteration, $protectedParts);
 		
 		# Replace HTML tags
 		$reverseTransliteration = strtr ($reverseTransliteration, array_flip ($tags));
