@@ -3086,25 +3086,8 @@ class muscatConversion extends frontControllerApplication
 		# Ensure language is supported
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return $string;}
 		
-		# Protect HTML tags with strings that will not be affected by any transliteration operation
-		$tags = array (
-			'<em>'		=> '<^^^^^^^^^^>',
-			'</em>'		=> '</^^^^^^^^^^>',
-			'<sub>'		=> '<@@@@@@@@@@>',
-			'</sub>'	=> '</@@@@@@@@@@>',
-			'<sup>'		=> '<%%%%%%%%%%>',
-			'</sup>'	=> '</%%%%%%%%%%>',
-		);
-		$string = strtr ($string, $tags);
-		
-		# Protect trailing English parts, for reversion afterwards, by replacing with strings that will not be affected by any transliteration operation
-		preg_match_all ('/(\[.+\])/U', $string, $matches, PREG_SET_ORDER);	// Ungreedy match; allows protection for e.g. /records/76108/ with multiple blocks within string
-		$protectedParts = array ();
-		foreach ($matches as $index => $match) {
-			$key = " <||{$index}||> ";	// Pattern likely not to be present in the data
-			$protectedParts[$key] = $match[1];
-		}
-		$string = strtr ($string, array_flip ($protectedParts));
+		# Protect string portions (e.g. English language, HTML portions) prior to transliteration
+		$string = $this->protectSubstrings ($string, $protectedParts);
 		
 		/* Note:
 		 * Ideally we would use:
@@ -3123,16 +3106,47 @@ class muscatConversion extends frontControllerApplication
 		$command = "{$this->cpanDir}/bin/translit -trans '{$this->supportedReverseTransliterationLanguages[$language]}'";	//  --reverse
 		$reverseTransliteration = application::createProcess ($command, $string);
 		
-		# Reinstate the protected strings
+		# Reinstate protected substrings
 		$reverseTransliteration = strtr ($reverseTransliteration, $protectedParts);
-		
-		# Replace HTML tags
-		$reverseTransliteration = strtr ($reverseTransliteration, array_flip ($tags));
 		
 		# Return the transliteration
 		return $reverseTransliteration;
 	}
 	
+	
+	# Function to protect string portions (e.g. English language, HTML portions) prior to transliteration; can be undone with a simple strtr()
+	private function protectSubstrings ($string, &$protectedParts)
+	{
+		# Define a numbered token pattern consisting of a safe string not likely to be present in the data and which will not be affected by any transliteration operation
+		$pattern = " <||%i||> ";	// %i represents an index that will be generated
+		
+		# Start an array of replacements
+		$replacements = array ();
+		
+		# Protect parts in brackets, which are English parts not for transliteration
+		preg_match_all ('/(\[.+\])/U', $string, $bracketMatches);	// Ungreedy match; allows protection for e.g. /records/76108/ with multiple blocks within string
+		$replacements = array_merge ($replacements, $bracketMatches[1]);
+		
+		# Add in HTML tags for protection; in theory all <em> and </em> tags will have been swallowed already
+		$tags = array ('<em>', '</em>', '<sub>', '</sub>', '<sup>', '</sup>', );
+		foreach ($tags as $tag) {
+			$replacements[] = $tag;
+		}
+		
+		# Create a token for each protected part
+		$protectedParts = array ();
+		$i = 0;
+		foreach ($replacements as $replacement) {
+			$key = str_replace ('%i', $i++, $pattern);
+			$protectedParts[$key] = $replacement;
+		}
+		
+		# Perform protection, by replacing with the numbered token
+		$string = strtr ($string, array_flip ($protectedParts));
+		
+		# Return the protected string
+		return $string;
+	}
 	
 	
 	# Function to create XML records
