@@ -8201,7 +8201,7 @@ class muscatConversion extends frontControllerApplication
 		//$this->transliterationsCheckingTable ();
 		
 		# Add a control to enable spell-checking
-		$spellcheckRecords = $this->spellcheckForm (100, $html);
+		$spellcheckRecords = $this->spellcheckForm (500, $html);
 		
 		# Add link to editing the definition
 		$html .= "\n<p>You can <a href=\"{$this->baseUrl}/transliterator.html\">edit the reverse-transliteration definition</a>.</p>";
