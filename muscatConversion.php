@@ -7650,7 +7650,7 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				    field = 'ks'
 				AND (
-					   (value LIKE '%[%' AND value NOT REGEXP '^(.+)\\[(.+)\\]$')
+					   (value LIKE '%[%' AND value NOT REGEXP '^(.+)\\\\[(.+)\\\\]$')
 					OR value = ''
 				)
 		";
