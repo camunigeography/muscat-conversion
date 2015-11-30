@@ -3127,6 +3127,10 @@ class muscatConversion extends frontControllerApplication
 		preg_match_all ('/(\[.+\])/U', $string, $bracketMatches);	// Ungreedy match; allows protection for e.g. /records/76108/ with multiple blocks within string
 		$replacements = array_merge ($replacements, $bracketMatches[1]);
 		
+		# Protect parts in italics, which are Latin names that a publisher would not translate
+		preg_match_all ('|(<em>.+</em>)|uU', $string, $italicisedNameMatches);		// Uses /U ungreedy, to avoid "a <em>b</em> c <em>d</em> e" becoming "a  e"
+		$replacements = array_merge ($replacements, $italicisedNameMatches[1]);
+		
 		# Add in HTML tags for protection; in theory all <em> and </em> tags will have been swallowed already
 		$tags = array ('<em>', '</em>', '<sub>', '</sub>', '<sup>', '</sup>', );
 		foreach ($tags as $tag) {
