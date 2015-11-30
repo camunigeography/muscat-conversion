@@ -89,7 +89,7 @@ class generate008
 			
 			# For continuing serials, e.g. ends with "1990-", there is no end date
 			# Example: /records/1036/
-			if (preg_match ('/-$/', $yearString)) {
+			if ($hasYear && preg_match ('/-$/', $yearString)) {		// $hasYear check to catch /records/177897/ which has "undated-" and /records/184400/ which has "-"; will not cause problems for e.g. /records/57312/ which has "1977?-" or /records/19832/ which has "1945-73, 89-" - they will get the first four-digit year as intended
 				return 'u' . $yearMatches[1] . 'uuuu';
 			}
 			
