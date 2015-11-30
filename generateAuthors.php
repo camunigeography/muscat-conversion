@@ -352,7 +352,7 @@ class generateAuthors
 		}
 		
 		# Move $u block to just before $e, leaving all others in place
-		$line = preg_replace ("/^(.*)(, {$this->doubleDagger}e.*)(, {$this->doubleDagger}u[^{$this->doubleDagger}]+)(.*\.)$/u", '\1\3\2\4', $line);
+		$line = preg_replace ("/^(.*)(,{$this->doubleDagger}e.*)(, {$this->doubleDagger}u[^{$this->doubleDagger}]+)(.*\.)$/u", '\1\3\2\4', $line);
 		
 		# Return the result
 		return $line;
@@ -976,7 +976,7 @@ class generateAuthors
 		if ($replacements) {
 			$replacements = array_unique ($replacements);
 			foreach ($replacements as $replacement) {
-				$value .= ", {$this->doubleDagger}e{$replacement}";
+				$value .= ",{$this->doubleDagger}e{$replacement}";
 			}
 		}
 		
