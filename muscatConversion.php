@@ -2997,8 +2997,8 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($sql);
 		$sql = "CREATE TABLE IF NOT EXISTS `reversetransliterations` (
 			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Record ID',
-			`title` varchar(255) COLLATE utf8_unicode_ci NULL COMMENT 'Reverse-transliterated title',
-			`title_latin` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title (English), from original data',
+			`title` TEXT COLLATE utf8_unicode_ci NULL COMMENT 'Reverse-transliterated title',
+			`title_latin` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title (English), from original data',
 			PRIMARY KEY (`id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of reverse transliterations'
 		;";
