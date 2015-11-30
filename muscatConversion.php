@@ -635,6 +635,9 @@ class muscatConversion extends frontControllerApplication
 			return true;
 		}
 		
+		# Enable jQuery, needed for previous/next keyboard navigation, and tabbing
+		$html .= "\n\n\n" . '<script type="text/javascript" src="//code.jquery.com/jquery.min.js"></script>';
+		
 		# Add previous/next links
 		$previousNextLinks = $this->previousNextLinks ($id);
 		$html .= "\n<p>Record #<strong>{$id}</strong>:</p>";
@@ -665,7 +668,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Load into tabs and render
 		require_once ('jquery.php');
-		$jQuery = new jQuery ();
+		$jQuery = new jQuery (false, false, false, $jQueryLoaded = true);
 		$jQuery->tabs ($labels, $tabs);
 		$html .= $jQuery->getHtml ();
 		
@@ -691,12 +694,32 @@ class muscatConversion extends frontControllerApplication
 		
 		# Create a list
 		$list = array ();
-		$list[] = ($data['previous'] ? '<a href="' . "{$this->baseUrl}/records/{$data['previous']}/" . '"><img src="/images/icons/control_rewind_blue.png" alt="Previous record" border="0" /></a>' : '');
+		$list[] = ($data['previous'] ? '<a id="previous" href="' . "{$this->baseUrl}/records/{$data['previous']}/" . '"><img src="/images/icons/control_rewind_blue.png" alt="Previous record" border="0" /></a>' : '');
 		$list[] = '#' . $id;
-		$list[] = ($data['next'] ? '<a href="' . "{$this->baseUrl}/records/{$data['next']}/" . '"><img src="/images/icons/control_fastforward_blue.png" alt="Next record" border="0" /></a>' : '');
+		$list[] = ($data['next'] ? '<a id="next" href="' . "{$this->baseUrl}/records/{$data['next']}/" . '"><img src="/images/icons/control_fastforward_blue.png" alt="Next record" border="0" /></a>' : '');
 		
 		# Compile the HTML
 		$html = application::htmlUl ($list, 0, 'previousnextlinks');
+		
+		# Add keyboard navigation; see: http://stackoverflow.com/questions/12682157/
+		$html .= '
+			<script language="javascript" type="text/javascript">
+				$(function() {
+					var keymap = {};
+					keymap[ 37 ] = "#previous";		// Left
+					keymap[ 39 ] = "#next";			// Right
+					
+					$( document ).on( "keyup", function(event) {
+						var href;
+						var selector = keymap[ event.which ];
+						// if the key pressed was in our map, check for the href
+						if ( selector ) {
+							window.location = $( selector ).attr( "href" );
+						}
+					});
+				});
+			</script>
+		';
 		
 		# Return the HTML
 		return $html;
