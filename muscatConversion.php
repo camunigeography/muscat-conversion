@@ -5690,19 +5690,10 @@ class muscatConversion extends frontControllerApplication
 			$volumeNumber = NULL;
 		}
 		
-		# If there is a *vno, use that in preference
+		# If there is a *vno, add that
 		if ($xml) {		// I.e. if running in MARC generation context, rather than for report generation
 			if ($vno = $this->xPathValue ($xml, '//vno')) {
-				
-				# In the event of an overriden volume number, i.e. both *ts and *vno have a volume, report this for monitoring purposes; this is not considered an error under the current spec
-				#!# Example is /records/1896/
-				if ($volumeNumber) {
-					$recordId = $this->xPathValue ($xml, '//q0');
-					echo "\n<p class=\"warning\"><strong>Note: in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> an explicit *vno is overriding a generated volume number that has part of the title.</p>";
-				}
-				
-				# Register the value
-				$volumeNumber = $vno;
+				$volumeNumber = ($volumeNumber ? $volumeNumber . ', ' : '') . $vno;		// If already present, e.g. /records/1896/ , append to existing, separated by comma; records with no number in the *ts like /records/101358/ will appear as normal
 			}
 		}
 		
