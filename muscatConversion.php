@@ -5138,8 +5138,6 @@ class muscatConversion extends frontControllerApplication
 			$language = $this->xPathValue ($xml, $xPath);
 		}
 		
-		#!# Note /records/2071/ has "546    ?aFrenchFrench"
-		
 		# If no language specified, choose 'English'
 		if (!strlen ($language)) {$language = 'English';}
 		
