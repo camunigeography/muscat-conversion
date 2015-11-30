@@ -2128,9 +2128,9 @@ class muscatConversion extends frontControllerApplication
 			#   Dependencies: catalogue_processed
 			$this->massDataFixes ();
 			
-			# Perform reverse-transliteration
+			# Create the transliteration table for checking purposes; actual transliteration of records is done on-the-fly
 			#   Dependencies: catalogue_processed
-			$this->doReverseTransliteration ();
+			$this->transliterationsCheckingTable ();
 			
 			# Finish character processing stage
 			$html .= "\n<p>{$this->tick} The character processing has been done.</p>";
@@ -2990,7 +2990,7 @@ class muscatConversion extends frontControllerApplication
 	
 	# Function to run reverse-transliteration; takes about 3 seconds to run
 	#   Depencies: catalogue_processed
-	private function doReverseTransliteration ()
+	private function transliterationsCheckingTable ()
 	{
 		# Create the table
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.reversetransliterations;";
@@ -3014,7 +3014,7 @@ class muscatConversion extends frontControllerApplication
 				value
 			FROM catalogue_processed
 			WHERE
-				    field = 'tc'
+				    field = 'tc'	/* The *t field is what is actually used in actual records, but for comparison purposes (the sole reason for this table), it is useful to the English portions */
 				AND recordId IN (
 					SELECT recordId FROM catalogue_processed WHERE field = 'lang' AND value = 'Russian'
 				)
@@ -3030,7 +3030,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Reverse-transliterate the whole file
-		$tsvTransliteratedRaw = $this->reverseTransliterateString ($tsv, $language);
+		$tsvTransliteratedRaw = $this->transliterate ($tsv, $language);
 		
 		# Convert back to key-value pairs
 		require_once ('csv.php');
@@ -3081,7 +3081,7 @@ class muscatConversion extends frontControllerApplication
 		# Example use:
 		echo "hello" | translit -r -t "BGN PCGN 1947"
 	*/
-	private function reverseTransliterateString ($string, $language)
+	private function transliterate ($string, $language)
 	{
 		# Ensure language is supported
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return $string;}
@@ -4615,7 +4615,7 @@ class muscatConversion extends frontControllerApplication
 			}
 			
 			# Perform reverse-transliteration to generate the reversetransliterations report
-			$this->doReverseTransliteration ();
+			$this->transliterationsCheckingTable ();
 			
 			# Set a flash message
 			$function = __FUNCTION__;
@@ -5361,7 +5361,7 @@ class muscatConversion extends frontControllerApplication
 		if (!$language) {return false;}
 		
 		# Pass the value into the transliterator programme
-		$output = $this->reverseTransliterateString ($value, $language);
+		$output = $this->transliterate ($value, $language);
 		
 		# Return the string
 		return $output;
@@ -8178,6 +8178,9 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Start the HTML
 		$html = '';
+		
+		# Regenerate on demand during testing
+		//$this->transliterationsCheckingTable ();
 		
 		# Add a control to enable spell-checking
 		$spellcheckRecords = $this->spellcheckForm (100, $html);
