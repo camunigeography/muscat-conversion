@@ -5293,7 +5293,7 @@ class muscatConversion extends frontControllerApplication
 					$h[] = $marcCode;
 				} else {
 					$recordId = $this->xPathValue ($xml, '//q0');
-					echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> the record included a language note but the language '<em>{$langauge}</em>'.</p>";
+					echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> the record included a language note but the language '<em>{$language}</em>'.</p>";
 				}
 			}
 		}
