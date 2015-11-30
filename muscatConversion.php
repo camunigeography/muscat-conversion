@@ -222,8 +222,15 @@ class muscatConversion extends frontControllerApplication
 	# Index for 880 subfield 6
 	private $field880subfield6Index = 0;
 	
+	# Latin abbreviations that may appear (and should be protected) within transliterated text
+	private $latinAbbreviations = array (
+		'Gen. et sp. n.',
+		'sp. n.',
+	);
+	
 	# Caches
 	private $lookupTablesCache = array ();
+	
 	
 	# Function to assign defaults additional to the general application defaults
 	public function defaults ()
@@ -3059,7 +3066,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to reverse-transliterate a the string
+	# Function to reverse-transliterate the string
 	/*
 		Files are at
 		/root/.cpan/build/Lingua-Translit-0.22-th0SPW/xml/
@@ -3131,11 +3138,12 @@ class muscatConversion extends frontControllerApplication
 		preg_match_all ('|(<em>.+</em>)|uU', $string, $italicisedNameMatches);		// Uses /U ungreedy, to avoid "a <em>b</em> c <em>d</em> e" becoming "a  e"
 		$replacements = array_merge ($replacements, $italicisedNameMatches[1]);
 		
+		# Protect known Latin abbreviations
+		$replacements = array_merge ($replacements, $this->latinAbbreviations);
+		
 		# Add in HTML tags for protection; in theory all <em> and </em> tags will have been swallowed already
 		$tags = array ('<em>', '</em>', '<sub>', '</sub>', '<sup>', '</sup>', );
-		foreach ($tags as $tag) {
-			$replacements[] = $tag;
-		}
+		$replacements = array_merge ($replacements, $tags);
 		
 		# Create a token for each protected part
 		$protectedParts = array ();
@@ -8216,7 +8224,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Spellcheck the strings
-		$spellcheck = application::spellcheck ($spellcheck, 'ru_RU', $this->databaseConnection, $this->settings['database'], $enableSuggestions = true, $protectBlockRegexp = '\[([^]]+)\]', $spellcheckRecords);
+		$spellcheck = application::spellcheck ($spellcheck, 'ru_RU', $this->databaseConnection, $this->settings['database'], $enableSuggestions = true, $this->latinAbbreviations, $protectBlockRegexp = '\[([^]]+)\]', $spellcheckRecords);
 		
 		# Substitute the spellchecked HTML versions into the table
 		foreach ($spellcheck as $id => $string) {
