@@ -3098,7 +3098,7 @@ class muscatConversion extends frontControllerApplication
 		$string = strtr ($string, $tags);
 		
 		# Protect trailing English parts, for reversion afterwards, by replacing with strings that will not be affected by any transliteration operation
-		preg_match_all ('/^.+( \[.+\])$/m', $string, $matches, PREG_SET_ORDER);
+		preg_match_all ('/(\[.+\])/U', $string, $matches, PREG_SET_ORDER);	// Ungreedy match; allows protection for e.g. /records/76108/ with multiple blocks within string
 		$protectedParts = array ();
 		foreach ($matches as $index => $match) {
 			$key = " <||{$index}||> ";	// Pattern likely not to be present in the data
