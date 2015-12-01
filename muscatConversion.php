@@ -2723,7 +2723,7 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSubscripts['='] = chr(0xE2).chr(0x82).chr(0x8C);
 		$unicodeSubscripts['('] = chr(0xE2).chr(0x82).chr(0x8D);
 		$unicodeSubscripts[')'] = chr(0xE2).chr(0x82).chr(0x8E);
-		$subscriptsNonUnicodeable = array ('c', 'E', 'h', 'H', 's', 'y');		// E.g. shown as {h}
+		$subscriptsNonUnicodeable = array ('a', 'adv', 'c', 'e', 'E', 'h', 'H', 'IC', 'lip', 'max', 'min', 'o', 'org', 'p', 's', 'y', 'z');		// E.g. shown as {h}
 		foreach ($subscriptsNonUnicodeable as $subscriptNonUnicodeable) {
 			$unicodeSubscripts[$subscriptNonUnicodeable] = '<sub>' . $subscriptNonUnicodeable . '</sub>';	// Will be stripped in final record
 		}
@@ -2754,7 +2754,7 @@ class muscatConversion extends frontControllerApplication
 		# Ordinal indicators; only a and o have proper Unicode characters: https://en.wikipedia.org/wiki/Ordinal_indicator#Usage
 		$unicodeSuperscripts['a'] = chr(0xC2).chr(0xAA);	// FEMININE ORDINAL INDICATOR (U+00AA); see: http://www.fileformat.info/info/unicode/char/00aa/index.htm
 		$unicodeSuperscripts['o'] = chr(0xC2).chr(0xBA);	// MASCULINE ORDINAL INDICATOR (U+00BA); see: http://www.fileformat.info/info/unicode/char/00ba/index.htm
-		$superscriptsNonUnicodeable = array ('c', 'e', 'er', 'ieme', 'ne');		// E.g. shown as }e{
+		$superscriptsNonUnicodeable = array ('c', 'e', 'E', 'er', chr(0xC3).chr(0xA8) . 're' /* ère */, 'ieme', 'me', 'ne', 'p', 'r', 'R', 're', );		// E.g. shown as }e{
 		foreach ($superscriptsNonUnicodeable as $superscriptNonUnicodeable) {
 			$unicodeSuperscripts[$superscriptNonUnicodeable] = '<sup>' . $superscriptNonUnicodeable . '</sup>';	// Will be stripped in final record
 		}
