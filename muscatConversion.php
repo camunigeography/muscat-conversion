@@ -5437,6 +5437,9 @@ class muscatConversion extends frontControllerApplication
 		# End without output if no language, i.e. if default
 		if (!$language) {return false;}
 		
+		# Ensure language is supported
+		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return false;}	// Return false to ensure no result, unlike the main transliterate() routine
+		
 		# Pass the value into the transliterator programme
 		$output = $this->transliterate ($value, $language);
 		
