@@ -397,6 +397,9 @@ class muscatConversion extends frontControllerApplication
 			echo "\n<p id=\"exportdate\">{$this->exportDateDescription}</p>";
 		}
 		
+		# Determine which reports are informational reports
+		$this->informationalReports = $this->determineInformationalReports ();
+		
 		# Merge the listings array into the main reports list
 		$this->reports += $this->listings;
 		
@@ -411,6 +414,40 @@ class muscatConversion extends frontControllerApplication
 	{
 		$tableStatus = $this->databaseConnection->getTableStatus ($this->settings['database'], 'catalogue_rawdata');
 		return $tableStatus['Comment'];
+	}
+	
+	
+	# Function to determine which are informational reports, i.e. reports for which no data fixing action is planned
+	private function determineInformationalReports ()
+	{
+		# Start a list of informational reports
+		$informationalReports = array ();
+		
+		# Loop through each report and each listing, detecting whether each report/listing is informational, and rewriting the name
+		$this->reports  = $this->parseReportNames ($this->reports , $informationalReports);
+		$this->listings = $this->parseReportNames ($this->listings, $informationalReports);
+		
+		# Return the list of informational reports
+		return $informationalReports;
+	}
+	
+	
+	# Helper function to strip the info flag from report key names
+	private function parseReportNames ($reportsRaw, &$informationalReports)
+	{
+		# Loop through each report, detecting whether each report is informational, and rewriting the name
+		$reports = array ();	// Array of report key names without _info appended
+		foreach ($reportsRaw as $key => $value) {
+			if (preg_match ('/^(.+)_info$/', $key, $matches)) {
+				$key = $matches[1];
+				$reports[$key] = $value;
+				$informationalReports[] = $key;
+			}
+			$reports[$key] = $value;	// Recreated list, with any _info stripped
+		}
+		
+		# Return the rewritten list
+		return $reports;
 	}
 	
 	
