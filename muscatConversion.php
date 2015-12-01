@@ -5651,6 +5651,8 @@ class muscatConversion extends frontControllerApplication
 			$language = $this->xPathValue ($xml, '//lang[1]');
 			if ($language && isSet ($this->supportedReverseTransliterationLanguages[$language])) {
 				$languageMode = $language;
+			} else {
+				return false;
 			}
 		}
 		
