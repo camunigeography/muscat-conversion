@@ -398,7 +398,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Determine which reports are informational reports
-		$this->informationalReports = $this->determineInformationalReports ();
+		$this->reportStatuses = $this->getReportStatuses ();
 		
 		# Merge the listings array into the main reports list
 		$this->reports += $this->listings;
@@ -417,31 +417,33 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to determine which are informational reports, i.e. reports for which no data fixing action is planned
-	private function determineInformationalReports ()
+	# Function to determine the status of each report
+	private function getReportStatuses ()
 	{
 		# Start a list of informational reports
-		$informationalReports = array ();
+		$reportStatuses = array ();
 		
-		# Loop through each report and each listing, detecting whether each report/listing is informational, and rewriting the name
-		$this->reports  = $this->parseReportNames ($this->reports , $informationalReports);
-		$this->listings = $this->parseReportNames ($this->listings, $informationalReports);
+		# Loop through each report and each listing, detecting the status, and rewriting the name
+		$this->reports  = $this->parseReportNames ($this->reports , $reportStatuses);
+		$this->listings = $this->parseReportNames ($this->listings, $reportStatuses);
 		
-		# Return the list of informational reports
-		return $informationalReports;
+		# Return the status list
+		return $reportStatuses;
 	}
 	
 	
-	# Helper function to strip the info flag from report key names
-	private function parseReportNames ($reportsRaw, &$informationalReports)
+	# Helper function to strip any flag from report key names
+	private function parseReportNames ($reportsRaw, &$reportStatuses)
 	{
 		# Loop through each report, detecting whether each report is informational, and rewriting the name
-		$reports = array ();	// Array of report key names without _info appended
+		$reports = array ();	// Array of report key names without flag appended
 		foreach ($reportsRaw as $key => $value) {
-			if (preg_match ('/^(.+)_info$/', $key, $matches)) {
+			if (preg_match ('/^(.+)_(info)$/', $key, $matches)) {
 				$key = $matches[1];
-				$reports[$key] = $value;
-				$informationalReports[] = $key;
+				$reportStatuses[$key] = $matches[2];
+				$reports[$key] = $value;	// Register under new name
+			} else {
+				$reportStatuses[$key] = NULL;	// Unknown status
 			}
 			$reports[$key] = $value;	// Recreated list, with any _info stripped
 		}
@@ -523,7 +525,7 @@ class muscatConversion extends frontControllerApplication
 		# Convert to an HTML list
 		$table = array ();
 		foreach ($reports as $report => $description) {
-			$key = $report . (in_array ($report, $this->informationalReports) ? ' info' : '');
+			$key = $report . ($this->reportStatuses[$report] ? ' ' . $this->reportStatuses[$report] : '');	// Add CSS class if status known
 			$link = $this->reportLink ($report);
 			$table[$key]['Description'] = "<a href=\"{$link}\">" . ucfirst (htmlspecialchars ($description)) . '</a>';
 			$table[$key]['Problems?'] = ($this->isListing ($report) ? '<span class="faded right">n/a</span>' : ($counts[$report] ? '<span class="warning right">' . number_format ($counts[$report]) : '<span class="success right">' . 'None') . '</span>');
