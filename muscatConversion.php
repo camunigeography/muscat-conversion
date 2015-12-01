@@ -522,6 +522,17 @@ class muscatConversion extends frontControllerApplication
 		$stats = $this->getStats ();
 		$totalRecords = $stats['totalRecords'];
 		
+		# Mark problem reports with no errors as OK
+		foreach ($this->reportStatuses as $key => $status) {
+			if ($status == 'problem') {
+				if (array_key_exists ($key, $counts)) {
+					if ($counts[$key] == 0) {
+						$this->reportStatuses[$key] = 'ok';
+					}
+				}
+			}
+		}
+		
 		# Convert to an HTML list
 		$table = array ();
 		foreach ($reports as $report => $description) {
