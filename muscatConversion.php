@@ -478,7 +478,7 @@ class muscatConversion extends frontControllerApplication
 			# Compile the HTML
 			$html .= "\n<h2>Reports</h2>";
 			$html .= $this->reportsJumplist ();
-			$html .= "\n<p>This page lists the various reports that check for data errors.</p>";
+			$html .= "\n<p>This page lists the various reports that check for data errors or provide an informational overview of aspects of the data.</p>";
 			$html .= $this->reportsTable ();
 			
 			# Show the HTML and end
@@ -523,15 +523,16 @@ class muscatConversion extends frontControllerApplication
 		# Convert to an HTML list
 		$table = array ();
 		foreach ($reports as $report => $description) {
+			$key = $report . (in_array ($report, $this->informationalReports) ? ' info' : '');
 			$link = $this->reportLink ($report);
-			$table[$report]['Description'] = "<a href=\"{$link}\">" . ucfirst (htmlspecialchars ($description)) . '</a>';
-			$table[$report]['Problems?'] = ($this->isListing ($report) ? '<span class="faded right">n/a</span>' : ($counts[$report] ? '<span class="warning right">' . number_format ($counts[$report]) : '<span class="success right">' . 'None') . '</span>');
+			$table[$key]['Description'] = "<a href=\"{$link}\">" . ucfirst (htmlspecialchars ($description)) . '</a>';
+			$table[$key]['Problems?'] = ($this->isListing ($report) ? '<span class="faded right">n/a</span>' : ($counts[$report] ? '<span class="warning right">' . number_format ($counts[$report]) : '<span class="success right">' . 'None') . '</span>');
 			$percentage = ($counts[$report] ? round (100 * ($counts[$report] / $totalRecords), 2) . '%' : '-');
-			$table[$report]['%'] = ($this->isListing ($report) ? '<span class="faded right">n/a</span>' : '<span class="comment right">' . ($percentage === '0%' ? '0.01%' : $percentage) . '</span>');
+			$table[$key]['%'] = ($this->isListing ($report) ? '<span class="faded right">n/a</span>' : '<span class="comment right">' . ($percentage === '0%' ? '0.01%' : $percentage) . '</span>');
 		}
 		
 		# Compile the HTML
-		$html  = application::htmlTable ($table, array (), 'lines', $keyAsFirstColumn = false, false, $allowHtml = true);
+		$html  = application::htmlTable ($table, array (), 'reports lines', $keyAsFirstColumn = false, false, $allowHtml = true, false, false, $addRowKeyClasses = true);
 		
 		# Note the data date
 		$html .= "\n<p class=\"comment\"><br />{$this->exportDateDescription}.</p>";
