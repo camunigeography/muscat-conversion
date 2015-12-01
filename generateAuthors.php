@@ -54,8 +54,14 @@ class generateAuthors
 	private $values = array ();
 	
 	# Define subfields that are capable of being transliterated
-	#!# Probably not to split this by field; e.g. /records/1204/ has wrong result for 880 ‡6 110 $2
-	private $transliteratableSubfields = 'ab';
+	private $transliteratableSubfields = array (
+		100 => 'aqc',
+		110 => 'ab',
+		111 => 'anc',
+		700 => 'aqct',
+		710 => 'abt',
+		711 => 'anct',
+	);
 	
 	
 	# Constructor
@@ -140,7 +146,7 @@ class generateAuthors
 		$line = $this->shiftSubfieldU ($line);
 		
 		# Pass through the transliterator if required
-		$line = $this->muscatConversion->transliterateSubfields ($line, $this->transliteratableSubfields, $languageMode);
+		$line = $this->muscatConversion->transliterateSubfields ($line, $this->transliteratableSubfields[$this->field], $languageMode);
 		
 		# Write the value into the values registry
 		$this->values[$this->languageMode][$this->field] = $line;
@@ -196,7 +202,8 @@ class generateAuthors
 		
 		# Pass each line through the transliterator if required
 		foreach ($lines as $index => $line) {
-			$lines[$index] = $this->muscatConversion->transliterateSubfields ($line, $this->transliteratableSubfields, $languageMode);
+			$fieldNumber = (preg_match ('/^([0-9]{3}) /', $line, $matches) ? $matches[1] : $this->field);	// Line 1 will use the native field number, but any subsequent lines in a multiline will have a field number added the start
+			$lines[$index] = $this->muscatConversion->transliterateSubfields ($line, $this->transliteratableSubfields[$fieldNumber], $languageMode);
 		}
 		
 		# Implode the lines
