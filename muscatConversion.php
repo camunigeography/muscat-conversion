@@ -8466,15 +8466,26 @@ class muscatConversion extends frontControllerApplication
 		# Regenerate on demand during testing
 		//$this->transliterationsCheckingTable ();
 		
-		# Add a control to enable spell-checking
-		$spellcheckRecords = $this->spellcheckForm (500, $html);
-		
 		# Add link to editing the definition
 		$html .= "\n<p>You can <a href=\"{$this->baseUrl}/transliterator.html\">edit the reverse-transliteration definition</a>.</p>";
 		
-		# Get the data
-		$data = $this->databaseConnection->select ($this->settings['database'], 'reversetransliterations');
+		# Define the query
+		$query = "SELECT * FROM {$this->settings['database']}.reversetransliterations;";
 		
+		# Default to 250 per page
+		$this->settings['paginationRecordsPerPageDefault'] = 250;
+		
+		# Obtain the listing HTML, passing in the renderer callback function name
+		$html .= $this->recordListing (false, $query, array (), '/reports/reversetransliterations/', false, false, $view = 'callback(reversetransliterationsRenderer)');
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Callback to provide a renderer
+	private function reversetransliterationsRenderer ($data)
+	{
 		# Extract strings to spellcheck as key/value pairs
 		$spellcheck = array ();
 		foreach ($data as $id => $record) {
@@ -8482,7 +8493,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Spellcheck the strings
-		$spellcheck = application::spellcheck ($spellcheck, 'ru_RU', $this->databaseConnection, $this->settings['database'], $enableSuggestions = true, $this->transliterationProtectedStrings (), $protectBlockRegexp = '\[([^]]+)\]', $spellcheckRecords);
+		$spellcheck = application::spellcheck ($spellcheck, 'ru_RU', $this->databaseConnection, $this->settings['database'], $enableSuggestions = true, $this->transliterationProtectedStrings (), $protectBlockRegexp = '\[([^]]+)\]');
 		
 		# Substitute the spellchecked HTML versions into the table
 		foreach ($spellcheck as $id => $string) {
@@ -8491,51 +8502,15 @@ class muscatConversion extends frontControllerApplication
 		
 		# Link each record
 		foreach ($data as $id => $record) {
-			$data[$id]['id'] = "<a href=\"{$this->baseUrl}/records/{$id}/\">{$id}</a>";
+			$data[$id]['id'] = "<a href=\"{$this->baseUrl}/records/{$record['id']}/\">{$record['id']}</a>";
 		}
 		
 		# Render as HTML; records already may contain tags
-		$tableHeadingSubstitutions = array ('id' => '#', 'title' => 'Title', 'title_latin' => 'Transliteration in Muscat');
-		$html .= application::htmlTable ($data, $tableHeadingSubstitutions, 'lines', $keyAsFirstColumn = false, false, $allowHtml = true, false, false, false, array (), $compress = true);
+		$tableHeadingSubstitutions = array ('id' => '#', 'title' => 'Voyager (Cyrillic)', 'title_latin' => 'Muscat (transliteration)');
+		$html  = application::htmlTable ($data, $tableHeadingSubstitutions, 'lines', $keyAsFirstColumn = false, false, $allowHtml = true, false, false, false, array (), $compress = true);
 		
-		# Return the HTML
+		# Render the HTML
 		return $html;
-	}
-	
-	
-	# Function to provide a number submission form
-	private function spellcheckForm ($default, &$html)
-	{
-		# Create a form
-		$form = new form (array (
-			'displayRestrictions' => false,
-			'name' => 'spellcheck',
-			'nullText' => false,
-			'div' => 'ultimateform',
-			'id' => 'spellcheck',
-			'display' => 'template',
-			'displayTemplate' => "{[[PROBLEMS]]}\n\t\t<p>Spellcheck first {total} records {[[SUBMIT]]}",
-			'submitButtonText' => 'Go!',
-			'submitButtonAccesskey' => false,
-			'formCompleteText' => false,
-			'requiredFieldIndicator' => false,
-			'reappear' => true,
-		));
-		$form->number (array (
-			'name' => 'total',
-			'title' => 'Total',
-			'required' => true,
-			'default' => $default,
-			'maxlength' => 5,
-		));
-		
-		# Process the form and return the result
-		if ($result = $form->process ($html)) {
-			return $result['total'];
-		}
-		
-		# Return the default
-		return $default;
 	}
 	
 	
