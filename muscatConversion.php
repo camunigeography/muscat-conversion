@@ -3240,6 +3240,11 @@ class muscatConversion extends frontControllerApplication
 		# Protect species Order names (which will not be in italics)
 		$replacements = array_merge ($replacements, $this->getSpeciesOrderNames ());
 		
+		# Protect specific names
+		#!# More to be added
+		$names = array ('Chironomidae', 'Diamesinae', );
+		$replacements = array_merge ($replacements, $names);
+		
 		# Protect Roman numerals
 		$romanNumerals = array ();
 		for ($year = 1; $year <= date ('Y'); $year++) {		// 1 to the current year should be a sufficient range
