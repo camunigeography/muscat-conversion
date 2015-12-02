@@ -7286,7 +7286,7 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Define the query
 		$query = "
-			SELECT DISTINCT
+			SELECT
 				'orphanedrole' AS report,
 				id AS recordId
 			FROM fieldsindex
@@ -7305,7 +7305,7 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Define the query
 		$query = "
-			SELECT DISTINCT
+			SELECT
 				'emptyauthor' AS report,
 				id AS recordId
 			FROM fieldsindex
@@ -7835,7 +7835,7 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Define the query
 		$query = "
-			SELECT DISTINCT
+			SELECT
 				'multiplesourcesser' AS report,
 				id AS recordId
 			FROM fieldsindex
@@ -7857,7 +7857,7 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Define the query
 		$query = "
-			SELECT DISTINCT
+			SELECT
 				'multiplesourcesdocart' AS report,
 				id AS recordId
 			FROM fieldsindex
