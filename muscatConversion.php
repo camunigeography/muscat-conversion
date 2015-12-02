@@ -5395,7 +5395,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Tokenise, e.g. array ([0] => "1# ", [1] => "‡a", [2] => "Chalyshev, Aleksandr Vasil'yevich.", [3] => "‡b", [4] => "Something else." ...
-		$tokens = preg_split ("/({$this->doubleDagger}[a-z0-9])/", $value, -1, PREG_SPLIT_DELIM_CAPTURE);
+		$tokens = $this->tokeniseToSubfields ($value);
 		
 		# Work through the spread list
 		$subfield = false;
@@ -5423,6 +5423,14 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the value
 		return $value;
+	}
+	
+	
+	# Function to tokenise a string into subfields
+	private function tokeniseToSubfields ($line)
+	{
+		# Tokenise, e.g. array ([0] => "1# ", [1] => "‡a", [2] => "Chalyshev, Aleksandr Vasil'yevich.", [3] => "‡b", [4] => "Something else." ...
+		return preg_split ("/({$this->doubleDagger}[a-z0-9])/", $line, -1, PREG_SPLIT_DELIM_CAPTURE);
 	}
 	
 	
