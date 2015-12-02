@@ -81,6 +81,7 @@ class muscatConversion extends frontControllerApplication
 		'subscriptssuperscripts_problem' => 'records still containing superscript brackets',
 		'translationnote_info' => 'records containing a note regarding translation',
 		'multipletrees_problem' => 'records with two or more parent trees',
+		'kgnotart' => 'records with a *kg that are not an *art',
 	);
 	
 	# Listing (values) reports
@@ -7803,6 +7804,25 @@ class muscatConversion extends frontControllerApplication
 				id AS recordId
 			FROM fieldsindex
 			WHERE fieldslist REGEXP '@(art|doc|ser).*@(art|doc|ser)@'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with a *kg that are not an *art
+	private function report_kgnotart ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'kgnotart' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				    fieldslist LIKE '%@kg@%'
+				AND fieldslist NOT LIKE '%@art@%'
 		";
 		
 		# Return the query
