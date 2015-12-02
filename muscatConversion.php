@@ -3626,10 +3626,10 @@ class muscatConversion extends frontControllerApplication
 		
 		# Arrange the values
 		$inserts = array ();
-		foreach ($udcTranslations as $udcTranslation) {
+		foreach ($udcTranslations as $ks => $kw) {
 			$inserts[] = array (
-				'ks'	=> $udcTranslation[1],
-				'kw'	=> $udcTranslation[2],
+				'ks'	=> $ks,
+				'kw'	=> $kw,
 			);
 		}
 		
@@ -3667,8 +3667,33 @@ class muscatConversion extends frontControllerApplication
 			echo "\<p class=\"warning\">The following duplicates were found in the UDC loading phase: <em>" . implode ('</e>, <em>', $duplicates) . ' .</em></p>';
 		}
 		
+		# Arrange as $ks => $kw
+		$udcTranslations = array ();
+		foreach ($matches as $match) {
+			$ks = $match[1];
+			$kw = $match[2];
+			$udcTranslations[$ks] = $kw;
+		}
+		
+		# Split off any trailing *... sections
+		foreach ($udcTranslations as $ks => $kw) {
+			if (substr_count ($kw, ' * ')) {
+				list ($kw, $supplementaryTerm) = explode (' * ', $kw, 2);
+				$udcTranslations[$ks] = $kw;
+			}
+		}
+		
+		# Split off any (...) sections
+		$bracketExceptions = array ('(@*501)', '(@*52)');
+		foreach ($udcTranslations as $ks => $kw) {
+			if (in_array ($ks, $bracketExceptions)) {continue;}		// Skip listed exceptions
+			if (substr_count ($kw, '(')) {
+				$udcTranslations[$ks] = preg_replace ('/( ?\(([^)]+)\))/', '', $kw);
+			}
+		}
+		
 		# Return the matches; should be 3463 results
-		return $matches;
+		return $udcTranslations;
 	}
 	
 	
@@ -5900,23 +5925,6 @@ class muscatConversion extends frontControllerApplication
 			$recordId = $this->xPathValue ($xml, '//q0');
 			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> 650 UDC field '<em>{$value}</em>' is not a valid UDC code.</p>";
 			return false;
-		}
-		
-		# Split off any trailing *... sections
-		foreach ($this->udcTranslations as $ks => $kw) {
-			if (substr_count ($kw, ' * ')) {
-				list ($kw, $supplementaryTerm) = explode (' * ', $kw, 2);
-				$this->udcTranslations[$ks] = $kw;
-			}
-		}
-		
-		# Split off any (...) sections
-		$bracketExceptions = array ('(@*501)', '(@*52)');
-		foreach ($this->udcTranslations as $ks => $kw) {
-			if (in_array ($ks, $bracketExceptions)) {continue;}		// Skip listed exceptions
-			if (substr_count ($kw, '(')) {
-				$this->udcTranslations[$ks] = preg_replace ('/( ?\(([^)]+)\))/', '', $kw);
-			}
 		}
 		
 		# Construct the result string
