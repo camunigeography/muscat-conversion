@@ -3404,6 +3404,7 @@ class muscatConversion extends frontControllerApplication
 			`title` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title in child',
 			`parentRecordId` int(6) NULL COMMENT 'Record number of parent',
 			`parentLocation` varchar(255) COLLATE utf8_unicode_ci NULL COMMENT 'Parent location',
+			`parentTitle` varchar(255) COLLATE utf8_unicode_ci NULL COMMENT 'Parent title',
 			PRIMARY KEY (id),
 			INDEX(recordId),
 			INDEX(parentRecordId)
@@ -3411,21 +3412,30 @@ class muscatConversion extends frontControllerApplication
 		;";
 		$this->databaseConnection->execute ($sql);
 		
-		# Insert the data; note that the periodicallocations table is no longer needed after this
-		$sql = "
-			INSERT INTO `periodicallocationmatches` (recordId, title, parentRecordId, parentLocation)
-			SELECT
-				child.recordId,
-			    EXTRACTVALUE(xml, '//j/tg/t') AS title,
-			    periodicallocations.recordId AS parentRecordId,
-			    parent.value AS parentLocation
-			FROM catalogue_processed AS child
-			LEFT JOIN catalogue_xml ON child.recordId = catalogue_xml.id
-			LEFT JOIN periodicallocations ON EXTRACTVALUE(xml, '//j/tg/t') = periodicallocations.title
-			LEFT JOIN catalogue_processed AS parent ON periodicallocations.recordId = parent.recordId AND parent.field = 'Location'
-			WHERE child.field = 'location' AND child.value = 'Periodical'
-		;";
-		$this->databaseConnection->execute ($sql);
+		# Insert the data for each grouping; note that the periodicallocations table is no longer needed after this
+		$groupings = array (
+			'//art/j/tg/t'	=> true,		// for /art/j records; requires exact match
+			'//doc/ts'		=> false,		// for /doc records; requires at least partial match, e.g. "Annals of Glaciology 9" in child record's /doc/ts matches "Annals of Glaciology" in parent (periodicallocations.title); 82 matches
+		);
+		foreach ($groupings as $titleField => $isExactMatch) {
+			$sql = "
+				INSERT INTO `periodicallocationmatches` (recordId, title, parentRecordId, parentLocation, parentTitle)
+				SELECT
+					child.recordId,
+					EXTRACTVALUE(xml, '{$titleField}') AS title,
+					periodicallocations.recordId AS parentRecordId,
+					parent.value AS parentLocation,
+					periodicallocations.title AS parentTitle	/* Necessary to enable HAVING, but useful for debugging anyway */
+				FROM catalogue_processed AS child
+				LEFT JOIN catalogue_xml ON child.recordId = catalogue_xml.id
+				LEFT JOIN " . ($isExactMatch ? "periodicallocations ON periodicallocations.title = EXTRACTVALUE(xml, '{$titleField}')" : "periodicallocations ON EXTRACTVALUE(xml, '{$titleField}') LIKE CONCAT(periodicallocations.title, '%')") . "
+				LEFT JOIN catalogue_processed AS parent ON periodicallocations.recordId = parent.recordId AND parent.field = 'Location'
+				WHERE child.field = 'location' AND child.value = 'Periodical'
+				AND LENGTH(EXTRACTVALUE(xml, '{$titleField}')) > 0
+				" . (!$isExactMatch ? "HAVING periodicallocations.title IS NOT NULL	/* Necessary to strip out LEFT JOIN non-matches; INNER JOIN runs too slowly */" : '') . "
+			;";
+			$this->databaseConnection->execute ($sql);
+		}
 		
 		# Replace location=Periodical in the processed records with the real, looked-up values
 		$sql = "
