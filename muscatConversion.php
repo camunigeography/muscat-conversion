@@ -2187,6 +2187,9 @@ class muscatConversion extends frontControllerApplication
 			#   Dependencies: catalogue_processed
 			$this->massDataFixes ();
 			
+			# Create the UDC translations table
+			$this->createUdcTranslationsTable ();
+			
 			# Create the transliteration table for checking purposes; actual transliteration of records is done on-the-fly
 			#   Dependencies: catalogue_processed
 			$this->transliterationsCheckingTable ();
@@ -3190,8 +3193,8 @@ class muscatConversion extends frontControllerApplication
 		preg_match_all ('|(<em>.+</em>)|uU', $string, $italicisedNameMatches);		// Uses /U ungreedy, to avoid "a <em>b</em> c <em>d</em> e" becoming "a  e"
 		$replacements = array_merge ($replacements, $italicisedNameMatches[1]);
 		
-		# Protect known Latin abbreviations
-		$replacements = array_merge ($replacements, $this->latinAbbreviations);
+		# Protect known strings to protect from transliteration (Latin abbreviations and Order names)
+		$replacements = array_merge ($replacements, $this->transliterationProtectedStrings ());
 		
 		# Add in HTML tags for protection; in theory all <em> and </em> tags will have been swallowed already
 		$tags = array ('<em>', '</em>', '<sub>', '</sub>', '<sup>', '</sup>', );
@@ -3210,6 +3213,36 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the protected string
 		return $string;
+	}
+	
+	
+	# Function to create a list of strings to protect from transliteration
+	private function transliterationProtectedStrings ()
+	{
+		# Start a list
+		$replacements = array ();
+		
+		# Protect known Latin abbreviations
+		$replacements = array_merge ($replacements, $this->latinAbbreviations);
+		
+		# Protect species Order names (which will not be in italics)
+		$replacements = array_merge ($replacements, $this->getSpeciesOrderNames ());
+		
+		# Return the list
+		return $replacements;
+	}
+	
+	
+	
+	# Function to obtain species Order names
+	private function getSpeciesOrderNames ()
+	{
+		# Obtain the data from the UDC table
+		$query = "SELECT * FROM udctranslations WHERE ks REGEXP '^(582|593|594|595|597|598|599)\\\\.'";
+		$orders = $this->databaseConnection->getPairs ($query);
+		
+		# Return the list
+		return $orders;
 	}
 	
 	
@@ -3385,9 +3418,6 @@ class muscatConversion extends frontControllerApplication
 	# Function to create MARC records
 	private function createMarcRecords ()
 	{
-		# Create the UDC translations table, used by the addLookedupKsValue macro
-		$this->createUdcTranslationsTable ();
-		
 		# Create the volume numbers table, used for observation of the effect of the generate490 macro
 		$this->createVolumeNumbersTable ();
 		
@@ -8445,7 +8475,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Spellcheck the strings
-		$spellcheck = application::spellcheck ($spellcheck, 'ru_RU', $this->databaseConnection, $this->settings['database'], $enableSuggestions = true, $this->latinAbbreviations, $protectBlockRegexp = '\[([^]]+)\]', $spellcheckRecords);
+		$spellcheck = application::spellcheck ($spellcheck, 'ru_RU', $this->databaseConnection, $this->settings['database'], $enableSuggestions = true, $this->transliterationProtectedStrings (), $protectBlockRegexp = '\[([^]]+)\]', $spellcheckRecords);
 		
 		# Substitute the spellchecked HTML versions into the table
 		foreach ($spellcheck as $id => $string) {
