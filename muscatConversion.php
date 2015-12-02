@@ -6068,6 +6068,143 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro to generate the 773 (Host Item Entry) field; see: http://www.loc.gov/marc/bibliographic/bd773.html ; e.g. /records/2071/
+	private function macro_generate773 ($value, $xml)
+	{
+		# Start a result
+		$result = '';
+		
+		# Get *kg or end; records will be /art/in or /art/j only
+		if (!$hostId = $this->xPathValue ($xml, '/art/*/k2/kg')) {return false;}	// Data checked that no records contain more than one *kg
+		
+		# Obtain the processed MARC record; note that createMarcRecords processes the /doc records before /art/in records
+		if (!$hostRecord = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'marc', $conditions = array ('id' => $hostId))) {
+			$recordId = $this->xPathValue ($xml, '//q0');
+			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> Cannot match *kg, as there is no host record <a href=\"{$this->baseUrl}/records/{$hostId}/\">#{$hostId}</a>.</p>";
+			return false;
+		}
+		
+		# Parse out the host record
+		$marc = $this->parseMarcRecord ($hostRecord);
+		
+		# Obtain the record type
+		$recordType = $this->recordType ($xml);
+		
+		# Start a list of subfields
+		$subfields = array ();
+		
+		# Add 773 ‡a: Copy in the 1XX (Main entry heading) from the host record, omitting subfield codes; *art/*in records only
+		if ($recordType == '/art/in') {
+			if (isSet ($marc['100'])) {
+				$subfields[] = $this->combineSubfieldValues ('a', $marc['100']);
+			}
+		}
+		
+		# Add 773 ‡t: Copy in the 245 (Title) ‡a and ‡b from the host record, omitting subfield codes
+		if (isSet ($marc['245'])) {
+			$subfields[] = $this->combineSubfieldValues ('t', $marc['245'], array ('a', 'b'));
+		}
+		
+		# Add 773 ‡d: Copy in the 260 (Place, publisher, and date of publication) from the host record, omitting subfield codes; *art/*in records only
+		if ($recordType == '/art/in') {
+			if (isSet ($marc['260'])) {
+				$subfields[] = $this->combineSubfieldValues ('d', $marc['260']);
+			}
+		}
+		
+		# Add 773 ‡g: *pt (Related parts) [of child record, i.e. not host record]; *art/*j only
+		if ($recordType == '/art/j') {
+			if ($pt = $this->xPathValue ($xml, '/art/j/pt')) {	// e.g. /records/14527/
+				$subfields[] = "{$this->doubleDagger}g" . $pt;
+			}
+		}
+		
+		# Add 773 ‡w: Copy in the 001 (Record control number) from the host record; this will need to be modified in the target Voyager system post-import
+		$subfields[] = "{$this->doubleDagger}w" . $marc['001'][0]['line'];
+		
+		# Compile the result
+		$result = implode (' ', $subfields);
+		
+		# Return the result
+		return $result;
+	}
+	
+	
+	# Function to combine subfield values in a line to a single string
+	private function combineSubfieldValues ($parentSubfield, $field, $onlySubfields = array ())
+	{
+		# Create the result
+		$fieldValues = array ();
+		foreach ($field[0]['subfields'] as $subfield => $subfieldValues) {	// Only [0] used, as it is known that all fields using this function are non-repeatable fields
+			
+			# Skip if required
+			if ($onlySubfields && !in_array ($subfield, $onlySubfields)) {continue;}
+			
+			# Add the field values for this subfield
+			$fieldValues[] = implode (', ', $subfieldValues);
+		}
+		
+		# Compile the result
+		$result = "{$this->doubleDagger}{$parentSubfield}" . implode (', ', $fieldValues);
+		
+		# Return the result
+		return $result;
+	}
+	
+	
+	# Macro to parse out a MARC record into subfields
+	private function parseMarcRecord ($marc)
+	{
+		# Parse the record
+		preg_match_all ('/^([LDR0-9]{3}) (?:([#0-9]{2}) )?(.+)$/mu', $marc, $matches, PREG_SET_ORDER);
+		
+		# Convert to key-value pairs; in the case of repeated records, the value is converted to an array
+		$record = array ();
+		foreach ($matches as $match) {
+			$fieldNumber = $match[1];
+			$record[$fieldNumber][] = array (
+				'line'			=> $match[3],
+				'indicators'	=> $match[2],
+				'subfields'		=> $this->parseSubfieldsToPairs ($match[3]),
+			);
+		}
+		
+		// application::dumpData ($record);
+		
+		# Return the record
+		return $record;
+	}
+	
+	
+	# Function to parse subfields into key-value pairs
+	private function parseSubfieldsToPairs ($line)
+	{
+		# Tokenise
+		$tokens = $this->tokeniseToSubfields ($line);
+		
+		# Convert to key-value pairs
+		$subfields = array ();
+		$subfield = false;
+		foreach ($tokens as $index => $string) {
+			
+			# Register then skip subfield indictors
+			if (preg_match ("/^{$this->doubleDagger}([a-z0-9])$/", $string, $matches)) {
+				$subfield = $matches[1];
+				continue;
+			}
+			
+			# Skip if no subfield, i.e. previous field, assigned; this also catches cases of an opening first/second indicator pair
+			if (!$subfield) {continue;}
+			
+			# Register the subfields, resulting in e.g. ($a => $aFoo, $b => $bBar)
+			$subfields[$subfield][] = $string;
+		}
+		
+		# Return the subfield pairs
+		return $subfields;
+	}
+	
+	
 	# Macro to lookup periodical locations, which may generate a multiline result
 	private function macro_generate852 ($value, $xml)
 	{
