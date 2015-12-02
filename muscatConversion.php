@@ -2072,6 +2072,11 @@ class muscatConversion extends frontControllerApplication
 		# Surround the listing with a div for clearance purposes
 		$html = "\n<div class=\"listing\">" . $html . "\n</div>";
 		
+		# Add the pagination controls again at the end, for long pages
+		if ($view != 'listing' || count ($dataRaw) > 50) {
+			$html .= $paginationLinks;
+		}
+		
 		# Return the HTML
 		return $html;
 	}
