@@ -3240,6 +3240,14 @@ class muscatConversion extends frontControllerApplication
 		# Protect species Order names (which will not be in italics)
 		$replacements = array_merge ($replacements, $this->getSpeciesOrderNames ());
 		
+		# Protect Roman numerals
+		$romanNumerals = array ();
+		for ($year = 1; $year <= date ('Y'); $year++) {		// 1 to the current year should be a sufficient range
+			$romanNumeral = application::romanNumeral ($year);
+			$romanNumerals[] =  ' ' . $romanNumeral . (strlen ($romanNumeral) == 1 ? ' ' : '');		// Space added around to avoid being used within initials for a name, e.g. "V.G. Bogorazom"
+		}
+		$replacements = array_merge ($replacements, $romanNumerals);
+		
 		# Return the list
 		return $replacements;
 	}
