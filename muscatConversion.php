@@ -1980,7 +1980,6 @@ class muscatConversion extends frontControllerApplication
 		
 		# Get the data, via pagination
 		list ($dataRaw, $totalAvailable, $totalPages, $page, $actualMatchesReachedMaximum) = $this->databaseConnection->getDataViaPagination ($query, $tableViewTable, true, $preparedStatementValues, array (), $paginationRecordsPerPage, $page, false, $knownTotalAvailable);
-		
 		// application::dumpData ($this->databaseConnection->error ());
 		
 		# Start the HTML for the record listing
@@ -2013,10 +2012,10 @@ class muscatConversion extends frontControllerApplication
 		# Compile the listing
 		$data = array ();
 		if ($dataRaw) {
-			switch ($view) {
+			switch (true) {
 				
 				# List mode
-				case 'listing':
+				case ($view == 'listing'):
 					
 					# List mode needs just id=>id format
 					foreach ($dataRaw as $index => $record) {
@@ -2028,7 +2027,7 @@ class muscatConversion extends frontControllerApplication
 					break;
 				
 				# Record mode
-				case 'record':
+				case ($view == 'record'):
 					
 					# Record mode shows each record
 					foreach ($dataRaw as $index => $record) {
@@ -2040,7 +2039,7 @@ class muscatConversion extends frontControllerApplication
 					break;
 					
 				# Table view
-				case 'table':
+				case ($view == 'table'):
 					
 					# Replace each label with the record title, since table view shows shows titles
 					$titles = $this->getRecordTitles (array_keys ($dataRaw));
@@ -2054,10 +2053,18 @@ class muscatConversion extends frontControllerApplication
 					break;
 					
 				# Table view but showing values rather than records
-				case 'valuestable':
+				case ($view == 'valuestable'):
 					
 					# Generate the HTML
 					$html .= $this->valuesTable ($dataRaw, false, $baseLink, false, false);
+					break;
+					
+				# Self-defined
+				case (preg_match ('/^callback\(([^)]+)\)/', $view, $matches)):	// e.g. callback(foo) will run $this->foo ($data);
+					
+					# Pass the data to the callback to generate the HTML
+					$callbackMethod = $matches[1];
+					$html .= $this->$callbackMethod ($dataRaw);
 					break;
 			}
 		}
