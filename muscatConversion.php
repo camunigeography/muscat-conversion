@@ -227,6 +227,7 @@ class muscatConversion extends frontControllerApplication
 	private $latinAbbreviations = array (
 		'Gen. et sp. n.',
 		'sp. n.',
+		'sp.n.',
 	);
 	
 	# Caches
@@ -3242,7 +3243,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Protect specific names
 		#!# More to be added
-		$names = array ('Chironomidae', 'Diamesinae', );
+		$names = array ('Pantopoda', 'Cantharidae', 'Aranei', 'Diptera', 'Chironomidae', 'Diamesinae', 'Pagetopsis', 'Chaenichthyidae', 'Cyclopidae', 'Sipunkulidy', 'Cyclopidae', );
 		$replacements = array_merge ($replacements, $names);
 		
 		# Protect Roman numerals
