@@ -82,7 +82,7 @@ class muscatConversion extends frontControllerApplication
 		'multipletrees_problem' => 'records with two or more parent trees',
 		'kgnotart_info' => 'records with a *kg that are not an *art',
 		'langnott_info' => 'records with a *lang but no *tt, having first filtered out any locations whose *lang is English',
-		'doctsperiodicaltitle_problem' => '*doc records whose *ts does not match the start of a periodical title',
+		'doctsperiodicaltitle_problem' => '*doc records whose (first) *ts does not match the start of a periodical title',
 	);
 	
 	# Listing (values) reports
@@ -3419,7 +3419,7 @@ class muscatConversion extends frontControllerApplication
 		# Insert the data for each grouping; note that the periodicallocations table is no longer needed after this
 		$groupings = array (
 			'//art/j/tg/t'	=> true,		// for /art/j records; requires exact match
-			'//doc/ts'		=> false,		// for /doc records; requires at least partial match, e.g. "Annals of Glaciology 9" in child record's /doc/ts matches "Annals of Glaciology" in parent (periodicallocations.title); 82 matches
+			'//doc/ts[1]'		=> false,	// for /doc records; requires at least partial match, e.g. "Annals of Glaciology 9" in child record's (first) /doc/ts matches "Annals of Glaciology" in parent (periodicallocations.title); 82 matches; /records/209527/ is an example with two *ts values - the first is used in Muscat as the match
 		);
 		foreach ($groupings as $titleField => $isExactMatch) {
 			$sql = "
@@ -8091,7 +8091,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# *doc records whose *ts does not match the start of a periodical title, based on processPeriodicalLocations ()
+	# *doc records whose (first) *ts does not match the start of a periodical title, based on processPeriodicalLocations ()
 	private function report_doctsperiodicaltitle ()
 	{
 		# Define the query
@@ -8101,10 +8101,10 @@ class muscatConversion extends frontControllerApplication
 				child.recordId
 			FROM catalogue_processed AS child
 			LEFT JOIN catalogue_xml ON child.recordId = catalogue_xml.id
-			LEFT JOIN periodicallocations ON EXTRACTVALUE(xml, '//doc/ts') LIKE CONCAT(periodicallocations.title, '%')
+			LEFT JOIN periodicallocations ON EXTRACTVALUE(xml, '//doc/ts[1]') LIKE CONCAT(periodicallocations.title, '%')
 			LEFT JOIN catalogue_processed AS parent ON periodicallocations.recordId = parent.recordId AND parent.field = 'Location'
 			WHERE child.field = 'location' AND child.value = 'Periodical'
-			AND LENGTH(EXTRACTVALUE(xml, '//doc/ts')) > 0
+			AND LENGTH(EXTRACTVALUE(xml, '//doc/ts[1]')) > 0
 		";
 		
 		# Return the query
