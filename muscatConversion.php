@@ -6238,6 +6238,15 @@ class muscatConversion extends frontControllerApplication
 			$fieldValues[] = implode (', ', $subfieldValues);
 		}
 		
+		# Avoid double commas after joining; e.g. /records/2614/
+		$totalFieldValues = count ($fieldValues);
+		foreach ($fieldValues as $index => $fieldValue) {
+			if (($index + 1) == $totalFieldValues) {break;}		// End on last
+			if (mb_substr ($fieldValue, -1) == ',') {
+				$fieldValues[$index] = mb_substr ($fieldValue, 0, -1);
+			}
+		}
+		
 		# Compile the result
 		$result = "{$this->doubleDagger}{$parentSubfield}" . implode (', ', $fieldValues);
 		
