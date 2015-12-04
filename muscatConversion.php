@@ -6357,7 +6357,7 @@ class muscatConversion extends frontControllerApplication
 						$locationTrimmed = preg_replace ("|^{$locationStartsWith}|", '', $location);
 						$locationTrimmed = trim ($locationTrimmed);
 						
-						# Is *location_trimmed empty?; If no, Add to record: ‡h <*location_trimmed>
+						# Is *location_trimmed empty?; If no, Add to record: ‡h <*location_trimmed> ; e.g. /records/37181/
 						if (strlen ($locationTrimmed)) {
 							$result .= " {$this->doubleDagger}h" . $locationTrimmed;
 						}
