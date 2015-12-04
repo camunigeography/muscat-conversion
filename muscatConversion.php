@@ -6148,8 +6148,8 @@ class muscatConversion extends frontControllerApplication
 		# Start a result
 		$result = '';
 		
-		# Get *kg or end; records will be /art/in or /art/j only
-		if (!$hostId = $this->xPathValue ($xml, '/art/*/k2/kg')) {return false;}	// Data checked that no records contain more than one *kg
+		# Get *kg or end; records will usually be /art/in or /art/j only, but there are some /doc records
+		if (!$hostId = $this->xPathValue ($xml, '//k2/kg')) {return false;}	// Data checked that no records contain more than one *kg
 		
 		# Obtain the processed MARC record; note that createMarcRecords processes the /doc records before /art/in records
 		if (!$hostRecord = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'marc', $conditions = array ('id' => $hostId))) {
