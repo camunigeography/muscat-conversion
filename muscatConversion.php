@@ -3501,7 +3501,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($query);
 		
 		# Process records in the given order, so that processing of field 773 will have access to *doc/*ser processed records up-front
-		$recordProcessingOrder = array ('/doc', '/ser', '/art/in', '/art/j');
+		$recordProcessingOrder = array ('/doc', '/ser', '/art/j', '/art/in');
 		foreach ($recordProcessingOrder as $recordType) {
 			
 			# Process the records in chunks
