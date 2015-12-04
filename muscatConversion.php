@@ -82,6 +82,7 @@ class muscatConversion extends frontControllerApplication
 		'multipletrees_problem' => 'records with two or more parent trees',
 		'kgnotart_info' => 'records with a *kg that are not an *art',
 		'langnott_info' => 'records with a *lang but no *tt, having first filtered out any locations whose *lang is English',
+		'doctsperiodicaltitle_problem' => '*doc records whose *ts does not match the start of a periodical title',
 	);
 	
 	# Listing (values) reports
@@ -8083,6 +8084,27 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				    fieldslist LIKE '%@lang@%'
 				AND fieldslist NOT LIKE '%@tt@%'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *doc records whose *ts does not match the start of a periodical title, based on processPeriodicalLocations ()
+	private function report_doctsperiodicaltitle ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'doctsperiodicaltitle' AS report,
+				child.recordId
+			FROM catalogue_processed AS child
+			LEFT JOIN catalogue_xml ON child.recordId = catalogue_xml.id
+			LEFT JOIN periodicallocations ON EXTRACTVALUE(xml, '//doc/ts') LIKE CONCAT(periodicallocations.title, '%')
+			LEFT JOIN catalogue_processed AS parent ON periodicallocations.recordId = parent.recordId AND parent.field = 'Location'
+			WHERE child.field = 'location' AND child.value = 'Periodical'
+			AND LENGTH(EXTRACTVALUE(xml, '//doc/ts')) > 0
 		";
 		
 		# Return the query
