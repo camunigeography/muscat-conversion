@@ -6239,13 +6239,24 @@ class muscatConversion extends frontControllerApplication
 			$fieldValues[] = implode (', ', $subfieldValues);
 		}
 		
-		# Avoid double commas after joining; e.g. /records/2614/
+		# Fix up punctuation
 		$totalFieldValues = count ($fieldValues);
 		foreach ($fieldValues as $index => $fieldValue) {
-			if (($index + 1) == $totalFieldValues) {break;}		// End on last
-			if (mb_substr ($fieldValue, -1) == ',') {
-				$fieldValues[$index] = mb_substr ($fieldValue, 0, -1);
+			
+			# Avoid double commas after joining; e.g. /records/2614/
+			if (($index + 1) != $totalFieldValues) {	// Do not consider last in loop
+				if (mb_substr ($fieldValue, -1) == ',') {
+					$fieldValue = mb_substr ($fieldValue, 0, -1);
+				}
 			}
+			
+			# Avoid ending a field with " /"
+			if (mb_substr ($fieldValue, -1) == '/') {
+				$fieldValue = trim (mb_substr ($fieldValue, 0, -1)) . '.';
+			}
+			
+			# Register the amended value
+			$fieldValues[$index] = $fieldValue;
 		}
 		
 		# Compile the result
