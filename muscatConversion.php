@@ -86,11 +86,13 @@ class muscatConversion extends frontControllerApplication
 	
 	# Listing (values) reports
 	private $listings = array (
-		'multiplecopiesvalues_info' => 'records where there appear to be multiple copies, in notes field - unique values',
-		'diacritics' => 'listing: counts of diacritics used in the raw data',
-		'journaltitles' => 'listing: journal titles',
-		'seriestitles' => 'listing: series titles',
+		'multiplecopiesvalues_info' => 'listing: records where there appear to be multiple copies, in notes field - unique values',
+		'diacritics_info' => 'listing: counts of diacritics used in the raw data',
+		'journaltitles_info' => 'listing: journal titles',
+		'seriestitles_info' => 'listing: series titles',
+/* problem: */
 		'seriestitlemismatches1' => "listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = 'Periodical')",
+/* problem: */
 		'seriestitlemismatches2' => "listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc is empty)",
 		'seriestitlemismatches3' => 'listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = other)',
 		'languages' => 'listing: languages',
@@ -100,7 +102,7 @@ class muscatConversion extends frontControllerApplication
 		'kwunknown' => 'records where kw is unknown, showing the bibliographer concerned',
 		'doclocationperiodicaltsvalues' => '*doc records with one *location, which is Periodical - distinct *ts values',
 		'unrecognisedksvalues' => 'records with unrecognised *ks values - distinct *ks values',
-		'volumenumbers' => 'volume number results arising from 490 macro',
+		'volumenumbers_info' => 'volume number results arising from 490 macro',
 		'voyagerlocations' => 'Muscat locations that do not map to Voyager locations',
 		'translationnotevalues' => 'records containing a note regarding translation - distinct values',
 	);
