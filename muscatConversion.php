@@ -81,6 +81,7 @@ class muscatConversion extends frontControllerApplication
 		'translationnote_info' => 'records containing a note regarding translation',
 		'multipletrees_problem' => 'records with two or more parent trees',
 		'kgnotart_info' => 'records with a *kg that are not an *art',
+		'langnott_info' => 'records with a *lang but no *tt, having first filtered out any locations whose *lang is English',
 	);
 	
 	# Listing (values) reports
@@ -8039,6 +8040,38 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				    fieldslist LIKE '%@kg@%'
 				AND fieldslist NOT LIKE '%@art@%'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with a *lang but no *tt, having first filtered out any locations whose *lang is English
+	private function report_langnott ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'langnott' AS report,
+				recordId
+			FROM (
+				/* Subquery to create fields index */
+				SELECT
+					recordId,
+					CONCAT('@', GROUP_CONCAT(`field` SEPARATOR '@'),'@') AS fieldslist
+				FROM (
+					/* Subquery to create records but with whitelisted terms taken out */
+					SELECT
+						recordId,field	
+					FROM catalogue_rawdata
+					WHERE NOT (field = 'lang' AND value = 'English')
+				) AS rawdata_filtered
+				GROUP BY recordId
+			) AS fieldsindex
+			WHERE
+				    fieldslist LIKE '%@lang@%'
+				AND fieldslist NOT LIKE '%@tt@%'
 		";
 		
 		# Return the query
