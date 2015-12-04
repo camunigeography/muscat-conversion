@@ -6203,7 +6203,7 @@ class muscatConversion extends frontControllerApplication
 		# Add 773 ‡d: Copy in the 260 (Place, publisher, and date of publication) from the host record, omitting subfield codes; *art/*in records only
 		if ($recordType == '/art/in') {
 			if (isSet ($marc['260'])) {
-				$subfields[] = $this->combineSubfieldValues ('d', $marc['260']);
+				$subfields[] = $this->combineSubfieldValues ('d', $marc['260'], array (), ': ');
 			}
 		}
 		
@@ -6226,7 +6226,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to combine subfield values in a line to a single string
-	private function combineSubfieldValues ($parentSubfield, $field, $onlySubfields = array ())
+	private function combineSubfieldValues ($parentSubfield, $field, $onlySubfields = array (), $implodeSubfields = ', ')
 	{
 		# Create the result
 		$fieldValues = array ();
@@ -6260,7 +6260,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Compile the result
-		$result = "{$this->doubleDagger}{$parentSubfield}" . implode (', ', $fieldValues);
+		$result = "{$this->doubleDagger}{$parentSubfield}" . implode ($implodeSubfields, $fieldValues);
 		
 		# Return the result
 		return $result;
