@@ -3499,25 +3499,37 @@ class muscatConversion extends frontControllerApplication
 		$query = 'SET SESSION max_allowed_packet = ' . $maxQueryLength . ';';
 		$this->databaseConnection->execute ($query);
 		
+		# Start a list of records which require a second-parse arising from 773 processing where the host does not exist at time of processing
+		$this->marcSecondPass = array ();
+		
 		# Process records in the given order, so that processing of field 773 will have access to *doc/*ser processed records up-front
-		$recordProcessingOrder = array ('/doc', '/ser', '/art/j', '/art/in');
+		$recordProcessingOrder = array ('/doc', '/ser', '/art/j', '/art/in', 'secondpass');
 		foreach ($recordProcessingOrder as $recordType) {
 			
 			# Process the records in chunks
 			$chunksOf = 500;	// Change max_allowed_packet above if necessary
 			while (true) {	// Until the break
 				
-				# Get the next chunk of record IDs to update for this type, until all are done
-				$query = "SELECT
-					id
-				FROM catalogue_marc
-				WHERE
-					    type = '{$recordType}'
-					AND marc IS NULL
-					AND id >= 1000
-				LIMIT {$chunksOf}
-				;";
-				if (!$ids = $this->databaseConnection->getPairs ($query)) {break;}	// Break the while (true) loop and move to next record type
+				# For the standard processing groups phase, look up from the database as usual
+				if ($recordType != 'secondpass') {
+					
+					# Get the next chunk of record IDs to update for this type, until all are done
+					$query = "SELECT
+						id
+					FROM catalogue_marc
+					WHERE
+						    type = '{$recordType}'
+						AND marc IS NULL
+						AND id >= 1000
+					LIMIT {$chunksOf}
+					;";
+					if (!$ids = $this->databaseConnection->getPairs ($query)) {break;}	// Break the while (true) loop and move to next record type
+					
+				} else {
+					
+					# For the second pass, use the second pass list that has been generated in the standard processing phase
+					$ids = $this->marcSecondPass;
+				}
 				
 				# Get the records for this chunk
 				$records = $this->getRecords ($ids, 'xml');
@@ -3537,7 +3549,7 @@ class muscatConversion extends frontControllerApplication
 					);
 				}
 				
-				# Insert the records; ON DUPLICATE KEY UPDATE is a dirty but useful method of getting a multiple update at once (as this doesn't require a WHERE clause, which can't be used as there is more than one record to be inserted)
+				# Insert the records (or update for the second pass); ON DUPLICATE KEY UPDATE is a dirty but useful method of getting a multiple update at once (as this doesn't require a WHERE clause, which can't be used as there is more than one record to be inserted)
 				if (!$this->databaseConnection->insertMany ($this->settings['database'], 'catalogue_marc', $inserts, false, $onDuplicateKeyUpdate = true)) {
 					echo "<p class=\"warning\">Error generating MARC, stopping at batched ({$id}):</p>";
 					echo application::dumpData ($this->databaseConnection->error (), false, true);
@@ -6152,8 +6164,14 @@ class muscatConversion extends frontControllerApplication
 		
 		# Obtain the processed MARC record; note that createMarcRecords processes the /doc records before /art/in records
 		if (!$hostRecord = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'marc', $conditions = array ('id' => $hostId))) {
+			
+			# If the record exists as XML, this simply means the host MARC record has not yet been processed, therefore register for the child for reprocessing in the second pass phase; otherwise this is a genuine error
 			$recordId = $this->xPathValue ($xml, '//q0');
-			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> Cannot match *kg, as there is no host record <a href=\"{$this->baseUrl}/records/{$hostId}/\">#{$hostId}</a>.</p>";
+			if ($hostRecordXmlExists = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_xml', 'id', $conditions = array ('id' => $hostId))) {
+				$this->marcSecondPass[] = $recordId;
+			} else {	// Real error, to be reported
+				echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> Cannot match *kg, as there is no host record <a href=\"{$this->baseUrl}/records/{$hostId}/\">#{$hostId}</a>.</p>";
+			}
 			return false;
 		}
 		
