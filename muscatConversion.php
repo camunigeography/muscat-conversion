@@ -5805,6 +5805,40 @@ class muscatConversion extends frontControllerApplication
 		# End if no value
 		if (!$value) {return $value;}
 		
+		# For a multiline field, parse out the field number, which on subsequent lines will not necessarily be the same as the master field; e.g. /records/162152/
+		if (substr_count ($value, "\n")) {
+			
+			# Normalise first line
+			if (!preg_match ('/^([0-9]{3} )/', $value)) {
+				$value = $masterField . ' ' . $value;
+			}
+			
+			# Convert to field, indicators, and line
+			preg_match_all ('/^([0-9]{3}) (.+)$/m', $value, $lines, PREG_SET_ORDER);
+			
+			# Construct each line
+			$values = array ();
+			foreach ($lines as $line) {
+				$values[] = $this->construct880Subfield6Line ($line[2], $line[1]);
+			}
+			
+			# Compile the result
+			$value = implode ("\n" . '880 ', $values);
+			
+		} else {
+			
+			# Render the line
+			$value = $this->construct880Subfield6Line ($value, $masterField);
+		}
+		
+		# Return the modified value
+		return $value;
+	}
+	
+	
+	# Helper function to render a 880 subfield 6 line
+	private function construct880Subfield6Line ($line, $masterField)
+	{
 		# Advance the index, which is incremented globally across the record; starting from 1
 		$this->field880subfield6Index++;
 		
@@ -5812,10 +5846,10 @@ class muscatConversion extends frontControllerApplication
 		$subfield6 = $this->doubleDagger . '6' . $masterField . '-' . str_pad ($this->field880subfield6Index, 2, '0', STR_PAD_LEFT);
 		
 		# Insert the subfield after the indicators
-		$value = preg_replace ('/^(.{2}) (.+)$/', "\\1 {$subfield6} \\2", $value);
+		$line = preg_replace ('/^(.{2}) (.+)$/', "\\1 {$subfield6} \\2", $line);
 		
-		# Return the modified value
-		return $value;
+		# Return the line
+		return $line;
 	}
 	
 	
