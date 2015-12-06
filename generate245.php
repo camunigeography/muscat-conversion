@@ -208,9 +208,10 @@ class generate245
 			
 			# Is there a *ad in the parent  *doc/*ag OR *art/*ag?
 			# Does the *ad have the value '-'?
-			if ($ad = $this->muscatConversion->xPathValue ($this->xml, "{$this->mainRecordTypePrefix}/ag[$agIndex]/ad")) {
-				if ($ad != '-') {
-					$statementOfResponsibility .= ', ' . $ad;
+			if ($ad = $this->muscatConversion->xPathValues ($this->xml, "{$this->mainRecordTypePrefix}/ag[$agIndex]/ad[%i]")) {		// e.g. /records/149106/ has one; /records/162152/ has multiple; /records/149107/ has implied ordering of 1+2 but this is not feasible to generalise
+				$isSingleDash = (count ($ad) == 1 && $ad[1] == '-');	// NB No actual examples of any *ad = '-' across whole catalogue
+				if (!$isSingleDash) {
+					$statementOfResponsibility .= ', ' . implode (', ', $ad);
 				}
 			}
 			
