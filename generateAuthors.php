@@ -146,7 +146,7 @@ class generateAuthors
 		$line = $this->shiftSubfieldU ($line);
 		
 		# Pass through the transliterator if required
-		$line = $this->muscatConversion->transliterateSubfields ($line, $this->transliteratableSubfields[$this->field], $languageMode);
+		$line = $this->muscatConversion->macro_transliterateSubfields ($line, NULL, $this->transliteratableSubfields[$this->field], NULL, $languageMode);
 		
 		# Write the value into the values registry
 		$this->values[$this->languageMode][$this->field] = $line;
@@ -203,7 +203,7 @@ class generateAuthors
 		# Pass each line through the transliterator if required
 		foreach ($lines as $index => $line) {
 			$fieldNumber = (preg_match ('/^([0-9]{3}) /', $line, $matches) ? $matches[1] : $this->field);	// Line 1 will use the native field number, but any subsequent lines in a multiline will have a field number added the start
-			$lines[$index] = $this->muscatConversion->transliterateSubfields ($line, $this->transliteratableSubfields[$fieldNumber], $languageMode);
+			$lines[$index] = $this->muscatConversion->macro_transliterateSubfields ($line, NULL, $this->transliteratableSubfields[$fieldNumber], NULL, $languageMode);
 		}
 		
 		# Implode the lines

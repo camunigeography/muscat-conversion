@@ -5491,10 +5491,19 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to perform transliteration on specified subfields present in a full line; this is basically a tokenisation wrapper to macro_transliterate
-	public function transliterateSubfields ($value, $applyToSubfields, $language)
+	public function macro_transliterateSubfields ($value, $xml, $applyToSubfields, $authorsFields_ignored, $language = false)
 	{
+		# If a forced language is not specified, obtain the language value for the record
+		if (!$language) {
+			$xPath = '//lang[1]';	// Choose first only
+			$language = $this->xPathValue ($xml, $xPath);
+		}
+		
 		# Return unmodified if the language mode is default
 		if ($language == 'default') {return $value;}
+		
+		# Ensure language is supported
+		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return false;}	// Return false to ensure no result, e.g. /records/162154/
 		
 		# Explode subfield string and prepend the double-dagger
 		$applyToSubfields = str_split ($applyToSubfields);
