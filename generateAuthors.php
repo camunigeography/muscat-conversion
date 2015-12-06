@@ -563,9 +563,9 @@ class generateAuthors
 		# Is the *n1 exactly equal to one of the names listed in the 'Full Stop Space Exceptions' tab?
 		if (substr_count ($n1, '. ') && !in_array ($n1, $this->fullStopExceptionsList ())) {
 			
-			# Add to 110 field: 2# ‡a <*a/*n1 [portion up to and including first full stop]> ‡b <*a/*n1 [everything after first full stop]>
+			# Add to 110 field: 2# ‡a <*a/*n1 [portion up to and including first full stop]> ‡b <*a/*n1 [everything after first full stop]>; e.g. /records/127474/ , /records/1261/
 			$n1Components = explode ('.', $n1, 2);
-			$value .= "2# {$this->doubleDagger}a{$n1Components[0]} {$this->doubleDagger}b{$n1Components[1]}";
+			$value .= "2# {$this->doubleDagger}a{$n1Components[0]}.{$this->doubleDagger}b{$n1Components[1]}";
 			
 		} else {
 			
