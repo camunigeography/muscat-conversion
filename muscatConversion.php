@@ -83,6 +83,7 @@ class muscatConversion extends frontControllerApplication
 		'kgnotart_info' => 'records with a *kg that are not an *art',
 		'langnott_info' => 'records with a *lang but no *tt, having first filtered out any locations whose *lang is English',
 		'doctsperiodicaltitle_problem' => '*doc records whose (first) *ts does not match the start of a periodical title',
+		'transliteratedenglish_problem' => 'records whose titles are being transliterated but appear to be in English',
 	);
 	
 	# Listing (values) reports
@@ -8134,6 +8135,29 @@ class muscatConversion extends frontControllerApplication
 			LEFT JOIN catalogue_processed AS parent ON periodicallocations.recordId = parent.recordId AND parent.field = 'Location'
 			WHERE child.field = 'location' AND child.value = 'Periodical'
 			AND LENGTH(EXTRACTVALUE(xml, '//doc/ts[1]')) > 0
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records whose titles are being transliterated but appear to be in English
+	private function report_transliteratedenglish ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'transliteratedenglish' AS report,
+				id AS recordId
+			FROM (
+				SELECT
+					id,
+					title,
+					IF (INSTR(title_latin,'[') > 0, LEFT(title_latin,LOCATE('[',title_latin) - 1), title_latin) AS title_latin
+				FROM reversetransliterations
+			) AS reversetransliterations_firstParts
+			WHERE `title_latin` REGEXP '(the | of )'
 		";
 		
 		# Return the query
