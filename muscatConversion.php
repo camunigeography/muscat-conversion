@@ -3531,8 +3531,10 @@ class muscatConversion extends frontControllerApplication
 					
 				} else {
 					
-					# For the second pass, use the second pass list that has been generated in the standard processing phase
+					# For the second pass, use the second pass list that has been generated in the standard processing phase, once only
+					if (!$this->marcSecondPass) {break;}	// Break the while (true) loop
 					$ids = $this->marcSecondPass;
+					$this->marcSecondPass = false;	// Ensure once only
 				}
 				
 				# Get the records for this chunk
