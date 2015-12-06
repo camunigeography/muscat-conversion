@@ -5776,17 +5776,24 @@ class muscatConversion extends frontControllerApplication
 		# If running in transliteration mode, require a supported language
 		$languageMode = 'default';
 		if ($flag == 'transliterated') {
-			#!# Currently checking only the first language
-			$language = $this->xPathValue ($xml, '//lang[1]');
-			if ($language && isSet ($this->supportedReverseTransliterationLanguages[$language])) {
-				$languageMode = $language;
-			} else {
-				return false;
-			}
+			if (!$languageMode = $this->getTransliterationLanguage ($xml)) {return false;}
 		}
 		
 		# Return the value (which may be false, meaning no field should be created)
 		return $authorsFields[$languageMode][$fieldNumber];
+	}
+	
+	
+	# Function to determine whether a language is supported, and return it if so
+	private function getTransliterationLanguage ($xml)
+	{
+		#!# Currently checking only the first language
+		$language = $this->xPathValue ($xml, '//lang[1]');
+		if ($language && isSet ($this->supportedReverseTransliterationLanguages[$language])) {
+			return $language;
+		} else {
+			return false;
+		}
 	}
 	
 	
