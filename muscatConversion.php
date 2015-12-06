@@ -3160,7 +3160,7 @@ class muscatConversion extends frontControllerApplication
 		# Example use:
 		echo "hello" | translit -r -t "BGN PCGN 1947"
 	*/
-	private function transliterate ($string, $language)
+	public function transliterate ($string, $language)
 	{
 		# Ensure language is supported
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return $string;}
@@ -5820,11 +5820,17 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Macro for generating the 245 field
-	private function macro_generate245 ($value, $xml, $ignored, $authorsFields)
+	private function macro_generate245 ($value, $xml, $flag, $authorsFields)
 	{
+		# If running in transliteration mode, require a supported language
+		$languageMode = 'default';
+		if ($flag == 'transliterated') {
+			if (!$languageMode = $this->getTransliterationLanguage ($xml)) {return false;}
+		}
+		
 		# Subclass, due to the complexity of this field
 		require_once ('generate245.php');
-		$generate245 = new generate245 ($this, $xml, $authorsFields);
+		$generate245 = new generate245 ($this, $xml, $authorsFields, $languageMode);
 		if (!$value = $generate245->main ($error)) {
 			$recordId = $this->xPathValue ($xml, '//q0');
 			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';

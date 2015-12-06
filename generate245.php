@@ -4,7 +4,7 @@
 class generate245
 {
 	# Constructor
-	public function __construct ($muscatConversion, $xml, $authorsFields)
+	public function __construct ($muscatConversion, $xml, $authorsFields, $languageMode = 'default')
 	{
 		# Create a class property handle to the parent class
 		$this->muscatConversion = $muscatConversion;
@@ -14,6 +14,9 @@ class generate245
 		
 		# Create a handle to the authors fields
 		$this->authorsFields = $authorsFields;
+		
+		# Create a handle to the language mode; transliteration has to be done at a per-subfield level, because within a subfield there can be e.g. 'Name, editor' where only the 'Name' part would be transliterated
+		$this->languageMode = $languageMode;
 		
 		# Determine the *form value
 		$this->form = $this->muscatConversion->xPathValue ($this->xml, '(//form)[1]', false);
@@ -89,8 +92,14 @@ class generate245
 		# Look at *ser/*tg/*t OR *doc/*tg/*t OR *art/*tg/*t
 		$this->t = $this->muscatConversion->xPathValue ($this->xml, "/{$this->mainRecordTypePrefix}/tg/t");
 		
+		# Transliterate title (used for $a and possible $b) if required
+		if ($this->languageMode != 'default') {
+			$this->t = $this->muscatConversion->transliterate ($this->t, $this->languageMode);
+		}
+		
 		# Does the *t start with a leading article?
-		$leadingArticleCharacterCount = $this->muscatConversion->macro_nfCount ($this->t, $this->xml);
+		$nfCountLanguage = ($this->languageMode == 'default' ? false : $this->languageMode);	// Language mode relates to transliteration; languages like German should still have nfCount but will have 'default' language transliteration mode
+		$leadingArticleCharacterCount = $this->muscatConversion->macro_nfCount ($this->t, $this->xml, $nfCountLanguage);
 		
 		# Return the stop words count
 		return $leadingArticleCharacterCount;
@@ -200,7 +209,7 @@ class generate245
 				}
 				
 				# Register this value
-				$statementOfResponsibility .= $string;
+				$statementOfResponsibility .= ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliterate ($string, $this->languageMode));
 				
 				# Next *a
 				$aIndex++;
@@ -211,7 +220,7 @@ class generate245
 			if ($ad = $this->muscatConversion->xPathValues ($this->xml, "{$this->mainRecordTypePrefix}/ag[$agIndex]/ad[%i]")) {		// e.g. /records/149106/ has one; /records/162152/ has multiple; /records/149107/ has implied ordering of 1+2 but this is not feasible to generalise
 				$isSingleDash = (count ($ad) == 1 && $ad[1] == '-');	// NB No actual examples of any *ad = '-' across whole catalogue
 				if (!$isSingleDash) {
-					$statementOfResponsibility .= ', ' . implode (', ', $ad);
+					$statementOfResponsibility .= ', ' . implode (', ', $ad);	// Does not get transliterated, e.g. 'eds.'
 				}
 			}
 			
@@ -250,7 +259,7 @@ class generate245
 		$subValues = array ();
 		$nIndex = 1;	// XPaths are indexed from 1, not 0
 		while ($string = $this->classifyNdField ($path . "/n[$nIndex]")) {
-			$subValues[] = $string;
+			$subValues[] = ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliterate ($string, $this->languageMode));	// e.g. /records/1844/
 			
 			# Next
 			$nIndex++;
