@@ -5333,7 +5333,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Lookup table for stop words in various languages
+	# Lookup table for stop words in various languages; note that Russian has no leading articles; see: https://en.wikipedia.org/wiki/Article_%28grammar%29#Variation_among_languages
 	private function stopWords ()
 	{
 		# Define the stop words
@@ -5377,6 +5377,7 @@ class muscatConversion extends frontControllerApplication
 			'lo' => 'Italian Spanish',
 			'los' => 'Spanish',
 			'os' => 'Portuguese',
+			#!# Codes still present
 			'ta' => 'grc',
 			'ton' => 'grc',
 			'the' => 'English',
