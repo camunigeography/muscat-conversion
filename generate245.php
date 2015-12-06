@@ -101,7 +101,7 @@ class generate245
 		$nfCountLanguage = ($this->languageMode == 'default' ? false : $this->languageMode);	// Language mode relates to transliteration; languages like German should still have nfCount but will have 'default' language transliteration mode
 		$leadingArticleCharacterCount = $this->muscatConversion->macro_nfCount ($this->t, $this->xml, $nfCountLanguage);
 		
-		# Return the stop words count
+		# Return the leading articles count
 		return $leadingArticleCharacterCount;
 	}
 	

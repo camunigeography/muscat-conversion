@@ -5290,11 +5290,11 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Macro to generate the stop word count; this does not actually modify the string itself - just returns a number
+	# Macro to generate the leading article count; this does not actually modify the string itself - just returns a number
 	public function macro_nfCount ($value, $xml, $language = false)
 	{
-		# Get the stop words list, indexed by language
-		$stopWords = $this->stopWords ();
+		# Get the leading articles list, indexed by language
+		$leadingArticles = $this->leadingArticles ();
 		
 		# If a forced language is not specified, obtain the language value for the record
 		if (!$language) {
@@ -5305,13 +5305,13 @@ class muscatConversion extends frontControllerApplication
 		# If no language specified, choose 'English'
 		if (!strlen ($language)) {$language = 'English';}
 		
-		# End if the language is not in the list of stop words
-		if (!isSet ($stopWords[$language])) {return '0';}
+		# End if the language is not in the list of leading articles
+		if (!isSet ($leadingArticles[$language])) {return '0';}
 		
-		# Work through each stop word, and if a match is found, return the string length
-		foreach ($stopWords[$language] as $stopWord) {
-			if (preg_match ("/^{$stopWord} /i", $value)) {	// Case-insensitive match
-				return (string) (strlen ($stopWord) + 1); // Include the space
+		# Work through each leading article, and if a match is found, return the string length
+		foreach ($leadingArticles[$language] as $leadingArticle) {
+			if (preg_match ("/^{$leadingArticle} /i", $value)) {	// Case-insensitive match
+				return (string) (strlen ($leadingArticle) + 1); // Include the space
 			}
 		}
 		
@@ -5333,11 +5333,11 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Lookup table for stop words in various languages; note that Russian has no leading articles; see: https://en.wikipedia.org/wiki/Article_%28grammar%29#Variation_among_languages
-	private function stopWords ()
+	# Lookup table for leading articles in various languages; note that Russian has no leading articles; see: https://en.wikipedia.org/wiki/Article_%28grammar%29#Variation_among_languages
+	private function leadingArticles ()
 	{
-		# Define the stop words
-		$stopWords = array (
+		# Define the leading articles
+		$leadingArticles = array (
 			'a' => 'English glg Hungarian Portuguese',
 			'al-' => 'ara',
 			'an' => 'English',
@@ -5391,11 +5391,11 @@ class muscatConversion extends frontControllerApplication
 		);
 		
 		# Process the list, tokenising by language
-		$stopWordsByLanguage = array ();
-		foreach ($stopWords as $stopWord => $languages) {
+		$leadingArticlesByLanguage = array ();
+		foreach ($leadingArticles as $leadingArticle => $languages) {
 			$languages = explode (' ', $languages);
 			foreach ($languages as $language) {
-				$stopWordsByLanguage[$language][] = $stopWord;
+				$leadingArticlesByLanguage[$language][] = $leadingArticle;
 			}
 		}
 		
@@ -5403,14 +5403,14 @@ class muscatConversion extends frontControllerApplication
 		# ACTUALLY, this is not required, because a space in the text is the delimeter
 		# Arrange by longest-first
 		$sortByStringLength = create_function ('$a, $b', 'return strlen ($b) - strlen ($a);');
-		foreach ($stopWordsByLanguage as $language => $stopWords) {
-			usort ($stopWords, $sortByStringLength);	// Sort by string length
-			$stopWordsByLanguage[$language] = $stopWords;	// Overwrite list with newly-sorted list
+		foreach ($leadingArticlesByLanguage as $language => $leadingArticles) {
+			usort ($leadingArticles, $sortByStringLength);	// Sort by string length
+			$leadingArticlesByLanguage[$language] = $leadingArticles;	// Overwrite list with newly-sorted list
 		}
 		*/
 		
 		# Return the array
-		return $stopWordsByLanguage;
+		return $leadingArticlesByLanguage;
 	}
 	
 	
