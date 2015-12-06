@@ -150,9 +150,9 @@ class generate245
 			# Add title
 			$title .= $this->doubleDagger . 'a' . $this->t;
 			
-			# If there is a *form, Add to 245 field
+			# If there is a *form, Add to 245 field; e.g. /records/9543/
 			if ($form) {
-				$title .= $this->doubleDagger . 'h[ ' . $form . ']';
+				$title .= $this->doubleDagger . 'h[' . $form . ']';
 			}
 		}
 		
