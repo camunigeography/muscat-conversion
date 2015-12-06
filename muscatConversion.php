@@ -6263,6 +6263,15 @@ class muscatConversion extends frontControllerApplication
 		# Add 773 ‡d: Copy in the 260 (Place, publisher, and date of publication) from the host record, omitting subfield codes; *art/*in records only
 		if ($recordType == '/art/in') {
 			if (isSet ($marc['260'])) {
+				
+				# If publisher and year are present, use (no-space)-comma-space for the splitter between those two, combining them before colon splitting of other fields; e.g. /records/2614/
+				if (isSet ($marc['260'][0]['subfields']['b']) && isSet ($marc['260'][0]['subfields']['c'])) {
+					$marc['260'][0]['subfields']['_'][0] = rtrim ($marc['260'][0]['subfields']['b'][0]) . ', ' . $marc['260'][0]['subfields']['c'][0];	// Make a virtual field, $_
+					unset ($marc['260'][0]['subfields']['b']);
+					unset ($marc['260'][0]['subfields']['c']);
+				}
+				
+				# Split by colon
 				$subfields[] = $this->combineSubfieldValues ('d', $marc['260'], array (), ': ');
 			}
 		}
