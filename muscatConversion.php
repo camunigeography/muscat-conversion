@@ -5213,6 +5213,16 @@ class muscatConversion extends frontControllerApplication
 		} else if (substr_count ($recordType, '/art')) {		// Not in the list of *form above
 			// $result .= 'p. ';	// Spec unclear - subsequent instruction was "/records/152332/ still contains a spurious 'p' in the $a - please ensure this is not added to the record"
 		}
+		
+		# If there is a *vno but no *ts (and so no 490 will be created), add this at the start, before any pagination data from *pt; e.g. /records/5174/
+		$vnoPrefix = false;
+		if ($vno = $this->xPathValue ($xml, '//vno')) {
+			if (!$ts = $this->xPathValue ($xml, '//ts')) {
+				$a = $vno . (strlen ($a) ? ', ' : '') . $a;
+			}
+		}
+		
+		# Register the $a result
 		$result .= $a;
 		
 		# Add space between the number and the 'p.' or 'v.' ; e.g. /records/49133/ for p. ; NB No actual cases for v. in the data
