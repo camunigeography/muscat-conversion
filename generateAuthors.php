@@ -685,14 +685,20 @@ class generateAuthors
 			
 			# Add to 100 field: <*a/*n2 [portion before brackets]> ‡q<*a/*n2 [portion in brackets, including brackets]>
 			preg_match ('/^(.+) (\(.+\))$/', $n2, $matches);
-			$value .= $matches[1];
-			$value .= " {$this->doubleDagger}q" . $matches[2];
+			$n2FieldValue  = $matches[1];
+			$n2FieldValue .= " {$this->doubleDagger}q" . $matches[2];
 			
 		} else {
 			
 			# Add to 100 field: <*a/*n2>
-			$value .= $n2;
+			$n2FieldValue  = $n2;
 		}
+		
+		# Any initials in the $a subfield should be separated by a space; e.g. /records/1296/ ; note that 245 $c does not seem to do the same: http://www.loc.gov/marc/bibliographic/bd245.html
+		$n2FieldValue = preg_replace ('/\b([^ ])(\.)([^ ])/', '\1\2 \3', $n2FieldValue);
+		
+		# Add the value
+		$value .= $n2FieldValue;
 		
 		# Classify *nd Field
 		$value = $this->classifyNdField ($path, $value);
