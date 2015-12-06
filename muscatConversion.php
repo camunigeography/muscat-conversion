@@ -6255,9 +6255,12 @@ class muscatConversion extends frontControllerApplication
 			}
 		}
 		
-		# Add 773 ‡t: Copy in the 245 (Title) ‡a and ‡b from the host record, omitting subfield codes
+		# Add 773 ‡t: Copy in the 245 (Title) ‡a and ‡b from the host record, omitting subfield codes, stripping leading articles
 		if (isSet ($marc['245'])) {
-			$subfields[] = $this->combineSubfieldValues ('t', $marc['245'], array ('a', 'b'));
+			$xPath = '//lang[1]';	// Choose first only
+			$language = $this->xPathValue ($xml, $xPath);
+			if (!$language) {$language = 'English';}
+			$subfields[] = $this->combineSubfieldValues ('t', $marc['245'], array ('a', 'b'), ', ', $language);
 		}
 		
 		# Add 773 ‡d: Copy in the 260 (Place, publisher, and date of publication) from the host record, omitting subfield codes; *art/*in records only
@@ -6295,7 +6298,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to combine subfield values in a line to a single string
-	private function combineSubfieldValues ($parentSubfield, $field, $onlySubfields = array (), $implodeSubfields = ', ')
+	private function combineSubfieldValues ($parentSubfield, $field, $onlySubfields = array (), $implodeSubfields = ', ', $stripLeadingArticleLanguage = false)
 	{
 		# Create the result
 		$fieldValues = array ();
@@ -6328,11 +6331,38 @@ class muscatConversion extends frontControllerApplication
 			$fieldValues[$index] = $fieldValue;
 		}
 		
+		# Compile the value
+		$value = implode ($implodeSubfields, $fieldValues);
+		
+		# Strip leading article if required; e.g. /records/3075/ , /records/3324/ , /records/5472/ (German)
+		if ($stripLeadingArticleLanguage) {
+			$value = $this->stripLeadingArticle ($value, $stripLeadingArticleLanguage);
+		}
+		
 		# Compile the result
-		$result = "{$this->doubleDagger}{$parentSubfield}" . implode ($implodeSubfields, $fieldValues);
+		$result = "{$this->doubleDagger}{$parentSubfield}" . $value;
 		
 		# Return the result
 		return $result;
+	}
+	
+	
+	# Function to strip a leading article
+	private function stripLeadingArticle ($string, $language)
+	{
+		# Get the list of leading articles
+		$leadingArticles = $this->leadingArticles ();
+		
+		# End if language not supported
+		if (!isSet ($leadingArticles[$language])) {return $string;}
+		
+		# Strip from start if present
+		$list = implode ('|', $leadingArticles[$language]);
+		$string = preg_replace ("/^((?:{$list}) )(.+)$/i", '\2', $string);
+		$string = ucfirst ($string);
+		
+		# Return the amended string
+		return $string;
 	}
 	
 	
