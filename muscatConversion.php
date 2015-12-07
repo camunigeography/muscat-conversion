@@ -5110,53 +5110,99 @@ class muscatConversion extends frontControllerApplication
 		if (!$value) {return '';}
 		
 		# Implode
+		
 		return implode ($parameter, $value);
 	}
 	
 	
-	# Macro to create *pl for 260 $a; see: https://www.loc.gov/marc/bibliographic/bd260.html
-	private function macro_generate260aPl ($value_ignored, $xml)
+	# Macro to create 260;  $a and $b are grouped as there may be more than one publisher, e.g. /records/76743/ ; see: https://www.loc.gov/marc/bibliographic/bd260.html
+	private function macro_generate260 ($value_ignored, $xml)
 	{
-		# Obtain the value(s); we cannot pass this in, as an empty value would mean this macro is not executed (due to the if(result) in convertToMarc_PerformXpathReplacements) but we need to return a value representing an empty value (e.g. '[S.l.]')
-		$plValues = $this->xPathValues ($xml, '(//pg/pl)[%i]', false);	// e.g. /records/1639/ has multiple
+		# Start a list of values; the macro definition has already defined $a
+		$results = array ();
 		
+		# Loop through each /*pg/*[pl|pu] group; e.g. /records/76742/
+		for ($pgIndex = 1; $pgIndex <= 20; $pgIndex++) {	// XPaths are indexed from 1, not 0
+			$pg = $this->xPathValue ($xml, "//pg[{$pgIndex}]");
+			
+			# Break out of loop if no more
+			if ($pgIndex > 1) {
+				if (!strlen ($pg)) {break;}
+			}
+			
+			# Obtain the raw *pl value(s) for this *pg group
+			$plValues = array ();
+			for ($plIndex = 1; $plIndex <= 20; $plIndex++) {
+				$plValue = $this->xPathValue ($xml, "//pg[$pgIndex]/pl[{$plIndex}]");	// e.g. /records/1639/ has multiple
+				if ($plIndex > 1 && !strlen ($plValue)) {break;}	// Empty $pl is fine for first and will show [S.l.], but after that should not appear
+				$plValues[] = $this->formatPl ($plValue);
+			}
+			
+			# Obtain the raw *pu value(s) for this *pg group
+			$puValue = $this->xPathValue ($xml, "//pg[$pgIndex]/pu");
+			$puValues = array ();
+			for ($puIndex = 1; $puIndex <= 20; $puIndex++) {
+				$puValue = $this->xPathValue ($xml, "//pg[$pgIndex]/pu[{$puIndex}]");	// e.g. /records/1223/ has multiple
+				if ($puIndex > 1 && !strlen ($puValue)) {break;}	// Empty $pu is fine for first and will show [s.n.], but after that should not appear
+				$puValues[] = $this->formatPu ($puValue);
+			}
+			
+			# Assemble the result
+			#!# Need to check for cases of $b but not $a
+			$results[$pgIndex]  = "{$this->doubleDagger}a" . implode (" ;{$this->doubleDagger}a", $plValues);
+			if ($puValues) {
+				$results[$pgIndex] .= " :{$this->doubleDagger}b" . implode (" :{$this->doubleDagger}b", $puValues);	// "a colon (:) when subfield $b is followed by another subfield $b" at https://www.loc.gov/marc/bibliographic/bd260.html
+			}
+		}
+		
+		# End if no values; e.g. /records/76740/
+		if (!$results) {return false;}
+		
+		# Implode by space-semicolon: "a semicolon (;) when subfield $b is followed by subfield $a" at https://www.loc.gov/marc/bibliographic/bd260.html
+		$result = implode (' ;', $results);
+		
+		# Add $c if present
+		if ($dValues = $this->xPathValues ($xml, '(//d)[%i]', false)) {
+			if ($result) {$result .= ',';}
+			$result .= "{$this->doubleDagger}c" . implode (', ', $dValues);
+		}
+		
+		# Ensure dot at end
+		$result = $this->macro_dotEnd ($result, NULL, $extendedCharacterList = true);
+		
+		# Return the result
+		return $result;
+	}
+	
+	
+	# Helper function for 260a *pl
+	private function formatPl ($plValue)
+	{
 		# If no *pl, put '[S.l.]'. ; e.g. /records/1006/ ; decision made not to make a semantic difference between between a publication that is known to have an unknown publisher (i.e. a check has been done and this is explicitly noted) vs a publication whose check has never been done, so we don't know if there is a publisher or not.
-		if (!$plValues) {
+		if (!$plValue) {
 			return '[S.l.]';	// Meaning 'sine loco' ('without a place')
 		}
 		
-		# Check whether any value needs modifying
-		foreach ($plValues as $index => $plValue) {
-			
-			# *pl [if *pl is '[n.p.]' or '-', this should be replaced with '[S.l.]' ]. ; e.g. /records/1102/ , /records/1787/
-			if ($plValue == '[n.p.]' || $plValue == '-') {
-				$plValues[$index] = '[S.l.]';
-				continue;
-			}
-			
-			# Preserve square brackets, but remove round brackets if present. ; e.g. /records/2027/ , /records/5942/ , /records/5943/
-			if (preg_match ('/^\((.+)\)$/', $plValue, $matches)) {
-				$plValues[$index] = $matches[1];
-				continue;
-			}
-			
-			# Otherwise, return the value unmodified; e.g. /records/1011/
-			// $plValues[$index] remains unmodified
+		# *pl [if *pl is '[n.p.]' or '-', this should be replaced with '[S.l.]' ]. ; e.g. /records/1102/ , /records/1787/
+		if ($plValue == '[n.p.]' || $plValue == '-') {
+			return '[S.l.]';
 		}
 		
-		# Compile the result, splitting by $a ; see: https://www.loc.gov/marc/bibliographic/bd260.html
-		$plValue = implode (" ;{$this->doubleDagger}a", $plValues);
+		# Preserve square brackets, but remove round brackets if present. ; e.g. /records/2027/ , /records/5942/ , /records/5943/
+		if (preg_match ('/^\((.+)\)$/', $plValue, $matches)) {
+			return $matches[1];
+		}
 		
-		# Return the value
+		# Return the value unmodified
 		return $plValue;
 	}
 	
 	
-	# Macro to modify *pu for 260 $b; see: https://www.loc.gov/marc/bibliographic/bd260.html
-	private function macro_modifyPu ($puValue)
+	# Helper function for 260a *pu
+	private function formatPu ($puValue)
 	{
 		# *pu [if *pu is '[n.pub.]' or '-', this should be replaced with '[s.n.]' ] ; e.g. /records/1105/ , /records/1745/
-		if ($puValue == '[n.pub.]' || $puValue == '-') {
+		if (!strlen ($puValue) || $puValue == '[n.pub.]' || $puValue == '-') {
 			return '[s.n.]';	// Meaning 'sine nomine' ('without a name')
 		}
 		
