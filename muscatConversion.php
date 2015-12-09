@@ -3965,18 +3965,20 @@ class muscatConversion extends frontControllerApplication
 		$completeMatch = (isSet ($_GET['completematch']) && ($_GET['completematch'] == '1'));
 		
 		# Define the search clause templates
+		$literalBackslash	= '\\';										// PHP representation of one literal backslash
+		$mysqlBacklash		= $literalBackslash . $literalBackslash;	// http://lists.mysql.com/mysql/193376 shows that a MySQL backlash is always written as \\
 		$searchClauses = array (
 			'title'		=> "title LIKE :title",
 			'title_transliterated'		=> "title_transliterated LIKE :title_transliterated",
 			'region'	=> array (
-				'Polar regions'						=> "region REGEXP '\(@\*[2][0-9]*\)'",				// *2
-				'   Arctic'							=> "region REGEXP '\(@\*[3|4|5|6][0-9]*\)'",		// *3 or *4 or *5 or *6
-				'   North America'					=> "region REGEXP '\(@\*[40][0-9]*\)'",				// *40
-				'   Russia'							=> "region REGEXP '\(@\*[50|51|52|53][0-9]*\)'",	// *50 - *53
-				'   European Arctic'				=> "region REGEXP '\(@\*[55|56|57|58][0-9]*\)'",	// *55/*56/*57/*58
-				'   Arctic Ocean'					=> "region REGEXP '\(@\*[6][0-9]*\)'",				// *6
-				'   Antarctic and Southern Ocean'	=> "region REGEXP '\(@\*[7|8][0-9]*\)'",			// *7/*8
-				'Non-polar regions'					=> "region REGEXP '\([2|3|4|5|6|7|8|9][0-9]*\)'",	// run from (2) to (97) NB without @*
+				'Polar regions'						=> "region REGEXP '{$mysqlBacklash}(@{$mysqlBacklash}*[2][0-9]*{$mysqlBacklash})'",				// *2
+				'   Arctic'							=> "region REGEXP '{$mysqlBacklash}(@{$mysqlBacklash}*[3|4|5|6][0-9]*{$mysqlBacklash})'",		// *3 or *4 or *5 or *6
+				'   North America'					=> "region REGEXP '{$mysqlBacklash}(@{$mysqlBacklash}*[40][0-9]*{$mysqlBacklash})'",				// *40
+				'   Russia'							=> "region REGEXP '{$mysqlBacklash}(@{$mysqlBacklash}*[50|51|52|53][0-9]*{$mysqlBacklash})'",	// *50 - *53
+				'   European Arctic'				=> "region REGEXP '{$mysqlBacklash}(@{$mysqlBacklash}*[55|56|57|58][0-9]*{$mysqlBacklash})'",	// *55/*56/*57/*58
+				'   Arctic Ocean'					=> "region REGEXP '{$mysqlBacklash}(@{$mysqlBacklash}*[6][0-9]*{$mysqlBacklash})'",				// *6
+				'   Antarctic and Southern Ocean'	=> "region REGEXP '{$mysqlBacklash}(@{$mysqlBacklash}*[7|8][0-9]*{$mysqlBacklash})'",			// *7/*8
+				'Non-polar regions'					=> "region REGEXP '{$mysqlBacklash}([2|3|4|5|6|7|8|9][0-9]*{$mysqlBacklash})'",	// run from (2) to (97) NB without *
 			),
 			'surname'		=> "surname LIKE :surname",
 			'forename'		=> "forename LIKE :forename",
