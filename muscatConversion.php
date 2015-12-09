@@ -2655,6 +2655,9 @@ class muscatConversion extends frontControllerApplication
 		$likeBackslash		= $mysqlBacklash /* . $mysqlBacklash # seems to work only with one */;			// http://lists.mysql.com/mysql/193376 shows that LIKE expects a single MySQL backslash
 		$regexpBackslash	= $mysqlBacklash . $mysqlBacklash;			// http://lists.mysql.com/mysql/193376
 		
+		# Undo Muscat escaped asterisks @*, e.g. /records/19682/ and many *ks / *location values; this is basically an SQL version of unescapeMuscatAsterisks ()
+		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'@*','*');";
+		
 		# Italics, e.g. /records/205430/
 		# "In order to italicise a Latin name in the middle of a line of Roman text, prefix the words to be italicised by '\v' and end the words with '\n'"
 		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBlackslash}v','<em>');";
@@ -3680,6 +3683,9 @@ class muscatConversion extends frontControllerApplication
 		$lookupTable = file_get_contents ($this->applicationRoot . '/tables/' . 'UDCMAP.TXT');
 		$lookupTable = str_replace ("\r\n", "\n", $lookupTable);
 		
+		# Undo Muscat escaped asterisks @*
+		$lookupTable = $this->unescapeMuscatAsterisks ($lookupTable);
+		
 		# Remove line-breaks that are not the end of a line
 		$lookupTable = preg_replace ("/([^#])\n/sm", '\1 ', $lookupTable);
 		
@@ -3719,7 +3725,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Split off any (...) sections
-		$bracketExceptions = array ('(@*501)', '(@*52)');
+		$bracketExceptions = array ('(*501)', '(*52)');
 		foreach ($udcTranslations as $ks => $kw) {
 			if (in_array ($ks, $bracketExceptions)) {continue;}		// Skip listed exceptions
 			if (substr_count ($kw, '(')) {
@@ -3729,6 +3735,13 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the matches; should be 3463 results
 		return $udcTranslations;
+	}
+	
+	
+	# Function to unescape Muscat asterisks
+	private function unescapeMuscatAsterisks ($string)
+	{
+		return str_replace ('@*', '*', $string);
 	}
 	
 	
@@ -3949,7 +3962,7 @@ class muscatConversion extends frontControllerApplication
 		Keyword (kw)
 		Text within abstract (abs)
 		ISBN (isbn)
-		Region (ks, filtered on (@*[0-9]+) ) - precompile at
+		Region (ks, filtered on (*[0-9]+) ) - precompile at
 			- Arctic - beginning *3 or *4 or *6
 			- Antarctic - begins with *7 or *8
 			- Polar - begins *2
@@ -3971,13 +3984,13 @@ class muscatConversion extends frontControllerApplication
 			'title'		=> "title LIKE :title",
 			'title_transliterated'		=> "title_transliterated LIKE :title_transliterated",
 			'region'	=> array (
-				'Polar regions'						=> "region REGEXP '{$mysqlBacklash}(@{$mysqlBacklash}*[2][0-9]*{$mysqlBacklash})'",				// *2
-				'   Arctic'							=> "region REGEXP '{$mysqlBacklash}(@{$mysqlBacklash}*[3|4|5|6][0-9]*{$mysqlBacklash})'",		// *3 or *4 or *5 or *6
-				'   North America'					=> "region REGEXP '{$mysqlBacklash}(@{$mysqlBacklash}*[40][0-9]*{$mysqlBacklash})'",				// *40
-				'   Russia'							=> "region REGEXP '{$mysqlBacklash}(@{$mysqlBacklash}*[50|51|52|53][0-9]*{$mysqlBacklash})'",	// *50 - *53
-				'   European Arctic'				=> "region REGEXP '{$mysqlBacklash}(@{$mysqlBacklash}*[55|56|57|58][0-9]*{$mysqlBacklash})'",	// *55/*56/*57/*58
-				'   Arctic Ocean'					=> "region REGEXP '{$mysqlBacklash}(@{$mysqlBacklash}*[6][0-9]*{$mysqlBacklash})'",				// *6
-				'   Antarctic and Southern Ocean'	=> "region REGEXP '{$mysqlBacklash}(@{$mysqlBacklash}*[7|8][0-9]*{$mysqlBacklash})'",			// *7/*8
+				'Polar regions'						=> "region REGEXP '{$mysqlBacklash}({$mysqlBacklash}*[2][0-9]*{$mysqlBacklash})'",				// *2
+				'   Arctic'							=> "region REGEXP '{$mysqlBacklash}({$mysqlBacklash}*[3|4|5|6][0-9]*{$mysqlBacklash})'",		// *3 or *4 or *5 or *6
+				'   North America'					=> "region REGEXP '{$mysqlBacklash}({$mysqlBacklash}*[40][0-9]*{$mysqlBacklash})'",				// *40
+				'   Russia'							=> "region REGEXP '{$mysqlBacklash}({$mysqlBacklash}*[50|51|52|53][0-9]*{$mysqlBacklash})'",	// *50 - *53
+				'   European Arctic'				=> "region REGEXP '{$mysqlBacklash}({$mysqlBacklash}*[55|56|57|58][0-9]*{$mysqlBacklash})'",	// *55/*56/*57/*58
+				'   Arctic Ocean'					=> "region REGEXP '{$mysqlBacklash}({$mysqlBacklash}*[6][0-9]*{$mysqlBacklash})'",				// *6
+				'   Antarctic and Southern Ocean'	=> "region REGEXP '{$mysqlBacklash}({$mysqlBacklash}*[7|8][0-9]*{$mysqlBacklash})'",			// *7/*8
 				'Non-polar regions'					=> "region REGEXP '{$mysqlBacklash}([2|3|4|5|6|7|8|9][0-9]*{$mysqlBacklash})'",	// run from (2) to (97) NB without *
 			),
 			'surname'		=> "surname LIKE :surname",
@@ -6078,7 +6091,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Construct the result string
-		$string = strtolower ('UDC') . $this->doubleDagger . 'a' . str_replace ('@*', '*', $value) . ' -- ' . $this->udcTranslations[$value] . ($description ? ": {$description}" : false);
+		$string = strtolower ('UDC') . $this->doubleDagger . 'a' . $value . ' -- ' . $this->udcTranslations[$value] . ($description ? ": {$description}" : false);
 		
 		# Return the result string
 		return $string;
@@ -6204,6 +6217,9 @@ class muscatConversion extends frontControllerApplication
 		
 		# Get the data table
 		$lookupTable = file_get_contents ($this->applicationRoot . '/tables/' . $table . '.tsv');
+		
+		# Undo Muscat escaped asterisks @*
+		$lookupTable = $this->unescapeMuscatAsterisks ($lookupTable);
 		
 		# Convert to TSV
 		$lookupTable = trim ($lookupTable);
