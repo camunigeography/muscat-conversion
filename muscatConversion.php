@@ -78,6 +78,7 @@ class muscatConversion extends frontControllerApplication
 		'offprints_info' => 'records that contain photocopy/offprint in *note/*local/*priv',
 		'duplicatedlocations_problem' => 'records with more than one identical location',
 		'subscriptssuperscripts_problem' => 'records still containing superscript brackets',
+		'italicbracketsorder_problem' => 'records with italics within a subscript/superscript character',
 		'translationnote_info' => 'records containing a note regarding translation',
 		'multipletrees_problem' => 'records with two or more parent trees',
 		'kgnotart_info' => 'records with a *kg that are not an *art',
@@ -8182,6 +8183,25 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				   value LIKE '%{%'
 				OR value LIKE '%}%'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with italics within a subscript/superscript character
+	private function report_italicbracketsorder ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'italicbracketsorder' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				   value LIKE '%{<em>%'
+				OR value LIKE '%</em>}%'
 		";
 		
 		# Return the query
