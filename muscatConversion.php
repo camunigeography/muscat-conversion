@@ -4200,7 +4200,7 @@ class muscatConversion extends frontControllerApplication
 			'unsavedDataProtection' => true,
 			'whiteSpaceTrimSurrounding' => false,
 		));
-		$form->heading ('p', "Here you can define the translation of the Muscat data's XML representation to MARC21.");
+		$form->heading ('p', "Here you can define the translation of the Muscat data's XML representation to MARC21 as interpreted by the <a href=\"http://www.lib.cam.ac.uk/libraries/login/bibstandard/bibstandards.htm\" target=\"_blank\">local standards</a>.");
 		$form->heading ('p', 'The parser uses <a target="_blank" href="http://msdn.microsoft.com/en-us/library/ms256122.aspx">XPath operators</a>, enclosed in { } brackets, used to target parts of the <a target="_blank" href="' . $this->baseUrl . '/schema.html">schema</a>.');
 		$form->heading ('p', 'Control characters may exist at the start of the line:<br />A = All (non-optional) must result in a match for the line to be displayed (ignoring indicator block macros);<br />E = Any (<em>E</em>ither) of the values must result in a match for the line to be displayed (ignoring indicator block macros);<br />R = Vertically-repeatable field.');
 		$form->heading ('p', "A subfield can be set as optional by adding ?, e.g. {$this->doubleDagger}b?{//acq/ref} . Optional blocks found to be empty are removed before an A (all) control character is considered.");
