@@ -822,8 +822,8 @@ class muscatConversion extends frontControllerApplication
 				$output .= "\n<div class=\"graybox marc\">";
 				$output .= "\n<p id=\"exporttarget\">Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->migrationStatus ($id) . "</strong></p>";
 				$output .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($record[$type])) . "\n</pre>";
+				$output .= $this->existingVoyagerRecord ($id);
 				$output .= "\n</div>";
-				$output .= "\n<p>This is generated using the <a href=\"{$this->baseUrl}/marcparser.html\">MARC21 parser definition</a>.</p>";
 				break;
 				
 			case 'xml':
@@ -852,6 +852,31 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the HTML/XML
 		return $output;
+	}
+	
+	
+	# Function to show an existing Voyager record
+	private function existingVoyagerRecord ($muscatId)
+	{
+		# Look up Voyager record, or end (e.g. no match)
+		if (!$voyagerRecordShards = $this->databaseConnection->select ($this->settings['database'], 'catalogue_external', array ('muscatId' => $muscatId))) {return false;}
+		
+		# Construct the record lines
+		$recordLines = array ();
+		foreach ($voyagerRecordShards as $shard) {
+			$hasIndicators = (!preg_match ('/^(LDR|00[0-9])$/', $shard['field']));
+			$recordLines[] = $shard['field'] . ($hasIndicators ? ' ' . $shard['indicators'] : '') . ' ' . $shard['data'];
+		}
+		
+		# Implode to string
+		$record = implode ("\n", $recordLines);
+		
+		# Format
+		$html  = "\n<p>This record has an existing entry in Voyager:</p>";
+		$html .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($record)) . "\n</pre>";
+		
+		# Return the HTML
+		return $html;
 	}
 	
 	
