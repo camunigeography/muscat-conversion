@@ -2157,6 +2157,7 @@ class muscatConversion extends frontControllerApplication
 			'full'					=> 'FULL import (c. 4.25 hours)',
 			'xml'					=> 'Regenerate XML only (c. 6 minutes)',
 			'marc'					=> 'Regenerate MARC only (c. 65 minutes)',
+			'external'				=> 'Regenerate external Voyager records only (c. ? minutes)',
 			'outputstatus'			=> 'Regenerate output status only (c. 7 minutes)',
 			'reports'				=> 'Regenerate reports only (c. 4 minutes)',
 			'listings'				=> 'Regenerate listings reports only (c. 2 hours)',
@@ -2233,6 +2234,13 @@ class muscatConversion extends frontControllerApplication
 		# Run option to create XML table only (included in the 'full' option above) if required
 		if ($importType == 'xml') {
 			$this->createXmlTable ();
+		}
+		
+		# Create the external records
+		if (($importType == 'full') || ($importType == 'external')) {
+			if ($this->createExternalRecords ()) {
+				$html .= "\n<p>{$this->tick} The external records currently in Voyager have been imported.</p>";
+			}
 		}
 		
 		# Create the MARC records
@@ -3577,6 +3585,90 @@ class muscatConversion extends frontControllerApplication
 		
 		# Signal success
 		return true;
+	}
+	
+	
+	# Function to import existing Voyager records
+	private function createExternalRecords ()
+	{
+		# Load the Voyager records file
+		$voyagerRecordsFile = file_get_contents ($this->applicationRoot . '/tables/' . 'spri_serials_recs_edited_summer_2006.mrk');
+		
+		# Parse the Voyager records file into line-by-line shards
+		$shards = $this->parseVoyagerRecordFile ($voyagerRecordsFile);
+		
+		# Clean out the external records table
+		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.catalogue_external;";
+		$this->databaseConnection->execute ($sql);
+		
+		# Create the new external records table
+		$sql = "
+			CREATE TABLE IF NOT EXISTS catalogue_external (
+				id int(11) NOT NULL AUTO_INCREMENT COMMENT 'Muscat record number matched',
+				voyagerId INT(11) NOT NULL COMMENT 'Voyager ID',
+				field VARCHAR(3) NOT NULL COMMENT 'Field code',
+				indicators VARCHAR(2) NOT NULL COMMENT 'First and second indicator',
+				data VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Data',
+			  PRIMARY KEY (id)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Existing Voyager records';
+		";
+		$this->databaseConnection->execute ($sql);
+		
+		# Insert the new data
+		$this->databaseConnection->insertMany ($this->settings['database'], 'catalogue_external', $shards);
+		
+		# Signal success
+		return true;
+	}
+	
+	
+	# Function to parse the Voyager record file
+	private function parseVoyagerRecordFile ($voyagerRecordsFile)
+	{
+		# Normalise newlines
+		$voyagerRecordsFile = str_replace ("\r\n", "\n", trim ($voyagerRecordsFile));
+		
+		# Replace Voyager encodings with MARC characters
+		$replacements = array ('\\' => '#', '$'=> $this->doubleDagger);
+		$voyagerRecordsFile = strtr ($voyagerRecordsFile, $replacements);
+		
+		# Split by double-newline
+		$records = explode ("\n\n", $voyagerRecordsFile);
+		
+		# Convert each line from Voyager to pure MARC format
+		foreach ($records as $index => $record) {
+			
+			# For LDR, 001, 005, 008, add two spaces to act as a virtual two indicators, so that the regexp below matches for all lines
+			$record = preg_replace ('/^(=(?:LDR|00.)  )(.+)/m', '\1  \2', $record);
+			
+			# Perform matches
+			$matches = array ();
+			$result = preg_match_all ('/^=([0-9|LDR]{3})  ([ \\0-9]{2})(.+)$/m', $record, $matches, PREG_SET_ORDER);	// Tested previously to confirm no errors
+			$records[$index] = $matches;
+		}
+		
+		# Reindex by field 001, which is the actual ID
+		$voyager = array ();
+		foreach ($records as $index => $record) {
+			$voyagerId = $record[1][3];	// Second line, match \3 (i.e. index 4)
+			$voyager[$voyagerId] = $record;
+		}
+		
+		# Arrange as record shards
+		$shards = array ();
+		foreach ($voyager as $voyagerId => $record) {
+			foreach ($record as $index => $line) {
+				$shards[] = array (
+					'voyagerId'		=> $voyagerId,
+					'field'			=> $line['1'],
+					'indicators'	=> $line['2'],
+					'data'			=> $line['3'],
+				);
+			}
+		}
+		
+		# Return the record shards
+		return $shards;
 	}
 	
 	

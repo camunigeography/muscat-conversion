@@ -1,6 +1,7 @@
 index.html
 
 tables/UDCMAP.TXT
+tables/spri_serials_recs_edited_summer_2006.mrk
 
 exports/*
 !exports/.gitignore
