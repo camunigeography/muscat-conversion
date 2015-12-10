@@ -3591,11 +3591,17 @@ class muscatConversion extends frontControllerApplication
 	# Function to import existing Voyager records
 	private function createExternalRecords ()
 	{
+		# Load the Voyager<>Muscat matches file, as key-value pairs
+		$voyagerMatches = application::getCsvData ($this->applicationRoot . '/tables/' . 'voyagerMatches.csv', $getHeaders = false, $assignKeys = false, $keyAsFirstRow = false);
+		foreach ($voyagerMatches as $id => $match) {
+			$voyagerMatches[$id] = $match['muscat'];	// Flatten to key-value pairs
+		}
+		
 		# Load the Voyager records file
 		$voyagerRecordsFile = file_get_contents ($this->applicationRoot . '/tables/' . 'spri_serials_recs_edited_summer_2006.mrk');
 		
 		# Parse the Voyager records file into line-by-line shards
-		$shards = $this->parseVoyagerRecordFile ($voyagerRecordsFile);
+		$shards = $this->parseVoyagerRecordFile ($voyagerRecordsFile, $voyagerMatches);
 		
 		# Clean out the external records table
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.catalogue_external;";
@@ -3604,7 +3610,8 @@ class muscatConversion extends frontControllerApplication
 		# Create the new external records table
 		$sql = "
 			CREATE TABLE IF NOT EXISTS catalogue_external (
-				id int(11) NOT NULL AUTO_INCREMENT COMMENT 'Muscat record number matched',
+				id int(11) NOT NULL AUTO_INCREMENT COMMENT 'Automatic key',
+				muscatId INT(6) NOT NULL COMMENT 'Muscat ID',
 				voyagerId INT(11) NOT NULL COMMENT 'Voyager ID',
 				field VARCHAR(3) NOT NULL COMMENT 'Field code',
 				indicators VARCHAR(2) NOT NULL COMMENT 'First and second indicator',
@@ -3623,7 +3630,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to parse the Voyager record file
-	private function parseVoyagerRecordFile ($voyagerRecordsFile)
+	private function parseVoyagerRecordFile ($voyagerRecordsFile, $voyagerMatches)
 	{
 		# Normalise newlines
 		$voyagerRecordsFile = str_replace ("\r\n", "\n", trim ($voyagerRecordsFile));
@@ -3654,11 +3661,19 @@ class muscatConversion extends frontControllerApplication
 			$voyager[$voyagerId] = $record;
 		}
 		
+		# Remove records that have no Muscat match as they do not need to be overwritten in the eventual data
+		foreach ($voyager as $voyagerId => $record) {
+			if (!isSet ($voyagerMatches[$voyagerId])) {
+				unset ($voyager[$voyagerId]);
+			}
+		}
+		
 		# Arrange as record shards
 		$shards = array ();
 		foreach ($voyager as $voyagerId => $record) {
 			foreach ($record as $index => $line) {
 				$shards[] = array (
+					'muscatId'		=> $voyagerMatches[$voyagerId],
 					'voyagerId'		=> $voyagerId,
 					'field'			=> $line['1'],
 					'indicators'	=> $line['2'],
