@@ -85,6 +85,7 @@ class muscatConversion extends frontControllerApplication
 		'langnott_info' => 'records with a *lang but no *tt, having first filtered out any locations whose *lang is English',
 		'doctsperiodicaltitle_problem' => '*doc records whose (first) *ts does not match the start of a periodical title',
 		'transliteratedenglish_problem' => 'records whose titles are being transliterated but appear to be in English',
+		'voyagerrecords_info' => 'records with an equivalent already in Voyager, targetted for merging',
 	);
 	
 	# Listing (values) reports
@@ -8470,6 +8471,25 @@ class muscatConversion extends frontControllerApplication
 		# Return the query
 		return $query;
 	}
+	
+	
+	# Records with an equivalent already in Voyager, targetted for merging
+	private function report_voyagerrecords ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'voyagerrecords' AS report,
+				muscatId AS recordId
+			FROM
+				catalogue_external
+			GROUP BY muscatId
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
 	
 	
 	# Records with multiple sources (*ser)
