@@ -988,8 +988,9 @@ class generateAuthors
 		# Assemble the string if there are replacements
 		if ($replacements) {
 			$replacements = array_unique ($replacements);
+			$subfieldCode = (in_array ($this->field, array (111, 711)) ? 'j' : 'e');	// X11 have Relator Term in $j; see: http://www.loc.gov/marc/bibliographic/bd711.html
 			foreach ($replacements as $replacement) {
-				$value .= ",{$this->doubleDagger}e{$replacement}";
+				$value .= ",{$this->doubleDagger}{$subfieldCode}{$replacement}";
 			}
 		}
 		
