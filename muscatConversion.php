@@ -6769,15 +6769,19 @@ class muscatConversion extends frontControllerApplication
 	# Macro to determine cataloguing status
 	private function macro_cataloguingStatus ($value, $xml)
 	{
-		# Return *ks if on the list
+		# Return *ks if on the list; separate multiple values with semicolon, e.g. /records/205603/
 		$ksValues = $this->xPathValues ($xml, '//k[%i]/ks');
+		$results = array ();
 		foreach ($ksValues as $ks) {
 			if (in_array ($ks, $this->ignoreKsValues)) {
-				return $ks;
+				$results[] = $ks;
 			}
 		}
+		if ($results) {
+			return implode ('; ', $results);
+		}
 		
-		# Otherwise return *status
+		# Otherwise return *status; e.g. /records/1373/
 		$status = $this->xPathValue ($xml, '//acc/status');
 		return $status;
 	}
