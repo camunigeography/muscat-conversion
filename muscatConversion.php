@@ -2782,7 +2782,13 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSubscripts['='] = chr(0xE2).chr(0x82).chr(0x8C);
 		$unicodeSubscripts['('] = chr(0xE2).chr(0x82).chr(0x8D);
 		$unicodeSubscripts[')'] = chr(0xE2).chr(0x82).chr(0x8E);
-		$subscriptsNonUnicodeable = array ('a', 'adv', 'c', 'e', 'E', 'h', 'H', 'IC', 'lip', 'max', 'min', 'o', 'org', 'p', 's', 'y', 'z');		// E.g. shown as {h}
+		$unicodeSubscripts['n'] = chr(0xE2).chr(0x82).chr(0x99);
+		
+		# Letter/number combinations whose component characters can be represented as real Unicode
+		$unicodeSubscripts['2+'] = $unicodeSubscripts[2] . $unicodeSubscripts['+'];
+		
+		# Superscripts with no Unicode codepoints, represented as HTML
+		$subscriptsNonUnicodeable = array ('a', 'adv', 'c', 'e', 'E', 'h', 'H', 'IC', 'lip', 'max', 'min', 'o', 'org', 'p', 's', 'y', 'z', chr(0xCE).chr(0x94) . '<em>t</em>', 'f,T=O');		// E.g. shown as {h}
 		foreach ($subscriptsNonUnicodeable as $subscriptNonUnicodeable) {
 			$unicodeSubscripts[$subscriptNonUnicodeable] = '<sub>' . $subscriptNonUnicodeable . '</sub>';	// Will be stripped in final record
 		}
@@ -2808,12 +2814,20 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSuperscripts['('] = chr(0xE2).chr(0x81).chr(0xBD);
 		$unicodeSuperscripts[')'] = chr(0xE2).chr(0x81).chr(0xBE);
 		$unicodeSuperscripts['n'] = chr(0xE2).chr(0x81).chr(0xBF);
-		$unicodeSuperscripts['2+'] = chr(0xC2).chr(0xB0 + 2) . chr(0xE2).chr(0x81).chr(0xBA);
 		
-		# Ordinal indicators; only a and o have proper Unicode characters: https://en.wikipedia.org/wiki/Ordinal_indicator#Usage
+		# Letter/number combinations whose component characters can be represented as real Unicode
+		$unicodeSuperscripts['2+'] = $unicodeSuperscripts[2] . $unicodeSuperscripts['+'];
+		$unicodeSuperscripts['3+'] = $unicodeSuperscripts[3] . $unicodeSuperscripts['+'];
+		$unicodeSuperscripts['1/3'] = $unicodeSuperscripts[1] . '<sup>/</sup>' . $unicodeSuperscripts[3];	// e.g. /records/169424/
+		$unicodeSuperscripts['-1/12'] = $unicodeSuperscripts['-'] . $unicodeSuperscripts[1] . '<sup>/</sup>' . $unicodeSuperscripts[1] . $unicodeSuperscripts[2];	// e.g. /records/120554/
+		$unicodeSuperscripts['4.17'] = $unicodeSuperscripts[4] . '<sup>.</sup>' . $unicodeSuperscripts[1] . $unicodeSuperscripts[7];	// e.g. /records/199372/
+		
+		# Ordinal indicators; NB only a and o have proper Unicode characters: https://en.wikipedia.org/wiki/Ordinal_indicator#Usage
 		$unicodeSuperscripts['a'] = chr(0xC2).chr(0xAA);	// FEMININE ORDINAL INDICATOR (U+00AA); see: http://www.fileformat.info/info/unicode/char/00aa/index.htm
 		$unicodeSuperscripts['o'] = chr(0xC2).chr(0xBA);	// MASCULINE ORDINAL INDICATOR (U+00BA); see: http://www.fileformat.info/info/unicode/char/00ba/index.htm
-		$superscriptsNonUnicodeable = array ('c', 'e', 'E', 'er', chr(0xC3).chr(0xA8) . 're' /* ère */, 'ieme', 'me', 'ne', 'p', 'r', 'R', 're', );		// E.g. shown as }e{
+		
+		# Superscripts with no Unicode codepoints, represented as HTML
+		$superscriptsNonUnicodeable = array ('c', 'e', 'dry', 'E', 'er', chr(0xC3).chr(0xA8) . 're' /* ère */, 'ieme', 'me', 'ne', 'p', 'r', 'R', 're', 't', );		// E.g. shown as }e{
 		foreach ($superscriptsNonUnicodeable as $superscriptNonUnicodeable) {
 			$unicodeSuperscripts[$superscriptNonUnicodeable] = '<sup>' . $superscriptNonUnicodeable . '</sup>';	// HTML tags will be stripped in final record
 		}
@@ -8327,7 +8341,7 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Define the query
 		$query = "
-			SELECT
+			SELECT DISTINCT
 				'italicbracketsorder' AS report,
 				recordId
 			FROM catalogue_processed
