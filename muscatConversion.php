@@ -4619,7 +4619,6 @@ class muscatConversion extends frontControllerApplication
 		foreach ($datastructure as $lineNumber => $line) {
 			foreach ($line['macros'] as $find => $attributes) {
 				foreach ($attributes['macrosThisXpath'] as $macro) {
-					$macro = preg_replace ('/^!([a-zA-Z0-9_]+)/', '\1', $macro);	// Strip any prefixed !
 					$macro = preg_replace ('/^([a-zA-Z0-9_]+)\([^)]+\)/', '\1', $macro);	// Strip any prefixed (..) argument
 					if (!in_array ($macro, $supportedMacros)) {
 						$unknownMacros[] = $macro;
@@ -5068,17 +5067,10 @@ class muscatConversion extends frontControllerApplication
 			# Cache the original string
 			$originalString = $string;
 			
-			# Determine if this is a negative-match macro, preceeded with !, which means that if output is generated then the string is not valid
-			$negativeMatchMode = false;
-			if (preg_match ('/!(.+)/', $macro, $matches)) {
-				$macro = $matches[1];	// Overwrite the method name, e.g. !validIsbn will check the results of macro_validIsbn() in negative-match mode
-				$negativeMatchMode = true;
-			}
-			
 			# Determine any argument supplied
 			$parameter = NULL;
 			if (preg_match ('/([a-zA-Z0-9]+)\(([^)]+)\)/', $macro, $matches)) {
-				$macro = $matches[1];	// Overwrite the method name, e.g. !validIsbn will check the results of macro_validIsbn() in negative-match mode
+				$macro = $matches[1];	// Overwrite the method name
 				$parameter = $matches[2];
 			}
 			
@@ -5088,15 +5080,6 @@ class muscatConversion extends frontControllerApplication
 				$string = $this->{$macroMethod} ($string, $xml, NULL, $authorsFields);
 			} else {
 				$string = $this->{$macroMethod} ($string, $xml, $parameter, $authorsFields);
-			}
-			
-			# In negative-match mode, if a string has been returned, then use the string unmodified
-			if ($negativeMatchMode) {
-				if (strlen ($string)) {
-					return false;
-				} else {
-					$string = $originalString;	// Reset and use this
-				}
 			}
 			
 			// Continue to next macro (if any), using the processed string as it now stands
