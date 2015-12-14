@@ -5114,13 +5114,27 @@ class muscatConversion extends frontControllerApplication
 	# Permits multimedia value EANs, which are probably valid to include as the MARC spec mentions 'EAN': https://www.loc.gov/marc/bibliographic/bd020.html ; see also http://www.activebarcode.com/codes/ean13_laenderpraefixe.html
 	private function macro_validisbn ($value)
 	{
-		# Validate, or end; see: https://github.com/davemontalvo/ISBN-Tools/blob/master/isbn_tools.php ; seems to permit EANs like 5391519681503 in /records/211150/
-		require_once ('ISBN-Tools/isbn_tools.php');
-		if (!validateISBN ($value)) {return false;}
-		// if (!preg_match ('/^(97(8|9))?\d{9}(\d|X)$/', $value)) {return false;}
+		# Strip off any note, for use as qualifying information
+		$q = false;
+		if (preg_match ('/^(.+)\s?\((.+)\)$/', $value, $matches)) {
+			$value = trim ($matches[1]);
+			$q = str_replace (array ('v.', 'vol.'), 'v. ', $matches[2]);	// e.g. 'v. 1' in /records/56613/ or 'set' in /records/71406/
+			if ($q == 'invalid') {$q = false;}	// Will be caught below anyway; applies to /records/140472/ and /records/150974/
+		}
 		
-		# Return the value unmodified if it passes the test
-		return $value;
+		# Determine the subfield, by performing a validation; see: https://github.com/davemontalvo/ISBN-Tools/blob/master/isbn_tools.php ; seems to permit EANs like 5391519681503 in /records/211150/
+		require_once ('ISBN-Tools/isbn_tools.php');
+		$isValid = (validateISBN ($value));
+		$subfield = $this->doubleDagger . ($isValid ? 'a' : 'z');
+		
+		# Assemble the return value, adding qualifying information if required
+		$string = $subfield . $value;
+		if ($q) {
+			$string .= "{$this->doubleDagger}q" . $q;
+		}
+		
+		# Return the value
+		return $string;
 	}
 	
 	
