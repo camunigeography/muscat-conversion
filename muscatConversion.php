@@ -3137,16 +3137,19 @@ class muscatConversion extends frontControllerApplication
 		# Define supported language
 		$language = 'Russian';
 		
-		# Get the titles from record IDs whose language is Russian
+		# Get the titles from record IDs whose language is transliterable
 		$query = "
 			SELECT
-				recordId,
-				value
-			FROM catalogue_processed
+				id,
+				/* Get the value of *t and, if *tt is present, append the value of ' [*tt]' : */
+				CONCAT(
+					REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '*/tg/t')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"),
+					IF(LENGTH(EXTRACTVALUE(xml, '*/tg/tt')) > 0, CONCAT(' [', REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '*/tg/tt')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"), ']'), '')
+				) AS value
+			FROM catalogue_xml
 			WHERE
-				    field = 'tc'	/* The *t field is what is actually used in actual records, but for comparison purposes (the sole reason for this table), it is useful to the English portions */
-				AND recordId IN (
-					SELECT recordId FROM catalogue_processed WHERE field = 'lang' AND value = 'Russian'
+				id IN (
+					SELECT recordId FROM catalogue_processed WHERE field = 'lang' AND value = '{$language}'
 				)
 		;";
 		
