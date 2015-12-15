@@ -176,9 +176,8 @@ class generate245
 		# By default, a Statement of Responsibility is required
 		$this->createStatementOfResponsibility = true;
 		
-		# Are you creating this 245 field for a *ser record? If so, add . and end
+		# Are you creating this 245 field for a *ser record? If so, end; a dot will be added after if punctuation not already present; e.g. /records/137684/ , /records/178352/ avoids two dots
 		if ($this->recordType == '/ser') {
-			$title .= '.';
 			$this->createStatementOfResponsibility = false;		// Flag then picked up below in statementOfResponsibility ()
 		}
 		
