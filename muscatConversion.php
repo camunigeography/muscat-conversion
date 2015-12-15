@@ -3314,9 +3314,8 @@ class muscatConversion extends frontControllerApplication
 		# Protect species Order names (which will not be in italics)
 		$replacements = array_merge ($replacements, $this->getSpeciesOrderNames ());
 		
-		# Protect specific names
-		#!# More to be added
-		$names = array ('Pantopoda', 'Cantharidae', 'Aranei', 'Diptera', 'Chironomidae', 'Diamesinae', 'Pagetopsis', 'Chaenichthyidae', 'Cyclopidae', 'Sipunkulidy', 'Cyclopidae', );
+		# Protect species names
+		$names = $this->oneColumnTableToList ('speciesNames.txt');
 		$replacements = array_merge ($replacements, $names);
 		
 		# Protect Roman numerals
