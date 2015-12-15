@@ -5247,8 +5247,8 @@ class muscatConversion extends frontControllerApplication
 		# Determine characters to check at the end
 		$characterList = ($extendedCharacterList ? '.])>' : '.');	// e.g. 260 $c shown at https://www.loc.gov/marc/bibliographic/bd260.html
 		
-		# Return unmodified if dot already present
-		if (preg_match ('/^(.+)[' . preg_quote ($characterList) . ']$/', $value, $matches)) {
+		# Return unmodified if character already present; for comparison purposes only, this is checked against a strip-tagged version in case there are tags at the end of the string, e.g. the 710 line at /records/7463/
+		if (preg_match ('/^(.+)[' . preg_quote ($characterList) . ']$/', strip_tags ($value), $matches)) {
 			return $value;
 		}
 		
