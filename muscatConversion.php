@@ -3332,6 +3332,19 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Helper function to process a list file to an array
+	private function oneColumnTableToList ($filename)
+	{
+		# Process the file
+		$lookupTable = file_get_contents ($this->applicationRoot . '/tables/' . $filename);
+		$lookupTable = trim ($lookupTable);
+		$lookupTable = str_replace ("\r\n", "\n", $lookupTable);
+		$result = explode ("\n", $lookupTable);
+		
+		# Return the list
+		return $result;
+	}
+	
 	
 	# Function to obtain species Order names
 	private function getSpeciesOrderNames ()
@@ -6147,10 +6160,7 @@ class muscatConversion extends frontControllerApplication
 		# This is because there is clear inconsistency in the records, e.g.: "Field Columbian Museum, Zoological Series 2", "Burt Franklin Research and Source Works Series 60"
 		
 		# Load the regexp list
-		$lookupTable = file_get_contents ($this->applicationRoot . '/tables/' . 'volumeRegexps.txt');
-		$lookupTable = trim ($lookupTable);
-		$lookupTable = str_replace ("\r\n", "\n", $lookupTable);
-		$regexpsBase = explode ("\n", $lookupTable);
+		$regexpsBase = $this->oneColumnTableToList ('volumeRegexps.txt');
 		
 		# Add implicit boundaries to each regexp
 		$regexps = array ();
