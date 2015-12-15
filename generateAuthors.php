@@ -148,6 +148,9 @@ class generateAuthors
 		# Pass through the transliterator if required
 		$line = $this->muscatConversion->macro_transliterateSubfields ($line, NULL, $this->transliteratableSubfields[$this->field], NULL, $languageMode);
 		
+		# Ensure the line ends with punctuation; e.g. /records/1218/ , /records/1221/
+		$line = $this->muscatConversion->macro_dotEnd ($line, NULL, $extendedCharacterList = true);
+		
 		# Write the value into the values registry
 		$this->values[$this->languageMode][$this->field] = $line;
 	}
@@ -206,6 +209,11 @@ class generateAuthors
 			$lines[$index] = $this->muscatConversion->macro_transliterateSubfields ($line, NULL, $this->transliteratableSubfields[$fieldNumber], NULL, $languageMode);
 		}
 		
+		# Ensure each line ends with punctuation; e.g. /records/1218/ , /records/1221/
+		foreach ($lines as $index => $line) {
+			$lines[$index] = $this->muscatConversion->macro_dotEnd ($line, NULL, $extendedCharacterList = true);
+		}
+		
 		# Implode the lines
 		$value = implode ("\n", $lines);
 		
@@ -215,7 +223,7 @@ class generateAuthors
 			$value = mb_substr ($value, 4);	// I.e. chop first four characters, e.g. "700 "
 		}
 		
-		# Write the value, which will be a special multiline string, into the values registry
+		# Write the value, which may be a special multiline string, into the values registry
 		$this->values[$this->languageMode][$this->field] = $value;
 	}
 	
