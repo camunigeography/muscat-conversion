@@ -47,6 +47,9 @@ class generate245
 		$value .= $title;
 		$value .= $statementOfResponsibility;
 		
+		# Ensure the value ends with a dot (if punctuation not already present)
+		$value = $this->muscatConversion->macro_dotEnd ($value, NULL, $extendedCharacterList = true);
+		
 		# Return the value
 		return $value;
 	}
@@ -186,7 +189,7 @@ class generate245
 		if (!$this->createStatementOfResponsibility) {return;}
 		
 		# Start the Statement of Responsibility
-		$statementOfResponsibility = " /{$this->doubleDagger}c";
+		$statementOfResponsibility = ' /' . "{$this->doubleDagger}c";
 		
 		# Look at first or only *doc/*ag/*a OR *art/*ag/*a
 		# THEN: Is there another *a in the parent  *doc/*ag OR *art/*ag which has not already been included in this 245 field? E.g. see /records/181939/
@@ -238,9 +241,6 @@ class generate245
 			# Next e
 			$eIndex++;
 		}
-		
-		# Ensure the value ends with a dot (if not already present)
-		if (mb_substr ($statementOfResponsibility, -1) != '.') {$statementOfResponsibility .= '.';}
 		
 		# Return the Statement of Responsibility
 		return $statementOfResponsibility;

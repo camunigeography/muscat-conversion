@@ -5239,7 +5239,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Ending strings with dots
-	private function macro_dotEnd ($value, $xml_ignored, $extendedCharacterList = false)
+	public function macro_dotEnd ($value, $xml_ignored, $extendedCharacterList = false)
 	{
 		# End if no value
 		if (!strlen ($value)) {return $value;}
