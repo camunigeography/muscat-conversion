@@ -140,13 +140,18 @@ class generate245
 		# Does the record contain a *form? If multiple *form values, separate using semicolon in same square brackets
 		$form = $this->muscatConversion->xPathValue ($this->xml, '(//form)[1]', false);	// The data is known to have max one form per record
 		
+		# Ensure the title is not empty
+		$t = $this->t;
+		if (!strlen ($t)) {$t = '[No title]';}	// E.g. /records/14153/ , /records/188580/ , /records/211866/ , found using "SELECT id, EXTRACTVALUE(xml,'//tg/t') AS tValue FROM catalogue_xml HAVING LENGTH(tValue) = 0;"
+		if ($t == '-') {$t = '[No title]';}	// E.g. /records/214258/
+		
 		# Does the *t include a colon ':'?
-		if (substr_count ($this->t, ':')) {
+		if (substr_count ($t, ':')) {
 			
 			#!# Need to check spacing rules here and added trimming; e.g. see /records/12359/
 			
 			# Add all text before colon
-			$titleComponents = explode (':', $this->t, 2);
+			$titleComponents = explode (':', $t, 2);
 			$title .= $this->doubleDagger . 'a' . trim ($titleComponents[0]);
 			
 			# If there is a *form, Add to 245 field
@@ -160,7 +165,7 @@ class generate245
 		} else {
 			
 			# Add title
-			$title .= $this->doubleDagger . 'a' . $this->t;
+			$title .= $this->doubleDagger . 'a' . $t;
 			
 			# If there is a *form, Add to 245 field; e.g. /records/9543/
 			if ($form) {
