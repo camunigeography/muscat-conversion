@@ -5681,12 +5681,12 @@ class muscatConversion extends frontControllerApplication
 		// application::dumpData ($languages);
 		// application::dumpData ($translationNotes);
 		
-		# In indicator mode, return the indicator at this point
+		# In indicator mode, return the indicator at this point: if there is a $h, the first indicator is 1 and if there is no $h, the first indicator is 0
 		if ($indicatorMode) {
-			if (($languages && $languages[1] /* xPathValues indexes from 1, not 0 */ != 'English') || count ($languages) > 1 /* i.e. English plus another language */ || $translationNotes) {
-				return '1';		// "1 - Item is or includes a translation"; e.g. /records/10009/ , 
+			if ($translationNotes) {
+				return '1';		// "1 - Item is or includes a translation"; e.g. /records/23776/
 			} else {
-				return '0';		// "0 - Item not a translation/does not include a translation"; e.g. /records/1004/ (there is a single explicit langugage of 'English' in the original record)
+				return '0';		// "0 - Item not a translation/does not include a translation"; e.g. /records/10009/ which is simply in another language
 			}
 		}
 		
