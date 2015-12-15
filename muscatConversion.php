@@ -8986,8 +8986,8 @@ class muscatConversion extends frontControllerApplication
 		# Define the query
 		$query = "SELECT * FROM {$this->settings['database']}.reversetransliterations;";
 		
-		# Default to 250 per page
-		$this->settings['paginationRecordsPerPageDefault'] = 250;
+		# Default to 1000 per page
+		$this->settings['paginationRecordsPerPageDefault'] = 1000;
 		
 		# Obtain the listing HTML, passing in the renderer callback function name
 		$html .= $this->recordListing (false, $query, array (), '/reports/reversetransliterations/', false, false, $view = 'callback(reversetransliterationsRenderer)');
