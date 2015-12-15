@@ -28,35 +28,37 @@ copepoda: calanoida
 Craspeditidae
 Cricetidae
 Cyclopidae
-Cylindroteuthis  Lagonibelus
+Cylindroteuthis
+Lagonibelus
 Delphinapterus leucas
 Diamesinae
 Diptera
 Droseraceae-Leguminosae
 Echinodermata
 Erxleben
-Euphausiid Thysanoëssa
+Thysanoëssa
 Euphausiids
 Gastropoda 
 Gervais
 Grimmia Antarctici 
 Hyalospongiae
 Lacydoniidae 
-Lepidonotothen kempi (Norman) 
+Lepidonotothen kempi
 Leptonychotes weddellii
 Lindb
 Linyphiidae 
 Macrouridae
-Macrourus carinatus (Günther, 1978)
+Macrourus carinatus
 Metacnephia
 Micromammalia
 Mystacoceti
 Neptunea röding 
 notothenioidei
 Notothenioidei
-Nototheniops tchizh (Balushkin)
+Nototheniops tchizh
 Oithona similis Claus
-Ondatra zibethicaOnychiurus
+Ondatra zibethica
+Onychiurus
 Ophiura sarsi Lutken
 Ophiuroidea
 Orobanchaceae
@@ -69,11 +71,11 @@ Passeriformes
 Phaeodaria
 Phoca Sibirica
 Phyllodociformia Alciopidae
-Pinnipedia: Odobenidae -Odobenus rosmarus divergens
+Pinnipedia: Odobenidae-Odobenus rosmarus divergens
 Pinus Sibirica
 Pisces
 Plagiothecium
-Plantaginaceae.
+Plantaginaceae
 Polynemiformes
 Pottia
 Ranunculaceae
@@ -85,7 +87,6 @@ Scopelarchidae
 Scydmaenidae 
 Sip unkulidy
 Sipunkuloidea 
-sp.n.
 Stenhomalus
 Stenspini
 Tetraxonida
