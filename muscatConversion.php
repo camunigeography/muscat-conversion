@@ -3667,7 +3667,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Load the Voyager records file
-		$voyagerRecordsFile = file_get_contents ($this->applicationRoot . '/tables/' . 'spri_serials_recs_edited_summer_2006.mrk');
+		$voyagerRecordsFile = file_get_contents ($this->applicationRoot . '/tables/' . 'spri_serials_recs_with_spri_mfhd_attached.mrk');
 		
 		# Parse the Voyager records file into line-by-line shards
 		$shards = $this->parseVoyagerRecordFile ($voyagerRecordsFile, $voyagerMatches);
