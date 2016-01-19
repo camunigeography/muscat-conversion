@@ -2789,8 +2789,8 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSubscripts['239,240'] = $unicodeSubscripts[2] . $unicodeSubscripts[8] . $unicodeSubscripts[9] . '<sup>,</sup>' . $unicodeSubscripts['2'] . $unicodeSubscripts['4'] . $unicodeSubscripts['0'];
 		$unicodeSubscripts['1c'] = $unicodeSubscripts[1] . '<sup>c</sup>';	// e.g. /records/81582/
 		
-		# Superscripts with no Unicode codepoints, represented as HTML
-		$subscriptsNonUnicodeable = array ('a', 'adv', 'c', 'C', 'D', 'e', 'E', 'h', 'H', 'i', 'IC', 'lip', 'm', 'max', 'min', 'o', 'org', 'p', 's', 'x', 'y', 'z', chr(0xCE).chr(0x94) . '<em>t</em>', 'f,T=O', chr(0xCE).chr(0xB8), );		// E.g. shown as {h}
+		# Superscripts not representable as real Unicode codepoints, represented as HTML
+		$subscriptsNonUnicodeable = array ('a', 'adv', 'c', 'C', 'D', 'e', 'E', 'h', 'H', 'i', 'IC', 'lip', 'm', 'max', 'min', 'o', 'org', 'p', 's', 'x', 'y', 'z', chr(0xCE).chr(0x94) . htmlspecialchars ('<em>t</em>'), 'f,T=O', chr(0xCE).chr(0xB8), );		// E.g. shown as {h}
 		foreach ($subscriptsNonUnicodeable as $subscriptNonUnicodeable) {
 			$unicodeSubscripts[$subscriptNonUnicodeable] = '<sub>' . $subscriptNonUnicodeable . '</sub>';	// Will be stripped in final record
 		}
