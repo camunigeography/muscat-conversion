@@ -1,0 +1,335 @@
+<!-- IMPORTANT: This file is NOT actively used by the importer, but is created when updating the definition purely for the purposes of creating an file version that can be checked into the versioning repository. -->
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE translit SYSTEM "translit.dtd">
+
+
+<!--
+
+  Transliteration definitions for BGN/PCGN 1947.
+
+-->
+
+
+<translit>
+
+    <!-- meta information -->
+
+    <name>BGN PCGN 1947</name>
+    <desc>BGN PCGN 1947, Cyrillic to Latin, Russian</desc>
+    <reverse>false</reverse>
+
+
+    <!-- set of transliteration rules -->
+
+    <!--
+        Used abbreviations (according to Unicode Standard 5.0):
+
+            CCL = CYRILLIC CAPITAL LETTER
+            CSL = CYRILLIC SMALL LETTER
+            LCL = LATIN CAPITAL LETTER
+            LSL = LATIN SMALL LETTER
+    -->
+
+    <rules>
+
+
+<!-- https://en.wikipedia.org/wiki/BGN/PCGN_romanization_of_Russian -->
+<!-- https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/320274/Russian_Romanisation.pdf -->
+
+
+
+
+	<rule>
+		<from>ostyatskom</from>
+		<to>остяцком</to>
+	</rule>
+	<rule>
+		<from>obraztsy</from>
+		<to>Образцы</to>
+	</rule>
+
+	<rule>
+		<from>aer</from>
+		<to>аэр</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+
+	<rule>
+		<from>nst</from>
+		<to>нст</to>
+	</rule>
+
+	<rule>
+		<from>tst</from>
+		<to>тст</to>
+	</rule>
+
+	<rule>
+		<from>yaya</from>
+		<to>яя</to>
+	</rule>
+
+	<rule>
+		<from>yey</from>
+		<to>ей</to>
+		<context>
+			<before>\b</before>
+		</context>
+	</rule>
+
+	<rule>
+		<from>uyu</from>
+		<to>ую</to>
+		<context>
+			<before>\b</before>
+		</context>
+	</rule>
+
+	<rule>
+		<from>ey</from>
+		<to>ей</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Ey</from>
+		<to>Ей</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+
+	<rule>
+		<from>ye</from>
+		<to>е</to>
+	</rule>
+	<rule>
+		<from>Ye</from>
+		<to>Е</to>
+	</rule>
+
+	<rule>
+		<from>yu</from>
+		<to>ю</to>
+	</rule>
+	<rule>
+		<from>Yu</from>
+		<to>Ю</to>
+	</rule>
+	<rule>
+		<from>yuy</from>
+		<to>юй</to>
+	</rule>
+	<rule>
+		<from>y</from>
+		<to>й</to>
+		<context>
+			<after>y[aeiou]</after>
+		</context>
+	</rule>
+
+	<rule>
+		<from>ya</from>
+		<to>я</to>
+	</rule>
+	<rule>
+		<from>Ya</from>
+		<to>Я</to>
+	</rule>
+
+	<rule>
+		<from>yy</from>
+		<to>ый</to>
+		<context>
+			<before>\b</before>
+		</context>
+	</rule>
+
+	<rule>
+		<from>y</from>
+		<to>й</to>
+		<context>
+			<after>[aeiou]</after>
+		</context>
+	</rule>
+
+	<rule>
+		<from>y</from>
+		<to>ы</to>
+	</rule>
+
+	<rule>
+		<from>tsya</from>
+		<to>тся</to>
+	</rule>
+	<rule>
+		<from>tsk</from>
+		<to>тск</to>
+	</rule>
+	<rule>
+		<from>tshch</from>
+		<to>тщ</to>
+	</rule>
+	<rule>
+		<from>tsh</from>
+		<to>тш</to>
+	</rule>
+	<rule>
+		<from>ts</from>
+		<to>ц</to>
+	</rule>
+	<rule>
+		<from>Ts</from>
+		<to>Ц</to>
+	</rule>
+
+	<!-- #!# May need to take account of t·s (written in Muscat as 'ts' meaning 'тс') -->
+
+	<rule>
+		<from>shch</from>
+		<to>щ</to>
+	</rule>
+	<rule>
+		<from>Shch</from>
+		<to>Щ</to>
+	</rule>
+
+	<!-- #!# May need to take account of sh·ch (written in Muscat as 'schch' meaning 'шч') -->
+
+	<rule>
+		<from>e</from>
+		<to>э</to>
+		<context>
+			<after>[aiou]</after>
+		</context>
+	</rule>
+
+	<rule>
+		<from>e</from>
+		<to>э</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>E</from>
+		<to>Э</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+
+	<rule> <from>e</from> <to>е</to> </rule>
+	<rule> <from>E</from> <to>Е</to> </rule>
+
+	<rule>
+		<from>sh</from>
+		<to>ш</to>
+	</rule>
+	<rule>
+		<from>Sh</from>
+		<to>Ш</to>
+	</rule>
+
+	<rule>
+		<from>ch</from>
+		<to>ч</to>
+	</rule>
+	<rule>
+		<from>Ch</from>
+		<to>Ч</to>
+	</rule>
+
+	<rule>
+		<from>kh</from>
+		<to>х</to>
+	</rule>
+	<rule>
+		<from>Kh</from>
+		<to>Х</to>
+	</rule>
+
+	<rule>
+		<from>zh</from>
+		<to>ж</to>
+	</rule>
+	<rule>
+		<from>Zh</from>
+		<to>Ж</to>
+	</rule>
+
+	<rule>
+		<from>''</from>
+		<to>Ъ</to>
+	</rule>
+	<rule>
+		<from>'</from>
+		<to>ь</to>
+	</rule>
+	<rule> <from>a</from> <to>а</to> </rule>
+	<rule> <from>A</from> <to>А</to> </rule>
+
+	<rule> <from>b</from> <to>б</to> </rule>
+	<rule> <from>B</from> <to>Б</to> </rule>
+
+	<rule> <from>v</from> <to>в</to> </rule>
+	<rule> <from>V</from> <to>В</to> </rule>
+
+	<rule> <from>g</from> <to>г</to> </rule>
+	<rule> <from>G</from> <to>Г</to> </rule>
+
+	<rule> <from>d</from> <to>д</to> </rule>
+	<rule> <from>D</from> <to>Д</to> </rule>
+
+	<rule> <from>z</from> <to>з</to> </rule>
+	<rule> <from>Z</from> <to>З</to> </rule>
+
+	<rule> <from>i</from> <to>и</to> </rule>
+	<rule> <from>I</from> <to>И</to> </rule>
+
+	<rule> <from>k</from> <to>к</to> </rule>
+	<rule> <from>K</from> <to>К</to> </rule>
+
+	<rule> <from>l</from> <to>л</to> </rule>
+	<rule> <from>L</from> <to>Л</to> </rule>
+
+	<rule> <from>m</from> <to>м</to> </rule>
+	<rule> <from>M</from> <to>М</to> </rule>
+
+	<rule> <from>n</from> <to>н</to> </rule>
+	<rule> <from>N</from> <to>Н</to> </rule>
+
+	<rule> <from>o</from> <to>о</to> </rule>
+	<rule> <from>O</from> <to>О</to> </rule>
+
+	<rule> <from>p</from> <to>п</to> </rule>
+	<rule> <from>P</from> <to>П</to> </rule>
+
+	<rule> <from>r</from> <to>р</to> </rule>
+	<rule> <from>R</from> <to>Р</to> </rule>
+
+	<rule> <from>s</from> <to>с</to> </rule>
+	<rule> <from>S</from> <to>С</to> </rule>
+
+	<rule> <from>t</from> <to>т</to> </rule>
+	<rule> <from>T</from> <to>Т</to> </rule>
+
+	<rule> <from>u</from> <to>у</to> </rule>
+	<rule> <from>U</from> <to>У</to> </rule>
+
+	<rule> <from>f</from> <to>ф</to> </rule>
+	<rule> <from>F</from> <to>Ф</to> </rule>
+
+<!--
+	<rule> <from></from> <to></to> </rule>
+	<rule> <from></from> <to></to> </rule>
+-->
+
+    </rules>
+
+</translit>
+
