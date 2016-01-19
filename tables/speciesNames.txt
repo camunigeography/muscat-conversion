@@ -44,6 +44,7 @@ Diptera
 Droseraceae-Leguminosae
 Echinodermata
 Erxleben
+Euphausiid
 Euphausiids
 Fabaceae
 Gastropoda
