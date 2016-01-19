@@ -3315,8 +3315,12 @@ class muscatConversion extends frontControllerApplication
 		$replacements = array_merge ($replacements, $this->getSpeciesOrderNames ());
 		
 		# Protect species names
-		$names = $this->oneColumnTableToList ('speciesNames.txt');
-		$replacements = array_merge ($replacements, $names);
+		$speciesNames = $this->oneColumnTableToList ('speciesNames.txt');
+		$replacements = array_merge ($replacements, $speciesNames);
+		
+		# Protect chemical formulae
+		$chemicalFormulae = $this->oneColumnTableToList ('chemicalFormulae.txt');
+		$replacements = array_merge ($replacements, $chemicalFormulae);
 		
 		# Protect Roman numerals
 		$romanNumerals = array ();
