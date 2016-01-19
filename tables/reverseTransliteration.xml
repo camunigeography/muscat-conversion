@@ -44,6 +44,79 @@
 		<to>оцкого</to>
 	</rule>
 
+	<rule>
+		<from>Aynskaya</from>
+		<to>Айнская</to>
+	</rule>
+	<rule>
+		<from>tsya</from>
+		<to>тся</to>
+		<context>
+			<before>\b</before>
+		</context>
+	</rule>
+	<rule>
+		<from>ysyakh</from>
+		<to>ысыaх</to>
+	</rule>
+	<rule>
+		<from>Ysyakh</from>
+		<to>Ысыах</to>
+	</rule>
+	<rule>
+		<from>politssyl'nykh</from>
+		<to>политссыльных</to>
+	</rule>
+	<rule>
+		<from>Nenets</from>
+		<to>Ненец</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>spets</from>
+		<to>спец</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Bereg Otsa</from>
+		<to>Берег Отса</to>
+	</rule>
+	<rule>
+		<from>Berega Otsa</from>
+		<to>Берегa Отса</to>
+	</rule>
+	<rule>
+		<from>Aero</from>
+		<to>Аэро</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Oyyunsk</from>
+		<to>Ойунск</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Permyats</from>
+		<to>пермяц</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Anyuy</from>
+		<to>Анюй</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
 
 	<rule>
 		<from>ostyatskom</from>
