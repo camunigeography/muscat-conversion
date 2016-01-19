@@ -55,7 +55,7 @@ Hydrozoa
 Lacydoniidae
 Lagonibelus
 Leguminosae
-Lepidonotothen kempi
+Lepidonotothen kempi (Norman)
 Leptonychotes weddellii
 Lichenes
 Lindb
@@ -63,7 +63,7 @@ Linyphiidae
 Liparididae
 Lophoziaceae
 Macrouridae
-Macrourus carinatus
+Macrourus carinatus (Günther, 1978)
 Metacnephia
 Micromammalia
 Microtinae
@@ -72,7 +72,7 @@ Mystacoceti
 Neptunea röding
 notothenioidei
 Notothenioidei
-Nototheniops tchizh
+Nototheniops tchizh (Balushkin)
 Oithona similis Claus
 Ondatra zibethica
 Onychiurus
