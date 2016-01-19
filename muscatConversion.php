@@ -4991,6 +4991,10 @@ class muscatConversion extends frontControllerApplication
 			# Save the latest version
 			$this->databaseConnection->insert ($this->settings['database'], 'reversetransliterationdefinition', array ('definition' => $result['definition']));
 			
+			# Save an archive copy to the tables directory
+			$prefixWarning = "<!-- IMPORTANT: This file is NOT actively used by the importer, but is created when updating the definition purely for the purposes of creating an file version that can be checked into the versioning repository. -->\n";
+			file_put_contents ($this->applicationRoot . '/tables/reverseTransliteration.xml', $prefixWarning . $result['definition']);
+			
 			# Compile the reverse transliterator
 			if (!$this->compileReverseTransliterator ($result['definition'], $language, $errorHtml)) {
 				echo "\n<p class=\"warning\">{$errorHtml}</p>";
