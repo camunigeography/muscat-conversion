@@ -1,16 +1,22 @@
 Acipenseriformes
 Agonidae
 Alismataceae
-Ampharetidae 
+Ampharetidae
 Anisomyaria
 Anseriformes
+Araeolaimida
 Aranei
 Asteraceae
+Athecata
+Axonolaimidae
+Bacillariophyta
+bathydraconidae
+Berberidaceae
 Bothidae
 Bovichthyidae
 Bryoerythrophyllum recurvirostre
 Bryum algens
-Calanoida 
+Calanoida
 Calanus
 Cantharidae
 Caryophyllaceae
@@ -19,7 +25,7 @@ Chaenichthyidae
 Channichthiidae
 Charadriiformes
 Chironomidae
-Ciconiiformes 
+Ciconiiformes
 Cladoxylopsida
 Clytini
 Colossendeis robusta
@@ -28,31 +34,42 @@ copepoda: calanoida
 Craspeditidae
 Cricetidae
 Cyclopidae
+Cyclopteridae
 Cylindroteuthis
-Lagonibelus
+Cyperaceae
 Delphinapterus leucas
 Diamesinae
+Dinophyta
 Diptera
 Droseraceae-Leguminosae
 Echinodermata
 Erxleben
-Thysanoëssa
 Euphausiids
-Gastropoda 
+Fabaceae
+Gastropoda
 Gervais
-Grimmia Antarctici 
+Grimmia Antarctici
+Grossulariaceae
 Hyalospongiae
-Lacydoniidae 
+Hydrozoa
+Lacydoniidae
+Lagonibelus
+Leguminosae
 Lepidonotothen kempi
 Leptonychotes weddellii
+Lichenes
 Lindb
-Linyphiidae 
+Linyphiidae
+Liparididae
+Lophoziaceae
 Macrouridae
 Macrourus carinatus
 Metacnephia
 Micromammalia
+Microtinae
+Myctophidae
 Mystacoceti
-Neptunea röding 
+Neptunea röding
 notothenioidei
 Notothenioidei
 Nototheniops tchizh
@@ -62,38 +79,51 @@ Onychiurus
 Ophiura sarsi Lutken
 Ophiuroidea
 Orobanchaceae
-P. glehnii Mast
+Otariidae
 Pagetopsis
+Pandalidae
 Pandalus borealis
 Pantopoda
-Parasitus 
+Parasitus
 Passeriformes
+P. glehnii Mast
 Phaeodaria
 Phoca Sibirica
+Phyllocarida
 Phyllodociformia Alciopidae
 Pinnipedia: Odobenidae-Odobenus rosmarus divergens
 Pinus Sibirica
 Pisces
 Plagiothecium
 Plantaginaceae
+Platanaceae
 Polynemiformes
+Portulacaceae
 Pottia
 Ranunculaceae
-Rhagonycha 
+Rhagonycha
+Salicaceae
+Salticidae
 Sarconeurum glaciale
 Scomberesocidae
-Scomberesocidae
 Scopelarchidae
-Scydmaenidae 
+Scydmaenidae
+Serpulidae
 Sip unkulidy
-Sipunkuloidea 
+Sipunkuloidea
 Stenhomalus
 Stenspini
+Stereocaulaceae
 Tetraxonida
 Thyphloscolecidae
+Thysanoëssa
 Tomopteridae
+Torymidae
 Toxoglossa
 Trichiuridae
+Trychophytia
 Turridae
 Urticaceae
+Verbenaceae
+Violaceae
 Walbaum
