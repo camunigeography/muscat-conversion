@@ -39,6 +39,11 @@
 
 
 
+	<rule>
+		<from>otskogo</from>
+		<to>оцкого</to>
+	</rule>
+
 
 	<rule>
 		<from>ostyatskom</from>
