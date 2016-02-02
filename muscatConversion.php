@@ -3315,13 +3315,9 @@ class muscatConversion extends frontControllerApplication
 		# Protect species Order names (which will not be in italics)
 		$replacements = array_merge ($replacements, $this->getSpeciesOrderNames ());
 		
-		# Protect species names
-		$speciesNames = $this->oneColumnTableToList ('speciesNames.txt');
+		# Protect species names and chemical formulae
+		$speciesNames = $this->oneColumnTableToList ('transliterationProtectedStrings.txt');
 		$replacements = array_merge ($replacements, $speciesNames);
-		
-		# Protect chemical formulae
-		$chemicalFormulae = $this->oneColumnTableToList ('chemicalFormulae.txt');
-		$replacements = array_merge ($replacements, $chemicalFormulae);
 		
 		# Protect Roman numerals
 		$romanNumerals = array ();
