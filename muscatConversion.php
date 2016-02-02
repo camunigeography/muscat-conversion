@@ -9087,8 +9087,18 @@ class muscatConversion extends frontControllerApplication
 		# Default to showing all c. 750 records
 		$this->settings['paginationRecordsPerPageDefault'] = 1000;
 		
+		# Compute the total explicitly due to the hard-to-fix bug in the database library
+		$countingQuery = "SELECT
+			COUNT(*) AS total
+			FROM catalogue_xml
+			WHERE
+				    ExtractValue(xml, '/*/tg/t') LIKE '% = %'
+				AND ExtractValue(xml, '//lang') LIKE '%Russian%'
+		";
+		$knownTotalAvailable = $this->databaseConnection->getOneField ($countingQuery, 'total');
+		
 		# Obtain the listing HTML, passing in the renderer callback function name
-		$html .= $this->recordListing (false, $query, array (), '/reports/paralleltitlelanguages/', false, false, $view = 'callback(paralleltitlelanguagesRenderer)');
+		$html .= $this->recordListing (false, $query, array (), '/reports/paralleltitlelanguages/', false, false, $view = 'callback(paralleltitlelanguagesRenderer)', false, $knownTotalAvailable);
 		
 		# Return the HTML
 		return $html;
@@ -9121,7 +9131,7 @@ class muscatConversion extends frontControllerApplication
 			'lang3'			=> '*lang #3',
 			'lang4'			=> '*lang #4',
 		);
-		$html  = "\n<p>Total: " . count ($data) . "; Mismatches: {$mismatches}.</p>";
+		$html  = "\n<p>Mismatches: {$mismatches}.</p>";
 		$html .= application::htmlTable ($data, $tableHeadingSubstitutions, 'lines compressed', $keyAsFirstColumn = false, false, $allowHtml = true, false, false, false, array (), $compress = true);
 		
 		# Render the HTML
