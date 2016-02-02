@@ -165,6 +165,9 @@ Li⁺
 Na⁺
 Be²⁺
 Mg²⁺
+¹³⁷Cs
+HLA
+Sr-Nd
 
 # Latin abbreviations and phrases
 subsp.
@@ -173,6 +176,15 @@ Gen. et sp. n.
 sp. n.
 sp.n.
 
+# Acronyms
+SWIPA
+GPS
+
+# Organisation names
+Congressus Octavus Internationalis Fenno-Ugristarum
+
 # Other strings to protect
 WWGS-89
-
+No.
+studia
+juvenalia
