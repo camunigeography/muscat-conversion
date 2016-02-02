@@ -1,3 +1,4 @@
+# Species names
 Acipenseriformes
 Agonidae
 Alismataceae
@@ -128,15 +129,12 @@ Urticaceae
 Verbenaceae
 Violaceae
 Walbaum
-WWGS-89
 Sanguisorba Officinalis
 Allietum schoenoprasi
-subsp.
 Saxifrago hirculi
 Poetum alpigenae
 Serratula coronata L.
 Ajuga reptans L.
-in vitro
 Gigartinaceae
 Rhodophyta
 Solonaceae
@@ -159,9 +157,16 @@ Phoronis ovalis
 phoronida
 lophophorata
 foronid
+
+# Chemical formulae
 Pb-Pb
 H⁺
 Li⁺
 Na⁺
 Be²⁺
 Mg²⁺
+
+# Other strings to protect
+WWGS-89
+subsp.
+in vitro

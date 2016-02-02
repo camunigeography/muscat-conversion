@@ -3341,6 +3341,12 @@ class muscatConversion extends frontControllerApplication
 		$lookupTable = str_replace ("\r\n", "\n", $lookupTable);
 		$result = explode ("\n", $lookupTable);
 		
+		# Strip empty lines and comments
+		foreach ($result as $index => $line) {
+			if (!strlen (trim ($line)) || preg_match ('/^#/', $line)) {unset ($result[$index]);}
+		}
+		$result = array_values ($result);	// Reindex
+		
 		# Return the list
 		return $result;
 	}
