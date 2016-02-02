@@ -40,6 +40,108 @@
 
 
 	<rule>
+		<from>nenetsk</from>
+		<to>ненетск</to>
+	</rule>
+	<rule>
+		<from>eygete</from>
+		<to>эйгэтэ</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Okhotsk</from>
+		<to>Охотск</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Vilyuysk</from>
+		<to>Вилюйск</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+
+	<rule>
+		<from>Kronotsk</from>
+		<to>Кроноцк</to>
+	</rule>
+
+	<rule>
+		<from>Greem-Bell</from>
+		<to>Греэм-Белл</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+
+	<rule>
+		<from>mezhetn</from>
+		<to>межэтн</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Mezhetn</from>
+		<to>Межэтн</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+
+	<rule>
+		<from>komi-permyaktsk</from>
+		<to>коми-пермяцк</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+
+	<rule>
+		<from>Solovetsk</from>
+		<to>Соловецк</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+
+	<rule>
+		<from>Aysberg</from>
+		<to>Айсберг</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+
+	<rule>
+		<from>Vil'kitsk</from>
+		<to>Вилькицк</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+
+	<rule>
+		<from>Anyuysk</from>
+		<to>Анюйск</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+
+	<rule>
+		<from>Chukotsk</from>
+		<to>Чукотск</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+
+	<rule>
 		<from>otskogo</from>
 		<to>оцкого</to>
 	</rule>
