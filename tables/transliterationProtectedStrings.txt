@@ -166,7 +166,13 @@ Na⁺
 Be²⁺
 Mg²⁺
 
-# Other strings to protect
-WWGS-89
+# Latin abbreviations and phrases
 subsp.
 in vitro
+Gen. et sp. n.
+sp. n.
+sp.n.
+
+# Other strings to protect
+WWGS-89
+

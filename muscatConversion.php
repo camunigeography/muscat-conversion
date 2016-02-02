@@ -230,13 +230,6 @@ class muscatConversion extends frontControllerApplication
 	# Index for 880 subfield 6
 	private $field880subfield6Index = 0;
 	
-	# Latin abbreviations that may appear (and should be protected) within transliterated text
-	private $latinAbbreviations = array (
-		'Gen. et sp. n.',
-		'sp. n.',
-		'sp.n.',
-	);
-	
 	# Caches
 	private $lookupTablesCache = array ();
 	
@@ -3309,13 +3302,10 @@ class muscatConversion extends frontControllerApplication
 		# Start a list
 		$replacements = array ();
 		
-		# Protect known Latin abbreviations
-		$replacements = array_merge ($replacements, $this->latinAbbreviations);
-		
 		# Protect species Order names (which will not be in italics)
 		$replacements = array_merge ($replacements, $this->getSpeciesOrderNames ());
 		
-		# Protect species names and chemical formulae
+		# Protect species names, chemical formulae, latin abbreviations, and other strings
 		$speciesNames = $this->oneColumnTableToList ('transliterationProtectedStrings.txt');
 		$replacements = array_merge ($replacements, $speciesNames);
 		
