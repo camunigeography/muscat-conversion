@@ -101,6 +101,7 @@ class muscatConversion extends frontControllerApplication
 		'seriestitlemismatches3' => 'listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = other)',
 		'languages' => 'listing: languages',
 		'reversetransliterations' => 'listing: reverse-transliterated titles',
+		'paralleltitlelanguages' => 'listing: records with parallel titles, filtered to Russian',
 		'distinctn1notfollowedbyn2' => 'Distinct values of all *n1 fields that are not immediately followed by a *n2 field',
 		'distinctn2notprecededbyn1' => 'Distinct values of all *n2 fields that are not immediately preceded by a *n1 field',
 		'kwunknown' => 'records where kw is unknown, showing the bibliographer concerned',
@@ -9039,6 +9040,89 @@ class muscatConversion extends frontControllerApplication
 		# Render as HTML; records already may contain tags
 		$tableHeadingSubstitutions = array ('id' => '#', 'title' => 'Voyager (Cyrillic)', 'title_latin' => 'Muscat (transliteration)');
 		$html  = application::htmlTable ($data, $tableHeadingSubstitutions, 'lines', $keyAsFirstColumn = false, false, $allowHtml = true, false, false, false, array (), $compress = true);
+		
+		# Render the HTML
+		return $html;
+	}
+	
+	
+	# Report showing records with parallel titles, filtered to Russian
+	private function report_paralleltitlelanguages ()
+	{
+		// No action needed - the data is created dynamically
+		return true;
+	}
+	
+	
+	# View for report_paralleltitlelanguages
+	private function report_paralleltitlelanguages_view ()
+	{
+		# Start the HTML
+		$html = '';
+		
+		# Define the query
+		$query = "SELECT
+				id,
+				ExtractValue(xml, '/*/tg/t') as topLevelT,
+				CAST( (LENGTH( ExtractValue(xml, '/*/tg/t') )-LENGTH(REPLACE( ExtractValue(xml, '/*/tg/t') ,' = ','')))/LENGTH(' = ') AS SIGNED) + 1 AS totalParts,
+				ExtractValue(xml, 'count(//lang)') AS totalLang,
+				'' AS isDifferent,
+				ExtractValue(xml, '//lang[1]') AS lang1,
+				ExtractValue(xml, '//lang[2]') AS lang2,
+				ExtractValue(xml, '//lang[3]') AS lang3,
+				ExtractValue(xml, '//lang[4]') AS lang4
+			FROM catalogue_xml
+			WHERE
+				    ExtractValue(xml, '/*/tg/t') LIKE '% = %'
+				AND ExtractValue(xml, '//lang') LIKE '%Russian%'
+			ORDER BY
+				lang1 = '', lang1,	/* i.e. empty value '' at end */
+				lang2 = '', lang2,
+			/* Disabled due to '#1038 - Out of sort memory, consider increasing server sort buffer size' */
+			--	lang3 = '', lang3,
+			--	lang4 = '', lang4,
+				id
+		;";
+		
+		# Default to showing all c. 750 records
+		$this->settings['paginationRecordsPerPageDefault'] = 1000;
+		
+		# Obtain the listing HTML, passing in the renderer callback function name
+		$html .= $this->recordListing (false, $query, array (), '/reports/paralleltitlelanguages/', false, false, $view = 'callback(paralleltitlelanguagesRenderer)');
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Callback to provide a renderer for report_paralleltitlelanguages
+	private function paralleltitlelanguagesRenderer ($data)
+	{
+		# Link each record
+		foreach ($data as $id => $record) {
+			$data[$id]['id'] = "<a href=\"{$this->baseUrl}/records/{$record['id']}/\">{$record['id']}</a>";
+		}
+		
+		# Compute the isDifferent column for efficiency
+		$mismatches = 0;
+		foreach ($data as $id => $record) {
+			$isDifferent = ($record['totalParts'] != $record['totalLang']);
+			$data[$id]['isDifferent'] = ($isDifferent ? '<span class="warning">Mismatch</span>' : '');
+			if ($isDifferent) {$mismatches++;}
+		}
+		
+		# Render as HTML; records already may contain tags
+		$tableHeadingSubstitutions = array (
+			'value'			=> 'Value',
+			'totalParts'	=> 'Total parts in title',
+			'totalLang'		=> 'Total *lang',
+			'lang1'			=> '*lang #1',
+			'lang2'			=> '*lang #2',
+			'lang3'			=> '*lang #3',
+			'lang4'			=> '*lang #4',
+		);
+		$html  = "\n<p>Total: " . count ($data) . "; Mismatches: {$mismatches}.</p>";
+		$html .= application::htmlTable ($data, $tableHeadingSubstitutions, 'lines compressed', $keyAsFirstColumn = false, false, $allowHtml = true, false, false, false, array (), $compress = true);
 		
 		# Render the HTML
 		return $html;
