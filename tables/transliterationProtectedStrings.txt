@@ -159,6 +159,15 @@ lophophorata
 foronid
 Artiodactyla
 Polysticta stelleri
+Tilesius
+Blum.
+du Tour
+Erxl.
+Acariformes
+Trombiculidae
+coleoptera
+apionidae
+curculionidae
 
 # Chemical formulae
 Pb-Pb
@@ -170,6 +179,8 @@ Mg²⁺
 ¹³⁷Cs
 HLA
 Sr-Nd
+²¹⁰Pb (⁹⁰Sr)
+⁹⁰Sr
 
 # Latin abbreviations and phrases
 subsp.
