@@ -157,6 +157,8 @@ Phoronis ovalis
 phoronida
 lophophorata
 foronid
+Artiodactyla
+Polysticta stelleri
 
 # Chemical formulae
 Pb-Pb
@@ -179,6 +181,8 @@ sp.n.
 # Acronyms
 SWIPA
 GPS
+AMIP
+GIS
 
 # Organisation names
 Congressus Octavus Internationalis Fenno-Ugristarum
