@@ -3326,8 +3326,10 @@ class muscatConversion extends frontControllerApplication
 		$speciesNames = $this->oneColumnTableToList ('transliterationProtectedStrings.txt');
 		$replacements = array_merge ($replacements, $speciesNames);
 		
-		# Protect Roman numerals, by defining a dynamic replacement pattern
-		$replacements[] = '/' . '(?:\s|\(|^)' . '[IVXLCDM]+[-IVXLCDM]*'    . '(?:\s|\)|$)' . '/';
+		# Protect Roman numerals, by defining dynamic replacement patterns
+		#!# There is still the potential for "Volume I." at the end of a sentence, but that I. cannot be disambiguated from I. as an initial
+		$replacements[] = '/' . '(?:\s|\(|^)' . '[IVXLCDM]+[-IVXLCDM]*' . '(?:\s|\)|$)' . '/';
+		$replacements[] = '/' . '(?:\s|\(|^)' . '[IVXLCDM]+[-IVXLCDM]+' . '(?:\s|\)|$|\.)' . '/';	// Allow space if more than one; e.g. /records/144193/ which includes "Dactylopteriformes. - XXXVII."
 		
 		# Cache
 		$this->transliterationProtectedStrings = $replacements;
