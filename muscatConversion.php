@@ -3299,6 +3299,11 @@ class muscatConversion extends frontControllerApplication
 	# Function to create a list of strings to protect from transliteration
 	private function transliterationProtectedStrings ()
 	{
+		# Use cache if present
+		if (isSet ($this->transliterationProtectedStrings)) {
+			return $this->transliterationProtectedStrings;
+		}
+		
 		# Start a list
 		$replacements = array ();
 		
@@ -3316,6 +3321,9 @@ class muscatConversion extends frontControllerApplication
 			$romanNumerals[] =  ' ' . $romanNumeral . (strlen ($romanNumeral) == 1 ? ' ' : '');		// Space added around to avoid being used within initials for a name, e.g. "V.G. Bogorazom"
 		}
 		$replacements = array_merge ($replacements, $romanNumerals);
+		
+		# Cache
+		$this->transliterationProtectedStrings = $replacements;
 		
 		# Return the list
 		return $replacements;
