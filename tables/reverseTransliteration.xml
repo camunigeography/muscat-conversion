@@ -41,7 +41,10 @@
 
 	<rule>
 		<from>nenetsk</from>
-		<to>ненетск</to>
+		<to>ненецк</to>
+		<context>
+			<after>\b</after>
+		</context>
 	</rule>
 	<rule>
 		<from>eygete</from>
