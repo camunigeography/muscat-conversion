@@ -3277,6 +3277,18 @@ class muscatConversion extends frontControllerApplication
 		$tags = array ('<em>', '</em>', '<sub>', '</sub>', '<sup>', '</sup>', );
 		$replacements = array_merge ($replacements, $tags);
 		
+		# Create dynamic replacements
+		foreach ($replacements as $index => $replacement) {
+			if (preg_match ('|^/.+/i?$|', $replacement)) {	// e.g. a pattern /(X-XI)/i against string 'Foo X-Xi Bar' would add 'X-Xi' to the replacements list
+				unset ($replacements[$index]);	// Remove the pattern itself from the replacement list, as it should not be treated as a literal
+				if (preg_match_all ($replacement, $string, $matches, PREG_PATTERN_ORDER)) {
+					foreach ($matches[0] as $match) {
+						$replacements[] = $match;
+					}
+				}
+			}
+		}
+		
 		# Define a numbered token pattern consisting of a safe string not likely to be present in the data and which will not be affected by any transliteration operation
 		$pattern = ' <||%i||> ';	// %i represents an index that will be generated, e.g. ' <||367||> ', which acts as a token representing the value of $replacements[367]
 		
@@ -3314,18 +3326,8 @@ class muscatConversion extends frontControllerApplication
 		$speciesNames = $this->oneColumnTableToList ('transliterationProtectedStrings.txt');
 		$replacements = array_merge ($replacements, $speciesNames);
 		
-		# Protect Roman numerals; this explicitly specifies various permutations of characters (usually spaces, but sometimes brackets or dashes) either side
-		$romanNumerals = array ();
-		for ($year = 1; $year <= date ('Y'); $year++) {		// 1 to the current year should be a sufficient range
-			$romanNumeral = application::romanNumeral ($year);
-			$romanNumerals[] = ' ' . $romanNumeral . (strlen ($romanNumeral) == 1 ? ' ' : '');		// Space added around to avoid being used within initials for a name, e.g. "V.G. Bogorazom"
-			$romanNumerals[] = ' ' . $romanNumeral . '-';
-			$romanNumerals[] = '(' . $romanNumeral;
-			$romanNumerals[] = '-' . $romanNumeral;
-			$romanNumerals[] = '(' . $romanNumeral . ')';
-			$romanNumerals[] =       $romanNumeral . ')';
-		}
-		$replacements = array_merge ($replacements, $romanNumerals);
+		# Protect Roman numerals, by defining a dynamic replacement pattern
+		$replacements[] = '/' . '(?:\s|\(|^)' . '[IVXLCDM]+[-IVXLCDM]*'    . '(?:\s|\)|$)' . '/';
 		
 		# Cache
 		$this->transliterationProtectedStrings = $replacements;
