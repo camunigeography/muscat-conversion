@@ -3314,11 +3314,16 @@ class muscatConversion extends frontControllerApplication
 		$speciesNames = $this->oneColumnTableToList ('transliterationProtectedStrings.txt');
 		$replacements = array_merge ($replacements, $speciesNames);
 		
-		# Protect Roman numerals
+		# Protect Roman numerals; this explicitly specifies various permutations of characters (usually spaces, but sometimes brackets or dashes) either side
 		$romanNumerals = array ();
 		for ($year = 1; $year <= date ('Y'); $year++) {		// 1 to the current year should be a sufficient range
 			$romanNumeral = application::romanNumeral ($year);
-			$romanNumerals[] =  ' ' . $romanNumeral . (strlen ($romanNumeral) == 1 ? ' ' : '');		// Space added around to avoid being used within initials for a name, e.g. "V.G. Bogorazom"
+			$romanNumerals[] = ' ' . $romanNumeral . (strlen ($romanNumeral) == 1 ? ' ' : '');		// Space added around to avoid being used within initials for a name, e.g. "V.G. Bogorazom"
+			$romanNumerals[] = ' ' . $romanNumeral . '-';
+			$romanNumerals[] = '(' . $romanNumeral;
+			$romanNumerals[] = '-' . $romanNumeral;
+			$romanNumerals[] = '(' . $romanNumeral . ')';
+			$romanNumerals[] =       $romanNumeral . ')';
 		}
 		$replacements = array_merge ($replacements, $romanNumerals);
 		
