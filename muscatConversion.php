@@ -3259,9 +3259,6 @@ class muscatConversion extends frontControllerApplication
 	# Function to protect string portions (e.g. English language, HTML portions) prior to transliteration; can be undone with a simple strtr()
 	private function protectSubstrings ($string, &$protectedParts)
 	{
-		# Define a numbered token pattern consisting of a safe string not likely to be present in the data and which will not be affected by any transliteration operation
-		$pattern = " <||%i||> ";	// %i represents an index that will be generated
-		
 		# Start an array of replacements
 		$replacements = array ();
 		
@@ -3279,6 +3276,9 @@ class muscatConversion extends frontControllerApplication
 		# Add in HTML tags for protection; in theory all <em> and </em> tags will have been swallowed already
 		$tags = array ('<em>', '</em>', '<sub>', '</sub>', '<sup>', '</sup>', );
 		$replacements = array_merge ($replacements, $tags);
+		
+		# Define a numbered token pattern consisting of a safe string not likely to be present in the data and which will not be affected by any transliteration operation
+		$pattern = ' <||%i||> ';	// %i represents an index that will be generated, e.g. ' <||367||> ', which acts as a token representing the value of $replacements[367]
 		
 		# Create a token for each protected part
 		$protectedParts = array ();
