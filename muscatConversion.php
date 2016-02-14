@@ -816,7 +816,7 @@ class muscatConversion extends frontControllerApplication
 			*/
 				$data = $this->getRecords ($id, 'xml');
 				$marcParserDefinition = $this->getMarcParserDefinition ();
-				$record['marc'] = $this->convertToMarc ($marcParserDefinition, $data['xml'], $errorString);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
+				$record['marc'] = $this->convertToMarc ($marcParserDefinition, $data['xml'], $errorString, $record['mergeType'], $record['mergeVoyagerId'], $marcPreMerge /* passed back by reference */);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
 				$output  = "\n<p>The MARC output uses the <a target=\"_blank\" href=\"{$this->baseUrl}/marcparser.html\">parser definition</a> to do the mapping from the XML representation.</p>";
 				if ($errorString) {
 					$output .= "\n<p class=\"warning\">{$errorString}</p>";
@@ -825,8 +825,18 @@ class muscatConversion extends frontControllerApplication
 			*/
 				$output .= "\n<div class=\"graybox marc\">";
 				$output .= "\n<p id=\"exporttarget\">Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->migrationStatus ($id) . "</strong></p>";
+				if ($record['mergeType']) {
+					$output .= "\n<p>Note: this record has <strong>merge data</strong>, shown underneath.</p>";
+				}
 				$output .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($record[$type])) . "\n</pre>";
-				$output .= $this->existingVoyagerRecord ($record['mergeType'], $record['mergeVoyagerId']);
+				if ($record['mergeType']) {
+					$output .= "\n<h3>Merge data</h3>";
+					$output .= "\n<p>Merge type: {$record['mergeType']}" . (isSet ($this->mergeTypes[$record['mergeType']]) ? " ({$this->mergeTypes[$record['mergeType']]})" : '') . "\n<br />Voyager ID: #{$record['mergeVoyagerId']}.</p>";
+					$output .= "\n<h4>Pre-merge record from Muscat:</h4>";
+					$output .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($marcPreMerge)) . "\n</pre>";
+					$output .= "\n<h4>Existing Voyager record:</h4>";
+					$output .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($this->existingVoyagerRecord ($record['mergeType'], $record['mergeVoyagerId']))) . "\n</pre>";
+				}
 				$output .= "\n</div>";
 				break;
 				
@@ -862,23 +872,17 @@ class muscatConversion extends frontControllerApplication
 	# Function to show an existing Voyager record
 	private function existingVoyagerRecord ($mergeType, $mergeVoyagerId)
 	{
-		# End if no merge data
-		if (!$mergeType || !$mergeVoyagerId) {return;}
-		
 		# Start the HTML by stating the merge target
-		$html  = "\n<p>This record has Voyager merge data:</p>";
-		$html .= "\n<p>Merge type: {$mergeType}" . (isSet ($this->mergeTypes[$mergeType]) ? " ({$this->mergeTypes[$mergeType]})" : '') . "\n<br />Voyager ID: #{$mergeVoyagerId}.</p>";
+		$html  = "\n<p>Original Voyager record:</p>";
 		
 		# If the merge voyager ID is not yet a pure integer (i.e. not yet a one-to-one lookup), state this and end
 		if (!ctype_digit ($mergeVoyagerId)) {
-			$html .= "\n<pre>" . "\n<p>There is not yet a one-to-one match, so no Voyager record can be displayed.</p>" . "\n</pre>";
-			return $html;
+			return "\n<p class=\"warning\">There is not yet a one-to-one match, so no Voyager record can be displayed.</p>";
 		}
 		
 		# Look up Voyager record, or end (e.g. no match)
 		if (!$voyagerRecordShards = $this->databaseConnection->select ($this->settings['database'], 'catalogue_external', array ('voyagerId' => $mergeVoyagerId))) {
-			$html .= "\n<p class=\"warning\">Error: the specified Voyager record (#{$mergeVoyagerId}) could not be found in the external datasource.</p>";
-			return $html;
+			return "\n<p class=\"warning\">Error: the specified Voyager record (#{$mergeVoyagerId}) could not be found in the external datasource.</p>";
 		}
 		
 		# Construct the record lines
@@ -891,11 +895,8 @@ class muscatConversion extends frontControllerApplication
 		# Implode to string
 		$record = implode ("\n", $recordLines);
 		
-		# Format
-		$html .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($record)) . "\n</pre>";
-		
 		# Return the HTML
-		return $html;
+		return $record;
 	}
 	
 	
@@ -3593,10 +3594,11 @@ class muscatConversion extends frontControllerApplication
 				status ENUM('migrate','suppress','ignore') NULL DEFAULT NULL COMMENT 'Status',
 				mergeType VARCHAR(255) NULL DEFAULT NULL COMMENT 'Merge type',
 				mergeVoyagerId VARCHAR(255) NULL DEFAULT NULL COMMENT 'Voyager ID for merging',
-				marc text COLLATE utf8_unicode_ci COMMENT 'MARC representation of Muscat record',
+				marcPreMerge TEXT NULL COLLATE utf8_unicode_ci COMMENT 'Pre-merged MARC representation of local Muscat record',
+				marc TEXT COLLATE utf8_unicode_ci COMMENT 'MARC representation of Muscat record',
 			  PRIMARY KEY (id)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC representation of Muscat records';
-		";
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC representation of Muscat records'
+		;";
 		$this->databaseConnection->execute ($sql);
 		
 		# Cross insert the IDs
@@ -3618,8 +3620,8 @@ class muscatConversion extends frontControllerApplication
 		# Add in the supress/migrate/ignore status for each record; also available as a standalone option in the import
 		$this->marcRecordsSetStatus ();
 		
-		# Add in the Voyager merge data fields
-		$this->marcRecordsSetMergeFields ();
+		# Add in the Voyager merge data fields, retrieving the resulting data
+		$mergeData = $this->marcRecordsSetMergeFields ();
 		
 		# Get the schema
 		if (!$marcParserDefinition = $this->getMarcParserDefinition ()) {return false;}
@@ -3669,7 +3671,9 @@ class muscatConversion extends frontControllerApplication
 				# Arrange as a set of inserts
 				$inserts = array ();
 				foreach ($records as $id => $record) {
-					$marc = $this->convertToMarc ($marcParserDefinition, $record['xml'], $errorString);
+					$mergeType      = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeType'] : false);
+					$mergeVoyagerId	= (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeVoyagerId'] : false);
+					$marc = $this->convertToMarc ($marcParserDefinition, $record['xml'], $errorString, $mergeType, $mergeVoyagerId, $marcPreMerge);
 					if ($errorString) {
 						$html  = "<p class=\"warning\">Record <a href=\"{$this->baseUrl}/records/{$id}/\">{$id}</a> could not be converted to MARC:</p>";
 						$html .= "\n<p><img src=\"/images/icons/exclamation.png\" class=\"icon\" /> {$errorString}</p>";
@@ -3677,6 +3681,7 @@ class muscatConversion extends frontControllerApplication
 					}
 					$inserts[$id] = array (
 						'id' => $id,
+						'marcPreMerge' => $marcPreMerge,
 						'marc' => $marc,
 					);
 				}
@@ -3865,6 +3870,11 @@ class muscatConversion extends frontControllerApplication
 				OR EXTRACTVALUE(xml, '//kc') != ''
 		;";
 		$this->databaseConnection->execute ($query);
+		
+		# Read the values back and return them
+		$query = "SELECT id, mergeType, mergeVoyagerId FROM {$this->settings['database']}.catalogue_marc WHERE mergeType IS NOT NULL";
+		$mergeData = $this->databaseConnection->getData ($query, "{$this->settings['database']}.catalogue_marc");
+		return $mergeData;
 	}
 	
 	
@@ -4537,16 +4547,16 @@ class muscatConversion extends frontControllerApplication
 	
 	# Function to convert the data to MARC format
 	# NB XPath functions can have PHP modifications in them using php:functionString - may be useful in future http://www.sitepoint.com/php-dom-using-xpath/ http://cowburn.info/2009/10/23/php-funcs-xpath/
-	private function convertToMarc ($marcParserDefinition, $record, &$errorString = '')
+	private function convertToMarc ($marcParserDefinition, $recordXml, &$errorString = '', $mergeType = false, $mergeVoyagerId = false, &$marcPreMerge = NULL)
 	{
 		# Ensure the line-by-line syntax is valid, extract macros, and construct a data structure representing the record
-		if (!$datastructure = $this->convertToMarc_InitialiseDatastructure ($record, $marcParserDefinition, $errorString)) {return false;}
+		if (!$datastructure = $this->convertToMarc_InitialiseDatastructure ($recordXml, $marcParserDefinition, $errorString)) {return false;}
 		
 		# End if not all macros are supported
 		if (!$this->convertToMarc_MacrosAllSupported ($datastructure, $errorString)) {return false;}
 		
 		# Load the record as a valid XML object
-		$xml = $this->loadXmlRecord ($record);
+		$xml = $this->loadXmlRecord ($recordXml);
 		
 		# Up-front, process author fields
 		require_once ('generateAuthors.php');
@@ -4569,13 +4579,42 @@ class muscatConversion extends frontControllerApplication
 		$record = preg_replace ('/^LDR (_____)/m', "LDR {$bytes}", $record);
 		
 		# Report any UTF-8 problems
+		$recordId = $this->xPathValue ($xml, '//q0');
 		if (!htmlspecialchars ($record)) {
-			$recordId = $this->xPathValue ($xml, '//q0');
 			$errorString .= "UTF-8 conversion failed in record <a href=\"{$this->baseUrl}/records/{$recordId}/\">#{$recordId}</a>.";
 			return false;
 		}
 		
+		# If required, merge with an existing Voyager record, returning by reference the pre-merge record, and below returning the merged record
+		if ($mergeType) {
+			$marcPreMerge = $record;	// Save to argument returned by reference
+			$record = $this->mergeWithExistingVoyager ($record, $recordId, $mergeType, $mergeVoyagerId, $errorString);
+		}
+		
 		# Return the record
+		return $record;
+	}
+	
+	
+	# Function to perform merge of a MARC record with an existing Voyager record
+	private function mergeWithExistingVoyager ($record, $recordId, $mergeType, $mergeVoyagerId, &$errorString)
+	{
+		# End if merge type is unsupported; this will result in an empty record
+		#!# Need to ensure this is reported during the import also
+		if (!isSet ($this->mergeTypes[$mergeType])) {
+			$errorString = "Merge failed for Muscat record #{$recordId}!";
+			return false;
+		}
+		
+		# Perform merge based on the specified strategy
+		switch ($mergeType) {
+			
+			#!# TODO - requires implementation for each $this->mergeTypes; just needs to modify $record
+			
+			
+		}
+		
+		# Return the merged record
 		return $record;
 	}
 	
@@ -6450,7 +6489,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Define the fallback value in case that is needed
 		if (!isSet ($lookupTableRaw[''])) {
-			$lookupTableRaw['']		= $lookupTableRaw[$fallbackKey];
+			$lookupTableRaw[''] = $lookupTableRaw[$fallbackKey];
 		}
 		$lookupTableRaw[false]	= $lookupTableRaw[$fallbackKey];	// Boolean false also needs to be defined because no-match value from an xPathValue() lookup will be false
 		
