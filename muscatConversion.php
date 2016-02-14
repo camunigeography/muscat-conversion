@@ -3820,7 +3820,8 @@ class muscatConversion extends frontControllerApplication
 						   value LIKE '%offprint%'
 						OR value LIKE '%photocopy%'
 						)
-					)	-- 1916 records
+					AND value NOT LIKE '%out of copyright%'
+					)	-- 1793 records
 				OR (
 					    EXTRACTVALUE(xml, '//doc/tg/t') = ''
 					AND EXTRACTVALUE(xml, '//art/tg/t') = ''
@@ -8359,7 +8360,7 @@ class muscatConversion extends frontControllerApplication
 	# Records that contain photocopy/offprint in *note/*local/*priv
 	private function report_offprints ()
 	{
-		# Define the query
+		# Define the query; this should reflect the same clause as marcRecordsSetStatus
 		$query = "
 			SELECT DISTINCT
 				'offprints' AS report,
@@ -8367,9 +8368,12 @@ class muscatConversion extends frontControllerApplication
 			FROM catalogue_processed
 			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
 			WHERE
-				    field IN ('note', 'local', 'priv')
-				AND (value LIKE '%photocopy%' OR value LIKE '%offprint%')
-			";
+				    field IN('note', 'local', 'priv')
+				AND (
+					   value LIKE '%offprint%'
+					OR value LIKE '%photocopy%')
+				AND value NOT LIKE '%out of copyright%'
+		";
 		
 		# Return the query
 		return $query;
