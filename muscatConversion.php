@@ -110,6 +110,7 @@ class muscatConversion extends frontControllerApplication
 		'volumenumbers_info' => 'volume number results arising from 490 macro',
 		'voyagerlocations' => 'Muscat locations that do not map to Voyager locations',
 		'translationnotevalues' => 'records containing a note regarding translation - distinct values',
+		'mergestatus' => 'records with a merge status',
 	);
 	
 	# Define the types
@@ -9484,6 +9485,66 @@ class muscatConversion extends frontControllerApplication
 		$html = $this->reportListing (NULL, 'values', 'anywhere', false, $query);
 		
 		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Records with a merge status - distinct values
+	private function report_mergestatus ()
+	{
+		// No action needed - the view is created dynamically
+		return true;
+	}
+	
+	
+	# View for records with a merge status
+	private function report_mergestatus_view ()
+	{
+		# Define a manual query
+		$query = "
+			SELECT
+				id,
+				mergeType,
+				mergeVoyagerId
+			FROM catalogue_marc
+			WHERE
+				mergeType IS NOT NULL
+			ORDER BY mergeType, id
+		";
+		
+		# Default to 2000 per page
+		$this->settings['paginationRecordsPerPageDefault'] = 2000;
+		
+		# Obtain the listing HTML
+		$html = $this->recordListing (false, $query, array (), '/reports/mergestatus/', false, false, $view = 'callback(mergestatusRenderer)');
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Callback to provide a renderer for report_mergestatus
+	private function mergestatusRenderer ($data)
+	{
+		# Link each record
+		foreach ($data as $id => $record) {
+			$data[$id]['id'] = "<a href=\"{$this->baseUrl}/records/{$record['id']}/\">{$record['id']}</a>";
+		}
+		
+		# Add labels
+		foreach ($data as $id => $record) {
+			$data[$id]['mergeType'] .= ' &nbsp; <span class="comment">(' . (isSet ($this->mergeTypes[$record['mergeType']]) ? "{$this->mergeTypes[$record['mergeType']]}" : '?') . ')</span>';
+		}
+		
+		# Render as HTML
+		$tableHeadingSubstitutions = array (
+			'mergeType'			=> 'Merge type',
+			'mergeVoyagerId'	=> 'Voyager ID(s)',
+		);
+		$html  = "\n" . '<!-- Enable table sortability: --><script language="javascript" type="text/javascript" src="/sitetech/sorttable.js"></script>';
+		$html .= application::htmlTable ($data, $tableHeadingSubstitutions, 'lines compressed sortable" id="sortable', $keyAsFirstColumn = false, false, $allowHtml = true, false, false, false, array (), $compress = true);
+		
+		# Render the HTML
 		return $html;
 	}
 	
