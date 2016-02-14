@@ -154,7 +154,7 @@ class muscatConversion extends frontControllerApplication
 			'label'		=> '<img src="/images/icons/page_white_code_red.png" alt="" border="0" /> Muscat as MARC',
 			'title'		=> 'Representation of the XML data as MARC21, via the defined parser description',
 			'errorHtml'	=> "The MARC21 representation of the Muscat record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
-			'fields'	=> array ('id', 'marc'),
+			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc'),
 			'idField'	=> 'id',
 			'orderBy'	=> 'id',
 			'class'		=> false,
@@ -188,6 +188,15 @@ class muscatConversion extends frontControllerApplication
 		'migrate'	=> 'Migrate to Voyager',
 		'suppress'	=> 'Suppress from OPAC',
 		'ignore'	=> 'Ignore record',
+	);
+	
+	# Define the merge types
+	private $mergeTypes = array (
+		'TIP'	=> 'exact title match and ISSN match',
+		'TP'	=> 'exact title, but not ISSN',
+		'IP'	=> 'ISSN match, but not exact title',
+		'P'		=> 'probable match, unconfirmed',
+		'C'		=> 'probable match, confirmed',
 	);
 	
 	# Define the location codes
@@ -806,8 +815,7 @@ class muscatConversion extends frontControllerApplication
 			*/
 				$data = $this->getRecords ($id, 'xml');
 				$marcParserDefinition = $this->getMarcParserDefinition ();
-				$record = array ();
-				$record['marc'] = $this->convertToMarc ($marcParserDefinition, $data['xml'], $errorString);
+				$record['marc'] = $this->convertToMarc ($marcParserDefinition, $data['xml'], $errorString);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
 				$output  = "\n<p>The MARC output uses the <a target=\"_blank\" href=\"{$this->baseUrl}/marcparser.html\">parser definition</a> to do the mapping from the XML representation.</p>";
 				if ($errorString) {
 					$output .= "\n<p class=\"warning\">{$errorString}</p>";
@@ -817,7 +825,7 @@ class muscatConversion extends frontControllerApplication
 				$output .= "\n<div class=\"graybox marc\">";
 				$output .= "\n<p id=\"exporttarget\">Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->migrationStatus ($id) . "</strong></p>";
 				$output .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($record[$type])) . "\n</pre>";
-				$output .= $this->existingVoyagerRecord ($id);
+				$output .= $this->existingVoyagerRecord ($record['mergeType'], $record['mergeVoyagerId']);
 				$output .= "\n</div>";
 				break;
 				
@@ -851,10 +859,26 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to show an existing Voyager record
-	private function existingVoyagerRecord ($muscatId)
+	private function existingVoyagerRecord ($mergeType, $mergeVoyagerId)
 	{
+		# End if no merge data
+		if (!$mergeType || !$mergeVoyagerId) {return;}
+		
+		# Start the HTML by stating the merge target
+		$html  = "\n<p>This record has Voyager merge data:</p>";
+		$html .= "\n<p>Merge type: {$mergeType}" . (isSet ($this->mergeTypes[$mergeType]) ? " ({$this->mergeTypes[$mergeType]})" : '') . "\n<br />Voyager ID: #{$mergeVoyagerId}.</p>";
+		
+		# If the merge voyager ID is not yet a pure integer (i.e. not yet a one-to-one lookup), state this and end
+		if (!ctype_digit ($mergeVoyagerId)) {
+			$html .= "\n<pre>" . "\n<p>There is not yet a one-to-one match, so no Voyager record can be displayed.</p>" . "\n</pre>";
+			return $html;
+		}
+		
 		# Look up Voyager record, or end (e.g. no match)
-		if (!$voyagerRecordShards = $this->databaseConnection->select ($this->settings['database'], 'catalogue_external', array ('muscatId' => $muscatId))) {return false;}
+		if (!$voyagerRecordShards = $this->databaseConnection->select ($this->settings['database'], 'catalogue_external', array ('voyagerId' => $mergeVoyagerId))) {
+			$html .= "\n<p class=\"warning\">Error: the specified Voyager record (#{$mergeVoyagerId}) could not be found in the external datasource.</p>";
+			return $html;
+		}
 		
 		# Construct the record lines
 		$recordLines = array ();
@@ -867,7 +891,6 @@ class muscatConversion extends frontControllerApplication
 		$record = implode ("\n", $recordLines);
 		
 		# Format
-		$html  = "\n<p>This record has an existing entry in Voyager:</p>";
 		$html .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($record)) . "\n</pre>";
 		
 		# Return the HTML
@@ -988,9 +1011,9 @@ class muscatConversion extends frontControllerApplication
 			<kw /><!-- UDC translations. Added automatically by running c-tranudc (see Section ?) -->
 		</k>
 		<k2>
-			<ka />
+			<ka /><!-- Voyager merge data: Type of match and other comments -->
 			<kb />
-			<kc />
+			<kc /><!-- Voyager merge data: Serial id/control number -->
 			<kd />
 			<ke /><!-- Analytic record link: (redundant for processing purposes) used in host record that Muscat uses for GUI purposes to link to a lookup -->
 			<kf /><!-- Analytic record link: (redundant for processing purposes) internal Muscat GUI representation of kg -->
@@ -1130,9 +1153,9 @@ class muscatConversion extends frontControllerApplication
 				<kw /><!-- UDC translations. Added automatically by running c-transudc -->
 			</k>
 			<k2>
-				<ka />
+				<ka /><!-- Voyager merge data: Type of match and other comments -->
 				<kb />
-				<kc />
+				<kc /><!-- Voyager merge data: Serial id/control number -->
 				<kd />
 				<ke /><!-- Analytic record link: (redundant for processing purposes) used in host record that Muscat uses for GUI purposes to link to a lookup -->
 				<kf /><!-- Analytic record link: (redundant for processing purposes) internal Muscat GUI representation of kg -->
@@ -1216,9 +1239,9 @@ class muscatConversion extends frontControllerApplication
 				<kw /><!-- UDC translations. Added automatically by running c-transudc -->
 			</k>
 			<k2>
-				<ka />
+				<ka /><!-- Voyager merge data: Type of match and other comments -->
 				<kb />
-				<kc />
+				<kc /><!-- Voyager merge data: Serial id/control number -->
 				<kd />
 				<ke /><!-- Analytic record link: (redundant for processing purposes) used in host record that Muscat uses for GUI purposes to link to a lookup -->
 				<kf /><!-- Analytic record link: (redundant for processing purposes) internal Muscat GUI representation of kg -->
@@ -1316,9 +1339,9 @@ class muscatConversion extends frontControllerApplication
 			<kw /><!-- UDC translations. Added automatically by running c-transudc -->
 		</k>
 		<k2><!-- left blank, but essential if *k2 included -->
-			<ka />
+			<ka /><!-- Voyager merge data: Type of match and other comments -->
 			<kb />
-			<kc />
+			<kc /><!-- Voyager merge data: Serial id/control number -->
 			<kd />
 			<ke /><!-- Analytic record link: (redundant for processing purposes) used in host record that Muscat uses for GUI purposes to link to a lookup -->
 			<kf /><!-- Analytic record link: (redundant for processing purposes) internal Muscat GUI representation of kg -->
@@ -3567,6 +3590,8 @@ class muscatConversion extends frontControllerApplication
 				id int(11) NOT NULL COMMENT 'Record number',
 				type ENUM('/art/in','/art/j','/doc','/ser') DEFAULT NULL COMMENT 'Type of record',
 				status ENUM('migrate','suppress','ignore') NULL DEFAULT NULL COMMENT 'Status',
+				mergeType VARCHAR(255) NULL DEFAULT NULL COMMENT 'Merge type',
+				mergeVoyagerId VARCHAR(255) NULL DEFAULT NULL COMMENT 'Voyager ID for merging',
 				marc text COLLATE utf8_unicode_ci COMMENT 'MARC representation of Muscat record',
 			  PRIMARY KEY (id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC representation of Muscat records';
@@ -3591,6 +3616,9 @@ class muscatConversion extends frontControllerApplication
 		
 		# Add in the supress/migrate/ignore status for each record; also available as a standalone option in the import
 		$this->marcRecordsSetStatus ();
+		
+		# Add in the Voyager merge data fields
+		$this->marcRecordsSetMergeFields ();
 		
 		# Get the schema
 		if (!$marcParserDefinition = $this->getMarcParserDefinition ()) {return false;}
@@ -3674,17 +3702,11 @@ class muscatConversion extends frontControllerApplication
 	# Function to import existing Voyager records
 	private function createExternalRecords ()
 	{
-		# Load the Voyager<>Muscat matches file, as key-value pairs
-		$voyagerMatches = application::getCsvData ($this->applicationRoot . '/tables/' . 'voyagerMatches.csv', $getHeaders = false, $assignKeys = false, $keyAsFirstRow = false);
-		foreach ($voyagerMatches as $id => $match) {
-			$voyagerMatches[$id] = $match['muscat'];	// Flatten to key-value pairs
-		}
-		
 		# Load the Voyager records file
 		$voyagerRecordsFile = file_get_contents ($this->applicationRoot . '/tables/' . 'spri_serials_recs_with_spri_mfhd_attached.mrk');
 		
 		# Parse the Voyager records file into line-by-line shards
-		$shards = $this->parseVoyagerRecordFile ($voyagerRecordsFile, $voyagerMatches);
+		$shards = $this->parseVoyagerRecordFile ($voyagerRecordsFile);
 		
 		# Clean out the external records table
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.catalogue_external;";
@@ -3694,7 +3716,6 @@ class muscatConversion extends frontControllerApplication
 		$sql = "
 			CREATE TABLE IF NOT EXISTS catalogue_external (
 				id int(11) NOT NULL AUTO_INCREMENT COMMENT 'Automatic key',
-				muscatId INT(6) NOT NULL COMMENT 'Muscat ID',
 				voyagerId INT(11) NOT NULL COMMENT 'Voyager ID',
 				field VARCHAR(3) NOT NULL COMMENT 'Field code',
 				indicators VARCHAR(2) NOT NULL COMMENT 'First and second indicator',
@@ -3713,7 +3734,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to parse the Voyager record file
-	private function parseVoyagerRecordFile ($voyagerRecordsFile, $voyagerMatches)
+	private function parseVoyagerRecordFile ($voyagerRecordsFile)
 	{
 		# Normalise newlines
 		$voyagerRecordsFile = str_replace ("\r\n", "\n", trim ($voyagerRecordsFile));
@@ -3744,19 +3765,11 @@ class muscatConversion extends frontControllerApplication
 			$voyager[$voyagerId] = $record;
 		}
 		
-		# Remove records that have no Muscat match as they do not need to be overwritten in the eventual data
-		foreach ($voyager as $voyagerId => $record) {
-			if (!isSet ($voyagerMatches[$voyagerId])) {
-				unset ($voyager[$voyagerId]);
-			}
-		}
-		
 		# Arrange as record shards
 		$shards = array ();
 		foreach ($voyager as $voyagerId => $record) {
 			foreach ($record as $index => $line) {
 				$shards[] = array (
-					'muscatId'		=> $voyagerMatches[$voyagerId],
 					'voyagerId'		=> $voyagerId,
 					'field'			=> $line['1'],
 					'indicators'	=> $line['2'],
@@ -3831,6 +3844,23 @@ class muscatConversion extends frontControllerApplication
 					)
 				OR (field = 'location' AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection'))
 			-- 1846 records in total
+		;";
+		$this->databaseConnection->execute ($query);
+	}
+	
+	
+	# Function to add in the Voyager merge data fields
+	private function marcRecordsSetMergeFields ()
+	{
+		# Records to suppress
+		$query = "UPDATE catalogue_marc
+			LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
+			SET
+				mergeType = REPLACE (EXTRACTVALUE(xml, '//ka'), 'Matchtype: ', ''),
+				mergeVoyagerId = EXTRACTVALUE(xml, '//kc')
+			WHERE
+				   EXTRACTVALUE(xml, '//ka') != ''
+				OR EXTRACTVALUE(xml, '//kc') != ''
 		;";
 		$this->databaseConnection->execute ($query);
 	}
@@ -8541,10 +8571,10 @@ class muscatConversion extends frontControllerApplication
 		$query = "
 			SELECT
 				'voyagerrecords' AS report,
-				muscatId AS recordId
+				id AS recordId
 			FROM
-				catalogue_external
-			GROUP BY muscatId
+				catalogue_marc
+			WHERE mergeVoyagerId IS NOT NULL
 		";
 		
 		# Return the query
