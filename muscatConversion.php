@@ -4549,6 +4549,9 @@ class muscatConversion extends frontControllerApplication
 	# NB XPath functions can have PHP modifications in them using php:functionString - may be useful in future http://www.sitepoint.com/php-dom-using-xpath/ http://cowburn.info/2009/10/23/php-funcs-xpath/
 	private function convertToMarc ($marcParserDefinition, $recordXml, &$errorString = '', $mergeType = false, $mergeVoyagerId = false, &$marcPreMerge = NULL)
 	{
+		# Ensure the error string is clean for each iteration
+		$errorString = '';
+		
 		# Ensure the line-by-line syntax is valid, extract macros, and construct a data structure representing the record
 		if (!$datastructure = $this->convertToMarc_InitialiseDatastructure ($recordXml, $marcParserDefinition, $errorString)) {return false;}
 		
