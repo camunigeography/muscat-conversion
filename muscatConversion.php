@@ -877,12 +877,12 @@ class muscatConversion extends frontControllerApplication
 		
 		# If the merge voyager ID is not yet a pure integer (i.e. not yet a one-to-one lookup), state this and end
 		if (!ctype_digit ($mergeVoyagerId)) {
-			return "\n<p class=\"warning\">There is not yet a one-to-one match, so no Voyager record can be displayed.</p>";
+			return 'There is not yet a one-to-one match, so no Voyager record can be displayed.';
 		}
 		
 		# Look up Voyager record, or end (e.g. no match)
 		if (!$voyagerRecordShards = $this->databaseConnection->select ($this->settings['database'], 'catalogue_external', array ('voyagerId' => $mergeVoyagerId))) {
-			return "\n<p class=\"warning\">Error: the specified Voyager record (#{$mergeVoyagerId}) could not be found in the external datasource.</p>";
+			return "Error: the specified Voyager record (#{$mergeVoyagerId}) could not be found in the external datasource.";
 		}
 		
 		# Construct the record lines
