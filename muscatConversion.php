@@ -2805,13 +2805,16 @@ class muscatConversion extends frontControllerApplication
 		
 		# Letter/number combinations whose component characters can be represented, or partially represented, as real Unicode
 		$unicodeSubscripts['2+'] = $unicodeSubscripts[2] . $unicodeSubscripts['+'];
-		$unicodeSubscripts['239,240'] = $unicodeSubscripts[2] . $unicodeSubscripts[8] . $unicodeSubscripts[9] . '<sup>,</sup>' . $unicodeSubscripts['2'] . $unicodeSubscripts['4'] . $unicodeSubscripts['0'];
-		$unicodeSubscripts['1c'] = $unicodeSubscripts[1] . '<sup>c</sup>';	// e.g. /records/81582/
+		$unicodeSubscripts['2-'] = $unicodeSubscripts[2] . $unicodeSubscripts['-'];
+		$unicodeSubscripts['239,240'] = $unicodeSubscripts[2] . $unicodeSubscripts[8] . $unicodeSubscripts[9] . '<sub>,</sub>' . $unicodeSubscripts['2'] . $unicodeSubscripts['4'] . $unicodeSubscripts['0'];
+		$unicodeSubscripts['1c'] = $unicodeSubscripts[1] . '<sub>c</sub>';	// e.g. /records/81582/
+		$unicodeSubscripts['O2'] = '<sub>O</sub>' . $unicodeSubscripts[2];
+		$unicodeSubscripts['31:9'] = $unicodeSubscripts[3] . $unicodeSubscripts[1] . '<sub>:</sub>' . $unicodeSubscripts[9];
 		
-		# Superscripts not representable as real Unicode codepoints, represented as HTML
-		$subscriptsNonUnicodeable = array ('a', 'adv', 'c', 'C', 'D', 'e', 'E', 'h', 'H', 'i', 'IC', 'lip', 'm', 'max', 'min', 'o', 'org', 'p', 's', 'x', 'y', 'z', chr(0xCE).chr(0x94) . htmlspecialchars ('<em>t</em>'), 'f,T=O', chr(0xCE).chr(0xB8), );		// E.g. shown as {h}
+		# Subscripts not representable as real Unicode codepoints, represented as HTML
+		$subscriptsNonUnicodeable = array ('a', 'apex', 'adv', 'b', 'c', 'C', 'CO', 'd', 'D', 'e', 'E', 'eff', 'g', 'h', 'H', 'i', 'I', 'IC', 'Jan', 'L', 'lip', 'm', 'max', 'min', 'o', 'org', 'p', 'p/c', 'R', 'rs', 's', 'SL', 'ST', 'St', 't', 'T', 'v', 'w.e', 'x', 'y', 'z', chr(0xCE).chr(0x94) . '<em>t</em>' /* delta, for /records/78099/ */ , 'f,T=O', chr(0xCE).chr(0xB8), chr(0xCE).chr(0xB7), );		// E.g. shown as {h}
 		foreach ($subscriptsNonUnicodeable as $subscriptNonUnicodeable) {
-			$unicodeSubscripts[$subscriptNonUnicodeable] = '<sub>' . $subscriptNonUnicodeable . '</sub>';	// Will be stripped in final record
+			$unicodeSubscripts[$subscriptNonUnicodeable] = '<sub>' . $subscriptNonUnicodeable . '</sub>';	// HTML tags will be stripped in final record
 		}
 		
 		# Superscripts: more awkward than subscripts as code points include three ASCII-position characters; see: http://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts#Superscripts_and_subscripts_block
@@ -2835,6 +2838,8 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSuperscripts['('] = chr(0xE2).chr(0x81).chr(0xBD);
 		$unicodeSuperscripts[')'] = chr(0xE2).chr(0x81).chr(0xBE);
 		$unicodeSuperscripts['n'] = chr(0xE2).chr(0x81).chr(0xBF);
+		$unicodeSuperscripts['.'] = chr(0xC2).chr(0xB7);	// Middle dot
+		$unicodeSuperscripts['TM'] = chr(0xE2).chr(0x84).chr(0xA2);	// Trademark
 		
 		# Letter/number combinations whose component characters can be represented as real Unicode
 		$unicodeSuperscripts['2+'] = $unicodeSuperscripts[2] . $unicodeSuperscripts['+'];
@@ -2844,13 +2849,19 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSuperscripts['1/3'] = $unicodeSuperscripts[1] . '<sup>/</sup>' . $unicodeSuperscripts[3];	// e.g. /records/169424/
 		$unicodeSuperscripts['-1/12'] = $unicodeSuperscripts['-'] . $unicodeSuperscripts[1] . '<sup>/</sup>' . $unicodeSuperscripts[1] . $unicodeSuperscripts[2];	// e.g. /records/120554/
 		$unicodeSuperscripts['4.17'] = $unicodeSuperscripts[4] . '<sup>.</sup>' . $unicodeSuperscripts[1] . $unicodeSuperscripts[7];	// e.g. /records/199372/
+		$unicodeSuperscripts['238-240'] = $unicodeSuperscripts[2] . $unicodeSuperscripts[3] . $unicodeSuperscripts[8] . $unicodeSuperscripts['-'] . $unicodeSuperscripts[2] . $unicodeSuperscripts[4] . $unicodeSuperscripts[0];	// e.g. /records/212674/
+		$unicodeSuperscripts['239+240'] = $unicodeSuperscripts[2] . $unicodeSuperscripts[3] . $unicodeSuperscripts[9] . $unicodeSuperscripts['+'] . $unicodeSuperscripts[2] . $unicodeSuperscripts[4] . $unicodeSuperscripts[0];	// e.g. /records/206908/
+		$unicodeSuperscripts['-1h-1'] = $unicodeSuperscripts['-'] . $unicodeSuperscripts[1] . '<sup>h</sup>' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];
+		$unicodeSuperscripts['2s-1'] = $unicodeSuperscripts[2] . '<sup>s</sup>' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];
+		$unicodeSuperscripts['-2s-1'] = $unicodeSuperscripts['-'] . $unicodeSuperscripts[2] . '<sup>s</sup>' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];
+		$unicodeSuperscripts['3y-1'] = $unicodeSuperscripts[3] . '<sup>y</sup>' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];
 		
 		# Ordinal indicators; NB only a and o have proper Unicode characters: https://en.wikipedia.org/wiki/Ordinal_indicator#Usage
 		$unicodeSuperscripts['a'] = chr(0xC2).chr(0xAA);	// FEMININE ORDINAL INDICATOR (U+00AA); see: http://www.fileformat.info/info/unicode/char/00aa/index.htm
 		$unicodeSuperscripts['o'] = chr(0xC2).chr(0xBA);	// MASCULINE ORDINAL INDICATOR (U+00BA); see: http://www.fileformat.info/info/unicode/char/00ba/index.htm
 		
 		# Superscripts with no Unicode codepoints, represented as HTML
-		$superscriptsNonUnicodeable = array ('c', 'dry', 'e', 'E', 'er', chr(0xC3).chr(0xA8) . 're' /* ère */, 'ieme', 'me', 'ne', 'p', 'r', 'R', 're', 't', '~', );		// E.g. shown as }e{
+		$superscriptsNonUnicodeable = array ('c', 'dry', 'e', 'E', 'er', chr(0xC3).chr(0xA8) . 're' /* ère */, 'ieme', 'l', 'me', 'ne', 'p', 'r', 'R', 're', 't', 'T', 'tot', '~', );		// E.g. shown as }e{
 		foreach ($superscriptsNonUnicodeable as $superscriptNonUnicodeable) {
 			$unicodeSuperscripts[$superscriptNonUnicodeable] = '<sup>' . $superscriptNonUnicodeable . '</sup>';	// HTML tags will be stripped in final record
 		}
