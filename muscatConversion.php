@@ -3176,6 +3176,7 @@ class muscatConversion extends frontControllerApplication
 			`title` TEXT COLLATE utf8_unicode_ci NULL COMMENT 'Reverse-transliterated title',
 			`title_latin` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title (English), from original data',
 			`title_forward` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Forward transliteration from generated Cyrillic (BGN/PCGN)',
+			`forwardCheckFailed` INT(1) NULL COMMENT 'Forward check failed?',
 			`title_loc` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Forward transliteration from generated Cyrillic (Library of Congress)',
 			PRIMARY KEY (`id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of reverse transliterations'
@@ -3243,11 +3244,12 @@ class muscatConversion extends frontControllerApplication
 		$i = 0;
 		foreach ($data as $id => $string) {
 			$reverseTransliterations[$i++] = array (
-				'id'			=> $id,
-				'title'			=> $dataTransliterated[$id],
-				'title_latin'	=> $string,
-				'title_forward'	=> $forwardBgnTransliterations[$id],
-				'title_loc'		=> $forwardLocTransliterations[$id],
+				'id'					=> $id,
+				'title'					=> $dataTransliterated[$id],
+				'title_latin'			=> $string,
+				'title_forward'			=> $forwardBgnTransliterations[$id],
+				'forwardCheckFailed'	=> ($string != $forwardBgnTransliterations[$id] ? 1 : NULL),
+				'title_loc'				=> $forwardLocTransliterations[$id],
 			);
 		}
 		
@@ -9152,8 +9154,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Define the query
 		$query = "SELECT
-				*,
-				IF(BINARY title_latin != BINARY title_forward, 1, '') AS forwardCheckFailed
+				*
 			FROM {$this->settings['database']}.reversetransliterations
 		;";
 		
