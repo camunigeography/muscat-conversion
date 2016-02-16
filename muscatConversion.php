@@ -85,6 +85,7 @@ class muscatConversion extends frontControllerApplication
 		'langnott_info' => 'records with a *lang but no *tt, having first filtered out any locations whose *lang is English',
 		'doctsperiodicaltitle_problem' => '*doc records whose (first) *ts does not match the start of a periodical title',
 		'transliteratedenglish_problem' => 'records whose titles are being transliterated but appear to be in English',
+		'transliteratefailure_problem' => 'records whose reverse transliteration is not reversible',
 		'voyagerrecords_info' => 'records with an equivalent already in Voyager, targetted for merging',
 	);
 	
@@ -8649,6 +8650,23 @@ class muscatConversion extends frontControllerApplication
 				FROM reversetransliterations
 			) AS reversetransliterations_firstParts
 			WHERE `title_latin` REGEXP '(the | of )'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records whose reverse transliteration is not reversible
+	private function report_transliteratefailure ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'transliteratefailure' AS report,
+				id AS recordId
+			FROM reversetransliterations
+			WHERE (BINARY title_latin != BINARY title_forward)
 		";
 		
 		# Return the query
