@@ -3174,6 +3174,7 @@ class muscatConversion extends frontControllerApplication
 			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Record ID',
 			`title` TEXT COLLATE utf8_unicode_ci NULL COMMENT 'Reverse-transliterated title',
 			`title_latin` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title (English), from original data',
+			`title_forward` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Forward transliteration from generated Cyrillic (BGN/PCGN)',
 			PRIMARY KEY (`id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of reverse transliterations'
 		;";
@@ -3218,6 +3219,17 @@ class muscatConversion extends frontControllerApplication
 			$dataTransliterated[$id] = $subArray['string'];	// Flatten the array
 		}
 		
+		# Do a comparison check by forward-transliterating the generated Cyrillic
+		$forwardBgnTransliterations = array ();
+		foreach ($dataTransliterated as $id => $reconstructedCyrillic) {
+			$reversion = transliterator_transliterate ('Russian-Latin/BGN', $reconstructedCyrillic);
+			$muscatRepresentations = array (
+				chr(0xCA).chr(0xB9) => "'",	// Soft sign -> Muscat quote
+				chr(0xCA).chr(0xBA) => "''",	// Hard sign -> Muscat double quote
+			);
+			$forwardBgnTransliterations[$id] = strtr ($reversion, $muscatRepresentations);
+		}
+		
 		# Compile the inserts
 		$reverseTransliterations = array ();
 		$i = 0;
@@ -3226,6 +3238,7 @@ class muscatConversion extends frontControllerApplication
 				'id'			=> $id,
 				'title'			=> $dataTransliterated[$id],
 				'title_latin'	=> $string,
+				'title_forward'	=> $forwardBgnTransliterations[$id],
 			);
 		}
 		
@@ -9099,7 +9112,11 @@ class muscatConversion extends frontControllerApplication
 		$html .= "\n<p>You can <a href=\"{$this->baseUrl}/transliterator.html\">edit the reverse-transliteration definition</a>.</p>";
 		
 		# Define the query
-		$query = "SELECT * FROM {$this->settings['database']}.reversetransliterations;";
+		$query = "SELECT
+				*,
+				IF(BINARY title_latin != BINARY title_forward, 1, '') AS forwardCheckFailed
+			FROM {$this->settings['database']}.reversetransliterations
+		;";
 		
 		# Default to 1000 per page
 		$this->settings['paginationRecordsPerPageDefault'] = 1000;
@@ -9115,6 +9132,15 @@ class muscatConversion extends frontControllerApplication
 	# Callback to provide a renderer
 	private function reversetransliterationsRenderer ($data)
 	{
+		# Add a comparison check, and hide the two fields required for it
+		foreach ($data as $id => $record) {
+			if ($record['forwardCheckFailed']) {
+				$data[$id]['title_latin'] .= '<br /><br /><span class="warning"><strong>Reversibility check failed:</strong></span><br />' . $record['title_forward'];
+			}
+			unset ($data[$id]['title_forward']);
+			unset ($data[$id]['forwardCheckFailed']);
+		}
+		
 		# Extract strings to spellcheck as key/value pairs
 		$spellcheck = array ();
 		foreach ($data as $id => $record) {
@@ -9135,7 +9161,11 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Render as HTML; records already may contain tags
-		$tableHeadingSubstitutions = array ('id' => '#', 'title' => 'Voyager (Cyrillic)', 'title_latin' => 'Muscat (transliteration)');
+		$tableHeadingSubstitutions = array (
+			'id' => '#',
+			'title' => 'Voyager (Cyrillic)',
+			'title_latin' => 'Muscat (transliteration)',
+		);
 		$html  = application::htmlTable ($data, $tableHeadingSubstitutions, 'lines', $keyAsFirstColumn = false, false, $allowHtml = true, false, false, false, array (), $compress = true);
 		
 		# Render the HTML
