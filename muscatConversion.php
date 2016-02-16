@@ -3175,6 +3175,7 @@ class muscatConversion extends frontControllerApplication
 			`title` TEXT COLLATE utf8_unicode_ci NULL COMMENT 'Reverse-transliterated title',
 			`title_latin` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title (English), from original data',
 			`title_forward` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Forward transliteration from generated Cyrillic (BGN/PCGN)',
+			`title_loc` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Forward transliteration from generated Cyrillic (Library of Congress)',
 			PRIMARY KEY (`id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of reverse transliterations'
 		;";
@@ -3230,6 +3231,12 @@ class muscatConversion extends frontControllerApplication
 			$forwardBgnTransliterations[$id] = strtr ($reversion, $muscatRepresentations);
 		}
 		
+		# Add new Library of Congress (LoC) transliteration from the generated Cyrillic
+		$forwardLocTransliterations = array ();
+		foreach ($dataTransliterated as $id => $reconstructedCyrillic) {
+			$forwardLocTransliterations[$id] = $this->transliterateCyrillicToLoC ($reconstructedCyrillic);
+		}
+		
 		# Compile the inserts
 		$reverseTransliterations = array ();
 		$i = 0;
@@ -3239,6 +3246,7 @@ class muscatConversion extends frontControllerApplication
 				'title'			=> $dataTransliterated[$id],
 				'title_latin'	=> $string,
 				'title_forward'	=> $forwardBgnTransliterations[$id],
+				'title_loc'		=> $forwardLocTransliterations[$id],
 			);
 		}
 		
@@ -3247,6 +3255,19 @@ class muscatConversion extends frontControllerApplication
 		
 		# Signal success
 		return true;
+	}
+	
+	
+	# Function to transliterate from Cyrillic to Library of Congress (ALA LC); see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
+	private function transliterateCyrillicToLoC ($cyrillic)
+	{
+		# Load the Library of Congress transliterations definition, copied from https://github.com/umpirsky/Transliterator/blob/master/src/Transliterator/data/ru/ALA_LC.php
+		if (!isSet ($this->locTransliterationDefinition)) {
+			$this->locTransliterationDefinition = require_once ('tables/ALA_LC.php');
+		}
+		
+		# Transliterate and return
+		return str_replace ($this->locTransliterationDefinition['cyr'], $this->locTransliterationDefinition['lat'], $cyrillic);
 	}
 	
 	
@@ -9165,6 +9186,7 @@ class muscatConversion extends frontControllerApplication
 			'id' => '#',
 			'title' => 'Voyager (Cyrillic)',
 			'title_latin' => 'Muscat (transliteration)',
+			'title_loc' => 'Library of Congress Cyrillic',
 		);
 		$html  = application::htmlTable ($data, $tableHeadingSubstitutions, 'lines', $keyAsFirstColumn = false, false, $allowHtml = true, false, false, false, array (), $compress = true);
 		
