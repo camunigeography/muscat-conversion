@@ -9149,6 +9149,14 @@ class muscatConversion extends frontControllerApplication
 		# Regenerate on demand during testing
 		//$this->transliterationsCheckingTable ();
 		
+		# Determine whether to filter to failures only
+		$failuresOnly = (isSet ($_GET['filter']) && $_GET['filter'] == '1');
+		if ($failuresOnly) {
+			$html .= "\n<p><a href=\"{$this->baseUrl}/reports/reversetransliterations/\">Show all</a> | <strong>Filtering to failures only</strong></p>";
+		} else {
+			$html .= "\n<p><strong>Showing all</strong> | <a href=\"{$this->baseUrl}/reports/reversetransliterations/?filter=1\">Filter to failures only</a></p>";
+		}
+		
 		# Add link to editing the definition
 		$html .= "\n<p>You can <a href=\"{$this->baseUrl}/transliterator.html\">edit the reverse-transliteration definition</a>.</p>";
 		
@@ -9156,6 +9164,7 @@ class muscatConversion extends frontControllerApplication
 		$query = "SELECT
 				*
 			FROM {$this->settings['database']}.reversetransliterations
+			" . ($failuresOnly ? 'WHERE forwardCheckFailed = 1' : '') . "
 		;";
 		
 		# Default to 1000 per page
