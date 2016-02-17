@@ -6674,6 +6674,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Add 773 ‡w: Copy in the 001 (Record control number) from the host record; this will need to be modified in the target Voyager system post-import
+		#!# For one of the merge strategies, this number will be known
 		$subfields[] = "{$this->doubleDagger}w" . $marc['001'][0]['line'];
 		
 		# Compile the result
