@@ -168,6 +168,9 @@ Trombiculidae
 coleoptera
 apionidae
 curculionidae
+Aetideidae
+Buccinidae
+Oenopotinae
 
 # Chemical formulae
 Pb-Pb
