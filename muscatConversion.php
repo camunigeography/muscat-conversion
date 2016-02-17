@@ -240,6 +240,8 @@ class muscatConversion extends frontControllerApplication
 	
 	# Index for 880 subfield 6
 	private $field880subfield6Index = 0;
+	private $field880subfield6FieldInstanceIndex = array ();
+	private $field880subfield6ReciprocalLinks = array ();
 	
 	# Caches
 	private $lookupTablesCache = array ();
@@ -5053,6 +5055,23 @@ class muscatConversion extends frontControllerApplication
 			$outputLines[$lineOutputKey] = $line;
 		}
 		
+		# Insert 880 reciprocal links; see: http://www.lib.cam.ac.uk/libraries/login/documentation/Unicode_non_roman_cataloguing_handout.pdf
+		foreach ($this->field880subfield6ReciprocalLinks as $lineOutputKey => $linkToken) {		// $lineOutputKey is e.g. 700_0
+			
+			# For multilines, split the line into parts, prepend the link token
+			if (is_array ($linkToken)) {
+				$lines = explode ("\n", $outputLines[$lineOutputKey]);	// Split out
+				foreach ($lines as $i => $line) {
+					$lines[$i] = $this->insertSubfieldAfterMarcFieldThenIndicators ($line, $linkToken[$i]);
+				}
+				$outputLines[$lineOutputKey] = implode ("\n", $lines);	// Reconstruct
+				
+				# For standard lines, do a simple insertion
+			} else {
+				$outputLines[$lineOutputKey] = $this->insertSubfieldAfterMarcFieldThenIndicators ($outputLines[$lineOutputKey], $linkToken);
+			}
+		}
+		
 		# Compile the record
 		$record = implode ("\n", $outputLines);
 		
@@ -5062,6 +5081,13 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the record
 		return $record;
+	}
+	
+	
+	# Function to modify a line to insert a subfield after the opening MARC field and indicators; for a multiline value, this must be one of the sublines
+	private function insertSubfieldAfterMarcFieldThenIndicators ($line, $insert)
+	{
+		return preg_replace ('/^([0-9]{3}) (.{2}) (.+)$/', "\\1 \\2 {$insert} \\3", $line);
 	}
 	
 	
@@ -6192,6 +6218,10 @@ class muscatConversion extends frontControllerApplication
 		# End if no value
 		if (!$value) {return $value;}
 		
+		# Determine the field instance index, starting at 0; this will always be 0 unless called from a repeatable
+		#!# Repeatable field support not checked in practice yet as there are no such fields
+		$this->field880subfield6FieldInstanceIndex[$masterField] = (isSet ($this->field880subfield6FieldInstanceIndex[$masterField]) ? $this->field880subfield6FieldInstanceIndex[$masterField] + 1 : 0);
+		
 		# For a multiline field, parse out the field number, which on subsequent lines will not necessarily be the same as the master field; e.g. /records/162152/
 		if (substr_count ($value, "\n")) {
 			
@@ -6205,17 +6235,17 @@ class muscatConversion extends frontControllerApplication
 			
 			# Construct each line
 			$values = array ();
-			foreach ($lines as $line) {
-				$values[] = $this->construct880Subfield6Line ($line[2], $line[1]);
+			foreach ($lines as $multilineSubfield => $line) {
+				$values[] = $this->construct880Subfield6Line ($line[2], $line[1], $this->field880subfield6FieldInstanceIndex[$masterField], $multilineSubfield);
 			}
 			
-			# Compile the result
+			# Compile the result back to a multiline string
 			$value = implode ("\n" . '880 ', $values);
 			
 		} else {
 			
 			# Render the line
-			$value = $this->construct880Subfield6Line ($value, $masterField);
+			$value = $this->construct880Subfield6Line ($value, $masterField, $this->field880subfield6FieldInstanceIndex[$masterField]);
 		}
 		
 		# Return the modified value
@@ -6224,16 +6254,26 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Helper function to render a 880 subfield 6 line
-	private function construct880Subfield6Line ($line, $masterField)
+	private function construct880Subfield6Line ($line, $masterField, $fieldInstance, $multilineSubfield = false)
 	{
 		# Advance the index, which is incremented globally across the record; starting from 1
 		$this->field880subfield6Index++;
 		
 		# Assemble the subfield
-		$subfield6 = $this->doubleDagger . '6' . $masterField . '-' . str_pad ($this->field880subfield6Index, 2, '0', STR_PAD_LEFT);
+		$indexFormatted = str_pad ($this->field880subfield6Index, 2, '0', STR_PAD_LEFT);
+		$subfield6 = $this->doubleDagger . '6 ' . $masterField . '-' . $indexFormatted;
 		
-		# Insert the subfield after the indicators
+		# Insert the subfield after the indicators; this is similar to insertSubfieldAfterMarcFieldThenIndicators but without the initial MARC field number
 		$line = preg_replace ('/^(.{2}) (.+)$/', "\\1 {$subfield6} \\2", $line);
+		
+		# Register the link so that the reciprocal link can be added within the master field; this is registered either as an array (representing parts of a multiline string) or a string (for a standard field)
+		$fieldKey = $masterField . '_' . $fieldInstance;	// e.g. 700_0
+		$linkToken = $this->doubleDagger . '6 ' . '880' . '-' . $indexFormatted;
+		if ($multilineSubfield !== false) {		// i.e. has supplied value
+			$this->field880subfield6ReciprocalLinks[$fieldKey][$multilineSubfield] = $linkToken;
+		} else {
+			$this->field880subfield6ReciprocalLinks[$fieldKey] = $linkToken;
+		}
 		
 		# Return the line
 		return $line;
