@@ -3460,6 +3460,8 @@ class muscatConversion extends frontControllerApplication
 			CREATE TABLE IF NOT EXISTS catalogue_xml (
 				id int(11) NOT NULL COMMENT 'Record number',
 				xml text COLLATE utf8_unicode_ci COMMENT 'XML representation of Muscat record',
+				langauge VARCHAR(255) NULL COLLATE utf8_unicode_ci COMMENT 'Record language',
+				parallelTitleLanguages VARCHAR(255) NULL COLLATE utf8_unicode_ci COMMENT 'Parallel title languages',
 			  PRIMARY KEY (id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='XML representation of Muscat records';
 		";
@@ -3481,6 +3483,21 @@ class muscatConversion extends frontControllerApplication
 		
 		# Perform a second-pass of the XML processing, to fix up location=Periodical cases; a relatively small number will legitimately remain after this
 		$this->processXmlRecords ();
+		
+		# Add the language lookups
+		$query = "UPDATE catalogue_xml SET langauge = ExtractValue(xml, '/*/lang[1]');";
+		$this->databaseConnection->execute ($query);
+		
+		# Add the parallel title language lookups
+		$query = "UPDATE catalogue_xml
+			LEFT JOIN catalogue_processed ON
+				    catalogue_xml.id = catalogue_processed.recordId
+				AND field = 'lang'
+				AND value LIKE '% = %'
+				AND value REGEXP '(" . implode ('|', array_keys ($this->supportedReverseTransliterationLanguages)) . ")'
+			SET parallelTitleLanguages = value
+		;";
+		$this->databaseConnection->execute ($query);
 	}
 	
 	
