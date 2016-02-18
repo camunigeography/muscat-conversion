@@ -87,6 +87,7 @@ class muscatConversion extends frontControllerApplication
 		'transliteratedenglish_problem' => 'records whose titles are being transliterated but appear to be in English',
 		'transliteratefailure_problem' => 'records whose reverse transliteration is not reversible',
 		'voyagerrecords_info' => 'records with an equivalent already in Voyager, targetted for merging',
+		'nohostlang_problem' => 'records whose *in contains a *lang but the main part does not',
 	);
 	
 	# Listing (values) reports
@@ -8734,6 +8735,25 @@ class muscatConversion extends frontControllerApplication
 		return $query;
 	}
 	
+	
+	# Records whose *in contains a *lang but the main part does not
+	private function report_nohostlang ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'nohostlang' AS report,
+				id AS recordId
+			FROM
+				catalogue_xml
+			WHERE
+				    ExtractValue(xml, '/*/lang') = ''
+				AND ExtractValue(xml, '/*/*/lang') != ''
+		";
+		
+		# Return the query
+		return $query;
+	}
 	
 	
 	# Records with multiple sources (*ser)
