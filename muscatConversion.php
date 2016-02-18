@@ -2258,16 +2258,16 @@ class muscatConversion extends frontControllerApplication
 			# Create the UDC translations table
 			$this->createUdcTranslationsTable ();
 			
-			# Create the transliteration table for checking purposes; actual transliteration of records is done on-the-fly
-			#   Dependencies: catalogue_processed
-			$this->transliterationsCheckingTable ();
-			
 			# Finish character processing stage
 			$html .= "\n<p>{$this->tick} The character processing has been done.</p>";
 			
 			# Create the XML table; also available as a standalone option below
 			#   Depencies: catalogue_processed
 			$this->createXmlTable ();
+			
+			# Create the transliteration table for checking purposes; actual transliteration of records is done on-the-fly
+			#   Dependencies: catalogue_processed, catalogue_xml
+			$this->transliterationsCheckingTable ();
 			
 			# Create the fields index table
 			#  Dependencies: catalogue_processed and catalogue_xml
@@ -3168,7 +3168,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to run reverse-transliteration; takes about 3 seconds to run
-	#   Depencies: catalogue_processed
+	#   Depencies: catalogue_processed, catalogue_xml
 	private function transliterationsCheckingTable ()
 	{
 		# Create the table
