@@ -2265,9 +2265,9 @@ class muscatConversion extends frontControllerApplication
 			#   Depencies: catalogue_processed
 			$this->createXmlTable ();
 			
-			# Create the transliteration table for checking purposes; actual transliteration of records is done on-the-fly
+			# Create the transliteration table; actual transliteration of records into MARC is done on-the-fly
 			#   Dependencies: catalogue_processed, catalogue_xml
-			$this->transliterationsCheckingTable ();
+			$this->initialiseTransliterationsTable ();
 			
 			# Create the fields index table
 			#  Dependencies: catalogue_processed and catalogue_xml
@@ -3167,46 +3167,63 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to run reverse-transliteration; takes about 3 seconds to run
+	# Function to initialise the reverse-transliteration table; takes about 3 seconds to run
 	#   Depencies: catalogue_processed, catalogue_xml
-	private function transliterationsCheckingTable ()
+	private function initialiseTransliterationsTable ()
 	{
 		# Create the table
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.reversetransliterations;";
 		$this->databaseConnection->execute ($sql);
 		$sql = "CREATE TABLE IF NOT EXISTS `reversetransliterations` (
-			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Record ID',
-			`title` TEXT COLLATE utf8_unicode_ci NULL COMMENT 'Reverse-transliterated title',
-			`title_latin` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title (English), from original data',
-			`title_forward` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Forward transliteration from generated Cyrillic (BGN/PCGN)',
+			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
+			`title` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Reverse-transliterated title',
+			`title_latin` TEXT COLLATE utf8_unicode_ci COMMENT 'Title (English), unmodified from original data',
+			`title_forward` TEXT COLLATE utf8_unicode_ci COMMENT 'Forward transliteration from generated Cyrillic (BGN/PCGN)',
 			`forwardCheckFailed` INT(1) NULL COMMENT 'Forward check failed?',
-			`title_loc` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Forward transliteration from generated Cyrillic (Library of Congress)',
+			`title_loc` TEXT COLLATE utf8_unicode_ci COMMENT 'Forward transliteration from generated Cyrillic (Library of Congress)',
 			PRIMARY KEY (`id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of reverse transliterations'
 		;";
 		$this->databaseConnection->execute ($sql);
 		
 		# Define supported language
+		#!# Need to remove explicit dependency
 		$language = 'Russian';
 		
 		# Get the titles from record IDs whose language is transliterable
+		#!# This currently catches records where any *lang is Russian rather than the first
+		#!# What happens with titles within a *t block?
 		$query = "
-			SELECT
-				id,
-				/* Get the value of *t and, if *tt is present, append the value of ' [*tt]' : */
-				CONCAT(
-					REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '*/tg/t')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"),
-					IF(LENGTH(EXTRACTVALUE(xml, '*/tg/tt')) > 0, CONCAT(' [', REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '*/tg/tt')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"), ']'), '')
-				) AS value
-			FROM catalogue_xml
-			WHERE
-				id IN (
-					SELECT recordId FROM catalogue_processed WHERE field = 'lang' AND value = '{$language}'
-				)
+			INSERT INTO reversetransliterations (id, title_latin)
+				SELECT
+					id,
+					/* Get the value of *t and, if *tt is present, append the value of ' [*tt]' : */
+					CONCAT(
+						REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '*/tg/t')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"),
+						IF(LENGTH(EXTRACTVALUE(xml, '*/tg/tt')) > 0, CONCAT(' [', REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '*/tg/tt')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"), ']'), '')
+					) AS title_latin
+				FROM catalogue_xml
+				WHERE
+					id IN (
+						SELECT recordId FROM catalogue_processed WHERE field = 'lang' AND value = '{$language}'
+					)
 		;";
+		$data = $this->databaseConnection->query ($query);
 		
-		# Get the data
-		$data = $this->databaseConnection->getPairs ($query, true);
+		# Trigger a reverse-transliteration run
+		$this->transliterateTransliterationsTable ();
+	}
+	
+	
+	# Function to run the transliterations in the reverse-transliteration table
+	private function transliterateTransliterationsTable ()
+	{
+		# Define supported language
+		#!# Need to remove explicit dependency
+		$language = 'Russian';
+		
+		# Read the raw values
+		$data = $this->databaseConnection->selectPairs ($this->settings['database'], 'reversetransliterations', array (), array ('id', 'title_latin'));
 		
 		# Compile the strings to a TSV string, tabs never appearing in the original data so safe to use as the separator
 		$tsv = '';
@@ -3242,14 +3259,11 @@ class muscatConversion extends frontControllerApplication
 			$forwardLocTransliterations[$id] = $this->transliterateCyrillicToLoC ($reconstructedCyrillic);
 		}
 		
-		# Compile the inserts
-		$reverseTransliterations = array ();
-		$i = 0;
+		# Compile the conversions
+		$conversions = array ();
 		foreach ($data as $id => $string) {
-			$reverseTransliterations[$i++] = array (
-				'id'					=> $id,
+			$conversions[$id] = array (
 				'title'					=> $dataTransliterated[$id],
-				'title_latin'			=> $string,
 				'title_forward'			=> $forwardBgnTransliterations[$id],
 				'forwardCheckFailed'	=> ($string != $forwardBgnTransliterations[$id] ? 1 : NULL),
 				'title_loc'				=> $forwardLocTransliterations[$id],
@@ -3257,7 +3271,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Insert the data
-		$this->databaseConnection->insertMany ($this->settings['database'], 'reversetransliterations', $reverseTransliterations, $chunking = 5000);
+		$this->databaseConnection->updateMany ($this->settings['database'], 'reversetransliterations', $conversions, $chunking = 5000);
 		
 		# Signal success
 		return true;
@@ -5177,8 +5191,8 @@ class muscatConversion extends frontControllerApplication
 				return false;
 			}
 			
-			# Perform reverse-transliteration to generate the reversetransliterations report
-			$this->transliterationsCheckingTable ();
+			# Perform reverse-transliteration to regenerate the reversetransliterations report
+			$this->transliterateTransliterationsTable ();
 			
 			# Set a flash message
 			$function = __FUNCTION__;
@@ -9225,7 +9239,7 @@ class muscatConversion extends frontControllerApplication
 		$html = '';
 		
 		# Regenerate on demand during testing
-		//$this->transliterationsCheckingTable ();
+		//$this->transliterateTransliterationsTable ();
 		
 		# Determine whether to filter to failures only
 		$failuresOnly = (isSet ($_GET['filter']) && $_GET['filter'] == '1');
