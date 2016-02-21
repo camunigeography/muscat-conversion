@@ -3259,7 +3259,7 @@ class muscatConversion extends frontControllerApplication
 		# Do a comparison check by forward-transliterating the generated Cyrillic
 		$forwardBgnTransliterations = array ();
 		foreach ($dataTransliterated as $id => $reconstructedCyrillic) {
-			$reversion = transliterator_transliterate ('Russian-Latin/BGN', $reconstructedCyrillic);
+			$reversion = $this->transliterateCyrillicToBgnLatin ($reconstructedCyrillic);
 			$muscatRepresentations = array (
 				chr(0xCA).chr(0xB9) => "'",	// Soft sign -> Muscat quote
 				chr(0xCA).chr(0xBA) => "''",	// Hard sign -> Muscat double quote
@@ -3270,7 +3270,7 @@ class muscatConversion extends frontControllerApplication
 		# Add new Library of Congress (LoC) transliteration from the generated Cyrillic
 		$forwardLocTransliterations = array ();
 		foreach ($dataTransliterated as $id => $reconstructedCyrillic) {
-			$forwardLocTransliterations[$id] = $this->transliterateCyrillicToLoc ($reconstructedCyrillic);
+			$forwardLocTransliterations[$id] = $this->transliterateCyrillicToLocLatin ($reconstructedCyrillic);
 		}
 		
 		# Compile the conversions
@@ -3292,33 +3292,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to transliterate from Cyrillic to Library of Congress (ALA LC); see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
-	private function transliterateCyrillicToLoc ($cyrillic)
-	{
-		# Load the Library of Congress transliterations definition, copied from https://github.com/umpirsky/Transliterator/blob/master/src/Transliterator/data/ru/ALA_LC.php
-		if (!isSet ($this->locTransliterationDefinition)) {
-			$this->locTransliterationDefinition = require_once ('tables/ALA_LC.php');
-		}
-		
-		# Transliterate and return
-		return str_replace ($this->locTransliterationDefinition['cyr'], $this->locTransliterationDefinition['lat'], $cyrillic);
-	}
-	
-	
-	# Function to transliterate from Library of Congress (ALA LC) to Cyrillic; see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
-	public function transliterateLocLatinToCyrillic ($locLatin)
-	{
-		# Load the Library of Congress transliterations definition, copied from https://github.com/umpirsky/Transliterator/blob/master/src/Transliterator/data/ru/ALA_LC.php
-		if (!isSet ($this->locTransliterationDefinition)) {
-			$this->locTransliterationDefinition = require_once ('tables/ALA_LC.php');
-		}
-		
-		# Transliterate and return
-		return str_replace ($this->locTransliterationDefinition['lat'], $this->locTransliterationDefinition['cyr'], $locLatin);
-	}
-	
-	
-	# Function to reverse-transliterate a string
+	# Function to reverse-transliterate a string from BGN/PCGN latin to Cyrillic
 	/*
 		Files are at
 		/root/.cpan/build/Lingua-Translit-0.22-th0SPW/xml/
@@ -3370,6 +3344,40 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the transliteration
 		return $reverseTransliteration;
+	}
+	
+	
+	# Function to transliterate from Cyrillic to BGN/PCGN latin
+	private function transliterateCyrillicToBgnLatin ($cyrillic)
+	{
+		# Use the built-in transliterator
+		return transliterator_transliterate ('Russian-Latin/BGN', $cyrillic);
+	}
+	
+	
+	# Function to transliterate from Library of Congress (ALA LC) to Cyrillic; see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
+	public function transliterateLocLatinToCyrillic ($locLatin)
+	{
+		# Load the Library of Congress transliterations definition, copied from https://github.com/umpirsky/Transliterator/blob/master/src/Transliterator/data/ru/ALA_LC.php
+		if (!isSet ($this->locTransliterationDefinition)) {
+			$this->locTransliterationDefinition = require_once ('tables/ALA_LC.php');
+		}
+		
+		# Transliterate and return
+		return str_replace ($this->locTransliterationDefinition['lat'], $this->locTransliterationDefinition['cyr'], $locLatin);
+	}
+	
+	
+	# Function to transliterate from Cyrillic to Library of Congress (ALA LC); see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
+	private function transliterateCyrillicToLocLatin ($cyrillic)
+	{
+		# Load the Library of Congress transliterations definition, copied from https://github.com/umpirsky/Transliterator/blob/master/src/Transliterator/data/ru/ALA_LC.php
+		if (!isSet ($this->locTransliterationDefinition)) {
+			$this->locTransliterationDefinition = require_once ('tables/ALA_LC.php');
+		}
+		
+		# Transliterate and return
+		return str_replace ($this->locTransliterationDefinition['cyr'], $this->locTransliterationDefinition['lat'], $cyrillic);
 	}
 	
 	
