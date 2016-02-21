@@ -6084,6 +6084,7 @@ class muscatConversion extends frontControllerApplication
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return false;}	// Return false to ensure no result, unlike the main transliterate() routine
 		
 		# Pass the value into the transliterator
+		#!# Old transliteration needs to be upgraded in catalogue_processed and here in MARC generation
 		$output = $this->transliterateBgnLatinToCyrillic ($value, $language);
 		
 		# Return the string
