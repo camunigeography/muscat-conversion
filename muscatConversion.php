@@ -5383,8 +5383,7 @@ class muscatConversion extends frontControllerApplication
 		# Validate the parser syntax
 		if ($unfinalisedData = $form->getUnfinalisedData ()) {
 			if ($unfinalisedData['definition']) {
-#!# TODO
-$errorString = false;
+				$this->parseMergeDefinition ($unfinalisedData['definition'], $errorString);
 				if ($errorString) {
 					$form->registerProblem ('compilefailure', $errorString);
 				}
@@ -5412,6 +5411,19 @@ $errorString = false;
 		
 		# Show the HTML
 		echo $html;
+	}
+	
+	
+	# Function to process the merge definition
+	private function parseMergeDefinition ($tsv, &$errorString = '')
+	{
+		# Convert the TSV to an associative array
+		$tsv = trim ($tsv);
+		require_once ('csv.php');
+		$mergeDefinition = csv::tsvToArray ($tsv, $firstColumnIsId = true, $firstColumnIsIdIncludeInData = false, $errorMessage, $skipRowsEmptyFirstCell = true);
+		
+		# Return the definition
+		return $mergeDefinition;
 	}
 	
 	
