@@ -8810,7 +8810,7 @@ class muscatConversion extends frontControllerApplication
 		$query = "
 			SELECT
 				'transliteratefailure' AS report,
-				id AS recordId
+				recordId
 			FROM reversetransliterations
 			WHERE (BINARY title_latin != BINARY title_forward)
 		";
