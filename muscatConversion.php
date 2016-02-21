@@ -3179,6 +3179,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($sql);
 		$sql = "CREATE TABLE IF NOT EXISTS `reversetransliterations` (
 			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
+			`shardId` INT(11) NULL COMMENT 'Processed shard ID (catalogue_processed.id)',
 			`recordId` INT(11) NULL COMMENT 'Record ID',
 			`title` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Reverse-transliterated title',
 			`title_latin` TEXT COLLATE utf8_unicode_ci COMMENT 'Title (English), unmodified from original data',
@@ -3211,6 +3212,21 @@ class muscatConversion extends frontControllerApplication
 					id IN (
 						SELECT recordId FROM catalogue_processed WHERE field = 'lang' AND value = '{$language}'
 					)
+		;";
+		$data = $this->databaseConnection->query ($query);
+		
+		# Add in the shard IDs by matching the hierarchically-obtained reversetransliterations.title_latin values with the values in the processed table; this is the only way to ensure that top-level *t values are obtained
+		#!# Need to ensure there are no failures left, once /reports/failinglocupgrade/ is clear following fixing of /reports/missingt/ , /reports/emptytvariants/ , /reports/multipletopt/
+		$query = "
+			UPDATE reversetransliterations
+			LEFT JOIN catalogue_processed ON
+				    reversetransliterations.recordId = catalogue_processed.recordId
+				AND catalogue_processed.field = 't'
+				AND (
+					   SUBSTRING_INDEX( reversetransliterations.title_latin, ' [[', 1 ) = catalogue_processed.value		/* Need to strip out the tt sections */
+					OR reversetransliterations.title_latin = catalogue_processed.value
+				)
+			SET shardId = catalogue_processed.id
 		;";
 		$data = $this->databaseConnection->query ($query);
 		
@@ -9335,9 +9351,10 @@ class muscatConversion extends frontControllerApplication
 	# Callback to provide a renderer
 	private function reversetransliterationsRenderer ($data)
 	{
-		# Remove internal ID
+		# Remove internal IDs
 		foreach ($data as $id => $record) {
 			unset ($data[$id]['id']);
+			unset ($data[$id]['shardId']);
 		}
 		
 		# Add a comparison check, and hide the two fields required for it
