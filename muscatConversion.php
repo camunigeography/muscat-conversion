@@ -3270,7 +3270,7 @@ class muscatConversion extends frontControllerApplication
 		# Add new Library of Congress (LoC) transliteration from the generated Cyrillic
 		$forwardLocTransliterations = array ();
 		foreach ($dataTransliterated as $id => $reconstructedCyrillic) {
-			$forwardLocTransliterations[$id] = $this->transliterateCyrillicToLoC ($reconstructedCyrillic);
+			$forwardLocTransliterations[$id] = $this->transliterateCyrillicToLoc ($reconstructedCyrillic);
 		}
 		
 		# Compile the conversions
@@ -3293,7 +3293,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to transliterate from Cyrillic to Library of Congress (ALA LC); see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
-	private function transliterateCyrillicToLoC ($cyrillic)
+	private function transliterateCyrillicToLoc ($cyrillic)
 	{
 		# Load the Library of Congress transliterations definition, copied from https://github.com/umpirsky/Transliterator/blob/master/src/Transliterator/data/ru/ALA_LC.php
 		if (!isSet ($this->locTransliterationDefinition)) {
@@ -3302,6 +3302,19 @@ class muscatConversion extends frontControllerApplication
 		
 		# Transliterate and return
 		return str_replace ($this->locTransliterationDefinition['cyr'], $this->locTransliterationDefinition['lat'], $cyrillic);
+	}
+	
+	
+	# Function to transliterate from Library of Congress (ALA LC) to Cyrillic; see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
+	public function transliterateLocLatinToCyrillic ($locLatin)
+	{
+		# Load the Library of Congress transliterations definition, copied from https://github.com/umpirsky/Transliterator/blob/master/src/Transliterator/data/ru/ALA_LC.php
+		if (!isSet ($this->locTransliterationDefinition)) {
+			$this->locTransliterationDefinition = require_once ('tables/ALA_LC.php');
+		}
+		
+		# Transliterate and return
+		return str_replace ($this->locTransliterationDefinition['lat'], $this->locTransliterationDefinition['cyr'], $locLatin);
 	}
 	
 	
@@ -6062,7 +6075,7 @@ class muscatConversion extends frontControllerApplication
 		# Ensure language is supported
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return false;}	// Return false to ensure no result, unlike the main transliterate() routine
 		
-		# Pass the value into the transliterator programme
+		# Pass the value into the transliterator
 		$output = $this->transliterateBgnLatinToCyrillic ($value, $language);
 		
 		# Return the string

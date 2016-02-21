@@ -97,7 +97,7 @@ class generate245
 		
 		# Transliterate title (used for $a and possible $b) if required
 		if ($this->languageMode != 'default') {
-			$this->t = $this->muscatConversion->transliterateBgnLatinToCyrillic ($this->t, $this->languageMode);
+			$this->t = $this->muscatConversion->transliterateLocLatinToCyrillic ($this->t, $this->languageMode);
 		}
 		
 		# Does the *t start with a leading article?
