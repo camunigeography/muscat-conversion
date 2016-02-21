@@ -100,12 +100,13 @@ class muscatConversion extends frontControllerApplication
 		'journaltitles_info' => 'listing: journal titles',
 		'seriestitles_info' => 'listing: series titles',
 /* problem: */
+#!# Need to create an equivalent report which shows counts
 		'seriestitlemismatches1' => "listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = 'Periodical')",
 /* problem: */
 		'seriestitlemismatches2' => "listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc is empty)",
 		'seriestitlemismatches3' => 'listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = other)',
 		'languages' => 'listing: languages',
-		'reversetransliterations' => 'listing: reverse-transliterated titles',
+		'transliterations' => 'listing: transliterations',
 		'paralleltitlelanguages' => 'listing: records with parallel titles, filtered to Russian',
 		'distinctn1notfollowedbyn2' => 'Distinct values of all *n1 fields that are not immediately followed by a *n2 field',
 		'distinctn2notprecededbyn1' => 'Distinct values of all *n2 fields that are not immediately preceded by a *n1 field',
@@ -3170,14 +3171,14 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to initialise the reverse-transliteration table; takes about 3 seconds to run
+	# Function to initialise the transliteration table; takes about 3 seconds to run
 	#   Depencies: catalogue_processed, catalogue_xml
 	private function initialiseTransliterationsTable ()
 	{
 		# Create the table
-		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.reversetransliterations;";
+		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.transliterations;";
 		$this->databaseConnection->execute ($sql);
-		$sql = "CREATE TABLE IF NOT EXISTS `reversetransliterations` (
+		$sql = "CREATE TABLE IF NOT EXISTS `transliterations` (
 			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
 			`shardId` INT(11) NULL COMMENT 'Processed shard ID (catalogue_processed.id)',
 			`recordId` INT(11) NULL COMMENT 'Record ID',
@@ -3188,7 +3189,7 @@ class muscatConversion extends frontControllerApplication
 			`forwardCheckFailed` INT(1) NULL COMMENT 'Forward check failed?',
 			`title_loc` TEXT COLLATE utf8_unicode_ci COMMENT 'Forward transliteration from generated Cyrillic (Library of Congress)',
 			PRIMARY KEY (`id`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of reverse transliterations'
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of transliterations'
 		;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -3200,7 +3201,7 @@ class muscatConversion extends frontControllerApplication
 		#!# This currently catches records where any *lang is Russian rather than the first
 		#!# What happens with titles within a *t block?
 		$query = "
-			INSERT INTO reversetransliterations (recordId, title_latin, title_latin_tt)
+			INSERT INTO transliterations (recordId, title_latin, title_latin_tt)
 				SELECT
 					id AS recordId,
 					REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '*/tg/t')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
@@ -3215,24 +3216,24 @@ class muscatConversion extends frontControllerApplication
 		;";
 		$data = $this->databaseConnection->query ($query);
 		
-		# Add in the shard IDs by matching the hierarchically-obtained reversetransliterations.title_latin values with the values in the processed table; this is the only way to ensure that top-level *t values are obtained
+		# Add in the shard IDs by matching the hierarchically-obtained transliterations.title_latin values with the values in the processed table; this is the only way to ensure that top-level *t values are obtained
 		#!# Need to ensure there are no failures left, once /reports/failinglocupgrade/ is clear following fixing of /reports/missingt/ , /reports/emptytvariants/ , /reports/multipletopt/
 		$query = "
-			UPDATE reversetransliterations
+			UPDATE transliterations
 			LEFT JOIN catalogue_processed ON
-				    reversetransliterations.recordId = catalogue_processed.recordId
+				    transliterations.recordId = catalogue_processed.recordId
 				AND catalogue_processed.field = 't'
-				AND reversetransliterations.title_latin = catalogue_processed.value
+				AND transliterations.title_latin = catalogue_processed.value
 			SET shardId = catalogue_processed.id
 		;";
 		$data = $this->databaseConnection->query ($query);
 		
-		# Trigger a reverse-transliteration run
+		# Trigger a transliteration run
 		$this->transliterateTransliterationsTable ();
 	}
 	
 	
-	# Function to run the transliterations in the reverse-transliteration table
+	# Function to run the transliterations in the transliteration table
 	private function transliterateTransliterationsTable ()
 	{
 		# Define supported language
@@ -3240,7 +3241,7 @@ class muscatConversion extends frontControllerApplication
 		$language = 'Russian';
 		
 		# Read the raw values
-		$data = $this->databaseConnection->selectPairs ($this->settings['database'], 'reversetransliterations', array (), array ('id', 'title_latin'));
+		$data = $this->databaseConnection->selectPairs ($this->settings['database'], 'transliterations', array (), array ('id', 'title_latin'));
 		
 		# Compile the strings to a TSV string, tabs never appearing in the original data so safe to use as the separator
 		$tsv = '';
@@ -3288,7 +3289,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Insert the data
-		$this->databaseConnection->updateMany ($this->settings['database'], 'reversetransliterations', $conversions, $chunking = 5000);
+		$this->databaseConnection->updateMany ($this->settings['database'], 'transliterations', $conversions, $chunking = 5000);
 		
 		# Signal success
 		return true;
@@ -3308,7 +3309,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to reverse-transliterate the string
+	# Function to reverse-transliterate a string
 	/*
 		Files are at
 		/root/.cpan/build/Lingua-Translit-0.22-th0SPW/xml/
@@ -5151,7 +5152,7 @@ class muscatConversion extends frontControllerApplication
 		if ($flashValue = application::getFlashMessage ('submission', $this->baseUrl . '/')) {
 			$html .= "\n<div class=\"graybox flashmessage\">";
 			$html .= "\n" . "<p>{$this->tick} <strong>" . $successMessage . '</strong></p>';
-			$html .= "\n" . "<p>You can <a href=\"{$this->baseUrl}/reports/reversetransliterations/\">view the <strong>reverse-transliterated titles report</strong></a>, showing all results.</p>";
+			$html .= "\n" . "<p>You can <a href=\"{$this->baseUrl}/reports/transliterations/\">view the <strong>transliterated titles report</strong></a>, showing all results.</p>";
 			$html .= '</div>';
 		}
 		
@@ -5204,7 +5205,7 @@ class muscatConversion extends frontControllerApplication
 				return false;
 			}
 			
-			# Perform reverse-transliteration to regenerate the reversetransliterations report
+			# Perform transliteration to regenerate the transliterations report
 			$this->transliterateTransliterationsTable ();
 			
 			# Set a flash message
@@ -7148,7 +7149,7 @@ class muscatConversion extends frontControllerApplication
 			SELECT
 				'failinglocupgrade' AS report,
 				recordId
-			FROM reversetransliterations
+			FROM transliterations
 			WHERE
 				shardId IS NULL
 				/* The following filters can be applied to remove known problems, present in /reports/missingt/ , /reports/emptytvariants/ , /reports/multipletopt/ ; when those reports are fixed, the present report should give no errors */
@@ -8793,8 +8794,8 @@ class muscatConversion extends frontControllerApplication
 					id,
 					title,
 					IF (INSTR(title_latin,'[') > 0, LEFT(title_latin,LOCATE('[',title_latin) - 1), title_latin) AS title_latin
-				FROM reversetransliterations
-			) AS reversetransliterations_firstParts
+				FROM transliterations
+			) AS transliterations_firstParts
 			WHERE `title_latin` REGEXP '(the | of )'
 		";
 		
@@ -8811,7 +8812,7 @@ class muscatConversion extends frontControllerApplication
 			SELECT
 				'transliteratefailure' AS report,
 				recordId
-			FROM reversetransliterations
+			FROM transliterations
 			WHERE (BINARY title_latin != BINARY title_forward)
 		";
 		
@@ -9296,15 +9297,15 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Report showing instances of transliterations
-	private function report_reversetransliterations ()
+	private function report_transliterations ()
 	{
 		// No action needed - the data is created in the fieldsindex stage
 		return true;
 	}
 	
 	
-	# View for report_reversetransliterations
-	private function report_reversetransliterations_view ()
+	# View for report_transliterations
+	private function report_transliterations_view ()
 	{
 		# Start the HTML
 		$html = '';
@@ -9315,9 +9316,9 @@ class muscatConversion extends frontControllerApplication
 		# Determine whether to filter to failures only
 		$failuresOnly = (isSet ($_GET['filter']) && $_GET['filter'] == '1');
 		if ($failuresOnly) {
-			$html .= "\n<p><a href=\"{$this->baseUrl}/reports/reversetransliterations/\">Show all</a> | <strong>Filtering to failures only</strong></p>";
+			$html .= "\n<p><a href=\"{$this->baseUrl}/reports/transliterations/\">Show all</a> | <strong>Filtering to failures only</strong></p>";
 		} else {
-			$html .= "\n<p><strong>Showing all</strong> | <a href=\"{$this->baseUrl}/reports/reversetransliterations/?filter=1\">Filter to failures only</a></p>";
+			$html .= "\n<p><strong>Showing all</strong> | <a href=\"{$this->baseUrl}/reports/transliterations/?filter=1\">Filter to failures only</a></p>";
 		}
 		
 		# Add link to editing the definition
@@ -9326,7 +9327,7 @@ class muscatConversion extends frontControllerApplication
 		# Define the query
 		$query = "SELECT
 				*
-			FROM {$this->settings['database']}.reversetransliterations
+			FROM {$this->settings['database']}.transliterations
 			" . ($failuresOnly ? 'WHERE forwardCheckFailed = 1' : '') . "
 		;";
 		
@@ -9334,7 +9335,7 @@ class muscatConversion extends frontControllerApplication
 		$this->settings['paginationRecordsPerPageDefault'] = 1000;
 		
 		# Obtain the listing HTML, passing in the renderer callback function name
-		$html .= $this->recordListing (false, $query, array (), '/reports/reversetransliterations/', false, false, $view = 'callback(reversetransliterationsRenderer)');
+		$html .= $this->recordListing (false, $query, array (), '/reports/transliterations/', false, false, $view = 'callback(transliterationsRenderer)');
 		
 		# Return the HTML
 		return $html;
@@ -9342,7 +9343,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Callback to provide a renderer
-	private function reversetransliterationsRenderer ($data)
+	private function transliterationsRenderer ($data)
 	{
 		# Remove internal IDs
 		foreach ($data as $id => $record) {
