@@ -833,7 +833,8 @@ class muscatConversion extends frontControllerApplication
 			*/
 				$data = $this->getRecords ($id, 'xml');
 				$marcParserDefinition = $this->getMarcParserDefinition ();
-				$record['marc'] = $this->convertToMarc ($marcParserDefinition, $data['xml'], $errorString, $record['mergeType'], $record['mergeVoyagerId'], $marcPreMerge /* passed back by reference */);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
+				$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ());
+				$record['marc'] = $this->convertToMarc ($marcParserDefinition, $data['xml'], $errorString, $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $marcPreMerge /* passed back by reference */);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
 				$output  = "\n<p>The MARC output uses the <a target=\"_blank\" href=\"{$this->baseUrl}/marcparser.html\">parser definition</a> to do the mapping from the XML representation.</p>";
 				if ($errorString) {
 					$output .= "\n<p class=\"warning\">{$errorString}</p>";
@@ -3789,6 +3790,9 @@ class muscatConversion extends frontControllerApplication
 		# Get the schema
 		if (!$marcParserDefinition = $this->getMarcParserDefinition ()) {return false;}
 		
+		# Get the merge definition
+		if (!$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ())) {return false;}
+		
 		# Allow large queries for the chunking operation
 		$maxQueryLength = (1024 * 1024 * 32);	// i.e. this many MB
 		$query = 'SET SESSION max_allowed_packet = ' . $maxQueryLength . ';';
@@ -3836,7 +3840,7 @@ class muscatConversion extends frontControllerApplication
 				foreach ($records as $id => $record) {
 					$mergeType      = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeType'] : false);
 					$mergeVoyagerId	= (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeVoyagerId'] : false);
-					$marc = $this->convertToMarc ($marcParserDefinition, $record['xml'], $errorString, $mergeType, $mergeVoyagerId, $marcPreMerge);
+					$marc = $this->convertToMarc ($marcParserDefinition, $record['xml'], $errorString, $mergeDefinition, $mergeType, $mergeVoyagerId, $marcPreMerge);
 					if ($errorString) {
 						$html  = "<p class=\"warning\">Record <a href=\"{$this->baseUrl}/records/{$id}/\">{$id}</a> could not be converted to MARC:</p>";
 						$html .= "\n<p><img src=\"/images/icons/exclamation.png\" class=\"icon\" /> {$errorString}</p>";
@@ -4710,7 +4714,7 @@ class muscatConversion extends frontControllerApplication
 	
 	# Function to convert the data to MARC format
 	# NB XPath functions can have PHP modifications in them using php:functionString - may be useful in future http://www.sitepoint.com/php-dom-using-xpath/ http://cowburn.info/2009/10/23/php-funcs-xpath/
-	private function convertToMarc ($marcParserDefinition, $recordXml, &$errorString = '', $mergeType = false, $mergeVoyagerId = false, &$marcPreMerge = NULL)
+	private function convertToMarc ($marcParserDefinition, $recordXml, &$errorString = '', $mergeDefinition = array (), $mergeType = false, $mergeVoyagerId = false, &$marcPreMerge = NULL)
 	{
 		# Ensure the error string is clean for each iteration
 		$errorString = '';
@@ -4754,7 +4758,7 @@ class muscatConversion extends frontControllerApplication
 		# If required, merge with an existing Voyager record, returning by reference the pre-merge record, and below returning the merged record
 		if ($mergeType) {
 			$marcPreMerge = $record;	// Save to argument returned by reference
-			$record = $this->mergeWithExistingVoyager ($record, $recordId, $mergeType, $mergeVoyagerId, $errorString);
+			$record = $this->mergeWithExistingVoyager ($record, $recordId, $mergeDefinition, $mergeType, $mergeVoyagerId, $errorString);
 		}
 		
 		# Return the record
@@ -4763,7 +4767,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to perform merge of a MARC record with an existing Voyager record
-	private function mergeWithExistingVoyager ($record, $recordId, $mergeType, $mergeVoyagerId, &$errorString)
+	private function mergeWithExistingVoyager ($record, $recordId, $mergeDefinition, $mergeType, $mergeVoyagerId, &$errorString)
 	{
 		# End if merge type is unsupported; this will result in an empty record
 		#!# Need to ensure this is reported during the import also
@@ -4771,6 +4775,8 @@ class muscatConversion extends frontControllerApplication
 			$errorString = "Merge failed for Muscat record #{$recordId}!";
 			return false;
 		}
+		
+		//application::dumpData ($mergeDefinition);
 		
 		# Perform merge based on the specified strategy
 		switch ($mergeType) {
