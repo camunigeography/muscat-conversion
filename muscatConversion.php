@@ -3182,7 +3182,8 @@ class muscatConversion extends frontControllerApplication
 			`shardId` INT(11) NULL COMMENT 'Processed shard ID (catalogue_processed.id)',
 			`recordId` INT(11) NULL COMMENT 'Record ID',
 			`title` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Reverse-transliterated title',
-			`title_latin` TEXT COLLATE utf8_unicode_ci COMMENT 'Title (English), unmodified from original data',
+			`title_latin` TEXT COLLATE utf8_unicode_ci COMMENT 'Title (latin characters), unmodified from original data',
+			`title_latin_tt` TEXT COLLATE utf8_unicode_ci COMMENT '*tt if present',
 			`title_forward` TEXT COLLATE utf8_unicode_ci COMMENT 'Forward transliteration from generated Cyrillic (BGN/PCGN)',
 			`forwardCheckFailed` INT(1) NULL COMMENT 'Forward check failed?',
 			`title_loc` TEXT COLLATE utf8_unicode_ci COMMENT 'Forward transliteration from generated Cyrillic (Library of Congress)',
@@ -3199,14 +3200,13 @@ class muscatConversion extends frontControllerApplication
 		#!# This currently catches records where any *lang is Russian rather than the first
 		#!# What happens with titles within a *t block?
 		$query = "
-			INSERT INTO reversetransliterations (recordId, title_latin)
+			INSERT INTO reversetransliterations (recordId, title_latin, title_latin_tt)
 				SELECT
 					id AS recordId,
-					/* Get the value of *t and, if *tt is present, append the value of ' [[*tt]]' : */
-					CONCAT(
-						REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '*/tg/t')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"),
-						IF(LENGTH(EXTRACTVALUE(xml, '*/tg/tt')) > 0, CONCAT(' [[', REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '*/tg/tt')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"), ']]'), '')
-					) AS title_latin
+					REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '*/tg/t')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
+						AS title_latin,
+					REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '*/tg/tt')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
+						AS title_latin_tt
 				FROM catalogue_xml
 				WHERE
 					id IN (
@@ -3222,10 +3222,7 @@ class muscatConversion extends frontControllerApplication
 			LEFT JOIN catalogue_processed ON
 				    reversetransliterations.recordId = catalogue_processed.recordId
 				AND catalogue_processed.field = 't'
-				AND (
-					   SUBSTRING_INDEX( reversetransliterations.title_latin, ' [[', 1 ) = catalogue_processed.value		/* Need to strip out the tt sections */
-					OR reversetransliterations.title_latin = catalogue_processed.value
-				)
+				AND reversetransliterations.title_latin = catalogue_processed.value
 			SET shardId = catalogue_processed.id
 		;";
 		$data = $this->databaseConnection->query ($query);
@@ -3371,10 +3368,6 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Start an array of replacements
 		$replacements = array ();
-		
-		# Protect parts in double-brackets, which are English parts not for transliteration
-		preg_match_all ('/(\[\[.+\]\])/U', $string, $bracketMatches);	// Ungreedy match; allows protection for e.g. /records/76108/ with multiple blocks within string
-		$replacements = array_merge ($replacements, $bracketMatches[1]);
 		
 		# Protect parts in italics, which are Latin names that a publisher would not translate
 		preg_match_all ('|(<em>.+</em>)|uU', $string, $italicisedNameMatches);		// Uses /U ungreedy, to avoid "a <em>b</em> c <em>d</em> e" becoming "a  e"
@@ -9357,6 +9350,14 @@ class muscatConversion extends frontControllerApplication
 			unset ($data[$id]['shardId']);
 		}
 		
+		# Add English *tt to the Muscat latin field
+		foreach ($data as $id => $record) {
+			if ($record['title_latin_tt']) {
+				$data[$id]['title_latin'] .= '<br /><span class="comment">[' . $record['title_latin_tt'] . ']</span>';
+			}
+			unset ($data[$id]['title_latin_tt']);
+		}
+		
 		# Add a comparison check, and hide the two fields required for it
 		foreach ($data as $id => $record) {
 			if ($record['forwardCheckFailed']) {
@@ -9373,7 +9374,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Spellcheck the strings
-		$spellcheck = application::spellcheck ($spellcheck, 'ru_RU', $this->databaseConnection, $this->settings['database'], $enableSuggestions = true, $this->transliterationProtectedStrings (), $protectBlockRegexp = '\[\[([^]]+)\]\]');
+		$spellcheck = application::spellcheck ($spellcheck, 'ru_RU', $this->databaseConnection, $this->settings['database'], $enableSuggestions = true, $this->transliterationProtectedStrings ());
 		
 		# Substitute the spellchecked HTML versions into the table
 		foreach ($spellcheck as $id => $string) {
