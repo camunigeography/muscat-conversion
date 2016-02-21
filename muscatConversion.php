@@ -350,6 +350,15 @@ class muscatConversion extends frontControllerApplication
 				'administrator' => true,
 				'allowDuringImport' => true,
 			),
+			'merge' => array (
+				'description' => 'Merge definition',
+				'subtab' => 'Merge definition',
+				'url' => 'merge.html',
+				'icon' => 'arrow_merge',
+				'parent' => 'admin',
+				'administrator' => true,
+				'allowDuringImport' => true,
+			),
 			'export' => array (
 				'description' => 'Export MARC21 output',
 				'tab' => 'Export',
@@ -4682,7 +4691,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to return the parser definition
+	# Function to return the MARC parser definition
 	private function getMarcParserDefinition ()
 	{
 		# Get the latest version
@@ -5329,6 +5338,90 @@ class muscatConversion extends frontControllerApplication
 		$query = "SELECT definition FROM {$this->settings['database']}.reversetransliterationdefinition ORDER BY id DESC LIMIT 1;";
 		if (!$definition = $this->databaseConnection->getOneField ($query, 'definition')) {
 			echo "\n<p class=\"warning\"><strong>Error:</strong> The reverse-transliteration definition could not be retrieved.</p>";
+			return false;
+		}
+		
+		# Return the string
+		return $definition;
+	}
+	
+	
+	# Merge definition
+	public function merge ()
+	{
+		# Start the HTML
+		$html  = '';
+		
+		# Display a flash message if set
+		#!# Flash message support needs to be added to ultimateForm natively, as this is a common use-case
+		$successMessage = 'The definition has been updated.';
+		if ($flashValue = application::getFlashMessage ('submission', $this->baseUrl . '/')) {
+			$message = "\n" . "<p>{$this->tick} <strong>" . $successMessage . '</strong></p>';
+			$html .= "\n<div class=\"graybox flashmessage\">" . $message . '</div>';
+		}
+		
+		# Create a form
+		$form = new form (array (
+			'formCompleteText' => false,
+			'reappear'	=> true,
+			'display' => 'paragraphs',
+			'autofocus' => true,
+			'unsavedDataProtection' => true,
+			'whiteSpaceTrimSurrounding' => false,
+		));
+		$form->heading ('p', "Here you can define the translation for merging.");
+		$form->textarea (array (
+			'name'		=> 'definition',
+			'title'		=> 'Merge definition',
+			'required'	=> true,
+			'rows'		=> 30,
+			'cols'		=> 120,
+			'default'	=> $this->getMergeDefinition (),
+			'wrap'		=> 'off',
+		));
+		
+		# Validate the parser syntax
+		if ($unfinalisedData = $form->getUnfinalisedData ()) {
+			if ($unfinalisedData['definition']) {
+#!# TODO
+$errorString = false;
+				if ($errorString) {
+					$form->registerProblem ('compilefailure', $errorString);
+				}
+			}
+		}
+		
+		# Process the form
+		if ($result = $form->process ($html)) {
+			
+			# Save the latest version
+			$this->databaseConnection->insert ($this->settings['database'], 'mergedefinition', array ('definition' => $result['definition']));
+			
+			# Save an archive copy to the tables directory
+			file_put_contents ($this->applicationRoot . '/tables/mergeDefinition.tsv', $result['definition']);
+			
+			# Set a flash message
+			$function = __FUNCTION__;
+			$redirectTo = "{$_SERVER['_SITE_URL']}{$this->baseUrl}/{$this->actions[$function]['url']}";
+			$redirectMessage = "\n{$this->tick}" . ' <strong>' . $successMessage . '</strong></p>';
+			application::setFlashMessage ('submission', '1', $redirectTo, $redirectMessage, $this->baseUrl . '/');
+			
+			# Confirm success, resetting the HTML, and show the submission
+			$html = application::sendHeader (302, $redirectTo, true);
+		}
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# Function to return the merge definition
+	private function getMergeDefinition ()
+	{
+		# Get the latest version
+		$query = "SELECT definition FROM {$this->settings['database']}.mergedefinition ORDER BY id DESC LIMIT 1;";
+		if (!$definition = $this->databaseConnection->getOneField ($query, 'definition')) {
+			echo "\n<p class=\"warning\"><strong>Error:</strong> The merge definition could not be retrieved.</p>";
 			return false;
 		}
 		
