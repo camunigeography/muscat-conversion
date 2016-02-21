@@ -3246,7 +3246,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Reverse-transliterate the whole file
-		$tsvTransliteratedRaw = $this->transliterate ($tsv, $language);
+		$tsvTransliteratedRaw = $this->transliterateBgnLatinToCyrillic ($tsv, $language);
 		
 		# Convert back to key-value pairs
 		require_once ('csv.php');
@@ -3327,7 +3327,7 @@ class muscatConversion extends frontControllerApplication
 		# Example use:
 		echo "hello" | translit -r -t "BGN PCGN 1947"
 	*/
-	public function transliterate ($string, $language)
+	public function transliterateBgnLatinToCyrillic ($string, $language)
 	{
 		# Ensure language is supported
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return $string;}
@@ -6063,7 +6063,7 @@ class muscatConversion extends frontControllerApplication
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return false;}	// Return false to ensure no result, unlike the main transliterate() routine
 		
 		# Pass the value into the transliterator programme
-		$output = $this->transliterate ($value, $language);
+		$output = $this->transliterateBgnLatinToCyrillic ($value, $language);
 		
 		# Return the string
 		return $output;

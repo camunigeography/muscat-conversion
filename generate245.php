@@ -97,7 +97,7 @@ class generate245
 		
 		# Transliterate title (used for $a and possible $b) if required
 		if ($this->languageMode != 'default') {
-			$this->t = $this->muscatConversion->transliterate ($this->t, $this->languageMode);
+			$this->t = $this->muscatConversion->transliterateBgnLatinToCyrillic ($this->t, $this->languageMode);
 		}
 		
 		# Does the *t start with a leading article?
@@ -216,7 +216,7 @@ class generate245
 				}
 				
 				# Register this value
-				$statementOfResponsibility .= ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliterate ($string, $this->languageMode));
+				$statementOfResponsibility .= ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliterateBgnLatinToCyrillic ($string, $this->languageMode));
 				
 				# Next *a
 				$aIndex++;
@@ -263,7 +263,7 @@ class generate245
 		$subValues = array ();
 		$nIndex = 1;	// XPaths are indexed from 1, not 0
 		while ($string = $this->classifyNdField ($path . "/n[$nIndex]")) {
-			$subValues[] = ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliterate ($string, $this->languageMode));	// e.g. /records/1844/
+			$subValues[] = ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliterateBgnLatinToCyrillic ($string, $this->languageMode));	// e.g. /records/1844/
 			
 			# Next
 			$nIndex++;
