@@ -1,0 +1,50 @@
+MARC	ACTION	NOTE	TIP	TP	IP	C	P
+		001-041 Control Fields (Use fields generated from Muscat (or Muscat/Voyager for 008, e.g.), except for 022)					
+001	 M		T	T			
+005	 M		T	T			
+007	 M		T	T			
+008	 M		T	T			
+022	 V else M	 (if 022 $a present in V, place any conflicting M in $y subfield)	T	T			
+		1XX   Main entry fields					
+100	 V else M		T	T			
+110	 V else M		T	T			
+111	 V else M		T	T			
+		20X-24X Title fields					
+240	 V else M	 (there are three V)	T	T			
+242	 V else M	 (there is only one V)	T	T			
+245	 V	 (if conflicting *t in Muscat, place in 246). Do this before next field	T	T			
+246	 V and M	 (avoiding duplicates - where case insensitive check indicates duplicate, use V)	T	T			
+		25X-28X Edition, etc.					
+250	 V else M		T	T			
+260	 V else M		T	T			
+		3XX Physical description					
+300	 V else M		T	T			
+310	 V else M		T	T			
+		4XX Series statements					
+490	 V else M	 (none in M)	T	T			
+		4XX Series statements					
+520	 V and M	 (V has 6. Could combine into single field, placing V after M)	T	T			
+541	 V else M	 (none in V)	T	T			
+546	 V and M	 (would be good to avoid duplication)	T	T			
+563	 V else M	 (none in V, one in M)	T	T			
+		6XX Subject indexing					
+650	 V and M	 (some effective duplication inevitable)	T	T			
+651	 V and M	 (some effective duplication inevitable)	T	T			
+		70X-75X Added entry					
+700	 V and M	 (good to avoid duplicates, but not critical)	T	T			
+710	 V and M	 (good to avoid duplicates, but not critical)	T	T			
+711	 V and M	 (good to avoid duplicates, but not critical)	T	T			
+		76X-78X Linking entries					
+773	 V else M	 (none in V)	T	T			
+780	 V and M	 (avoiding duplicates - where case insensitive check indicates duplicate, use V)	T	T			
+785	 V and M	 (avoiding duplicates - where case insensitive check indicates duplicate, use V)	T	T			
+		841-88X - Holdings, etc.					
+852	 M		T	T			
+856	 V else M	 (in those few cases where in both V and M, V is preferable)	T	T			
+866	 M	 (generate two fields: one with simple range (may be open), and $a subfield; other with existing *hold Muscat field in $x subfield (non-public note)). Single occurence in V may be discarded.	T	T			
+876	 V and M	 (none in V)	T	T			
+880	 V and M	 (only 1 in V)	T	T			
+		9XX Local fields					
+916	 M	 (none in V)	T	T			
+917	 M	 (none in V)	T	T			
+948	 V and M	 (5 in V, not sure whether repeatable, if not, then use M?)	T	T			
