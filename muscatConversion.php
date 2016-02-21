@@ -4776,15 +4776,11 @@ class muscatConversion extends frontControllerApplication
 			return false;
 		}
 		
-		//application::dumpData ($mergeDefinition);
-		
 		# Perform merge based on the specified strategy
-		switch ($mergeType) {
-			
-			#!# TODO - requires implementation for each $this->mergeTypes; just needs to modify $record
-			
-			
-		}
+		
+		#!# TODO; just needs to modify $record
+		//application::dumpData ($mergeDefinition[$mergeType]);
+		
 		
 		# Return the merged record
 		return $record;
@@ -5428,7 +5424,15 @@ class muscatConversion extends frontControllerApplication
 		# Convert the TSV to an associative array
 		$tsv = trim ($tsv);
 		require_once ('csv.php');
-		$mergeDefinition = csv::tsvToArray ($tsv, $firstColumnIsId = true, $firstColumnIsIdIncludeInData = false, $errorMessage, $skipRowsEmptyFirstCell = true);
+		$mergeDefinitionRaw = csv::tsvToArray ($tsv, $firstColumnIsId = true, $firstColumnIsIdIncludeInData = false, $errorMessage, $skipRowsEmptyFirstCell = true);
+		
+		# Rearrange by strategy
+		$mergeDefinition = array ();
+		foreach ($this->mergeTypes as $mergeType => $label) {
+			foreach ($mergeDefinitionRaw as $marcFieldCode => $attributes) {
+				$mergeDefinition[$mergeType][$marcFieldCode] = (strlen ($attributes[$mergeType]) ? $attributes['ACTION'] : false);
+			}
+		}
 		
 		# Return the definition
 		return $mergeDefinition;
