@@ -3200,10 +3200,10 @@ class muscatConversion extends frontControllerApplication
 			INSERT INTO reversetransliterations (id, title_latin)
 				SELECT
 					id,
-					/* Get the value of *t and, if *tt is present, append the value of ' [*tt]' : */
+					/* Get the value of *t and, if *tt is present, append the value of ' [[*tt]]' : */
 					CONCAT(
 						REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '*/tg/t')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"),
-						IF(LENGTH(EXTRACTVALUE(xml, '*/tg/tt')) > 0, CONCAT(' [', REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '*/tg/tt')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"), ']'), '')
+						IF(LENGTH(EXTRACTVALUE(xml, '*/tg/tt')) > 0, CONCAT(' [[', REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '*/tg/tt')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"), ']]'), '')
 					) AS title_latin
 				FROM catalogue_xml
 				WHERE
@@ -3355,8 +3355,8 @@ class muscatConversion extends frontControllerApplication
 		# Start an array of replacements
 		$replacements = array ();
 		
-		# Protect parts in brackets, which are English parts not for transliteration
-		preg_match_all ('/(\[.+\])/U', $string, $bracketMatches);	// Ungreedy match; allows protection for e.g. /records/76108/ with multiple blocks within string
+		# Protect parts in double-brackets, which are English parts not for transliteration
+		preg_match_all ('/(\[\[.+\]\])/U', $string, $bracketMatches);	// Ungreedy match; allows protection for e.g. /records/76108/ with multiple blocks within string
 		$replacements = array_merge ($replacements, $bracketMatches[1]);
 		
 		# Protect parts in italics, which are Latin names that a publisher would not translate
@@ -9350,7 +9350,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Spellcheck the strings
-		$spellcheck = application::spellcheck ($spellcheck, 'ru_RU', $this->databaseConnection, $this->settings['database'], $enableSuggestions = true, $this->transliterationProtectedStrings (), $protectBlockRegexp = '\[([^]]+)\]');
+		$spellcheck = application::spellcheck ($spellcheck, 'ru_RU', $this->databaseConnection, $this->settings['database'], $enableSuggestions = true, $this->transliterationProtectedStrings (), $protectBlockRegexp = '\[\[([^]]+)\]\]');
 		
 		# Substitute the spellchecked HTML versions into the table
 		foreach ($spellcheck as $id => $string) {
