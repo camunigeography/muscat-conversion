@@ -3179,6 +3179,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($sql);
 		$sql = "CREATE TABLE IF NOT EXISTS `reversetransliterations` (
 			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
+			`recordId` INT(11) NULL COMMENT 'Record ID',
 			`title` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Reverse-transliterated title',
 			`title_latin` TEXT COLLATE utf8_unicode_ci COMMENT 'Title (English), unmodified from original data',
 			`title_forward` TEXT COLLATE utf8_unicode_ci COMMENT 'Forward transliteration from generated Cyrillic (BGN/PCGN)',
@@ -3197,9 +3198,9 @@ class muscatConversion extends frontControllerApplication
 		#!# This currently catches records where any *lang is Russian rather than the first
 		#!# What happens with titles within a *t block?
 		$query = "
-			INSERT INTO reversetransliterations (id, title_latin)
+			INSERT INTO reversetransliterations (recordId, title_latin)
 				SELECT
-					id,
+					id AS recordId,
 					/* Get the value of *t and, if *tt is present, append the value of ' [[*tt]]' : */
 					CONCAT(
 						REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '*/tg/t')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"),
@@ -9334,6 +9335,11 @@ class muscatConversion extends frontControllerApplication
 	# Callback to provide a renderer
 	private function reversetransliterationsRenderer ($data)
 	{
+		# Remove internal ID
+		foreach ($data as $id => $record) {
+			unset ($data[$id]['id']);
+		}
+		
 		# Add a comparison check, and hide the two fields required for it
 		foreach ($data as $id => $record) {
 			if ($record['forwardCheckFailed']) {
@@ -9359,12 +9365,12 @@ class muscatConversion extends frontControllerApplication
 		
 		# Link each record
 		foreach ($data as $id => $record) {
-			$data[$id]['id'] = "<a href=\"{$this->baseUrl}/records/{$record['id']}/\">{$record['id']}</a>";
+			$data[$id]['recordId'] = "<a href=\"{$this->baseUrl}/records/{$record['recordId']}/\">{$record['recordId']}</a>";
 		}
 		
 		# Render as HTML; records already may contain tags
 		$tableHeadingSubstitutions = array (
-			'id' => '#',
+			'recordId' => '#',
 			'title' => 'Voyager (Cyrillic)',
 			'title_latin' => 'Muscat (transliteration)',
 			'title_loc' => 'Library of Congress Cyrillic',
