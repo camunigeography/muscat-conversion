@@ -2269,10 +2269,6 @@ class muscatConversion extends frontControllerApplication
 			#   Depencies: catalogue_processed
 			$this->createXmlTable ();
 			
-			# Create the transliteration table; actual transliteration of records into MARC is done on-the-fly
-			#   Dependencies: catalogue_processed, catalogue_xml
-			$this->initialiseTransliterationsTable ();
-			
 			# Create the fields index table
 			#  Dependencies: catalogue_processed and catalogue_xml
 			$this->createFieldsindexTable ();
@@ -3233,7 +3229,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to run the transliterations in the transliteration table
+	# Function to run the transliterations in the transliteration table; this never alters title_latin which should be set only in initialiseTransliterationsTable, read from the post- second-pass XML records
 	private function transliterateTransliterationsTable ()
 	{
 		# Define supported language
@@ -3526,6 +3522,45 @@ class muscatConversion extends frontControllerApplication
 			SET parallelTitleLanguages = value
 		;";
 		$this->databaseConnection->execute ($query);
+		
+		# Upgrade the transliterations to Library of Congress; this includes a third-pass of the XML records
+		$this->upgradeTransliterationsToLocInXml ();
+	}
+	
+	
+	# Function to transliterations to Library of Congress (LoC)
+	/* 
+		This is done as follows:
+		1) Pick out transliterable parts of the XML, which is therefore in a hierarchical context to avoid e.g. the wrong *t being picked
+		2) Match those back to processed record shards
+		3) Create reverse-transliterations from the original latin characters to Cyrillic
+		4) Forward transliterate the generated Cyrillic into Library of Congress transliterations
+		5) Update the processed table with the new LoC transliterations
+		6) Invalidate the XML records containing transliterations
+		7) Regenerating the invalidated XML records
+	*/
+	private function upgradeTransliterationsToLocInXml ()
+	{
+		# Create the transliteration table; actual transliteration of records into MARC is done on-the-fly
+		#   Dependencies: catalogue_processed, catalogue_xml
+		$this->initialiseTransliterationsTable ();
+		
+		# Upgrade the processed record shards containing transliteration to use the new Library of Congress transliterations
+		$query = "UPDATE catalogue_processed
+			INNER JOIN transliterations ON catalogue_processed.id = transliterations.shardId
+			SET value = title_loc
+		;";
+		$this->databaseConnection->execute ($query);
+		
+		# Invalid XML records containing transliterations
+		$query = "UPDATE catalogue_xml
+			INNER JOIN transliterations ON catalogue_xml.id = transliterations.recordId
+			SET xml = NULL
+		;";
+		$this->databaseConnection->execute ($query);
+		
+		# Perform a third-pass of the XML processing, to pick up the new transliterations for the invalidated records
+		$this->processXmlRecords ();
 	}
 	
 	
