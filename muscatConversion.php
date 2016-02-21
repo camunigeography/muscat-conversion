@@ -11,6 +11,7 @@ class muscatConversion extends frontControllerApplication
 		'missingd_problem' => 'records without a *d that are not *ser and either no status or status is GLACIOPAMS',
 		'missingacc_info' => 'records without a *acc',
 		'missingt_problem' => 'records without a *t',
+		'emptytvariants_problem' => 'records with an empty *t/*tt/*tc',
 		'sermissingr_problem' => '*ser records without a *r, except where location is Not in SPRI',
 		'artwithoutlocstatus_problem' => '*art records where there is no *loc and no *status',
 		'tcnotone_problem' => 'records without exactly one *tc',
@@ -7102,6 +7103,25 @@ class muscatConversion extends frontControllerApplication
 				id AS recordId
 			FROM catalogue_xml
 			WHERE EXTRACTVALUE(xml, 'count(/*/tg/t)') = 0
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with an empty *t/*tt/*tc
+	private function report_emptytvariants ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'emptytvariants' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field IN ('t', 'tt', 'tc')
+				AND value = ''
 		";
 		
 		# Return the query
