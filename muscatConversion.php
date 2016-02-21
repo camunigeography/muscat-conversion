@@ -3187,6 +3187,7 @@ class muscatConversion extends frontControllerApplication
 			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
 			`shardId` INT(11) NULL COMMENT 'Processed shard ID (catalogue_processed.id)',
 			`recordId` INT(11) NULL COMMENT 'Record ID',
+			`field` VARCHAR(255) NULL COMMENT 'Field',
 			`title` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Reverse-transliterated title',
 			`title_latin` TEXT COLLATE utf8_unicode_ci COMMENT 'Title (latin characters), unmodified from original data',
 			`title_latin_tt` TEXT COLLATE utf8_unicode_ci COMMENT '*tt if present',
@@ -3209,6 +3210,7 @@ class muscatConversion extends frontControllerApplication
 			INSERT INTO transliterations (recordId, title_latin, title_latin_tt)
 				SELECT
 					id AS recordId,
+					't' AS field,
 					REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '*/tg/t')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
 						AS title_latin,
 					REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '*/tg/tt')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
@@ -9547,6 +9549,12 @@ class muscatConversion extends frontControllerApplication
 		# Link each record
 		foreach ($data as $id => $record) {
 			$data[$id]['recordId'] = "<a href=\"{$this->baseUrl}/records/{$record['recordId']}/\">{$record['recordId']}</a>";
+		}
+		
+		# Show the record and field together
+		foreach ($data as $id => $record) {
+			$data[$id]['recordId'] .= '&nbsp;*' . $record['field'];
+			unset ($data[$id]['field']);
 		}
 		
 		# Render as HTML; records already may contain tags
