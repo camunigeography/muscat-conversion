@@ -7100,9 +7100,9 @@ class muscatConversion extends frontControllerApplication
 			SELECT
 				'missingt' AS report,
 				id AS recordId
-			FROM fieldsindex
-			WHERE fieldslist NOT LIKE '%@t@%'
-			";
+			FROM catalogue_xml
+			WHERE EXTRACTVALUE(xml, 'count(/*/tg/t)') = 0
+		";
 		
 		# Return the query
 		return $query;
