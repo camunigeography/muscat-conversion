@@ -3208,7 +3208,7 @@ class muscatConversion extends frontControllerApplication
 		#!# This currently catches records where any *lang is Russian rather than the first
 		#!# What happens with titles within a *t block?
 		$query = "
-			INSERT INTO transliterations (recordId, title_latin, title_latin_tt)
+			INSERT INTO transliterations (recordId, field, title_latin, title_latin_tt)
 				SELECT
 					id AS recordId,
 					't' AS field,
