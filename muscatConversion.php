@@ -1089,7 +1089,7 @@ class muscatConversion extends frontControllerApplication
 				<n1 />
 				<n2 />
 				<nd />
-			</a>	
+			</a>
 			<ad /><!-- authorial detail (usually 'and others' 'ed.' 'eds.') -->
 			<al><!-- alternative spelling of transliterated name or alternative name -->
 				<n1 />
@@ -8564,7 +8564,7 @@ class muscatConversion extends frontControllerApplication
 				'multipletopt' AS report,
 				id AS recordId
 			FROM catalogue_xml
-			WHERE EXTRACTVALUE(xml, 'count(/*/tg/t)') > 1	/* This will catch both /*/tg/t[2] and /*/tg[2]/t
+			WHERE EXTRACTVALUE(xml, 'count(/*/tg/t)') > 1	-- This will catch both /*/tg/t[2] and /*/tg[2]/t
 		";
 		
 		# Return the query
