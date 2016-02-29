@@ -40,6 +40,56 @@
 
 
 	<rule>
+		<from>Greem</from>
+		<to>Греэма</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Ostyatsk</from>
+		<to>Остяцк</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Voyeyk</from>
+		<to>Воейков</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>chukotsk</from>
+		<to>чукотск</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>khantyysk</from>
+		<to>хантыйск</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>udegey</from>
+		<to>удэгей</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>yuyu</from>
+		<to>юю</to>
+		<context>
+			<before>\b</before>
+		</context>
+	</rule>
+
+	<rule>
 		<from>postsov</from>
 		<to>постсов</to>
 		<context>
