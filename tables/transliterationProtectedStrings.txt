@@ -172,6 +172,7 @@ Aetideidae
 Buccinidae
 Oenopotinae
 Prosobranchia
+Oncorhynchus
 
 # Chemical formulae
 Pb-Pb
@@ -199,6 +200,9 @@ SWIPA
 GPS
 AMIP
 GIS
+EURASTRENCOLD
+SNOWPACK
+ARCOP
 
 # Organisation names
 Congressus Octavus Internationalis Fenno-Ugristarum
@@ -208,3 +212,4 @@ WWGS-89
 No.
 studia
 juvenalia
+[electronic resource]
