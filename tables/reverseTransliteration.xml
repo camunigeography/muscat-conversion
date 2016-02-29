@@ -40,6 +40,63 @@
 
 
 	<rule>
+		<from>postsov</from>
+		<to>постсов</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Postsov</from>
+		<to>Постсов</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>nemetsk</from>
+		<to>немецк</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Posteksp</from>
+		<to>Постэксп</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Ayn</from>
+		<to>Айн</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>pozdneeo</from>
+		<to>позднеэо</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>drevneesk</from>
+		<to>древнеэск</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Uelen</from>
+		<to>Уэлен</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+
+	<rule>
 		<from>ostyatsk</from>
 		<to>остяцк</to>
 		<context>
