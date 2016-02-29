@@ -40,6 +40,21 @@
 
 
 	<rule>
+		<from>ostyatsk</from>
+		<to>остяцк</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Verbitsk</from>
+		<to>Вербицк</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+
+	<rule>
 		<from>nenetsk</from>
 		<to>ненецк</to>
 		<context>
