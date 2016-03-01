@@ -9502,12 +9502,12 @@ class muscatConversion extends frontControllerApplication
 		# Regenerate on demand during testing
 		//$this->transliterateTransliterationsTable ();
 		
-		# Determine whether to filter to failures only
+		# Determine whether to filter to reversibility failures only
 		$failuresOnly = (isSet ($_GET['filter']) && $_GET['filter'] == '1');
 		if ($failuresOnly) {
-			$html .= "\n<p><a href=\"{$this->baseUrl}/reports/transliterations/\">Show all</a> | <strong>Filtering to failures only</strong></p>";
+			$html .= "\n<p><a href=\"{$this->baseUrl}/reports/transliterations/\">Show all</a> | <strong>Filtering to reversibility failures only</strong></p>";
 		} else {
-			$html .= "\n<p><strong>Showing all</strong> | <a href=\"{$this->baseUrl}/reports/transliterations/?filter=1\">Filter to failures only</a></p>";
+			$html .= "\n<p><strong>Showing all</strong> | <a href=\"{$this->baseUrl}/reports/transliterations/?filter=1\">Filter to reversibility failures only</a></p>";
 		}
 		
 		# Add link to editing the definition
