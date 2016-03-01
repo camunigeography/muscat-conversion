@@ -989,6 +989,7 @@ class muscatConversion extends frontControllerApplication
 			<tc /><!-- UNKNOWN -->
 		</tg>
 		<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
+		<lpt /><!-- Languages of parallel title -->
 		<e><!-- editor(s) of whole work, use n for name in indirect order (*e edited by *n Smith/Bob); in practice this has also been used to add non-author contributors - this field in practice contains messy data often -->
 			<role />
 			<n><!-- Name field (used in conjunction with *e and *ee fields) -->
@@ -1106,6 +1107,7 @@ class muscatConversion extends frontControllerApplication
 			<tc /><!-- UNKNOWN -->
 		</tg>
 		<lang /><!-- name of language (e.g. 'French' 'German') -->
+		<lpt /><!-- Languages of parallel title -->
 		<e><!-- editor(s) of whole work, use n for name in indirect order (*e edited by *n Smith/Bob); in practice this has also been used to add non-author contributors (sometimes for art/in/ records that relates to the *in level) - this field in practice contains messy data often -->
 			<role />
 			<n><!-- Name field (used in conjunction with *e and *ee fields) -->
@@ -1334,6 +1336,7 @@ class muscatConversion extends frontControllerApplication
 			<tc /><!-- UNKNOWN -->
 		</tg>
 		<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
+		<lpt /><!-- Languages of parallel title -->
 		<ft /><!-- former title -->
 		<st /><!-- subsequent title -->
 		<pg><!-- where two or more publishers, from different places, have collaborated -->
