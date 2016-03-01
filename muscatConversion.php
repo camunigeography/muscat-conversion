@@ -2789,7 +2789,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to create a key/value replacement pairs for subscripts and superscripts
+	# Function to create a key/value replacement pairs for subscripts {...} and superscripts }...{
 	private function getSubscriptsSuperscriptsReplacementsDefinition ()
 	{
 		/*
@@ -2827,9 +2827,10 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSubscripts['1c'] = $unicodeSubscripts[1] . '<sub>c</sub>';	// e.g. /records/81582/
 		$unicodeSubscripts['O2'] = '<sub>O</sub>' . $unicodeSubscripts[2];
 		$unicodeSubscripts['31:9'] = $unicodeSubscripts[3] . $unicodeSubscripts[1] . '<sub>:</sub>' . $unicodeSubscripts[9];
+		$unicodeSubscripts['31:9'] = $unicodeSubscripts[0] . '<sub>.</sub>' . $unicodeSubscripts[1] . $unicodeSubscripts[2] . $unicodeSubscripts[0];
 		
-		# Subscripts not representable as real Unicode codepoints, represented as HTML
-		$subscriptsNonUnicodeable = array ('a', 'apex', 'adv', 'b', 'c', 'C', 'CO', 'd', 'D', 'e', 'E', 'eff', 'g', 'h', 'H', 'i', 'I', 'IC', 'Jan', 'L', 'lip', 'm', 'max', 'min', 'o', 'org', 'p', 'p/c', 'R', 'rs', 's', 'SL', 'ST', 'St', 't', 'T', 'v', 'w.e', 'x', 'y', 'z', chr(0xCE).chr(0x94) . '<em>t</em>' /* delta, for /records/78099/ */ , 'f,T=O', chr(0xCE).chr(0xB8), chr(0xCE).chr(0xB7), );		// E.g. shown as {h}
+		# Subscripts not representable as real Unicode codepoints, e.g. shown as {h}, represented as HTML
+		$subscriptsNonUnicodeable = array ('a', 'apex', 'adv', 'b', 'c', 'C', 'CO', 'd', 'D', 'e', 'E', 'eff', 'g', 'h', 'H', 'HOMA', 'i', 'I', 'IC', 'Jan', 'l', 'L', 'lip', 'm', 'max', 'min', 'o', 'org', 'p', 'p/c', 'PAR', 'POC', 'R', 'rs', 's', 'SL', 'ST', 'St', 'SW', 't', 'T', 'v', 'w', 'W', 'w.e', 'x', 'xs', 'y', 'z', chr(0xCE).chr(0xB8), chr(0xCE).chr(0x94) . '<em>t</em>' /* delta, for /records/78099/ */ , 'f,T=O', chr(0xCE).chr(0xB8), chr(0xCE).chr(0xB7), );	$this->databaseConnection->query ("INSERT INTO catalogue_processed VALUES (NULL, 9189, 35, 'notes', '', NULL), (NULL, 9189, 36, 'note', 'Have you not heard that the bird is the word?', NULL);");
 		foreach ($subscriptsNonUnicodeable as $subscriptNonUnicodeable) {
 			$unicodeSubscripts[$subscriptNonUnicodeable] = '<sub>' . $subscriptNonUnicodeable . '</sub>';	// HTML tags will be stripped in final record
 		}
@@ -2862,23 +2863,27 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSuperscripts['2+'] = $unicodeSuperscripts[2] . $unicodeSuperscripts['+'];
 		$unicodeSuperscripts['2-'] = $unicodeSuperscripts[2] . $unicodeSuperscripts['-'];
 		$unicodeSuperscripts['3+'] = $unicodeSuperscripts[3] . $unicodeSuperscripts['+'];
+		$unicodeSuperscripts['3-'] = $unicodeSuperscripts[3] . $unicodeSuperscripts['-'];
 		$unicodeSuperscripts['++'] = $unicodeSuperscripts['+'] . $unicodeSuperscripts['+'];	// e.g. /records/79712/
 		$unicodeSuperscripts['1/3'] = $unicodeSuperscripts[1] . '<sup>/</sup>' . $unicodeSuperscripts[3];	// e.g. /records/169424/
 		$unicodeSuperscripts['-1/12'] = $unicodeSuperscripts['-'] . $unicodeSuperscripts[1] . '<sup>/</sup>' . $unicodeSuperscripts[1] . $unicodeSuperscripts[2];	// e.g. /records/120554/
 		$unicodeSuperscripts['4.17'] = $unicodeSuperscripts[4] . '<sup>.</sup>' . $unicodeSuperscripts[1] . $unicodeSuperscripts[7];	// e.g. /records/199372/
 		$unicodeSuperscripts['238-240'] = $unicodeSuperscripts[2] . $unicodeSuperscripts[3] . $unicodeSuperscripts[8] . $unicodeSuperscripts['-'] . $unicodeSuperscripts[2] . $unicodeSuperscripts[4] . $unicodeSuperscripts[0];	// e.g. /records/212674/
 		$unicodeSuperscripts['239+240'] = $unicodeSuperscripts[2] . $unicodeSuperscripts[3] . $unicodeSuperscripts[9] . $unicodeSuperscripts['+'] . $unicodeSuperscripts[2] . $unicodeSuperscripts[4] . $unicodeSuperscripts[0];	// e.g. /records/206908/
+		$unicodeSuperscripts['239,240'] = $unicodeSuperscripts[2] . $unicodeSuperscripts[3] . $unicodeSuperscripts[9] . '<sup>,</sup>' . $unicodeSuperscripts[2] . $unicodeSuperscripts[4] . $unicodeSuperscripts[0];	// e.g. /records/167346/
 		$unicodeSuperscripts['-1h-1'] = $unicodeSuperscripts['-'] . $unicodeSuperscripts[1] . '<sup>h</sup>' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];
 		$unicodeSuperscripts['2s-1'] = $unicodeSuperscripts[2] . '<sup>s</sup>' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];
 		$unicodeSuperscripts['-2s-1'] = $unicodeSuperscripts['-'] . $unicodeSuperscripts[2] . '<sup>s</sup>' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];
 		$unicodeSuperscripts['3y-1'] = $unicodeSuperscripts[3] . '<sup>y</sup>' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];
+		$unicodeSuperscripts['16:0'] = $unicodeSuperscripts[1] . $unicodeSuperscripts[6] . '<sup>:</sup>' . $unicodeSuperscripts[0];
+		$unicodeSuperscripts['22:6'] = $unicodeSuperscripts[2] . $unicodeSuperscripts[2] . '<sup>:</sup>' . $unicodeSuperscripts[6];
 		
 		# Ordinal indicators; NB only a and o have proper Unicode characters: https://en.wikipedia.org/wiki/Ordinal_indicator#Usage
 		$unicodeSuperscripts['a'] = chr(0xC2).chr(0xAA);	// FEMININE ORDINAL INDICATOR (U+00AA); see: http://www.fileformat.info/info/unicode/char/00aa/index.htm
 		$unicodeSuperscripts['o'] = chr(0xC2).chr(0xBA);	// MASCULINE ORDINAL INDICATOR (U+00BA); see: http://www.fileformat.info/info/unicode/char/00ba/index.htm
 		
 		# Superscripts with no Unicode codepoints, represented as HTML
-		$superscriptsNonUnicodeable = array ('c', 'dry', 'e', 'E', 'er', chr(0xC3).chr(0xA8) . 're' /* ère */, 'ieme', 'l', 'me', 'ne', 'p', 'r', 'R', 're', 't', 'T', 'tot', '~', );		// E.g. shown as }e{
+		$superscriptsNonUnicodeable = array ('c', 'dry', 'e', 'E', 'er', chr(0xC3).chr(0xA8) . 're' /* ère */, 'ieme', 'l', 'max', 'me', 'ne', 'p', 'r', 'R', 're', 't', 'T', 'tot', '~', ',', );		// E.g. shown as }e{
 		foreach ($superscriptsNonUnicodeable as $superscriptNonUnicodeable) {
 			$unicodeSuperscripts[$superscriptNonUnicodeable] = '<sup>' . $superscriptNonUnicodeable . '</sup>';	// HTML tags will be stripped in final record
 		}
@@ -2902,8 +2907,8 @@ class muscatConversion extends frontControllerApplication
 				range (-99, -1)
 			),
 			array (
-				array ('10', '11', '12', '13', '14', '15', '16', '17', '18', '20', '21', '22', '23', '25', '26', '27', '28', '29', '30', '31', '33', '35', '37', '40', '43', '45', '50', '60', '63', '64', '86', '90', '115', '128', '137', '200', '210', '238', '241', '500', '700', '0001', '1010', '1120', '2021'),
-				array ('103', '118', '125', '127', '129', '134', '137', '143', '144', '181', '187', '188', '204', '206', '207', '210', '222', '226', '228', '230', '231', '232', '234', '235', '238', '239', '240', '241', '548', '552')
+				array ('10', '11', '12', '13', '14', '15', '16', '17', '18', '20', '21', '22', '23', '25', '26', '27', '28', '29', '30', '31', '33', '35', '37', '40', '43', '45', '50', '60', '63', '64', '86', '90', '115', '128', '137', '200', '210', '238', '241', '500', '700', '0001', '1010', '1120', '2021', ),
+				array ('103', '118', '125', '127', '129', '134', '137', '143', '144', '181', '187', '188', '204', '206', '207', '210', '222', '226', '228', '230', '231', '232', '234', '235', '238', '239', '240', '241', '548', '552', '990', )
 			),
 		);
 		
