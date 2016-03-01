@@ -2678,6 +2678,10 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($sql);
 		$sql = "INSERT INTO catalogue_processed SELECT * FROM catalogue_rawdata;";
 		$this->databaseConnection->execute ($sql);
+		
+		# Add a field to store the original pre-transliteration value
+		$sql = "ALTER TABLE catalogue_processed ADD preTransliterationUpgradeValue TEXT NULL DEFAULT NULL COMMENT 'Value before transliteration changes' AFTER value;";
+		$this->databaseConnection->execute ($sql);
 	}
 	
 	
@@ -3514,6 +3518,7 @@ class muscatConversion extends frontControllerApplication
 	
 	# Function to create XML records
 	#   Depencies: catalogue_processed
+	#!# This is currently not idempotent, in that re-running it will cause the BGN/PCGN transliterations to be lost from the second time
 	private function createXmlTable ()
 	{
 		# Clean out the XML table
@@ -3586,14 +3591,16 @@ class muscatConversion extends frontControllerApplication
 		#   Dependencies: catalogue_processed, catalogue_xml
 		$this->initialiseTransliterationsTable ();
 		
-		# Upgrade the processed record shards containing transliteration to use the new Library of Congress transliterations
+		# Upgrade the processed record shards containing transliteration to use the new Library of Congress transliterations, and save the original BGN/PCGN value
 		$query = "UPDATE catalogue_processed
 			INNER JOIN transliterations ON catalogue_processed.id = transliterations.shardId
-			SET value = title_loc
+			SET
+				preTransliterationUpgradeValue = value,
+				value = title_loc
 		;";
 		$this->databaseConnection->execute ($query);
 		
-		# Invalid XML records containing transliterations
+		# Invalidate XML records containing transliterations
 		$query = "UPDATE catalogue_xml
 			INNER JOIN transliterations ON catalogue_xml.id = transliterations.recordId
 			SET xml = NULL
