@@ -2825,16 +2825,27 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSubscripts['n'] = chr(0xE2).chr(0x82).chr(0x99);
 		
 		# Letter/number combinations whose component characters can be represented, or partially represented, as real Unicode
+		$unicodeSubscripts['++'] = $unicodeSubscripts['+'] . $unicodeSubscripts['+'];
+		$unicodeSubscripts['+++'] = $unicodeSubscripts['+'] . $unicodeSubscripts['+'] . $unicodeSubscripts['+'];
 		$unicodeSubscripts['2+'] = $unicodeSubscripts[2] . $unicodeSubscripts['+'];
 		$unicodeSubscripts['2-'] = $unicodeSubscripts[2] . $unicodeSubscripts['-'];
 		$unicodeSubscripts['239,240'] = $unicodeSubscripts[2] . $unicodeSubscripts[8] . $unicodeSubscripts[9] . '<sub>,</sub>' . $unicodeSubscripts['2'] . $unicodeSubscripts['4'] . $unicodeSubscripts['0'];
 		$unicodeSubscripts['1c'] = $unicodeSubscripts[1] . '<sub>c</sub>';	// e.g. /records/81582/
+		$unicodeSubscripts['2d'] = $unicodeSubscripts[2] . '<sub>d</sub>';
 		$unicodeSubscripts['O2'] = '<sub>O</sub>' . $unicodeSubscripts[2];
 		$unicodeSubscripts['31:9'] = $unicodeSubscripts[3] . $unicodeSubscripts[1] . '<sub>:</sub>' . $unicodeSubscripts[9];
 		$unicodeSubscripts['31:9'] = $unicodeSubscripts[0] . '<sub>.</sub>' . $unicodeSubscripts[1] . $unicodeSubscripts[2] . $unicodeSubscripts[0];
+		$unicodeSubscripts['10T0'] = $unicodeSubscripts[1] . $unicodeSubscripts[0] . '<sub>T</sub>' . $unicodeSubscripts[0];
+		$unicodeSubscripts['14-15'] = $unicodeSubscripts[1] . $unicodeSubscripts[4] . $unicodeSubscripts['-'] . $unicodeSubscripts[1] . $unicodeSubscripts[5];
+		$unicodeSubscripts['16-17'] = $unicodeSubscripts[1] . $unicodeSubscripts[6] . $unicodeSubscripts['-'] . $unicodeSubscripts[1] . $unicodeSubscripts[7];
+		$unicodeSubscripts['20-22'] = $unicodeSubscripts[2] . $unicodeSubscripts[0] . $unicodeSubscripts['-'] . $unicodeSubscripts[2] . $unicodeSubscripts[2];
+		$unicodeSubscripts['1/2'] = $unicodeSubscripts[1] . '<sub>/</sub>' . $unicodeSubscripts[2];
+		$unicodeSubscripts['GISP2'] = '<sub>GISP</sub>' . $unicodeSubscripts[2];
+		$unicodeSubscripts['s=0'] = '<sub>s=</sub>' . $unicodeSubscripts[0];
+		$unicodeSubscripts['1g'] = $unicodeSubscripts[1] . '<sub>g</sub>';
 		
 		# Subscripts not representable as real Unicode codepoints, e.g. shown as {h}, represented as HTML
-		$subscriptsNonUnicodeable = array ('a', 'apex', 'adv', 'b', 'c', 'C', 'CO', 'd', 'D', 'e', 'E', 'eff', 'g', 'h', 'H', 'HOMA', 'i', 'I', 'IC', 'Jan', 'l', 'L', 'lip', 'm', 'max', 'min', 'o', 'org', 'p', 'p/c', 'PAR', 'POC', 'R', 'rs', 's', 'SL', 'ST', 'St', 'SW', 't', 'T', 'v', 'w', 'W', 'w.e', 'x', 'xs', 'y', 'z', chr(0xCE).chr(0xB8), chr(0xCE).chr(0x94) . '<em>t</em>' /* delta, for /records/78099/ */ , 'f,T=O', chr(0xCE).chr(0xB8), chr(0xCE).chr(0xB7), );	$this->databaseConnection->query ("INSERT INTO catalogue_processed VALUES (NULL, 9189, 35, 'notes', '', NULL), (NULL, 9189, 36, 'note', 'Have you not heard that the bird is the word?', NULL);");
+		$subscriptsNonUnicodeable = array ('a', 'A', 'adv', 'an', 'apex', 'A' . chr(0xCE).chr(0xA3), 'b', 'B', 'c', 'C', 'CO', 'd', 'D', 'DN', 'DR', 'e', 'E', 'eff', 'eq', 'ex', 'f', 'g', 'h', 'H', 'hfa', 'HOMA', 'i', 'I', 'II', 'ice', 'Ic', 'IC', 'inorg', 'Jan', 'l', 'L', 'lip', 'm', 'max', 'MAX', 'min', 'Nd', 'o', 'org', 'p', 'Pb', 'p/c', 'PAR', 'POC', 'q', 'Q', 'r', 'R', 'Re', 'rs', 's', 'S', 'sal', 'sant', 'sas', 'SL', 'ST', 'St', 'SW', 't', 'T', 'u', 'v', 'VGT', 'w', 'W', 'w.e', 'x', 'xs', 'y', 'z', 'Z', chr(0xCE).chr(0xB4), chr(0xCE).chr(0xB6), chr(0xCE).chr(0xB8), chr(0xCE).chr(0x94) . '<em>t</em>' /* delta, for /records/78099/ */ , 'f,T=O', chr(0xCE).chr(0xB8), chr(0xCE).chr(0xB7), );	$this->databaseConnection->query ("INSERT INTO catalogue_processed VALUES (NULL, 9189, 35, 'notes', '', NULL), (NULL, 9189, 36, 'note', 'Have you not heard that the bird is the word?', NULL);");
 		foreach ($subscriptsNonUnicodeable as $subscriptNonUnicodeable) {
 			$unicodeSubscripts[$subscriptNonUnicodeable] = '<sub>' . $subscriptNonUnicodeable . '</sub>';	// HTML tags will be stripped in final record
 		}
@@ -2875,19 +2886,24 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSuperscripts['238-240'] = $unicodeSuperscripts[2] . $unicodeSuperscripts[3] . $unicodeSuperscripts[8] . $unicodeSuperscripts['-'] . $unicodeSuperscripts[2] . $unicodeSuperscripts[4] . $unicodeSuperscripts[0];	// e.g. /records/212674/
 		$unicodeSuperscripts['239+240'] = $unicodeSuperscripts[2] . $unicodeSuperscripts[3] . $unicodeSuperscripts[9] . $unicodeSuperscripts['+'] . $unicodeSuperscripts[2] . $unicodeSuperscripts[4] . $unicodeSuperscripts[0];	// e.g. /records/206908/
 		$unicodeSuperscripts['239,240'] = $unicodeSuperscripts[2] . $unicodeSuperscripts[3] . $unicodeSuperscripts[9] . '<sup>,</sup>' . $unicodeSuperscripts[2] . $unicodeSuperscripts[4] . $unicodeSuperscripts[0];	// e.g. /records/167346/
+		$unicodeSuperscripts['239.240'] = $unicodeSuperscripts[2] . $unicodeSuperscripts[3] . $unicodeSuperscripts[9] . '<sup>.</sup>' . $unicodeSuperscripts[2] . $unicodeSuperscripts[4] . $unicodeSuperscripts[0];
 		$unicodeSuperscripts['-1h-1'] = $unicodeSuperscripts['-'] . $unicodeSuperscripts[1] . '<sup>h</sup>' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];
 		$unicodeSuperscripts['2s-1'] = $unicodeSuperscripts[2] . '<sup>s</sup>' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];
 		$unicodeSuperscripts['-2s-1'] = $unicodeSuperscripts['-'] . $unicodeSuperscripts[2] . '<sup>s</sup>' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];
 		$unicodeSuperscripts['3y-1'] = $unicodeSuperscripts[3] . '<sup>y</sup>' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];
 		$unicodeSuperscripts['16:0'] = $unicodeSuperscripts[1] . $unicodeSuperscripts[6] . '<sup>:</sup>' . $unicodeSuperscripts[0];
 		$unicodeSuperscripts['22:6'] = $unicodeSuperscripts[2] . $unicodeSuperscripts[2] . '<sup>:</sup>' . $unicodeSuperscripts[6];
+		$unicodeSuperscripts['-1.6'] = $unicodeSuperscripts['-'] . $unicodeSuperscripts[1] . '<sup>.</sup>' . $unicodeSuperscripts[6];
+		$unicodeSuperscripts['1.2'] = $unicodeSuperscripts[1] . '<sup>.</sup>' . $unicodeSuperscripts[2];
+		$unicodeSuperscripts['12-'] = $unicodeSuperscripts[2] . $unicodeSuperscripts[2] . $unicodeSuperscripts['-'];
+		$unicodeSuperscripts['8-'] = $unicodeSuperscripts[8] . $unicodeSuperscripts['-'];
 		
 		# Ordinal indicators; NB only a and o have proper Unicode characters: https://en.wikipedia.org/wiki/Ordinal_indicator#Usage
 		$unicodeSuperscripts['a'] = chr(0xC2).chr(0xAA);	// FEMININE ORDINAL INDICATOR (U+00AA); see: http://www.fileformat.info/info/unicode/char/00aa/index.htm
 		$unicodeSuperscripts['o'] = chr(0xC2).chr(0xBA);	// MASCULINE ORDINAL INDICATOR (U+00BA); see: http://www.fileformat.info/info/unicode/char/00ba/index.htm
 		
 		# Superscripts with no Unicode codepoints, represented as HTML
-		$superscriptsNonUnicodeable = array ('c', 'dry', 'e', 'E', 'er', chr(0xC3).chr(0xA8) . 're' /* ère */, 'ieme', 'l', 'max', 'me', 'ne', 'p', 'r', 'R', 're', 't', 'T', 'tot', '~', ',', );		// E.g. shown as }e{
+		$superscriptsNonUnicodeable = array ('b', 'c', 'dry', 'e', 'E', 'eme', 'er', chr(0xC3).chr(0xA8) . 're' /* ère */, 'ieme', 'l', 'max', 'me', 'ne', 'p', 'r', 'R', 're', 'st', 't', 'T', 'Th', 'th', 'tot', '~', ',', chr(0xC3).chr(0xB2), );		// E.g. shown as }e{
 		foreach ($superscriptsNonUnicodeable as $superscriptNonUnicodeable) {
 			$unicodeSuperscripts[$superscriptNonUnicodeable] = '<sup>' . $superscriptNonUnicodeable . '</sup>';	// HTML tags will be stripped in final record
 		}
