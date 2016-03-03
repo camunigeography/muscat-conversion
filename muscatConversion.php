@@ -246,7 +246,6 @@ class muscatConversion extends frontControllerApplication
 	# Index for 880 subfield 6
 	private $field880subfield6Index = 0;
 	private $field880subfield6FieldInstanceIndex = array ();
-	private $field880subfield6ReciprocalLinks = array ();
 	
 	# Caches
 	private $lookupTablesCache = array ();
@@ -4749,6 +4748,9 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Ensure the error string is clean for each iteration
 		$errorString = '';
+		
+		# Create a fresh container for 880 reciprocal links
+		$this->field880subfield6ReciprocalLinks = array ();
 		
 		# Ensure the line-by-line syntax is valid, extract macros, and construct a data structure representing the record
 		if (!$datastructure = $this->convertToMarc_InitialiseDatastructure ($recordXml, $marcParserDefinition, $errorString)) {return false;}
