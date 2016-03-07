@@ -2944,6 +2944,19 @@ class muscatConversion extends frontControllerApplication
 			}
 		}
 		
+		# Add ambiguous groupings arising from the lack of reversibility, which take precendence over all the above
+		$ambiguousGroupings['}.{H}+{'] = '10' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[2] . 's' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];	// /records/129785/
+		$ambiguousGroupings['10}-2{s}-1{'] = '10' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[2] . 's' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];	// /records/129785/
+		$ambiguousGroupings['10}-6{S}-1{'] = '10' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[6] . 'S' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];	// /records/136780/
+		$ambiguousGroupings['10}-6{-10}-7{s}-1{'] = '10' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[6] . '-10' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[7] . 's' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];	// /records/155417/
+		$ambiguousGroupings['m}-2{a}-1{'] = 'm' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[2] . 'a' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];	// /records/167154/
+		$ambiguousGroupings['m}-2{d}-1{'] = 'm' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[2] . 'd' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];	// /records/174762/
+		$ambiguousGroupings['L}-1{h}-1{'] = 'L' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[2] . 'h' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];	// /records/186659/
+		$ambiguousGroupings['m}-2{s}-1{'] = 'm' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[2] . 'g' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];	// /records/188187/
+		$ambiguousGroupings['m}2{g}-1{'] = 'm' . $unicodeSuperscripts[2] . 'g' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];	// /records/188222/
+		$ambiguousGroupings['m}2{s}-1{'] = 'm' . $unicodeSuperscripts[2] . 's' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];	// /records/189759/
+		$replacements = array_merge ($ambiguousGroupings, $replacements);	// Insert before all others
+		
 		// application::dumpData ($replacements);
 		
 		# Return the replacements
