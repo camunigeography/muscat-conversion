@@ -3896,6 +3896,7 @@ class muscatConversion extends frontControllerApplication
 				foreach ($records as $id => $record) {
 					$mergeType      = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeType'] : false);
 					$mergeVoyagerId	= (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeVoyagerId'] : false);
+					$marcPreMerge = NULL;	// Reset for next iteration
 					$marc = $this->convertToMarc ($marcParserDefinition, $record['xml'], $errorString, $mergeDefinition, $mergeType, $mergeVoyagerId, $marcPreMerge);
 					if ($errorString) {
 						$html  = "<p class=\"warning\">Record <a href=\"{$this->baseUrl}/records/{$id}/\">{$id}</a> could not be converted to MARC:</p>";
