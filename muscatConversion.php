@@ -3302,29 +3302,11 @@ class muscatConversion extends frontControllerApplication
 	# Function to run the transliterations in the transliteration table; this never alters title_latin which should be set only in initialiseTransliterationsTable, read from the post- second-pass XML records
 	private function transliterateTransliterationsTable ()
 	{
-		# Define supported language
-		#!# Need to remove explicit dependency
-		$language = 'Russian';
-		
-		# Read the raw values
+		# Obtain the raw values
 		$data = $this->databaseConnection->selectPairs ($this->settings['database'], 'transliterations', array (), array ('id', 'title_latin'));
 		
-		# Compile the strings to a TSV string, tabs never appearing in the original data so safe to use as the separator
-		$tsv = '';
-		foreach ($data as $id => $string) {
-			$tsv .= $id . "\t" . $string . "\n";
-		}
-		
-		# Reverse-transliterate the whole file
-		$tsvTransliteratedRaw = $this->transliterateBgnLatinToCyrillic ($tsv, $language);
-		
-		# Convert back to key-value pairs
-		require_once ('csv.php');
-		$tsvTransliteratedRaw = "id" . "\t" . "string" . "\n" . $tsvTransliteratedRaw;		// Add header row
-		$dataTransliterated = csv::tsvToArray ($tsvTransliteratedRaw, true);
-		foreach ($dataTransliterated as $id => $subArray) {
-			$dataTransliterated[$id] = $subArray['string'];	// Flatten the array
-		}
+		# Batch-transliterate the strings
+		$dataTransliterated = $this->batchTransliterateStrings ($data, 'transliterateBgnLatinToCyrillic');
 		
 		# Do a comparison check by forward-transliterating the generated Cyrillic
 		$forwardBgnTransliterations = array ();
@@ -3359,6 +3341,35 @@ class muscatConversion extends frontControllerApplication
 		
 		# Signal success
 		return true;
+	}
+	
+	
+	# Function to batch-transliterate an array strings; this is basically a wrapper which packages the strings list as a TSV which is then transliterated as a single string, then sent back unpacked
+	private function batchTransliterateStrings ($strings, $transliterationFunction)
+	{
+		# Define supported language
+		#!# Need to remove explicit dependency
+		$language = 'Russian';
+		
+		# Compile the strings to a TSV string, tabs never appearing in the original data so safe to use as the separator
+		$tsv = '';
+		foreach ($strings as $id => $string) {
+			$tsv .= $id . "\t" . $string . "\n";
+		}
+		
+		# Reverse-transliterate the whole file
+		$tsvTransliteratedRaw = $this->{$transliterationFunction} ($tsv, $language);
+		
+		# Convert back to key-value pairs
+		require_once ('csv.php');
+		$tsvTransliteratedRaw = "id" . "\t" . "string" . "\n" . $tsvTransliteratedRaw;		// Add header row for csv::tsvToArray()
+		$dataTransliterated = csv::tsvToArray ($tsvTransliteratedRaw, true);
+		foreach ($dataTransliterated as $id => $subArray) {
+			$dataTransliterated[$id] = $subArray['string'];	// Flatten the array
+		}
+		
+		# Return the transliterated data
+		return $dataTransliterated;
 	}
 	
 	
