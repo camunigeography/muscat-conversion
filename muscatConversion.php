@@ -3413,6 +3413,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to transliterate from Cyrillic to BGN/PCGN latin
+	# See: https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/501620/ROMANIZATION_SYSTEM_FOR_RUSSIAN.pdf and earlier edition http://web.archive.org/web/20151005154715/https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/320274/Russian_Romanisation.pdf
 	private function transliterateCyrillicToBgnLatin ($cyrillic)
 	{
 		# Use the built-in transliterator
