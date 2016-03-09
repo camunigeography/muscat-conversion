@@ -173,6 +173,16 @@ Buccinidae
 Oenopotinae
 Prosobranchia
 Oncorhynchus
+Compositae
+Potamogetonaceae
+Geraniaceae
+Scrophulariaceae
+daphniidae
+bozminidae
+Diurna
+Macrolepidoptera
+Syrphidae
+Simuliidae
 
 # Chemical formulae
 Pb-Pb
@@ -186,6 +196,7 @@ HLA
 Sr-Nd
 ²¹⁰Pb (⁹⁰Sr)
 ⁹⁰Sr
+C₅H₁₁)₄PBr.32H₂O
 
 # Latin abbreviations and phrases
 subsp.
