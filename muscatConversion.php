@@ -2960,7 +2960,7 @@ class muscatConversion extends frontControllerApplication
 			}
 		}
 		
-		# Add ambiguous groupings arising from the lack of reversibility, which take precendence over all the above
+		# Add ambiguous groupings arising from the lack of robust reversibility in the original {..} }..{ specification; these take precedence over all the above
 		$ambiguousGroupings['}.{H}+{'] = '10' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[2] . 's' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];	// /records/129785/
 		$ambiguousGroupings['10}-2{s}-1{'] = '10' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[2] . 's' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];	// /records/129785/
 		$ambiguousGroupings['10}-6{S}-1{'] = '10' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[6] . 'S' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];	// /records/136780/
