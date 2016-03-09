@@ -3434,8 +3434,17 @@ class muscatConversion extends frontControllerApplication
 			$this->locTransliterationDefinition = require_once ('tables/ALA_LC.php');
 		}
 		
+		# Protect string portions (e.g. English language, HTML portions) prior to transliteration
+		$locLatin = $this->protectSubstrings ($locLatin, $protectedParts);
+		
 		# Transliterate and return
-		return str_replace ($this->locTransliterationDefinition['lat'], $this->locTransliterationDefinition['cyr'], $locLatin);
+		$reverseTransliteration = str_replace ($this->locTransliterationDefinition['lat'], $this->locTransliterationDefinition['cyr'], $locLatin);
+		
+		# Reinstate protected substrings
+		$reverseTransliteration = strtr ($reverseTransliteration, $protectedParts);
+		
+		# Return the transliteration
+		return $reverseTransliteration;
 	}
 	
 	
