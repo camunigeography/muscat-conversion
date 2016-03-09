@@ -6457,7 +6457,7 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Return string
 		if ($language == 'Russian') {
-			return 'Russian transliteration entered into original records using BGN/PCGN 1947 romanization of Russian; Cyrillic text in MARC 880 field(s) reverse transliterated from this by automated process.';
+			return 'Russian transliteration entered into original records using BGN/PCGN 1947 romanization of Russian; Cyrillic text in MARC 880 field(s) reverse transliterated from this by automated process; BGN/PCGN 1947 text then upgraded to Library of Congress romanization.';
 		}
 		
 		# No match
