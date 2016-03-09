@@ -3351,18 +3351,19 @@ class muscatConversion extends frontControllerApplication
 		#!# Need to remove explicit dependency
 		$language = 'Russian';
 		
-		# Compile the strings to a TSV string, tabs never appearing in the original data so safe to use as the separator
-		$tsv = '';
+		# Compile the strings to a TSV string, tabs never appearing in the original data, so it is safe to use \t as the separator
+		$tsv = array ();
 		foreach ($strings as $id => $string) {
-			$tsv .= $id . "\t" . $string . "\n";
+			$tsv[] = $id . "\t" . $string;
 		}
+		$tsv = implode ("\n", $tsv);
 		
 		# Reverse-transliterate the whole file
 		$tsvTransliteratedRaw = $this->{$transliterationFunction} ($tsv, $language);
 		
 		# Convert back to key-value pairs
 		require_once ('csv.php');
-		$tsvTransliteratedRaw = "id" . "\t" . "string" . "\n" . $tsvTransliteratedRaw;		// Add header row for csv::tsvToArray()
+		$tsvTransliteratedRaw = 'id' . "\t" . 'string' . "\n" . $tsvTransliteratedRaw;		// Add header row for csv::tsvToArray()
 		$dataTransliterated = csv::tsvToArray ($tsvTransliteratedRaw, true);
 		foreach ($dataTransliterated as $id => $subArray) {
 			$dataTransliterated[$id] = $subArray['string'];	// Flatten the array
