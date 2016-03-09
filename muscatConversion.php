@@ -2850,9 +2850,11 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSubscripts['8-x'] = $unicodeSubscripts[8] . $unicodeSubscripts['-'] . '<sub>x</sub>';
 		$unicodeSubscripts['18-x'] = $unicodeSubscripts[1] . $unicodeSubscripts[8] . $unicodeSubscripts['-'] . '<sub>x</sub>';
 		$unicodeSubscripts['2+x'] = $unicodeSubscripts[2] . $unicodeSubscripts['+'] . '<sub>x</sub>';
+		$unicodeSubscripts['2<em>n</em>+1'] = $unicodeSubscripts[2] . '<em>' . $unicodeSubscripts['n'] . '</em>' . $unicodeSubscripts['+'] . $unicodeSubscripts[1];	// /records/129835/
+		$unicodeSubscripts['CO3'] = '<sub>CO</sub>' . $unicodeSubscripts[3];	// /records/127819/
 		
 		# Subscripts not representable as real Unicode codepoints, e.g. shown as {h}, represented as HTML
-		$subscriptsNonUnicodeable = array ('a', 'A', 'adv', 'an', 'apex', 'A' . chr(0xCE).chr(0xA3), 'b', 'B', 'c', 'C', 'CO', 'd', 'D', 'DN', 'DR', 'e', 'E', 'eff', 'eq', 'ex', 'f', 'g', 'h', 'H', 'hfa', 'HOMA', 'i', 'I', 'II', 'IIIC', 'ice', 'Ic', 'IC', 'inorg', 'Jan', 'k', 'l', 'L', 'lip', 'm', 'max', 'MAX', 'min', 'Nd', 'o', 'org', 'p', 'Pb', 'p/c', 'PAR', 'POC', 'q', 'Q', 'r', 'R', 'RC', 'Re', 'rs', 's', 'S', 'sal', 'sant', 'sas', 'SL', 'ST', 'St', 'SW', 't', 'T', 'u', 'v', 'VGT', 'VI', 'w', 'W', 'w.e', 'x', 'X', 'xs', 'y', 'z', 'Z', chr(0xCE).chr(0xB4), chr(0xCE).chr(0xB6), chr(0xCE).chr(0xB8), chr(0xCE).chr(0x94) . '<em>t</em>' /* delta, for /records/78099/ */ , 'f,T=O', chr(0xCE).chr(0xB8), chr(0xCE).chr(0xB7), );	$this->databaseConnection->query ("INSERT INTO catalogue_processed VALUES (NULL, 9189, 35, 'notes', '', NULL), (NULL, 9189, 36, 'note', 'Have you not heard that the bird is the word?', NULL);");
+		$subscriptsNonUnicodeable = array ('a', 'A', 'adv', 'an', 'apex', 'A' . chr(0xCE).chr(0xA3), 'b', 'B', 'c', 'C', 'CO', 'd', 'D', 'DN', 'DR', 'dry', 'e', 'E', 'eff', 'eq', 'ex', 'f', 'g', 'h', 'H', 'hfa', 'HOMA', 'i', 'I', 'II', 'IIIC', 'ice', 'Ic', 'IC', 'inorg', 'Jan', 'k', 'l', 'L', 'lip', 'm', 'max', 'MAX', 'min', 'Nd', 'o', 'org', 'p', 'Pb', 'p/c', 'PAR', 'POC', 'q', 'Q', 'r', 'R', 'RC', 'Re', 'rs', 's', 'S', 'sal', 'sant', 'sas', 'SL', 'ST', 'St', 'SW', 't', 'T', 'u', 'v', 'VGT', 'VI', 'w', 'W', 'w.e', 'x', 'X', 'xs', 'y', 'z', 'Z', chr(0xCE).chr(0xB4), chr(0xCE).chr(0xB6), chr(0xCE).chr(0xB8), chr(0xCE).chr(0x94) . '<em>t</em>' /* delta, for /records/78099/ */ , 'f,T=O', chr(0xCE).chr(0xB8), chr(0xCE).chr(0xB7), );	$this->databaseConnection->query ("INSERT INTO catalogue_processed VALUES (NULL, 9189, 35, 'notes', '', NULL), (NULL, 9189, 36, 'note', 'Have you not heard that the bird is the word?', NULL);");
 		foreach ($subscriptsNonUnicodeable as $subscriptNonUnicodeable) {
 			$unicodeSubscripts[$subscriptNonUnicodeable] = '<sub>' . $subscriptNonUnicodeable . '</sub>';	// HTML tags will be stripped in final record
 		}
@@ -2888,6 +2890,7 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSuperscripts['3-'] = $unicodeSuperscripts[3] . $unicodeSuperscripts['-'];
 		$unicodeSuperscripts['-n'] = $unicodeSuperscripts['-'] . $unicodeSuperscripts['n'];
 		$unicodeSuperscripts['++'] = $unicodeSuperscripts['+'] . $unicodeSuperscripts['+'];	// e.g. /records/79712/
+		$unicodeSuperscripts['+++'] = $unicodeSuperscripts['+'] . $unicodeSuperscripts['+'] . $unicodeSuperscripts['+'];	// e.g. /records/111029/
 		$unicodeSuperscripts['1/3'] = $unicodeSuperscripts[1] . '<sup>/</sup>' . $unicodeSuperscripts[3];	// e.g. /records/169424/
 		$unicodeSuperscripts['-1/12'] = $unicodeSuperscripts['-'] . $unicodeSuperscripts[1] . '<sup>/</sup>' . $unicodeSuperscripts[1] . $unicodeSuperscripts[2];	// e.g. /records/120554/
 		$unicodeSuperscripts['4.17'] = $unicodeSuperscripts[4] . '<sup>.</sup>' . $unicodeSuperscripts[1] . $unicodeSuperscripts[7];	// e.g. /records/199372/
@@ -2968,6 +2971,8 @@ class muscatConversion extends frontControllerApplication
 		$ambiguousGroupings['m}-2{s}-1{'] = 'm' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[2] . 'g' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];	// /records/188187/
 		$ambiguousGroupings['m}2{g}-1{'] = 'm' . $unicodeSuperscripts[2] . 'g' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];	// /records/188222/
 		$ambiguousGroupings['m}2{s}-1{'] = 'm' . $unicodeSuperscripts[2] . 's' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];	// /records/189759/
+		$ambiguousGroupings['O}+{(}2{P'] = 'O' . $unicodeSuperscripts['+'] . '(' . $unicodeSuperscripts[2] . 'P';	// /records/124061/
+		$ambiguousGroupings['km}3{y}-1{'] = 'km' . $unicodeSuperscripts['3'] . 'y' . $unicodeSuperscripts['-'] . $unicodeSuperscripts[1];	// /records/193483/
 		$replacements = array_merge ($ambiguousGroupings, $replacements);	// Insert before all others
 		
 		// application::dumpData ($replacements);
