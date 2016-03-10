@@ -22,8 +22,6 @@ class muscatConversion extends frontControllerApplication
 		'rploncewitho_info' => 'records having only one *rpl and *rpl is O',
 		'rpl3charaz09_problem' => 'records having *rpl not matching [A-Z0-9]{1,3}',
 		'locwithoutlocation_problem' => '*loc records where there is no *location',
-		'unmatchedbrackets_problem' => 'unmatched { and } brackets',
-		'nestedbrackets_problem' => 'nested { { and } } brackets',
 		'status_info' => 'records with a status field',
 		'statusglaciopams_info' => 'records with a *status field where the status is not GLACIOPAMS',
 		'statuslocationglaciopams_problem' => 'records with a *status field and *location where the status is not GLACIOPAMS',
@@ -80,6 +78,8 @@ class muscatConversion extends frontControllerApplication
 		'malformedks_problem' => 'records with malformed *ks values',
 		'offprints_info' => 'records that contain photocopy/offprint in *note/*local/*priv',
 		'duplicatedlocations_problem' => 'records with more than one identical location',
+		'unmatchedbrackets_problem' => 'unmatched { and } brackets',
+		'nestedbrackets_problem' => 'nested { { and } } brackets',
 		'subscriptssuperscripts_problem' => 'records still containing superscript brackets',
 		'italicbracketsorder_problem' => 'records with italics within a subscript/superscript character',
 		'translationnote_info' => 'records containing a note regarding translation',
@@ -2912,6 +2912,7 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSuperscripts['-0.75'] = $unicodeSuperscripts['-'] . $unicodeSuperscripts[0] . '<sup>.</sup>' . $unicodeSuperscripts[7] . $unicodeSuperscripts[5];
 		$unicodeSuperscripts['110m'] = $unicodeSuperscripts[1] . $unicodeSuperscripts[1] . $unicodeSuperscripts[1] . $unicodeSuperscripts[0] . '<sup>m</sup>';
 		$unicodeSuperscripts['1.095'] = $unicodeSuperscripts[1] . '<sup>.</sup>' . $unicodeSuperscripts[0] . $unicodeSuperscripts[9] . $unicodeSuperscripts[5];
+		$unicodeSuperscripts['-0.0131 ' . chr(0xcf).chr(0x81) . 's'] = $unicodeSuperscripts['-'] . $unicodeSuperscripts[0] . '<sup>.</sup>' . $unicodeSuperscripts[0] . $unicodeSuperscripts[1] . $unicodeSuperscripts[3] . $unicodeSuperscripts[1] . '<sup> ' . chr(0xcf).chr(0x81) . 's</sup>';	// /records/193112/
 		
 		# Ordinal indicators; NB only a and o have proper Unicode characters: https://en.wikipedia.org/wiki/Ordinal_indicator#Usage
 		$unicodeSuperscripts['a'] = chr(0xC2).chr(0xAA);	// FEMININE ORDINAL INDICATOR (U+00AA); see: http://www.fileformat.info/info/unicode/char/00aa/index.htm
