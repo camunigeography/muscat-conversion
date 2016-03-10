@@ -3306,8 +3306,13 @@ class muscatConversion extends frontControllerApplication
 		# Obtain the raw values
 		$data = $this->databaseConnection->selectPairs ($this->settings['database'], 'transliterations', array (), array ('id', 'title_latin'));
 		
-		# Batch-transliterate the strings
-		$dataTransliterated = $this->batchTransliterateStrings ($data, 'transliterateBgnLatinToCyrillic');
+		# Transliterate the strings; this has to be done manually because the batcher is not safe for protected strings
+		#!# The same issue about crosstalk in unsafe batching presumably applies to line-by-line conversions, i.e. C (etc.) will get translated later in the same line; need to check on this
+		$language = 'Russian';
+		$dataTransliterated = array ();
+		foreach ($data as $id => $string) {
+			$dataTransliterated[$id] = $this->transliterateBgnLatinToCyrillic ($string, $language);
+		}
 		
 		# Do a comparison check by forward-transliterating the generated Cyrillic
 		$forwardBgnTransliterations = $this->batchTransliterateStrings ($dataTransliterated, 'transliterateCyrillicToBgnLatin');
@@ -3335,6 +3340,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to batch-transliterate an array strings; this is basically a wrapper which packages the strings list as a TSV which is then transliterated as a single string, then sent back unpacked
+	# Datasets involving protected strings must not be batched, i.e. must not use this, because if e.g. line X contains e.g. Roman numeral 'C' and line Y contains 'Chukotke' this will result in replacements like: '<||1267||>hukotke', i.e. cross-talk between the lines
 	private function batchTransliterateStrings ($strings, $transliterationFunction)
 	{
 		# Define supported language
