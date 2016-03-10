@@ -3310,9 +3310,8 @@ class muscatConversion extends frontControllerApplication
 		$dataTransliterated = $this->batchTransliterateStrings ($data, 'transliterateBgnLatinToCyrillic');
 		
 		# Do a comparison check by forward-transliterating the generated Cyrillic
-		$forwardBgnTransliterations = array ();
-		foreach ($dataTransliterated as $id => $reconstructedCyrillic) {
-			$reversion = $this->transliterateCyrillicToBgnLatin ($reconstructedCyrillic);
+		$forwardBgnTransliterations = $this->batchTransliterateStrings ($dataTransliterated, 'transliterateCyrillicToBgnLatin');
+		foreach ($forwardBgnTransliterations as $id => $reversion) {
 			$muscatRepresentations = array (
 				chr(0xCA).chr(0xB9) => "'",	// Soft sign -> Muscat quote
 				chr(0xCA).chr(0xBA) => "''",	// Hard sign -> Muscat double quote
