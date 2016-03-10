@@ -3321,7 +3321,7 @@ class muscatConversion extends frontControllerApplication
 			$conversions[$id] = array (
 				'title'					=> $dataTransliterated[$id],
 				'title_forward'			=> $forwardBgnTransliterations[$id],
-				'forwardCheckFailed'	=> ($string != $forwardBgnTransliterations[$id] ? 1 : NULL),
+				'forwardCheckFailed'	=> (strtolower ($string) != strtolower ($forwardBgnTransliterations[$id]) ? 1 : NULL),	// Case-insensitive comparison pending upstream fix on http://unicode.org/cldr/trac/ticket/9316
 				'title_loc'				=> $forwardLocTransliterations[$id],
 			);
 		}
