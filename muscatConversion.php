@@ -3426,6 +3426,10 @@ class muscatConversion extends frontControllerApplication
 		# Use the built-in transliterator
 		$forwardBgnTransliterations = transliterator_transliterate ('Russian-Latin/BGN', $cyrillic);
 		
+		//# Experimental change to use the custom-written BGN PCGN 1947 transliteration but in reverse; doesn't work due to ambiguity; see: http://www.lingua-systems.com/translit/manuals-api.html
+		//$command = "{$this->cpanDir}/bin/translit -trans 'BGN PCGN 1947' --reverse";
+		//$forwardBgnTransliterations = application::createProcess ($command, $cyrillic);
+		
 		# Convert soft-sign/hard-sign to their simpler representations in Muscat
 		$muscatRepresentations = array (
 			chr(0xCA).chr(0xB9) => "'",		// Soft sign -> Muscat quote

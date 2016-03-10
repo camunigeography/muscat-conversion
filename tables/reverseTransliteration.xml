@@ -18,6 +18,7 @@
     <name>BGN PCGN 1947</name>
     <desc>BGN PCGN 1947, Latin to Cyrillic, Russian</desc>
     <reverse>false</reverse>
+    <!--<reverse>true</reverse>-->
 
 
     <!-- set of transliteration rules -->
