@@ -3311,13 +3311,6 @@ class muscatConversion extends frontControllerApplication
 		
 		# Do a comparison check by forward-transliterating the generated Cyrillic
 		$forwardBgnTransliterations = $this->batchTransliterateStrings ($dataTransliterated, 'transliterateCyrillicToBgnLatin');
-		foreach ($forwardBgnTransliterations as $id => $reversion) {
-			$muscatRepresentations = array (
-				chr(0xCA).chr(0xB9) => "'",	// Soft sign -> Muscat quote
-				chr(0xCA).chr(0xBA) => "''",	// Hard sign -> Muscat double quote
-			);
-			$forwardBgnTransliterations[$id] = strtr ($reversion, $muscatRepresentations);
-		}
 		
 		# Add new Library of Congress (LoC) transliteration from the generated Cyrillic
 		$forwardLocTransliterations = array ();
@@ -3434,7 +3427,17 @@ class muscatConversion extends frontControllerApplication
 	private function transliterateCyrillicToBgnLatin ($cyrillic)
 	{
 		# Use the built-in transliterator
-		return transliterator_transliterate ('Russian-Latin/BGN', $cyrillic);
+		$forwardBgnTransliterations = transliterator_transliterate ('Russian-Latin/BGN', $cyrillic);
+		
+		# Convert soft-sign/hard-sign to their simpler representations in Muscat
+		$muscatRepresentations = array (
+			chr(0xCA).chr(0xB9) => "'",		// Soft sign -> Muscat quote
+			chr(0xCA).chr(0xBA) => "''",	// Hard sign -> Muscat double quote
+		);
+		$forwardBgnTransliterations = strtr ($forwardBgnTransliterations, $muscatRepresentations);
+		
+		# Return the data
+		return $forwardBgnTransliterations;
 	}
 	
 	
