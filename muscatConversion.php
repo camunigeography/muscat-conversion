@@ -6160,7 +6160,7 @@ class muscatConversion extends frontControllerApplication
 		$languages = array_unique ($languages);
 		
 		# Obtain any note containing "translation from [language(s)]"
-		#!# Should *abs and *role also be considered?; see results from quick query: SELECT * FROM `catalogue_processed` WHERE `value` LIKE '%translated from original%'
+		#!# Should *abs and *role also be considered?; see results from quick query: SELECT * FROM `catalogue_processed` WHERE `value` LIKE '%translated from original%', e.g. /records/1639/
 		$notes = $this->xPathValues ($xml, '(//note)[%i]', false);
 		$nonLanguageWords = array ('article', 'published', 'manuscript');	// e.g. /records/32279/ , /records/175067/ , /records/196791/
 		$translationNotes = array ();
