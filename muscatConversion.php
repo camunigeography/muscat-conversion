@@ -51,7 +51,7 @@ class muscatConversion extends frontControllerApplication
 		'onorderrecent_info' => 'Items on order since 2013/09/01',
 		'ordercancelled_info' => 'items where the order is cancelled',
 		'absitalics_info' => 'records with italics in the abstract',
-		'isbninvalid_problem' => 'records with invalid ISBN numbers (some are known to be invalid in original)',
+		'isbninvalid_problem' => 'records with invalid ISBN number, excluding ones known to be wrong in the printed original publication',
 		'urlinvalid_problem' => 'records with a badly-formatted URL',
 		'ndnd_problem' => 'records with two adjacent *nd entries',
 		'misformattedad_problem' => 'records where ed/eds/comp/comps indicator is not properly formatted',
@@ -8340,7 +8340,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Records with invalid ISBN number; NB this does *not* perform a full check-digit check - see macro_validisbn for that
+	# Records with invalid ISBN number, excluding ones known to be wrong in the printed original publication; NB this does *not* perform a full check-digit check - see macro_validisbn for that
 	private function report_isbninvalid ()
 	{
 		# Define the query
@@ -8353,6 +8353,13 @@ class muscatConversion extends frontControllerApplication
 				    field = 'isbn'
 				AND value NOT REGEXP '^(97(8|9))?[[:digit:]]{9}([[:digit:]]|X)$'		/* http://stackoverflow.com/questions/14419628/regexp-mysql-function */
 				AND value NOT REGEXP '^5[0-9]{12}'	/* Multimedia value EANs */
+				-- Exclude records whose ISBN is known to be wrong in the printed original publication
+				AND recordId NOT IN(
+					77910,109306,115464,131811,131938,132811,133375,136691,140640,142959,
+					150974,152975,152981,155343,156438,157302,162789,163738,163880,165289,
+					168457,169539,169814,170019,171279,171559,173677,177847,178624,178860,
+					179102,179187,179772,181433,183078,185531,185716,190314,194602,205837
+				)
 		";
 		
 		# Return the query
