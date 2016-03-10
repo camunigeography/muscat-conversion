@@ -3492,12 +3492,17 @@ class muscatConversion extends frontControllerApplication
 		$replacements = array_merge ($replacements, $tags);
 		
 		# Create dynamic replacements
-		foreach ($replacements as $index => $replacement) {
-			if (preg_match ('|^/.+/i?$|', $replacement)) {	// e.g. a pattern /(X-XI)/i against string 'Foo X-Xi Bar' would add 'X-Xi' to the replacements list
+		foreach ($replacements as $index => $matchString) {
+			if (preg_match ('|^/.+/i?$|', $matchString)) {	// e.g. a pattern /(X-XI)/i against string 'Foo X-Xi Bar' would add 'X-Xi' to the replacements list
 				unset ($replacements[$index]);	// Remove the pattern itself from the replacement list, as it should not be treated as a literal
-				if (preg_match_all ($replacement, $string, $matches, PREG_PATTERN_ORDER)) {
+				
+				# Create a test string based on the string (but do not modify the test itself); this doubles-up any spaces, so that preg_match_all can match adjacent matches (e.g. see /records/120782/ ) due to "After the first match is found, the subsequent searches are continued on from end of the last match."
+				$testString = preg_replace ("/\s+/", '  ', $string);
+				
+				# Perform the match
+				if (preg_match_all ($matchString, $testString, $matches, PREG_PATTERN_ORDER)) {
 					foreach ($matches[0] as $match) {
-						$replacements[] = $match;
+						$replacements[] = trim ($match);	// Trim so that overlapping strings e.g. "XVII- XIX" which has matches "XVII- " and " XIX" in /records/120782/ are both picked up
 					}
 				}
 			}
