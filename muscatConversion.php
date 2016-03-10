@@ -3313,10 +3313,7 @@ class muscatConversion extends frontControllerApplication
 		$forwardBgnTransliterations = $this->batchTransliterateStrings ($dataTransliterated, 'transliterateCyrillicToBgnLatin');
 		
 		# Add new Library of Congress (LoC) transliteration from the generated Cyrillic
-		$forwardLocTransliterations = array ();
-		foreach ($dataTransliterated as $id => $reconstructedCyrillic) {
-			$forwardLocTransliterations[$id] = $this->transliterateCyrillicToLocLatin ($reconstructedCyrillic);
-		}
+		$forwardLocTransliterations = $this->batchTransliterateStrings ($dataTransliterated, 'transliterateCyrillicToLocLatin');
 		
 		# Compile the conversions
 		$conversions = array ();
