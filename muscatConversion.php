@@ -6731,6 +6731,9 @@ class muscatConversion extends frontControllerApplication
 		# Implode values
 		$value = implode ('; ', $subValues);
 		
+		# Ensure the value ends with a dot (if punctuation not already present)
+		$value = $this->macro_dotEnd ($value, NULL, $extendedCharacterList = true);
+		
 		# Return the value
 		return $value;
 	}
