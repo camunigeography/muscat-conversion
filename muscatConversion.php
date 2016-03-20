@@ -6806,14 +6806,16 @@ class muscatConversion extends frontControllerApplication
 			$string = preg_replace ('/^(.+)[.,]$/', '\1', $string);
 			$string = trim ($string);
 			
-			# Add space-semicolon to $a if not already present
-			#!# Inconsistency between ';' and ' ;'
-			if (mb_substr ($string, -1) != ';') {
+			# Add space-semicolon before $v if not already present
+			if (mb_substr ($string, -1) != ';') {	// Normalise to end ";"
 				$string .= ' ;';
+			}
+			if (mb_substr ($string, -2) != ' ;') {	// Normalise to end " ;"
+				$string = preg_replace ('/;$/', ' ;', $string);
 			}
 			
 			# Add the volume number; Bibcheck requires: "490: Subfield v must be preceeded by a space-semicolon"
-			$string .= ' ' . $this->doubleDagger . 'v' . $volumeNumber;
+			$string .= $this->doubleDagger . 'v' . $volumeNumber;
 		}
 		
 		# Return the string
