@@ -4857,10 +4857,14 @@ class muscatConversion extends frontControllerApplication
 		}
 		$html .= "\n</table>";
 		
+		# Get the totals
+		$totalsQuery = "SELECT status, COUNT(*) AS total FROM {$this->settings['database']}.catalogue_marc WHERE bibcheckErrors IS NOT NULL GROUP BY status;";
+		$totals = $this->databaseConnection->getPairs ($totalsQuery);
+		
 		# Show errors
 		$html .= "\n<h3>Errors</h3>";
 		foreach ($this->filesets as $fileset => $label) {
-			$html .= "\n<h4>Errors: {$label}</h4>";
+			$html .= "\n<h4>Errors: {$label}" . (isSet ($totals[$fileset]) ? " ({$totals[$fileset]})" : '') . '</h4>';
 			$filename = $directory . "/spri-marc-{$fileset}.errors.txt";
 			$errors = file_get_contents ($filename);
 			$errorsHtml = htmlspecialchars ($errors);
