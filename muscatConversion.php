@@ -4307,7 +4307,7 @@ class muscatConversion extends frontControllerApplication
 		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], 'catalogue_marc', "WHERE status='{$fileset}'");
 		
 		# Start the output
-		$text = '';
+		$marcText = '';
 		
 		# Chunk the records
 		$offset = 0;
@@ -4321,7 +4321,7 @@ class muscatConversion extends frontControllerApplication
 			
 			# Add each record
 			foreach ($data as $id => $record) {
-				$text .= trim ($record) . "\n\n";
+				$marcText .= trim ($record) . "\n\n";
 			}
 			
 			# Decrement the remaining records
@@ -4330,7 +4330,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Save the file, in the standard MARC format
-		file_put_contents ($filenameMarcTxt, $text);
+		file_put_contents ($filenameMarcTxt, $marcText);
 		
 		# Copy, so that a Voyager-specific formatted version can be created
 		copy ($filenameMarcTxt, $filenameMarcExchange);
@@ -4374,7 +4374,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to do a lint test
+	# Function to do a Bibcheck lint test
 	private function marcLintTest ($fileset, $directory)
 	{
 		# Clear file if it currently exists
