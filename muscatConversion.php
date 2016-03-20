@@ -161,7 +161,7 @@ class muscatConversion extends frontControllerApplication
 			'label'		=> '<img src="/images/icons/page_white_code_red.png" alt="" border="0" /> Muscat as MARC',
 			'title'		=> 'Representation of the XML data as MARC21, via the defined parser description',
 			'errorHtml'	=> "The MARC21 representation of the Muscat record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
-			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc'),
+			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc', 'bibcheckErrors'),
 			'idField'	=> 'id',
 			'orderBy'	=> 'id',
 			'class'		=> false,
@@ -835,6 +835,9 @@ class muscatConversion extends frontControllerApplication
 				$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ());
 				$record['marc'] = $this->convertToMarc ($marcParserDefinition, $data['xml'], $errorString, $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $marcPreMerge /* passed back by reference */);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
 				$output  = "\n<p>The MARC output uses the <a target=\"_blank\" href=\"{$this->baseUrl}/marcparser.html\">parser definition</a> to do the mapping from the XML representation.</p>";
+				if ($record['bibcheckErrors']) {
+					$output .= "\n<pre>" . "\n<p class=\"warning\">Bibcheck " . (substr_count ($record['bibcheckErrors'], "\n") ? 'errors' : 'error') . ":</p>" . $record['bibcheckErrors'] . "\n</pre>";
+				}
 				if ($errorString) {
 					$output .= "\n<p class=\"warning\">{$errorString}</p>";
 				}
@@ -3858,6 +3861,7 @@ class muscatConversion extends frontControllerApplication
 				mergeVoyagerId VARCHAR(255) NULL DEFAULT NULL COMMENT 'Voyager ID for merging',
 				marcPreMerge TEXT NULL COLLATE utf8_unicode_ci COMMENT 'Pre-merged MARC representation of local Muscat record',
 				marc TEXT COLLATE utf8_unicode_ci COMMENT 'MARC representation of Muscat record',
+				bibcheckErrors TEXT NULL COLLATE utf8_unicode_ci COMMENT 'Bibcheck errors, if any',
 			  PRIMARY KEY (id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC representation of Muscat records'
 		;";
@@ -4349,7 +4353,10 @@ class muscatConversion extends frontControllerApplication
 		$this->marcBinaryConversion ($fileset, $directory);
 		
 		# Check the output
-		$this->marcLintTest ($fileset, $directory);
+		$errorsFilename = $this->marcLintTest ($fileset, $directory);
+		
+		# Extract the errors from this error report, and add them to the MARC table
+		$this->attachBibcheckErrors ($errorsFilename);
 	}
 	
 	
@@ -4378,14 +4385,85 @@ class muscatConversion extends frontControllerApplication
 	private function marcLintTest ($fileset, $directory)
 	{
 		# Clear file if it currently exists
-		$filename = "{$directory}/spri-marc-{$fileset}.errors.txt";
-		if (file_exists ($filename)) {
-			unlink ($filename);
+		$errorsFilename = "{$directory}/spri-marc-{$fileset}.errors.txt";
+		if (file_exists ($errorsFilename)) {
+			unlink ($errorsFilename);
 		}
 		
 		# Define and execute the command for converting the text version to binary
-		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; perl lint_test.pl {$directory}/spri-marc-{$fileset}.mrc 2>> errors.txt ; mv errors.txt {$filename}";
+		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; perl lint_test.pl {$directory}/spri-marc-{$fileset}.mrc 2>> errors.txt ; mv errors.txt {errorsFilename}";
 		shell_exec ($command);
+		
+		# Return the filename
+		return $errorsFilename;
+	}
+	
+	
+	# Function to extract errors from a Bibcheck error report and attach them to the MARC records in the database
+	private function attachBibcheckErrors ($errorFilename)
+	{
+		# Extract from the report
+		# The report is in the format of the extract shown below; the SPRI value in 001 and the errors between the ^^^^^ and the ===== line need to be captured:
+		/*
+			===============================================================
+			
+			LDR 00803nas a2200265 a 4500
+			001     SPRI1021
+			005     20160318210532.0
+			007     ta
+			008     160318uuuuuuuuuxx  u |  |   |0   a|eng d
+			040    _aUkCU-P
+			       _beng
+			       _eaacr
+			041 0  _aeng
+			245 00 _aCanada. Dept. of Mines and Technical Surveys. Mines Branch. [Reports]
+			260    _a[S.l.] :
+			       _b[s.n.]
+			300    _av.
+			546    _aEnglish
+			650 07 _2udc
+			       _a551.1/.4 -- Geology.
+			650 07 _2udc
+			       _a553 -- Economic geology.
+			650 07 _2udc
+			       _a553.042 -- Mineral resources.
+			650 07 _2udc
+			       _a622 -- Mining.
+			651  7 _2udc
+			       _a(*41) -- Canada.
+			780 10 _tCanada. Dept. of Mines and Resources. Bureau of Mines. [Reports]
+			852 7  _2camdept
+			       _x??
+			866  0 _aunknown
+			917    _aUnenhanced record from Muscat, imported 2015
+			948 3  _a20160318
+			       _dMISSING
+			^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			245: Must end with a full stop.
+			
+			
+			===============================================================
+			
+			LDR 01216nam a2200241 a 4500
+			001     SPRI1334
+			...
+			
+		*/
+		$errorsString = file_get_contents ($errorFilename);
+		preg_match_all ("/\sSPRI([0-9]+)(?U).+\^{25,}\s+((?U).+)\s+(?:={25,}|$)/sD", $errorsString, $errors, PREG_SET_ORDER);
+		
+		# End if none
+		if (!$errors) {return;}
+		
+		# Assemble updates
+		$updates = array ();
+		foreach ($errors as $error) {
+			$id = $error[1];
+			$updates[$id] = array ('bibcheckErrors' => $error[2]);
+		}
+		
+		# Do the update
+		$this->databaseConnection->updateMany ($this->settings['database'], 'catalogue_marc', $updates);
 	}
 	
 	
@@ -4761,7 +4839,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Get the fileset counts
-		$query = "SELECT status, COUNT(*) AS total FROM catalogue_marc GROUP BY status";
+		$query = "SELECT status, COUNT(*) AS total FROM catalogue_marc GROUP BY status;";
 		$totals = $this->databaseConnection->getPairs ($query);
 		
 		# Compile the HTML
