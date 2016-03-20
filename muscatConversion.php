@@ -91,6 +91,7 @@ class muscatConversion extends frontControllerApplication
 		'transliteratefailure_problem' => 'records whose reverse transliteration is not reversible',
 		'voyagerrecords_info' => 'records with an equivalent already in Voyager, targetted for merging',
 		'nohostlang_problem' => 'records whose *in contains a *lang but the main part does not',
+		'bibcheckerrors_problem' => 'records with Bibcheck errors',
 	);
 	
 	# Listing (values) reports
@@ -9217,6 +9218,25 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				    ExtractValue(xml, '/*/lang') = ''
 				AND ExtractValue(xml, '/*/*/lang') != ''
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with Bibcheck errors
+	private function report_bibcheckerrors ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'bibcheckerrors' AS report,
+				id AS recordId
+			FROM
+				catalogue_marc
+			WHERE
+				bibcheckErrors IS NOT NULL
 		";
 		
 		# Return the query
