@@ -6058,6 +6058,15 @@ class muscatConversion extends frontControllerApplication
 		# $c (R) (Dimensions): *size ; e.g. /records/1103/ , multiple in /records/4329/
 		$size = $this->xPathValues ($xml, '(//size)[%i]', false);
 		if ($size) {
+			
+			# Normalise " cm." to avoid Bibcheck errors; e.g. /records/2709/ , /records/4331/ , /records/54851/ ; have checked no valid inner cases of cm
+			foreach ($size as $index => $sizeItem) {
+				$sizeItem = preg_replace ('/([^ ])(cm)/', '\1 \2', $sizeItem);	// Normalise to ensure space before, i.e. "cm" -> " cm"
+				$sizeItem = preg_replace ('/(cm)(?!\.)/', '\1.\2', $sizeItem);	// Normalise to ensure dot after,    i.e. "cm" -> "cm.", if not already present
+				$size[$index] = $sizeItem;
+			}
+			
+			# Add the size
 			$result .= " ;{$this->doubleDagger}c" . implode (" ;{$this->doubleDagger}c", $size);
 		}
 		
