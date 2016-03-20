@@ -6795,12 +6795,13 @@ class muscatConversion extends frontControllerApplication
 			$string = trim ($string);
 			
 			# Add space-semicolon to $a if not already present
+			#!# Inconsistency between ';' and ' ;'
 			if (mb_substr ($string, -1) != ';') {
 				$string .= ' ;';
 			}
 			
-			# Add the volume number
-			$string .= $this->doubleDagger . 'v' . $volumeNumber;
+			# Add the volume number; Bibcheck requires: "490: Subfield v must be preceeded by a space-semicolon"
+			$string .= ' ' . $this->doubleDagger . 'v' . $volumeNumber;
 		}
 		
 		# Return the string
