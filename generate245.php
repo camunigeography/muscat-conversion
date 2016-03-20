@@ -47,8 +47,8 @@ class generate245
 		$value .= $title;
 		$value .= $statementOfResponsibility;
 		
-		# Ensure the value ends with a dot (if punctuation not already present)
-		$value = $this->muscatConversion->macro_dotEnd ($value, NULL, $extendedCharacterList = true);
+		# Ensure the value ends with a dot (even if other punctuation is already present)
+		$value = $this->muscatConversion->macro_dotEnd ($value, NULL, $extendedCharacterList = false);
 		
 		# Return the value
 		return $value;
