@@ -4784,9 +4784,11 @@ class muscatConversion extends frontControllerApplication
 			$html .= "\n<h4>Errors: {$label}</h4>";
 			$filename = $directory . "/spri-marc-{$fileset}.errors.txt";
 			$errors = file_get_contents ($filename);
+			$errorsHtml = htmlspecialchars ($errors);
+			$errorsHtml = preg_replace ("/(\s)(SPRI)([0-9]+)/", '\1\2<a href="' . $this->baseUrl . '/records/\3/"><strong>\3</strong></a>', $errorsHtml);
 			$html .= "\n<div class=\"graybox\">";
 			$html .= "\n<pre>";
-			$html .= htmlspecialchars ($errors);
+			$html .= $errorsHtml;
 			$html .= "\n</pre>";
 			$html .= "\n</div>";
 		}
