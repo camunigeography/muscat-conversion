@@ -283,7 +283,7 @@ class generateAuthors
 				# The "*al Detail" block (and ", ‡g (alternative name)", once only) is added
 				#!# Not yet checked cases for when a $g might already exist, to check this works
 				if (!substr_count ($line, "{$this->doubleDagger}g")) {
-					$line .= ", {$this->doubleDagger}g" . '(alternative name)';
+					$line .= ",{$this->doubleDagger}g" . '(alternative name)';
 				}
 				
 				# Register the line, adding the field code, which may have been modified in main()
