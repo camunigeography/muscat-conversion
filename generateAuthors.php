@@ -702,8 +702,10 @@ class generateAuthors
 			$n2FieldValue  = $n2;
 		}
 		
-		# Any initials in the $a subfield should be separated by a space; e.g. /records/1296/ ; note that 245 $c does not seem to do the same: http://www.loc.gov/marc/bibliographic/bd245.html
-		$n2FieldValue = preg_replace ('/\b([^ ])(\.)([^ ])/', '\1\2 \3', $n2FieldValue);
+		# Any initials in the $a subfield should be separated by a space; e.g. /records/1296/ , /records/1868/ ; note that 245 $c does not seem to do the same: http://www.loc.gov/marc/bibliographic/bd245.html
+		while (preg_match ('/\b([^ ])(\.)([^ ])/', $n2FieldValue)) {
+			$n2FieldValue = preg_replace ('/\b([^ ])(\.)([^ ])/', '\1\2 \3', $n2FieldValue);
+		}
 		
 		# Add the value
 		$value .= $n2FieldValue;
