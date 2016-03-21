@@ -283,7 +283,8 @@ class generateAuthors
 				# The "*al Detail" block (and ", ‡g (alternative name)", once only) is added
 				#!# Not yet checked cases for when a $g might already exist, to check this works
 				if (!substr_count ($line, "{$this->doubleDagger}g")) {
-					$line .= ",{$this->doubleDagger}g" . '(alternative name)';
+					$line  = $this->muscatConversion->macro_dotEnd ($line, NULL, $extendedCharacterList = '.?!');		// e.g. /records/2787/ ; "700: Subfield g must be preceded by a full stop, question mark or exclamation mark."
+					$line .= "{$this->doubleDagger}g" . '(alternative name)';
 				}
 				
 				# Register the line, adding the field code, which may have been modified in main()
@@ -826,7 +827,8 @@ class generateAuthors
 		# Does the value of the $fieldValue appear on the Misc. list?
 		$miscList = $this->miscList ();
 		if (in_array ($fieldValue, $miscList)) {
-			$value .= ", {$this->doubleDagger}g ({$fieldValue})";
+			$value  = $this->muscatConversion->macro_dotEnd ($value, NULL, $extendedCharacterList = '.?!');		// "700: Subfield g must be preceded by a full stop, question mark or exclamation mark."
+			$value .= "{$this->doubleDagger}g ({$fieldValue})";
 			return $value;
 		}
 		
