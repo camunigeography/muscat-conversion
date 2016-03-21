@@ -4416,6 +4416,7 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Define errors to whitelist
 		$whitelistErrorRegexps = array (
+			'008: Check place code xxu - please set code for specific state \(if known\).',
 			'541: Subfield _[0-9] is not allowed.',
 		);
 		
