@@ -477,7 +477,7 @@ class generateAuthors
 		if (in_array ($n1, $strings)) {
 			
 			# Add to 100 field
-			$value .= "0{$this->secondIndicator} {$this->doubleDagger}a{$n1}";
+			$value .= "0{$this->secondIndicator} {$this->doubleDagger}a" . $this->spaceOutInitials ($n1);	// Spacing-out needed in e.g. /records/2787/
 			
 			# Classify *nd Field
 			$value = $this->classifyNdField ($path, $value);
@@ -703,9 +703,7 @@ class generateAuthors
 		}
 		
 		# Any initials in the $a subfield should be separated by a space; e.g. /records/1296/ , /records/1868/ ; note that 245 $c does not seem to do the same: http://www.loc.gov/marc/bibliographic/bd245.html
-		while (preg_match ('/\b([^ ])(\.)([^ ])/', $n2FieldValue)) {
-			$n2FieldValue = preg_replace ('/\b([^ ])(\.)([^ ])/', '\1\2 \3', $n2FieldValue);
-		}
+		$n2FieldValue = $this->spaceOutInitials ($n2FieldValue);
 		
 		# Add the value
 		$value .= $n2FieldValue;
@@ -715,6 +713,19 @@ class generateAuthors
 		
 		# Return the value
 		return $value;
+	}
+	
+	
+	# Function to expand initials to add spaces
+	private function spaceOutInitials ($string)
+	{
+		# Any initials should be separated by a space; e.g. /records/1296/ , /records/1868/ ; note that 245 $c does not seem to do the same: http://www.loc.gov/marc/bibliographic/bd245.html
+		while (preg_match ('/\b([^ ])(\.)([^ ])/', $string)) {
+			$string = preg_replace ('/\b([^ ])(\.)([^ ])/', '\1\2 \3', $string);
+		}
+		
+		# Return the amended string
+		return $string;
 	}
 	
 	
