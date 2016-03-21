@@ -4392,7 +4392,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Define and execute the command for converting the text version to binary
-		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; perl lint_test.pl {$directory}/spri-marc-{$fileset}.mrc 2>> errors.txt ; mv errors.txt {errorsFilename}";
+		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; perl lint_test.pl {$directory}/spri-marc-{$fileset}.mrc 2>> errors.txt ; mv errors.txt {$errorsFilename}";
 		shell_exec ($command);
 		
 		# Return the filename
