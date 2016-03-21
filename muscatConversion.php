@@ -4385,23 +4385,79 @@ class muscatConversion extends frontControllerApplication
 	# Function to do a Bibcheck lint test
 	private function marcLintTest ($fileset, $directory)
 	{
-		# Clear file if it currently exists
+		# Define the filename for the raw (unfiltered) errors file and the main filtered version
 		$errorsFilename = "{$directory}/spri-marc-{$fileset}.errors.txt";
+		$errorsUnfilteredFilename = str_replace ('errors.txt', 'errors-unfiltered.txt', $errorsFilename);
+		
+		# Clear file(s) if currently existing
 		if (file_exists ($errorsFilename)) {
 			unlink ($errorsFilename);
 		}
+		if (file_exists ($errorsUnfilteredFilename)) {
+			unlink ($errorsUnfilteredFilename);
+		}
 		
-		# Define and execute the command for converting the text version to binary
-		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; perl lint_test.pl {$directory}/spri-marc-{$fileset}.mrc 2>> errors.txt ; mv errors.txt {$errorsFilename}";
+		# Define and execute the command for converting the text version to binary, generating the errors listing file
+		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; perl lint_test.pl {$directory}/spri-marc-{$fileset}.mrc 2>> errors.txt ; mv errors.txt {$errorsUnfilteredFilename}";
 		shell_exec ($command);
+		
+		# Strip whitelisted errors and save a filtered version
+		$errorsString = file_get_contents ($errorsUnfilteredFilename);
+		$errorsString = $this->stripBibcheckWhitelistErrors ($errorsString);
+		file_put_contents ($errorsFilename, $errorsString);
 		
 		# Return the filename
 		return $errorsFilename;
 	}
 	
 	
+	# Function to strip whitelisted errors from the Bibcheck reports
+	private function stripBibcheckWhitelistErrors ($errorsString)
+	{
+		# Define errors to whitelist
+		$whitelistErrorRegexps = array (
+			'541: Subfield _[0-9] is not allowed.',
+		);
+		
+		# Split the file into individual reports
+		$delimiter = str_repeat ('=', 63);	// i.e. the ===== line
+		$reportsUnfiltered = explode ($delimiter, $errorsString);
+		
+		# Filter out lines for each report
+		$reports = array ();
+		foreach ($reportsUnfiltered as $index => $report) {
+			
+			# Strip out lines matching a whitelisted error type
+			$lines = explode ("\n", $report);
+			foreach ($lines as $lineIndex => $line) {
+				foreach ($whitelistErrorRegexps as $whitelistErrorRegexp) {
+					if (preg_match ('/' . addcslashes ($whitelistErrorRegexp, '/') . '/', $line)) {
+						unset ($lines[$lineIndex]);
+						break;	// Break out of regexps loop and move to next line
+					}
+				}
+			}
+			$report = implode ("\n", $lines);
+			
+			# If there are no errors remaining in this report, skip re-registering the report
+			if (preg_match ('/\^{25}$/D', trim ($report))) {		// i.e. no errors if purely whitespace between ^^^^^ line and the end
+				continue;	// Skip to next report
+			}
+			
+			# Re-register the report
+			$reports[$index] = $report;
+		}
+		
+		# Reconstruct as a single listing
+		$errorsString = implode ($delimiter, $reports);
+		
+		# Return the new listing
+		return $errorsString;
+	}
+	
+	
 	# Function to extract errors from a Bibcheck error report and attach them to the MARC records in the database
-	private function attachBibcheckErrors ($errorFilename)
+	private function attachBibcheckErrors ($errorsFilename)
 	{
 		# Extract from the report
 		# The report is in the format of the extract shown below; the SPRI value in 001 and the errors between the ^^^^^ and the ===== line need to be captured:
@@ -4450,7 +4506,7 @@ class muscatConversion extends frontControllerApplication
 			...
 			
 		*/
-		$errorsString = file_get_contents ($errorFilename);
+		$errorsString = file_get_contents ($errorsFilename);
 		preg_match_all ("/\sSPRI([0-9]+)(?U).+\^{25,}\s+((?U).+)\s+(?:={25,}|$)/sD", $errorsString, $errors, PREG_SET_ORDER);
 		
 		# End if none
