@@ -345,8 +345,9 @@ class generateAuthors
 					# Take the first *art/*ag/*a/ (only the first) in that record within the *ag block, i.e. /records/9375/ /art/ag/a "contributor block"; the second indicator is set to '2' to indicate that this 700 line is an 'Analytical entry'
 					$line = $this->main ($childRecordXml, "/*/ag[1]/a[1]", 700, '2');
 					
-					# Add the title (i.e. *art/*tg/*t); no space before $t, to avoid Bibcheck error: "700: Subfield _t must be preceded by a question mark, full stop, hyphen or closing parenthesis."
-					$line .= ",{$this->doubleDagger}t" . $this->muscatConversion->xPathValue ($childRecordXml, '/*/tg/t');
+					# Add the title (i.e. *art/*tg/*t)
+					$line  = $this->muscatConversion->macro_dotEnd ($line, NULL, $extendedCharacterList = '?.-)');		// e.g. /records/9843/ , /records/13620/ ; "700: Subfield _t must be preceded by a question mark, full stop, hyphen or closing parenthesis."
+					$line .= "{$this->doubleDagger}t" . $this->muscatConversion->xPathValue ($childRecordXml, '/*/tg/t');
 					
 					# Register the line, adding the field code, which may have been modified in main()
 					$lines[] = $this->field . ' ' . $line;
