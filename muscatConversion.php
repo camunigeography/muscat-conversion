@@ -6161,7 +6161,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to get a set of XPath values for a field known to have multiple entries
+	# Function to get a set of XPath values for a field known to have multiple entries; these are indexed from 1, mirroring the XPath spec, not 0
 	public function xPathValues ($xml, $xPath, $autoPrependRoot = true)
 	{
 		# Get each value
