@@ -4867,7 +4867,11 @@ class muscatConversion extends frontControllerApplication
 		# Process the form
 		if ($result = $form->process ($html)) {
 			
-			# Save the latest version
+			# Save the latest version to the filesystem as a backup for versioning purposes
+			$prefixWarning = "# IMPORTANT: This file is NOT actively used by the importer, but is created when updating the definition purely for the purposes of creating an file version that can be checked into the versioning repository.\n";
+			file_put_contents ($this->applicationRoot . '/tables/marcparser.txt', $prefixWarning . $result['definition']);
+			
+			# Save the latest version to the database
 			$this->databaseConnection->insert ($this->settings['database'], 'marcparserdefinition', array ('definition' => $result['definition']));
 			
 			# Set a flash message

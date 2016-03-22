@@ -1,0 +1,56 @@
+# IMPORTANT: This file is NOT actively used by the importer, but is created when updating the definition purely for the purposes of creating an file version that can be checked into the versioning repository.
+   LDR {/*|macro:generateLeader}
+A  001 SPRI{/q0}
+A  005 {/*|macro:migrationDatetime}
+A  007 {/*|macro:generate007}
+A  008 {/*|macro:generate008}
+AR 020 ## {/*/isbn|macro:validisbn}
+AR 022 ## ‡a{/*/issn}
+A  040 ## ‡aUkCU-P‡beng‡eaacr
+A  041 i{'0'|macro:languages041(true)}# ‡a{/.|macro:languages041}
+A  100 {/*|macro:generateAuthors(100)}
+A  110 {/*|macro:generateAuthors(110)}
+A  111 {/*|macro:generateAuthors(111)}
+A  240 0i{//tg/to|macro:nfCount} ‡a{//tg/to}
+A  242 i{'0'|macro:indicator1xxPresent(1)}i{/*/tg/tt|macro:nfCount(English)} ‡a{/*/tg/tt|macro:colonSplit(b)} ‡y{'eng'|macro:ifValue(/*/tg/tt)}
+A  245 {/|macro:generate245}
+AR 246 3# ‡a{//tg/ta|macro:colonSplit(b)}
+E  250 ## ‡a{/*/edn} ‡b{/|macro:generate250b}
+E  260 ## {/|macro:generate260}
+A  300 ## ‡a{/.|macro:generate300}
+A  310 ## ‡a{//freq|macro:ucfirst}
+A  490 0# {//ts|macro:generate490}
+A  520 3# ‡a{//abs|macro:excludeNoneValue|macro:dotEnd}
+E  541 0# ‡c{//acq/fund}{//kb[1]}{//acq/sref} ‡a{//acq/o} ‡d{//acq/date} ‡e{//acc/ref} ‡h{//acq/pr}
+A  546 ## ‡a{/*|macro:multipleValues(//lang)|macro:implode(, )}
+A  546 ## ‡a{//lang[1]|macro:isTransliterated}
+A  563 ## ‡a{//acc/con}
+AR 650 07 ‡2{//k/ks|macro:isNotRoundBracketed|macro:addLookedupKsValue|macro:dotEnd}
+AR 650 07 ‡2{//rpl|macro:lookupRplValue|macro:dotEnd}
+AR 651 #7 ‡2{//k/ks|macro:isRoundBracketed|macro:addLookedupKsValue|macro:dotEnd}
+A  700 {/*|macro:generateAuthors(700)}
+A  710 {/*|macro:generateAuthors(710)}
+A  711 {/*|macro:generateAuthors(711)}
+#AR 710 1# ‡a{//ag/a[position()>1]/n1|macro:requireDot|macro:dotSplit(b)}
+A  773 0# {/|macro:generate773}
+AR 780 10 ‡t{//ft}
+AR 785 10 ‡t{//st}
+A  852 7# ‡2{/*|macro:generate852}
+E  856 i{/*|macro:ifElse(//url/urlgen,4,#)}0 ‡u?R{//doi/doifld|macro:prepend(urn:doi:)}‡u?R{//url/urlgen|macro:urlFix}
+AR 866 #0 ‡x{//hold}
+AR 866 #0 ‡a{//r}
+E  876 ## ‡a{//acc/ref} ‡x{//notes/priv} ‡z{//notes/local} ‡zR{//notes/note}
+A  880 {/*|macro:generateAuthors(100,transliterated)|macro:880subfield6(100)}
+A  880 {/*|macro:generateAuthors(110,transliterated)|macro:880subfield6(110)}
+A  880 {/*|macro:generateAuthors(111,transliterated)|macro:880subfield6(111)}
+A  880 {/*|macro:generate245(transliterated)|macro:880subfield6(245)}
+#AR 880 3# ‡a{//tg/ta|macro:colonSplit(b)|macro:transliterate|macro:880subfield6(246)}
+A  880 0# {//ts|macro:generate490|macro:transliterate|macro:880subfield6(490)}
+A  880 {/*|macro:generateAuthors(700,transliterated)|macro:880subfield6(700)}
+A  880 {/*|macro:generateAuthors(710,transliterated)|macro:880subfield6(710)}
+A  880 {/*|macro:generateAuthors(711,transliterated)|macro:880subfield6(711)}
+A  916 ## ‡a{//acc/ref}
+A  917 ## ‡aUnenhanced record from Muscat, imported 2015
+E  948 3# ‡a{/*|macro:migrationDate} ‡b{/|macro:multipleValues(//recr)|macro:implode(, )} ‡d{/*|macro:cataloguingStatus}
+# Notes:
+# 666 is for UDC - will need both number and text 
