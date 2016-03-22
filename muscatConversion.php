@@ -244,10 +244,6 @@ class muscatConversion extends frontControllerApplication
 	# Define known *ks values to be ignored
 	private $ignoreKsValues = array ('AGI', 'AGI', 'AGI1', 'AK', 'AK1', 'AM', 'AM/HL', 'BL', 'C', 'C?', 'CC', 'D', 'D?', 'GLEN', 'GLEN', 'HL', 'HS', 'HSO', 'HS1', 'HS (RS)', 'HS(RS)', 'HS/RUS', 'HSSB', 'HSSB1', 'HSSB2', 'HSSB3', 'IW', 'IW', 'IW1', 'IWO', 'JHR', 'JHRprob', 'JHR1', 'JHRO', 'JP', 'JW', 'JW', 'JW1', 'LASTPGA', 'MG', 'MISSING', 'MISSING', 'MPO', 'MPP', 'NOM', 'NOM1', 'NOMO', 'OM', 'PARTIAL RECORD', 'PGA', 'PGA', 'PGA1', 'RF', 'RF', 'RS', 'SS', 'WM', 'Y', );
 	
-	# Index for 880 subfield 6
-	private $field880subfield6Index = 0;
-	private $field880subfield6FieldInstanceIndex = array ();
-	
 	# Caches
 	private $lookupTablesCache = array ();
 	
@@ -4964,8 +4960,10 @@ class muscatConversion extends frontControllerApplication
 		# Ensure the error string is clean for each iteration
 		$errorString = '';
 		
-		# Create a fresh container for 880 reciprocal links
+		# Create fresh containers for 880 reciprocal links for this record
 		$this->field880subfield6ReciprocalLinks = array ();
+		$this->field880subfield6Index = 0;
+		$this->field880subfield6FieldInstanceIndex = array ();
 		
 		# Ensure the line-by-line syntax is valid, extract macros, and construct a data structure representing the record
 		if (!$datastructure = $this->convertToMarc_InitialiseDatastructure ($recordXml, $marcParserDefinition, $errorString)) {return false;}
