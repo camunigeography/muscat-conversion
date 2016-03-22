@@ -21,7 +21,7 @@ A  300 ## ‡a{/.|macro:generate300}
 A  310 ## ‡a{//freq|macro:ucfirst}
 A  490 0# {//ts|macro:generate490}
 A  520 3# ‡a{//abs|macro:excludeNoneValue|macro:dotEnd}
-E  541 0# ‡c{//acq/fund}{//kb[1]}{//acq/sref} ‡a{//acq/o} ‡d{//acq/date} ‡e{//acc/ref} ‡h{//acq/pr}
+A  541 0# {/*|macro:generate541}
 A  546 ## ‡a{/*|macro:multipleValues(//lang)|macro:implode(, )}
 A  546 ## ‡a{//lang[1]|macro:isTransliterated}
 A  563 ## ‡a{//acc/con}

@@ -6884,6 +6884,85 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro for generating the 541 field, which looks at *acq groups; see: https://www.loc.gov/marc/bibliographic/bd541.html
+	#!# Support for *acc, which is currently having things like *acc/*date lost as is it not present elsewhere
+	private function macro_generate541 ($value, $xml)
+	{
+		# Start a list of results
+		$resultLines = array ();
+		
+		# Loop through each *acq in the record; e.g. multiple in /records/3959/
+		$acqIndex = 1;
+		while ($this->xPathValue ($xml, "//acq[$acqIndex]")) {
+			
+			# Start a line of subfields, used to construct the values; e.g. /records/176629/
+			$subfields = array ();
+			
+			# Support $c - constructed from *fund / *kb / *sref
+			/* Spec is:
+				"*fund OR *kb OR *sref, unless the record contains a combination / multiple instances of these fields - in which case:
+				- IF record contains ONE *sref and ONE *fund and NO *kb => ‡c*sref '--' *fund
+				- IF record contains ONE *sref and ONE *kb and NO *fund => ‡c*sref '--' *kb"
+			*/
+			#!# Spec is unclear: What if there are more than one of these, or other combinations not shown here? Currently, items have any second (or third, etc.) lost, or e.g. *kb but not *sref would not show
+			$fund = $this->xPathValues ($xml, "//acq[$acqIndex]/fund[%i]");	// Code		// e.g. multiple at /records/132544/ , /records/138939/
+			#!# Should $kb be top-level, rather than within an *acq group? What happens if multiple *acq groups, which will each pick up the same *kb
+			$kb   = $this->xPathValues ($xml, "//kb[%i]");					// Exchange
+			$sref = $this->xPathValues ($xml, "//acq[$acqIndex]/sref[%i]");	// Supplier reference
+			$c = false;
+			if (count ($sref) == 1 && count ($fund) == 1 && !$kb) {
+				$c = $sref[1] . '--' . $fund[1];
+			} else if (count ($sref) == 1 && count ($kb) == 1 && !$fund) {
+				$c = $sref[1] . '--' . $kb[1];
+			} else if ($fund) {
+				$c = $fund[1];
+			} else if ($kb) {
+				$c = $kb[1];
+			} else if ($sref) {
+				$c = $sref[1];
+			}
+			if ($c) {
+				$subfields[] = "{$this->doubleDagger}c" . $c;
+			}
+			
+			# Create $a, from *o - Source of acquisition
+			if ($value = $this->xPathValue ($xml, "//acq[$acqIndex]/o")) {
+				$subfields[] = "{$this->doubleDagger}a" . $value;
+			}
+			
+			# Create $d, from *date - Date of acquisition
+			if ($value = $this->xPathValue ($xml, "//acq[$acqIndex]/date")) {
+				$subfields[] = "{$this->doubleDagger}d" . $value;
+			}
+			
+			#!# *acc/*ref?
+			
+			# Create $h, from *pr - Purchase price
+			if ($value = $this->xPathValue ($xml, "//acq[$acqIndex]/pr")) {
+				$subfields[] = "{$this->doubleDagger}h" . $value;
+			}
+			
+			# Register the line if subfields have been created
+			if ($subfields) {
+				$subfields[] = "{$this->doubleDagger}5" . 'UkCU-P';	// Institution to which field applies, i.e. SPRI
+				$resultLines[] = implode (' ', $subfields);
+			}
+			
+			# Next *acq
+			$acqIndex++;
+		}
+		
+		# End if no lines
+		if (!$resultLines) {return false;}
+		
+		# Implode the list
+		$result = implode ("\n" . '541 0# ', $resultLines);
+		
+		# Return the result
+		return $result;
+	}
+	
+	
 	# Macro to determine if a value is not surrounded by round brackets
 	private function macro_isNotRoundBracketed ($value)
 	{
