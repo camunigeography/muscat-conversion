@@ -94,6 +94,7 @@ class muscatConversion extends frontControllerApplication
 		'nohostlang_problem' => 'records whose *in contains a *lang but the main part does not',
 		'bibcheckerrors_problem' => 'records with Bibcheck errors',
 		'multiplelocationsmissing_problem' => 'records with multiple locations but marked as missing',
+		'overloadedkstokens_problem' => 'records with overloaded token values in *ks (except MISSING* and PGA)',
 	);
 	
 	# Listing (values) reports
@@ -9476,6 +9477,27 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				    ExtractValue(xml, '//k/ks') LIKE '%MISSING%'
 				AND fieldslist REGEXP '@location@.*location@'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with overloaded token values in *ks (except MISSING* and PGA)
+	private function report_overloadedkstokens ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'overloadedkstokens' AS report,
+				id AS recordId
+			FROM catalogue_processed
+			WHERE
+				    field = 'ks'
+				AND value IN('" . implode ("', '", $this->overloadedKsTokens) . "')
+				AND value != 'PGA'
+				AND value NOT LIKE '%MISSING%'
 		";
 		
 		# Return the query
