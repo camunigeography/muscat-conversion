@@ -93,6 +93,7 @@ class muscatConversion extends frontControllerApplication
 		'voyagerrecords_info' => 'records with an equivalent already in Voyager, targetted for merging',
 		'nohostlang_problem' => 'records whose *in contains a *lang but the main part does not',
 		'bibcheckerrors_problem' => 'records with Bibcheck errors',
+		'multiplelocationsmissing_problem' => 'records with multiple locations but marked as missing',
 	);
 	
 	# Listing (values) reports
@@ -9455,6 +9456,26 @@ class muscatConversion extends frontControllerApplication
 				catalogue_marc
 			WHERE
 				bibcheckErrors IS NOT NULL
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with multiple locations but marked as missing
+	private function report_multiplelocationsmissing ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'multiplelocationsmissing' AS report,
+				fieldsindex.id AS recordId
+			FROM catalogue_xml
+			LEFT JOIN fieldsindex ON catalogue_xml.id = fieldsindex.id
+			WHERE
+				    ExtractValue(xml, '//k/ks') LIKE '%MISSING%'
+				AND fieldslist REGEXP '@location@.*location@'
 		";
 		
 		# Return the query
