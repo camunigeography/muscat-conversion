@@ -7519,7 +7519,7 @@ class muscatConversion extends frontControllerApplication
 			#!# Ideally also need to trigger this in cases where the record has note to this effect; or check that MISSING exists in all such cases
 			$ksValues = $this->xPathValues ($xml, '//k[%i]/ks');
 			foreach ($ksValues as $ksValue) {
-				if (substr_count ($ksValue, 'MISSING')) {		// Covers 'MISSING' and e.g. 'MISSING[2004]' etc.; data checked to ensure that the string always appears as upper-case "MISSING"
+				if (substr_count ($ksValue, 'MISSING')) {		// Covers 'MISSING' and e.g. 'MISSING[2004]' etc.; e.g. /records/1323/ ; data checked to ensure that the string always appears as upper-case "MISSING"
 					$result .= " {$this->doubleDagger}z" . 'Missing';
 					break;
 				}
