@@ -1977,7 +1977,7 @@ class muscatConversion extends frontControllerApplication
 		$query = "
 			SELECT
 				id AS 'Record number',
-				ExtractValue(xml, 'status') AS 'Status',
+				ExtractValue(xml, '//status') AS 'Status',
 				CONCAT_WS(', ', ExtractValue(xml, '*/ag/a[1]/n1'), ExtractValue(xml, '*/ag/a[1]/n2')) AS 'Author 1',
 				ExtractValue(xml, '*/ag/a/*') AS 'All authors',
 				ExtractValue(xml, '*/tg/tc') AS 'Title fields',
