@@ -242,7 +242,7 @@ class muscatConversion extends frontControllerApplication
 	);
 	
 	# Define known *ks values to be ignored
-	private $ignoreKsValues = array ('AGI', 'AGI', 'AGI1', 'AK', 'AK1', 'AM', 'AM/HL', 'BL', 'C', 'C?', 'CC', 'D', 'D?', 'GLEN', 'GLEN', 'HL', 'HS', 'HSO', 'HS1', 'HS (RS)', 'HS(RS)', 'HS/RUS', 'HSSB', 'HSSB1', 'HSSB2', 'HSSB3', 'IW', 'IW', 'IW1', 'IWO', 'JHR', 'JHRprob', 'JHR1', 'JHRO', 'JP', 'JW', 'JW', 'JW1', 'LASTPGA', 'MG', 'MISSING', 'MISSING', 'MPO', 'MPP', 'NOM', 'NOM1', 'NOMO', 'OM', 'PARTIAL RECORD', 'PGA', 'PGA', 'PGA1', 'RF', 'RF', 'RS', 'SS', 'WM', 'Y', );
+	private $overloadedKsTokens = array ('AGI', 'AGI', 'AGI1', 'AK', 'AK1', 'AM', 'AM/HL', 'BL', 'C', 'C?', 'CC', 'D', 'D?', 'GLEN', 'GLEN', 'HL', 'HS', 'HSO', 'HS1', 'HS (RS)', 'HS(RS)', 'HS/RUS', 'HSSB', 'HSSB1', 'HSSB2', 'HSSB3', 'IW', 'IW', 'IW1', 'IWO', 'JHR', 'JHRprob', 'JHR1', 'JHRO', 'JP', 'JW', 'JW', 'JW1', 'LASTPGA', 'MG', 'MISSING', 'MPO', 'MPP', 'NOM', 'NOM1', 'NOMO', 'OM', 'PARTIAL RECORD', 'PGA', 'PGA', 'PGA1', 'RF', 'RF', 'RS', 'SS', 'WM', 'Y', );
 	
 	# Caches
 	private $lookupTablesCache = array ();
@@ -7000,7 +7000,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Skip if a known value (before brackes, which are now stripped) to be ignored
-		if (in_array ($value, $this->ignoreKsValues)) {return false;}
+		if (in_array ($value, $this->overloadedKsTokens)) {return false;}
 		
 		# Ensure the value is in the table
 		if (!isSet ($this->udcTranslations[$value])) {
@@ -7574,7 +7574,7 @@ class muscatConversion extends frontControllerApplication
 		$ksValues = $this->xPathValues ($xml, '//k[%i]/ks');
 		$results = array ();
 		foreach ($ksValues as $ks) {
-			if (in_array ($ks, $this->ignoreKsValues)) {
+			if (in_array ($ks, $this->overloadedKsTokens)) {
 				$results[] = $ks;
 			}
 		}
@@ -9130,7 +9130,7 @@ class muscatConversion extends frontControllerApplication
 				) AS ksValues
 			LEFT JOIN udctranslations ON ksValues.value = udctranslations.ks
 			WHERE
-				    value NOT IN ('" . implode ("', '", $this->ignoreKsValues) . "')
+				    value NOT IN ('" . implode ("', '", $this->overloadedKsTokens) . "')
 				AND ks IS NULL
 			GROUP BY recordId
 		";
@@ -10249,7 +10249,7 @@ class muscatConversion extends frontControllerApplication
 				) AS ksValues
 			LEFT JOIN udctranslations ON ksValues.value = udctranslations.ks
 			WHERE
-				    value NOT IN ('" . implode ("', '", $this->ignoreKsValues) . "')
+				    value NOT IN ('" . implode ("', '", $this->overloadedKsTokens) . "')
 				AND ks IS NULL
 			GROUP BY value
 			";
