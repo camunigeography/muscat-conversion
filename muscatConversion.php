@@ -95,6 +95,7 @@ class muscatConversion extends frontControllerApplication
 		'bibcheckerrors_problem' => 'records with Bibcheck errors',
 		'multiplelocationsmissing_problem' => 'records with multiple locations but marked as missing',
 		'overloadedkstokens_problem' => 'records with overloaded token values in *ks (except MISSING* and PGA)',
+		'notemissing_problem' => "records with a note containing the word 'missing' without a *ks MISSING; not all will actually be missing",
 	);
 	
 	# Listing (values) reports
@@ -7516,7 +7517,7 @@ class muscatConversion extends frontControllerApplication
 			
 			# If records are missing, add public note; e.g. /records/1014/ , and /records/25728/ ; a manual query has been done that no record has BOTH "Not in SPRI" (which would result in $z already existing above) and "MISSING" using "SELECT * FROM catalogue_xml WHERE xml like BINARY '%MISSING%' and xml LIKE '%Not in SPRI%';"
 			# Note that this will set a marker for each *location; the report /reports/multiplelocationsmissing/ lists these cases, which will need to be fixed up post-migration - we are unable to work out from the Muscat record which *location the "MISSING" refers to
-			#!# Ideally also need to trigger this in cases where the record has note to this effect; or check that MISSING exists in all such cases
+			#!# Ideally also need to trigger this in cases where the record has note to this effect; or check that MISSING exists in all such cases by checking and amending records in /reports/notemissing/
 			$ksValues = $this->xPathValues ($xml, '//k[%i]/ks');
 			foreach ($ksValues as $ksValue) {
 				if (substr_count ($ksValue, 'MISSING')) {		// Covers 'MISSING' and e.g. 'MISSING[2004]' etc.; e.g. /records/1323/ ; data checked to ensure that the string always appears as upper-case "MISSING" ; all records checked that MISSING* is always in the format ^MISSING\[.+\]$, using "SELECT * FROM catalogue_processed WHERE field = 'ks' AND value like  'MISSING%' AND value !=  'MISSING' AND value NOT REGEXP '^MISSING\\[.+\\]$'"
@@ -9509,6 +9510,27 @@ class muscatConversion extends frontControllerApplication
 				AND value IN('" . implode ("', '", $this->overloadedKsTokens) . "')
 				AND value != 'PGA'
 				AND value NOT LIKE '%MISSING%'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with a note containing the word 'missing' without a *ks MISSING; not all will actually be missing
+	private function report_notemissing ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'notemissing' AS report,
+				recordId
+			FROM catalogue_processed
+            LEFT JOIN catalogue_xml ON catalogue_processed.recordId = catalogue_xml.id
+			WHERE
+				    field IN('note', 'priv', 'local')
+				AND value LIKE '%missing%'
+                AND xml NOT LIKE '%<ks>MISSING%'
 		";
 		
 		# Return the query
