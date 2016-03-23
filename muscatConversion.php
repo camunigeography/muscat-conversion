@@ -24,6 +24,7 @@ class muscatConversion extends frontControllerApplication
 		'locwithoutlocation_problem' => '*loc records where there is no *location',
 		'status_info' => 'records with a status field',
 		'multiplestatus_problem' => 'records with more than one *status field',
+		'statusparallel_problem' => 'records with *status = Parallel',
 		'statusglaciopams_info' => 'records with a *status field where the status is not GLACIOPAMS',
 		'statuslocationglaciopams_problem' => 'records with a *status field and *location where the status is not GLACIOPAMS',
 		'doclocationperiodical_info' => '*doc records with one *location, which is Periodical',
@@ -8005,6 +8006,25 @@ class muscatConversion extends frontControllerApplication
 			FROM fieldsindex
 			WHERE
 				fieldslist REGEXP '@status@.*status@'
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with *status = Parallel
+	private function report_statusparallel ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'statusparallel' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				field = 'status'
+				AND value LIKE '%PARALLEL%'
 			";
 		
 		# Return the query
