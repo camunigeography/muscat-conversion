@@ -9411,7 +9411,7 @@ class muscatConversion extends frontControllerApplication
 				'transliteratefailure' AS report,
 				recordId
 			FROM transliterations
-			WHERE (BINARY title_latin != BINARY title_forward)
+			WHERE forwardCheckFailed = 1
 		";
 		
 		# Return the query
