@@ -1074,7 +1074,6 @@ class muscatConversion extends frontControllerApplication
 			<date /><!-- yyyy/mm/dd -->
 			<con /><!-- condition or conservation note -->
 			<recr /><!-- bibliographer's initials -->
-			<status /><!-- status note -->
 		</acc>
 		<doi>
 			<doifld />
@@ -1222,7 +1221,6 @@ class muscatConversion extends frontControllerApplication
 				<con /><!-- condition or conservation note -->
 <!-- /redundant -->
 				<recr /><!-- bibliographer's initials -->
-				<status /><!-- status note -->
 			</acc>
 			<doi>
 				<doifld />
@@ -1302,7 +1300,6 @@ class muscatConversion extends frontControllerApplication
 				<date /><!-- yyyy/mm/dd -->
 				<con /><!-- condition or conservation note -->
 				<recr /><!-- bibliographer's initials -->
-				<status /><!-- status note -->
 			</acc>
 			<doi>
 				<doifld />
@@ -1404,7 +1401,6 @@ class muscatConversion extends frontControllerApplication
 			<date /><!-- yyyy/mm/dd -->
 			<con /><!-- condition or conservation note -->
 			<recr /><!-- bibliographer's initials -->
-			<status /><!-- status note -->
 		</acc>
 		<doi>
 			<doifld />
@@ -7532,7 +7528,7 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Define the supported *acc/... fields that can be included
 		#!# Not sure if con, recr, status should be present; ref and date are confirmed fine
-		$supportedFields = array ('ref', 'date', 'con', 'recr', 'status');
+		$supportedFields = array ('ref', 'date', 'con', 'recr');
 		
 		# Loop through each *acq in the record; e.g. multiple in /records/3959/
 		$acc = array ();
@@ -7583,7 +7579,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Otherwise return *status; e.g. /records/1373/
-		$status = $this->xPathValue ($xml, '//acc/status');
+		$status = $this->xPathValue ($xml, '//status');
 		return $status;
 	}
 	
