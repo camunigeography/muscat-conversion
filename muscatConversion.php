@@ -2758,9 +2758,9 @@ class muscatConversion extends frontControllerApplication
 		
 		# Quantity/mathematical symbols
 		$specialCharacters = array (
-			'deg'		=> chr(0xc2).chr(0xb0),
-			'min'		=> chr(0xe2).chr(0x80).chr(0xb2),
-			'sec'		=> chr(0xe2).chr(0x80).chr(0xb3),
+			'deg'		=> chr(0xC2).chr(0xB0),
+			'min'		=> chr(0xE2).chr(0x80).chr(0xB2),
+			'sec'		=> chr(0xE2).chr(0x80).chr(0xB3),
 			'<-'		=> chr(0xE2).chr(0x86).chr(0x90),		// http://www.fileformat.info/info/unicode/char/2190/index.htm
 			'->'		=> chr(0xE2).chr(0x86).chr(0x92),		// http://www.fileformat.info/info/unicode/char/2192/index.htm
 			'+ or -'	=> chr(0xC2).chr(0xB1),					// http://www.fileformat.info/info/unicode/char/00b1/index.htm
