@@ -4987,7 +4987,8 @@ class muscatConversion extends frontControllerApplication
 		if (!$datastructure = $this->convertToMarc_ExpandVerticallyRepeatableFields ($datastructure, $errorString)) {return false;}
 		
 		# Process the record
-		$record = $this->convertToMarc_ProcessRecord ($datastructure, $errorString);
+		$recordId = $this->xPathValue ($xml, '//q0');
+		$record = $this->convertToMarc_ProcessRecord ($datastructure, $errorString, $recordId);
 		
 		# Determine the length, in bytes, which is the first five characters of the 000 (Leader), padded
 		$bytes = mb_strlen ($record);
@@ -4995,7 +4996,6 @@ class muscatConversion extends frontControllerApplication
 		$record = preg_replace ('/^LDR (_____)/m', "LDR {$bytes}", $record);
 		
 		# Report any UTF-8 problems
-		$recordId = $this->xPathValue ($xml, '//q0');
 		if (!htmlspecialchars ($record)) {
 			$errorString .= "UTF-8 conversion failed in record <a href=\"{$this->baseUrl}/records/{$recordId}/\">#{$recordId}</a>.";
 			return false;
@@ -5341,7 +5341,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to process the record
-	private function convertToMarc_ProcessRecord ($datastructure, $errorString)
+	private function convertToMarc_ProcessRecord ($datastructure, $errorString, $recordId)
 	{
 		# Process each line
 		$outputLines = array ();
@@ -5419,6 +5419,11 @@ class muscatConversion extends frontControllerApplication
 		# Insert 880 reciprocal links; see: http://www.lib.cam.ac.uk/libraries/login/documentation/Unicode_non_roman_cataloguing_handout.pdf
 		foreach ($this->field880subfield6ReciprocalLinks as $lineOutputKey => $linkToken) {		// $lineOutputKey is e.g. 700_0
 			
+			# Report data mismatches
+			if (!isSet ($outputLines[$lineOutputKey])) {
+				echo "<p class=\"warning\">In record {$recordId}, line output key {$lineOutputKey} does not exist in the output lines.</p>";
+			}
+			
 			# For multilines, split the line into parts, prepend the link token
 			if (is_array ($linkToken)) {
 				$lines = explode ("\n", $outputLines[$lineOutputKey]);	// Split out
@@ -5427,7 +5432,7 @@ class muscatConversion extends frontControllerApplication
 				}
 				$outputLines[$lineOutputKey] = implode ("\n", $lines);	// Reconstruct
 				
-				# For standard lines, do a simple insertion
+			# For standard lines, do a simple insertion
 			} else {
 				$outputLines[$lineOutputKey] = $this->insertSubfieldAfterMarcFieldThenIndicators ($outputLines[$lineOutputKey], $linkToken);
 			}
