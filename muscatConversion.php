@@ -2766,6 +2766,7 @@ class muscatConversion extends frontControllerApplication
 			'+ or -'	=> chr(0xC2).chr(0xB1),					// http://www.fileformat.info/info/unicode/char/00b1/index.htm
 			'>='		=> chr(0xE2).chr(0x89).chr(0xA5),		// http://www.fileformat.info/info/unicode/char/2265/index.htm
 			'<='		=> chr(0xE2).chr(0x89).chr(0xA4),		// http://www.fileformat.info/info/unicode/char/2264/index.htm
+			' '			=> chr(0xC2).chr(0xA0),					// http://www.fileformat.info/info/unicode/char/00a0/index.htm
 		);
 		$specialCharactersReplacements = array ();
 		foreach ($specialCharacters as $letter => $unicodeCharacter) {
