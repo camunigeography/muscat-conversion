@@ -7526,6 +7526,46 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro to generate 916, which is based on *acc/*ref *acc/*date pairs
+	private function macro_generate916 ($value, $xml)
+	{
+		# Define the supported *acc/... fields that can be included
+		#!# Not sure if con, recr, status should be present; ref and date are confirmed fine
+		$supportedFields = array ('ref', 'date', 'con', 'recr', 'status');
+		
+		# Loop through each *acq in the record; e.g. multiple in /records/3959/
+		$acc = array ();
+		$accIndex = 1;
+		while ($this->xPathValue ($xml, "//acc[$accIndex]")) {
+			
+			# Capture *acc/*ref and *acc/*date in this grouping
+			$components = array ();
+			foreach ($supportedFields as $field) {
+				if ($component = $this->xPathValue ($xml, "//acc[$accIndex]/{$field}")) {
+					$components[] = $component;
+				}
+			}
+			
+			# Register this *acc group if components have been generated
+			if ($components) {
+				$acc[] = implode (' ', $components);
+			}
+			
+			# Next *acc
+			$accIndex++;
+		}
+		
+		# End if none
+		if (!$acc) {return false;}
+		
+		# Compile the components
+		$result = implode ('; ', $acc);
+		
+		# Return the result
+		return $result;
+	}
+	
+	
 	# Macro to determine cataloguing status
 	private function macro_cataloguingStatus ($value, $xml)
 	{
