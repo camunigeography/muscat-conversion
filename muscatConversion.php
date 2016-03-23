@@ -7414,7 +7414,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Macro to lookup periodical locations, which may generate a multiline result
+	# Macro to lookup periodical locations, which may generate a multiline result; see: https://www.loc.gov/marc/holdings/hd852.html
 	private function macro_generate852 ($value, $xml)
 	{
 		# Start a list of results
@@ -7511,6 +7511,17 @@ class muscatConversion extends frontControllerApplication
 					#!# $bSPRI-NIS logic needs checking
 					$result .= " {$this->doubleDagger}bSPRI-NIS";
 					$result .= " {$this->doubleDagger}zNot in SPRI";
+				}
+			}
+			
+			# If records are missing, add public note; e.g. /records/1014/ , and /records/25728/ ; a manual query has been done that no record has BOTH "Not in SPRI" (which would result in $z already existing above) and "MISSING" using "SELECT * FROM catalogue_xml WHERE xml like BINARY '%MISSING%' and xml LIKE '%Not in SPRI%';"
+			# Note that this will set a marker for each *location; the report /reports/multiplelocationsmissing/ lists these cases, which will need to be fixed up post-migration - we are unable to work out from the Muscat record which *location the "MISSING" refers to
+			#!# Ideally also need to trigger this in cases where the record has note to this effect; or check that MISSING exists in all such cases
+			$ksValues = $this->xPathValues ($xml, '//k[%i]/ks');
+			foreach ($ksValues as $ksValue) {
+				if (substr_count ($ksValue, 'MISSING')) {		// Covers 'MISSING' and e.g. 'MISSING[2004]' etc.; data checked to ensure that the string always appears as upper-case "MISSING"
+					$result .= " {$this->doubleDagger}z" . 'Missing';
+					break;
 				}
 			}
 			
