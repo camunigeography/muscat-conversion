@@ -6088,6 +6088,7 @@ class muscatConversion extends frontControllerApplication
 				$result .= $v . ($a ? ' ' : ($b ? ',' : ''));	// e.g. /records/20704/ , /records/37420/ , /records/175872/ , /records/8988/
 			}
 		} else if (substr_count ($recordType, '/art')) {		// Not in the list of *form above
+			#!# This needs to be resolved - there are 29064 records whose XML has *pt starting with a colon: SELECT * FROM `catalogue_xml` WHERE `xml` LIKE '%<pt>:%' ; e.g. /records/1160/ which has "300 ## $a:1066-1133." which is surely wrong
 			// $result .= 'p. ';	// Spec unclear - subsequent instruction was "/records/152332/ still contains a spurious 'p' in the $a - please ensure this is not added to the record"
 		}
 		
