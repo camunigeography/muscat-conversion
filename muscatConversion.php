@@ -97,6 +97,7 @@ class muscatConversion extends frontControllerApplication
 		'multiplelocationsmissing_problem' => 'records with multiple locations but marked as missing',
 		'overloadedkstokens_problem' => 'records with overloaded token values in *ks (except MISSING* and PGA)',
 		'notemissing_problem' => "records with a note containing the word 'missing' without a *ks MISSING; not all will actually be missing",
+		'emptyauthorcontainers_problem' => "records with empty author containers",
 	);
 	
 	# Listing (values) reports
@@ -9551,6 +9552,23 @@ class muscatConversion extends frontControllerApplication
 				    field IN('note', 'priv', 'local')
 				AND value LIKE '%missing%'
                 AND xml NOT LIKE '%<ks>MISSING%'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with empty author containers
+	private function report_emptyauthorcontainers ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'emptyauthorcontainers' AS report,
+				id AS recordId
+			FROM catalogue_xml
+			WHERE xml regexp '<(a|ad|al|ag|aff)>[[:space:]]*</(a|ad|al|ag|aff)>'
 		";
 		
 		# Return the query
