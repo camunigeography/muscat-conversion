@@ -5423,6 +5423,7 @@ class muscatConversion extends frontControllerApplication
 		foreach ($this->field880subfield6ReciprocalLinks as $lineOutputKey => $linkToken) {		// $lineOutputKey is e.g. 700_0
 			
 			# Report data mismatches
+			#!# Example at: /records/194996/ This is caused by a generateAuthors multiline with a field number mutation in one of the lines but not all
 			if (!isSet ($outputLines[$lineOutputKey])) {
 				echo "<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> line output key {$lineOutputKey} does not exist in the output lines.</p>";
 			}
