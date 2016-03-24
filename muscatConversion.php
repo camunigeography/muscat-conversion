@@ -5423,7 +5423,7 @@ class muscatConversion extends frontControllerApplication
 			
 			# Report data mismatches
 			if (!isSet ($outputLines[$lineOutputKey])) {
-				echo "<p class=\"warning\">In record {$recordId}, line output key {$lineOutputKey} does not exist in the output lines.</p>";
+				echo "<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> line output key {$lineOutputKey} does not exist in the output lines.</p>";
 			}
 			
 			# For multilines, split the line into parts, prepend the link token
