@@ -72,6 +72,7 @@ class muscatConversion extends frontControllerApplication
 		'multipletoptt_problem' => 'records containing more than one top-level *tt field',
 		'invaliddatestring_problem' => 'records with an invalid date string (though some are valid)',
 		'multipledate_info' => 'records with more than one *d',
+		'multiplept_problem' => 'records with more than one *pt',
 		'serlocloc_problem' => '*ser records with two or more locations (though some are valid)',
 		'artinperiodical_info' => '*art/*in records with location=Periodical',
 		'multipleal_info' => 'records with multiple *al values',
@@ -9072,6 +9073,24 @@ class muscatConversion extends frontControllerApplication
 			FROM fieldsindex
 			WHERE
 				fieldslist REGEXP '@d@.+@d@' OR fieldslist REGEXP '@d@d@'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with more than one *pt; this report is for helping determine how to represent 300 repeatable $a ; see: https://www.loc.gov/marc/bibliographic/bd300.html
+	private function report_multiplept ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'multiplept' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				fieldslist REGEXP '@pt@.+@pt@' OR fieldslist REGEXP '@pt@pt@'
 		";
 		
 		# Return the query
