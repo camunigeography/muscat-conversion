@@ -6055,7 +6055,8 @@ class muscatConversion extends frontControllerApplication
 		# Obtain *p or *pt
 		$pValues = $this->xPathValues ($xml, '(//p)[%i]', false);	// Multiple *p, e.g. /records/6002/ , /records/15711/
 		$p = ($pValues ? implode ('; ', $pValues) : '');
-		$pt = $this->xPathValue ($xml, '//pt');
+		$ptValues = $this->xPathValues ($xml, '(//pt)[%i]', false);	// Multiple *p, e.g. /records/25179/
+		$pt = ($ptValues ? implode ('; ', $ptValues) : '');		// Decided in internal meeting to use semicolon, as comma is likely to be present within a component
 		$value = (strlen ($p) ? $p : $pt);		// Confirmed there are no records with both *p and *pt
 		
 		# Obtain the record type
