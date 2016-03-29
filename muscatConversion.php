@@ -9206,6 +9206,7 @@ class muscatConversion extends frontControllerApplication
 	private function report_unrecognisedks ()
 	{
 		# Define the query
+		# A check has been done that *ks is never empty, using `SELECT * FROM catalogue_processed WHERE field = 'ks' AND (value = '' OR value IS NULL);`
 		$query = "
 			SELECT
 				'unrecognisedks' AS report,
@@ -9217,7 +9218,6 @@ class muscatConversion extends frontControllerApplication
 					IF (INSTR(value,'[') > 0, LEFT(value,LOCATE('[',value) - 1), value) AS value
 				FROM catalogue_processed
 				WHERE field = 'ks'
-				AND value != ''
 				) AS ksValues
 			LEFT JOIN udctranslations ON ksValues.value = udctranslations.ks
 			WHERE
@@ -10415,7 +10415,6 @@ class muscatConversion extends frontControllerApplication
 					IF (INSTR(value,'[') > 0, LEFT(value,LOCATE('[',value) - 1), value) AS value
 				FROM catalogue_processed
 				WHERE field = 'ks'
-				AND value != ''
 				) AS ksValues
 			LEFT JOIN udctranslations ON ksValues.value = udctranslations.ks
 			WHERE
