@@ -71,6 +71,7 @@ class muscatConversion extends frontControllerApplication
 		'multipletopt_problem' => 'records containing more than one top-level *t field',
 		'multipletoptt_problem' => 'records containing more than one top-level *tt field',
 		'invaliddatestring_problem' => 'records with an invalid date string (though some are valid)',
+		'multipledate_info' => 'records with more than one *d',
 		'serlocloc_problem' => '*ser records with two or more locations (though some are valid)',
 		'artinperiodical_info' => '*art/*in records with location=Periodical',
 		'multipleal_info' => 'records with multiple *al values',
@@ -9052,6 +9053,24 @@ class muscatConversion extends frontControllerApplication
 					   value NOT REGEXP '[-0-9]$'
 					OR value REGEXP '([0-9]{4})-([0-9]{2})([^0-9])'
 				)
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with more than one *d; this report is for helping determine how to represent 260 repeatable $c ; see: https://www.loc.gov/marc/bibliographic/bd260.html
+	private function report_multipledate ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'multipledate' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				fieldslist REGEXP '@d@.+@d@' OR fieldslist REGEXP '@d@d@'
 		";
 		
 		# Return the query
