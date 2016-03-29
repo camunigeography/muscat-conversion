@@ -5993,10 +5993,10 @@ class muscatConversion extends frontControllerApplication
 		# Implode by space-semicolon: "a semicolon (;) when subfield $b is followed by subfield $a" at https://www.loc.gov/marc/bibliographic/bd260.html
 		$result = implode (' ;', $results);
 		
-		# Add $c if present
-		if ($dValues = $this->xPathValues ($xml, '(//d)[%i]', false)) {
+		# Add $c if present; confirmed these should be treated as a single $c, comma-separated, as we have no grouping information
+		if ($dateValues = $this->xPathValues ($xml, '(//d)[%i]', false)) {
 			if ($result) {$result .= ',';}
-			$result .= "{$this->doubleDagger}c" . implode (', ', $dValues);
+			$result .= "{$this->doubleDagger}c" . implode (', ', $dateValues);
 		}
 		
 		# Ensure dot at end
