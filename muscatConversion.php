@@ -80,6 +80,7 @@ class muscatConversion extends frontControllerApplication
 		'541ccombinations2_info' => 'records with combinations of multiple *fund/*kb/*sref values (for 541c), excluding sref+fund',
 		'unrecognisedks_problem' => 'records with unrecognised *ks values',
 		'malformedks_problem' => 'records with malformed *ks values',
+		'statuscodeksderived_info' => 'records with a cataloguing status code coming from *ks',
 		'offprints_info' => 'records that contain photocopy/offprint in *note/*local/*priv',
 		'duplicatedlocations_problem' => 'records with more than one identical location',
 		'unmatchedbrackets_problem' => 'unmatched { and } brackets',
@@ -97,7 +98,6 @@ class muscatConversion extends frontControllerApplication
 		'nohostlang_problem' => 'records whose *in contains a *lang but the main part does not',
 		'bibcheckerrors_problem' => 'records with Bibcheck errors',
 		'multiplelocationsmissing_problem' => 'records with multiple locations but marked as missing',
-		'overloadedkstokens_problem' => 'records with overloaded token values in *ks (except MISSING* and PGA)',
 		'notemissing_problem' => "records with a note containing the word 'missing' without a *ks MISSING; not all will actually be missing",
 		'emptyauthorcontainers_problem' => "records with empty author containers",
 	);
@@ -9566,19 +9566,19 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Records with overloaded token values in *ks (except MISSING* and PGA)
-	private function report_overloadedkstokens ()
+	# Records with a cataloguing status code coming from *ks
+	#!# This should be checking for MISSING* instead of MISSING within the overloadedKsTokens list
+	private function report_statuscodeksderived ()
 	{
 		# Define the query
 		$query = "
 			SELECT
-				'overloadedkstokens' AS report,
+				'statuscodeksderived' AS report,
 				id AS recordId
 			FROM catalogue_processed
 			WHERE
 				    field = 'ks'
 				AND value IN('" . implode ("', '", $this->overloadedKsTokens) . "')
-				AND value != 'PGA'
 				AND value NOT LIKE '%MISSING%'
 		";
 		
