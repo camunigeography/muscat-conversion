@@ -249,8 +249,16 @@ class muscatConversion extends frontControllerApplication
 		// SPRI-NIS defined in code below
 	);
 	
-	# Define known *ks values to be ignored
-	private $overloadedKsTokens = array ('AGI', 'AGI', 'AGI1', 'AK', 'AK1', 'AM', 'AM/HL', 'BL', 'C', 'C?', 'CC', 'D', 'D?', 'GLEN', 'GLEN', 'HL', 'HS', 'HSO', 'HS1', 'HS (RS)', 'HS(RS)', 'HS/RUS', 'HSSB', 'HSSB1', 'HSSB2', 'HSSB3', 'IW', 'IW', 'IW1', 'IWO', 'JHR', 'JHRprob', 'JHR1', 'JHRO', 'JP', 'JW', 'JW1', 'LASTPGA', 'MG', 'MISSING', 'MPO', 'MPP', 'NOM', 'NOM1', 'NOMO', 'OM', 'PARTIAL RECORD', 'PGA', 'PGA1', 'RF', 'RF', 'RS', 'SS', 'WM', 'X', 'Y', 'Z');
+	# Define known *ks values to be whitelisted
+	private $overloadedKsTokens = array (
+		'MISSING',
+		'PGA',		// Record intended for inclusion in next issue of PGA
+		'X',		// Serial (issue(s)) not yet abstracted)
+		'Y',		// Host item with analytics on card catalogue)
+		'Z',		// Host item not yet analyzed)
+		'C',		// Current serial
+		'D',		// Dead serial
+	);
 	
 	# Caches
 	private $lookupTablesCache = array ();
