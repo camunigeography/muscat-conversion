@@ -100,6 +100,7 @@ class muscatConversion extends frontControllerApplication
 		'multiplelocationsmissing_problem' => 'records with multiple locations but marked as missing',
 		'notemissing_problem' => "records with a note containing the word 'missing' without a *ks MISSING; not all will actually be missing",
 		'emptyauthorcontainers_problem' => "records with empty author containers",
+		'backslashg_problem' => 'records with \g remaining',
 	);
 	
 	# Listing (values) reports
@@ -9618,6 +9619,28 @@ class muscatConversion extends frontControllerApplication
 				id AS recordId
 			FROM catalogue_xml
 			WHERE xml regexp '<(a|ad|al|ag|aff)>[[:space:]]*</(a|ad|al|ag|aff)>'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with \g remaining; this report is to determine that specialCharacterParsing supports all \g types
+	private function report_backslashg ()
+	{
+		# Define the query
+		$literalBackslash	= '\\';										// PHP representation of one literal backslash
+		$mysqlBacklash		= $literalBackslash . $literalBackslash;	// http://lists.mysql.com/mysql/193376 shows that a MySQL backlash is always written as \\
+		$replaceBlackslash	= $mysqlBacklash;							// http://lists.mysql.com/mysql/193376 shows that REPLACE expects a single MySQL backslash
+		$query = "
+			SELECT DISTINCT
+				'backslashg' AS report,
+				recordId
+			FROM
+				catalogue_processed
+			WHERE
+				value LIKE '%{$replaceBlackslash}g %' ESCAPE '|'
 		";
 		
 		# Return the query
