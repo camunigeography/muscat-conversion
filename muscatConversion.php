@@ -9640,7 +9640,7 @@ class muscatConversion extends frontControllerApplication
 			FROM
 				catalogue_processed
 			WHERE
-				value LIKE '%{$replaceBackslash}g %' ESCAPE '|'
+				value LIKE '%{$likeBackslash}g%' ESCAPE '|'
 		";
 		
 		# Return the query
