@@ -2738,7 +2738,7 @@ class muscatConversion extends frontControllerApplication
 		# http://lists.mysql.com/mysql/193376 : "LIKE or REGEXP pattern is parsed twice, while the REPLACE pattern is parsed once"
 		$literalBackslash	= '\\';										// PHP representation of one literal backslash
 		$mysqlBacklash		= $literalBackslash . $literalBackslash;	// http://lists.mysql.com/mysql/193376 shows that a MySQL backlash is always written as \\
-		$replaceBlackslash	= $mysqlBacklash;							// http://lists.mysql.com/mysql/193376 shows that REPLACE expects a single MySQL backslash
+		$replaceBackslash	= $mysqlBacklash;							// http://lists.mysql.com/mysql/193376 shows that REPLACE expects a single MySQL backslash
 		$likeBackslash		= $mysqlBacklash /* . $mysqlBacklash # seems to work only with one */;			// http://lists.mysql.com/mysql/193376 shows that LIKE expects a single MySQL backslash
 		$regexpBackslash	= $mysqlBacklash . $mysqlBacklash;			// http://lists.mysql.com/mysql/193376
 		
@@ -2747,14 +2747,14 @@ class muscatConversion extends frontControllerApplication
 		
 		# Italics, e.g. /records/205430/
 		# "In order to italicise a Latin name in the middle of a line of Roman text, prefix the words to be italicised by '\v' and end the words with '\n'"
-		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBlackslash}v','<em>');";
-		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBlackslash}n','</em>');";	// \n does not mean anything special in REPLACE()
+		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBackslash}v','<em>');";
+		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBackslash}n','</em>');";	// \n does not mean anything special in REPLACE()
 		# Also convert \V and \N similarly
-		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBlackslash}V','<em>');";
-		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBlackslash}N','</em>');";	// \n does not mean anything special in REPLACE()
+		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBackslash}V','<em>');";
+		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBackslash}N','</em>');";	// \n does not mean anything special in REPLACE()
 		
 		# Correct the use of }o{ which has mistakenly been used to mean \gdeg, except for V}o{ which is a Ordinal indicator: https://en.wikipedia.org/wiki/Ordinal_indicator
-		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'}o{','{$replaceBlackslash}gdeg') WHERE value NOT LIKE '%V}o{%';";	// NB Have manually checked that record with V}o{ has no other use of }/{ characters
+		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'}o{','{$replaceBackslash}gdeg') WHERE value NOT LIKE '%V}o{%';";	// NB Have manually checked that record with V}o{ has no other use of }/{ characters
 		
 		# Diacritics (query takes 135 seconds)
 		$diacritics = $this->diacriticsTable ();
@@ -2765,7 +2765,7 @@ class muscatConversion extends frontControllerApplication
 		$greekLetters = $this->greekLetters ();
 		$greekLettersReplacements = array ();
 		foreach ($greekLetters as $letterCaseSensitive => $unicodeCharacter) {
-			$greekLettersReplacements["{$replaceBlackslash}g{$letterCaseSensitive}"] = $unicodeCharacter;
+			$greekLettersReplacements["{$replaceBackslash}g{$letterCaseSensitive}"] = $unicodeCharacter;
 		}
 		$queries[] = "UPDATE catalogue_processed SET value = " . $this->databaseConnection->replaceSql ($greekLettersReplacements, 'value', "'") . ';';
 		
@@ -2783,7 +2783,7 @@ class muscatConversion extends frontControllerApplication
 		);
 		$specialCharactersReplacements = array ();
 		foreach ($specialCharacters as $letter => $unicodeCharacter) {
-			$specialCharactersReplacements["{$replaceBlackslash}g{$letter}"] = $unicodeCharacter;
+			$specialCharactersReplacements["{$replaceBackslash}g{$letter}"] = $unicodeCharacter;
 		}
 		$queries[] = "UPDATE catalogue_processed SET value = " . $this->databaseConnection->replaceSql ($specialCharactersReplacements, 'value', "'") . ';';
 		
@@ -9632,7 +9632,7 @@ class muscatConversion extends frontControllerApplication
 		# Define the query
 		$literalBackslash	= '\\';										// PHP representation of one literal backslash
 		$mysqlBacklash		= $literalBackslash . $literalBackslash;	// http://lists.mysql.com/mysql/193376 shows that a MySQL backlash is always written as \\
-		$replaceBlackslash	= $mysqlBacklash;							// http://lists.mysql.com/mysql/193376 shows that REPLACE expects a single MySQL backslash
+		$likeBackslash		= $mysqlBacklash /* . $mysqlBacklash # seems to work only with one */;			// http://lists.mysql.com/mysql/193376 shows that LIKE expects a single MySQL backslash
 		$query = "
 			SELECT DISTINCT
 				'backslashg' AS report,
@@ -9640,7 +9640,7 @@ class muscatConversion extends frontControllerApplication
 			FROM
 				catalogue_processed
 			WHERE
-				value LIKE '%{$replaceBlackslash}g %' ESCAPE '|'
+				value LIKE '%{$replaceBackslash}g %' ESCAPE '|'
 		";
 		
 		# Return the query
