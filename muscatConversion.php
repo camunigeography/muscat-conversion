@@ -4428,6 +4428,7 @@ class muscatConversion extends frontControllerApplication
 		$whitelistErrorRegexps = array (
 			'008: Check place code xxu - please set code for specific state \(if known\).',
 			'541: Subfield _[0-9] is not allowed.',
+			'541: Subfield _[0-9] is not repeatable.',	// The generate541 code definitely has no horizontal repeatability - this is Bibcheck being unable to distinguish e.g. $5 (money) from double-dagger5 (subfield)
 			'6XX: Unless the Literary form in the 008 is set to one of the fiction codes, there must be at least one 6XX field \(ignore if the work is a sacred text.\)',		// This arises because Bibcheck has a litcode check at line 602 but that assumes that the 008 is a "008 - Books" which is not always the case - see position_18_34__33 in generate008; see e-mail dated 30/Mar/2016 investigating this
 		);
 		
@@ -6905,7 +6906,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Macro for generating the 541 field, which looks at *acq groups; see: https://www.loc.gov/marc/bibliographic/bd541.html
+	# Macro for generating the 541 field, which looks at *acq groups; it may generate a multiline result; see: https://www.loc.gov/marc/bibliographic/bd541.html
 	#!# Support for *acc, which is currently having things like *acc/*date lost as is it not present elsewhere
 	private function macro_generate541 ($value, $xml)
 	{
