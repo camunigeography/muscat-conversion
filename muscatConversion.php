@@ -4428,6 +4428,7 @@ class muscatConversion extends frontControllerApplication
 		$whitelistErrorRegexps = array (
 			'008: Check place code xxu - please set code for specific state \(if known\).',
 			'541: Subfield _[0-9] is not allowed.',
+			'6XX: Unless the Literary form in the 008 is set to one of the fiction codes, there must be at least one 6XX field \(ignore if the work is a sacred text.\)',		// This arises because Bibcheck has a litcode check at line 602 but that assumes that the 008 is a "008 - Books" which is not always the case - see position_18_34__33 in generate008; see e-mail dated 30/Mar/2016 investigating this
 		);
 		
 		# Split the file into individual reports
