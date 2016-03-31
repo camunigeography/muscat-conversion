@@ -8746,7 +8746,8 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Records with invalid ISBN number, excluding ones known to be wrong in the printed original publication; NB this does *not* perform a full check-digit check - see macro_validisbn for that
+	# Records with invalid ISBN number, excluding ones known to be wrong in the printed original publication
+	#!# NB this does *not* perform a full check-digit check - see macro_validisbn for that
 	private function report_isbninvalid ()
 	{
 		# Define the query
@@ -8757,8 +8758,8 @@ class muscatConversion extends frontControllerApplication
 			FROM catalogue_rawdata
 			WHERE
 				    field = 'isbn'
-				AND value NOT REGEXP '^(97(8|9))?[[:digit:]]{9}([[:digit:]]|X)$'		/* http://stackoverflow.com/questions/14419628/regexp-mysql-function */
-				AND value NOT REGEXP '^5[0-9]{12}'	/* Multimedia value EANs */
+				AND value NOT REGEXP BINARY '^(978|979)?[0-9]{9}([X0-9])$'		/* http://stackoverflow.com/questions/14419628/regexp-mysql-function */
+				AND value NOT REGEXP '^5[0-9]{12}$'	/* Multimedia value EANs */
 				-- Exclude records whose ISBN is known to be wrong in the printed original publication
 				AND recordId NOT IN(
 					77910,109306,115464,131811,131938,132811,133375,136691,140640,142959,
