@@ -2237,6 +2237,7 @@ class muscatConversion extends frontControllerApplication
 			'marc'					=> 'Regenerate MARC only (c. 65 minutes)',
 			'external'				=> 'Regenerate external Voyager records only (c. ? minutes)',
 			'outputstatus'			=> 'Regenerate output status only (c. 7 minutes)',
+			'exports'				=> 'Regenerate MARC export files and Bibcheck report (c. 3 minutes)',
 			'reports'				=> 'Regenerate reports only (c. 4 minutes)',
 			'listings'				=> 'Regenerate listings reports only (c. 2 hours)',
 		);
@@ -2327,6 +2328,12 @@ class muscatConversion extends frontControllerApplication
 		# Run option to set the MARC record status (included within the 'marc' (and therefore 'full') option above) if required
 		if ($importType == 'outputstatus') {
 			$this->marcRecordsSetStatus ();
+		}
+		
+		# Run option to export the MARC files for export and regenerate the Bibcheck report (included within the 'marc' (and therefore 'full') option above) if required
+		if ($importType == 'exports') {
+			$this->createMarcExports ();
+			$html .= "\n<p>{$this->tick} The <a href=\"{$this->baseUrl}/export/\">export files and Bibcheck report</a> have been generated.</p>";
 		}
 		
 		# Run (pre-process) the reports
@@ -3977,9 +3984,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Generate the output files
-		foreach ($this->filesets as $fileset => $label) {
-			$this->createMarcExport ($fileset);
-		}
+		$this->createMarcExports ();
 		
 		# Signal success
 		return true;
@@ -4301,6 +4306,16 @@ class muscatConversion extends frontControllerApplication
 		
 		# Update the table to add the results of the macro generation
 		$this->databaseConnection->updateMany ($this->settings['database'], 'volumenumbers', $updates);
+	}
+	
+	
+	# Function to create all MARC exports
+	private function createMarcExports ()
+	{
+		# Generate the output files
+		foreach ($this->filesets as $fileset => $label) {
+			$this->createMarcExport ($fileset);
+		}
 	}
 	
 	
