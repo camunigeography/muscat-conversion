@@ -4573,23 +4573,39 @@ class muscatConversion extends frontControllerApplication
 		
 		# Run each report and insert the results
 		$reports = $this->getReports ();
-		foreach ($reports as $report => $description) {
-			$reportFunction = 'report_' . $report;
+		foreach ($reports as $reportId => $description) {
 			
 			# Skip listing type reports, which implement data handling directly, and which are handled separately in runListings ()
-			if ($this->isListing ($report)) {continue;}
+			if ($this->isListing ($reportId)) {continue;}
 			
-			# Assemble the query and insert the data
-			$query = $this->$reportFunction ();
-			$query = "INSERT INTO reportresults (report,recordId) (" . $query . ');';
-			$result = $this->databaseConnection->query ($query);
+			# Run the report
+			$result = $this->runReport ($reportId);
 			
 			# Handle errors
 			if ($result === false) {
-				echo "<p class=\"warning\">Error generating report <em>{$report}</em>:</p>";
+				echo "<p class=\"warning\">Error generating report <em>{$reportId}</em>:</p>";
 				echo application::dumpData ($this->databaseConnection->error (), false, true);
 			}
 		}
+	}
+	
+	
+	# Function to run a report
+	private function runReport ($reportId, $clearFirst = false)
+	{
+		# If required, clear the results from any previous instantiation
+		if ($clearFirst) {
+			$this->databaseConnection->delete ($this->settings['database'], 'reportresults', array ('report' => $reportId));
+		}
+		
+		# Assemble the query and insert the data
+		$reportFunction = 'report_' . $reportId;
+		$query = $this->$reportFunction ();
+		$query = "INSERT INTO reportresults (report,recordId) (" . $query . ');';
+		$result = $this->databaseConnection->query ($query);
+		
+		# Return the result
+		return $result;
 	}
 	
 	
