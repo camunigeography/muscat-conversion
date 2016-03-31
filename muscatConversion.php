@@ -5830,9 +5830,9 @@ class muscatConversion extends frontControllerApplication
 			if ($q == 'invalid') {$q = false;}	// Will be caught below anyway; applies to /records/140472/ and /records/150974/
 		}
 		
-		# Determine the subfield, by performing a validation; see: https://github.com/davemontalvo/ISBN-Tools/blob/master/isbn_tools.php ; seems to permit EANs like 5391519681503 in /records/211150/
-		require_once ('libraries/ISBN-Tools/isbn_tools.php');
-		$isValid = (validateISBN ($value));
+		# Determine the subfield, by performing a validation; seems to permit EANs like 5391519681503 in /records/211150/
+		$this->loadIsbnValidationLibrary ();
+		$isValid = $this->isbn->validation->isbn ($value);
 		$subfield = $this->doubleDagger . ($isValid ? 'a' : 'z');
 		
 		# Assemble the return value, adding qualifying information if required
@@ -5843,6 +5843,24 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the value
 		return $string;
+	}
+	
+	
+	# Function to load the ISBN validation library if not already loaded; see: https://github.com/Fale/isbn , and a manual checker at: http://www.isbn-check.com/
+	private function loadIsbnValidationLibrary ()
+	{
+		# Load if not already loaded
+		if (!isSet ($this->isbn)) {
+			
+			# This is a Composer package, so work around the autoloading requirement; see: http://stackoverflow.com/questions/599670/how-to-include-all-php-files-from-a-directory
+			foreach (glob ($this->applicationRoot . '/libraries/isbn/src/Isbn/*.php') as $filename) {
+				include $filename;
+			}
+			
+			# Load and instantiate the library
+			require_once ('libraries/isbn/src/Isbn/Isbn.php');
+			$this->isbn = new Isbn\Isbn();
+		}
 	}
 	
 	
@@ -8771,10 +8789,11 @@ class muscatConversion extends frontControllerApplication
 			179102, 179187, 179772, 181433, 183078, 185531, 185716, 190314, 194602, 205837
 		);
 		
-		# Find invalid ISBNs at code level by doing a basic regexp check for 10-character or 13-character values
+		# Find invalid ISBNs at code level by doing a full validation check
 		$recordIds = array ();
+		$this->loadIsbnValidationLibrary ();
 		foreach ($isbnShards as $isbnShard) {
-			if (!preg_match ('/^(978|979)?[0-9]{9}([X0-9])$/', $isbnShard['value']) && !preg_match ('/^5[0-9]{12}$/', $isbnShard['value'])) {
+			if (!$isValid = $this->isbn->validation->isbn ($isbnShard['value'])) {
 				if (in_array ($isbnShard['recordId'], $knownIncorrect)) {continue;}	// Skip whitelisted
 				$recordIds[] = $isbnShard['recordId'];
 			}
