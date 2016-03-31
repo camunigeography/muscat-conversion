@@ -5831,7 +5831,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Determine the subfield, by performing a validation; see: https://github.com/davemontalvo/ISBN-Tools/blob/master/isbn_tools.php ; seems to permit EANs like 5391519681503 in /records/211150/
-		require_once ('ISBN-Tools/isbn_tools.php');
+		require_once ('libraries/ISBN-Tools/isbn_tools.php');
 		$isValid = (validateISBN ($value));
 		$subfield = $this->doubleDagger . ($isValid ? 'a' : 'z');
 		
