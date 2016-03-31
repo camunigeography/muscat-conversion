@@ -8760,24 +8760,37 @@ class muscatConversion extends frontControllerApplication
 	#!# NB this does *not* perform a full check-digit check - see macro_validisbn for that
 	private function report_isbninvalid ()
 	{
-		# Define the query
-		$query = "
-			SELECT DISTINCT
-				'isbninvalid' AS report,
-				recordId
-			FROM catalogue_rawdata
-			WHERE
-				    field = 'isbn'
-				AND value NOT REGEXP BINARY '^(978|979)?[0-9]{9}([X0-9])$'		/* http://stackoverflow.com/questions/14419628/regexp-mysql-function */
-				AND value NOT REGEXP '^5[0-9]{12}$'	/* Multimedia value EANs */
-				-- Exclude records whose ISBN is known to be wrong in the printed original publication
-				AND recordId NOT IN(
-					77910,109306,115464,131811,131938,132811,133375,136691,140640,142959,
-					150974,152975,152981,155343,156438,157302,162789,163738,163880,165289,
-					168457,169539,169814,170019,171279,171559,173677,177847,178624,178860,
-					179102,179187,179772,181433,183078,185531,185716,190314,194602,205837
-				)
-		";
+		# Obtain a list of every ISBN present; note that some records have more than one *isbn, so cannot index by recordId
+		$isbnShards = $this->databaseConnection->select ($this->settings['database'], 'catalogue_processed', array ('field' => 'isbn'), array ('id', 'recordId', 'value'));
+		
+		# Define a list of ISBNs known to be wrong in the original publication and which should be whitelisted from the report
+		$knownIncorrect = array (
+			77910, 109306, 115464, 131811, 131938, 132811, 133375, 136691, 140640, 142959,
+			150974, 152975, 152981, 155343, 156438, 157302, 162789, 163738, 163880, 165289,
+			168457, 169539, 169814, 170019, 171279, 171559, 173677, 177847, 178624, 178860,
+			179102, 179187, 179772, 181433, 183078, 185531, 185716, 190314, 194602, 205837
+		);
+		
+		# Find invalid ISBNs at code level by doing a basic regexp check for 10-character or 13-character values
+		$recordIds = array ();
+		foreach ($isbnShards as $isbnShard) {
+			if (!preg_match ('/^(978|979)?[0-9]{9}([X0-9])$/', $isbnShard['value']) && !preg_match ('/^5[0-9]{12}$/', $isbnShard['value'])) {
+				if (in_array ($isbnShard['recordId'], $knownIncorrect)) {continue;}	// Skip whitelisted
+				$recordIds[] = $isbnShard['recordId'];
+			}
+		}
+		
+		# End if no problems
+		if (!$recordIds) {
+			return "SELECT 'isbninvalid' AS report, recordId FROM catalogue_rawdata WHERE 1 = 0;";	// A query returning the right fields but which will produce zero rows
+		}
+		
+		# Compile a query which generate a result of static values; see: http://stackoverflow.com/questions/6156726/mysql-return-static-strings
+		$subqueries = array ();
+		foreach ($recordIds as $recordId) {
+			$subqueries[] = "SELECT 'isbninvalid' AS report, {$recordId} AS recordId";
+		}
+		$query = implode ("\nUNION ALL\n", $subqueries);
 		
 		# Return the query
 		return $query;
