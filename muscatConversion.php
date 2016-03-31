@@ -5990,14 +5990,24 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Macro to implode subvalues
-	private function macro_implode ($value, $xml, $parameter)
+	private function macro_implode ($values, $xml, $parameter)
 	{
 		# Return empty string if no values
-		if (!$value) {return '';}
+		if (!$values) {return '';}
 		
-		# Implode
+		# Implode and return
+		return implode ($parameter, $values);
+	}
+	
+	
+	# Macro to implode subvalues with the comma-and algorithm; e.g. as used for 546 (example record: /records/160854/ )
+	private function macro_commaAnd ($values, $xml, $parameter)
+	{
+		# Return empty string if no values
+		if (!$values) {return '';}
 		
-		return implode ($parameter, $value);
+		# Implode and return
+		return application::commaAndListing ($values);
 	}
 	
 	
