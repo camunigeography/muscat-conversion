@@ -2332,7 +2332,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Run option to export the MARC files for export and regenerate the Bibcheck report (included within the 'marc' (and therefore 'full') option above) if required
 		if ($importType == 'exports') {
-			$this->createMarcExports ();
+			$this->createMarcExports (true);
 			$html .= "\n<p>{$this->tick} The <a href=\"{$this->baseUrl}/export/\">export files and Bibcheck report</a> have been generated.</p>";
 		}
 		
@@ -4310,16 +4310,26 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to create all MARC exports
-	private function createMarcExports ()
+	private function createMarcExports ($regenerateReport = false)
 	{
-		# Generate the output files
+		# If regenerating, clear existing Bibcheck errors in the database
+		if ($regenerateReport) {
+			$this->databaseConnection->update ($this->settings['database'], 'catalogue_marc', array ('bibcheckErrors' => NULL));
+		}
+		
+		# Generate the output files and attach errors to the database records
 		foreach ($this->filesets as $fileset => $label) {
 			$this->createMarcExport ($fileset);
+		}
+		
+		# If required, regenerate the Bibcheck errors report
+		if ($regenerateReport) {
+			$this->runReport ('bibcheckerrors', true);
 		}
 	}
 	
 	
-	# Function to generate the MARC21 output as text
+	# Function to generate the MARC21 output as text and attach any errors to the database records
 	private function createMarcExport ($fileset)
 	{
 		# Clear the current file(s)
