@@ -1,4 +1,5 @@
-package MARC::RDA_vocabulary;
+#package MARC::RDA_vocabulary;
+package RDA_vocabulary;
 
 #Used by UClint_RDA.pm to check RDA controlled vocabulary
 #Correct 19/07/13 Paul T-C  
