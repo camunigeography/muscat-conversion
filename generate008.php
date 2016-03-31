@@ -678,7 +678,7 @@ class generate008
 			case '/art/j':
 				
 				$lang = $this->muscatConversion->xPathValue ($this->xml, '(//lang)[1]', false);
-				return $this->muscatConversion->lookupValue ('languageCodes', 'English', true, false, $lang, 'Script Code');
+				return $this->muscatConversion->lookupValue ('languageCodes', 'English', true, false, $lang, 'Script Code');	// Script code is defined for position 33 at https://www.loc.gov/marc/bibliographic/bd008s.html
 		}
 		
 		# Flag error
