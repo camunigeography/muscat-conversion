@@ -2238,7 +2238,7 @@ class muscatConversion extends frontControllerApplication
 			'external'				=> 'Regenerate external Voyager records only (c. ? minutes)',
 			'outputstatus'			=> 'Regenerate output status only (c. 7 minutes)',
 			'exports'				=> 'Regenerate MARC export files and Bibcheck report (c. 3 minutes)',
-			'reports'				=> 'Regenerate reports only (c. 4 minutes)',
+			'reports'				=> 'Regenerate reports only (c. 7 minutes)',
 			'listings'				=> 'Regenerate listings reports only (c. 2 hours)',
 		);
 		
