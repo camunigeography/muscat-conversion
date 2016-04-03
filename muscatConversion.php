@@ -4611,7 +4611,7 @@ class muscatConversion extends frontControllerApplication
 		# Assemble the query and insert the data
 		$reportFunction = 'report_' . $reportId;
 		$query = $this->$reportFunction ();
-		$query = "INSERT INTO reportresults (report,recordId) (" . $query . ');';
+		$query = "INSERT INTO reportresults (report,recordId)\n" . $query . ';';
 		$result = $this->databaseConnection->query ($query);
 		
 		# Return the result
