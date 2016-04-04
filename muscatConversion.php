@@ -7711,8 +7711,9 @@ class muscatConversion extends frontControllerApplication
 		$ksValues = $this->xPathValues ($xml, '//k[%i]/ks');
 		$results = array ();
 		foreach ($ksValues as $ks) {
-			if (in_array ($ks, $this->overloadedKsTokens)) {
-				$results[] = $ks;
+			$ksBracketsStrippedForComparison = (substr_count ($ks, '[') ? strstr ($ks, '[', true) : $ks);	// So that "MISSING[2007]" matches against MISSING, e.g. /records/2823/ , /records/3549/
+			if (in_array ($ksBracketsStrippedForComparison, $this->overloadedKsTokens)) {
+				$results[] = $ks;	// Actual *ks in the data, not the comparator version without brackets
 			}
 		}
 		if ($results) {
@@ -8150,7 +8151,7 @@ class muscatConversion extends frontControllerApplication
 			LEFT JOIN catalogue_processed AS cp_missing ON catalogue_processed.recordId = cp_missing.recordId AND cp_missing.field = 'status'
 			WHERE
 				    catalogue_processed.field = 'ks'
-				AND catalogue_processed.value IN ('" . implode ("', '", $this->overloadedKsTokens) . "')
+				AND IF (INSTR(catalogue_processed.value,'[') > 0, LEFT(catalogue_processed.value,LOCATE('[',catalogue_processed.value) - 1), catalogue_processed.value) IN ('" . implode ("', '", $this->overloadedKsTokens) . "')
 				AND cp_missing.field IS NOT NULL
 		";
 		
@@ -9714,7 +9715,6 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Records with a cataloguing status code coming from *ks
-	#!# This should be checking for MISSING* instead of MISSING within the overloadedKsTokens list
 	private function report_statuscodeksderived ()
 	{
 		# Define the query
@@ -9725,7 +9725,7 @@ class muscatConversion extends frontControllerApplication
 			FROM catalogue_processed
 			WHERE
 				    field = 'ks'
-				AND value IN('" . implode ("', '", $this->overloadedKsTokens) . "')
+				AND IF (INSTR(value,'[') > 0, LEFT(value,LOCATE('[',value) - 1), value) IN('" . implode ("', '", $this->overloadedKsTokens) . "')
 				AND value NOT LIKE 'MISSING%'
 		";
 		
