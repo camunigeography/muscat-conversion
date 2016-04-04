@@ -6874,8 +6874,38 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Macro for generating the 250 $b subfield
-	private function macro_generate250b ($value, $xml, $ignored, $authorsFields)
+	# Macro for generating the 250 field
+	private function macro_generate250 ($value, $xml, $ignored, $authorsFields)
+	{
+		# Start an array of subfields
+		$subfields = array ();
+		
+		# Implement subfield $a
+		if ($a = $this->xPathValue ($xml, '/*/edn')) {
+			$subfields[] = "{$this->doubleDagger}a" . $a;
+		}
+		
+		# Implement subfield $b; examples given in the function
+		if ($b = $this->generate250b ($value, $xml, $ignored, $authorsFields)) {
+			$subfields[] = "{$this->doubleDagger}b" . $b;
+		}
+		
+		# Return false if no subfields
+		if (!$subfields) {return false;}
+		
+		# Compile the overall string
+		$value = implode (' ', $subfields);
+		
+		# Ensure the value ends with a dot (if punctuation not already present); e.g. /records/4432/
+		$value = $this->macro_dotEnd ($value, NULL, $extendedCharacterList = true);
+		
+		# Return the value
+		return $value;
+	}
+	
+	
+	# Helper function for generating the 250 $b subfield
+	private function generate250b ($value, $xml, $ignored, $authorsFields)
 	{
 		# Use the role-and-siblings part of the 245 processor
 		require_once ('generate245.php');
@@ -6884,7 +6914,7 @@ class muscatConversion extends frontControllerApplication
 		# Create the list of subvalues if there is *ee?; e.g. /records/3887/ , /records/7017/ (has multiple *ee and multiple *n within this) , /records/45901/ , /records/168490/
 		$subValues = array ();
 		$eeIndex = 1;
-		while ($this->xPathValue ($xml, "//ee[$eeIndex]")) {		// Check if *ee container exists
+		while ($this->xPathValue ($xml, "//ee[$eeIndex]")) {	// Check if *ee container exists
 			$subValues[] = $generate245->roleAndSiblings ("//ee[$eeIndex]");
 			$eeIndex++;
 		}
@@ -6894,9 +6924,6 @@ class muscatConversion extends frontControllerApplication
 		
 		# Implode values
 		$value = implode ('; ', $subValues);
-		
-		# Ensure the value ends with a dot (if punctuation not already present)
-		$value = $this->macro_dotEnd ($value, NULL, $extendedCharacterList = true);
 		
 		# Return the value
 		return $value;

@@ -15,7 +15,7 @@ A  240 1i{//tg/to|macro:nfCount} ‡a{//tg/to}
 A  242 i{'0'|macro:indicator1xxPresent(1)}i{/*/tg/tt|macro:nfCount(English)} ‡a{/*/tg/tt|macro:colonSplit(b)} ‡y{'eng'|macro:ifValue(/*/tg/tt)}
 A  245 {/|macro:generate245}
 AR 246 3# ‡a{//tg/ta|macro:colonSplit(b)}
-E  250 ## ‡a{/*/edn} ‡b{/|macro:generate250b}
+A  250 ## {/|macro:generate250}
 E  260 ## {/|macro:generate260}
 A  300 ## ‡a{/.|macro:generate300}
 A  310 ## ‡a{//freq|macro:ucfirst}
