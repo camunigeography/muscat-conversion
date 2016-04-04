@@ -4454,6 +4454,7 @@ class muscatConversion extends frontControllerApplication
 		# Define errors to whitelist
 		$whitelistErrorRegexps = array (
 			'008: Check place code xxu - please set code for specific state \(if known\).',
+			'008: 008 date may not match 260 date - please check.',	// E.g. /records/1150/ which has '[196-?]' which is valid - Bibcheck isn't taking account of [...] brackets or five-digit values
 			'541: Subfield _[0-9 ] is not allowed.',	// E.g. /records/145475/ which has "AUS$ "
 			'541: Subfield _[0-9] is not repeatable.',	// The generate541 code definitely has no horizontal repeatability - this is Bibcheck being unable to distinguish e.g. $5 (money) from double-dagger5 (subfield)
 			'Record is post 1900 but contains local information \(541 or 561 fields\) - please check.',	// For 541; confirmed fine as we are setting $5
