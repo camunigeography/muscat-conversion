@@ -252,8 +252,8 @@ class muscatConversion extends frontControllerApplication
 		// SPRI-NIS defined in code below
 	);
 	
-	# Define known *ks values to be whitelisted
-	private $overloadedKsTokens = array (
+	# Define known *ks values that represent status values rather than classifications
+	private $ksStatusTokens = array (
 		'MISSING',
 		'PGA',		// Record intended for inclusion in next issue of PGA
 		'X',		// Serial (issue(s)) not yet abstracted)
@@ -1046,7 +1046,7 @@ class muscatConversion extends frontControllerApplication
 		</notes>
 		<abs /><!-- annotation or abstract -->
 		<k><!-- UDC classification numbers -->
-			<ks />
+			<ks /><!-- Classification number or Status (dual usage) -->
 			<kw /><!-- UDC translations. Added automatically by running c-tranudc (see Section ?) -->
 		</k>
 		<k2>
@@ -1188,7 +1188,7 @@ class muscatConversion extends frontControllerApplication
 			</notes>
 			<abs /><!-- annotation or abstract -->
 			<k><!-- UDC classification numbers -->
-				<ks />
+				<ks /><!-- Classification number or Status (dual usage) -->
 				<kw /><!-- UDC translations. Added automatically by running c-transudc -->
 			</k>
 			<k2>
@@ -1273,7 +1273,7 @@ class muscatConversion extends frontControllerApplication
 			</notes>
 			<abs /><!-- annotation or abstract -->
 			<k><!-- UDC classification numbers -->
-				<ks />
+				<ks /><!-- Classification number or Status (dual usage) -->
 				<kw /><!-- UDC translations. Added automatically by running c-transudc -->
 			</k>
 			<k2>
@@ -1373,7 +1373,7 @@ class muscatConversion extends frontControllerApplication
 			<local /><!-- additional note, not for publication, but of use to library users on site, e.g. 'SPRI has 2 copies', 'CD-ROM kept in Library Office', etc. -->
 		</notes>
 		<k><!-- UDC classification numbers -->
-			<ks />
+			<ks /><!-- Classification number or Status (dual usage) -->
 			<kw /><!-- UDC translations. Added automatically by running c-transudc -->
 		</k>
 		<k2><!-- left blank, but essential if *k2 included -->
@@ -7126,7 +7126,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Skip if a known value (before brackes, which are now stripped) to be ignored
-		if (in_array ($value, $this->overloadedKsTokens)) {return false;}
+		if (in_array ($value, $this->ksStatusTokens)) {return false;}
 		
 		# Ensure the value is in the table
 		if (!isSet ($this->udcTranslations[$value])) {
@@ -7712,7 +7712,7 @@ class muscatConversion extends frontControllerApplication
 		$results = array ();
 		foreach ($ksValues as $ks) {
 			$ksBracketsStrippedForComparison = (substr_count ($ks, '[') ? strstr ($ks, '[', true) : $ks);	// So that "MISSING[2007]" matches against MISSING, e.g. /records/2823/ , /records/3549/
-			if (in_array ($ksBracketsStrippedForComparison, $this->overloadedKsTokens)) {
+			if (in_array ($ksBracketsStrippedForComparison, $this->ksStatusTokens)) {
 				$results[] = $ks;	// Actual *ks in the data, not the comparator version without brackets
 			}
 		}
@@ -9356,7 +9356,7 @@ class muscatConversion extends frontControllerApplication
 				) AS ksValues
 			LEFT JOIN udctranslations ON ksValues.value = udctranslations.ks
 			WHERE
-				    value NOT IN ('" . implode ("', '", $this->overloadedKsTokens) . "')
+				    value NOT IN ('" . implode ("', '", $this->ksStatusTokens) . "')
 				AND ks IS NULL
 			GROUP BY recordId
 		";
@@ -9705,7 +9705,7 @@ class muscatConversion extends frontControllerApplication
 			LEFT JOIN catalogue_processed AS cp_missing ON catalogue_processed.recordId = cp_missing.recordId AND cp_missing.field = 'status'
 			WHERE
 				    catalogue_processed.field = 'ks'
-				AND IF (INSTR(catalogue_processed.value,'[') > 0, LEFT(catalogue_processed.value,LOCATE('[',catalogue_processed.value) - 1), catalogue_processed.value) IN ('" . implode ("', '", $this->overloadedKsTokens) . "')
+				AND IF (INSTR(catalogue_processed.value,'[') > 0, LEFT(catalogue_processed.value,LOCATE('[',catalogue_processed.value) - 1), catalogue_processed.value) IN ('" . implode ("', '", $this->ksStatusTokens) . "')
 				AND cp_missing.field IS NOT NULL
 		";
 		
@@ -9725,7 +9725,7 @@ class muscatConversion extends frontControllerApplication
 			FROM catalogue_processed
 			WHERE
 				    field = 'ks'
-				AND IF (INSTR(value,'[') > 0, LEFT(value,LOCATE('[',value) - 1), value) IN('" . implode ("', '", $this->overloadedKsTokens) . "')
+				AND IF (INSTR(value,'[') > 0, LEFT(value,LOCATE('[',value) - 1), value) IN('" . implode ("', '", $this->ksStatusTokens) . "')
 				AND value NOT LIKE 'MISSING%'
 		";
 		
@@ -10614,7 +10614,7 @@ class muscatConversion extends frontControllerApplication
 				) AS ksValues
 			LEFT JOIN udctranslations ON ksValues.value = udctranslations.ks
 			WHERE
-				    value NOT IN ('" . implode ("', '", $this->overloadedKsTokens) . "')
+				    value NOT IN ('" . implode ("', '", $this->ksStatusTokens) . "')
 				AND ks IS NULL
 			GROUP BY value
 			";
