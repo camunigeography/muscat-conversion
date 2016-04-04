@@ -2780,15 +2780,17 @@ class muscatConversion extends frontControllerApplication
 		
 		# Quantity/mathematical symbols
 		$specialCharacters = array (
-			'deg'		=> chr(0xC2).chr(0xB0),
-			'min'		=> chr(0xE2).chr(0x80).chr(0xB2),
-			'sec'		=> chr(0xE2).chr(0x80).chr(0xB3),
-			'<-'		=> chr(0xE2).chr(0x86).chr(0x90),		// http://www.fileformat.info/info/unicode/char/2190/index.htm
-			'->'		=> chr(0xE2).chr(0x86).chr(0x92),		// http://www.fileformat.info/info/unicode/char/2192/index.htm
-			'+ or -'	=> chr(0xC2).chr(0xB1),					// http://www.fileformat.info/info/unicode/char/00b1/index.htm
-			'>='		=> chr(0xE2).chr(0x89).chr(0xA5),		// http://www.fileformat.info/info/unicode/char/2265/index.htm
-			'<='		=> chr(0xE2).chr(0x89).chr(0xA4),		// http://www.fileformat.info/info/unicode/char/2264/index.htm
-			' '			=> chr(0xC2).chr(0xA0),					// http://www.fileformat.info/info/unicode/char/00a0/index.htm ; note that pasting from a browser gives a normal space, but this query will confirm a real "NO-BREAK SPACE" character: `SELECT * FROM catalogue_processed WHERE recordId = 10064 AND value LIKE BINARY CONCAT('%1900-1903',UNHEX('C2A0'),'gg%');`
+			'deg'							=> chr(0xC2).chr(0xB0),
+			'min'							=> chr(0xE2).chr(0x80).chr(0xB2),
+			'sec'							=> chr(0xE2).chr(0x80).chr(0xB3),
+			'<-'							=> chr(0xE2).chr(0x86).chr(0x90),		// http://www.fileformat.info/info/unicode/char/2190/index.htm
+			'->'							=> chr(0xE2).chr(0x86).chr(0x92),		// http://www.fileformat.info/info/unicode/char/2192/index.htm
+			'+ or -'						=> chr(0xC2).chr(0xB1),					// http://www.fileformat.info/info/unicode/char/00b1/index.htm
+			'>='							=> chr(0xE2).chr(0x89).chr(0xA5),		// http://www.fileformat.info/info/unicode/char/2265/index.htm
+			'<='							=> chr(0xE2).chr(0x89).chr(0xA4),		// http://www.fileformat.info/info/unicode/char/2264/index.htm
+			' '								=> chr(0xC2).chr(0xA0),					// http://www.fileformat.info/info/unicode/char/00a0/index.htm ; note that pasting from a browser gives a normal space, but this query will confirm a real "NO-BREAK SPACE" character: `SELECT * FROM catalogue_processed WHERE recordId = 10064 AND value LIKE BINARY CONCAT('%1900-1903',UNHEX('C2A0'),'gg%');`
+			'micron'						=> chr(0xC2).chr(0xB5),					// http://www.fileformat.info/info/unicode/char/00b5/index.htm ; this appears to be more correct than "'GREEK SMALL LETTER MU' (U+03BC)" at http://www.fileformat.info/info/unicode/char/03BC/index.htm
+			'epsilo' . chr(0xc5).chr(0x84)	=> chr(0xCE).chr(0xAD),					// http://www.fileformat.info/info/unicode/char/03ad/index.htm ; this is for /records/166336/ which has \gepsilon^a, and n^a is already converted to Unicode in diacriticsTable called just above
 		);
 		$specialCharactersReplacements = array ();
 		foreach ($specialCharacters as $letter => $unicodeCharacter) {
@@ -2877,7 +2879,7 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSubscripts['CO3'] = '<sub>CO</sub>' . $unicodeSubscripts[3];	// /records/127819/
 		
 		# Subscripts not representable as real Unicode codepoints, e.g. shown as {h}, represented as HTML
-		$subscriptsNonUnicodeable = array ('a', 'A', 'adv', 'an', 'apex', 'A' . chr(0xCE).chr(0xA3), 'b', 'B', 'c', 'C', 'CO', 'd', 'D', 'DN', 'DR', 'dry', 'e', 'E', 'eff', 'eq', 'ex', 'f', 'g', 'h', 'H', 'hfa', 'HOMA', 'i', 'I', 'II', 'IIIC', 'ice', 'Ic', 'IC', 'inorg', 'Jan', 'k', 'l', 'L', 'lip', 'm', 'max', 'MAX', 'min', 'Nd', 'o', 'org', 'p', 'Pb', 'p/c', 'PAR', 'POC', 'q', 'Q', 'r', 'R', 'RC', 'Re', 'rs', 's', 'S', 'sal', 'sant', 'sas', 'SL', 'ST', 'St', 'SW', 't', 'T', 'u', 'v', 'VGT', 'VI', 'w', 'W', 'w.e', 'x', 'X', 'xs', 'y', 'z', 'Z', chr(0xCE).chr(0xB4), chr(0xCE).chr(0xB6), chr(0xCE).chr(0xB8), chr(0xCE).chr(0x94) . '<em>t</em>' /* delta, for /records/78099/ */ , 'f,T=O', chr(0xCE).chr(0xB8), chr(0xCE).chr(0xB7), );	$this->databaseConnection->query ("INSERT INTO catalogue_processed VALUES (NULL, 9189, 35, 'notes', '', NULL), (NULL, 9189, 36, 'note', 'Have you not heard that the bird is the word?', NULL);");
+		$subscriptsNonUnicodeable = array ('a', 'A', 'adv', 'an', 'apex', 'A' . chr(0xCE).chr(0xA3), 'b', 'B', 'c', 'C', 'CO', 'd', 'D', 'DN', 'DR', 'dry', 'e', 'E', 'eff', 'eq', 'ex', 'f', 'g', 'h', 'H', 'hfa', 'HOMA', 'i', 'I', 'II', 'IIIC', 'ice', 'Ic', 'IC', 'inorg', 'Jan', 'k', 'l', 'L', 'lip', 'm', 'max', 'MAX', 'min', 'Nd', 'o', 'org', 'p', 'Pb', 'p/c', 'PAR', 'POC', 'q', 'Q', 'r', 'R', 'RC', 'Re', 'rs', 's', 'S', 'sal', 'sant', 'sas', 'SL', 'ST', 'St', 'SW', 't', 'T', 'u', 'v', 'VGT', 'VI', 'w', 'W', 'w.e', 'x', 'X', 'xs', 'y', 'z', 'Z', chr(0xCE).chr(0xB4), chr(0xCE).chr(0xB6), chr(0xCE).chr(0xB8), chr(0xCE).chr(0x94) . '<em>t</em>' /* delta, for /records/78099/ */ , 'f,T=O', chr(0xCE).chr(0xB8), chr(0xCE).chr(0xB7), );	$this->databaseConnection->query ("INSERT INTO catalogue_processed (id, recordId, line, field, value) VALUES (NULL, 9189, 35, 'notes', ''), (NULL, 9189, 36, 'note', 'Have you not heard that the bird is the word?');");
 		foreach ($subscriptsNonUnicodeable as $subscriptNonUnicodeable) {
 			$unicodeSubscripts[$subscriptNonUnicodeable] = '<sub>' . $subscriptNonUnicodeable . '</sub>';	// HTML tags will be stripped in final record
 		}
