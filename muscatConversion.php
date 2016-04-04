@@ -6137,11 +6137,15 @@ class muscatConversion extends frontControllerApplication
 		# Start a result
 		$result = '';
 		
-		# Obtain *p or *pt
+		# Obtain *p
 		$pValues = $this->xPathValues ($xml, '(//p)[%i]', false);	// Multiple *p, e.g. /records/6002/ , /records/15711/
 		$p = ($pValues ? implode ('; ', $pValues) : '');
+		
+		# Obtain *pt
 		$ptValues = $this->xPathValues ($xml, '(//pt)[%i]', false);	// Multiple *p, e.g. /records/25179/
 		$pt = ($ptValues ? implode ('; ', $ptValues) : '');		// Decided in internal meeting to use semicolon, as comma is likely to be present within a component
+		
+		# Determine *p or *pt
 		$value = (strlen ($p) ? $p : $pt);		// Confirmed there are no records with both *p and *pt
 		
 		# Obtain the record type
@@ -6191,7 +6195,10 @@ class muscatConversion extends frontControllerApplication
 		# Register the $a result
 		$result .= $a;
 		
-		# Add space between the number and the 'p.' or 'v.' ; e.g. /records/49133/ for p. ; NB No actual cases for v. in the data
+		# Normalise 'p' to have a dot after; safe to make this change after checking: `SELECT * FROM catalogue_processed WHERE field IN('p','pt','vno','v','ts') AND value LIKE '%p%' AND value NOT LIKE '%p.%' AND value REGEXP '[0-9]p' AND value NOT REGEXP '[0-9]p( |,|\\)|\\]|$)';`
+		$result = preg_replace ('/([0-9])p([^.]|$)/', '\1p.\2', $result);	// E.g. /records/1654/ , /records/2031/ , /records/6002/
+		
+		# Add space between the number and the 'p.' or 'v.' ; e.g. /records/49133/ for p. ; multiple instances of page number in /records/2031/ , /records/6002/; NB No actual cases for v. in the data
 		$result = preg_replace ('/([0-9]+)([pv]\.)/', '\1 \2', $result);
 		
 		# $b (NR) (Other physical details): *p [all text after ':' and before, but not including, '+'] or *pt [all text after the ',' - i.e. after the number range following the ':']
