@@ -9726,7 +9726,7 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				    field = 'ks'
 				AND value IN('" . implode ("', '", $this->overloadedKsTokens) . "')
-				AND value NOT LIKE '%MISSING%'
+				AND value NOT LIKE 'MISSING%'
 		";
 		
 		# Return the query
