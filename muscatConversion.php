@@ -101,6 +101,7 @@ class muscatConversion extends frontControllerApplication
 		'notemissing_problem' => "records with a note containing the word 'missing' without a *ks MISSING; not all will actually be missing",
 		'emptyauthorcontainers_problem' => "records with empty author containers",
 		'backslashg_problem' => 'records with \g remaining',
+		'possiblearticle_problem' => 'records with a 245 starting with a possible article',
 	);
 	
 	# Listing (values) reports
@@ -4322,9 +4323,10 @@ class muscatConversion extends frontControllerApplication
 			$this->createMarcExport ($fileset);
 		}
 		
-		# If required, regenerate the Bibcheck errors report
+		# If required, regenerate the error reports depending on the data
 		if ($regenerateReport) {
 			$this->runReport ('bibcheckerrors', true);
+			$this->runReport ('possiblearticle', true);
 		}
 	}
 	
@@ -9728,6 +9730,25 @@ class muscatConversion extends frontControllerApplication
 				catalogue_processed
 			WHERE
 				value LIKE '%{$likeBackslash}g%' ESCAPE '|'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with a 245 starting with a possible article
+	private function report_possiblearticle ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'possiblearticle' AS report,
+				id AS recordId
+			FROM
+				catalogue_marc
+			WHERE
+				bibcheckErrors LIKE '%may be an article%'
 		";
 		
 		# Return the query
