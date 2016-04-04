@@ -9721,7 +9721,7 @@ class muscatConversion extends frontControllerApplication
 		$query = "
 			SELECT
 				'statuscodeksderived' AS report,
-				id AS recordId
+				recordId
 			FROM catalogue_processed
 			WHERE
 				    field = 'ks'
