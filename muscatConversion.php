@@ -24,7 +24,6 @@ class muscatConversion extends frontControllerApplication
 		'locwithoutlocation_problem' => '*loc records where there is no *location',
 		'status_info' => 'records with a status field',
 		'multiplestatus_problem' => 'records with more than one *status field',
-		'coexistingksstatus_problem' => 'records with both a *ks status and a *status',
 		'statusparallel_problem' => 'records with *status = Parallel',
 		'statusglaciopams_info' => 'records with a *status field where the status is not GLACIOPAMS',
 		'statuslocationglaciopams_problem' => 'records with a *status field and *location where the status is not GLACIOPAMS',
@@ -81,6 +80,7 @@ class muscatConversion extends frontControllerApplication
 		'541ccombinations2_info' => 'records with combinations of multiple *fund/*kb/*sref values (for 541c), excluding sref+fund',
 		'unrecognisedks_problem' => 'records with unrecognised *ks values',
 		'malformedks_problem' => 'records with malformed *ks values',
+		'coexistingksstatus_problem' => 'records with both a *ks status and a *status',
 		'statuscodeksderived_info' => 'records with a cataloguing status code coming from *ks',
 		'offprints_info' => 'records that contain photocopy/offprint in *note/*local/*priv',
 		'duplicatedlocations_problem' => 'records with more than one identical location',
@@ -8139,27 +8139,6 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Records with both a *ks status and a *status; this report is to ensure that macro_cataloguingStatus loses no data, as it chooses one or the other
-	private function report_coexistingksstatus ()
-	{
-		# Define the query
-		$query = "
-			SELECT
-				'coexistingksstatus' AS report,
-				catalogue_processed.recordId AS recordId
-			FROM catalogue_processed
-			LEFT JOIN catalogue_processed AS cp_missing ON catalogue_processed.recordId = cp_missing.recordId AND cp_missing.field = 'status'
-			WHERE
-				    catalogue_processed.field = 'ks'
-				AND IF (INSTR(catalogue_processed.value,'[') > 0, LEFT(catalogue_processed.value,LOCATE('[',catalogue_processed.value) - 1), catalogue_processed.value) IN ('" . implode ("', '", $this->overloadedKsTokens) . "')
-				AND cp_missing.field IS NOT NULL
-		";
-		
-		# Return the query
-		return $query;
-	}
-	
-	
 	# Records with *status = Parallel
 	private function report_statusparallel ()
 	{
@@ -9707,6 +9686,27 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				    ExtractValue(xml, '//k/ks') LIKE '%MISSING%'
 				AND fieldslist REGEXP '@location@.*location@'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with both a *ks status and a *status; this report is to ensure that macro_cataloguingStatus loses no data, as it chooses one or the other
+	private function report_coexistingksstatus ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'coexistingksstatus' AS report,
+				catalogue_processed.recordId AS recordId
+			FROM catalogue_processed
+			LEFT JOIN catalogue_processed AS cp_missing ON catalogue_processed.recordId = cp_missing.recordId AND cp_missing.field = 'status'
+			WHERE
+				    catalogue_processed.field = 'ks'
+				AND IF (INSTR(catalogue_processed.value,'[') > 0, LEFT(catalogue_processed.value,LOCATE('[',catalogue_processed.value) - 1), catalogue_processed.value) IN ('" . implode ("', '", $this->overloadedKsTokens) . "')
+				AND cp_missing.field IS NOT NULL
 		";
 		
 		# Return the query
