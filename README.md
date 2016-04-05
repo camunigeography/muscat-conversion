@@ -35,13 +35,12 @@ Dependencies
 * [ultimateForm.php form library](http://download.geog.cam.ac.uk/projects/ultimateform/)
 * [xml.php XML support library](http://download.geog.cam.ac.uk/projects/xml/)
 * [FamFamFam Silk Icons set](http://www.famfamfam.com/lab/icons/silk/)
-* [ISBN-Tools](https://github.com/davemontalvo/ISBN-Tools/blob/master/isbn_tools.php)
 
 
 Author
 ------
 
-Martin Lucas-Smith, Department of Geography, University of Cambridge, 2012-15.
+Martin Lucas-Smith, Department of Geography, University of Cambridge, 2012-16.
 
 
 License
