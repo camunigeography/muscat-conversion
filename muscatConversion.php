@@ -9593,10 +9593,10 @@ class muscatConversion extends frontControllerApplication
 		$query = "
 			SELECT
 				'transliteratedenglish' AS report,
-				id AS recordId
+				recordId
 			FROM (
 				SELECT
-					id,
+					recordId,
 					title,
 					IF (INSTR(title_latin,'[') > 0, LEFT(title_latin,LOCATE('[',title_latin) - 1), title_latin) AS title_latin
 				FROM transliterations
