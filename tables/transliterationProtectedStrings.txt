@@ -245,6 +245,30 @@ Thysanoessa macrura
 Trichogrammatidae
 Trochodendraceae
 Tubiluchidae
+(Gertsch)
+Amaranthaceae
+Anostraca
+Anostraca
+Betulaceae
+Callipallenidae
+Cerambycidae
+cirripedia
+Coleophoridae
+Hesperiidae
+Isoetaceae
+Logomorpha
+Monhysterida
+Muridae
+Notostraca
+Notostraca
+Silphidae
+sphecidae
+Stichaeidae
+Synaptida
+Chiridotidae
+Trypanosomatidae
+Tubificidae
+Xyalidae
 
 # Chemical formulae
 Pb-Pb
@@ -269,6 +293,7 @@ Al₂O₃
 subsp.
 in vitro
 Gen. et sp. n.
+gen. et sp. n.
 sp. n.
 sp.n.
 vv.
