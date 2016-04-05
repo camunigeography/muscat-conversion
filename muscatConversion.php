@@ -3543,15 +3543,17 @@ class muscatConversion extends frontControllerApplication
 			}
 		}
 		
+		# At this point, all strings are known to be fixed strings, not regexps
+		
 		# Define a numbered token pattern consisting of a safe string not likely to be present in the data and which will not be affected by any transliteration operation
 		$pattern = '<||%i||>';	// %i represents an index that will be generated, e.g. ' <||367||> ', which acts as a token representing the value of $replacements[367]
 		
-		# Create a token for each protected part
+		# Create a token for each protected part; this is passed back by reference, for easy restoration
 		$protectedParts = array ();
 		$i = 0;
 		foreach ($replacements as $replacement) {
 			$key = str_replace ('%i', $i++, $pattern);
-			$protectedParts[$key] = $replacement;
+			$protectedParts[$key] = $replacement;	// e.g. '<||12||>' => 'Fungi'
 		}
 		
 		# Perform protection, by replacing with the numbered token
