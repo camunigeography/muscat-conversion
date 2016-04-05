@@ -641,7 +641,7 @@ class muscatConversion extends frontControllerApplication
 		$droplist[$frontpage] = '';
 		foreach ($this->reports as $report => $description) {
 			$link = $this->reportLink ($report);
-			$description = (strlen ($description) > 50 ? mb_substr ($description, 0, 50) . '...' : $description);	// Truncate
+			$description = (mb_strlen ($description) > 50 ? mb_substr ($description, 0, 50) . '...' : $description);	// Truncate
 			$droplist[$link] = ucfirst ($description) . ($this->isListing ($report) ? '' : ' (' . number_format ($counts[$report]) . ')');
 		}
 		
@@ -6306,7 +6306,7 @@ class muscatConversion extends frontControllerApplication
 		# Work through each leading article, and if a match is found, return the string length
 		foreach ($leadingArticles[$language] as $leadingArticle) {
 			if (preg_match ("/^{$leadingArticle}/i", $value)) {	// Case-insensitive match
-				return (string) strlen ($leadingArticle); // The space, if present, is part of the leading article definition itself
+				return (string) mb_strlen ($leadingArticle); // The space, if present, is part of the leading article definition itself
 			}
 		}
 		
@@ -6397,7 +6397,7 @@ class muscatConversion extends frontControllerApplication
 		/*
 		# ACTUALLY, this is not required, because a space in the text is the delimeter
 		# Arrange by longest-first
-		$sortByStringLength = create_function ('$a, $b', 'return strlen ($b) - strlen ($a);');
+		$sortByStringLength = create_function ('$a, $b', 'return mb_strlen ($b) - mb_strlen ($a);');
 		foreach ($leadingArticlesByLanguage as $language => $leadingArticles) {
 			usort ($leadingArticles, $sortByStringLength);	// Sort by string length
 			$leadingArticlesByLanguage[$language] = $leadingArticles;	// Overwrite list with newly-sorted list
@@ -7324,7 +7324,7 @@ class muscatConversion extends frontControllerApplication
 		# Sanity-checking test while developing
 		$expectedLength = 1;	// Manually needs to be changed to 3 for languageCodes -> Marc Code
 		foreach ($lookupTable as $entry => $values) {
-			if (strlen ($values[$field]) != $expectedLength) {
+			if (mb_strlen ($values[$field]) != $expectedLength) {
 				echo "<p class=\"warning\">In the {$table} definition, <em>{$entry}</em> for field <em>{$field}</em> has invalid syntax.</p>";
 				return NULL;
 			}

@@ -51,7 +51,7 @@ class generate008
 			$value .= $string;
 			
 			# Sanity-check that the string length is 40
-			$length = strlen ($string);
+			$length = mb_strlen ($string);
 			if ($length != $expectedLength) {
 				$error = "008 field " . (substr_count ($positions, '-') ? 'positions' : 'position') . " {$positions}: Length is {$length} but should be {$expectedLength}";
 				return false;
@@ -459,7 +459,7 @@ class generate008
 		if ($this->fieldContainsBoundedStart ('t', 'calendar')) {$stack .= '5';}
 		
 		# Truncate to 4 characters
-		if (strlen ($stack) > 4) {
+		if (mb_strlen ($stack) > 4) {
 			$stack = mb_substr ($stack, 0, 4);
 		}
 		
@@ -594,7 +594,7 @@ class generate008
 				if (preg_match ('/\binterview/i', $t)) {$stack .= 't';}
 				
 				# Truncate to 2 characters
-				if (strlen ($stack) > 2) {
+				if (mb_strlen ($stack) > 2) {
 					$stack = mb_substr ($stack, 0, 2);
 				}
 				
