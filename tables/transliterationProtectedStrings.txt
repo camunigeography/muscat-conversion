@@ -283,6 +283,15 @@ Laminaria saccharina (L.) Lamour
 Schreb.
 sciuridae
 canidae
+Verrill
+Liparidae
+Scorpaeniformes
+Thysanoessa spp.
+(Ohlert)
+(Gertsch)
+Cervus elaphus
+Studia Slavica Finlandensia
+Valenciennes
 
 # Chemical formulae
 Pb-Pb
@@ -311,6 +320,7 @@ gen. et sp. n.
 sp. n.
 sp.n.
 vv.
+Nomen est omen
 
 # Acronyms
 SWIPA
