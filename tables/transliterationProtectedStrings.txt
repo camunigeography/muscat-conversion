@@ -280,6 +280,9 @@ Ephelotidae
 Nephtyidae
 Teleostomi
 Laminaria saccharina (L.) Lamour
+Schreb.
+sciuridae
+canidae
 
 # Chemical formulae
 Pb-Pb
