@@ -292,6 +292,7 @@ Thysanoessa spp.
 Cervus elaphus
 Studia Slavica Finlandensia
 Valenciennes
+Phoca groenlandica
 
 # Chemical formulae
 Pb-Pb
