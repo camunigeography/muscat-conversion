@@ -6328,13 +6328,13 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Lookup table for leading articles in various languages; note that Russian has no leading articles; see: https://en.wikipedia.org/wiki/Article_%28grammar%29#Variation_among_languages
+	# Lookup table for leading articles in various languages; note that Russian has no leading articles; see useful list at: https://en.wikipedia.org/wiki/Article_(grammar)#Variation_among_languages
 	private function leadingArticles ()
 	{
 		# Define the leading articles
 		$leadingArticles = array (
 			'a ' => 'English glg Hungarian Portuguese',
-			'al-' => 'ara',
+			'al-' => 'ara',			// #!# Check what should happen for 245 field in /records/62926/ which is an English record but with Al- name at start of title
 			'an ' => 'English',
 			'ane ' => 'enm',
 			'das ' => 'German',
@@ -6364,7 +6364,7 @@ class muscatConversion extends frontControllerApplication
 			'het' => 'Dutch',
 			'ho ' => 'grc',
 			'il ' => 'Italian mlt',
-			'l ' => 'Catalan French Italian mlt',
+			"l'" => 'Catalan French Italian mlt',		// e.g. /records/4571/ ; Catalan checked in https://en.wikipedia.org/wiki/Catalan_grammar#Articles
 			'la ' => 'Catalan French Italian Spanish',
 			'las ' => 'Spanish',
 			'le ' => 'French Italian',
