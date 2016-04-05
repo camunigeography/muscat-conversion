@@ -103,6 +103,7 @@ class muscatConversion extends frontControllerApplication
 		'emptyauthorcontainers_problem' => "records with empty author containers",
 		'backslashg_problem' => 'records with \g remaining',
 		'possiblearticle_problem' => 'records with a 245 starting with a possible article',
+		'bracketednfcount_problem' => 'records with a bracketed title starting with a leading article, for checking the nfcount',
 	);
 	
 	# Listing (values) reports
@@ -6300,6 +6301,8 @@ class muscatConversion extends frontControllerApplication
 		# If no language specified, choose 'English'
 		if (!strlen ($language)) {$language = 'English';}
 		
+		#!# Need to handle the scenario of a title (*t/*to/*tc ?) starting with a bracket but the language is not English, as it may be that the bracket indicates the string is English; see /reports/bracketednfcount/
+		
 		# End if the language is not in the list of leading articles
 		if (!isSet ($leadingArticles[$language])) {return '0';}
 		
@@ -6329,7 +6332,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Lookup table for leading articles in various languages; note that Russian has no leading articles; see useful list at: https://en.wikipedia.org/wiki/Article_(grammar)#Variation_among_languages
-	private function leadingArticles ()
+	private function leadingArticles ($groupByLanguage = true)
 	{
 		# Define the leading articles
 		$leadingArticles = array (
@@ -6384,6 +6387,11 @@ class muscatConversion extends frontControllerApplication
 			'uno ' => 'Italian',
 			'y ' => 'wel',
 		);
+		
+		# End if not required to group by language
+		if (!$groupByLanguage) {
+			return $leadingArticles;
+		}
 		
 		# Process the list, tokenising by language
 		$leadingArticlesByLanguage = array ();
@@ -9808,6 +9816,29 @@ class muscatConversion extends frontControllerApplication
 				catalogue_marc
 			WHERE
 				bibcheckErrors LIKE '%may be an article%'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with a bracketed title starting with a leading article, for checking the nfcount; this is to try to deal with the issue that titles starting [ but the language of the record is not in English
+	#!# Check for *to and *tc too?
+	private function report_bracketednfcount ()
+	{
+		# Get the leading articles list, indexed by language
+		$leadingArticles = $this->leadingArticles ($groupByLanguage = false);
+		
+		# Define the query
+		$query = "
+			SELECT
+				'bracketednfcount' AS report,
+				id AS recordId
+			FROM catalogue_xml
+			WHERE
+				    ExtractValue(xml, '/*/tg/t') LIKE '[%'
+				AND ExtractValue(xml, '/*/tg/t') REGEXP \"" . '^' . '\\\\[' . '(' . implode ('|', array_keys ($leadingArticles)) . ')' . "\"
 		";
 		
 		# Return the query
