@@ -5905,7 +5905,7 @@ class muscatConversion extends frontControllerApplication
 	# Macro to upper-case the first character
 	private function macro_ucfirst ($value, $xml)
 	{
-		return ucfirst ($value);
+		return mb_ucfirst ($value);
 	}
 	
 	
@@ -7483,7 +7483,7 @@ class muscatConversion extends frontControllerApplication
 		# Strip from start if present
 		$list = implode ('|', $leadingArticles[$language]);
 		$string = preg_replace ("/^({$list})(.+)$/i", '\2', $string);	// e.g. /records/3075/ , /records/3324/
-		$string = ucfirst ($string);
+		$string = mb_ucfirst ($string);
 		
 		# Return the amended string
 		return $string;
