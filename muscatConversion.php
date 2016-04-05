@@ -7482,7 +7482,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Strip from start if present
 		$list = implode ('|', $leadingArticles[$language]);
-		$string = preg_replace ("/^((?:{$list}))(.+)$/i", '\2', $string);
+		$string = preg_replace ("/^({$list})(.+)$/i", '\2', $string);	// e.g. /records/3075/ , /records/3324/
 		$string = ucfirst ($string);
 		
 		# Return the amended string
