@@ -6305,8 +6305,8 @@ class muscatConversion extends frontControllerApplication
 		
 		# Work through each leading article, and if a match is found, return the string length
 		foreach ($leadingArticles[$language] as $leadingArticle) {
-			if (preg_match ("/^{$leadingArticle} /i", $value)) {	// Case-insensitive match
-				return (string) (strlen ($leadingArticle) + 1); // Include the space
+			if (preg_match ("/^{$leadingArticle}/i", $value)) {	// Case-insensitive match
+				return (string) strlen ($leadingArticle); // The space, if present, is part of the leading article definition itself
 			}
 		}
 		
@@ -6333,56 +6333,56 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Define the leading articles
 		$leadingArticles = array (
-			'a' => 'English glg Hungarian Portuguese',
+			'a ' => 'English glg Hungarian Portuguese',
 			'al-' => 'ara',
-			'an' => 'English',
-			'ane' => 'enm',
-			'das' => 'German',
-			'de' => 'Danish Swedish',
-			'dem' => 'German',
-			'den' => 'Danish German Swedish',
-			'der' => 'German',
-			'det' => 'Danish German Swedish',
-			'die' => 'German',
-			'een' => 'Dutch',
-			'ei' => 'Norwegian',
-			'ein' => 'German Norwegian',
-			'eine' => 'German',
-			'einem' => 'German',
-			'einen' => 'German',
-			'einer' => 'German',
-			'eines' => 'German',
-			'eit' => 'Norwegian',
-			'el' => 'Spanish',
-			'els' => 'Catalan',
-			'en' => 'Danish Norwegian Swedish',
-			'et' => 'Danish Norwegian',
-			'ett' => 'Swedish',
-			'gl' => 'Italian',
-			'gli' => 'Italian',
-			'ha' => 'Hebrew',
+			'an ' => 'English',
+			'ane ' => 'enm',
+			'das ' => 'German',
+			'de ' => 'Danish Swedish',
+			'dem ' => 'German',
+			'den ' => 'Danish German Swedish',
+			'der ' => 'German',
+			'det ' => 'Danish German Swedish',
+			'die ' => 'German',
+			'een ' => 'Dutch',
+			'ei ' => 'Norwegian',
+			'ein ' => 'German Norwegian',
+			'eine ' => 'German',
+			'einem ' => 'German',
+			'einen ' => 'German',
+			'einer ' => 'German',
+			'eines ' => 'German',
+			'eit ' => 'Norwegian',
+			'el ' => 'Spanish',
+			'els ' => 'Catalan',
+			'en ' => 'Danish Norwegian Swedish',
+			'et ' => 'Danish Norwegian',
+			'ett ' => 'Swedish',
+			'gl ' => 'Italian',
+			'gli ' => 'Italian',
+			'ha ' => 'Hebrew',
 			'het' => 'Dutch',
-			'ho' => 'grc',
-			'il' => 'Italian mlt',
-			'l' => 'Catalan French Italian mlt',
-			'la' => 'Catalan French Italian Spanish',
-			'las' => 'Spanish',
-			'le' => 'French Italian',
-			'les' => 'Catalan French',
-			'lo' => 'Italian Spanish',
-			'los' => 'Spanish',
-			'os' => 'Portuguese',
+			'ho ' => 'grc',
+			'il ' => 'Italian mlt',
+			'l ' => 'Catalan French Italian mlt',
+			'la ' => 'Catalan French Italian Spanish',
+			'las ' => 'Spanish',
+			'le ' => 'French Italian',
+			'les ' => 'Catalan French',
+			'lo ' => 'Italian Spanish',
+			'los ' => 'Spanish',
+			'os ' => 'Portuguese',
 			#!# Codes still present
-			'ta' => 'grc',
-			'ton' => 'grc',
-			'the' => 'English',
-			'um' => 'Portuguese',
-			'uma' => 'Portuguese',
-			'un' => 'Catalan Spanish French Italian',
-			'una' => 'Catalan Spanish Italian',
-			'une' => 'French',
-			'uno' => 'Italian',
-			'y' => 'wel',
+			'ta ' => 'grc',
+			'ton ' => 'grc',
+			'the ' => 'English',
+			'um ' => 'Portuguese',
+			'uma ' => 'Portuguese',
+			'un ' => 'Catalan Spanish French Italian',
+			'una ' => 'Catalan Spanish Italian',
+			'une ' => 'French',
+			'uno ' => 'Italian',
+			'y ' => 'wel',
 		);
 		
 		# Process the list, tokenising by language
@@ -7482,7 +7482,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Strip from start if present
 		$list = implode ('|', $leadingArticles[$language]);
-		$string = preg_replace ("/^((?:{$list}) )(.+)$/i", '\2', $string);
+		$string = preg_replace ("/^((?:{$list}))(.+)$/i", '\2', $string);
 		$string = ucfirst ($string);
 		
 		# Return the amended string
