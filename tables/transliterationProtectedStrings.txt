@@ -183,6 +183,56 @@ Diurna
 Macrolepidoptera
 Syrphidae
 Simuliidae
+anaidacea
+Asparagaceae
+Boraginaceae
+Brassicaceae
+calanoida
+capsalidae
+Carabidae
+Charadiidae
+Clinopegma
+Coccoidea
+crustacean
+Dalyellioida
+Dermestidae
+diaptomidae
+Flustrellidridae
+Gammaridea
+glacialis
+Gonatidae
+Gymnolaemata
+Halocyprididae
+Iridaceae
+Lycosidae
+Lymantriidae
+Lymnaeidae
+Lysianassidae
+Mammalia
+monogenea
+Oppiidae
+Orchidaceae
+Phoridae
+Poaceae
+Polychateta
+Priapulomorpha
+Pselaphidae
+Pulmonata
+Reduviidae
+Salmonidae
+Scolecithricidae
+Sectio Acutae
+Sertulariidae
+Sphaerodoridae
+Spionidae
+Spirorbidae
+Tetrigidae
+Thecaphora
+Thoracica
+Thysanoessa macrura
+Trichogrammatidae
+Trochodendraceae
+Tubiluchidae
 
 # Chemical formulae
 Pb-Pb
