@@ -6305,7 +6305,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Work through each leading article, and if a match is found, return the string length
 		foreach ($leadingArticles[$language] as $leadingArticle) {
-			if (preg_match ("/^(\[?{$leadingArticle}['\"]*)/i", $value, $matches)) {	// Case-insensitive match; Incorporate starting brackets in the consideration and the count (e.g. /records/27894/ ); Include known trailing punctuation within the count (e.g. /records/1325/ , /records/10366/ ) as per http://www.library.yale.edu/cataloging/music/filing.htm#ignore
+			if (preg_match ("/^(['\"\[]*{$leadingArticle}['\"]*)/i", $value, $matches)) {	// Case-insensitive match; Incorporate starting brackets in the consideration and the count (e.g. /records/27894/ ); Include known starting/trailing punctuation within the count (e.g. /records/11329/ , /records/1325/ , /records/10366/ ) as per http://www.library.yale.edu/cataloging/music/filing.htm#ignore
 				return (string) mb_strlen ($matches[1]); // The space, if present, is part of the leading article definition itself
 			}
 		}
