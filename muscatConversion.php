@@ -3580,10 +3580,10 @@ class muscatConversion extends frontControllerApplication
 		$speciesNames = $this->oneColumnTableToList ('transliterationProtectedStrings.txt');
 		$replacements = array_merge ($replacements, $speciesNames);
 		
-		# Protect Roman numerals, by defining dynamic replacement patterns
+		# Protect Roman numerals, by defining dynamic replacement patterns; note that standard latin characters rather than 'real' Unicode symbols are used, as per the recommendation in the Unicode standard - see: https://en.wikipedia.org/wiki/Numerals_in_Unicode#Roman_numerals_in_Unicode
 		#!# There is still the potential for "Volume I." at the end of a sentence, but that I. cannot be disambiguated from I. as an initial
-		$replacements[] = '/' . '(?:\s|\(|^)' . '[IVXLCDM]+[-IVXLCDM]*' . '(?:\s|\)|$)' . '/';
-		$replacements[] = '/' . '(?:\s|\(|^)' . '[IVXLCDM]+[-IVXLCDM]+' . '(?:\s|\)|$|\.)' . '/';	// Allow space if more than one; e.g. /records/144193/ which includes "Dactylopteriformes. - XXXVII."
+		$replacements[] = '/' . '(?:^|\s|\()' . '[IVXLCDM]+[-IVXLCDM]*' . '(?:$|\s|\))' . '/';
+		$replacements[] = '/' . '(?:^|\s|\()' . '[IVXLCDM]+[-IVXLCDM]+' . '(?:$|\s|\)|\.)' . '/';	// Allow space if more than one; e.g. /records/144193/ which includes "Dactylopteriformes. - XXXVII."
 		
 		# Cache
 		$this->transliterationProtectedStrings = $replacements;
