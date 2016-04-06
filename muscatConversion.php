@@ -2704,6 +2704,30 @@ class muscatConversion extends frontControllerApplication
 		# Add a field to store the original pre-transliteration value
 		$sql = "ALTER TABLE catalogue_processed ADD preTransliterationUpgradeValue TEXT NULL DEFAULT NULL COMMENT 'Value before transliteration changes' AFTER value;";
 		$this->databaseConnection->execute ($sql);
+		
+		# Add a field showing the record language (first language)
+		$sql = "ALTER TABLE catalogue_processed ADD recordLanguage VARCHAR(255) NULL DEFAULT NULL COMMENT 'Record language (first language)' AFTER preTransliterationUpgradeValue;";
+		$this->databaseConnection->execute ($sql);
+		
+		# Set the record language (first language) for *t
+		$sql = "UPDATE catalogue_processed
+			LEFT JOIN (
+			    SELECT
+			        recordId,
+			        SUBSTRING_INDEX(languages, ',', 1) AS firstLanguage
+			    FROM (
+			        SELECT
+			            recordId,
+			            GROUP_CONCAT(value) AS languages
+			        FROM catalogue_rawdata
+			        WHERE field = 'lang'
+			        GROUP BY recordId
+					) AS recordLanguages
+				) AS firstLanguages
+				ON firstLanguages.recordId = catalogue_processed.recordId
+			SET catalogue_processed.recordLanguage = firstLanguage
+			WHERE field IN ('t');";
+		$this->databaseConnection->execute ($sql);
 	}
 	
 	
