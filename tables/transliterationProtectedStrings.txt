@@ -293,6 +293,36 @@ Cervus elaphus
 Studia Slavica Finlandensia
 Valenciennes
 Phoca groenlandica
+Phaeophyta
+Fucales
+Lophocoleineae
+Ricciaceae
+Syperaceae
+Caryophyllaceae
+Parasitiformes
+Gamasoidea
+Cerambycidaė
+Nymphaeaceae
+Hippuridaceae
+(Blumenbach)
+truncatum Р.
+(A. Milne-Edwards et Lucas)
+(Claus)
+(Boeck)
+(Turn)
+Phaeophyta
+Fucales
+Bivalvia
+Palaeonemertini
+Tubulanidae
+hynobius keyserlingii
+Euphausia superba Dana
+Corollospora Werdermann
+Chromadoria
+Desmodorida
+Spiriniidae
+(Pallas)
+
 
 # Chemical formulae
 Pb-Pb
@@ -336,6 +366,7 @@ SO₂
 HClO₄.5 1/2H₂O
 Rb-Sr
 D₂O
+Ag
 
 # Latin abbreviations and phrases
 subsp.
