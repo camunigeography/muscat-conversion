@@ -312,6 +312,30 @@ D/H
 Cl⁻
 Al₂O₃
 ¹⁰Be
+Pb
+Sb
+Pt₆Cl₁₂
+AS₁₁
+HClO₄.5 1/2H₂O
+N(h)
+F
+PQ-QP
+⁸⁷Sr/⁸⁶Sr
+U-Pb
+H₂O--CO₂--NaCl
+Sm-Nd
+pH
+Sr
+Nd
+Sm-Nd-, Rb-Sr, K-Ar-
+Rb/Sr
+137Cs
+90Sr
+²³⁰Th/U-
+SO₂
+HClO₄.5 1/2H₂O
+Rb-Sr
+D₂O
 
 # Latin abbreviations and phrases
 subsp.
