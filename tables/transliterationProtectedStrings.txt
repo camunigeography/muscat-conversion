@@ -306,7 +306,6 @@ Nymphaeaceae
 Hippuridaceae
 (Blumenbach)
 truncatum Р.
-(A. Milne-Edwards et Lucas)
 (Claus)
 (Boeck)
 (Turn)
@@ -322,7 +321,33 @@ Chromadoria
 Desmodorida
 Spiriniidae
 (Pallas)
-
+Lin.
+Fabr.
+Pall.
+Phocinae
+Physeter catodon L.
+Hedw.
+Gornacuspongida
+Polypodiaceae
+Butomaceae
+Lemnaceae
+Orchidaceae
+Octocorallia
+Hexacorallia
+Empetrum
+Simuliidae
+Mystacoceti
+Pagophoca
+groenlandica
+Card.
+Bryhn
+Fuernr.
+Acrosporaceae
+Cervus Elaphus L
+Teleostomi
+Percoidei
+Serranidae
+Champsodontidae
 
 # Chemical formulae
 Pb-Pb
@@ -377,6 +402,8 @@ sp. n.
 sp.n.
 vv.
 Nomen est omen
+gen.
+et
 
 # Acronyms
 SWIPA
@@ -386,6 +413,13 @@ GIS
 EURASTRENCOLD
 SNOWPACK
 ARCOP
+S.O.S.
+
+# Names
+Hook. fil. et Wils.
+Br et Sch.
+(A. Milne-Edwards et Lucas)
+Sav.-Lyub. et Z. Smirn.
 
 # Organisation names
 Congressus Octavus Internationalis Fenno-Ugristarum
@@ -396,3 +430,4 @@ No.
 studia
 juvenalia
 [electronic resource]
+
