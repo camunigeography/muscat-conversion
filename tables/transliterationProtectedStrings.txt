@@ -348,6 +348,32 @@ Teleostomi
 Percoidei
 Serranidae
 Champsodontidae
+Onychiuridae
+Cerambycidae
+With.
+Crosskey
+Simuliidae
+Simuliidae
+Parasitiformes
+Gamasoidea
+et Bogd.
+Syperaceae
+Nymphaeaceae
+Hippuridaceae
+Geraniaceae
+Scrophulariaceae
+daphniidae
+bozminidae
+Diurna
+Syrphidae
+Orchidaceae
+Scarlato sp. nov
+Boeck
+(Turn)
+Phaeophyta
+Fucales
+Droseraceae
+Chordata
 
 # Chemical formulae
 Pb-Pb
@@ -418,6 +444,7 @@ S.O.S.
 # Names
 Hook. fil. et Wils.
 Br et Sch.
+A. Milne-Edwards et Lucas
 (A. Milne-Edwards et Lucas)
 Sav.-Lyub. et Z. Smirn.
 
