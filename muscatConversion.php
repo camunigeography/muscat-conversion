@@ -3579,7 +3579,7 @@ class muscatConversion extends frontControllerApplication
 		$replacements = array_merge ($replacements, array_values ($this->getSpeciesOrderNames ()));
 		
 		# Protect species names, chemical formulae, latin abbreviations, and other strings
-		$speciesNames = $this->oneColumnTableToList ('transliterationProtectedStrings.txt');
+		$speciesNames = $this->oneColumnTableToList ('transliterationProtectedStrings.txt', true);
 		$replacements = array_merge ($replacements, $speciesNames);
 		
 		# Protect Roman numerals, by defining dynamic replacement patterns; note that standard latin characters rather than 'real' Unicode symbols are used, as per the recommendation in the Unicode standard - see: https://en.wikipedia.org/wiki/Numerals_in_Unicode#Roman_numerals_in_Unicode
@@ -3596,7 +3596,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Helper function to process a list file to an array
-	private function oneColumnTableToList ($filename)
+	private function oneColumnTableToList ($filename, $longerFirst = true)
 	{
 		# Process the file
 		$lookupTable = file_get_contents ($this->applicationRoot . '/tables/' . $filename);
@@ -3609,6 +3609,11 @@ class muscatConversion extends frontControllerApplication
 			if (!strlen (trim ($line)) || preg_match ('/^#/', $line)) {unset ($result[$index]);}
 		}
 		$result = array_values ($result);	// Reindex
+		
+		# If required, order the values so that longer values come first, making it safe for multiple replacements
+		if ($longerFirst) {
+			rsort ($result, SORT_NATURAL | SORT_FLAG_CASE);		// Case-insensitive searching - not actually necessary, just nicer for debugging
+		}
 		
 		# Return the list
 		return $result;
