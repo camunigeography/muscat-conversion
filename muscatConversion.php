@@ -3556,8 +3556,16 @@ class muscatConversion extends frontControllerApplication
 			$protectedParts[$key] = $replacement;	// e.g. '<||12||>' => 'Fungi'
 		}
 		
+		# Convert each pattern to be word-boundary -based; the word boundary has to be defined manually rather than using \b because some strings start/end with a bracket
+		$replacements = array ();
+		$delimiter = '/';
+		foreach ($protectedParts as $replacementToken => $fixedString) {
+			$search = $delimiter . '(^|\s|\()' . preg_quote ($fixedString, $delimiter) . '($|\s|\)|\.|-)' . $delimiter;
+			$replacements[$search] = '\1' . $replacementToken . '\2';	// \1 and \2 are the word boundary strings (e.g. a space) which need to be restored
+		}
+		
 		# Perform protection, by replacing with the numbered token
-		$string = strtr ($string, array_flip ($protectedParts));
+		$string = preg_replace (array_keys ($replacements), array_values ($replacements), $string);
 		
 		# Return the protected string
 		return $string;
