@@ -41,6 +41,64 @@
 
 
 	<rule>
+		<from>Khantyysk</from>
+		<to>Хантыйск</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>khantyysk</from>
+		<to>хантыйск</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Oyyasio</from>
+		<to>Ойясио</to>
+	</rule>
+	<rule>
+		<!-- /records/158347/ has fully-capitalised word -->
+		<from>ZH</from>
+		<to>Ж</to>
+	</rule>
+	<rule>
+		<from>otsek</from>
+		<to>отсек</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>udeg</from>
+		<to>удэг</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Udeg</from>
+		<to>Удэг</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>ayn</from>
+		<to>айн</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Ayn</from>
+		<to>Айн</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
 		<from>y</from>
 		<to>й</to>
 		<context>
