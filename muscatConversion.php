@@ -104,6 +104,7 @@ class muscatConversion extends frontControllerApplication
 		'backslashg_problem' => 'records with \g remaining',
 		'possiblearticle_problem' => 'records with a 245 starting with a possible article',
 		'bracketednfcount_problem' => 'records with a bracketed title starting with a leading article, for checking the nfcount',
+		'russianldottitles_problem' => 'records (Russian) with L. in title to be checked individually, possibly resolving post-migration',
 	);
 	
 	# Listing (values) reports
@@ -9895,6 +9896,26 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				    ExtractValue(xml, '/*/tg/t') LIKE '[%'
 				AND ExtractValue(xml, '/*/tg/t') REGEXP \"" . '^' . '\\\\[' . '(' . implode ('|', array_keys ($leadingArticles)) . ')' . "\"
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records (Russian) with L. in title to be checked individually, possibly resolving post-migration; this is to check whether this is an initial of a name or L. for Linnaeus
+	private function report_russianldottitles ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'russianldot' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field = 't'
+				AND value LIKE BINARY '%L.%'
+				AND recordLanguage = 'Russian'
 		";
 		
 		# Return the query
