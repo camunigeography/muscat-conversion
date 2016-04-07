@@ -3356,7 +3356,8 @@ class muscatConversion extends frontControllerApplication
 		# Obtain the raw values
 		$data = $this->databaseConnection->selectPairs ($this->settings['database'], 'transliterations', array (), array ('id', 'title_latin'));
 		
-		# Transliterate the strings; this has to be done manually because the batcher is not safe for protected strings
+		# Transliterate the strings (takes around 20 minutes); this has to be done string-by-string because the batcher is not safe for protected strings
+		#!# This may now be safely batchable following introduction of word-boundary protection algorithm in b5265809a8dca2a1a161be2fcc26c13c926a0cda
 		#!# The same issue about crosstalk in unsafe batching presumably applies to line-by-line conversions, i.e. C (etc.) will get translated later in the same line; need to check on this
 		$language = 'Russian';
 		$dataTransliterated = array ();
@@ -3364,10 +3365,10 @@ class muscatConversion extends frontControllerApplication
 			$dataTransliterated[$id] = $this->transliterateBgnLatinToCyrillic ($string, $language);
 		}
 		
-		# Do a comparison check by forward-transliterating the generated Cyrillic
+		# Do a comparison check by forward-transliterating the generated Cyrillic (takes around 15 seconds)
 		$forwardBgnTransliterations = $this->batchTransliterateStrings ($dataTransliterated, 'transliterateCyrillicToBgnLatin');
 		
-		# Add new Library of Congress (LoC) transliteration from the generated Cyrillic
+		# Add new Library of Congress (LoC) transliteration from the generated Cyrillic (takes around 1 second)
 		$forwardLocTransliterations = $this->batchTransliterateStrings ($dataTransliterated, 'transliterateCyrillicToLocLatin');
 		
 		# Compile the conversions
@@ -3381,7 +3382,7 @@ class muscatConversion extends frontControllerApplication
 			);
 		}
 		
-		# Insert the data
+		# Insert the data (takes around 15 seconds)
 		$this->databaseConnection->updateMany ($this->settings['database'], 'transliterations', $conversions, $chunking = 5000);
 		
 		# Signal success
@@ -5644,8 +5645,9 @@ class muscatConversion extends frontControllerApplication
 				return false;
 			}
 			
-			# Perform transliteration to regenerate the transliterations report
-			$this->transliterateTransliterationsTable ();
+			# Regenerate the transliterations report /reports/transliterations/
+			// ini_set ('max_execution_time', 0);
+			// $this->transliterateTransliterationsTable ();
 			
 			# Set a flash message
 			$function = __FUNCTION__;
