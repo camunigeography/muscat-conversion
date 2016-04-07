@@ -513,14 +513,14 @@
 		<from>ey</from>
 		<to>ей</to>
 		<context>
-			<after>\b</after>
+			<before>\b</before>
 		</context>
 	</rule>
 	<rule>
 		<from>Ey</from>
 		<to>Ей</to>
 		<context>
-			<after>\b</after>
+			<before>\b</before>
 		</context>
 	</rule>
 
