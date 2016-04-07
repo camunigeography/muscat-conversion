@@ -41,6 +41,14 @@
 
 
 	<rule>
+		<from>y</from>
+		<to>й</to>
+		<context>
+			<after>-</after>
+			<before>\b</before>
+		</context>
+	</rule>
+	<rule>
 		<from>Greem</from>
 		<to>Греэма</to>
 		<context>
