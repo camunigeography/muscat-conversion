@@ -3569,11 +3569,25 @@ class muscatConversion extends frontControllerApplication
 		
 		# At this point, all strings are known to be fixed strings, not regexps
 		
+		# For performance reasons, reduce complexity of the preg_replace below by doing a basic substring match first
+		foreach ($replacements as $index => $replacement) {
+			if (!substr_count ($string, $replacement)) {
+				unset ($replacements[$index]);
+			}
+		}
+		
+		# Initialise a list of protected parts, which will be passed back by reference
+		$protectedParts = array ();
+		
+		# If no replacements, return the string unmodified
+		if (!$replacements) {
+			return $string;
+		}
+		
 		# Define a numbered token pattern consisting of a safe string not likely to be present in the data and which will not be affected by any transliteration operation
 		$pattern = '<||%i||>';	// %i represents an index that will be generated, e.g. ' <||367||> ', which acts as a token representing the value of $replacements[367]
 		
 		# Create a token for each protected part; this is passed back by reference, for easy restoration
-		$protectedParts = array ();
 		$i = 0;
 		foreach ($replacements as $replacement) {
 			$key = str_replace ('%i', $i++, $pattern);
