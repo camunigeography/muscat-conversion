@@ -41,6 +41,20 @@
 
 
 	<rule>
+		<from>uyti</from>
+		<to>уйти</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Uyti</from>
+		<to>Уйти</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
 		<from>uyl'tta</from>
 		<to>уйльт</to>
 		<context>
