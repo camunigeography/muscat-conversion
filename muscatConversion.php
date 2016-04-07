@@ -3599,7 +3599,8 @@ class muscatConversion extends frontControllerApplication
 		$replacements = array ();
 		$delimiter = '/';
 		foreach ($protectedParts as $replacementToken => $fixedString) {
-			$search = $delimiter . '(^|\s|\()' . preg_quote ($fixedString, $delimiter) . '($|\s|\)|\.|-)' . $delimiter;
+			#!# Hyphen in post- word boundary needs review
+			$search = $delimiter . '(^|\s|\()' . preg_quote ($fixedString, $delimiter) . '($|\s|\)|\.|-|,)' . $delimiter;
 			$replacements[$search] = '\1' . $replacementToken . '\2';	// \1 and \2 are the word boundary strings (e.g. a space) which need to be restored
 		}
 		
