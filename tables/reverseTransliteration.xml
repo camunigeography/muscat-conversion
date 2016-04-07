@@ -41,6 +41,13 @@
 
 
 	<rule>
+		<from>uyl'tta</from>
+		<to>уйльт</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
 		<from>Uyl'ta</from>
 		<to>Уйльта</to>
 		<context>
