@@ -41,6 +41,34 @@
 
 
 	<rule>
+		<from>Uyl'ta</from>
+		<to>Уйльта</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Nefteeks</from>
+		<to>Нефтеэкс</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>yakhtsmen</from>
+		<to>яхтсмен</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Eles</from>
+		<to>Элэс</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
 		<from>Khantyysk</from>
 		<to>Хантыйск</to>
 		<context>
