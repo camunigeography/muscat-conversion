@@ -10439,9 +10439,9 @@ class muscatConversion extends frontControllerApplication
 		# Render as HTML; records already may contain tags
 		$tableHeadingSubstitutions = array (
 			'recordId' => '#',
-			'title' => 'Voyager (Cyrillic)',
-			'title_latin' => 'Muscat (transliteration)',
-			'title_loc' => 'Library of Congress Cyrillic',
+			'title' => 'Generated BGN/PCGN Cyrillic',
+			'title_latin' => 'Muscat (transliteration, as entered)',
+			'title_loc' => 'Library of Congress Cyrillic (Voyager)',
 		);
 		$html  = application::htmlTable ($data, $tableHeadingSubstitutions, 'lines', $keyAsFirstColumn = false, false, $allowHtml = true, false, false, false, array (), $compress = true);
 		
