@@ -41,6 +41,19 @@
 
 
 	<rule>
+		<from>Ayon</from>
+		<to>Айон</to>
+	</rule>
+	<rule>
+		<!-- Yakut -->
+		<from>eyaki</from>
+		<to>эяки</to>
+		<context>
+			<after>\b</after>
+			<before>\b</before>
+		</context>
+	</rule>
+	<rule>
 		<from>Ykhmifa</from>
 		<to>Ыхмифа</to>
 	</rule>
@@ -428,8 +441,8 @@
 		</context>
 	</rule>
 	<rule>
-		<from>Vilyuysk</from>
-		<to>Вилюйск</to>
+		<from>Vilyuy</from>
+		<to>Вилюй</to>
 		<context>
 			<after>\b</after>
 		</context>
