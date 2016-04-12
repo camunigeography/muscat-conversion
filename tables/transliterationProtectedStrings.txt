@@ -432,7 +432,6 @@ vv.
 Nomen est omen
 gen.
 et
-Studia
 
 # Acronyms
 SWIPA
@@ -458,6 +457,7 @@ Congressus Octavus Internationalis Fenno-Ugristarum
 WWGS-89
 No.
 studia
+Studia
 juvenalia
 [electronic resource]
-
+Porosymposiumi Rovaniemellä
