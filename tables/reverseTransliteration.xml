@@ -41,6 +41,21 @@
 
 
 	<rule>
+		<from>Ykhmifa</from>
+		<to>Ыхмифа</to>
+	</rule>
+	<rule>
+		<from>Buynitskiy</from>
+		<to>Буйницкий</to>
+	</rule>
+	<rule>
+		<from>eyyu</from>
+		<to>ею</to>
+		<context>
+			<before>\b</before>
+		</context>
+	</rule>
+	<rule>
 		<from>posts</from>
 		<to>постс</to>
 		<context>
