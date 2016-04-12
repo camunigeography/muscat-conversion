@@ -41,6 +41,54 @@
 
 
 	<rule>
+		<from>chukotsk</from>
+		<to>чукотск</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>drevneesk</from>
+		<to>древнеэск</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Ueddell</from>
+		<to>Уэдделл</to>
+	</rule>
+	<rule>
+		<from>Eyts</from>
+		<to>Эйц</to>
+	</rule>
+	<rule>
+		<from>Meri</from>
+		<to>Мэри</to>
+		<context>
+			<before>\b</before>
+		</context>
+	</rule>
+	<rule>
+		<!-- Yakut -->
+		<from>Kepseennere</from>
+		<to>кэпсээннэрэ</to>
+	</rule>
+	<rule>
+		<from>Uelen</from>
+		<to>Уэлен</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Greem</from>
+		<to>Греэм</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
 		<from>uyti</from>
 		<to>уйти</to>
 		<context>
