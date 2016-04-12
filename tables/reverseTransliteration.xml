@@ -702,10 +702,6 @@
 		<to>тся</to>
 	</rule>
 	<rule>
-		<from>tsk</from>
-		<to>тск</to>
-	</rule>
-	<rule>
 		<from>tshch</from>
 		<to>тщ</to>
 	</rule>
