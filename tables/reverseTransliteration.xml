@@ -41,6 +41,72 @@
 
 
 	<rule>
+		<from>posts</from>
+		<to>постс</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<!-- Yakut -->
+		<from>kivvech</from>
+		<to>киввэч</to>
+	</rule>
+	<rule>
+		<from>pozdneeotsen</from>
+		<to>позднеэоцен</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Yuchyugey Yudyugyuyen, Kusagan Khodzhugur</from>
+		<to>Ючюгэй Юдюгюйэн, Кусаган Ходжугур</to>
+	</rule>
+	<rule>
+		<from>Yuchyugey Yudyugyuyen, Kusagan Khodzhugur</from>
+		<to>Ючюгэй Юдюгюйэн, Кусаган Ходжугур</to>
+	</rule>
+	<rule>
+		<from>Uchugey Uod'ugyeen, Kuhagan Khod'ugur</from>
+		<to>Yчyгэй Уодьyгyйээн, Кучабан ходьугур</to>
+	</rule>
+	<rule>
+		<from>Bayanay</from>
+		<to>Байанай</to>
+	</rule>
+	<rule>
+		<from>Nefteeksport</from>
+		<to>Нефтеэкспорт</to>
+	</rule>
+	<rule>
+		<!-- Yakut -->
+		<from>Öksökuleekh Ölöksöy</from>
+		<to>Өксөкүлээх Өлөксөй</to>
+	</rule>
+	<rule>
+		<!-- Yakut -->
+		<from>Öksökuleekh Ölöksöy</from>
+		<to>Өксөкүлээх Өлөксөй</to>
+	</rule>
+	<rule>
+		<from>Ystatyyalar</from>
+		<to>Ыстатыйалар</to>
+	</rule>
+	<rule>
+		<!-- Yakut -->
+		<from>ete</from>
+		<to>этэ</to>
+		<context>
+			<after>\b</after>
+			<before>\b</before>
+		</context>
+	</rule>
+	<rule>
+		<from>epseennere</from>
+		<to>эпсээннэр</to>
+	</rule>
+	<rule>
 		<from>chukotsk</from>
 		<to>чукотск</to>
 		<context>

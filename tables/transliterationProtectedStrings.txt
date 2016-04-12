@@ -432,6 +432,7 @@ vv.
 Nomen est omen
 gen.
 et
+Studia
 
 # Acronyms
 SWIPA
