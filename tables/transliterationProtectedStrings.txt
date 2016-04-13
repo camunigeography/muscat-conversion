@@ -442,7 +442,10 @@ EURASTRENCOLD
 SNOWPACK
 ARCOP
 S.O.S.
+SOS
 RTL
+JESUP
+ACSYS
 
 # Names
 Hook. fil. et Wils.
@@ -453,6 +456,7 @@ Sav.-Lyub. et Z. Smirn.
 
 # Organisation names
 Congressus Octavus Internationalis Fenno-Ugristarum
+Linguistica Uralica
 
 # Other strings to protect
 WWGS-89
