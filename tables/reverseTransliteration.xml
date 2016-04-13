@@ -483,13 +483,6 @@
 		</context>
 	</rule>
 	<rule>
-		<from>Ayn</from>
-		<to>Айн</to>
-		<context>
-			<after>\b</after>
-		</context>
-	</rule>
-	<rule>
 		<from>pozdneeo</from>
 		<to>позднеэо</to>
 		<context>
@@ -628,10 +621,6 @@
 		<to>оцкого</to>
 	</rule>
 
-	<rule>
-		<from>Aynskaya</from>
-		<to>Айнская</to>
-	</rule>
 	<rule>
 		<from>tsya</from>
 		<to>тся</to>
