@@ -37,6 +37,23 @@
 
 
 	<rule>
+		<from>teleutsk</from>
+		<to>телеутск</to>
+	</rule>
+	<rule>
+		<from>Ber</from>
+		<to>Бэр</to>
+		<context>
+			<after>\b</after>
+			<before>\b</before>
+		</context>
+	</rule>
+	<rule>
+		<!-- Yakut -->
+		<from>Ayyy ungkuute</from>
+		<to>Айыы ункуутэ</to>
+	</rule>
+	<rule>
 		<from>Greyama</from>
 		<to>Грейама</to>
 	</rule>
@@ -271,8 +288,8 @@
 		</context>
 	</rule>
 	<rule>
-		<from>Uyl'ta</from>
-		<to>Уйльта</to>
+		<from>Uyl't</from>
+		<to>Уйльт</to>
 		<context>
 			<after>\b</after>
 		</context>

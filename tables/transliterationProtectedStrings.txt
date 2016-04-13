@@ -461,8 +461,10 @@ Linguistica Uralica
 # Other strings to protect
 WWGS-89
 No.
+no.
 studia
 Studia
 juvenalia
 [electronic resource]
+[Electronic resource]
 Porosymposiumi Rovaniemellä
