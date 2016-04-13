@@ -101,6 +101,14 @@
 		<to>Ньюфаэкс</to>
 	</rule>
 	<rule>
+		<from>yodid</from>
+		<to>йодид</to>
+		<context>
+			<after>\b</after>
+			<before>\b</before>
+		</context>
+	</rule>
+	<rule>
 		<from>yoda</from>
 		<to>йода</to>
 		<context>

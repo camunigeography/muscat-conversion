@@ -420,6 +420,8 @@ HClO₄.5 1/2H₂O
 Rb-Sr
 D₂O
 Ag
+5Pr₄NF
+H₂О
 
 # Latin abbreviations and phrases
 subsp.
