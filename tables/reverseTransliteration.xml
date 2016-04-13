@@ -37,6 +37,18 @@
 
 
 	<rule>
+		<from>Greyama</from>
+		<to>Грейама</to>
+	</rule>
+	<rule>
+		<from>khantyysk</from>
+		<to>хантыйск</to>
+	</rule>
+	<rule>
+		<from>Tyysk</from>
+		<to>Тыйск</to>
+	</rule>
+	<rule>
 		<from>AES</from>
 		<to>АЭС</to>
 		<context>
@@ -353,13 +365,6 @@
 		</context>
 	</rule>
 	<rule>
-		<from>Greem</from>
-		<to>Греэма</to>
-		<context>
-			<after>\b</after>
-		</context>
-	</rule>
-	<rule>
 		<from>Ostyatsk</from>
 		<to>Остяцк</to>
 		<context>
@@ -513,14 +518,6 @@
 	<rule>
 		<from>Kronotsk</from>
 		<to>Кроноцк</to>
-	</rule>
-
-	<rule>
-		<from>Greem-Bell</from>
-		<to>Греэм-Белл</to>
-		<context>
-			<after>\b</after>
-		</context>
 	</rule>
 
 	<rule>
