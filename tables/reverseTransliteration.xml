@@ -37,6 +37,13 @@
 
 
 	<rule>
+		<from>drevneyesk</from>
+		<to>древнеэск</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
 		<from>teleutsk</from>
 		<to>телеутск</to>
 	</rule>
