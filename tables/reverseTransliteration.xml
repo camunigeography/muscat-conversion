@@ -397,7 +397,7 @@
 	</rule>
 	<rule>
 		<from>Voyeyk</from>
-		<to>Воейков</to>
+		<to>Воейк</to>
 		<context>
 			<after>\b</after>
 		</context>
