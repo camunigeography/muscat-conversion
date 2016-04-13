@@ -37,6 +37,22 @@
 
 
 	<rule>
+		<from>Meri Berd</from>
+		<to>Мэри Бэрд</to>
+	</rule>
+	<rule>
+		<from>Eymeri</from>
+		<to>Эймери</to>
+	</rule>
+	<rule>
+		<from>Eynsvort</from>
+		<to>Эйнсворт</to>
+	</rule>
+	<rule>
+		<from>Shyyr</from>
+		<to>Шыйр</to>
+	</rule>
+	<rule>
 		<from>drevneyesk</from>
 		<to>древнеэск</to>
 		<context>
