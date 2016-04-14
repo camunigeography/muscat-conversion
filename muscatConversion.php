@@ -9909,7 +9909,7 @@ class muscatConversion extends frontControllerApplication
 		# Define the query
 		$query = "
 			SELECT
-				'russianldot' AS report,
+				'russianldottitles' AS report,
 				recordId
 			FROM catalogue_processed
 			WHERE
