@@ -37,6 +37,49 @@
 
 
 	<rule>
+		<from>Gigantsk</from>
+		<to>Гигантск</to>
+	</rule>
+	<rule>
+		<from>Okhotsk</from>
+		<to>охотск</to>
+	</rule>
+	<rule>
+		<from>Irkutsk</from>
+		<to>Иркутск</to>
+	</rule>
+	<rule>
+		<from>Aziatsk</from>
+		<to>Азиатск</to>
+	</rule>
+	<rule>
+		<from>Ostyatsk</from>
+		<to>остятск</to>
+	</rule>
+	<rule>
+		<from>Aleutsk</from>
+		<to>алеутск</to>
+	</rule>
+	<rule>
+		<from>Yakutsk</from>
+		<to>Якутск</to>
+	</rule>
+	<rule>
+		<from>Kamchatsk</from>
+		<to>Камчатск</to>
+	</rule>
+	<rule>
+		<from>sovetsk</from>
+		<to>советск</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Sovetsk</from>
+		<to>Советск</to>
+	</rule>
+	<rule>
 		<from>Meri Berd</from>
 		<to>Мэри Бэрд</to>
 	</rule>
