@@ -104,6 +104,7 @@ class muscatConversion extends frontControllerApplication
 		'backslashg_problem' => 'records with \g remaining',
 		'possiblearticle_problem' => 'records with a 245 starting with a possible article',
 		'bracketednfcount_problem' => 'records with a bracketed title starting with a leading article, for checking the nfcount',
+		'russianbracketedtitle_problem' => 'records marked *lang=Russian with a fully-bracketed title',
 		'russianldottitles_problem' => 'records (Russian) with L. in title to be checked individually, possibly resolving post-migration',
 	);
 	
@@ -9896,6 +9897,29 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				    ExtractValue(xml, '/*/tg/t') LIKE '[%'
 				AND ExtractValue(xml, '/*/tg/t') REGEXP \"" . '^' . '\\\\[' . '(' . implode ('|', array_keys ($leadingArticles)) . ')' . "\"
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records marked *lang=Russian with a fully-bracketed title; see initialiseTransliterationsTable ()
+	private function report_russianbracketedtitle ()
+	{
+		# Define the query
+		#!# Hardcoded language value
+		$query = "
+			SELECT
+				'russianbracketedtitle' AS report,
+				id AS recordId
+			FROM catalogue_xml
+			WHERE
+				id IN (
+					SELECT recordId FROM catalogue_processed WHERE field = 'lang' AND value = 'Russian'
+				)
+				AND LEFT(EXTRACTVALUE(xml, '*/tg/t') , 1) = '['
+				AND RIGHT(EXTRACTVALUE(xml, '*/tg/t') , 1) = ']'
 		";
 		
 		# Return the query
