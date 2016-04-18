@@ -2369,6 +2369,12 @@ class muscatConversion extends frontControllerApplication
 		$tableComment = 'Data from Muscat dated: ' . $this->dateString ($exportFile);
 		$this->insertCsvToDatabase ($csvFilename, $type, $tableComment);
 		
+		# Set the table IDs to be shard IDs, as "<recordId>:<line>", e.g. 1000:0, 1000:1, ..., 1000:39, 1003:0, 1003:1, etc.
+		$sql = "ALTER TABLE {$this->settings['database']}.catalogue_{$type} CHANGE id id VARCHAR(10) NOT NULL COMMENT 'Shard ID';";		// VARCHAR(10) as records are up to 6 digits, plus colon, plus up to 999 rows per record
+		$this->databaseConnection->execute ($sql);
+		$sql = "UPDATE {$this->settings['database']}.catalogue_{$type} SET id = CONCAT(recordId, ':', line);";
+		$this->databaseConnection->execute ($sql);
+		
 		# Add indexing for performance
 		$sql = "ALTER TABLE {$this->settings['database']}.catalogue_{$type} ADD INDEX (`recordId`);";
 		$this->databaseConnection->execute ($sql);
@@ -2695,7 +2701,7 @@ class muscatConversion extends frontControllerApplication
 	# Function to create the processed data table
 	private function createProcessedTable ()
 	{
-		# Now create the processed table, which will be used for amending the raw data e.g. to convert special characters
+		# Now create the processed table, which will be used for amending the raw data, e.g. to convert special characters and upgrade the Cyrillic transliterations
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.catalogue_processed;";
 		$this->databaseConnection->execute ($sql);
 		$sql = "CREATE TABLE catalogue_processed LIKE catalogue_rawdata;";
@@ -3297,7 +3303,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($sql);
 		$sql = "CREATE TABLE IF NOT EXISTS `transliterations` (
 			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
-			`shardId` INT(11) NULL COMMENT 'Processed shard ID (catalogue_processed.id)',
+			`shardId` VARCHAR(10) NULL COMMENT 'Processed shard ID (catalogue_processed.id)',
 			`recordId` INT(11) NULL COMMENT 'Record ID',
 			`field` VARCHAR(255) NULL COMMENT 'Field',
 			`title` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Reverse-transliterated title',
