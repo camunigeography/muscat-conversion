@@ -3808,27 +3808,29 @@ class muscatConversion extends frontControllerApplication
 			
 			# Arrange as a set of inserts
 			$inserts = array ();
-			foreach ($records as $id => $record) {
+			foreach ($records as $recordId => $record) {
 				$xml = xml::dropSerialRecordIntoSchema ($schemaFlattenedXmlWithContainership, $record, $errorHtml, $debugString);
 				if ($errorHtml) {
-					$html  = "<p class=\"warning\">Record <a href=\"{$this->baseUrl}/records/{$id}/\">{$id}</a> could not be converted to XML:</p>";
+					$html  = "<p class=\"warning\">Record <a href=\"{$this->baseUrl}/records/{$recordId}/\">{$recordId}</a> could not be converted to XML:</p>";
 					$html .= "\n" . $errorHtml;
 					$html .= "\n<div class=\"graybox\">\n<h3>Crashed record:</h3>" . "\n<pre>" . htmlspecialchars ($xml) . "\n</pre>\n</div>";
 					$html .= "\n<div class=\"graybox\">\n<h3>Stack debug:</h3>" . nl2br ($debugString) . "\n</div>";
 					// $html .= "\n<div class=\"graybox\">\n<h3>Target schema:</h3>" . application::dumpData ($schemaFlattenedXmlWithContainership, false, true) . "\n</div>";
 					echo $html;
-					$xml = "<q0>{$id}</q0>";
+					$xml = "<q0>{$recordId}</q0>";
 				}
-				$inserts[$id] = array (
-					'id' => $id,
-					'xml' => $xml,
+				
+				# Register the XML record insert
+				$inserts[$recordId] = array (
+					'id'	=> $recordId,
+					'xml'	=> $xml,
 				);
 			}
 			
 			# Update these records
 			// if (!$this->databaseConnection->insertMany ($this->settings['database'], 'catalogue_xml', $inserts, false, $onDuplicateKeyUpdate = true)) {
 			if (!$this->databaseConnection->replaceMany ($this->settings['database'], 'catalogue_xml', $inserts)) {
-				echo "<p class=\"warning\">Error generating XML, stopping at batch ({$id}):</p>";
+				echo "<p class=\"warning\">Error generating XML, stopping at batch ({$recordId}):</p>";
 				echo application::dumpData ($this->databaseConnection->error (), false, true);
 				return false;
 			}
