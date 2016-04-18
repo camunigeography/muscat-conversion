@@ -158,7 +158,7 @@ class muscatConversion extends frontControllerApplication
 			'label'		=> '<img src="/images/icons/page.png" alt="" border="0" /> Processed version',
 			'title'		=> 'The data as exported by Muscat',
 			'errorHtml'	=> "The 'processed' version of record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
-			'fields'	=> array ('recordId', 'field', 'value'),
+			'fields'	=> array ('recordId', 'field', 'xPath', 'value'),
 			'idField'	=> 'recordId',
 			'orderBy'	=> 'recordId, line',
 			'class'		=> 'compressed',
@@ -885,7 +885,7 @@ class muscatConversion extends frontControllerApplication
 				$data = $this->getRecords ($id, 'processed');
 				$schemaFlattenedXmlWithContainership = $this->getSchema (true);
 				$record = array ();
-				$record['xml'] = xml::dropSerialRecordIntoSchema ($schemaFlattenedXmlWithContainership, $data, $errorHtml, $debugString);
+				$record['xml'] = xml::dropSerialRecordIntoSchema ($schemaFlattenedXmlWithContainership, $data, $xPathMatches, $errorHtml, $debugString);
 			*/
 				$output = "\n<div class=\"graybox\">" . "\n<pre>" . htmlspecialchars ($record[$type]) . "\n</pre>\n</div>";
 				break;
@@ -1620,8 +1620,14 @@ class muscatConversion extends frontControllerApplication
 		$singleRecordId = (is_array ($ids) ? false : $ids);
 		if ($singleRecordId) {$ids = array ($ids);}
 		
+		# Determine fields to retrieve; for sharded records, also retrieve the line number so that each record can be indexed by line, the line value for which is then discarded below
+		$fields = $this->types[$type]['fields'];
+		if ($isSharded) {
+			$fields[] = 'line';
+		}
+		
 		# Get the raw data, or end
-		if (!$records = $this->databaseConnection->select ($this->settings['database'], "catalogue_{$type}", $conditions = array ($this->types[$type]['idField'] => $ids), $this->types[$type]['fields'], false, $this->types[$type]['orderBy'])) {return false;}
+		if (!$records = $this->databaseConnection->select ($this->settings['database'], "catalogue_{$type}", $conditions = array ($this->types[$type]['idField'] => $ids), $fields, false, $this->types[$type]['orderBy'])) {return false;}
 		
 		# Regroup by the record ID
 		$records = application::regroup ($records, $this->types[$type]['idField'], true, $regroupedColumnKnownUnique = (!$isSharded));
@@ -1631,11 +1637,11 @@ class muscatConversion extends frontControllerApplication
 			
 			# Get the descriptions
 			$descriptions = false;
-		/*
-			if ($type == 'rawdata') {
-				$descriptions = $this->getFieldDescriptions ();
+			
+			# For sharded records, reindex each record by line
+			foreach ($records as $recordId => $record) {
+				$records[$recordId] = application::reindex ($record, 'line');
 			}
-		*/
 			
 			# Process each record
 			foreach ($records as $recordId => $record) {
@@ -2709,8 +2715,12 @@ class muscatConversion extends frontControllerApplication
 		$sql = "INSERT INTO catalogue_processed SELECT * FROM catalogue_rawdata;";
 		$this->databaseConnection->execute ($sql);
 		
+		# Add a field to store the XPath of the field
+		$sql = "ALTER TABLE catalogue_processed ADD xPath VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field' AFTER value;";
+		$this->databaseConnection->execute ($sql);
+		
 		# Add a field to store the original pre-transliteration value
-		$sql = "ALTER TABLE catalogue_processed ADD preTransliterationUpgradeValue TEXT NULL DEFAULT NULL COMMENT 'Value before transliteration changes' AFTER value;";
+		$sql = "ALTER TABLE catalogue_processed ADD preTransliterationUpgradeValue TEXT NULL DEFAULT NULL COMMENT 'Value before transliteration changes' AFTER xPath;";
 		$this->databaseConnection->execute ($sql);
 		
 		# Add a field showing the record language (first language)
@@ -3808,8 +3818,9 @@ class muscatConversion extends frontControllerApplication
 			
 			# Arrange as a set of inserts
 			$inserts = array ();
+			$processedRecordXPaths = array ();
 			foreach ($records as $recordId => $record) {
-				$xml = xml::dropSerialRecordIntoSchema ($schemaFlattenedXmlWithContainership, $record, $errorHtml, $debugString);
+				$xml = xml::dropSerialRecordIntoSchema ($schemaFlattenedXmlWithContainership, $record, $xPathMatches, $errorHtml, $debugString);
 				if ($errorHtml) {
 					$html  = "<p class=\"warning\">Record <a href=\"{$this->baseUrl}/records/{$recordId}/\">{$recordId}</a> could not be converted to XML:</p>";
 					$html .= "\n" . $errorHtml;
@@ -3825,12 +3836,27 @@ class muscatConversion extends frontControllerApplication
 					'id'	=> $recordId,
 					'xml'	=> $xml,
 				);
+				
+				# Register the XPath arrays, to be added to the processed table
+				foreach ($xPathMatches as $line => $xPath) {
+					$shardId = $recordId . ':' . $line;		// e.g. "1000:0"
+					$processedRecordXPaths[$shardId] = array (
+						'xPath'	=> $xPath,
+					);
+				}
 			}
 			
 			# Update these records
 			// if (!$this->databaseConnection->insertMany ($this->settings['database'], 'catalogue_xml', $inserts, false, $onDuplicateKeyUpdate = true)) {
 			if (!$this->databaseConnection->replaceMany ($this->settings['database'], 'catalogue_xml', $inserts)) {
 				echo "<p class=\"warning\">Error generating XML, stopping at batch ({$recordId}):</p>";
+				echo application::dumpData ($this->databaseConnection->error (), false, true);
+				return false;
+			}
+			
+			# Update the processed table to register the XPath values; takes around 2-15 seconds per batch of 500 sharded records
+			if (!$this->databaseConnection->updateMany ($this->settings['database'], 'catalogue_processed', $processedRecordXPaths)) {
+				echo "<p class=\"warning\">Error updating processed records to add XPath values, stopping at batch ({$recordId}):</p>";
 				echo application::dumpData ($this->databaseConnection->error (), false, true);
 				return false;
 			}

@@ -12,6 +12,8 @@
 #muscatconversion ul.tabs li.selected {font-weight: bold;}
 #muscatconversion table.lines.regulated tr td:first-child {width: 60px;}
 #muscatconversion table.record tr td.description {color: gray;}
+#muscatconversion table.record tr td.description {color: gray;}
+#muscatconversion #processed table.record tr td.xPath {color: #bbb; font-family: Lucida Console, courier, monospace; font-size: 0.83em;}
 #muscatconversion ul.previousnextlinks {float: right; margin: 0; padding: 0; line-height: 16px;}
 #muscatconversion ul.previousnextlinks li {display: inline; margin: 0; padding: 0;}
 #muscatconversion ul.previousnextlinks li a {border: 0;}
