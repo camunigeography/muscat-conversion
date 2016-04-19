@@ -265,7 +265,7 @@ class muscatConversion extends frontControllerApplication
 		'D',		// Dead serial
 	);
 	
-	# Supported transliteration upgrade (BGN/PCGN -> LoC) XPaths
+	# Supported transliteration upgrade (BGN/PCGN -> Library of Congress) XPaths
 	private $transliterationUpgradeXPaths = array (
 		'/art/tg/t',
 		'/doc/tg/t',
@@ -9947,15 +9947,17 @@ class muscatConversion extends frontControllerApplication
 		# Regenerate on demand during testing
 		//$this->transliterateTransliterationsTable ();
 		
-		# Determine total failures
+		# Determine totals
+		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], 'transliterations');
 		$totalFailures = $this->databaseConnection->getTotal ($this->settings['database'], 'transliterations', 'WHERE forwardCheckFailed = 1');
 		
 		# Determine whether to filter to reversibility failures only
+		$totalRecords = number_format ($totalRecords);
 		$failuresOnly = (isSet ($_GET['filter']) && $_GET['filter'] == '1');
 		if ($failuresOnly) {
-			$html .= "\n<p><a href=\"{$this->baseUrl}/reports/transliterations/\">Show all</a> | <strong>Filtering to reversibility failures only ({$totalFailures})</strong></p>";
+			$html .= "\n<p><a href=\"{$this->baseUrl}/reports/transliterations/\">Show all ($totalRecords)</a> | <strong>Filtering to reversibility failures only ({$totalFailures})</strong></p>";
 		} else {
-			$html .= "\n<p><strong>Showing all</strong> | <a href=\"{$this->baseUrl}/reports/transliterations/?filter=1\">Filter to reversibility failures only ({$totalFailures})</a></p>";
+			$html .= "\n<p><strong>Showing all ($totalRecords)</strong> | <a href=\"{$this->baseUrl}/reports/transliterations/?filter=1\">Filter to reversibility failures only ({$totalFailures})</a></p>";
 		}
 		
 		# Add link to editing the definition
