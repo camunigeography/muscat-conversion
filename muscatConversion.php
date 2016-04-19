@@ -2281,10 +2281,10 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($sql);
 		
 		# Add a field showing the record language (first language)
-		$sql = "ALTER TABLE catalogue_processed ADD recordLanguage VARCHAR(255) NULL DEFAULT NULL COMMENT 'Record language (first language)' AFTER preTransliterationUpgradeValue;";
+		$sql = "ALTER TABLE catalogue_processed ADD recordLanguage VARCHAR(255) NULL DEFAULT 'English' COMMENT 'Record language (first language)' AFTER preTransliterationUpgradeValue;";
 		$this->databaseConnection->execute ($sql);
 		
-		# Set the record language (first language) for *t
+		# Set the record language (first language) for each shard
 		$sql = "UPDATE catalogue_processed
 			LEFT JOIN (
 			    SELECT
@@ -2301,7 +2301,8 @@ class muscatConversion extends frontControllerApplication
 				) AS firstLanguages
 				ON firstLanguages.recordId = catalogue_processed.recordId
 			SET catalogue_processed.recordLanguage = firstLanguage
-			WHERE field IN ('t');";
+			WHERE firstLanguage IS NOT NULL		/* I.e. don't overwrite the default English where no *lang specified */
+		;";
 		$this->databaseConnection->execute ($sql);
 		
 		# Upgrade the transliterations to Library of Congress
