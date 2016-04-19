@@ -1506,6 +1506,7 @@ class muscatConversion extends frontControllerApplication
 			'loc' => 'Location',
 			'local' => 'Local note',
 			'location' => 'Location (mirror of *loc)',
+			'lpt' => 'Languages of parallel title',
 			'n' => 'Name field (used in conjunction with *e and *ee fields)',
 			'n1' => 'Name field (used in conjunction with *e and *ee fields)',
 			'n2' => 'Name field (used in conjunction with *e and *ee fields)',
@@ -3003,7 +3004,7 @@ class muscatConversion extends frontControllerApplication
 		XML transliteration file:
 		/transliteration/bgn_pcgn_1947.xml
 		
-		Instructions for root instanll:
+		Instructions for root install:
 		Make changes to the XML file then run, as root:
 		cd /root/.cpan/build/Lingua-Translit-0.22-th0SPW/xml/ && make all-tables && cd /root/.cpan/build/Lingua-Translit-0.22-th0SPW/ && make clean && perl Makefile.PL && make && make install
 		
@@ -3071,11 +3072,34 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to transliterate from Library of Congress (ALA LC) to Cyrillic; see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
-	public function transliterateLocLatinToCyrillic ($locLatin)
+	public function transliterateLocLatinToCyrillic ($locLatin, $lpt)
 	{
 		# Load the Library of Congress transliterations definition, copied from https://github.com/umpirsky/Transliterator/blob/master/src/Transliterator/data/ru/ALA_LC.php
 		if (!isSet ($this->locTransliterationDefinition)) {
 			$this->locTransliterationDefinition = require_once ('tables/ALA_LC.php');
+		}
+		
+		# Handle parallel titles, e.g. "Title in Russian = Equivalent in English = Equivalent in French"; see: /fields/lpt/values/
+		#!# This might be better handled as creating protected substrings; in batch mode, the equals sign would probably need to be included
+		#!# Need to support this in the spell-checker also
+		$parallelTitles = array ();
+		$parallelTitleSeparator = ' = ';
+		if ($lpt) {
+			
+			# Tokenise the definition
+			$parallelTitleLanguages = explode ($parallelTitleSeparator, $lpt);
+			$parallelTitleComponents = explode ($parallelTitleSeparator, $locLatin);
+			
+			# Convert to key/value pairs; the list at /fields/lpt/values/ confirms there are no duplications (e.g. Russian = English = Russian)
+			$parallelTitles = array_combine ($parallelTitleLanguages, $parallelTitleComponents);
+			
+			# Set the supported language as the part to be transliterated
+			#!# Currently hard-coded support for Russian only
+			if (!isSet ($parallelTitles['Russian'])) {
+				echo "<p class=\"warning\">Error: Transliteration requested with parallel titles list that does not include Russian.</p>";
+				return false;
+			}
+			$locLatin = $parallelTitles['Russian'];
 		}
 		
 		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/
@@ -3087,11 +3111,17 @@ class muscatConversion extends frontControllerApplication
 		# Protect string portions (e.g. English language, HTML portions) prior to transliteration
 		$locLatin = $this->protectSubstrings ($locLatin, $protectedParts);
 		
-		# Transliterate and return
+		# Transliterate
 		$reverseTransliteration = str_replace ($this->locTransliterationDefinition['lat'], $this->locTransliterationDefinition['cyr'], $locLatin);
 		
 		# Reinstate protected substrings
 		$reverseTransliteration = strtr ($reverseTransliteration, $protectedParts);
+		
+		# Re-construct the Parallel title; e.g. /records/37081/ , /records/197449/ , /records/133013/
+		if ($parallelTitles) {
+			$parallelTitles['Russian'] = $reverseTransliteration;
+			$reverseTransliteration = implode ($parallelTitleSeparator, $parallelTitles);
+		}
 		
 		# Return the transliteration
 		return $reverseTransliteration;
