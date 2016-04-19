@@ -449,6 +449,14 @@ RTL
 JESUP
 ACSYS
 NCEP/NCAR
+RAEM
+SAE
+LAE
+PNIE.03
+AEU
+RAESK
+MAE
+IEZ
 
 # Names
 Hook. fil. et Wils.
