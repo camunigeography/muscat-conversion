@@ -1,0 +1,451 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<root>
+	<q0 /><!-- ID -->
+	<status /><!-- automatically generated when item is ordered. Unless automatically deleted during cataloguing, this field can be updated to show the current status of an order if there is any reason for failure to supply. The same applies to *art and *ser order records. See 3.2.9.3 -->
+	
+	<doc><!-- a whole document (*doc) consisting of a book, report, volume of conference proceedings, letter etc.; -->
+		<ag>
+			<a><!-- author(s) -->
+				<n1 />
+				<n2 />
+				<nd />
+			</a>
+			<ad /><!-- authorial detail (usually 'and others' 'ed.' 'eds.') - repeatable field -->
+			<al><!-- alternative spelling of transliterated name or alternative name -->
+				<n1 />
+				<n2 />
+				<nd />
+			</al>
+			<aff /><!-- affiliation -->
+		</ag>
+		<tg><!-- title group, an invisible field which groups all *t entries for searching -->
+			<t /><!-- title -->
+			<tt /><!-- translation of title (if *t is not in English) -->
+			<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
+			<to /><!-- title of original (if publication is a translation) -->'
+			<tc /><!-- UNKNOWN -->
+		</tg>
+		<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
+		<lpt /><!-- Languages of parallel title -->
+		<e><!-- editor(s) of whole work, use n for name in indirect order (*e edited by *n Smith/Bob); in practice this has also been used to add non-author contributors - this field in practice contains messy data often -->
+			<role />
+			<n><!-- Name field (used in conjunction with *e and *ee fields) -->
+				<n1 />
+				<n2 />
+				<nd />
+			</n>
+		</e>
+		<edn /><!-- edition -->
+		<ee><!-- editors of this edition, use *n for name in indirect order -->
+			<role />
+			<n><!-- Name field (used in conjunction with *e and *ee fields) -->
+				<n1 />
+				<n2 />
+				<nd />
+			</n>
+		</ee>
+		<pg><!-- where two or more publishers, from different places, have collaborated -->
+			<pl /><!-- place of publication -->
+			<pu /><!-- name of publisher -->
+		</pg>
+		<d /><!-- date of publication -->
+		<v /><!-- number of volumes, if more than one, e.g. 4 v. -->
+		<vno /><!-- volume number, e.g., Vol.2 -->
+		<p /><!-- pagination etc. -->
+		<pt /><!-- part of work referred to -->
+		<form /><!-- form of document, if non-book format -->
+		<size /><!-- size of document -->
+		<ts /><!-- title of series and number in series -->
+		<issn /><!-- International Standard Serial Number -->
+		<isbn /><!-- International Standard Book Number (entered with no spaces or hyphens) -->
+		<notes>
+			<note /><!-- additional miscellaneous information (public note, for publication in PGA, SPRILIB) -->
+			<priv /><!-- additional information for library staff only (private note) -->
+			<local /><!-- additional note, not for publication, but of use to library users on site, e.g. 'SPRI has 2 copies', 'CD-ROM kept in Library Office', etc. -->
+		</notes>
+		<abs /><!-- annotation or abstract -->
+		<k><!-- UDC classification numbers -->
+			<ks /><!-- Classification number or Status (dual usage) -->
+			<kw /><!-- UDC translations. Added automatically by running c-tranudc (see Section ?) -->
+		</k>
+		<k2>
+			<ka /><!-- Voyager merge data: Type of match and other comments -->
+			<kb />
+			<kc /><!-- Voyager merge data: Serial id/control number -->
+			<kd />
+			<ke /><!-- Analytic record link: (redundant for processing purposes) used in host record that Muscat uses for GUI purposes to link to a lookup -->
+			<kf /><!-- Analytic record link: (redundant for processing purposes) internal Muscat GUI representation of kg -->
+			<kg /><!-- Analytic record link: used in analytic (child) record that is basically a join to the q0 (ID) of the host -->
+		</k2>
+		<kb /><!-- Exchange -->
+		<loc><!-- location in SPRI library -->
+			<location />
+			<doslink /><!-- GUI field: not required for voyager -->
+			<winlink /><!-- GUI field: not required for voyager -->
+		</loc>
+		<url>
+			<urlfull /><!-- URL mirror -->
+			<urlgen /><!-- URL mirror -->
+			<doslink /><!-- GUI field: not required for voyager -->
+			<winlink /><!-- GUI field: not required for voyager -->
+		</url>
+		<urlft><!-- URL of related website (used with *form Online publication) -->
+			<urlfull /><!-- URL mirror -->
+			<urlgen /><!-- URL mirror -->
+			<doslink /><!-- GUI field: not required for voyager -->
+			<winlink /><!-- GUI field: not required for voyager -->
+		</urlft>
+		<rpl /><!-- giving code letter to enable records to be sorted into subject sections in PGA. See 3.2.8. -->
+		<!-- Acquisition fields: -->
+		<acq><!-- left blank	 -->
+			<ref /><!-- Annnn	(Order number added automatically. The initial letter changes each year,	i.e. A for 1995, B for 1996, C for 1997, etc.) -->
+			<date /><!-- yyyy/mm/dd -->
+			<o /><!-- supplier	(give surname first, e.g. Bull, Colin not Colin Bull. Do not insert 'requested' or other info before the name. Any other details relating to suppliers should be inserted in the *priv field.) -->
+			<!--<o /> donor	(as above, but add (gift) after name) -->
+			<pr /><!-- price	(enter pound symbol as GBP, $ as USD, etc.) -->
+			<fund /><!-- code	(see 3.2.9.2) -->
+			<sref /><!-- Supplier reference -->
+			<recr /><!-- bibliographer's initials -->
+		</acq>
+		<acc><!-- accession data -->
+			<ref /><!-- accession number (i.e. number stamped on book, not database record number) -->
+			<date /><!-- yyyy/mm/dd -->
+			<con /><!-- condition or conservation note -->
+			<recr /><!-- bibliographer's initials -->
+		</acc>
+		<doi>
+			<doifld />
+			<doslink /><!-- GUI field: not required for voyager -->
+			<winlink /><!-- GUI field: not required for voyager -->
+		</doi>
+	</doc>
+	
+	<art><!-- a part document (*art) consisting of a paper in a journal (even if the paper takes the whole of one issue in a journal), a book chapter or conference paper -->
+		<ag>
+			<a><!-- author(s) repeatable field -->
+				<n1 />
+				<n2 />
+				<nd />
+			</a>
+			<ad /><!-- authorial detail (usually 'and others' 'ed.' 'eds.') -->
+			<al><!-- alternative spelling of transliterated name or alternative name -->
+				<n1 />
+				<n2 />
+				<nd />
+			</al>
+			<aff /><!-- affiliation -->
+		</ag>
+		<tg><!-- title group, an invisible field which groups all *t entries for searching -->
+			<t /><!-- title -->
+			<tt /><!-- translation of title (if *t is not in English) -->
+			<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
+			<to /><!-- title of original (if publication is a translation) -->'
+			<tc /><!-- UNKNOWN -->
+		</tg>
+		<lang /><!-- name of language (e.g. 'French' 'German') -->
+		<lpt /><!-- Languages of parallel title -->
+		<e><!-- editor(s) of whole work, use n for name in indirect order (*e edited by *n Smith/Bob); in practice this has also been used to add non-author contributors (sometimes for art/in/ records that relates to the *in level) - this field in practice contains messy data often -->
+			<role />
+			<n><!-- Name field (used in conjunction with *e and *ee fields) -->
+				<n1 />
+				<n2 />
+				<nd />
+			</n>
+		</e>
+		<in><!-- information about the document (i.e. book or conference proceedings etc.) in which the article occurs, which can be followed by: -->
+<!-- redundant -->
+			<ag>
+				<a><!-- author(s) -->
+					<n1 />
+					<n2 />
+					<nd />
+				</a>
+				<ad /><!-- authorial detail ..... -->
+				<al><!-- alternative spelling of transliterated name or alternative name -->
+					<n1 />
+					<n2 />
+					<nd />
+				</al>
+				<aff /><!-- affiliated author (not used at present) -->
+			</ag>
+			<tg><!-- title group, an invisible field which groups all *t entries for searching -->
+				<t /><!-- title -->
+				<tt /><!-- translation of title (if *t is not in English) -->
+				<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
+				<to /><!-- title of original (if publication is a translation) -->'
+				<tc /><!-- UNKNOWN -->
+			</tg>
+			<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
+			<edn /><!-- edition -->
+			<ee><!-- editors of this edition, use *n for name in indirect order -->
+				<role />
+				<n><!-- Name field (used in conjunction with *e and *ee fields) -->
+					<n1 />
+					<n2 />
+					<nd />
+				</n>
+			</ee>
+			<vno /><!-- the volume number of the work, in multi-volume works -->
+			<pg><!-- where two or more publishers, from different places, have collaborated -->
+				<pl /><!-- place of publication -->
+				<pu /><!-- name of publisher -->
+			</pg>
+			<d /><!-- date of publication -->
+<!-- /redundant -->
+			<pt /><!-- part of work referred to -->
+			<p /><!-- pagination -->
+<!-- redundant -->
+			<form /><!-- form of document, if non-book format -->
+			<ts /><!-- title of series and number in series -->
+			<issn /><!-- International Standard Serial Number -->
+			<isbn /><!-- International Standard Book Number (entered with no spaces or hyphens) -->
+<!-- /redundant -->
+			<notes>
+				<note /><!-- additional miscellaneous information (public note, for publication in PGA, SPRILIB) -->
+				<priv /><!-- additional information for library staff only (private note) -->
+				<local /><!-- additional note, not for publication, but of use to library users on site, e.g. 'SPRI has 2 copies', 'CD-ROM kept in Library Office', etc. -->
+			</notes>
+			<abs /><!-- annotation or abstract -->
+			<k><!-- UDC classification numbers -->
+				<ks /><!-- Classification number or Status (dual usage) -->
+				<kw /><!-- UDC translations. Added automatically by running c-transudc -->
+			</k>
+			<k2>
+				<ka /><!-- Voyager merge data: Type of match and other comments -->
+				<kb />
+				<kc /><!-- Voyager merge data: Serial id/control number -->
+				<kd />
+				<ke /><!-- Analytic record link: (redundant for processing purposes) used in host record that Muscat uses for GUI purposes to link to a lookup -->
+				<kf /><!-- Analytic record link: (redundant for processing purposes) internal Muscat GUI representation of kg -->
+				<kg /><!-- Analytic record link: used in analytic (child) record that is basically a join to the q0 (ID) of the host -->
+			</k2>
+<!-- redundant -->
+			<loc><!-- location in SPRI library -->
+				<location />
+				<doslink /><!-- GUI field: not required for voyager -->
+				<winlink /><!-- GUI field: not required for voyager -->
+			</loc>
+<!-- /redundant -->
+			<url>
+				<urlfull /><!-- URL mirror -->
+				<urlgen /><!-- URL mirror -->
+				<doslink /><!-- GUI field: not required for voyager -->
+				<winlink /><!-- GUI field: not required for voyager -->
+			</url>
+			<urlft><!-- URL of related website (used with *form Online publication) -->
+				<urlfull /><!-- URL mirror -->
+				<urlgen /><!-- URL mirror -->
+				<doslink /><!-- GUI field: not required for voyager -->
+				<winlink /><!-- GUI field: not required for voyager -->
+			</urlft>
+			<rpl /><!-- giving code letter to enable records to be sorted into subject sections in PGA. See 3.2.8. -->
+<!-- redundant -->
+			<!-- Acquisition fields: -->
+			<acq><!-- left blank	 -->
+				<ref /><!-- Annnn	(Order number added automatically. The initial letter changes each year,	i.e. A for 1995, B for 1996, C for 1997, etc.) -->
+				<date /><!-- yyyy/mm/dd -->
+				<o /><!--  supplier	(give surname first, e.g. Bull, Colin not Colin Bull. Do not insert 'requested' or other info before the name. Any other details relating to suppliers should be inserted in the *priv field.) -->
+				<!--<o /> donor	(as above, but add (gift) after name) -->
+				<pr /><!-- price	(enter pound symbol as GBP, $ as USD, etc.) -->
+				<fund /><!-- code	(see 3.2.9.2) -->
+				<sref /><!-- Supplier reference -->
+				<recr /><!-- bibliographer's initials -->
+			</acq>
+<!-- /redundant -->
+			<acc><!-- accession data -->
+<!-- redundant -->
+				<ref /><!-- accession number (i.e. number stamped on book, not database record number) -->
+				<date /><!-- yyyy/mm/dd -->
+				<con /><!-- condition or conservation note -->
+<!-- /redundant -->
+				<recr /><!-- bibliographer's initials -->
+			</acc>
+			<doi>
+				<doifld />
+				<doslink /><!-- GUI field: not required for voyager -->
+				<winlink /><!-- GUI field: not required for voyager -->
+			</doi>
+		</in>
+		<j><!-- information about the periodical in which the article occurs -->
+			<tg><!-- title group, an invisible field which groups all *t entries for searching -->
+				<t /><!-- title -->
+				<tt /><!-- translation of title (if *t is not in English) -->
+				<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
+				<to /><!-- title of original (if publication is a translation) -->'
+				<tc /><!-- UNKNOWN -->
+			</tg>
+			<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
+			<pg><!-- where two or more publishers, from different places, have collaborated -->
+				<pl /><!-- place of publication -->
+				<pu /><!-- name of publisher -->
+			</pg>
+			<d /><!-- date of publication -->
+			<pt /><!-- part of work referred to -->
+			<p /><!-- pagination -->
+			<form /><!-- form of document, if non-book format -->
+			<issn /><!-- International Standard Serial Number -->
+			<isbn /><!-- International Standard Book Number (entered with no spaces or hyphens) -->
+			<notes>
+				<note /><!-- additional miscellaneous information (public note, for publication in PGA, SPRILIB) -->
+				<priv /><!-- additional information for library staff only (private note) -->
+				<local /><!-- additional note, not for publication, but of use to library users on site, e.g. 'SPRI has 2 copies', 'CD-ROM kept in Library Office', etc. -->
+			</notes>
+			<abs /><!-- annotation or abstract -->
+			<k><!-- UDC classification numbers -->
+				<ks /><!-- Classification number or Status (dual usage) -->
+				<kw /><!-- UDC translations. Added automatically by running c-transudc -->
+			</k>
+			<k2>
+				<ka /><!-- Voyager merge data: Type of match and other comments -->
+				<kb />
+				<kc /><!-- Voyager merge data: Serial id/control number -->
+				<kd />
+				<ke /><!-- Analytic record link: (redundant for processing purposes) used in host record that Muscat uses for GUI purposes to link to a lookup -->
+				<kf /><!-- Analytic record link: (redundant for processing purposes) internal Muscat GUI representation of kg -->
+				<kg /><!-- Analytic record link: used in analytic (child) record that is basically a join to the q0 (ID) of the host -->
+			</k2>
+			<loc><!-- location in SPRI library -->
+				<location />
+				<doslink /><!-- GUI field: not required for voyager -->
+				<winlink /><!-- GUI field: not required for voyager -->
+			</loc>
+			<url>
+				<urlfull /><!-- URL mirror -->
+				<urlgen /><!-- URL mirror -->
+				<doslink /><!-- GUI field: not required for voyager -->
+				<winlink /><!-- GUI field: not required for voyager -->
+			</url>
+			<urlft><!-- URL of related website (used with *form Online publication) -->
+				<urlfull /><!-- URL mirror -->
+				<urlgen /><!-- URL mirror -->
+				<doslink /><!-- GUI field: not required for voyager -->
+				<winlink /><!-- GUI field: not required for voyager -->
+			</urlft>
+			<rpl /><!-- giving code letter to enable records to be sorted into subject sections in PGA. See 3.2.8. -->
+			<!-- Acquisition fields: -->
+			<acq><!-- left blank	 -->
+				<ref /><!-- Annnn	(Order number added automatically. The initial letter changes each year,	i.e. A for 1995, B for 1996, C for 1997, etc.) -->
+				<date /><!-- yyyy/mm/dd -->
+				<o /><!-- supplier	(give surname first, e.g. Bull, Colin not Colin Bull. Do not insert 'requested' or other info before the name. Any other details relating to suppliers should be inserted in the *priv field.) -->
+				<!--<o /> donor	(as above, but add (gift) after name) -->
+				<pr /><!-- price	(enter pound symbol as GBP, $ as USD, etc.) -->
+				<fund /><!-- code	(see 3.2.9.2) -->
+				<sref /><!-- Supplier reference -->
+				<recr /><!-- bibliographer's initials -->
+			</acq>
+			<acc><!-- accession data -->
+				<ref /><!-- accession number (i.e. number stamped on book, not database record number) -->
+				<date /><!-- yyyy/mm/dd -->
+				<con /><!-- condition or conservation note -->
+				<recr /><!-- bibliographer's initials -->
+			</acc>
+			<doi>
+				<doifld />
+				<doslink /><!-- GUI field: not required for voyager -->
+				<winlink /><!-- GUI field: not required for voyager -->
+			</doi>
+		</j>
+	</art>
+	
+	<ser><!-- a periodical (*ser) -->
+		<ag>
+			<a><!-- author(s) -->
+				<n1 />
+				<n2 />
+				<nd />
+			</a>
+			<ad /><!-- authorial detail (usually 'and others' 'ed.' 'eds.') - repeatable field -->
+			<al><!-- alternative spelling of transliterated name or alternative name -->
+				<n1 />
+				<n2 />
+				<nd />
+			</al>
+			<aff /><!-- affiliation -->
+		</ag>
+		<tg><!-- title group, an invisible field which groups all *t entries for searching -->
+			<t /><!-- title -->
+			<tt /><!-- translation of title (if *t is not in English) -->
+			<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
+			<to /><!-- title of original (if publication is a translation) -->'
+			<tc /><!-- UNKNOWN -->
+		</tg>
+		<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
+		<lpt /><!-- Languages of parallel title -->
+		<ft /><!-- former title -->
+		<st /><!-- subsequent title -->
+		<pg><!-- where two or more publishers, from different places, have collaborated -->
+			<pl /><!-- place of publication -->
+			<pu /><!-- name of publisher -->
+		</pg>
+		<abs /><!-- annotation or abstract -->
+		<issn /><!-- International Standard Serial Number -->
+		<isbn /><!-- International Standard Book Number (entered with no spaces or hyphens) -->
+		<r /><!-- range of holdings -->
+		<freq /><!-- frequency -->
+		<form /><!-- form of document, if non-book format -->
+		<size /><!-- size of document -->
+		<note /><!-- additional miscellaneous information (public note, for publication in PGA, SPRILIB) -->
+		<priv /><!-- additional information for library staff only (private note) -->
+		<notes>
+			<note /><!-- additional miscellaneous information (public note, for publication in PGA, SPRILIB) -->
+			<priv /><!-- additional information for library staff only (private note) -->
+			<local /><!-- additional note, not for publication, but of use to library users on site, e.g. 'SPRI has 2 copies', 'CD-ROM kept in Library Office', etc. -->
+		</notes>
+		<k><!-- UDC classification numbers -->
+			<ks /><!-- Classification number or Status (dual usage) -->
+			<kw /><!-- UDC translations. Added automatically by running c-transudc -->
+		</k>
+		<k2><!-- left blank, but essential if *k2 included -->
+			<ka /><!-- Voyager merge data: Type of match and other comments -->
+			<kb />
+			<kc /><!-- Voyager merge data: Serial id/control number -->
+			<kd />
+			<ke /><!-- Analytic record link: (redundant for processing purposes) used in host record that Muscat uses for GUI purposes to link to a lookup -->
+			<kf /><!-- Analytic record link: (redundant for processing purposes) internal Muscat GUI representation of kg -->
+			<kg /><!-- Analytic record link: used in analytic (child) record that is basically a join to the q0 (ID) of the host -->
+		</k2>
+		<kb /><!-- Exchange -->
+		<loc><!-- location in SPRI library -->
+			<location />
+			<doslink /><!-- GUI field: not required for voyager -->
+			<winlink /><!-- GUI field: not required for voyager -->
+		</loc>
+		<url>
+			<urlfull /><!-- URL mirror -->
+			<urlgen /><!-- URL mirror -->
+			<doslink /><!-- GUI field: not required for voyager -->
+			<winlink /><!-- GUI field: not required for voyager -->
+		</url>
+		<urlft><!-- URL of related website (used with *form Online publication) -->
+			<urlfull /><!-- URL mirror -->
+			<urlgen /><!-- URL mirror -->
+			<doslink /><!-- GUI field: not required for voyager -->
+			<winlink /><!-- GUI field: not required for voyager -->
+		</urlft>
+		<hold /><!-- holdings (Supplements to journals should be notated as follows in the holdings field: *hold 1-2, 3 (+ supp.), 4-8, etc. Note the space after the '+') -->
+		<!-- Acquisition fields: -->
+		<acq><!-- left blank	 -->
+			<ref /><!-- Annnn	(Order number added automatically. The initial letter changes each year,	i.e. A for 1995, B for 1996, C for 1997, etc.) -->
+			<date /><!-- yyyy/mm/dd -->
+			<o /><!-- supplier	(give surname first, e.g. Bull, Colin not Colin Bull. Do not insert 'requested' or other info before the name. Any other details relating to suppliers should be inserted in the *priv field.) -->
+			<!--<o /> donor	(as above, but add (gift) after name) -->
+			<pr /><!-- price	(enter pound symbol as GBP, $ as USD, etc.) -->
+			<fund /><!-- code	(see 3.2.9.2) -->
+			<sref /><!-- Supplier reference -->
+			<recr /><!-- bibliographer's initials -->
+		</acq>
+		<acc><!-- accession data -->
+			<ref /><!-- accession number (i.e. number stamped on book, not database record number) -->
+			<date /><!-- yyyy/mm/dd -->
+			<con /><!-- condition or conservation note -->
+			<recr /><!-- bibliographer's initials -->
+		</acc>
+		<doi>
+			<doifld />
+			<doslink /><!-- GUI field: not required for voyager -->
+			<winlink /><!-- GUI field: not required for voyager -->
+		</doi>
+		<doslink /><!-- GUI field: not required for voyager -->
+		<winlink /><!-- GUI field: not required for voyager -->
+	</ser>
+</root>
