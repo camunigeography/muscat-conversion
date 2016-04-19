@@ -37,6 +37,40 @@
 
 
 	<rule>
+		<from>chinchiyiiler</from>
+		<to>чинчийиилэр</to>
+		<context>
+			<after>\b</after>
+			<before>\b</before>
+		</context>
+	</rule>
+	<rule>
+		<from>ühüyeenner</from>
+		<to>үһүйээннэр</to>
+		<context>
+			<after>\b</after>
+			<before>\b</before>
+		</context>
+	</rule>
+	<rule>
+		<from>uuneeyilere</from>
+		<to>үүнээйилэрэ</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>aera</from>
+		<to>аэра</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Aera</from>
+		<to>Аэра</to>
+	</rule>
+	<rule>
 		<from>Gigantsk</from>
 		<to>Гигантск</to>
 	</rule>
@@ -80,8 +114,20 @@
 		<to>Советск</to>
 	</rule>
 	<rule>
-		<from>Meri Berd</from>
-		<to>Мэри Бэрд</to>
+		<from>Meri</from>
+		<to>Мэри</to>
+		<context>
+			<after>\b</after>
+			<before>\b</before>
+		</context>
+	</rule>
+	<rule>
+		<from>Berd</from>
+		<to>Бэрд</to>
+		<context>
+			<after>\b</after>
+			<before>\b</before>
+		</context>
 	</rule>
 	<rule>
 		<from>Eymeri</from>
