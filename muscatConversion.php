@@ -12,7 +12,6 @@ class muscatConversion extends frontControllerApplication
 		'missingacc_info' => 'records without a *acc',
 		'missingt_problem' => 'records without a *t',
 		'emptytvariants_problem' => 'records with an empty *t/*tt/*tc',
-		'failinglocupgrade_problem' => 'records whose Library of Congress Cryrillic title upgrade will fail due to defective *t problems',
 		'sermissingr_problem' => '*ser records without a *r, except where location is Not in SPRI',
 		'artwithoutlocstatus_problem' => '*art records where there is no *loc and no *status',
 		'tcnotone_problem' => 'records without exactly one *tc',
@@ -7923,28 +7922,6 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				    field IN ('t', 'tt', 'tc')
 				AND value = ''
-		";
-		
-		# Return the query
-		return $query;
-	}
-	
-	
-	# Records whose Library of Congress Cryrillic title upgrade will fail due to defective *t problems
-	private function report_failinglocupgrade ()
-	{
-		# Define the query
-		$query = "
-			SELECT
-				'failinglocupgrade' AS report,
-				recordId
-			FROM transliterations
-			WHERE
-				shardId IS NULL
-				/* The following filters can be applied to remove known problems, present in /reports/missingt/ , /reports/emptytvariants/ , /reports/multipletopt/ ; when those reports are fixed, the present report should give no errors */
-				-- AND recordId NOT IN (SELECT id FROM catalogue_xml WHERE EXTRACTVALUE(xml, 'count(/*/tg/t)') > 1)
-				-- AND title NOT LIKE '[[%'
-				-- AND title != ''
 		";
 		
 		# Return the query
