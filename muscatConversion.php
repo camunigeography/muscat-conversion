@@ -2889,7 +2889,6 @@ class muscatConversion extends frontControllerApplication
 		$language = 'Russian';
 		
 		# Populate the transliterations table
-		#!# The exclusion of [Titles fully in brackets like this] also needs to be applied within the MARC conversion phase also
 		$literalBackslash = '\\';
 		$query = "
 			INSERT INTO transliterations (id, recordId, field, title_latin)
@@ -3077,6 +3076,12 @@ class muscatConversion extends frontControllerApplication
 		# Load the Library of Congress transliterations definition, copied from https://github.com/umpirsky/Transliterator/blob/master/src/Transliterator/data/ru/ALA_LC.php
 		if (!isSet ($this->locTransliterationDefinition)) {
 			$this->locTransliterationDefinition = require_once ('tables/ALA_LC.php');
+		}
+		
+		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/
+		$literalBackslash = '\\';
+		if (preg_match ('/' . "^{$literalBackslash}[([^{$literalBackslash}]]+){$literalBackslash}]$" . '/', $locLatin)) {		// Regexp should match the MySQL equivalent in initialiseTransliterationsTable ()
+			return false;
 		}
 		
 		# Protect string portions (e.g. English language, HTML portions) prior to transliteration
