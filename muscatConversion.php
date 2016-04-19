@@ -2889,6 +2889,8 @@ class muscatConversion extends frontControllerApplication
 		$language = 'Russian';
 		
 		# Populate the transliterations table
+		#!# The exclusion of [Titles fully in brackets like this] also needs to be applied within the MARC conversion phase also
+		$literalBackslash = '\\';
 		$query = "
 			INSERT INTO transliterations (id, recordId, field, title_latin)
 				SELECT
@@ -2899,6 +2901,7 @@ class muscatConversion extends frontControllerApplication
 				FROM catalogue_processed
 				WHERE
 					    xPath IN('" . implode ("', '", $this->transliterationUpgradeXPaths) . "')
+					AND value NOT REGEXP '^{$literalBackslash}{$literalBackslash}[([^{$literalBackslash}]]+){$literalBackslash}{$literalBackslash}]$'		/* Exclude [Titles fully in brackets like this] */
 					AND recordLanguage = '{$language}'
 		;";
 		$data = $this->databaseConnection->query ($query);
