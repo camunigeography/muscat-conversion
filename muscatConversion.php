@@ -105,6 +105,7 @@ class muscatConversion extends frontControllerApplication
 		'bracketednfcount_problem' => 'records with a bracketed title starting with a leading article, for checking the nfcount',
 		'russianbracketedtitle_problem' => 'records marked *lang=Russian with a fully-bracketed title',
 		'russianldottitles_problem' => 'records (Russian) with L. in title to be checked individually, possibly resolving post-migration',
+		'paralleltitlemismatch_problem' => 'records (Russian) whose parallel title component count does not match that of the title',
 	);
 	
 	# Listing (values) reports
@@ -7699,7 +7700,7 @@ class muscatConversion extends frontControllerApplication
 				AND
 					(
 						fieldslist NOT LIKE '%@status@%'
-						OR 
+						OR
 						(
 							    fieldslist LIKE '%@status@%'
 							AND field = 'status'
@@ -9524,6 +9525,29 @@ class muscatConversion extends frontControllerApplication
 				    field = 't'
 				AND value LIKE BINARY '%L.%'
 				AND recordLanguage = 'Russian'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records (Russian) whose parallel title component count does not match that of the title
+	private function report_paralleltitlemismatch ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'paralleltitlemismatch' AS report,
+				id AS recordId
+			FROM catalogue_xml
+			WHERE
+				id IN (
+					SELECT id FROM catalogue_processed WHERE recordLanguage = 'Russian' AND field = 't' AND xPath REGEXP '^/(art|doc|ser)/tg/t$' AND value LIKE '% = %'
+				)
+				AND
+					(LENGTH( ExtractValue(xml, '/*/tg/t') )-LENGTH(REPLACE( ExtractValue(xml, '/*/tg/t') ,' = ','')))/LENGTH(' = ') !=
+					(LENGTH( ExtractValue(xml, '/*/lpt') )-LENGTH(REPLACE( ExtractValue(xml, '/*/lpt') ,' = ','')))/LENGTH(' = ')
 		";
 		
 		# Return the query
