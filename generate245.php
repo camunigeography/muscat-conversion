@@ -30,6 +30,23 @@ class generate245
 	# Main
 	public function main (&$error = false)
 	{
+		# Determine the record type
+		$this->recordType = $this->recordType ();
+		
+		# Determine the main record type to use as the XPath, i.e. /art, /doc, or /ser
+		$this->mainRecordTypePrefix = $this->recordType;
+		if ($isArtRecord = (in_array ($this->recordType, array ('/art/in', '/art/j')))) {
+			$this->mainRecordTypePrefix = '/art';
+		}
+		
+		# Obtain the title, by looking at *ser/*tg/*t OR *doc/*tg/*t OR *art/*tg/*t
+		$this->t = $this->muscatConversion->xPathValue ($this->xml, "/{$this->mainRecordTypePrefix}/tg/t");
+		
+		# Transliterate title (used for $a and possible $b) if required
+		if ($this->languageMode != 'default') {
+			$this->t = $this->muscatConversion->transliterateLocLatinToCyrillic ($this->t, $this->languageMode);
+		}
+		
 		# Determine first and second indicator
 		$firstIndicator = $this->firstIndicator ();
 		$secondIndicator = $this->secondIndicator ();
@@ -83,23 +100,6 @@ class generate245
 	# Second indicator
 	private function secondIndicator ()
 	{
-		# Determine the record type
-		$this->recordType = $this->recordType ();
-		
-		# Determine the main record type to use as the XPath, i.e. /art, /doc, or /ser
-		$this->mainRecordTypePrefix = $this->recordType;
-		if ($isArtRecord = (in_array ($this->recordType, array ('/art/in', '/art/j')))) {
-			$this->mainRecordTypePrefix = '/art';
-		}
-		
-		# Look at *ser/*tg/*t OR *doc/*tg/*t OR *art/*tg/*t
-		$this->t = $this->muscatConversion->xPathValue ($this->xml, "/{$this->mainRecordTypePrefix}/tg/t");
-		
-		# Transliterate title (used for $a and possible $b) if required
-		if ($this->languageMode != 'default') {
-			$this->t = $this->muscatConversion->transliterateLocLatinToCyrillic ($this->t, $this->languageMode);
-		}
-		
 		# Does the *t start with a leading article?
 		$nfCountLanguage = ($this->languageMode == 'default' ? false : $this->languageMode);	// Language mode relates to transliteration; languages like German should still have nfCount but will have 'default' language transliteration mode
 		$leadingArticleCharacterCount = $this->muscatConversion->macro_nfCount ($this->t, $this->xml, $nfCountLanguage);
