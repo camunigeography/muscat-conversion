@@ -8906,7 +8906,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# End if no problems
 		if (!$recordIds) {
-			return "SELECT 'isbninvalid' AS report, recordId FROM catalogue_rawdata WHERE 1 = 0;";	// A query returning the right fields but which will produce zero rows
+			return "SELECT 'isbninvalid' AS report, recordId FROM catalogue_rawdata WHERE 1 = 0;";	// A bogus query (effectively a 'return false') returning the right fields but which will produce zero rows
 		}
 		
 		# Compile a query which generate a result of static values; see: http://stackoverflow.com/questions/6156726/mysql-return-static-strings
