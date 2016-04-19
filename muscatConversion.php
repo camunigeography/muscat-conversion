@@ -266,6 +266,14 @@ class muscatConversion extends frontControllerApplication
 		'D',		// Dead serial
 	);
 	
+	# Supported transliteration upgrade (BGN/PCGN -> LoC) XPaths
+	private $transliterationUpgradeXPaths = array (
+		'/art/tg/t',
+		'/doc/tg/t',
+		'/ser/tg/t',
+	);
+	
+	
 	# Caches
 	private $lookupTablesCache = array ();
 	
@@ -2715,7 +2723,7 @@ class muscatConversion extends frontControllerApplication
 		$sql = "INSERT INTO catalogue_processed SELECT * FROM catalogue_rawdata;";
 		$this->databaseConnection->execute ($sql);
 		
-		# Add a field to store the XPath of the field
+		# Add a field to store the XPath of the field; this is necessary so that the transliteration upgrade can deal with only top-level titles rather than any *t
 		$sql = "ALTER TABLE catalogue_processed ADD xPath VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field' AFTER value;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -2746,6 +2754,9 @@ class muscatConversion extends frontControllerApplication
 			SET catalogue_processed.recordLanguage = firstLanguage
 			WHERE field IN ('t');";
 		$this->databaseConnection->execute ($sql);
+		
+		# Upgrade the transliterations to Library of Congress
+		$this->upgradeTransliterationsToLoc ();
 	}
 	
 	
@@ -3305,15 +3316,14 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to initialise the transliteration table; takes about 3 seconds to run
-	#   Depencies: catalogue_processed, catalogue_xml
+	#   Depencies: catalogue_processed
 	private function initialiseTransliterationsTable ()
 	{
 		# Create the table
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.transliterations;";
 		$this->databaseConnection->execute ($sql);
 		$sql = "CREATE TABLE IF NOT EXISTS `transliterations` (
-			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
-			`shardId` VARCHAR(10) NULL COMMENT 'Processed shard ID (catalogue_processed.id)',
+			`id` VARCHAR(10) NOT NULL COMMENT 'Processed shard ID (catalogue_processed.id)',
 			`recordId` INT(11) NULL COMMENT 'Record ID',
 			`field` VARCHAR(255) NULL COMMENT 'Field',
 			`title` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Reverse-transliterated title',
@@ -3331,35 +3341,29 @@ class muscatConversion extends frontControllerApplication
 		#!# Need to remove explicit dependency
 		$language = 'Russian';
 		
-		# Get the titles from record IDs whose language is transliterable
-		#!# This currently catches records where any *lang is Russian rather than the first
-		#!# What happens with titles within a *t block?
+		# Populate the transliterations table
 		$query = "
-			INSERT INTO transliterations (recordId, field, title_latin, title_latin_tt)
+			INSERT INTO transliterations (id, recordId, field, title_latin)
 				SELECT
-					id AS recordId,
-					't' AS field,
-					REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '*/tg/t')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
-						AS title_latin,
-					REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '*/tg/tt')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
-						AS title_latin_tt
-				FROM catalogue_xml
+					id,
+					recordId,
+					field,
+					value AS title_latin
+				FROM catalogue_processed
 				WHERE
-					id IN (
-						SELECT recordId FROM catalogue_processed WHERE field = 'lang' AND value = '{$language}'
-					)
+					    xPath IN('" . implode ("', '", $this->transliterationUpgradeXPaths) . "')
+					AND recordLanguage = '{$language}'
 		;";
 		$data = $this->databaseConnection->query ($query);
 		
-		# Add in the shard IDs by matching the hierarchically-obtained transliterations.title_latin values with the values in the processed table; this is the only way to ensure that top-level *t values are obtained
-		#!# Need to ensure there are no failures left, once /reports/failinglocupgrade/ is clear following fixing of /reports/missingt/ , /reports/emptytvariants/ , /reports/multipletopt/
+		# In the special case of the *t field, add in *tt (translated title) where that exists
 		$query = "
 			UPDATE transliterations
-			LEFT JOIN catalogue_processed ON
-				    transliterations.recordId = catalogue_processed.recordId
-				AND catalogue_processed.field = 't'
-				AND transliterations.title_latin = catalogue_processed.value
-			SET shardId = catalogue_processed.id
+			LEFT JOIN catalogue_processed ON transliterations.recordId = catalogue_processed.recordId
+			SET title_latin_tt = value
+			WHERE
+				    catalogue_processed.field = 'tt'
+				AND xPath IN('/art/tg/tt', '/doc/tg/tt', '/ser/tg/tt')
 		;";
 		$data = $this->databaseConnection->query ($query);
 		
@@ -3700,7 +3704,6 @@ class muscatConversion extends frontControllerApplication
 	
 	# Function to create XML records
 	#   Depencies: catalogue_processed
-	#!# This is currently not idempotent, in that re-running it will cause the BGN/PCGN transliterations to be lost from the second time
 	private function createXmlTable ()
 	{
 		# Clean out the XML table
@@ -3729,7 +3732,7 @@ class muscatConversion extends frontControllerApplication
 		# Replace location=Periodical in the processed records with the real, looked-up values
 		$this->processPeriodicalLocations ();
 		
-		# Invalid XML records containing location=Periodical, to force regeneration
+		# Invalidate XML records containing location=Periodical, to force regeneration
 		$query = "UPDATE catalogue_xml SET xml = NULL WHERE xml LIKE '%<location>Periodical</location>%';";
 		$this->databaseConnection->execute ($query);
 		
@@ -3750,27 +3753,21 @@ class muscatConversion extends frontControllerApplication
 			SET parallelTitleLanguages = value
 		;";
 		$this->databaseConnection->execute ($query);
-		
-		# Upgrade the transliterations to Library of Congress; this includes a third-pass of the XML records
-		$this->upgradeTransliterationsToLocInXml ();
 	}
 	
 	
 	# Function to transliterations to Library of Congress (LoC)
 	/* 
 		This is done as follows:
-		1) Pick out transliterable parts of the XML, which is therefore in a hierarchical context to avoid e.g. the wrong *t being picked
-		2) Match those back to processed record shards
+		1) Create a new 'transliterations' table which will hold the variants
+		2) Copy relevant processed record shards (top-level titles) into the transliterations table
 		3) Create reverse-transliterations from the original latin characters to Cyrillic
 		4) Forward transliterate the generated Cyrillic into Library of Congress transliterations
-		5) Update the processed table with the new LoC transliterations
-		6) Invalidate the XML records containing transliterations
-		7) Regenerating the invalidated XML records
+		5) Copy back and over the processed table with the new LoC transliterations, saving the pre-transliteration upgrade value also
 	*/
-	private function upgradeTransliterationsToLocInXml ()
+	private function upgradeTransliterationsToLoc ()
 	{
 		# Create the transliteration table; actual transliteration of records into MARC is done on-the-fly
-		#   Dependencies: catalogue_processed, catalogue_xml
 		$this->initialiseTransliterationsTable ();
 		
 		# Upgrade the processed record shards containing transliteration to use the new Library of Congress transliterations, and save the original BGN/PCGN value
@@ -3781,16 +3778,6 @@ class muscatConversion extends frontControllerApplication
 				value = title_loc
 		;";
 		$this->databaseConnection->execute ($query);
-		
-		# Invalidate XML records containing transliterations
-		$query = "UPDATE catalogue_xml
-			INNER JOIN transliterations ON catalogue_xml.id = transliterations.recordId
-			SET xml = NULL
-		;";
-		$this->databaseConnection->execute ($query);
-		
-		# Perform a third-pass of the XML processing, to pick up the new transliterations for the invalidated records
-		$this->processXmlRecords ();
 	}
 	
 	
