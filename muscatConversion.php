@@ -2304,9 +2304,6 @@ class muscatConversion extends frontControllerApplication
 			WHERE firstLanguage IS NOT NULL		/* I.e. don't overwrite the default English where no *lang specified */
 		;";
 		$this->databaseConnection->execute ($sql);
-		
-		# Upgrade the transliterations to Library of Congress
-		$this->upgradeTransliterationsToLoc ();
 	}
 	
 	
@@ -2866,7 +2863,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to initialise the transliteration table; takes about 3 seconds to run
-	#   Depencies: catalogue_processed
+	#   Depencies: catalogue_processed, catalogue_xml (only indirectly, as the xPath values in catalogue_processed only exist after creation of catalogue_xml
 	private function initialiseTransliterationsTable ()
 	{
 		# Create the table
@@ -3340,6 +3337,9 @@ class muscatConversion extends frontControllerApplication
 			SET parallelTitleLanguages = value
 		;";
 		$this->databaseConnection->execute ($query);
+		
+		# Upgrade the transliterations to Library of Congress; this includes a third-pass of the XML records
+		$this->upgradeTransliterationsToLoc ();
 	}
 	
 	
@@ -3351,10 +3351,13 @@ class muscatConversion extends frontControllerApplication
 		3) Create reverse-transliterations from the original latin characters to Cyrillic
 		4) Forward transliterate the generated Cyrillic into Library of Congress transliterations
 		5) Copy back and over the processed table with the new LoC transliterations, saving the pre-transliteration upgrade value also
+		6) Invalidate the XML records containing transliterations
+		7) Regenerate the invalidated XML records
 	*/
 	private function upgradeTransliterationsToLoc ()
 	{
 		# Create the transliteration table; actual transliteration of records into MARC is done on-the-fly
+		#   Dependencies: catalogue_processed, catalogue_xml
 		$this->initialiseTransliterationsTable ();
 		
 		# Upgrade the processed record shards containing transliteration to use the new Library of Congress transliterations, and save the original BGN/PCGN value
@@ -3365,6 +3368,16 @@ class muscatConversion extends frontControllerApplication
 				value = title_loc
 		;";
 		$this->databaseConnection->execute ($query);
+		
+		# Invalidate XML records containing transliterations
+		$query = "UPDATE catalogue_xml
+			INNER JOIN transliterations ON catalogue_xml.id = transliterations.recordId
+			SET xml = NULL
+		;";
+		$this->databaseConnection->execute ($query);
+		
+		# Perform a third-pass of the XML processing, to pick up the new transliterations for the invalidated records
+		$this->processXmlRecords ();
 	}
 	
 	
