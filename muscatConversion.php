@@ -96,6 +96,7 @@ class muscatConversion extends frontControllerApplication
 		'transliteratefailure_problem' => 'records whose reverse transliteration is not reversible',
 		'voyagerrecords_info' => 'records with an equivalent already in Voyager, targetted for merging',
 		'nohostlang_problem' => 'records whose *in contains a *lang but the main part does not',
+		'emptylang_problem' => 'records with an empty *lang',
 		'bibcheckerrors_problem' => 'records with Bibcheck errors',
 		'multiplelocationsmissing_problem' => 'records with multiple locations but marked as missing',
 		'notemissing_problem' => "records with a note containing the word 'missing' without a *ks MISSING; not all will actually be missing",
@@ -9321,6 +9322,26 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				    ExtractValue(xml, '/*/lang') = ''
 				AND ExtractValue(xml, '/*/*/lang') != ''
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with an empty *lang
+	private function report_emptylang ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'emptylang' AS report,
+				id AS recordId
+			FROM
+				catalogue_processed
+			WHERE
+				    field = 'lang'
+				AND value = ''
 		";
 		
 		# Return the query
