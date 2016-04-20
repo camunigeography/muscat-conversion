@@ -2272,7 +2272,7 @@ class muscatConversion extends frontControllerApplication
 		$sql = "INSERT INTO catalogue_processed SELECT * FROM catalogue_rawdata;";
 		$this->databaseConnection->execute ($sql);
 		
-		# Add a field to store the XPath of the field; this is necessary so that the transliteration upgrade can deal with only top-level titles rather than any *t
+		# Add a field to store the XPath of the field
 		$sql = "ALTER TABLE catalogue_processed ADD xPath VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field' AFTER value;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -2302,6 +2302,23 @@ class muscatConversion extends frontControllerApplication
 				ON firstLanguages.recordId = catalogue_processed.recordId
 			SET catalogue_processed.recordLanguage = firstLanguage
 			WHERE firstLanguage IS NOT NULL		/* I.e. don't overwrite the default English where no *lang specified */
+		;";
+		$this->databaseConnection->execute ($sql);
+		
+		# Set a flag for each shard which shows whether it is in the top-half (main) part of the record, or in the *in block; this is necessary so that the transliteration upgrade can deal with only top-level titles rather than any *t
+		$sql = "ALTER TABLE catalogue_processed ADD topLevel INT(1) NOT NULL DEFAULT '1' COMMENT 'Whether the shard is within the top level part of the record' AFTER value;";
+		$this->databaseConnection->execute ($sql);
+		$sql = "UPDATE catalogue_processed
+			LEFT JOIN (
+				-- Get the *in switchover point within each record that has an *in; records without will be untouched
+				SELECT
+					recordId,line
+			    FROM catalogue_rawdata
+			    WHERE field = 'in'
+			) AS lineIds ON catalogue_processed.recordId = lineIds.recordId
+			SET topLevel = 0
+			WHERE
+				catalogue_processed.line > lineIds.line		/* I.e. set to false after the *in marker, leaving 1 for all other cases */
 		;";
 		$this->databaseConnection->execute ($sql);
 	}
