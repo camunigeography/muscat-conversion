@@ -2302,6 +2302,8 @@ class muscatConversion extends frontControllerApplication
 			WHERE firstLanguage IS NOT NULL		/* I.e. don't overwrite the default English where no *lang specified */
 		;";
 		$this->databaseConnection->execute ($sql);
+		$this->databaseConnection->execute ("UPDATE catalogue_processed SET recordLanguage = REPLACE(recordLanguage, 'n^t', '" . chr(0xc3).chr(0xb1) . "');");	// Fix up special characters coming from catalogue_rawdata: In^tupiaq, In^tupiat
+		$this->databaseConnection->execute ("UPDATE catalogue_processed SET recordLanguage = REPLACE(recordLanguage, 'a^a', '" . chr(0xc3).chr(0xa1) . "');");	// Fix up special characters coming from catalogue_rawdata: Sa^ami
 		
 		# Set a flag for each shard which shows whether it is in the top-half (main) part of the record, or in the *in block; this is necessary so that the transliteration upgrade can deal with only top-level titles rather than any *t
 		$sql = "ALTER TABLE catalogue_processed ADD topLevel INT(1) NOT NULL DEFAULT 1 COMMENT 'Whether the shard is within the top level part of the record' AFTER value;";
