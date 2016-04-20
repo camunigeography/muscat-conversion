@@ -6051,7 +6051,7 @@ class muscatConversion extends frontControllerApplication
 			'gl ' => 'Italian',
 			'gli ' => 'Italian',
 			'ha ' => 'Hebrew',
-			'het' => 'Dutch',
+			'het ' => 'Dutch',
 			'ho ' => 'grc',
 			'il ' => 'Italian mlt',
 			"l'" => 'Catalan French Italian mlt',		// e.g. /records/4571/ ; Catalan checked in https://en.wikipedia.org/wiki/Catalan_grammar#Articles
