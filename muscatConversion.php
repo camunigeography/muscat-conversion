@@ -4661,14 +4661,14 @@ class muscatConversion extends frontControllerApplication
 		
 		# Compile the HTML
 		$html  = "\n<h3>Downloads</h3>";
-		$html .= "\n<table class=\"lines spaced\">";
+		$html .= "\n<table class=\"lines spaced downloads\">";
 		foreach ($this->filesets as $fileset => $label) {
 			$html .= "\n\t<tr>";
 			$html .= "\n\t\t<td><strong>{$label}</strong>:<br />" . number_format ($totals[$fileset]) . ' records</td>';
-			$html .= "\n\t\t<td><a class=\"actions\" href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.txt\">MARC21 data (text)</a></td>";
-			$html .= "\n\t\t<td><a class=\"actions\" href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrk\"><strong>MARC21 text (text, .mrk)</strong></a></td>";
-			$html .= "\n\t\t<td><a class=\"actions\" href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrc\">MARC21 data (binary .mrc)</a></td>";
-			$html .= "\n\t\t<td><a class=\"actions\" href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.errors.txt\">Errors</a></li>";
+			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.txt\">MARC21 data<br />(text)</a></td>";
+			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrk\"><strong>MARC21 text<br />(text, .mrk)</strong></a></td>";
+			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrc\">MARC21 data<br />(binary .mrc)</a></td>";
+			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.errors.txt\">Errors</a></li>";
 			$html .= "\n\t</tr>";
 		}
 		$html .= "\n</table>";
