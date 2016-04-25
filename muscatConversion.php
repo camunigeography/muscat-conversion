@@ -4672,7 +4672,7 @@ class muscatConversion extends frontControllerApplication
 		# Show errors
 		$html .= "\n<h3>Errors</h3>";
 		foreach ($this->filesets as $fileset => $label) {
-			$html .= "\n<h4>Errors: {$label}" . (isSet ($totals[$fileset]) ? " ({$totals[$fileset]})" : '') . '</h4>';
+			$html .= "\n<h4 class=\"" . (isSet ($totals[$fileset]) ? 'warning' : 'success') . "\">Errors: {$label} (" . (isSet ($totals[$fileset]) ? $totals[$fileset] : '0') . ')</h4>';
 			$filename = $directory . "/spri-marc-{$fileset}.errors.txt";
 			$errors = file_get_contents ($filename);
 			$errorsHtml = htmlspecialchars ($errors);
