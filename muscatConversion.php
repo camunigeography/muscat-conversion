@@ -1855,6 +1855,9 @@ class muscatConversion extends frontControllerApplication
 			# Create the UDC translations table
 			$this->createUdcTranslationsTable ();
 			
+			# Upgrade the transliterations to Library of Congress
+			$this->upgradeTransliterationsToLoc ();
+			
 			# Finish character processing stage
 			$html .= "\n<p>{$this->tick} The character processing has been done.</p>";
 			
@@ -2322,9 +2325,6 @@ class muscatConversion extends frontControllerApplication
 				catalogue_processed.line > lineIds.line		/* I.e. set to false after the *in marker, leaving 1 for all other cases */
 		;";
 		$this->databaseConnection->execute ($sql);
-		
-		# Upgrade the transliterations to Library of Congress
-		$this->upgradeTransliterationsToLoc ();
 	}
 	
 	
