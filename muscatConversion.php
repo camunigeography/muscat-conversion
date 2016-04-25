@@ -4669,20 +4669,28 @@ class muscatConversion extends frontControllerApplication
 		$totalsQuery = "SELECT status, COUNT(*) AS total FROM {$this->settings['database']}.catalogue_marc WHERE bibcheckErrors IS NOT NULL GROUP BY status;";
 		$totals = $this->databaseConnection->getPairs ($totalsQuery);
 		
-		# Show errors
-		$html .= "\n<h3>Errors</h3>";
+		# Compile error listings
+		$errorsHtml = '';
+		$jumplist = array ();
 		foreach ($this->filesets as $fileset => $label) {
-			$html .= "\n<h4 class=\"" . (isSet ($totals[$fileset]) ? 'warning' : 'success') . "\">Errors: {$label} (" . (isSet ($totals[$fileset]) ? $totals[$fileset] : '0') . ')</h4>';
 			$filename = $directory . "/spri-marc-{$fileset}.errors.txt";
 			$errors = file_get_contents ($filename);
-			$errorsHtml = htmlspecialchars ($errors);
-			$errorsHtml = preg_replace ("/(\s)(SPRI)([0-9]+)/", '\1\2<a href="' . $this->baseUrl . '/records/\3/"><strong>\3</strong></a>', $errorsHtml);
-			$html .= "\n<div class=\"graybox\">";
-			$html .= "\n<pre>";
-			$html .= $errorsHtml;
-			$html .= "\n</pre>";
-			$html .= "\n</div>";
+			$errorListingHtml = htmlspecialchars (trim ($errors));
+			$errorListingHtml = preg_replace ("/(\s)(SPRI)([0-9]+)/", '\1\2<a href="' . $this->baseUrl . '/records/\3/"><strong>\3</strong></a>', $errorListingHtml);
+			$totalErrors = (isSet ($totals[$fileset]) ? $totals[$fileset] : '0');
+			$jumplist[] = "<a href=\"#{$fileset}\" class=\"" . ($totalErrors ? 'warning' : 'success') . "\">{$label} ({$totalErrors})</a>";
+			$errorsHtml .= "\n<h4 id=\"{$fileset}\" class=\"" . ($totalErrors ? 'warning' : 'success') . "\">Errors: {$label} (" . $totalErrors . ')</h4>';
+			$errorsHtml .= "\n<div class=\"graybox\">";
+			$errorsHtml .= "\n<pre>";
+			$errorsHtml .= $errorListingHtml;
+			$errorsHtml .= "\n</pre>";
+			$errorsHtml .= "\n</div>";
 		}
+		
+		# Show errors
+		$html .= "\n<h3>Errors</h3>";
+		$html .= "\n<p class=\"jumplist\">Jump below to: " . implode (' | ', $jumplist) . '</p>';
+		$html .= $errorsHtml;
 		
 		# Show the HTML
 		echo $html;
