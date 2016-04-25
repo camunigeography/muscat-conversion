@@ -4067,15 +4067,8 @@ class muscatConversion extends frontControllerApplication
 		# Copy, so that a Voyager-specific formatted version can be created
 		copy ($filenameMarcTxt, $filenameMarcExchange);
 		
-		# Reformat to Voyager input style; this process is done using shelled-out inline sed/perl, rather than preg_replace, to avoid an out-of-memory crash
-		exec ("sed -i 's" . "/{$this->doubleDagger}\([a-z0-9]\)/" . '\$\1' . "/g' {$filenameMarcExchange}");		// Replace double-dagger(s) with $
-		exec ("sed -i '/^LDR /s/#/\\\\/g' {$filenameMarcExchange}");												// Replace all instances of a # marker in the LDR field with \
-		exec ("sed -i '/^008 /s/#/\\\\/g' {$filenameMarcExchange}");												// Replace all instances of a # marker in the 008 field with \
-		exec ("perl -pi -e 's" . '/^([0-9]{3}) #(.) (.+)$/' . '\1 \\\\\2 \3' . "/' {$filenameMarcExchange}");		// Replace # marker in position 1 with \
-		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.)# (.+)$/' . '\1 \2\\\\ \3' . "/' {$filenameMarcExchange}");		// Replace # marker in position 2 with \
-		exec ("perl -pi -e 's" . '/^([0-9]{3}|LDR) (.+)$/' . '\1  \2' . "/' {$filenameMarcExchange}");				// Add double-space after LDR and each field number
-		exec ("perl -pi -e 's" . '/^([0-9]{3})  (.)(.) (.+)$/' . '\1  \2\3\4' . "/' {$filenameMarcExchange}");		// Remove space after first and second indicators
-		exec ("perl -pi -e 's" . '/^(.+)$/' . '=\1' . "/' {$filenameMarcExchange}");								// Add = at start of each line
+		# Reformat a MARC records file to Voyager input style
+		$this->reformatMarcToVoyagerStyle ($filenameMarcExchange);
 		
 		# Create a binary version
 		$this->marcBinaryConversion ($fileset, $directory);
@@ -4085,6 +4078,21 @@ class muscatConversion extends frontControllerApplication
 		
 		# Extract the errors from this error report, and add them to the MARC table
 		$this->attachBibcheckErrors ($errorsFilename);
+	}
+	
+	
+	# Function to reformat a MARC records file to Voyager input style
+	private function reformatMarcToVoyagerStyle ($filenameMarcExchange)
+	{
+		# Reformat to Voyager input style; this process is done using shelled-out inline sed/perl, rather than preg_replace, to avoid an out-of-memory crash
+		exec ("sed -i 's" . "/{$this->doubleDagger}\([a-z0-9]\)/" . '\$\1' . "/g' {$filenameMarcExchange}");		// Replace double-dagger(s) with $
+		exec ("sed -i '/^LDR /s/#/\\\\/g' {$filenameMarcExchange}");												// Replace all instances of a # marker in the LDR field with \
+		exec ("sed -i '/^008 /s/#/\\\\/g' {$filenameMarcExchange}");												// Replace all instances of a # marker in the 008 field with \
+		exec ("perl -pi -e 's" . '/^([0-9]{3}) #(.) (.+)$/' . '\1 \\\\\2 \3' . "/' {$filenameMarcExchange}");		// Replace # marker in position 1 with \
+		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.)# (.+)$/' . '\1 \2\\\\ \3' . "/' {$filenameMarcExchange}");		// Replace # marker in position 2 with \
+		exec ("perl -pi -e 's" . '/^([0-9]{3}|LDR) (.+)$/' . '\1  \2' . "/' {$filenameMarcExchange}");				// Add double-space after LDR and each field number
+		exec ("perl -pi -e 's" . '/^([0-9]{3})  (.)(.) (.+)$/' . '\1  \2\3\4' . "/' {$filenameMarcExchange}");		// Remove space after first and second indicators
+		exec ("perl -pi -e 's" . '/^(.+)$/' . '=\1' . "/' {$filenameMarcExchange}");								// Add = at start of each line
 	}
 	
 	
