@@ -4043,25 +4043,46 @@ class muscatConversion extends frontControllerApplication
 		
 		# Chunk the records
 		$offset = 0;
-		$limit = 1000;
+		$limit = 10000;		// This number confirmed best given indexing speed by Voyager
 		$recordsRemaining = $totalRecords;
+		$i = 0;
+		$blockFilenames = array ();
 		while ($recordsRemaining > 0) {
 			
 			# Get the records
 			$query = "SELECT id,marc FROM {$this->settings['database']}.catalogue_marc WHERE status='{$fileset}' LIMIT {$offset},{$limit};";
 			$data = $this->databaseConnection->getPairs ($query);
 			
-			# Add each record
+			# Add each record to the current block
+			$marcTextThisBlock = '';
 			foreach ($data as $id => $record) {
-				$marcText .= trim ($record) . "\n\n";
+				$marcTextThisBlock .= trim ($record) . "\n\n";
 			}
+			
+			# Save a file for this block of records, formatted to Voyager style for use in the zip file version, and add to a registry for use in compiling the zip
+			$fileNumber = str_pad ($i, 2, '0', STR_PAD_LEFT);	// i.e. 00, 01, 02, .., 10, 11, etc.
+			$blockFile = preg_replace ('/.mrk$/', "-part{$fileNumber}.mrk", $filenameMarcExchange);		// Complete path
+			file_put_contents ($blockFile, $marcTextThisBlock);
+			$this->reformatMarcToVoyagerStyle ($blockFile);
+			$blockFileName = basename ($blockFile);
+			$blockFilenames[$blockFileName] = $blockFile;
+			$i++;
+			
+			# Add the block to the master string
+			$marcText .= $marcTextThisBlock;
 			
 			# Decrement the remaining records
 			$recordsRemaining = $recordsRemaining - $limit;
 			$offset += $limit;
 		}
 		
-		# Save the file, in the standard MARC format
+		# Create a zip file from all the smaller block records, and delete each block file
+		application::createZip ($blockFilenames, basename ($filenameMarcExchange), $directory . '/');
+		foreach ($blockFilenames as $blockFileName => $blockFile) {
+			unlink ($blockFile);
+		}
+		
+		# Save the main file, in the standard MARC format
 		file_put_contents ($filenameMarcTxt, $marcText);
 		
 		# Copy, so that a Voyager-specific formatted version can be created
@@ -4666,7 +4687,8 @@ class muscatConversion extends frontControllerApplication
 			$html .= "\n\t<tr>";
 			$html .= "\n\t\t<td><strong>{$label}</strong>:<br />" . number_format ($totals[$fileset]) . ' records</td>';
 			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.txt\">MARC21 data<br />(text)</a></td>";
-			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrk\"><strong>MARC21 text<br />(text, .mrk)</strong></a></td>";
+			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrk\">MARC21 text<br />(text, .mrk)</a></td>";
+			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrk.zip\"><strong>MARC21 text, blocks<br />(text, .mrk.zip)</strong></a></td>";
 			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrc\">MARC21 data<br />(binary .mrc)</a></td>";
 			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.errors.txt\">Errors</a></li>";
 			$html .= "\n\t</tr>";
