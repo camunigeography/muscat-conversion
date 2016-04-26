@@ -2314,15 +2314,15 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($sql);
 		$sql = "UPDATE catalogue_processed
 			LEFT JOIN (
-				-- Get the *in switchover point within each record that has an *in; records without will be untouched
+				-- Get the *in or *j switchover point within each record that has an *in / *j; records without will be untouched
 				SELECT
 					recordId,line
 			    FROM catalogue_rawdata
-			    WHERE field = 'in'
+			    WHERE field IN('in', 'j')
 			) AS lineIds ON catalogue_processed.recordId = lineIds.recordId
 			SET topLevel = 0
 			WHERE
-				catalogue_processed.line > lineIds.line		/* I.e. set to false after the *in marker, leaving 1 for all other cases */
+				catalogue_processed.line > lineIds.line		/* I.e. set to false after the *in or *j marker, leaving 1 for all other cases */
 		;";
 		$this->databaseConnection->execute ($sql);
 	}
