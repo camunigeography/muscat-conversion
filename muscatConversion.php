@@ -3266,9 +3266,9 @@ class muscatConversion extends frontControllerApplication
 		# Protect species Order names (which will not be in italics)
 		$replacements = array_merge ($replacements, array_values ($this->getSpeciesOrderNames ()));
 		
-		# Protect species names, chemical formulae, latin abbreviations, and other strings
-		$speciesNames = $this->oneColumnTableToList ('transliterationProtectedStrings.txt', true);
-		$replacements = array_merge ($replacements, $speciesNames);
+		# Protect a defined list of species names, chemical formulae, latin abbreviations, and other strings
+		$definedList = $this->oneColumnTableToList ('transliterationProtectedStrings.txt', true);
+		$replacements = array_merge ($replacements, $definedList);
 		
 		# Protect Roman numerals, by defining dynamic replacement patterns; note that standard latin characters rather than 'real' Unicode symbols are used, as per the recommendation in the Unicode standard - see: https://en.wikipedia.org/wiki/Numerals_in_Unicode#Roman_numerals_in_Unicode
 		#!# There is still the potential for "Volume I." at the end of a sentence, but that I. cannot be disambiguated from I. as an initial
