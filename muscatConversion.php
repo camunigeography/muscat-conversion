@@ -3226,7 +3226,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Define a numbered token pattern consisting of a safe string not likely to be present in the data and which will not be affected by any transliteration operation
-		$pattern = '<||%i||>';	// %i represents an index that will be generated, e.g. ' <||367||> ', which acts as a token representing the value of $replacements[367]
+		$pattern = '<||%i||>';	// %i represents an index that will be generated, e.g. '<||367||>', which acts as a token representing the value of $replacements[367]
 		
 		# Create a token for each protected part; this is passed back by reference, for easy restoration
 		$i = 0;
