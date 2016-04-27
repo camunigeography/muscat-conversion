@@ -75,10 +75,6 @@
 		<to>Гигантск</to>
 	</rule>
 	<rule>
-		<from>Okhotsk</from>
-		<to>охотск</to>
-	</rule>
-	<rule>
 		<from>Irkutsk</from>
 		<to>Иркутск</to>
 	</rule>
@@ -97,6 +93,20 @@
 	<rule>
 		<from>Yakutsk</from>
 		<to>Якутск</to>
+	</rule>
+	<rule>
+		<from>yakutsk</from>
+		<to>якутск</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>lamutsk</from>
+		<to>ламутск</to>
+		<context>
+			<after>\b</after>
+		</context>
 	</rule>
 	<rule>
 		<from>Kamchatsk</from>
@@ -633,6 +643,13 @@
 	<rule>
 		<from>Okhotsk</from>
 		<to>Охотск</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>okhotsk</from>
+		<to>охотск</to>
 		<context>
 			<after>\b</after>
 		</context>
