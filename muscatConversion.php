@@ -1855,6 +1855,9 @@ class muscatConversion extends frontControllerApplication
 			# Create the UDC translations table
 			$this->createUdcTranslationsTable ();
 			
+			# Create the transliteration table; actual transliteration of records into MARC is done on-the-fly
+			$this->createTransliterationsTable ();
+			
 			# Upgrade the transliterations to Library of Congress
 			$this->upgradeTransliterationsToLoc ();
 			
@@ -2883,9 +2886,17 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to initialise the transliteration table
+	# Function to create (initialise and populate) the transliteration table
 	#   Dependencies: catalogue_processed
-	private function initialiseTransliterationsTable ()
+	/* 
+		This is done as follows:
+		1) Create a new 'transliterations' table which will hold the variants
+		2) Copy relevant processed record shards (top-level titles) into the transliterations table
+		3) Create reverse-transliterations from the original BGN/PCGN latin characters to Cyrillic
+		4) Do a reverse transliteration check back from Cyrillic to BGN/PCGN and flag whether this failed
+		5) Forward-transliterate the newly-generated Cyrillic into Library of Congress transliterations
+	*/
+	private function createTransliterationsTable ()
 	{
 		# Create the table
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.transliterations;";
@@ -2943,7 +2954,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to run the transliterations in the transliteration table; this never alters title_latin which should be set only in initialiseTransliterationsTable, read from the post- second-pass XML records
+	# Function to run the transliterations in the transliteration table; this never alters title_latin which should be set only in createTransliterationsTable, read from the post- second-pass XML records
 	private function transliterateTransliterationsTable ()
 	{
 		# Obtain the raw values
@@ -3125,7 +3136,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/
 		$literalBackslash = '\\';
-		if (preg_match ('/' . "^{$literalBackslash}[([^{$literalBackslash}]]+){$literalBackslash}]$" . '/', $locLatin)) {		// Regexp should match the MySQL equivalent in initialiseTransliterationsTable ()
+		if (preg_match ('/' . "^{$literalBackslash}[([^{$literalBackslash}]]+){$literalBackslash}]$" . '/', $locLatin)) {		// Regexp should match the MySQL equivalent in createTransliterationsTable ()
 			return false;
 		}
 		
@@ -3362,20 +3373,9 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to transliterations to Library of Congress (LoC)
-	/* 
-		This is done as follows:
-		1) Create a new 'transliterations' table which will hold the variants
-		2) Copy relevant processed record shards (top-level titles) into the transliterations table
-		3) Create reverse-transliterations from the original latin characters to Cyrillic
-		4) Forward transliterate the generated Cyrillic into Library of Congress transliterations
-		5) Copy back and over the processed table with the new LoC transliterations, saving the pre-transliteration upgrade value also
-	*/
+	# Function to upgrade the shards consisting of transliterated strings to Library of Congress (LoC). This copies back and over the processed table with the new LoC transliterations, saving the pre-transliteration upgrade value
 	private function upgradeTransliterationsToLoc ()
 	{
-		# Create the transliteration table; actual transliteration of records into MARC is done on-the-fly
-		$this->initialiseTransliterationsTable ();
-		
 		# Upgrade the processed record shards containing transliteration to use the new Library of Congress transliterations, and save the original BGN/PCGN value
 		$query = "UPDATE catalogue_processed
 			INNER JOIN transliterations ON catalogue_processed.id = transliterations.shardId
@@ -9569,7 +9569,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Records marked *lang=Russian with a fully-bracketed title; see initialiseTransliterationsTable ()
+	# Records marked *lang=Russian with a fully-bracketed title; see createTransliterationsTable ()
 	private function report_russianbracketedtitle ()
 	{
 		# Define the query
