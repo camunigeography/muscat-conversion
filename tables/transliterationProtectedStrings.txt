@@ -450,6 +450,7 @@ JESUP
 ACSYS
 NCEP/NCAR
 RAEM
+RAE
 SAE
 LAE
 PNIE.03
@@ -468,6 +469,7 @@ Sav.-Lyub. et Z. Smirn.
 # Organisation names
 Congressus Octavus Internationalis Fenno-Ugristarum
 Linguistica Uralica
+Bulletin de la Société de Géographique de l'U.R.S.S.
 
 # Other strings to protect
 WWGS-89
