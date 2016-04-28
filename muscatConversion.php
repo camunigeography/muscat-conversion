@@ -4802,16 +4802,16 @@ class muscatConversion extends frontControllerApplication
 		$bytes = str_pad ($bytes, 5, '0', STR_PAD_LEFT);
 		$record = preg_replace ('/^LDR (_____)/m', "LDR {$bytes}", $record);
 		
-		# Report any UTF-8 problems
-		if (!htmlspecialchars ($record)) {
-			$errorString .= "UTF-8 conversion failed in record <a href=\"{$this->baseUrl}/records/{$recordId}/\">#{$recordId}</a>.";
-			return false;
-		}
-		
 		# If required, merge with an existing Voyager record, returning by reference the pre-merge record, and below returning the merged record
 		if ($mergeType) {
 			$marcPreMerge = $record;	// Save to argument returned by reference
 			$record = $this->mergeWithExistingVoyager ($record, $recordId, $mergeDefinition, $mergeType, $mergeVoyagerId, $errorString);
+		}
+		
+		# Report any UTF-8 problems
+		if (!htmlspecialchars ($record)) {
+			$errorString .= "UTF-8 conversion failed in record <a href=\"{$this->baseUrl}/records/{$recordId}/\">#{$recordId}</a>.";
+			return false;
 		}
 		
 		# Return the record
