@@ -3385,7 +3385,7 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Upgrade the processed record shards containing transliteration to use the new Library of Congress transliterations, and save the original BGN/PCGN value
 		$query = "UPDATE catalogue_processed
-			INNER JOIN transliterations ON catalogue_processed.id = transliterations.shardId
+			INNER JOIN transliterations ON catalogue_processed.id = transliterations.id
 			SET
 				preTransliterationUpgradeValue = value,
 				value = title_loc
