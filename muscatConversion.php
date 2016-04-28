@@ -6631,7 +6631,11 @@ class muscatConversion extends frontControllerApplication
 		$subfield6 = $this->doubleDagger . '6 ' . $masterField . '-' . $indexFormatted;		// Decided to add space after $6 for clarity, to avoid e.g. '$6880-02' which is less clear than '$6 880-02'
 		
 		# Insert the subfield after the indicators; this is similar to insertSubfieldAfterMarcFieldThenIndicators but without the initial MARC field number
-		$line = preg_replace ('/^([0-9#]{2}) (.+)$/', "\\1 {$subfield6} \\2", $line);
+		if (preg_match ('/^([0-9#]{2}) (.+)$/', $line)) {	// Can't get a single regexp that makes the indicator block optional
+			$line = preg_replace ('/^([0-9#]{2}) (.+)$/', "\\1 {$subfield6} \\2", $line);	// I.e. a macro block result line that includes the two indicators at the start (e.g. a 100), e.g. '1# $afoo'
+		} else {
+			$line = preg_replace ('/^(.+)$/', "{$subfield6} \\1", $line);	// I.e. a macro block result line that does NOT include the two indicators at the start (e.g. a 490), e.g. '$afoo'
+		}
 		
 		# Register the link so that the reciprocal link can be added within the master field; this is registered either as an array (representing parts of a multiline string) or a string (for a standard field)
 		$fieldKey = $masterField . '_' . $fieldInstance;	// e.g. 700_0
