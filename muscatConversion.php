@@ -4814,6 +4814,11 @@ class muscatConversion extends frontControllerApplication
 			return false;
 		}
 		
+		# Do a check to report any case of an invalid subfield indicator
+		if (preg_match_all ("/{$this->doubleDagger}[^a-z0-9]/u", $record, $matches)) {
+			$errorString .= "Invalid " . (count ($matches[0]) == 1 ? 'subfield' : 'subfields') . " (" . implode (', ', $matches[0]) . ") detected in record <a href=\"{$this->baseUrl}/records/{$recordId}/\">#{$recordId}</a>.";
+		}
+		
 		# Return the record
 		return $record;
 	}
