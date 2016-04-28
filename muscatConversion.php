@@ -6255,6 +6255,12 @@ class muscatConversion extends frontControllerApplication
 		# Ensure language is supported
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return false;}	// Return false to ensure no result, e.g. /records/162154/
 		
+		# If the subfield list is specified as '*', treat this as all subfields present in the string (logically, a non-empty string will always have at least one subfield), so synthesize the applyToSubfields value from what is present in the supplied string
+		if ($applyToSubfields == '*') {
+			preg_match_all ("/{$this->doubleDagger}([a-z0-9])/", $value, $matches);
+			$applyToSubfields = implode ($matches[1]);	// e.g. 'av' in the case of a 490; e.g. /records/15150/
+		}
+		
 		# Explode subfield string and prepend the double-dagger
 		$applyToSubfields = str_split ($applyToSubfields);
 		foreach ($applyToSubfields as $index => $applyToSubfield) {
