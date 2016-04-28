@@ -4817,6 +4817,16 @@ class muscatConversion extends frontControllerApplication
 		# Do a check to report any case of an invalid subfield indicator
 		if (preg_match_all ("/{$this->doubleDagger}[^a-z0-9]/u", $record, $matches)) {
 			$errorString .= "Invalid " . (count ($matches[0]) == 1 ? 'subfield' : 'subfields') . " (" . implode (', ', $matches[0]) . ") detected in record <a href=\"{$this->baseUrl}/records/{$recordId}/\">#{$recordId}</a>.";
+			// Leave the record visible rather than return false
+		}
+		
+		# Do a check to report any case where a where 880 fields do not have both a field (starting validly with a $6) and a link back
+		preg_match_all ("/^880 [0-9#]{2} {$this->doubleDagger}6 /m", $record, $matches);
+		$total880fields = count ($matches[0]);
+		$total880dollar6Instances = substr_count ($record, "{$this->doubleDagger}6 880-");
+		if ($total880fields != $total880dollar6Instances) {
+			$errorString .= "Mismatch in 880 field/link counts ({$total880fields} vs {$total880dollar6Instances}) in record <a href=\"{$this->baseUrl}/records/{$recordId}/\">#{$recordId}</a>.";
+			// Leave the record visible rather than return false
 		}
 		
 		# Return the record
@@ -6618,7 +6628,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Assemble the subfield
 		$indexFormatted = str_pad ($this->field880subfield6Index, 2, '0', STR_PAD_LEFT);
-		$subfield6 = $this->doubleDagger . '6 ' . $masterField . '-' . $indexFormatted;
+		$subfield6 = $this->doubleDagger . '6 ' . $masterField . '-' . $indexFormatted;		// Decided to add space after $6 for clarity, to avoid e.g. '$6880-02' which is less clear than '$6 880-02'
 		
 		# Insert the subfield after the indicators; this is similar to insertSubfieldAfterMarcFieldThenIndicators but without the initial MARC field number
 		$line = preg_replace ('/^(.{2}) (.+)$/', "\\1 {$subfield6} \\2", $line);
