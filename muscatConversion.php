@@ -5276,7 +5276,7 @@ class muscatConversion extends frontControllerApplication
 	# Function to modify a line to insert a subfield after the opening MARC field and indicators; for a multiline value, this must be one of the sublines
 	private function insertSubfieldAfterMarcFieldThenIndicators ($line, $insert)
 	{
-		return preg_replace ('/^([0-9]{3}) (.{2}) (.+)$/', "\\1 \\2 {$insert} \\3", $line);
+		return preg_replace ('/^([0-9]{3}) ([0-9#]{2}) (.+)$/', "\\1 \\2 {$insert} \\3", $line);
 	}
 	
 	
@@ -6631,7 +6631,7 @@ class muscatConversion extends frontControllerApplication
 		$subfield6 = $this->doubleDagger . '6 ' . $masterField . '-' . $indexFormatted;		// Decided to add space after $6 for clarity, to avoid e.g. '$6880-02' which is less clear than '$6 880-02'
 		
 		# Insert the subfield after the indicators; this is similar to insertSubfieldAfterMarcFieldThenIndicators but without the initial MARC field number
-		$line = preg_replace ('/^(.{2}) (.+)$/', "\\1 {$subfield6} \\2", $line);
+		$line = preg_replace ('/^([0-9#]{2}) (.+)$/', "\\1 {$subfield6} \\2", $line);
 		
 		# Register the link so that the reciprocal link can be added within the master field; this is registered either as an array (representing parts of a multiline string) or a string (for a standard field)
 		$fieldKey = $masterField . '_' . $fieldInstance;	// e.g. 700_0
