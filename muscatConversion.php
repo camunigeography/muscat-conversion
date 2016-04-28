@@ -2321,8 +2321,7 @@ class muscatConversion extends frontControllerApplication
 				SELECT
 					recordId,line
 			    FROM catalogue_rawdata
---			    WHERE field IN('in', 'j')
-			    WHERE field = 'in'
+			    WHERE field IN('in', 'j')
 			) AS lineIds ON catalogue_processed.recordId = lineIds.recordId
 			SET topLevel = 0
 			WHERE
@@ -3274,12 +3273,6 @@ class muscatConversion extends frontControllerApplication
 		#!# There is still the potential for "Volume I." at the end of a sentence, but that I. cannot be disambiguated from I. as an initial
 		$replacements[] = '/' . '(?:^|\s|\()' . '[IVXLCDM]+[-IVXLCDM]*' . '(?:$|\s|\)|,)' . '/';
 		$replacements[] = '/' . '(?:^|\s|\()' . '[IVXLCDM]+[-IVXLCDM]+' . '(?:$|\s|\)|,|\.)' . '/';	// Allow space if more than one; e.g. /records/144193/ which includes "Dactylopteriformes. - XXXVII."
-#		$replacements[] = '/' . '(?:^|\s|\()' . '[IVXLCDM]+[-IVXLCDM]*-' . '[^$|\s|\)]+' . '(?:$|\s|\))' . '/';
-#		$replacements[] = '/' . '(?:^|\s|\()' . '[IVXLCDM]+[-IVXLCDM]+-' . '[^$|\s|\)]+' . '(?:$|\s|\)|\.)' . '/';	// Allow space if more than one; e.g. /records/144193/ which includes "Dactylopteriformes. - XXXVII."
-		
-		# Roman numeral special handling for I and V: Is a Roman numeral, EXCEPT treated as a letter when at start of phrase + space, or space before + dot
-		
-		
 		
 		# Cache
 		$this->transliterationProtectedStrings = $replacements;
@@ -3781,14 +3774,12 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($query);
 		
 		# Records to suppress
-		#!# Fix hard-coded date
-		#!# Check whether locationCode locations with 'Periodical' are correct to suppress
 		$query = "UPDATE catalogue_marc
 			LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
 			LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
 			SET status = 'suppress'
 			WHERE
-				   (field = 'status' AND value = 'RECEIVED')	-- 8339 records
+			   (field = 'status' AND value = 'RECEIVED')	-- 8339 records
 				OR (
 					    EXTRACTVALUE(xml, '//status') IN('O/P', 'ON ORDER', 'ON ORDER (O/P)', 'ON ORDER (O/S)')
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
@@ -3812,20 +3803,11 @@ class muscatConversion extends frontControllerApplication
 						)
 					AND value NOT LIKE '%out of copyright%'
 					)	-- 1793 records
--- #!# This block probably can now be removed or filter for [Titles fully in brackets like this] - it seems to be checking for empty titles
 				OR (
 					    EXTRACTVALUE(xml, '//doc/tg/t') = ''
 					AND EXTRACTVALUE(xml, '//art/tg/t') = ''
 					AND EXTRACTVALUE(xml, '//ser/tg/t') = ''
 					)	-- 172 records
-				OR (
-					/* Exclude some groupings of Pamphlets not yet checked */
-					    field = 'location'
-					AND value = 'Pam'
-					AND EXTRACTVALUE(xml, '//lang[1]') != 'Russian'
-					-- #!# TODO
-					AND 1=0
-					)
 				-- 100292 records in total
 		;";
 		$this->databaseConnection->execute ($query);
@@ -6054,8 +6036,6 @@ class muscatConversion extends frontControllerApplication
 		if (!$language) {
 			$xPath = '//lang[1]';	// Choose first only
 			$language = $this->xPathValue ($xml, $xPath);
-// #!# For the 240 field, this needs to take the language whose index number is the same as t/tt/to...
-//var_dump ($language);
 		}
 		
 		# If no language specified, choose 'English'
@@ -6566,16 +6546,6 @@ class muscatConversion extends frontControllerApplication
 		} else {
 			return false;
 		}
-	}
-	
-	
-	# Function to determine whether a language is supported, and return it if so
-	private function getRecordLanguages ($xml)
-	{
-		# Get the *lang values and return them, if any
-		$langValues = $this->xPathValues ($xml, '(//lang)[%i]', false);
-		$langValues = array_values ($langValues);	// Reindex from 0 rather than 1
-		return $langValues;
 	}
 	
 	
@@ -7242,8 +7212,6 @@ class muscatConversion extends frontControllerApplication
 			# Register the amended value
 			$fieldValues[$index] = $fieldValue;
 		}
-		
-		#!# Need to handle cases like /records/191969/ having a field value ending with :
 		
 		# Compile the value
 		$value = implode ($implodeSubfields, $fieldValues);
@@ -9358,7 +9326,6 @@ class muscatConversion extends frontControllerApplication
 				SELECT
 					recordId,
 					title,
--- #!# Check this
 					IF (INSTR(title_latin,'[') > 0, LEFT(title_latin,LOCATE('[',title_latin) - 1), title_latin) AS title_latin
 				FROM transliterations
 			) AS transliterations_firstParts
