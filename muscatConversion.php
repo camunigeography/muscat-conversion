@@ -4809,7 +4809,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Report any UTF-8 problems
-		if (!htmlspecialchars ($record)) {
+		if (strlen ($record) && !htmlspecialchars ($record)) {	// i.e. htmlspecialchars fails
 			$errorString .= "UTF-8 conversion failed in record <a href=\"{$this->baseUrl}/records/{$recordId}/\">#{$recordId}</a>.";
 			return false;
 		}
