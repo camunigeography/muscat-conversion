@@ -213,6 +213,14 @@ class muscatConversion extends frontControllerApplication
 		'ignore'	=> 'Ignore record',
 	);
 	
+	# Record processing order, to ensure lookup dependencies do not fail
+	private $recordProcessingOrder = array (
+		'/doc',		// A whole document consisting of a book, report, volume of conference proceedings, letter, etc.
+		'/ser',		// A periodical
+		'/art/j',	// A part document consisting of a paper in a journal
+		'/art/in',	// A part document consisting of a book chapter or conference paper
+	);
+	
 	# Define the merge types
 	private $mergeTypes = array (
 		'TIP'	=> 'exact title match and ISSN match',
@@ -3611,7 +3619,7 @@ class muscatConversion extends frontControllerApplication
 		$this->marcSecondPass = array ();
 		
 		# Process records in the given order, so that processing of field 773 will have access to *doc/*ser processed records up-front
-		$recordProcessingOrder = array ('/doc', '/ser', '/art/j', '/art/in', 'secondpass');
+		$recordProcessingOrder = array_merge ($this->recordProcessingOrder, array ('secondpass'));
 		foreach ($recordProcessingOrder as $recordType) {
 			
 			# Process the records in chunks
