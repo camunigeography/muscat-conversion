@@ -1812,7 +1812,7 @@ class muscatConversion extends frontControllerApplication
 			'marc'					=> 'Regenerate MARC only (c. 65 minutes)',
 			'external'				=> 'Regenerate external Voyager records only (c. ? minutes)',
 			'outputstatus'			=> 'Regenerate output status only (c. 7 minutes)',
-			'exports'				=> 'Regenerate MARC export files and Bibcheck report (c. 3 minutes)',
+			'exports'				=> 'Regenerate MARC export files and Bibcheck report (c. 9.5 minutes)',
 			'reports'				=> 'Regenerate reports only (c. 7 minutes)',
 			'listings'				=> 'Regenerate listings reports only (c. 2 hours)',
 		);
@@ -4057,8 +4057,14 @@ class muscatConversion extends frontControllerApplication
 		$blockFilenames = array ();
 		while ($recordsRemaining > 0) {
 			
-			# Get the records
-			$query = "SELECT id,marc FROM {$this->settings['database']}.catalogue_marc WHERE status='{$fileset}' LIMIT {$offset},{$limit};";
+			# Get the records, in groups as per the processing order
+			$query = "SELECT
+				id,marc
+				FROM {$this->settings['database']}.catalogue_marc
+				WHERE status='{$fileset}'
+				ORDER BY FIELD(type, '" . implode ("','", $this->recordProcessingOrder) . "'), id
+				LIMIT {$offset},{$limit}
+			;";
 			$data = $this->databaseConnection->getPairs ($query);
 			
 			# Add each record to the current block
