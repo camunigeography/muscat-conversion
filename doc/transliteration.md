@@ -62,6 +62,8 @@ This involves the following steps:
 2. The routine `transliterateTransliterationsTable` is entered. For each shard:
 
  a. **Transliterate BGN/PCGN to Cyrillic.** The `title_latin` is transliterated to Cyrillic and stored as `title` using `transliterateBgnLatinToCyrillic`, using the Lingua Translit program and using the XML definition defined in `/tables/reverseTransliteration.xml` which is written by the interface at `/transliterator.html`. This takes around 20 minutes. It is not currently batched.
+  
+  * This section needs `protectSubstrings` applied. Further details are below.
 
  b. **Transliterate back from Cyrillic to BGN/PCGN as a reversibility check.** As a reversibility check, the new Cyrillic in `title` is forward-transliterated back and stored in `title_forward`, using `transliterateCyrillicToBgnLatin`. This takes around 15 seconds, and is batched (all shards processed at once).
  
@@ -81,11 +83,27 @@ This involves the following steps:
 
 The eventual MARC records need an 880 field containing the Cyrillic equivalent (known as the 'alternate graphic representation').
 
-This is done dynamically using `macro_transliterate`. It takes the new LoC reverse transliteration and converts it into Cyrillic.
+Conversion in the records of LoC to Cyrillic is done dynamically using `macro_transliterate`. It takes the new LoC reverse transliteration in the record and converts it into Cyrillic. The transliterations table is not used.
+
+This section has `protectSubstrings` applied. Further details are below.
 
 ### Phase 3: Create transliterations report
 
 There is a transliterations report at `/reports/transliterations/?filter=1` which aims to spot cases where the reversibility check failed, as well as show spelling problems.
 
 This is basically just a dynamic read of the `transliterations` table.
+
+The spell-checker dynamically reads the generated Cyrillic (from BGN/PCGN) and checks for errors. This section has `protectSubstrings` applied. Further details are below.
+
+
+## Protected strings
+
+Any conversion involving conversion of a reverse-transliterated string (i.e. currently in BGN/PCGN or LoC) to  Cyrillic needs some strings protected from conversion.
+
+Conversion from Cyrillic back to Latin never needs string protection.
+
+There is therefore a routine called `protectSubstrings` which takes the string and caches parts of the string away, replacing with a unique token, such as `<||367||>` .
+
+#!# Details TODO
+
 
