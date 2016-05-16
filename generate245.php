@@ -342,7 +342,7 @@ class generate245
 		# Any initials should be not be separated by a space; e.g. /records/203294/ , /records/203317/ , /records/6557/ , /records/202992/
 		# This is tolerant of transliterated Cyrillic values, e.g. /records/194996/ which has "Ye.V."
 		# This also ensures each group is an initial, e.g. avoiding /records/1139/ which has "C. Huntly".
-		$regexp = '/\b([^ ]{1,2})(\.) ([^ ]{1,2})(\.)/';
+		$regexp = '/\b([^ ]{1,2})(\.) ([^ ]{1,2})(\.)/u';
 		while (preg_match ($regexp, $string)) {
 			$string = preg_replace ($regexp, '\1\2\3\4', $string);
 		}
