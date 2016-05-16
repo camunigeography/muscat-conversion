@@ -718,10 +718,10 @@ class generateAuthors
 	}
 	
 	
-	# Function to expand initials to add spaces
+	# Function to expand initials to add spaces; note that 245 $c requires the opposite - see spaceOutInitials() in generate245
 	private function spaceOutInitials ($string)
 	{
-		# Any initials should be separated by a space; e.g. /records/1296/ , /records/1868/ ; note that 245 $c does not seem to do the same: http://www.loc.gov/marc/bibliographic/bd245.html
+		# Any initials should be separated by a space; e.g. /records/1296/ , /records/1868/
 		# This is tolerant of transliterated Cyrillic values, e.g. /records/194996/ which has "Ye.V." to become "Ye. V."
 		$regexp = '/\b([^ ]{1,2})(\.)([^ ]{1,2})/';
 		while (preg_match ($regexp, $string)) {
