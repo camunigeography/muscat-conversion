@@ -816,7 +816,7 @@ class generateAuthors
 			# Does the value of the $fieldValue appear on the Date list?
 			$dateList = $this->dateList ();
 			if (in_array ($fieldValue, $dateList)) {
-				$value .= ", {$this->doubleDagger}d {$fieldValue}";
+				$value .= ",{$this->doubleDagger}d {$fieldValue}";		// Avoid space after comma to avoid Bibcheck error "100: Subfield d must be preceded by a comma" in /records/6575/
 				return $value;
 			}
 		}
@@ -1906,7 +1906,7 @@ class generateAuthors
 	private function dateList ()
 	{
 		return array (
-			'1863-1945',
+			'1863-1945',	// /records/6575/
 		);
 	}
 	
