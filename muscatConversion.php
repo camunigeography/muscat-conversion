@@ -9699,7 +9699,7 @@ class muscatConversion extends frontControllerApplication
 			FROM catalogue_xml
 			WHERE
 				id IN (
-					SELECT id FROM catalogue_processed WHERE recordLanguage = 'Russian' AND field = 't' AND xPath REGEXP '^/(art|doc|ser)/tg/t$' AND value LIKE '% = %'
+					SELECT id FROM catalogue_processed WHERE recordLanguage = 'Russian' AND ((field = 't' AND xPath REGEXP '^/(art|doc|ser)/tg/t$') OR field = 'lpt') AND value LIKE '% = %'
 				)
 				AND
 					(LENGTH( ExtractValue(xml, '/*/tg/t') )-LENGTH(REPLACE( ExtractValue(xml, '/*/tg/t') ,' = ','')))/LENGTH(' = ') !=
