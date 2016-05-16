@@ -79,6 +79,7 @@ class muscatConversion extends frontControllerApplication
 		'541ccombinations2_info' => 'records with combinations of multiple *fund/*kb/*sref values (for 541c), excluding sref+fund',
 		'unrecognisedks_problem' => 'records with unrecognised *ks values',
 		'malformedks_problem' => 'records with malformed *ks values',
+		'malformedn2_problem' => 'records with a malformed *n2 value',
 		'coexistingksstatus_problem' => 'records with both a *ks status and a *status',
 		'statuscodeksderived_info' => 'records with a cataloguing status code coming from *ks',
 		'offprints_info' => 'records that contain photocopy/offprint in *note/*local/*priv',
@@ -9176,6 +9177,25 @@ class muscatConversion extends frontControllerApplication
 					   (value LIKE '%[%' AND value NOT REGEXP '^(.+)\\\\[(.+)\\\\]$')
 					OR value = ''
 				)
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with a malformed *n2 value
+	private function report_malformedn2 ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'malformedn2' AS report,
+				recordId
+			FROM `catalogue_processed`
+			WHERE
+				    field = 'n2'
+				AND value REGEXP '\\\\.[^])]$'
 		";
 		
 		# Return the query
