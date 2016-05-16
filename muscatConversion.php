@@ -3130,6 +3130,12 @@ class muscatConversion extends frontControllerApplication
 			$parallelTitleLanguages = explode ($parallelTitleSeparator, $lpt);
 			$parallelTitleComponents = explode ($parallelTitleSeparator, $locLatin);
 			
+			# Ensure the counts match; this is looking for the same problem as the paralleltitlemismatch report
+			if (count ($parallelTitleLanguages) != count ($parallelTitleComponents)) {
+				echo "<p class=\"warning\">Error: Transliteration requested with parallel titles list whose token count does not match the title.</p>";
+				return false;
+			}
+			
 			# Convert to key/value pairs; the list at /fields/lpt/values/ confirms there are no duplications (e.g. Russian = English = Russian)
 			$parallelTitles = array_combine ($parallelTitleLanguages, $parallelTitleComponents);
 			
