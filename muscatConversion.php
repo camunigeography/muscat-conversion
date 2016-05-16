@@ -4731,6 +4731,15 @@ class muscatConversion extends frontControllerApplication
 			$errorsHtml .= "\n</div>";
 		}
 		
+		# List the error types, grouped with a count for each type
+		$html .= "\n<h3>Bibcheck error types</h3>";
+		$errorTypes = $this->getBibcheckErrorTypeCounts ();
+		$errorTypesList = array ();
+		foreach ($errorTypes as $type => $total) {
+			$errorTypesList[] = htmlspecialchars ($type) . ' <strong>(' . $total . ')</strong>';
+		}
+		$html .= application::htmlUl ($errorTypesList, 0, 'smaller');
+		
 		# Show errors
 		$html .= "\n<h3>Errors</h3>";
 		$html .= "\n<p class=\"jumplist\">Jump below to: " . implode (' | ', $jumplist) . '</p>';
@@ -4738,6 +4747,34 @@ class muscatConversion extends frontControllerApplication
 		
 		# Show the HTML
 		echo $html;
+	}
+	
+	
+	# Function to extract Bibcheck errors types as a list with totals
+	private function getBibcheckErrorTypeCounts ()
+	{
+		# Get the data
+		$errorsList = array ();
+		$errorsQuery = "SELECT bibcheckErrors FROM {$this->settings['database']}.catalogue_marc WHERE bibcheckErrors IS NOT NULL;";
+		$errorSets = $this->databaseConnection->getPairs ($errorsQuery);
+		
+		# Split into single errors, as an error block may contain more than one error
+		foreach ($errorSets as $errorSet) {
+			$errors = explode ("\n", $errorSet);
+			foreach ($errors as $error) {
+				$error = trim ($error);
+				$errorsList[] = $error;
+			}
+		}
+		
+		# Group with counts
+		$errorCounts = array_count_values ($errorsList);
+		
+		# Sort by highest first
+		arsort ($errorCounts);
+		
+		# Return the counts
+		return $errorCounts;
 	}
 	
 	
