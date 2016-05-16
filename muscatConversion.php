@@ -3112,7 +3112,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to transliterate from Library of Congress (ALA LC) to Cyrillic; see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
-	public function transliterateLocLatinToCyrillic ($locLatin, $lpt)
+	public function transliterateLocLatinToCyrillic ($locLatin, $lpt, &$error = '')
 	{
 		# Load the Library of Congress transliterations definition, copied from https://github.com/umpirsky/Transliterator/blob/master/src/Transliterator/data/ru/ALA_LC.php
 		if (!isSet ($this->locTransliterationDefinition)) {
@@ -3132,7 +3132,7 @@ class muscatConversion extends frontControllerApplication
 			
 			# Ensure the counts match; this is looking for the same problem as the paralleltitlemismatch report
 			if (count ($parallelTitleLanguages) != count ($parallelTitleComponents)) {
-				echo "<p class=\"warning\">Error: Transliteration requested with parallel titles list whose token count does not match the title.</p>";
+				$error = 'Transliteration requested with parallel titles list whose token count does not match the title';
 				return false;
 			}
 			
@@ -3142,7 +3142,7 @@ class muscatConversion extends frontControllerApplication
 			# Set the supported language as the part to be transliterated
 			#!# Currently hard-coded support for Russian only
 			if (!isSet ($parallelTitles['Russian'])) {
-				echo "<p class=\"warning\">Error: Transliteration requested with parallel titles list that does not include Russian.</p>";
+				$error = 'Transliteration requested with parallel titles list that does not include Russian';
 				return false;
 			}
 			$locLatin = $parallelTitles['Russian'];
