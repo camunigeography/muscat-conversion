@@ -1813,7 +1813,7 @@ class muscatConversion extends frontControllerApplication
 			'marc'					=> 'Regenerate MARC only (c. 65 minutes)',
 			'external'				=> 'Regenerate external Voyager records only (c. ? minutes)',
 			'outputstatus'			=> 'Regenerate output status only (c. 7 minutes)',
-			'exports'				=> 'Regenerate MARC export files and Bibcheck report (c. 9.5 minutes)',
+			'exports'				=> 'Regenerate MARC export files and Bibcheck report (c. 10 minutes)',
 			'reports'				=> 'Regenerate reports only (c. 7 minutes)',
 			'listings'				=> 'Regenerate listings reports only (c. 2 hours)',
 		);
@@ -4045,9 +4045,13 @@ class muscatConversion extends frontControllerApplication
 		if (file_exists ($filenameMarcTxt)) {
 			unlink ($filenameMarcTxt);
 		}
-		$filenameMarcExchange = $directory . "/spri-marc-{$fileset}.mrk";
-		if (file_exists ($filenameMarcExchange)) {
-			unlink ($filenameMarcExchange);
+		$filenameMrk = $directory . "/spri-marc-{$fileset}.mrk";
+		if (file_exists ($filenameMrk)) {
+			unlink ($filenameMrk);
+		}
+		$filenameMrc = $directory . "/spri-marc-{$fileset}.mrc";
+		if (file_exists ($filenameMrc)) {
+			unlink ($filenameMrc);
 		}
 		
 		# Get the total records in the table
@@ -4061,7 +4065,8 @@ class muscatConversion extends frontControllerApplication
 		$limit = 10000;		// This number confirmed best given indexing speed by Voyager
 		$recordsRemaining = $totalRecords;
 		$i = 0;
-		$blockFilenames = array ();
+		$blockFileMrkNames = array ();
+		$blockFileMrcNames = array ();
 		while ($recordsRemaining > 0) {
 			
 			# Get the records, in groups as per the processing order
@@ -4082,11 +4087,16 @@ class muscatConversion extends frontControllerApplication
 			
 			# Save a file for this block of records, formatted to Voyager style for use in the zip file version, and add to a registry for use in compiling the zip
 			$fileNumber = str_pad ($i, 2, '0', STR_PAD_LEFT);	// i.e. 00, 01, 02, .., 10, 11, etc.
-			$blockFile = preg_replace ('/.mrk$/', "-part{$fileNumber}.mrk", $filenameMarcExchange);		// Complete path
-			file_put_contents ($blockFile, $marcTextThisBlock);
-			$this->reformatMarcToVoyagerStyle ($blockFile);
-			$blockFileName = basename ($blockFile);
-			$blockFilenames[$blockFileName] = $blockFile;
+			$partSuffix = "-part{$fileNumber}";
+			$blockFileMrk = preg_replace ('/.mrk$/', $partSuffix . '.mrk', $filenameMrk);		// Complete path
+			$blockFileMrc = preg_replace ('/.mrc$/', $partSuffix . '.mrc', $filenameMrc);		// Complete path
+			file_put_contents ($blockFileMrk, $marcTextThisBlock);
+			$this->reformatMarcToVoyagerStyle ($blockFileMrk);
+			$this->marcBinaryConversion ($fileset . $partSuffix, $directory);
+			$blockFileMrkName = basename ($blockFileMrk);
+			$blockFileMrcName = basename ($blockFileMrc);
+			$blockFileMrkNames[$blockFileMrkName] = $blockFileMrk;
+			$blockFileMrcNames[$blockFileMrcName] = $blockFileMrc;
 			$i++;
 			
 			# Add the block to the master string
@@ -4097,9 +4107,14 @@ class muscatConversion extends frontControllerApplication
 			$offset += $limit;
 		}
 		
-		# Create a zip file from all the smaller block records, and delete each block file
-		application::createZip ($blockFilenames, basename ($filenameMarcExchange), $directory . '/');
-		foreach ($blockFilenames as $blockFileName => $blockFile) {
+		# Create a zip file from all the smaller block records
+		application::createZip ($blockFileMrcNames, basename ($filenameMrc), $directory . '/');
+		
+		# Delete each block file from both sets
+		foreach ($blockFileMrkNames as $blockFileMrkName => $blockFile) {
+			unlink ($blockFile);
+		}
+		foreach ($blockFileMrcNames as $blockFileMrcName => $blockFile) {
 			unlink ($blockFile);
 		}
 		
@@ -4107,10 +4122,10 @@ class muscatConversion extends frontControllerApplication
 		file_put_contents ($filenameMarcTxt, $marcText);
 		
 		# Copy, so that a Voyager-specific formatted version can be created
-		copy ($filenameMarcTxt, $filenameMarcExchange);
+		copy ($filenameMarcTxt, $filenameMrk);
 		
 		# Reformat a MARC records file to Voyager input style
-		$this->reformatMarcToVoyagerStyle ($filenameMarcExchange);
+		$this->reformatMarcToVoyagerStyle ($filenameMrk);
 		
 		# Create a binary version
 		$this->marcBinaryConversion ($fileset, $directory);
@@ -4124,17 +4139,17 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to reformat a MARC records file to Voyager input style
-	private function reformatMarcToVoyagerStyle ($filenameMarcExchange)
+	private function reformatMarcToVoyagerStyle ($filenameMrk)
 	{
 		# Reformat to Voyager input style; this process is done using shelled-out inline sed/perl, rather than preg_replace, to avoid an out-of-memory crash
-		exec ("sed -i 's" . "/{$this->doubleDagger}\([a-z0-9]\)/" . '\$\1' . "/g' {$filenameMarcExchange}");		// Replace double-dagger(s) with $
-		exec ("sed -i '/^LDR /s/#/\\\\/g' {$filenameMarcExchange}");												// Replace all instances of a # marker in the LDR field with \
-		exec ("sed -i '/^008 /s/#/\\\\/g' {$filenameMarcExchange}");												// Replace all instances of a # marker in the 008 field with \
-		exec ("perl -pi -e 's" . '/^([0-9]{3}) #(.) (.+)$/' . '\1 \\\\\2 \3' . "/' {$filenameMarcExchange}");		// Replace # marker in position 1 with \
-		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.)# (.+)$/' . '\1 \2\\\\ \3' . "/' {$filenameMarcExchange}");		// Replace # marker in position 2 with \
-		exec ("perl -pi -e 's" . '/^([0-9]{3}|LDR) (.+)$/' . '\1  \2' . "/' {$filenameMarcExchange}");				// Add double-space after LDR and each field number
-		exec ("perl -pi -e 's" . '/^([0-9]{3})  (.)(.) (.+)$/' . '\1  \2\3\4' . "/' {$filenameMarcExchange}");		// Remove space after first and second indicators
-		exec ("perl -pi -e 's" . '/^(.+)$/' . '=\1' . "/' {$filenameMarcExchange}");								// Add = at start of each line
+		exec ("sed -i 's" . "/{$this->doubleDagger}\([a-z0-9]\)/" . '\$\1' . "/g' {$filenameMrk}");		// Replace double-dagger(s) with $
+		exec ("sed -i '/^LDR /s/#/\\\\/g' {$filenameMrk}");												// Replace all instances of a # marker in the LDR field with \
+		exec ("sed -i '/^008 /s/#/\\\\/g' {$filenameMrk}");												// Replace all instances of a # marker in the 008 field with \
+		exec ("perl -pi -e 's" . '/^([0-9]{3}) #(.) (.+)$/' . '\1 \\\\\2 \3' . "/' {$filenameMrk}");		// Replace # marker in position 1 with \
+		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.)# (.+)$/' . '\1 \2\\\\ \3' . "/' {$filenameMrk}");		// Replace # marker in position 2 with \
+		exec ("perl -pi -e 's" . '/^([0-9]{3}|LDR) (.+)$/' . '\1  \2' . "/' {$filenameMrk}");				// Add double-space after LDR and each field number
+		exec ("perl -pi -e 's" . '/^([0-9]{3})  (.)(.) (.+)$/' . '\1  \2\3\4' . "/' {$filenameMrk}");		// Remove space after first and second indicators
+		exec ("perl -pi -e 's" . '/^(.+)$/' . '=\1' . "/' {$filenameMrk}");								// Add = at start of each line
 	}
 	
 	
@@ -4709,8 +4724,8 @@ class muscatConversion extends frontControllerApplication
 			$html .= "\n\t\t<td><strong>{$label}</strong>:<br />" . number_format ($totals[$fileset]) . ' records</td>';
 			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.txt\">MARC21 data<br />(text)</a></td>";
 			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrk\">MARC21 text<br />(text, .mrk)</a></td>";
-			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrk.zip\"><strong>MARC21 text, blocks<br />(text, .mrk.zip)</strong></a></td>";
 			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrc\">MARC21 data<br />(binary .mrc)</a></td>";
+			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrc.zip\"><strong>MARC21 data, blocks<br />(binary .mrc)</strong></a></td>";
 			$html .= "\n\t</tr>";
 		}
 		$html .= "\n</table>";
