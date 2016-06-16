@@ -4808,7 +4808,7 @@ class muscatConversion extends frontControllerApplication
 		$errorString = '';
 		
 		# Create fresh containers for 880 reciprocal links for this record
-		$this->field880subfield6ReciprocalLinks = array ();
+		$this->field880subfield6ReciprocalLinks = array ();		// This is indexed by the master field, ignoring any mutations within multilines
 		$this->field880subfield6Index = 0;
 		$this->field880subfield6FieldInstanceIndex = array ();
 		
@@ -5282,7 +5282,6 @@ class muscatConversion extends frontControllerApplication
 		foreach ($this->field880subfield6ReciprocalLinks as $lineOutputKey => $linkToken) {		// $lineOutputKey is e.g. 700_0
 			
 			# Report data mismatches
-			#!# Example at: /records/194996/ This is caused by a generateAuthors multiline with a field number mutation in one of the lines but not all
 			if (!isSet ($outputLines[$lineOutputKey])) {
 				echo "<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> line output key {$lineOutputKey} does not exist in the output lines.</p>";
 			}
@@ -6630,8 +6629,8 @@ class muscatConversion extends frontControllerApplication
 			
 			# Construct each line
 			$values = array ();
-			foreach ($lines as $multilineSubfield => $line) {
-				$values[] = $this->construct880Subfield6Line ($line[2], $line[1], $this->field880subfield6FieldInstanceIndex[$masterField], $multilineSubfield);
+			foreach ($lines as $multilineSubfieldIndex => $line) {	// $line[1] will be the actual subfield code (e.g. 710), not the master field (e.g. 700), i.e. it may be a mutated value (e.g. 700 -> 710) as in e.g. /records/68500/ and similar in /records/150141/ , /records/183507/ , /records/196199/
+				$values[] = $this->construct880Subfield6Line ($line[2], $line[1], $masterField, $this->field880subfield6FieldInstanceIndex[$masterField], $multilineSubfieldIndex);
 			}
 			
 			# Compile the result back to a multiline string
@@ -6640,7 +6639,7 @@ class muscatConversion extends frontControllerApplication
 		} else {
 			
 			# Render the line
-			$value = $this->construct880Subfield6Line ($value, $masterField, $this->field880subfield6FieldInstanceIndex[$masterField]);
+			$value = $this->construct880Subfield6Line ($value, $masterField, $masterField, $this->field880subfield6FieldInstanceIndex[$masterField]);
 		}
 		
 		# Return the modified value
@@ -6649,12 +6648,12 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Helper function to render a 880 subfield 6 line
-	private function construct880Subfield6Line ($line, $masterField, $fieldInstance, $multilineSubfield = false)
+	private function construct880Subfield6Line ($line, $masterField, $masterFieldIgnoringMutation, $fieldInstance, $multilineSubfieldIndex = false)
 	{
 		# Advance the index, which is incremented globally across the record; starting from 1
 		$this->field880subfield6Index++;
 		
-		# Assemble the subfield
+		# Assemble the subfield for use in the 880 line
 		$indexFormatted = str_pad ($this->field880subfield6Index, 2, '0', STR_PAD_LEFT);
 		$subfield6 = $this->doubleDagger . '6 ' . $masterField . '-' . $indexFormatted;		// Decided to add space after $6 for clarity, to avoid e.g. '$6880-02' which is less clear than '$6 880-02'
 		
@@ -6666,10 +6665,10 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Register the link so that the reciprocal link can be added within the master field; this is registered either as an array (representing parts of a multiline string) or a string (for a standard field)
-		$fieldKey = $masterField . '_' . $fieldInstance;	// e.g. 700_0
+		$fieldKey = $masterFieldIgnoringMutation . '_' . $fieldInstance;	// e.g. 700_0; this uses the master field, ignoring the mutation, so that $this->field880subfield6ReciprocalLinks is indexed by the master field; this ensures reliable lookup in records such as /records/68500/ where a mutation exists in the middle of a master field (i.e. 700, 700, 710, 700, 700)
 		$linkToken = $this->doubleDagger . '6 ' . '880' . '-' . $indexFormatted;
-		if ($multilineSubfield !== false) {		// i.e. has supplied value
-			$this->field880subfield6ReciprocalLinks[$fieldKey][$multilineSubfield] = $linkToken;
+		if ($multilineSubfieldIndex !== false) {		// i.e. has supplied value
+			$this->field880subfield6ReciprocalLinks[$fieldKey][$multilineSubfieldIndex] = $linkToken;
 		} else {
 			$this->field880subfield6ReciprocalLinks[$fieldKey] = $linkToken;
 		}
