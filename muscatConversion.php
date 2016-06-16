@@ -4711,7 +4711,6 @@ class muscatConversion extends frontControllerApplication
 			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrk\">MARC21 text<br />(text, .mrk)</a></td>";
 			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrk.zip\"><strong>MARC21 text, blocks<br />(text, .mrk.zip)</strong></a></td>";
 			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrc\">MARC21 data<br />(binary .mrc)</a></td>";
-			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.errors.txt\">Errors</a></li>";
 			$html .= "\n\t</tr>";
 		}
 		$html .= "\n</table>";
