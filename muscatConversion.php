@@ -3152,6 +3152,7 @@ class muscatConversion extends frontControllerApplication
 		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/
 		$literalBackslash = '\\';
 		if (preg_match ('/' . "^{$literalBackslash}[([^{$literalBackslash}]]+){$literalBackslash}]$" . '/', $locLatin)) {		// Regexp should match the MySQL equivalent in createTransliterationsTable ()
+			// $error should not be given a string, as this scenario is not an error, e.g. /records/75010/ , /records/167609/ , /records/178982/
 			return false;
 		}
 		
@@ -6705,11 +6706,13 @@ class muscatConversion extends frontControllerApplication
 		require_once ('generate245.php');
 		$generate245 = new generate245 ($this, $xml, $authorsFields, $languageMode);
 		if (!$value = $generate245->main ($error)) {
-			$recordId = $this->xPathValue ($xml, '//q0');
-			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';
+			if ($error) {
+				$recordId = $this->xPathValue ($xml, '//q0');
+				echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';
+			}
 		}
 		
-		# Return the value
+		# Return the value, which may be false if transliteration not intended
 		return $value;
 	}
 	

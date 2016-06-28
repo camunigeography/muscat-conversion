@@ -146,7 +146,7 @@ class generate245
 		
 		# Ensure the title is not empty
 		$t = $this->t;
-		if (!strlen ($t)) {$t = '[No title]';}	// E.g. /records/14153/ , /records/188580/ , /records/211866/ , found using "SELECT id, EXTRACTVALUE(xml,'//tg/t') AS tValue FROM catalogue_xml HAVING LENGTH(tValue) = 0;"
+		if (!strlen ($t)) {$t = '[No title]';}	// E.g. /records/75010/ , /records/188580/ , /records/211866/ , found using "SELECT id, EXTRACTVALUE(xml,'//tg/t') AS tValue FROM catalogue_xml HAVING LENGTH(tValue) = 0;"
 		if ($t == '-') {$t = '[No title]';}	// E.g. /records/214258/
 		
 		# Does the *t include a colon ':'?
