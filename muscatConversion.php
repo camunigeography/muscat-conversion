@@ -3790,6 +3790,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($query);
 		
 		# Records to suppress
+		#!# Major issue: problem with e.g. /records/3929/ where two records need to be created, but not both should be suppressed; there are around 1,000 of these
 		$query = "UPDATE catalogue_marc
 			LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
 			LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
