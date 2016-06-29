@@ -5,7 +5,7 @@ This article documents the transliteration procedures within the conversion proc
 
 ## Aims
 
-Transliteration is currently only applied to Russian records. Other languages have been deemed out-of-scope.
+Transliteration is currently only applied to Russian records. Other languages have been deemed out-of-scope, though code has been written with a view to avoid hard-coding Russian.
 
 The aim is that all such records:
 
@@ -18,11 +18,11 @@ These involve two distinct processes.
 
 ### Phase 0: Preparations in processed table
 
-At a relatively early part of the overall conversion process, processed versions of the records are created by the `createProcessedTable` routine. This takes a copy of the raw Muscat data, which is sharded into components (where each shard is a a line such as *t in Muscat) and performs character conversions on it such as diacritic conversion, symbol processing, etc.
+At a relatively early part of the overall conversion process, processed versions of the records are created by the `createProcessedTable` routine. This takes a copy of the raw Muscat data, which is sharded into components (where each shard is a line such as *t in Muscat) and performs a range of general character conversions on it such as diacritic conversion, symbol processing, etc.
 
 Two of the parts of this of relevance, in later phases, to transliteration, are as follows:
 
-1. A flag field `topLevel` is added to the processed records table, marks each shard as being within the top level part of the record (value: `1`) or within in an `*in*` or `*j*` (value: `0`).
+1. A flag field `topLevel` is added to the processed records table, marks each shard as being within the top level part of the record (value: `1`) or within in an `*in` or `*j` (value: `0`).
 
 2. The record of the language (`firstLanguage`) of the record is determined, e.g. `Russian`, basically taking the first `*lang` if present.
 
@@ -52,7 +52,7 @@ This involves the following steps:
  b. A list of Muscat fields which may contain transliterated strings is created. Currently this is:
 
     * `*t` only
-	* (This list is expected to be expanded)
+	* [This list is expected to be expanded]
 	
  c. Records that have one of the fields, e.g. `*t` at top level (marked `topLevel = 1`) have each such shard copied from the processed table to the transliterations table, into the `title_latin` field.
 	* Note that [Titles fully in brackets like this] are excluded from this process
@@ -67,7 +67,7 @@ This involves the following steps:
 
  b. **Transliterate back from Cyrillic to BGN/PCGN as a reversibility check.** As a reversibility check, the new Cyrillic in `title` is forward-transliterated back and stored in `title_forward`, using `transliterateCyrillicToBgnLatin`. This takes around 15 seconds, and is batched (all shards processed at once).
  
- c. **Transliterate from the newly-created Cyrillic to LoC.** The Cyrillic in `title` is forward-translterated into Library of Congress (LoC) and stored in `title_loc`, using `transliterateCyrillicToLocLatin`. This takes only a second, and is batched (all shards processed at once); it is likely to be efficient as there is a one-to-one character mapping.
+ c. **Transliterate from the newly-created Cyrillic to LoC.** The Cyrillic in `title` is forward-transliterated into Library of Congress (LoC) and stored in `title_loc`, using `transliterateCyrillicToLocLatin`. This takes only a second, and is batched (all shards processed at once); it is likely to be efficient as there is a one-to-one character mapping.
 
  d. The three new values are added into the `transliterations` table for each shard.
  
