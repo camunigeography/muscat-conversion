@@ -2294,7 +2294,7 @@ class muscatConversion extends frontControllerApplication
 		$sql = "ALTER TABLE catalogue_processed ADD preTransliterationUpgradeValue TEXT NULL DEFAULT NULL COMMENT 'Value before transliteration changes' AFTER xPath;";
 		$this->databaseConnection->execute ($sql);
 		
-		# Add a field showing the record language (first language)
+		# Add a field to contain the record language (first language)
 		$sql = "ALTER TABLE catalogue_processed ADD recordLanguage VARCHAR(255) NULL DEFAULT 'English' COMMENT 'Record language (first language)' AFTER preTransliterationUpgradeValue;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -3790,18 +3790,20 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($query);
 		
 		# Records to suppress
+		#!# Fix hard-coded date
+		#!# Check whether locationCode locations with 'Periodical' are correct to suppress
 		#!# Major issue: problem with e.g. /records/3929/ where two records need to be created, but not both should be suppressed; there are around 1,000 of these
 		$query = "UPDATE catalogue_marc
 			LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
 			LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
 			SET status = 'suppress'
 			WHERE
-			   (field = 'status' AND value = 'RECEIVED')	-- 8339 records
+				   (field = 'status' AND value = 'RECEIVED')	-- 8339 records
 				OR (
 					    EXTRACTVALUE(xml, '//status') IN('O/P', 'ON ORDER', 'ON ORDER (O/P)', 'ON ORDER (O/S)')
-					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
+					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
 					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('2015-01-01 00:00:00')
-					)	-- 36 records
+					)	-- 30 records
 				OR (
 					    field = 'location'
 					AND value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
@@ -7287,6 +7289,8 @@ class muscatConversion extends frontControllerApplication
 			# Register the amended value
 			$fieldValues[$index] = $fieldValue;
 		}
+		
+		#!# Need to handle cases like /records/191969/ having a field value ending with :
 		
 		# Compile the value
 		$value = implode ($implodeSubfields, $fieldValues);
