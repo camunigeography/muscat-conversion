@@ -3798,12 +3798,15 @@ class muscatConversion extends frontControllerApplication
 			LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
 			SET status = 'suppress'
 			WHERE
-				   (field = 'status' AND value = 'RECEIVED')	-- 8339 records
+					
+				   (field = 'status' AND value = 'RECEIVED')	-- 5425 records
+					
 				OR (
 					    EXTRACTVALUE(xml, '//status') IN('O/P', 'ON ORDER', 'ON ORDER (O/P)', 'ON ORDER (O/S)')
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
 					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('2015-01-01 00:00:00')
-					)	-- 30 records
+				) -- 723 records
+					
 				OR (
 					    field = 'location'
 					AND value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
@@ -3813,7 +3816,8 @@ class muscatConversion extends frontControllerApplication
 						OR value LIKE '%Cambridge University%'
 						OR value LIKE 'Picture Library Store : Video%'
 						)
-					)	-- 10006 records
+				) -- 9932 records
+					
 				OR (
 					    field IN('note', 'local', 'priv')
 					AND (
@@ -3821,13 +3825,14 @@ class muscatConversion extends frontControllerApplication
 						OR value LIKE '%photocopy%'
 						)
 					AND value NOT LIKE '%out of copyright%'
-					)	-- 1793 records
+				) -- 1507 records
+					
 				OR (
 					    EXTRACTVALUE(xml, '//doc/tg/t') = ''
 					AND EXTRACTVALUE(xml, '//art/tg/t') = ''
 					AND EXTRACTVALUE(xml, '//ser/tg/t') = ''
-					)	-- 172 records
-				-- 100292 records in total
+				) -- 71 records
+					
 		;";
 		$this->databaseConnection->execute ($query);
 		
