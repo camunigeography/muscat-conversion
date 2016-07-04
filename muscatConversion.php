@@ -6782,6 +6782,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Macro for generating the 490 field
+	#!# Currently almost all parts of the conversion system assume a single *ts - this will need to be fixed; likely also to need to expand 880 mirrors to be repeatable
 	private function macro_generate490 ($ts, $xml, $ignored, $authorsFieldsIgnored, &$matchedRegexp = false)
 	{
 		# Obtain the *ts value or end
