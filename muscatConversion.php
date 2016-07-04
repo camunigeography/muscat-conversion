@@ -6783,12 +6783,13 @@ class muscatConversion extends frontControllerApplication
 	
 	# Macro for generating the 490 field
 	#!# Currently almost all parts of the conversion system assume a single *ts - this will need to be fixed; likely also to need to expand 880 mirrors to be repeatable
+	#!# Repeatability experimentally added to 490 at definition level, but this may not work properly as the field reads in *vno for instance
 	private function macro_generate490 ($ts, $xml, $ignored, $authorsFieldsIgnored, &$matchedRegexp = false)
 	{
 		# Obtain the *ts value or end
 		if (!$ts) {return false;}
 		
-		# Series titles: 
+		# Series titles:
 		# Decided not to treat "Series [0-9]+$" as a special case that avoids the splitting into $a... ;$v...
 		# This is because there is clear inconsistency in the records, e.g.: "Field Columbian Museum, Zoological Series 2", "Burt Franklin Research and Source Works Series 60"
 		
