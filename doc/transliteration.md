@@ -43,8 +43,8 @@ This involves the following steps:
 	* `recordId` Record ID, e.g. `1262`
 	* `field` Field, e.g. `t` (i.e. *t*)
 	* `title_latin` Title (latin characters), unmodified from original data, e.g. `Za polyarnym krugom`
-	* `title` Reverse-transliterated title in UTF-8 Cyrillic, e.g. `За полярным кругом`
 	* `title_latin_tt` *tt if present, e.g. `Beyond the Arctic Circle`
+	* `title` Reverse-transliterated title in UTF-8 Cyrillic, e.g. `За полярным кругом`
 	* `title_forward` Forward transliteration from generated Cyrillic (BGN/PCGN) as a test, e.g. `Za polyarnym krugom`
 	* `forwardCheckFailed` Flag for whether forward check failed
 	* `title_loc` Forward transliteration from generated Cyrillic (Library of Congress), e.g. `Za poli͡arnym krugom`

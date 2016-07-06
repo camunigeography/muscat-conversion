@@ -4220,7 +4220,8 @@ class muscatConversion extends frontControllerApplication
 		$whitelistErrorRegexps = array (
 			'008: Check place code xxu - please set code for specific state \(if known\).',
 			'008: 008 date may not match 260 date - please check.',	// E.g. /records/1150/ which has '[196-?]' which is valid - Bibcheck isn't taking account of [...] brackets or five-digit values
-			'541: Subfield _[0-9 ] is not allowed.',	// E.g. /records/145475/ which has "AUS$ "
+			'520: Subfield _[1m,2t)] is not allowed.',	// E.g. /records/140044/
+			'541: Subfield _[0-9AUNC ] is not allowed.',	// E.g. /records/145475/ which has "AUS$ "
 			'541: Subfield _[0-9] is not repeatable.',	// The generate541 code definitely has no horizontal repeatability - this is Bibcheck being unable to distinguish e.g. $5 (money) from double-dagger5 (subfield)
 			'Record is post 1900 but contains local information \(541 or 561 fields\) - please check.',	// For 541; confirmed fine as we are setting $5
 			'6XX: Unless the Literary form in the 008 is set to one of the fiction codes, there must be at least one 6XX field \(ignore if the work is a sacred text.\)',		// This arises because Bibcheck has a litcode check at line 602 but that assumes that the 008 is a "008 - Books" which is not always the case - see position_18_34__33 in generate008; see e-mail dated 30/Mar/2016 investigating this
