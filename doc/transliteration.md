@@ -57,7 +57,9 @@ This involves the following steps:
  c. Records that have one of the fields, e.g. `*t` at top level (marked `topLevel = 1`) have each such shard copied from the processed table to the transliterations table, into the `title_latin` field.
 	* Note that [Titles fully in brackets like this] are excluded from this process
 	
- d. Thus we now have a table containing shards with field `title_latin` containing the BGN/PCGN string that needs to be upgraded.
+ d. Similarly, `*tt` where present (at top level) is copied into `title_latin_tt`.
+	
+ e. Thus we now have a table containing shards with field `title_latin` containing the BGN/PCGN string that needs to be upgraded (and `title_latin_tt` for records having `*tt`).
 	
 2. The routine `transliterateTransliterationsTable` is entered. For each shard:
 
