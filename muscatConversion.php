@@ -3035,6 +3035,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to reverse-transliterate a string from BGN/PCGN latin to Cyrillic
+	# This function is not batch-safe, and is designed to accept only a single string at a time
 	/*
 		Files are at
 		/root/.cpan/build/Lingua-Translit-0.22-th0SPW/xml/
