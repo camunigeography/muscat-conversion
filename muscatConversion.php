@@ -7395,7 +7395,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to parse subfields into key-value pairs
-	private function parseSubfieldsToPairs ($line)
+	private function parseSubfieldsToPairs ($line, $knownSingular = false)
 	{
 		# Tokenise
 		$tokens = $this->tokeniseToSubfields ($line);
@@ -7415,7 +7415,11 @@ class muscatConversion extends frontControllerApplication
 			if (!$subfield) {continue;}
 			
 			# Register the subfields, resulting in e.g. ($a => $aFoo, $b => $bBar)
-			$subfields[$subfield][] = $string;
+			if ($knownSingular) {
+				$subfields[$subfield] = $string;	// If known to be singular, avoid indexing by [0]
+			} else {
+				$subfields[$subfield][] = $string;
+			}
 		}
 		
 		# Return the subfield pairs
