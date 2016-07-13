@@ -149,9 +149,6 @@ Pegasiformes
 Dactylopteridae
 Pegasidae
 Centrophyceae
-Osteichthyes
-Dactylopteriformes
-Pegasidae
 enhydra lutris
 Phoronis ovalis
 phoronida
@@ -176,7 +173,6 @@ Oncorhynchus
 Compositae
 Potamogetonaceae
 Geraniaceae
-Scrophulariaceae
 daphniidae
 bozminidae
 Diurna
@@ -248,7 +244,6 @@ Tubiluchidae
 (Gertsch)
 Amaranthaceae
 Anostraca
-Anostraca
 Betulaceae
 Callipallenidae
 Cerambycidae
@@ -259,7 +254,6 @@ Isoetaceae
 Logomorpha
 Monhysterida
 Muridae
-Notostraca
 Notostraca
 Silphidae
 sphecidae
@@ -288,7 +282,6 @@ Liparidae
 Scorpaeniformes
 Thysanoessa spp.
 (Ohlert)
-(Gertsch)
 Cervus elaphus
 Studia Slavica Finlandensia
 Valenciennes
@@ -298,7 +291,6 @@ Fucales
 Lophocoleineae
 Ricciaceae
 Syperaceae
-Caryophyllaceae
 Parasitiformes
 Gamasoidea
 Cerambycidaė
@@ -309,17 +301,12 @@ truncatum Р.
 (Claus)
 (Boeck)
 (Turn)
-Phaeophyta
-Fucales
 Bivalvia
 Palaeonemertini
 Tubulanidae
 hynobius keyserlingii
 Euphausia superba Dana
 Corollospora Werdermann
-Chromadoria
-Desmodorida
-Spiriniidae
 (Pallas)
 Lin.
 Fabr.
@@ -331,12 +318,9 @@ Gornacuspongida
 Polypodiaceae
 Butomaceae
 Lemnaceae
-Orchidaceae
 Octocorallia
 Hexacorallia
 Empetrum
-Simuliidae
-Mystacoceti
 Pagophoca
 groenlandica
 Card.
@@ -344,34 +328,16 @@ Bryhn
 Fuernr.
 Acrosporaceae
 Cervus Elaphus L
-Teleostomi
 Percoidei
 Serranidae
 Champsodontidae
 Onychiuridae
-Cerambycidae
 With.
 Crosskey
-Simuliidae
-Simuliidae
-Parasitiformes
-Gamasoidea
 et Bogd.
-Syperaceae
-Nymphaeaceae
-Hippuridaceae
-Geraniaceae
 Scrophulariaceae
-daphniidae
-bozminidae
-Diurna
-Syrphidae
-Orchidaceae
 Scarlato sp. nov
 Boeck
-(Turn)
-Phaeophyta
-Fucales
 Droseraceae
 Chordata
 L.)
@@ -416,7 +382,6 @@ Rb/Sr
 90Sr
 ²³⁰Th/U-
 SO₂
-HClO₄.5 1/2H₂O
 Rb-Sr
 D₂O
 Ag
