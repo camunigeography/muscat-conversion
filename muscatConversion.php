@@ -3300,7 +3300,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Helper function to process a list file to an array
-	private function oneColumnTableToList ($filename, $longerFirst = true)
+	private function oneColumnTableToList ($filename, $longerFirst = false)
 	{
 		# Process the file
 		$lookupTable = file_get_contents ($this->applicationRoot . '/tables/' . $filename);
