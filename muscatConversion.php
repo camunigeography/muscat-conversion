@@ -3312,15 +3312,33 @@ class muscatConversion extends frontControllerApplication
 		foreach ($result as $index => $line) {
 			if (!strlen (trim ($line)) || preg_match ('/^#/', $line)) {unset ($result[$index]);}
 		}
-		$result = array_values ($result);	// Reindex
 		
-		# If required, order the values so that longer values come first, making it safe for multiple replacements
+		# If required, order the values so that longer (string-length) values come first, making it safe for multiple replacements
 		if ($longerFirst) {
-			rsort ($result, SORT_NATURAL | SORT_FLAG_CASE);		// Case-insensitive searching - not actually necessary, just nicer for debugging
+			usort ($result, array ($this, 'lengthDescValueSort'));
 		}
+		
+		# Reindex to ensure starting from 0, following line stripping and possible longer-first operations
+		$result = array_values ($result);
 		
 		# Return the list
 		return $result;
+	}
+	
+	
+	# Helper function to sort by string length descending then by value, for use in a callback; see: http://stackoverflow.com/a/16311030/180733
+	private function lengthDescValueSort ($a, $b)
+	{
+		$la = mb_strlen ($a);
+		$lb = mb_strlen ($b);
+		
+		# If same length, compare by value; uses case-insensitive searching - not actually necessary, just nicer for debugging
+		if ($la == $lb) {
+			return strcasecmp ($a, $b);		// Is binary-safe
+		}
+		
+		# Otherwise compare by string length descending
+		return $lb - $la;
 	}
 	
 	
