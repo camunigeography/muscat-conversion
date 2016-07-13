@@ -6795,13 +6795,19 @@ class muscatConversion extends frontControllerApplication
 		# Decided not to treat "Series [0-9]+$" as a special case that avoids the splitting into $a... ;$v...
 		# This is because there is clear inconsistency in the records, e.g.: "Field Columbian Museum, Zoological Series 2", "Burt Franklin Research and Source Works Series 60"
 		
-		# Load the regexp list
-		$regexpsBase = $this->oneColumnTableToList ('volumeRegexps.txt');
+		#!# Add override handling for *ts containing semicolon which has been added in, e.g. /records/2296/
 		
-		# Add implicit boundaries to each regexp
-		$regexps = array ();
-		foreach ($regexpsBase as $index => $regexp) {
-			$regexps[$index] = '^(.+)\s+(' . $regexp . ')$';
+		# Load the regexps list if not already done so
+		if (!isSet ($this->regexps490)) {
+			
+			# Load the regexp list
+			$this->regexps490Base = $this->oneColumnTableToList ('volumeRegexps.txt');
+			
+			# Add implicit boundaries to each regexp
+			$this->regexps490 = array ();
+			foreach ($this->regexps490Base as $index => $regexp) {
+				$this->regexps490[$index] = '^(.+)\s+(' . $regexp . ')$';
+			}
 		}
 		
 		# Ensure the matched regexp is reset
@@ -6809,7 +6815,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Normalise any trailing volume number strings
 		$i = 0;
-		foreach ($regexps as $index => $regexp) {
+		foreach ($this->regexps490 as $index => $regexp) {
 			$i++;
 			
 			# Find the first match, then stop
@@ -6817,7 +6823,7 @@ class muscatConversion extends frontControllerApplication
 			if (preg_match ($delimeter . $regexp . $delimeter, $ts, $matches)) {	// Regexps are permitted to have their own captures; matches 3 onwards are just ignored
 				$seriesTitle = $matches[1];
 				$volumeNumber = $matches[2];
-				$matchedRegexp = $i . ': ' . $regexpsBase[$index];	// Pass back by reference the matched regexp
+				$matchedRegexp = $i . ': ' . $this->regexps490Base[$index];	// Pass back by reference the matched regexp
 				break;	// Relevant regexp found
 			}
 			
