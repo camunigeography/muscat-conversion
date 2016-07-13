@@ -6828,18 +6828,16 @@ class muscatConversion extends frontControllerApplication
 			}
 		}
 		
-		# Ensure the matched regexp is reset
+		# Ensure the matched regexp, passed back by reference, is reset
 		$matchedRegexp = false;
 		
 		# By default, treat as simple series title without volume number
 		$seriesTitle = $ts;
 		$volumeNumber = NULL;
 		
-		# Normalise any trailing volume number strings
+		# Find the first match, then stop, if any
 		foreach ($this->regexps490 as $index => $regexp) {
-			
-			# Find the first match, then stop
-			$delimeter = '~';	// Known not to be in the list
+			$delimeter = '~';	// Known not to be in the tables/volumeRegexps.txt list
 			if (preg_match ($delimeter . $regexp . $delimeter, $ts, $matches)) {	// Regexps are permitted to have their own captures; matches 3 onwards are just ignored
 				$seriesTitle = $matches[1];
 				$volumeNumber = $matches[2];
