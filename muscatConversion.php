@@ -6813,6 +6813,10 @@ class muscatConversion extends frontControllerApplication
 		# Ensure the matched regexp is reset
 		$matchedRegexp = false;
 		
+		# By default, treat as simple series title without volume number
+		$seriesTitle = $ts;
+		$volumeNumber = NULL;
+		
 		# Normalise any trailing volume number strings
 		foreach ($this->regexps490 as $index => $regexp) {
 			
@@ -6824,10 +6828,6 @@ class muscatConversion extends frontControllerApplication
 				$matchedRegexp = ($index + 1) . ': ' . $this->regexps490Base[$index];		// Pass back by reference the matched regexp, prefixed by the number in the list, indexed from 1
 				break;	// Relevant regexp found
 			}
-			
-			# If no match, treat as simple series title without volume number
-			$seriesTitle = $ts;
-			$volumeNumber = NULL;
 		}
 		
 		# If there is a *vno, add that
