@@ -130,7 +130,7 @@ class muscatConversion extends frontControllerApplication
 		'kwunknown' => 'records where kw is unknown, showing the bibliographer concerned',
 		'doclocationperiodicaltsvalues' => '*doc records with one *location, which is Periodical - distinct *ts values',
 		'unrecognisedksvalues' => 'records with unrecognised *ks values - distinct *ks values',
-		'volumenumbers_info' => 'volume number results arising from 490 macro',
+		'volumenumbers_info' => 'volume number results arising from the 490 macro',
 		'voyagerlocations' => 'Muscat locations that do not map to Voyager locations',
 		'translationnotevalues' => 'records containing a note regarding translation - distinct values',
 		'mergestatus' => 'records with a merge status',
@@ -4003,7 +4003,9 @@ class muscatConversion extends frontControllerApplication
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.volumenumbers;";
 		$this->databaseConnection->execute ($sql);
 		$sql = "CREATE TABLE IF NOT EXISTS volumenumbers (
-			id int(11) NOT NULL COMMENT 'Automatic key',
+			id VARCHAR(10) NOT NULL COMMENT 'Shard ID',
+			recordId INT(6) NOT NULL COMMENT 'Record ID',
+			line INT(3) NOT NULL COMMENT 'Line',
 			ts VARCHAR(255) NOT NULL COMMENT '*ts value',
 			result VARCHAR(255) DEFAULT NULL COMMENT 'Result of translation',
 			matchedRegexp VARCHAR(255) DEFAULT NULL COMMENT 'Result of translation',
@@ -4014,12 +4016,14 @@ class muscatConversion extends frontControllerApplication
 		
 		# Insert the data
 		$sql = "
-			INSERT INTO volumenumbers (id, ts)
+			INSERT INTO volumenumbers (id, recordId, line, ts)
 			SELECT
 				id,
-				EXTRACTVALUE(xml, '//ts') AS ts
-			FROM catalogue_xml
-			WHERE EXTRACTVALUE(xml, '//ts') != ''	/* i.e. is a *ser */
+				recordId,
+				line,
+				value AS ts
+			FROM catalogue_processed
+			WHERE xPath LIKE '%/ts'
 		";
 		$this->databaseConnection->execute ($sql);
 		
@@ -10697,12 +10701,13 @@ class muscatConversion extends frontControllerApplication
 		# Define a manual query
 		$query = "
 			SELECT
-				id,
+				recordId AS id,
+				line,
 				ts,
 				result,
 				matchedRegexp
 			FROM {$this->settings['database']}.volumenumbers
-			ORDER BY id
+			ORDER BY recordId
 		;";
 		
 		# Obtain the listing HTML
