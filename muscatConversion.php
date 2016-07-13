@@ -6807,7 +6807,7 @@ class muscatConversion extends frontControllerApplication
 	private function macro_generate490 ($ts, $xml, $ignored, $authorsFieldsIgnored, &$matchedRegexp = false)
 	{
 		# Obtain the *ts value or end
-		if (!$ts) {return false;}
+		if (!strlen ($ts)) {return false;}
 		
 		# Series titles:
 		# Decided not to treat "Series [0-9]+$" as a special case that avoids the splitting into $a... ;$v...
@@ -6816,34 +6816,43 @@ class muscatConversion extends frontControllerApplication
 		# Ensure the matched regexp, passed back by reference, is reset
 		$matchedRegexp = false;
 		
-		#!# Add override handling for *ts containing semicolon which has been added in, e.g. /records/2296/
-		
-		
-		# By default, treat as simple series title without volume number
-		$seriesTitle = $ts;
-		$volumeNumber = NULL;
-		
-		# Load the regexps list if not already done so
-		if (!isSet ($this->regexps490)) {
+		# If the *ts contains a semicolon, this indicates specifically-cleaned data, so handle this explicitly; e.g. /records/2296/
+		if (substr_count ($ts, ';')) {
 			
-			# Load the regexp list
-			$this->regexps490Base = $this->oneColumnTableToList ('volumeRegexps.txt');
+			# Allocate the pieces before and after the semicolon; see: http://stackoverflow.com/a/717388/180733
+			$parts = explode (';', $ts);
+			$volumeNumber = trim (array_pop ($parts));
+			$seriesTitle = trim (implode (';', $parts));
+			$matchedRegexp = 'Explicit semicolon match';
 			
-			# Add implicit boundaries to each regexp
-			$this->regexps490 = array ();
-			foreach ($this->regexps490Base as $index => $regexp) {
-				$this->regexps490[$index] = '^(.+)\s+(' . $regexp . ')$';
+		} else {
+			
+			# By default, treat as simple series title without volume number
+			$seriesTitle = $ts;
+			$volumeNumber = NULL;
+			
+			# Load the regexps list if not already done so
+			if (!isSet ($this->regexps490)) {
+				
+				# Load the regexp list
+				$this->regexps490Base = $this->oneColumnTableToList ('volumeRegexps.txt');
+				
+				# Add implicit boundaries to each regexp
+				$this->regexps490 = array ();
+				foreach ($this->regexps490Base as $index => $regexp) {
+					$this->regexps490[$index] = '^(.+)\s+(' . $regexp . ')$';
+				}
 			}
-		}
-		
-		# Find the first match, then stop, if any
-		foreach ($this->regexps490 as $index => $regexp) {
-			$delimeter = '~';	// Known not to be in the tables/volumeRegexps.txt list
-			if (preg_match ($delimeter . $regexp . $delimeter, $ts, $matches)) {	// Regexps are permitted to have their own captures; matches 3 onwards are just ignored
-				$seriesTitle = $matches[1];
-				$volumeNumber = $matches[2];
-				$matchedRegexp = ($index + 1) . ': ' . $this->regexps490Base[$index];		// Pass back by reference the matched regexp, prefixed by the number in the list, indexed from 1
-				break;	// Relevant regexp found
+			
+			# Find the first match, then stop, if any
+			foreach ($this->regexps490 as $index => $regexp) {
+				$delimeter = '~';	// Known not to be in the tables/volumeRegexps.txt list
+				if (preg_match ($delimeter . $regexp . $delimeter, $ts, $matches)) {	// Regexps are permitted to have their own captures; matches 3 onwards are just ignored
+					$seriesTitle = $matches[1];
+					$volumeNumber = $matches[2];
+					$matchedRegexp = ($index + 1) . ': ' . $this->regexps490Base[$index];		// Pass back by reference the matched regexp, prefixed by the number in the list, indexed from 1
+					break;	// Relevant regexp found
+				}
 			}
 		}
 		
