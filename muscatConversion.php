@@ -6785,7 +6785,7 @@ class muscatConversion extends frontControllerApplication
 	
 	# Macro for generating the 490 field
 	#!# Currently almost all parts of the conversion system assume a single *ts - this will need to be fixed; likely also to need to expand 880 mirrors to be repeatable
-	#!# Repeatability experimentally added to 490 at definition level, but this may not work properly as the field reads in *vno for instance
+	#!# Repeatability experimentally added to 490 at definition level, but this may not work properly as the field reads in *vno for instance; all derived uses of *ts need to be checked
 	private function macro_generate490 ($ts, $xml, $ignored, $authorsFieldsIgnored, &$matchedRegexp = false)
 	{
 		# Obtain the *ts value or end
@@ -6814,16 +6814,14 @@ class muscatConversion extends frontControllerApplication
 		$matchedRegexp = false;
 		
 		# Normalise any trailing volume number strings
-		$i = 0;
 		foreach ($this->regexps490 as $index => $regexp) {
-			$i++;
 			
 			# Find the first match, then stop
 			$delimeter = '~';	// Known not to be in the list
 			if (preg_match ($delimeter . $regexp . $delimeter, $ts, $matches)) {	// Regexps are permitted to have their own captures; matches 3 onwards are just ignored
 				$seriesTitle = $matches[1];
 				$volumeNumber = $matches[2];
-				$matchedRegexp = $i . ': ' . $this->regexps490Base[$index];	// Pass back by reference the matched regexp
+				$matchedRegexp = ($index + 1) . ': ' . $this->regexps490Base[$index];		// Pass back by reference the matched regexp, prefixed by the number in the list, indexed from 1
 				break;	// Relevant regexp found
 			}
 			
