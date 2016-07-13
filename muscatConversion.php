@@ -4007,6 +4007,8 @@ class muscatConversion extends frontControllerApplication
 			recordId INT(6) NOT NULL COMMENT 'Record ID',
 			line INT(3) NOT NULL COMMENT 'Line',
 			ts VARCHAR(255) NOT NULL COMMENT '*ts value',
+			a VARCHAR(255) DEFAULT NULL COMMENT '{$this->doubleDagger}a value in result',
+			v VARCHAR(255) DEFAULT NULL COMMENT '{$this->doubleDagger}V value in result',
 			result VARCHAR(255) DEFAULT NULL COMMENT 'Result of translation',
 			matchedRegexp VARCHAR(255) DEFAULT NULL COMMENT 'Result of translation',
 			PRIMARY KEY (id)
@@ -4034,7 +4036,10 @@ class muscatConversion extends frontControllerApplication
 		$updates = array ();
 		foreach ($data as $recordId => $ts) {
 			$result = $this->macro_generate490 ($ts, NULL, NULL, NULL, $matchedRegexp);
+			$subfieldValues = $this->parseSubfieldsToPairs ($result, $knownSingular = true);
 			$updates[$recordId] = array (
+				'a' => $subfieldValues['a'],
+				'v' => (isSet ($subfieldValues['v']) ? $subfieldValues['v'] : NULL),
 				'result' => $result,
 				'matchedRegexp' => $matchedRegexp,
 			);
@@ -10708,6 +10713,8 @@ class muscatConversion extends frontControllerApplication
 				recordId AS id,
 				line,
 				ts,
+				a,
+				v,
 				result,
 				matchedRegexp
 			FROM {$this->settings['database']}.volumenumbers
