@@ -6813,7 +6813,15 @@ class muscatConversion extends frontControllerApplication
 		# Decided not to treat "Series [0-9]+$" as a special case that avoids the splitting into $a... ;$v...
 		# This is because there is clear inconsistency in the records, e.g.: "Field Columbian Museum, Zoological Series 2", "Burt Franklin Research and Source Works Series 60"
 		
+		# Ensure the matched regexp, passed back by reference, is reset
+		$matchedRegexp = false;
+		
 		#!# Add override handling for *ts containing semicolon which has been added in, e.g. /records/2296/
+		
+		
+		# By default, treat as simple series title without volume number
+		$seriesTitle = $ts;
+		$volumeNumber = NULL;
 		
 		# Load the regexps list if not already done so
 		if (!isSet ($this->regexps490)) {
@@ -6827,13 +6835,6 @@ class muscatConversion extends frontControllerApplication
 				$this->regexps490[$index] = '^(.+)\s+(' . $regexp . ')$';
 			}
 		}
-		
-		# Ensure the matched regexp, passed back by reference, is reset
-		$matchedRegexp = false;
-		
-		# By default, treat as simple series title without volume number
-		$seriesTitle = $ts;
-		$volumeNumber = NULL;
 		
 		# Find the first match, then stop, if any
 		foreach ($this->regexps490 as $index => $regexp) {
