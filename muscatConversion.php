@@ -3116,11 +3116,6 @@ class muscatConversion extends frontControllerApplication
 	# Function to transliterate from Library of Congress (ALA LC) to Cyrillic; see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
 	public function transliterateLocLatinToCyrillic ($locLatin, $lpt, &$error = '')
 	{
-		# Load the Library of Congress transliterations definition, copied from https://github.com/umpirsky/Transliterator/blob/master/src/Transliterator/data/ru/ALA_LC.php
-		if (!isSet ($this->locTransliterationDefinition)) {
-			$this->locTransliterationDefinition = require_once ('tables/ALA_LC.php');
-		}
-		
 		# Handle parallel titles, e.g. "Title in Russian = Equivalent in English = Equivalent in French"; see: /fields/lpt/values/
 		#!# This might be better handled as creating protected substrings; in batch mode, the equals sign would probably need to be included
 		#!# Need to support this in the spell-checker also
@@ -3160,7 +3155,10 @@ class muscatConversion extends frontControllerApplication
 		# Protect string portions (e.g. English language, HTML portions) prior to transliteration
 		$locLatin = $this->protectSubstrings ($locLatin, $protectedParts);
 		
-		# Transliterate
+		# Transliterate, first loading if necessary the Library of Congress transliterations definition, copied from https://github.com/umpirsky/Transliterator/blob/master/src/Transliterator/data/ru/ALA_LC.php
+		if (!isSet ($this->locTransliterationDefinition)) {
+			$this->locTransliterationDefinition = require_once ('tables/ALA_LC.php');
+		}
 		$reverseTransliteration = str_replace ($this->locTransliterationDefinition['lat'], $this->locTransliterationDefinition['cyr'], $locLatin);
 		
 		# Reinstate protected substrings
