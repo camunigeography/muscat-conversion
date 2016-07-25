@@ -8314,7 +8314,7 @@ class muscatConversion extends frontControllerApplication
 				FROM (
 					/* Subquery to create records but with whitelisted terms taken out */
 					SELECT
-						recordId,field	/* Limit for efficiency */
+						recordId, field		/* Limit for efficiency */
 					FROM catalogue_rawdata
 					WHERE NOT (field = 'location' AND value = 'Not in SPRI')
 				) AS rawdata_filtered
@@ -9548,7 +9548,7 @@ class muscatConversion extends frontControllerApplication
 		$query = "
 			SELECT
 				'emptylang' AS report,
-				id AS recordId
+				recordId
 			FROM
 				catalogue_processed
 			WHERE
@@ -9817,7 +9817,7 @@ class muscatConversion extends frontControllerApplication
 		$query = "
 			SELECT
 				'emptyvalue' AS report,
-				id AS recordId
+				recordId
 			FROM catalogue_processed
 			WHERE
 				    (value = '' OR value IS NULL)
