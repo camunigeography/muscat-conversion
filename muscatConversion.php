@@ -886,7 +886,7 @@ class muscatConversion extends frontControllerApplication
 				$output .= "\n<div class=\"graybox marc\">";
 				$output .= "\n<p id=\"exporttarget\">Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->migrationStatus ($id) . "</strong></p>";
 				if ($record['mergeType']) {
-					$output .= "\n<p>Note: this record has <strong>merge data</strong>, shown underneath.</p>";
+					$output .= "\n<p>Note: this record has <strong>merge data</strong> (managed according to the <a href=\"{$this->baseUrl}/merge.html\" target=\"_blank\">merge specification</a>), shown underneath.</p>";
 				}
 				$output .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($record[$type])) . "\n</pre>";
 				if ($record['mergeType']) {
