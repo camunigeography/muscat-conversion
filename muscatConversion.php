@@ -6080,7 +6080,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# End if no value; in this scenario, no $c should be created, i.e. the whole routine should be ended
 		if (!strlen ($result) || $value == 'unpaged') {	 // 'unpaged' at /records/1248/
-			$result = ($recordType == '/ser' ? 'v.' : '1 volume (unpaged)');	// e.g. /records/1000/ , /records/1332/
+			$result = ($recordType == '/ser' ? 'v.' : '1 volume (unpaged)');	// e.g. /records/1000/ , /records/1019/ (confirmed to be fine) , /records/1332/
 		}
 		
 		# $c (R) (Dimensions): *size ; e.g. /records/1103/ , multiple in /records/4329/
