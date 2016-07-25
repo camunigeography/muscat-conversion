@@ -282,6 +282,10 @@ class muscatConversion extends frontControllerApplication
 		't',
 	);
 	
+	# Acquisition date cut-off for on-order -type items; these range from 22/04/1992 to 30/10/2015; the intention of this date is that 'recent' on-order items (intended to be 1 year ago) would be migrated but suppressed, and the rest deleted - however, this needs review
+	#!# This date is subject to review, as is whether any should be deleted (since these have value as a statement of desire to obtain), or indeed any should be migrated (and re-entered in Voyager)
+	private $acquisitionDate = '2015-01-01 00:00:00';
+	
 	
 	# Caches
 	private $lookupTablesCache = array ();
@@ -3821,9 +3825,10 @@ class muscatConversion extends frontControllerApplication
 					
 				OR (
 					    EXTRACTVALUE(xml, '//status') IN('O/P', 'ON ORDER', 'ON ORDER (O/P)', 'ON ORDER (O/S)')
+					/* #!# /records/145472/ is the only one that has invalid syntax */
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
-					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('2015-01-01 00:00:00')
-				) -- 723 records
+					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('{$this->acquisitionDate}')
+				) -- 717 records
 					
 				OR (
 					    field = 'location'
@@ -3864,7 +3869,7 @@ class muscatConversion extends frontControllerApplication
 				OR (
 					    EXTRACTVALUE(xml, '//status') IN('O/P', 'ON ORDER', 'ON ORDER (O/P)', 'ON ORDER (O/S)')
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
-					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('2015-01-01 00:00:00')
+					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('{$this->acquisitionDate}')
 					)
 				OR (field = 'location' AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection'))
 			-- 1846 records in total
@@ -8612,7 +8617,7 @@ class muscatConversion extends frontControllerApplication
 				WHERE
 					    EXTRACTVALUE(xml, '//status') IN ('On Order', 'On Order (O/P)', 'On Order (O/S)')
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
-					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('2013-09-01 00:00:00')
+					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('{$this->acquisitionDate}')
 		";
 		
 		# Return the query
@@ -8632,7 +8637,7 @@ class muscatConversion extends frontControllerApplication
 				WHERE
 					    EXTRACTVALUE(xml, '//status') IN ('On Order', 'On Order (O/P)', 'On Order (O/S)')
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
-					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) > UNIX_TIMESTAMP('2013-09-01 00:00:00')
+					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) > UNIX_TIMESTAMP('{$this->acquisitionDate}')
 		";
 		
 		# Return the query
