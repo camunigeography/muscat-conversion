@@ -108,6 +108,7 @@ class muscatConversion extends frontControllerApplication
 		'russianbracketedtitle_problem' => 'records marked *lang=Russian with a fully-bracketed title',
 		'russianldottitles_problem' => 'records (Russian) with L. in title to be checked individually, possibly resolving post-migration',
 		'paralleltitlemismatch_problem' => 'records (Russian) whose parallel title component count does not match that of the title',
+		'emptyvalue_problem' => 'records with empty scalar values',
 	);
 	
 	# Listing (values) reports
@@ -9801,6 +9802,29 @@ class muscatConversion extends frontControllerApplication
 				AND
 					(LENGTH( ExtractValue(xml, '/*/tg/t') )-LENGTH(REPLACE( ExtractValue(xml, '/*/tg/t') ,' = ','')))/LENGTH(' = ') !=
 					(LENGTH( ExtractValue(xml, '/*/lpt') )-LENGTH(REPLACE( ExtractValue(xml, '/*/lpt') ,' = ','')))/LENGTH(' = ')
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with empty scalar values
+	private function report_emptyvalue ()
+	{
+		# Define the query
+		#!# Whitelist of tags need to be checked in all cases where they are handled
+		$query = "
+			SELECT
+				'emptyvalue' AS report,
+				id AS recordId
+			FROM catalogue_processed
+			WHERE
+				    (value = '' OR value IS NULL)
+				/* Whitelist of tags that are containers */
+				AND field NOT IN('doc', 'art', 'j', 'in', 'ser', 'ag', 'a', 'al', 'tg', 'e', 'n', 'ee', 'pg', 'notes', 'k', 'k2', 'loc', 'url', 'urlft', 'acq', 'acc', 'doi')
+				/* Whitelisted tags often empty considered acceptable */
+				AND field NOT IN('kw')
 		";
 		
 		# Return the query
