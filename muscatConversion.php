@@ -3856,6 +3856,14 @@ class muscatConversion extends frontControllerApplication
 					AND EXTRACTVALUE(xml, '//ser/tg/t') = ''
 				) -- 71 records
 					
+				OR (
+					/* Exclude all Pamphlets, except some groupings (to be determined) */
+					    field = 'location'
+					AND value LIKE 'Pam%'	/* Confirmed that Pam is a safe starting string that will not have false negatives */
+					/* #!# Add exception grouping rules here */
+					
+				) -- 36,064 records
+					
 		;";
 		$this->databaseConnection->execute ($query);
 		
