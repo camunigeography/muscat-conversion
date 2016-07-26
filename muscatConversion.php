@@ -61,7 +61,6 @@ class muscatConversion extends frontControllerApplication
 		'emptyauthor_problem' => 'records with an empty *a',
 		'specialcharscasse' => 'records with irregular case-sensitivity of special characters',
 		'unknowndiacritics_problem' => 'records with unknown diacritics',
-	//	'emptyabstract' => 'records without abstracts',
 		'locationunknown_info' => 'records where location is unknown, for records whether the status is not present or is GLACIOPAMS',
 		'multiplesourcesser_info' => 'records with multiple sources (*ser)',
 		'multiplesourcesdocart_info' => 'records with multiple sources (*doc/*art)',
@@ -10886,44 +10885,6 @@ class muscatConversion extends frontControllerApplication
 		# Render the HTML
 		return $html;
 	}
-	
-	
-	
-/*
-	# Records without abstracts
-	private function report_emptyabstract ()
-	{
-		# Define the query
-		$query = "
-			SELECT DISTINCT
-				'misformattedad' AS report,
-				recordId
-			FROM catalogue_rawdata
-			WHERE
-				recordId IN
-					(
-					-- Subquery to create list of IDs
-					SELECT recordId
-					FROM catalogue_rawdata
-					LEFT JOIN fieldsindex ON recordId = fieldsindex.id
-					WHERE
-						    fieldslist LIKE '%@status@%'
-						AND field = 'status'
-						AND value NOT IN('RECEIVED', 'ON ORDER', 'CANCELLED')
-					)
-				AND
-					(
-						(field = 'abs' AND (value IS NULL OR value = ''))
-						OR
-		#!# Won't work:
-						(fieldsindex NOT LIKE '%@abs@%')
-					)
-		";
-		
-		# Return the query
-		return $query;
-	}
-*/
 }
 
 
