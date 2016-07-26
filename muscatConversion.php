@@ -47,6 +47,7 @@ class muscatConversion extends frontControllerApplication
 		'loccamuninotinspri_info' => 'records with location matching Cambridge University, not in SPRI',
 		'loccamuniinspri_info' => 'records with location matching Cambridge University, in SPRI',
 		'onordercancelled_info' => 'items on order or cancelled',
+		'invalidstatus_problem' => 'items with an invalid *status',
 		'invalidacquisitiondate_problem' => 'items with an invalid acquisition date',
 		'onorderold_info' => 'Items on order before 2013/09/01',
 		'onorderrecent_info' => 'Items on order since 2013/09/01',
@@ -285,6 +286,15 @@ class muscatConversion extends frontControllerApplication
 	# Acquisition date cut-off for on-order -type items; these range from 22/04/1992 to 30/10/2015; the intention of this date is that 'recent' on-order items (intended to be 1 year ago) would be migrated but suppressed, and the rest deleted - however, this needs review
 	#!# This date is subject to review, as is whether any should be deleted (since these have value as a statement of desire to obtain), or indeed any should be migrated (and re-entered in Voyager)
 	private $acquisitionDate = '2015-01-01 00:00:00';
+	
+	# Order *status keywords
+	private $orderStatusKeywords = array (
+		'ON ORDER'					=> 'Item is in the acquisition process',
+		'ON ORDER (O/P)'			=> 'On order, but out of print',
+		'ON ORDER (O/S)'			=> 'On order, but out of stock',
+		'ORDER CANCELLED'			=> 'Order has been cancelled for whatever reason',
+		'RECEIVED'					=> 'Item has arrived at the library but is awaiting further processing before becoming available to users',
+	);
 	
 	# Suppression keyword in *status
 	private $suppressionStatusKeyword = 'SUPPRESS';
@@ -8578,6 +8588,25 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				    field = 'status'
 				AND value IN ('On Order', 'On Order (O/P)', 'On Order (O/S)', 'Order Cancelled')
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Items with an invalid *status
+	private function report_invalidstatus ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'invalidstatus' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field = 'status'
+				AND value NOT IN ('" . implode ("', '", array_keys ($this->orderStatusKeywords)) . "', '{$this->suppressionStatusKeyword}')
 		";
 		
 		# Return the query
