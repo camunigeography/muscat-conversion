@@ -286,6 +286,9 @@ class muscatConversion extends frontControllerApplication
 	#!# This date is subject to review, as is whether any should be deleted (since these have value as a statement of desire to obtain), or indeed any should be migrated (and re-entered in Voyager)
 	private $acquisitionDate = '2015-01-01 00:00:00';
 	
+	# Suppression keyword in *status
+	private $suppressionStatusKeyword = 'SUPPRESS';
+	
 	
 	# Caches
 	private $lookupTablesCache = array ();
@@ -3815,6 +3818,7 @@ class muscatConversion extends frontControllerApplication
 		#!# Fix hard-coded date
 		#!# Check whether locationCode locations with 'Periodical' are correct to suppress
 		#!# Major issue: problem with e.g. /records/3929/ where two records need to be created, but not both should be suppressed; there are around 1,000 of these
+		#!# Consider adding 917 which states which rule(s) resulted in the suppression
 		$query = "UPDATE catalogue_marc
 			LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
 			LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
@@ -3822,6 +3826,11 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 					
 				   (field = 'status' AND value = 'RECEIVED')	-- 5425 records
+					
+				OR (
+					
+					-- Records marked specifically to suppress, e.g. Pamphlets needing review, post-migration; this has been achieved using a BCPL routine to mark the records as such
+				   (field = 'status' AND value = '{$this->suppressionStatusKeyword}')
 					
 				OR (
 					    EXTRACTVALUE(xml, '//status') IN('O/P', 'ON ORDER', 'ON ORDER (O/P)', 'ON ORDER (O/S)')
@@ -3855,15 +3864,7 @@ class muscatConversion extends frontControllerApplication
 					AND EXTRACTVALUE(xml, '//art/tg/t') = ''
 					AND EXTRACTVALUE(xml, '//ser/tg/t') = ''
 				) -- 71 records
-					
-				OR (
-					/* Exclude all Pamphlets, except some groupings (to be determined) */
-					    field = 'location'
-					AND value LIKE 'Pam%'	/* Confirmed that Pam is a safe starting string that will not have false negatives */
-					/* #!# Add exception grouping rules here */
-					
-				) -- 36,064 records
-					
+				
 		;";
 		$this->databaseConnection->execute ($query);
 		
@@ -7623,8 +7624,9 @@ class muscatConversion extends frontControllerApplication
 			return implode ('; ', $results);
 		}
 		
-		# Otherwise return *status; e.g. /records/1373/
+		# Otherwise return *status (e.g. /records/1373/ ), except for records marked explicitly to be suppressed (e.g. /records/10001/ ), which is a special keyword not intended to appear in the record output
 		$status = $this->xPathValue ($xml, '//status');
+		if ($status == $this->suppressionStatusKeyword) {return false;}
 		return $status;
 	}
 	
@@ -8030,7 +8032,7 @@ class muscatConversion extends frontControllerApplication
 				recordId
 			FROM catalogue_processed
 			WHERE
-				field = 'status'
+				    field = 'status'
 				AND value LIKE '%PARALLEL%'
 			";
 		
