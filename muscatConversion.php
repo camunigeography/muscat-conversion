@@ -225,11 +225,11 @@ class muscatConversion extends frontControllerApplication
 	
 	# Define the merge types
 	private $mergeTypes = array (
-		'TIP'	=> 'exact title match and ISSN match',
-		'TP'	=> 'exact title, but not ISSN',
-		'IP'	=> 'ISSN match, but not exact title',
-		'P'		=> 'probable match, unconfirmed',
-		'C'		=> 'probable match, confirmed',
+		'TIP'	=> 'exact Title match and ISSN match, and top answer in Probablistic search',
+		'TP'	=> 'exact Title, but not ISSN, and top answer in Probablistic search',
+		'IP'	=> 'ISSN match, but not exact title, and top answer in Probablistic search',
+		'P'		=> 'Probable match, unconfirmed, and top answer in Probablistic search',
+		'C'		=> 'probable match, Confirmed',
 	);
 	
 	# Define the location codes
