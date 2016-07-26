@@ -3825,7 +3825,7 @@ class muscatConversion extends frontControllerApplication
 			SET status = 'suppress'
 			WHERE
 					
-				   (field = 'status' AND value = 'RECEIVED')	-- 5425 records
+				   (field = 'status' AND value = 'RECEIVED')	-- 5420 records
 					
 				OR (
 					
@@ -8573,12 +8573,10 @@ class muscatConversion extends frontControllerApplication
 		$query = "
 			SELECT
 				'onordercancelled' AS report,
-				catalogue_rawdata.recordId
-			FROM catalogue_rawdata
-			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
+				recordId
+			FROM catalogue_processed
 			WHERE
-				    fieldslist LIKE '%@status@%'
-				AND field = 'status'
+				    field = 'status'
 				AND value IN ('On Order', 'On Order (O/P)', 'On Order (O/S)', 'Order Cancelled')
 		";
 		
