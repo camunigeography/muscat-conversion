@@ -908,7 +908,7 @@ class muscatConversion extends frontControllerApplication
 					$output .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($marcPreMerge)) . "\n</pre>";
 					$output .= "\n<h4>Existing Voyager record:</h4>";
 					$voyagerRecord = $this->getExistingVoyagerRecord ($record['mergeVoyagerId'], $voyagerRecordErrorText);	// Although it is wasteful to regenerate this, the alternative is messily passing back the record and error text as references through convertToMarc()
-					$output .= "\n<pre>" . $this->existingVoyagerRecordHtml ($voyagerRecord, $voyagerRecordErrorText) . "\n</pre>";
+					$output .= "\n<pre>" . ($voyagerRecord ? $this->highlightSubfields (htmlspecialchars ($voyagerRecord)) : $voyagerRecordErrorText) . "\n</pre>";
 				}
 				$output .= "\n</div>";
 				break;
@@ -958,37 +958,16 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Construct the record lines
-		$recordLineGroups = array ();
+		$recordLines = array ();
 		foreach ($voyagerRecordShards as $shard) {
 			$hasIndicators = (!preg_match ('/^(LDR|00[0-9])$/', $shard['field']));
-			$recordLineGroups[$shard['field']][] = $shard['field'] . ($hasIndicators ? ' ' . $shard['indicators'] : '') . ' ' . $shard['data'];
-		}
-		// application::dumpData ($recordLineGroups);
-		
-		# Return the record lines structure
-		return $recordLineGroups;
-	}
-	
-	
-	# Function to show an existing Voyager record
-	private function existingVoyagerRecordHtml ($voyagerRecord, $voyagerRecordErrorText)
-	{
-		# End if none
-		if (!$voyagerRecord) {
-			return $voyagerRecordErrorText;
+			$recordLines[] = $shard['field'] . ($hasIndicators ? ' ' . $shard['indicators'] : '') . ' ' . $shard['data'];
 		}
 		
 		# Implode to text string
-		$recordLines = array ();
-		foreach ($voyagerRecord as $field => $recordLineGroup) {
-			$recordLines = array_merge ($recordLines, $recordLineGroup);
-		}
 		$record = implode ("\n", $recordLines);
 		
-		# Convert text to HTML
-		$record = $this->highlightSubfields (htmlspecialchars ($record));
-		
-		# Return the HTML
+		# Return the record text block
 		return $record;
 	}
 	
@@ -4972,7 +4951,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to perform merge of a MARC record with an existing Voyager record
-	private function mergeWithExistingVoyager ($record, $recordId, $mergeDefinition, $mergeType, $mergeVoyagerId, &$errorString)
+	private function mergeWithExistingVoyager ($localRecord, $recordId, $mergeDefinition, $mergeType, $mergeVoyagerId, &$errorString)
 	{
 		# End if merge type is unsupported; this will result in an empty record
 		#!# Need to ensure this is reported during the import also
@@ -4981,13 +4960,32 @@ class muscatConversion extends frontControllerApplication
 			return false;
 		}
 		
-		# Get the record
+		# Get the existing Voyager record
 		if (!$voyagerRecord = $this->getExistingVoyagerRecord ($mergeVoyagerId)) {
 			$errorString = "Merge failed for Muscat record #{$recordId}!";
 			return false;
 		}
 		
+		# Parse out the local MARC record and the Voyager record into nested structures
+		$localRecordStructure = $this->parseMarcRecord ($localRecord);
+		$voyagerRecordStructure = $this->parseMarcRecord ($voyagerRecord);
+		
+		
 		# Perform merge based on the specified strategy
+		$record = $localRecord;
+		
+		/*
+		echo "recordId:";
+		application::dumpData ($recordId);
+		echo "mergeType:";
+		application::dumpData ($mergeType);
+		echo "localRecordStructure:";
+		application::dumpData ($localRecordStructure);
+		echo "voyagerRecordStructure:";
+		application::dumpData ($voyagerRecordStructure);
+		echo "mergeDefinition for mergeType:";
+		application::dumpData ($mergeDefinition[$mergeType]);
+		*/
 		
 		#!# TODO; just needs to modify $record
 		//application::dumpData ($mergeDefinition[$mergeType]);
@@ -7438,6 +7436,7 @@ class muscatConversion extends frontControllerApplication
 		foreach ($matches as $match) {
 			$fieldNumber = $match[1];
 			$record[$fieldNumber][] = array (
+				'fullLine'		=> $match[0],
 				'line'			=> $match[3],
 				'indicators'	=> $match[2],
 				'subfields'		=> $this->parseSubfieldsToPairs ($match[3]),
