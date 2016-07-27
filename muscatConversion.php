@@ -902,12 +902,16 @@ class muscatConversion extends frontControllerApplication
 				}
 				$output .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($record[$type])) . "\n</pre>";
 				if ($record['mergeType']) {
+					
+					# Get the data for the Voyager record
+					$voyagerRecord = $this->getExistingVoyagerRecord ($record['mergeVoyagerId'], $voyagerRecordErrorText);
+					
 					$output .= "\n<h3>Merge data</h3>";
 					$output .= "\n<p>Merge type: {$record['mergeType']}" . (isSet ($this->mergeTypes[$record['mergeType']]) ? " ({$this->mergeTypes[$record['mergeType']]})" : '') . "\n<br />Voyager ID: #{$record['mergeVoyagerId']}.</p>";
 					$output .= "\n<h4>Pre-merge record from Muscat:</h4>";
 					$output .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($marcPreMerge)) . "\n</pre>";
 					$output .= "\n<h4>Existing Voyager record:</h4>";
-					$output .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($this->existingVoyagerRecord ($record['mergeType'], $record['mergeVoyagerId']))) . "\n</pre>";
+					$output .= "\n<pre>" . $this->existingVoyagerRecordHtml ($voyagerRecord, $voyagerRecordErrorText) . "\n</pre>";
 				}
 				$output .= "\n</div>";
 				break;
@@ -941,31 +945,51 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to show an existing Voyager record
-	private function existingVoyagerRecord ($mergeType, $mergeVoyagerId)
+	# Function to obtain the data for an existing Voyager record, as a multi-dimensional array indexed by field then an array of lines for that field
+	private function getExistingVoyagerRecord ($mergeVoyagerId, &$errorText = '')
 	{
-		# Start the HTML by stating the merge target
-		$html  = "\n<p>Original Voyager record:</p>";
-		
 		# If the merge voyager ID is not yet a pure integer (i.e. not yet a one-to-one lookup), state this and end
 		if (!ctype_digit ($mergeVoyagerId)) {
-			return 'There is not yet a one-to-one match, so no Voyager record can be displayed.';
+			$errorText = 'There is not yet a one-to-one match, so no Voyager record can be displayed.';
+			return false;
 		}
 		
 		# Look up Voyager record, or end (e.g. no match)
 		if (!$voyagerRecordShards = $this->databaseConnection->select ($this->settings['database'], 'catalogue_external', array ('voyagerId' => $mergeVoyagerId))) {
-			return "Error: the specified Voyager record (#{$mergeVoyagerId}) could not be found in the external datasource.";
+			$errorText = "Error: the specified Voyager record (#{$mergeVoyagerId}) could not be found in the external datasource.";
+			return false;
 		}
 		
 		# Construct the record lines
-		$recordLines = array ();
+		$recordLineGroups = array ();
 		foreach ($voyagerRecordShards as $shard) {
 			$hasIndicators = (!preg_match ('/^(LDR|00[0-9])$/', $shard['field']));
-			$recordLines[] = $shard['field'] . ($hasIndicators ? ' ' . $shard['indicators'] : '') . ' ' . $shard['data'];
+			$recordLineGroups[$shard['field']][] = $shard['field'] . ($hasIndicators ? ' ' . $shard['indicators'] : '') . ' ' . $shard['data'];
+		}
+		// application::dumpData ($recordLineGroups);
+		
+		# Return the record lines structure
+		return $recordLineGroups;
+	}
+	
+	
+	# Function to show an existing Voyager record
+	private function existingVoyagerRecordHtml ($voyagerRecord, $voyagerRecordErrorText)
+	{
+		# End if none
+		if (!$voyagerRecord) {
+			return $voyagerRecordErrorText;
 		}
 		
-		# Implode to string
+		# Implode to text string
+		$recordLines = array ();
+		foreach ($voyagerRecord as $field => $recordLineGroup) {
+			$recordLines = array_merge ($recordLines, $recordLineGroup);
+		}
 		$record = implode ("\n", $recordLines);
+		
+		# Convert text to HTML
+		$record = $this->highlightSubfields (htmlspecialchars ($record));
 		
 		# Return the HTML
 		return $record;
