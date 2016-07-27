@@ -288,11 +288,11 @@ class muscatConversion extends frontControllerApplication
 	
 	# Order *status keywords
 	private $orderStatusKeywords = array (
-		'ON ORDER'					=> 'Item is in the acquisition process',
-		'ON ORDER (O/P)'			=> 'On order, but out of print',
-		'ON ORDER (O/S)'			=> 'On order, but out of stock',
-		'ORDER CANCELLED'			=> 'Order has been cancelled for whatever reason',
-		'RECEIVED'					=> 'Item has arrived at the library but is awaiting further processing before becoming available to users',
+		'ON ORDER'			=> 'Item is in the acquisition process',
+		'ON ORDER (O/P)'	=> 'On order, but out of print',
+		'ON ORDER (O/S)'	=> 'On order, but out of stock',
+		'ORDER CANCELLED'	=> 'Order has been cancelled for whatever reason',
+		'RECEIVED'			=> 'Item has arrived at the library but is awaiting further processing before becoming available to users',
 	);
 	
 	# Suppression keyword in *status
@@ -6835,6 +6835,7 @@ class muscatConversion extends frontControllerApplication
 	# Macro for generating the 490 field
 	#!# Currently almost all parts of the conversion system assume a single *ts - this will need to be fixed; likely also to need to expand 880 mirrors to be repeatable
 	#!# Repeatability experimentally added to 490 at definition level, but this may not work properly as the field reads in *vno for instance; all derived uses of *ts need to be checked
+	#!# Issue of missing $a needs to be resolved in original data
 	private function macro_generate490 ($ts, $xml, $ignored, $authorsFieldsIgnored, &$matchedRegexp = false)
 	{
 		# Obtain the *ts value or end
