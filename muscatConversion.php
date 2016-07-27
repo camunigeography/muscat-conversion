@@ -885,7 +885,7 @@ class muscatConversion extends frontControllerApplication
 				$data = $this->getRecords ($id, 'xml');
 				$marcParserDefinition = $this->getMarcParserDefinition ();
 				$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ());
-				$record['marc'] = $this->convertToMarc ($marcParserDefinition, $data['xml'], $errorString, $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $marcPreMerge /* passed back by reference */);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
+				$record['marc'] = $this->convertToMarc ($marcParserDefinition, $data['xml'], $errorString, $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $marcPreMerge /* passed back by reference */, $sourceRegistry /* passed back by reference */);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
 				$output  = "\n<p>The MARC output uses the <a target=\"_blank\" href=\"{$this->baseUrl}/marcparser.html\">parser definition</a> to do the mapping from the XML representation.</p>";
 				if ($record['bibcheckErrors']) {
 					$output .= "\n<pre>" . "\n<p class=\"warning\">Bibcheck " . (substr_count ($record['bibcheckErrors'], "\n") ? 'errors' : 'error') . ":</p>" . $record['bibcheckErrors'] . "\n</pre>";
@@ -900,7 +900,10 @@ class muscatConversion extends frontControllerApplication
 				if ($record['mergeType']) {
 					$output .= "\n<p>Note: this record has <strong>merge data</strong> (managed according to the <a href=\"{$this->baseUrl}/merge.html\" target=\"_blank\">merge specification</a>), shown underneath.</p>";
 				}
-				$output .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($record[$type])) . "\n</pre>";
+				if ($record['mergeType']) {
+					$output .= "\n" . '<p class="colourkey">Color key: <span class="sourcem">Muscat</span> / <span class="sourcev">Voyager</span></p>';
+				}
+				$output .= "\n<pre>" . $this->showSourceRegistry ($this->highlightSubfields (htmlspecialchars ($record[$type])), $sourceRegistry) . "\n</pre>";
 				if ($record['mergeType']) {
 					$output .= "\n<h3>Merge data</h3>";
 					$output .= "\n<p>Merge type: {$record['mergeType']}" . (isSet ($this->mergeTypes[$record['mergeType']]) ? " ({$this->mergeTypes[$record['mergeType']]})" : '') . "\n<br />Voyager ID: #{$record['mergeVoyagerId']}.</p>";
@@ -990,6 +993,32 @@ class muscatConversion extends frontControllerApplication
 	private function highlightSubfields ($string)
 	{
 		return preg_replace ("/({$this->doubleDagger}[a-z0-9])/", '<strong>\1</strong>', $string);
+	}
+	
+	
+	# Function to provide prepending of source registry indicators
+	private function showSourceRegistry ($record, $sourceRegistry)
+	{
+		# Return unmodified if no source registry
+		if (!$sourceRegistry) {return $record;}
+		
+		# Define titles
+		$titles = array ('M' => 'Muscat', 'V' => 'Voyager');
+		
+		# Explode the string and add each line
+		$lines = explode ("\n", $record);
+		$decoratedRecord = array ();
+		foreach ($lines as $index => $line) {
+			$cssClass = 'source' . strtolower ($sourceRegistry[$index]);	// i.e. 'sourcem' / 'sourcev'
+			$title = $titles[$sourceRegistry[$index]];
+			$decoratedRecord[$index] = "<span class=\"{$cssClass}\" title=\"{$title}\">" . $line . '</span>';
+		}
+		
+		# Return to a string
+		$decoratedRecord = implode ("\n", $decoratedRecord);
+		
+		# Return the decorated record
+		return $decoratedRecord;
 	}
 	
 	
@@ -4878,7 +4907,7 @@ class muscatConversion extends frontControllerApplication
 	
 	# Function to convert the data to MARC format
 	# NB XPath functions can have PHP modifications in them using php:functionString - may be useful in future http://www.sitepoint.com/php-dom-using-xpath/ http://cowburn.info/2009/10/23/php-funcs-xpath/
-	private function convertToMarc ($marcParserDefinition, $recordXml, &$errorString = '', $mergeDefinition = array (), $mergeType = false, $mergeVoyagerId = false, &$marcPreMerge = NULL)
+	private function convertToMarc ($marcParserDefinition, $recordXml, &$errorString = '', $mergeDefinition = array (), $mergeType = false, $mergeVoyagerId = false, &$marcPreMerge = NULL, &$sourceRegistry = array ())
 	{
 		# Ensure the error string is clean for each iteration
 		$errorString = '';
@@ -4921,7 +4950,7 @@ class muscatConversion extends frontControllerApplication
 		# If required, merge with an existing Voyager record, returning by reference the pre-merge record, and below returning the merged record
 		if ($mergeType) {
 			$marcPreMerge = $record;	// Save to argument returned by reference
-			$record = $this->mergeWithExistingVoyager ($record, $recordId, $mergeDefinition, $mergeType, $mergeVoyagerId, $errorString);
+			$record = $this->mergeWithExistingVoyager ($record, $recordId, $mergeDefinition, $mergeType, $mergeVoyagerId, $sourceRegistry, $errorString);
 		}
 		
 		# Report any UTF-8 problems
@@ -4951,8 +4980,11 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to perform merge of a MARC record with an existing Voyager record
-	private function mergeWithExistingVoyager ($localRecord, $recordId, $mergeDefinitions, $mergeType, $mergeVoyagerId, &$errorString)
+	private function mergeWithExistingVoyager ($localRecord, $recordId, $mergeDefinitions, $mergeType, $mergeVoyagerId, &$sourceRegistry = array (), &$errorString)
 	{
+		# Start a source registry, to store which source each line comes from
+		$sourceRegistry = array ();
+		
 		# End if merge type is unsupported; this will result in an empty record
 		#!# Need to ensure this is reported during the import also
 		if (!isSet ($this->mergeTypes[$mergeType])) {
@@ -5006,6 +5038,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Perform merge based on the specified strategy
 		$recordLines = array ();
+		$i = 0;
 		foreach ($superstructure as $fieldNumber => $recordPair) {
 			
 			# By default, assume the lines for this field are copied across into the eventual record from both sources
@@ -5057,7 +5090,9 @@ class muscatConversion extends frontControllerApplication
 			if ($muscat) {
 				if ($recordPair['muscat']) {
 					foreach ($recordPair['muscat'] as $recordLine) {
-						$recordLines[] = $recordLine['fullLine'];
+						$recordLines[$i] = $recordLine['fullLine'];
+						$sourceRegistry[$i] = 'M';
+						$i++;
 					}
 				}
 			}
@@ -5066,7 +5101,9 @@ class muscatConversion extends frontControllerApplication
 			if ($voyager) {
 				if ($recordPair['voyager']) {
 					foreach ($recordPair['voyager'] as $recordLine) {
-						$recordLines[] = $recordLine['fullLine'];
+						$recordLines[$i] = $recordLine['fullLine'];
+						$sourceRegistry[$i] = 'V';
+						$i++;
 					}
 				}
 			}
@@ -5075,7 +5112,7 @@ class muscatConversion extends frontControllerApplication
 		# Implode the record lines
 		$record = implode ("\n", $recordLines);
 		
-		# Return the merged record
+		# Return the merged record; the source registry is passed back by reference
 		return $record;
 	}
 	
