@@ -4951,7 +4951,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to perform merge of a MARC record with an existing Voyager record
-	private function mergeWithExistingVoyager ($localRecord, $recordId, $mergeDefinition, $mergeType, $mergeVoyagerId, &$errorString)
+	private function mergeWithExistingVoyager ($localRecord, $recordId, $mergeDefinitions, $mergeType, $mergeVoyagerId, &$errorString)
 	{
 		# End if merge type is unsupported; this will result in an empty record
 		#!# Need to ensure this is reported during the import also
@@ -4959,6 +4959,9 @@ class muscatConversion extends frontControllerApplication
 			$errorString = "Merge failed for Muscat record #{$recordId}!";
 			return false;
 		}
+		
+		# Select the merge definition to use
+		$mergeDefinition = $mergeDefinitions[$mergeType];
 		
 		# Get the existing Voyager record
 		if (!$voyagerRecord = $this->getExistingVoyagerRecord ($mergeVoyagerId)) {
@@ -4983,8 +4986,8 @@ class muscatConversion extends frontControllerApplication
 		application::dumpData ($localRecordStructure);
 		echo "voyagerRecordStructure:";
 		application::dumpData ($voyagerRecordStructure);
-		echo "mergeDefinition for mergeType:";
-		application::dumpData ($mergeDefinition[$mergeType]);
+		echo "mergeDefinition:";
+		application::dumpData ($mergeDefinition);
 		*/
 		
 		#!# TODO; just needs to modify $record
