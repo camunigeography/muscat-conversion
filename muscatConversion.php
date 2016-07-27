@@ -3827,27 +3827,29 @@ class muscatConversion extends frontControllerApplication
 		#!# Fix hard-coded date
 		#!# Check whether locationCode locations with 'Periodical' are correct to suppress
 		#!# Major issue: problem with e.g. /records/3929/ where two records need to be created, but not both should be suppressed; there are around 1,000 of these
-		#!# Consider adding 917 which states which rule(s) resulted in the suppression
+		#!# Consider adding 917 local note stating which rule(s) resulted in the suppression
 		$query = "UPDATE catalogue_marc
 			LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
 			LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
 			SET status = 'suppress'
-			WHERE
-					
-				   (field = 'status' AND value = 'RECEIVED')	-- 5420 records
-					
+			WHERE 1=0
+				
 				OR (
-					
+				   field = 'status' AND value = 'RECEIVED'
+				) -- 5420 records
+				
+				OR (
 					-- Records marked specifically to suppress, e.g. Pamphlets needing review, post-migration; this has been achieved using a BCPL routine to mark the records as such
-				   (field = 'status' AND value = '{$this->suppressionStatusKeyword}')
-					
+				   field = 'status' AND value = '{$this->suppressionStatusKeyword}'
+				) -- 25266 records
+				
 				OR (
 					    EXTRACTVALUE(xml, '//status') IN('O/P', 'ON ORDER', 'ON ORDER (O/P)', 'ON ORDER (O/S)')
 					/* #!# /records/145472/ is the only one that has invalid syntax */
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
 					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('{$this->acquisitionDate}')
 				) -- 717 records
-					
+				
 				OR (
 					    field = 'location'
 					AND value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
@@ -3858,7 +3860,7 @@ class muscatConversion extends frontControllerApplication
 						OR value LIKE 'Picture Library Store : Video%'
 						)
 				) -- 9932 records
-					
+				
 				OR (
 					    field IN('note', 'local', 'priv')
 					AND (
@@ -3867,7 +3869,7 @@ class muscatConversion extends frontControllerApplication
 						)
 					AND value NOT LIKE '%out of copyright%'
 				) -- 1507 records
-					
+				
 				OR (
 					    EXTRACTVALUE(xml, '//doc/tg/t') = ''
 					AND EXTRACTVALUE(xml, '//art/tg/t') = ''
