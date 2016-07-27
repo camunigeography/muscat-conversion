@@ -4973,9 +4973,48 @@ class muscatConversion extends frontControllerApplication
 		$localRecordStructure = $this->parseMarcRecord ($localRecord);
 		$voyagerRecordStructure = $this->parseMarcRecord ($voyagerRecord);
 		
+		# Create a superset list of all fields across both types of record
+		$allFieldNumbers = array_merge (array_keys ($localRecordStructure), array_keys ($voyagerRecordStructure));
+		$allFieldNumbers = array_unique ($allFieldNumbers);
+		sort ($allFieldNumbers, SORT_NATURAL);	// This will order by number but put LDR at the end
+		$ldr = array_pop ($allFieldNumbers);	// Remove LDR from end
+		array_unshift ($allFieldNumbers, $ldr);
+		
+		# Create a superstructure, where all fields are present from the superset, sub-indexed by source
+		$superstructure = array ();
+		foreach ($allFieldNumbers as $fieldNumber) {
+			$superstructure[$fieldNumber] = array (
+				'local'		=> (isSet ($localRecordStructure[$fieldNumber])   ? $localRecordStructure[$fieldNumber]   : NULL),
+				'voyager'	=> (isSet ($voyagerRecordStructure[$fieldNumber]) ? $voyagerRecordStructure[$fieldNumber] : NULL),
+			);
+		}
 		
 		# Perform merge based on the specified strategy
-		$record = $localRecord;
+		$recordLines = array ();
+		foreach ($superstructure as $fieldNumber => $recordPair) {
+			
+			# Extract the full line from each of the local lines
+			if ($recordPair['local']) {
+				foreach ($recordPair['local'] as $recordLine) {
+					$recordLines[] = $recordLine['fullLine'];
+				}
+			}
+			
+			# Extract the full line from each of the voyager lines
+			if ($recordPair['voyager']) {
+				foreach ($recordPair['voyager'] as $recordLine) {
+					$recordLines[] = $recordLine['fullLine'];
+				}
+			}
+		}
+		
+		
+		
+//application::dumpData ($superstructure);
+//die;
+		
+		
+		
 		
 		/*
 		echo "recordId:";
@@ -4993,6 +5032,9 @@ class muscatConversion extends frontControllerApplication
 		#!# TODO; just needs to modify $record
 		//application::dumpData ($mergeDefinition[$mergeType]);
 		
+		
+		# Implode the record lines
+		$record = implode ("\n", $recordLines);
 		
 		# Return the merged record
 		return $record;
