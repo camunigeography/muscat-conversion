@@ -902,15 +902,12 @@ class muscatConversion extends frontControllerApplication
 				}
 				$output .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($record[$type])) . "\n</pre>";
 				if ($record['mergeType']) {
-					
-					# Get the data for the Voyager record
-					$voyagerRecord = $this->getExistingVoyagerRecord ($record['mergeVoyagerId'], $voyagerRecordErrorText);
-					
 					$output .= "\n<h3>Merge data</h3>";
 					$output .= "\n<p>Merge type: {$record['mergeType']}" . (isSet ($this->mergeTypes[$record['mergeType']]) ? " ({$this->mergeTypes[$record['mergeType']]})" : '') . "\n<br />Voyager ID: #{$record['mergeVoyagerId']}.</p>";
 					$output .= "\n<h4>Pre-merge record from Muscat:</h4>";
 					$output .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($marcPreMerge)) . "\n</pre>";
 					$output .= "\n<h4>Existing Voyager record:</h4>";
+					$voyagerRecord = $this->getExistingVoyagerRecord ($record['mergeVoyagerId'], $voyagerRecordErrorText);	// Although it is wasteful to regenerate this, the alternative is messily passing back the record and error text as references through convertToMarc()
 					$output .= "\n<pre>" . $this->existingVoyagerRecordHtml ($voyagerRecord, $voyagerRecordErrorText) . "\n</pre>";
 				}
 				$output .= "\n</div>";
@@ -4980,6 +4977,12 @@ class muscatConversion extends frontControllerApplication
 		# End if merge type is unsupported; this will result in an empty record
 		#!# Need to ensure this is reported during the import also
 		if (!isSet ($this->mergeTypes[$mergeType])) {
+			$errorString = "Merge failed for Muscat record #{$recordId}!";
+			return false;
+		}
+		
+		# Get the record
+		if (!$voyagerRecord = $this->getExistingVoyagerRecord ($mergeVoyagerId)) {
 			$errorString = "Merge failed for Muscat record #{$recordId}!";
 			return false;
 		}
