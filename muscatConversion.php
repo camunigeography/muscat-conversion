@@ -1867,10 +1867,7 @@ class muscatConversion extends frontControllerApplication
 		# Define the introduction HTML
 		$fileCreationInstructionsHtml  = "\n\t" . '<p>Open a Muscat terminal and type the following. Note that this can take a while to create.</p>';
 		$fileCreationInstructionsHtml .= "\n\t" . '<p>Be aware that you may have to wait until your colleagues are not using Muscat to do an export, as exporting may lock Muscat access.</p>';
-		$fileCreationInstructionsHtml .= "\n\t\t\t" . "<tt>c-extract first 00001 last 999999 to gctemp</tt><br />";
-		$today = date ('Ymd');
-		$fileCreationInstructionsHtml .= "\n\t\t\t" . "<tt>c-list from gctemp to muscat{$today}muscatview.txt</tt><br />";
-		$fileCreationInstructionsHtml .= "\n\t\t\t" . "<tt>c-list_allfields from gctemp to muscat{$today}rawdata.txt</tt>";
+		$fileCreationInstructionsHtml .= "\n\t\t\t" . "<tt>n-voyager_export</tt>";
 		
 		# Run the import UI
 		$this->importUi ($importFiles, $importTypes, $fileCreationInstructionsHtml, 'txt');
