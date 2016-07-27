@@ -4984,37 +4984,10 @@ class muscatConversion extends frontControllerApplication
 		$superstructure = array ();
 		foreach ($allFieldNumbers as $fieldNumber) {
 			$superstructure[$fieldNumber] = array (
-				'local'		=> (isSet ($localRecordStructure[$fieldNumber])   ? $localRecordStructure[$fieldNumber]   : NULL),
+				'muscat'	=> (isSet ($localRecordStructure[$fieldNumber])   ? $localRecordStructure[$fieldNumber]   : NULL),
 				'voyager'	=> (isSet ($voyagerRecordStructure[$fieldNumber]) ? $voyagerRecordStructure[$fieldNumber] : NULL),
 			);
 		}
-		
-		# Perform merge based on the specified strategy
-		$recordLines = array ();
-		foreach ($superstructure as $fieldNumber => $recordPair) {
-			
-			# Extract the full line from each of the local lines
-			if ($recordPair['local']) {
-				foreach ($recordPair['local'] as $recordLine) {
-					$recordLines[] = $recordLine['fullLine'];
-				}
-			}
-			
-			# Extract the full line from each of the voyager lines
-			if ($recordPair['voyager']) {
-				foreach ($recordPair['voyager'] as $recordLine) {
-					$recordLines[] = $recordLine['fullLine'];
-				}
-			}
-		}
-		
-		
-		
-//application::dumpData ($superstructure);
-//die;
-		
-		
-		
 		
 		/*
 		echo "recordId:";
@@ -5027,11 +5000,77 @@ class muscatConversion extends frontControllerApplication
 		application::dumpData ($voyagerRecordStructure);
 		echo "mergeDefinition:";
 		application::dumpData ($mergeDefinition);
+		echo "superstructure:";
+		application::dumpData ($superstructure);
 		*/
 		
-		#!# TODO; just needs to modify $record
-		//application::dumpData ($mergeDefinition[$mergeType]);
-		
+		# Perform merge based on the specified strategy
+		$recordLines = array ();
+		foreach ($superstructure as $fieldNumber => $recordPair) {
+			
+			# By default, assume the lines for this field are copied across into the eventual record from both sources
+			$muscat = true;
+			$voyager = true;
+			
+			# If there is a merge definition, apply its algorithm
+			if (isSet ($mergeDefinition[$fieldNumber])) {
+				switch ($mergeDefinition[$fieldNumber]) {
+					
+					case 'M':
+						$muscat = true;
+						$voyager = false;
+						break;
+						
+					case 'V':
+						$muscat = false;
+						$voyager = true;
+						break;
+						
+					case 'M else V':
+						if ($recordPair['muscat']) {
+							$muscat = true;
+							$voyager = false;
+						} else {
+							$muscat = false;
+							$voyager = true;
+						}
+						break;
+						
+					case 'V else M':
+						if ($recordPair['voyager']) {
+							$muscat = false;
+							$voyager = true;
+						} else {
+							$muscat = true;
+							$voyager = false;
+						}
+						break;
+						
+					case 'V and M':
+						$muscat = true;
+						$voyager = true;
+						break;
+				}
+			}
+			
+			# Extract the full line from each of the local lines
+			if ($muscat) {
+				if ($recordPair['muscat']) {
+					foreach ($recordPair['muscat'] as $recordLine) {
+						$recordLines[] = $recordLine['fullLine'];
+					}
+				}
+			}
+			
+			# Extract the full line from each of the voyager lines
+			if ($voyager) {
+				if ($recordPair['voyager']) {
+					foreach ($recordPair['voyager'] as $recordLine) {
+						$recordLines[] = $recordLine['fullLine'];
+					}
+				}
+			}
+		}
 		
 		# Implode the record lines
 		$record = implode ("\n", $recordLines);
