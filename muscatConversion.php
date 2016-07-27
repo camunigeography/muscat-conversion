@@ -5690,6 +5690,7 @@ class muscatConversion extends frontControllerApplication
 		$mergeDefinition = array ();
 		foreach ($this->mergeTypes as $mergeType => $label) {
 			foreach ($mergeDefinitionRaw as $marcFieldCode => $attributes) {
+				$attributes['ACTION'] = trim ($attributes['ACTION']);
 				$mergeDefinition[$mergeType][$marcFieldCode] = (strlen ($attributes[$mergeType]) ? $attributes['ACTION'] : false);
 			}
 		}
