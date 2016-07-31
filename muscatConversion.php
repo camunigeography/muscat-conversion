@@ -10516,7 +10516,8 @@ class muscatConversion extends frontControllerApplication
 		$html = '';
 		
 		# Regenerate on demand during testing
-		//$this->transliterateTransliterationsTable ();
+		//ini_set ('max_execution_time', 0);
+		//$this->createTransliterationsTable ();
 		
 		# Determine totals
 		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], 'transliterations');
