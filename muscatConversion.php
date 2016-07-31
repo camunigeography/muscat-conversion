@@ -3156,7 +3156,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to transliterate from Library of Congress (ALA LC) to Cyrillic; see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
+	# Function to transliterate from Library of Congress (ALA LC) to Cyrillic; this is only run in a non-batched context; see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
 	public function transliterateLocLatinToCyrillic ($locLatin, $lpt, &$error = '')
 	{
 		# Handle parallel titles, e.g. "Title in Russian = Equivalent in English = Equivalent in French"; see: /fields/lpt/values/
@@ -3185,10 +3185,10 @@ class muscatConversion extends frontControllerApplication
 				$error = 'Transliteration requested with parallel titles list that does not include Russian';
 				return false;
 			}
-			$locLatin = $parallelTitles['Russian'];
+			$locLatin = $parallelTitles['Russian'];		// Effectively this overwrites the incoming string so that only the Russian part is considered; the overall string will then be glued back together after the transliteration below
 		}
 		
-		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/
+		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/ ; this should take effect after parallel titles have been split off
 		$literalBackslash = '\\';
 		if (preg_match ('/' . "^{$literalBackslash}[([^{$literalBackslash}]]+){$literalBackslash}]$" . '/', $locLatin)) {		// Regexp should match the MySQL equivalent in createTransliterationsTable ()
 			// $error should not be given a string, as this scenario is not an error, e.g. /records/75010/ , /records/167609/ , /records/178982/
