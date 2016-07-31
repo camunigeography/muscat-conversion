@@ -2957,6 +2957,7 @@ class muscatConversion extends frontControllerApplication
 			`id` VARCHAR(10) NOT NULL COMMENT 'Processed shard ID (catalogue_processed.id)',
 			`recordId` INT(11) NULL COMMENT 'Record ID',
 			`field` VARCHAR(255) NULL COMMENT 'Field',
+			`lpt` VARCHAR(255) NULL COMMENT 'Parallel title languages',
 			`title_latin` TEXT COLLATE utf8_unicode_ci COMMENT 'Title (latin characters), unmodified from original data',
 			`title_latin_tt` TEXT COLLATE utf8_unicode_ci COMMENT '*tt if present',
 			`title` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Reverse-transliterated title',
@@ -2987,6 +2988,17 @@ class muscatConversion extends frontControllerApplication
 					AND topLevel = 1
 					AND value NOT REGEXP '^{$literalBackslash}{$literalBackslash}[([^{$literalBackslash}]]+){$literalBackslash}{$literalBackslash}]$'		/* Exclude [Titles fully in brackets like this] */
 					AND recordLanguage = '{$language}'
+		;";
+		$this->databaseConnection->query ($query);
+		
+		# Add to the shard the parallel title (*lpt) specification associated with the top-level *t; this gives 210 updates, which exactly matches 210 results for `SELECT * FROM `catalogue_processed` WHERE `field` LIKE 'lpt' and recordLanguage = 'Russian';`
+		$query = "
+			UPDATE transliterations
+			LEFT JOIN catalogue_processed ON transliterations.recordId = catalogue_processed.recordId
+			SET lpt = value
+			WHERE
+				    catalogue_processed.field = 'lpt'
+				AND title_latin LIKE '% = %'		-- This clause avoids e.g. both 198010:10, 198010:17 (lines 10 and 17) matching in /records/198010/
 		;";
 		$this->databaseConnection->query ($query);
 		
