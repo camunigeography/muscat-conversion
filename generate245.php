@@ -221,7 +221,7 @@ class generate245
 				
 				# Register this value
 				#!# Old transliteration needs to be upgraded in catalogue_processed and here in MARC generation
-				$statementOfResponsibility .= ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliterateBgnLatinToCyrillic ($string, $this->languageMode));
+				$statementOfResponsibility .= ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliterateBgnLatinToCyrillic ($string, false, $this->languageMode));
 				
 				# Next *a
 				$aIndex++;
@@ -270,7 +270,7 @@ class generate245
 		$nIndex = 1;	// XPaths are indexed from 1, not 0
 		while ($string = $this->classifyNdField ($path . "/n[$nIndex]")) {
 			#!# Old transliteration needs to be upgraded in catalogue_processed and here in MARC generation
-			$subValues[] = ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliterateBgnLatinToCyrillic ($string, $this->languageMode));	// e.g. /records/1844/
+			$subValues[] = ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliterateBgnLatinToCyrillic ($string, false, $this->languageMode));	// e.g. /records/1844/
 			
 			# Next
 			$nIndex++;

@@ -3021,16 +3021,16 @@ class muscatConversion extends frontControllerApplication
 	# Function to run the transliterations in the transliteration table; this never alters title_latin which should be set only in createTransliterationsTable, read from the post- second-pass XML records
 	private function transliterateTransliterationsTable ()
 	{
-		# Obtain the raw values
-		$data = $this->databaseConnection->selectPairs ($this->settings['database'], 'transliterations', array (), array ('id', 'title_latin'));
+		# Obtain the raw values, indexed by shard ID
+		$data = $this->databaseConnection->select ($this->settings['database'], 'transliterations', array (), array ('id', 'title_latin', 'lpt'));
 		
 		# Transliterate the strings (takes around 20 minutes); this has to be done string-by-string because the batcher is not safe for protected strings
 		#!# This may now be safely batchable following introduction of word-boundary protection algorithm in b5265809a8dca2a1a161be2fcc26c13c926a0cda
 		#!# The same issue about crosstalk in unsafe batching presumably applies to line-by-line conversions, i.e. C (etc.) will get translated later in the same line; need to check on this
 		$language = 'Russian';
 		$dataTransliterated = array ();
-		foreach ($data as $id => $string) {
-			$dataTransliterated[$id] = $this->transliterateBgnLatinToCyrillic ($string, $language);
+		foreach ($data as $id => $entry) {
+			$dataTransliterated[$id] = $this->transliterateBgnLatinToCyrillic ($entry['title_latin'], $entry['lpt'], $language);
 		}
 		
 		# Do a comparison check by forward-transliterating the generated Cyrillic (takes around 15 seconds)
@@ -3041,11 +3041,11 @@ class muscatConversion extends frontControllerApplication
 		
 		# Compile the conversions
 		$conversions = array ();
-		foreach ($data as $id => $string) {
+		foreach ($data as $id => $entry) {
 			$conversions[$id] = array (
 				'title'					=> $dataTransliterated[$id],
 				'title_forward'			=> $forwardBgnTransliterations[$id],
-				'forwardCheckFailed'	=> (strtolower ($string) != strtolower ($forwardBgnTransliterations[$id]) ? 1 : NULL),	// Case-insensitive comparison pending upstream fix on http://unicode.org/cldr/trac/ticket/9316
+				'forwardCheckFailed'	=> (strtolower ($entry['title_latin']) != strtolower ($forwardBgnTransliterations[$id]) ? 1 : NULL),	// Case-insensitive comparison pending upstream fix on http://unicode.org/cldr/trac/ticket/9316
 				'title_loc'				=> $forwardLocTransliterations[$id],
 			);
 		}
@@ -3112,10 +3112,15 @@ class muscatConversion extends frontControllerApplication
 		# Example use:
 		echo "hello" | translit -r -t "BGN PCGN 1947"
 	*/
-	public function transliterateBgnLatinToCyrillic ($bgnLatin, $language)
+	public function transliterateBgnLatinToCyrillic ($bgnLatin, $lpt, $language)
 	{
 		# Ensure language is supported
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return $bgnLatin;}
+		
+		# Handle parallel titles, e.g. "Title in Russian = Equivalent in English = Equivalent in French"; see: /fields/lpt/values/ ; effectively this overwrites the incoming string so that only the Russian part is considered; the overall string will then be glued back together after the transliteration below
+		if (!$bgnLatin = $this->extractFromParallelTitle ($bgnLatin, $lpt, $parallelTitleSeparator = ' = ', $parallelTitles /* passed back by reference */, $error /* passed back by reference */)) {
+			return false;	// $error will now be written to
+		}
 		
 		# Protect string portions (e.g. English language, HTML portions) prior to transliteration
 		$bgnLatin = $this->protectSubstrings ($bgnLatin, $protectedParts);
@@ -3139,6 +3144,12 @@ class muscatConversion extends frontControllerApplication
 		
 		# Reinstate protected substrings
 		$cyrillic = strtr ($cyrillic, $protectedParts);
+		
+		# Re-construct the Parallel title; e.g. /records/37081/ , /records/197449/ , /records/133013/
+		if ($parallelTitles) {
+			$parallelTitles['Russian'] = $cyrillic;
+			$cyrillic = implode ($parallelTitleSeparator, $parallelTitles);
+		}
 		
 		# Return the transliteration
 		return $cyrillic;
@@ -6627,7 +6638,8 @@ class muscatConversion extends frontControllerApplication
 		
 		# Pass the value into the transliterator
 		#!# Old transliteration needs to be upgraded in catalogue_processed and here in MARC generation
-		$output = $this->transliterateBgnLatinToCyrillic ($value, $language);
+		#!# Need to determine whether the $lpt argument should ever be looked up, i.e. whether the $value represents a title and the record is in Russian
+		$output = $this->transliterateBgnLatinToCyrillic ($value, $lpt = false, $language);
 		
 		# Return the string
 		return $output;
