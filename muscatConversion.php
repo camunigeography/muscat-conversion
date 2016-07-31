@@ -3159,33 +3159,11 @@ class muscatConversion extends frontControllerApplication
 	# Function to transliterate from Library of Congress (ALA LC) to Cyrillic; this is only run in a non-batched context; see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
 	public function transliterateLocLatinToCyrillic ($locLatin, $lpt, &$error = '')
 	{
-		# Handle parallel titles, e.g. "Title in Russian = Equivalent in English = Equivalent in French"; see: /fields/lpt/values/
+		# Handle parallel titles, e.g. "Title in Russian = Equivalent in English = Equivalent in French"; see: /fields/lpt/values/ ; effectively this overwrites the incoming string so that only the Russian part is considered; the overall string will then be glued back together after the transliteration below
 		#!# This might be better handled as creating protected substrings; in batch mode, the equals sign would probably need to be included
 		#!# Need to support this in the spell-checker also
-		$parallelTitles = array ();
-		$parallelTitleSeparator = ' = ';
-		if ($lpt) {
-			
-			# Tokenise the definition
-			$parallelTitleLanguages = explode ($parallelTitleSeparator, $lpt);
-			$parallelTitleComponents = explode ($parallelTitleSeparator, $locLatin);
-			
-			# Ensure the counts match; this is looking for the same problem as the paralleltitlemismatch report
-			if (count ($parallelTitleLanguages) != count ($parallelTitleComponents)) {
-				$error = 'Transliteration requested with parallel titles list whose token count does not match the title';
-				return false;
-			}
-			
-			# Convert to key/value pairs; the list at /fields/lpt/values/ confirms there are no duplications (e.g. Russian = English = Russian)
-			$parallelTitles = array_combine ($parallelTitleLanguages, $parallelTitleComponents);
-			
-			# Set the supported language as the part to be transliterated
-			#!# Currently hard-coded support for Russian only
-			if (!isSet ($parallelTitles['Russian'])) {
-				$error = 'Transliteration requested with parallel titles list that does not include Russian';
-				return false;
-			}
-			$locLatin = $parallelTitles['Russian'];		// Effectively this overwrites the incoming string so that only the Russian part is considered; the overall string will then be glued back together after the transliteration below
+		if (!$locLatin = $this->extractFromParallelTitle ($locLatin, $lpt, $parallelTitleSeparator = ' = ', $parallelTitles /* passed back by reference */, $error /* passed back by reference */)) {
+			return false;	// $error will now be written to
 		}
 		
 		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/ ; this should take effect after parallel titles have been split off
@@ -3214,6 +3192,39 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the transliteration
 		return $reverseTransliteration;
+	}
+	
+	
+	# Function to handle extraction of parallel titles
+	private function extractFromParallelTitle ($locLatin, $lpt, $parallelTitleSeparator, &$error = '', &$parallelTitles = array ())
+	{
+		# End if no parallel title definition in the record
+		if (!$lpt) {
+			return $locLatin;
+		}
+		
+		# Tokenise the definition
+		$parallelTitleLanguages = explode ($parallelTitleSeparator, $lpt);
+		$parallelTitleComponents = explode ($parallelTitleSeparator, $locLatin);
+		
+		# Ensure the counts match; this is looking for the same problem as the paralleltitlemismatch report
+		if (count ($parallelTitleLanguages) != count ($parallelTitleComponents)) {
+			$error = 'Transliteration requested with parallel titles list whose token count does not match the title';
+			return false;
+		}
+		
+		# Convert to key/value pairs; the list at /fields/lpt/values/ confirms there are no duplications (e.g. Russian = English = Russian)
+		$parallelTitles = array_combine ($parallelTitleLanguages, $parallelTitleComponents);
+		
+		# Set the supported language as the part to be transliterated
+		#!# Currently hard-coded support for Russian only
+		if (!isSet ($parallelTitles['Russian'])) {
+			$error = 'Transliteration requested with parallel titles list that does not include Russian';
+			return false;
+		}
+		
+		# Return the string for transliteration
+		return $parallelTitles['Russian'];
 	}
 	
 	
