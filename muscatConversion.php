@@ -3100,18 +3100,18 @@ class muscatConversion extends frontControllerApplication
 		# Example use:
 		echo "hello" | translit -r -t "BGN PCGN 1947"
 	*/
-	public function transliterateBgnLatinToCyrillic ($string, $language)
+	public function transliterateBgnLatinToCyrillic ($bgnLatin, $language)
 	{
 		# Ensure language is supported
-		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return $string;}
+		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return $bgnLatin;}
 		
 		# Protect string portions (e.g. English language, HTML portions) prior to transliteration
-		$string = $this->protectSubstrings ($string, $protectedParts);
+		$bgnLatin = $this->protectSubstrings ($bgnLatin, $protectedParts);
 		
 		/* Note:
 		 * Ideally we would use:
 		 *   $t = Transliterator::create("Russian-Latin/BGN", Transliterator::REVERSE);
-		 *   $reverseTransliteration = $t->transliterate ($string);
+		 *   $reverseTransliteration = $t->transliterate ($bgnLatin);
 		 * which uses Unicode CLDR
 		 * See: http://www.larryullman.com/2012/02/01/transliteration-in-php-5-4/
 		 * Unfortunately, http://cldr.unicode.org/index/cldr-spec/transliteration-guidelines states:
@@ -3123,13 +3123,13 @@ class muscatConversion extends frontControllerApplication
 		
 		# Perform transliteration
 		$command = "{$this->cpanDir}/bin/translit -trans '{$this->supportedReverseTransliterationLanguages[$language]}'";	//  --reverse
-		$reverseTransliteration = application::createProcess ($command, $string);
+		$cyrillic = application::createProcess ($command, $bgnLatin);
 		
 		# Reinstate protected substrings
-		$reverseTransliteration = strtr ($reverseTransliteration, $protectedParts);
+		$cyrillic = strtr ($cyrillic, $protectedParts);
 		
 		# Return the transliteration
-		return $reverseTransliteration;
+		return $cyrillic;
 	}
 	
 	
