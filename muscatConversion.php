@@ -3189,8 +3189,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/ ; this should take effect after parallel titles have been split off
-		$literalBackslash = '\\';
-		if (preg_match ('/' . "^{$literalBackslash}[([^{$literalBackslash}]]+){$literalBackslash}]$" . '/', $locLatin)) {		// Regexp should match the MySQL equivalent in createTransliterationsTable ()
+		if ($this->titleFullyInBrackets ($locLatin)) {
 			// $error should not be given a string, as this scenario is not an error, e.g. /records/75010/ , /records/167609/ , /records/178982/
 			return false;
 		}
@@ -3215,6 +3214,15 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the transliteration
 		return $reverseTransliteration;
+	}
+	
+	
+	# Function to determine a [Title fully in brackets like this]; e.g. /records/31750/
+	private function titleFullyInBrackets ($title)
+	{
+		# Check for [...] ; the regexp should match the MySQL equivalent in createTransliterationsTable ()
+		$literalBackslash = '\\';
+		return (preg_match ('/' . "^{$literalBackslash}[([^{$literalBackslash}]]+){$literalBackslash}]$" . '/', $title));
 	}
 	
 	
