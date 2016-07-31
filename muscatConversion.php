@@ -3870,7 +3870,7 @@ class muscatConversion extends frontControllerApplication
 				) -- 25266 records
 				
 				OR (
-					    EXTRACTVALUE(xml, '//status') IN('O/P', 'ON ORDER', 'ON ORDER (O/P)', 'ON ORDER (O/S)')
+					    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
 					/* #!# /records/145472/ is the only one that has invalid syntax */
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
 					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('{$this->acquisitionDate}')
@@ -3913,7 +3913,7 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				   (field = 'status' AND value = 'ORDER CANCELLED')
 				OR (
-					    EXTRACTVALUE(xml, '//status') IN('O/P', 'ON ORDER', 'ON ORDER (O/P)', 'ON ORDER (O/S)')
+					    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
 					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('{$this->acquisitionDate}')
 					)
@@ -8734,7 +8734,7 @@ class muscatConversion extends frontControllerApplication
 			FROM catalogue_processed
 			WHERE
 				    field = 'status'
-				AND value IN ('On Order', 'On Order (O/P)', 'On Order (O/S)', 'Order Cancelled')
+				AND (value LIKE 'ON ORDER%' OR value = 'ORDER CANCELLED')
 		";
 		
 		# Return the query
@@ -8799,7 +8799,7 @@ class muscatConversion extends frontControllerApplication
 				id AS recordId
 				FROM catalogue_xml
 				WHERE
-					    EXTRACTVALUE(xml, '//status') IN ('On Order', 'On Order (O/P)', 'On Order (O/S)')
+					    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
 					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('{$this->acquisitionDate}')
 		";
@@ -8819,7 +8819,7 @@ class muscatConversion extends frontControllerApplication
 				id AS recordId
 				FROM catalogue_xml
 				WHERE
-					    EXTRACTVALUE(xml, '//status') IN ('On Order', 'On Order (O/P)', 'On Order (O/S)')
+					    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
 					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) > UNIX_TIMESTAMP('{$this->acquisitionDate}')
 		";
@@ -8842,7 +8842,7 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				    fieldslist LIKE '%@status@%'
 				AND field = 'status'
-				AND value = 'Order Cancelled'
+				AND value = 'ORDER CANCELLED'
 		";
 		
 		# Return the query
