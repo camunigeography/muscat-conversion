@@ -3208,16 +3208,16 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to handle extraction of parallel titles
-	private function extractFromParallelTitle ($locLatin, $lpt, $parallelTitleSeparator, &$error = '', &$parallelTitles = array ())
+	private function extractFromParallelTitle ($russianAsTransliteratedLatin, $lpt, $parallelTitleSeparator, &$parallelTitles = array (), &$error = '')
 	{
 		# End if no parallel title definition in the record
 		if (!$lpt) {
-			return $locLatin;
+			return $russianAsTransliteratedLatin;
 		}
 		
 		# Tokenise the definition
 		$parallelTitleLanguages = explode ($parallelTitleSeparator, $lpt);
-		$parallelTitleComponents = explode ($parallelTitleSeparator, $locLatin);
+		$parallelTitleComponents = explode ($parallelTitleSeparator, $russianAsTransliteratedLatin);
 		
 		# Ensure the counts match; this is looking for the same problem as the paralleltitlemismatch report
 		if (count ($parallelTitleLanguages) != count ($parallelTitleComponents)) {
