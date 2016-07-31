@@ -49,8 +49,8 @@ class muscatConversion extends frontControllerApplication
 		'onordercancelled_info' => 'items on order or cancelled',
 		'invalidstatus_problem' => 'items with an invalid *status',
 		'invalidacquisitiondate_problem' => 'items with an invalid acquisition date',
-		'onorderold_info' => 'Items on order before 2013/09/01',
-		'onorderrecent_info' => 'Items on order since 2013/09/01',
+		'onorderold_info' => 'Items on order before the threshold acquisition date',
+		'onorderrecent_info' => 'Items on order since the threshold acquisition date',
 		'ordercancelled_info' => 'items where the order is cancelled',
 		'absitalics_info' => 'records with italics in the abstract',
 		'isbninvalid_problem' => 'records with invalid ISBN number, excluding ones known to be wrong in the printed original publication',
@@ -284,7 +284,7 @@ class muscatConversion extends frontControllerApplication
 	
 	# Acquisition date cut-off for on-order -type items; these range from 22/04/1992 to 30/10/2015; the intention of this date is that 'recent' on-order items (intended to be 1 year ago) would be migrated but suppressed, and the rest deleted - however, this needs review
 	#!# This date is subject to review, as is whether any should be deleted (since these have value as a statement of desire to obtain), or indeed any should be migrated (and re-entered in Voyager)
-	private $acquisitionDate = '2015-01-01 00:00:00';
+	private $acquisitionDate = '2015-01-01';
 	
 	# Order *status keywords
 	private $orderStatusKeywords = array (
@@ -3873,7 +3873,7 @@ class muscatConversion extends frontControllerApplication
 					    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
 					/* #!# /records/145472/ is the only one that has invalid syntax */
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
-					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('{$this->acquisitionDate}')
+					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
 				) -- 717 records
 				
 				OR (
@@ -3915,7 +3915,7 @@ class muscatConversion extends frontControllerApplication
 				OR (
 					    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
-					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('{$this->acquisitionDate}')
+					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
 					)
 				OR (field = 'location' AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection'))
 			-- 1846 records in total
@@ -8789,7 +8789,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Items on order before 2013/09/01
+	# Items on order before the threshold acquisition date
 	private function report_onorderold ()
 	{
 		# Define the query
@@ -8801,7 +8801,7 @@ class muscatConversion extends frontControllerApplication
 				WHERE
 					    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
-					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('{$this->acquisitionDate}')
+					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
 		";
 		
 		# Return the query
@@ -8809,7 +8809,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Items on order since 2013/09/01
+	# Items on order since the threshold acquisition date
 	private function report_onorderrecent ()
 	{
 		# Define the query
@@ -8821,7 +8821,7 @@ class muscatConversion extends frontControllerApplication
 				WHERE
 					    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
-					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) > UNIX_TIMESTAMP('{$this->acquisitionDate}')
+					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) > UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
 		";
 		
 		# Return the query
