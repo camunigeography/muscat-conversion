@@ -3283,12 +3283,12 @@ class muscatConversion extends frontControllerApplication
 		preg_match_all ('|(<em>.+</em>)|uU', $string, $italicisedNameMatches);		// Uses /U ungreedy, to avoid "a <em>b</em> c <em>d</em> e" becoming "a  e"
 		$replacements = array_merge ($replacements, $italicisedNameMatches[1]);
 		
-		# Protect known strings to protect from transliteration (Latin abbreviations and Order names)
-		$replacements = array_merge ($replacements, $this->transliterationProtectedStrings ());
-		
-		# Add in HTML tags for protection; in theory all <em> and </em> tags will have been swallowed already
+		# Add in HTML tags for protection; NB in theory all <em> and </em> tags will have been swallowed already so in practice these are not necessary here
 		$tags = array ('<em>', '</em>', '<sub>', '</sub>', '<sup>', '</sup>', );
 		$replacements = array_merge ($replacements, $tags);
+		
+		# Protect known strings to protect from transliteration (Latin abbreviations, Order names, Roman numeral pattern regexps)
+		$replacements = array_merge ($replacements, $this->transliterationProtectedStrings ());
 		
 		# Create dynamic replacements
 		foreach ($replacements as $index => $matchString) {
