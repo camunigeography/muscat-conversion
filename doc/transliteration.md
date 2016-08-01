@@ -151,3 +151,11 @@ This works by:
 8. At this point, the modified string, containing the tokens in place of the protected sections, is passed back, together with the list of `protectedParts` passed back by reference.
 
 
+## TODO:
+
+* The two places that wrap `protectSubstrings` need handling of `extractFromParallelTitle` and `titleFullyInBrackets` standardised. At present, one contains a `return false` as a way to flag a string not requiring transliteration.
+* `protectSubstrings` is currently wrapped by `extractFromParallelTitle` and `titleFullyInBrackets` in the two places it is currently used. These need to be brought inside `protectSubstrings`.
+* The spellchecker library function has a pile of deprecated options (e.g. its own block protection option `protectBlockRegexp`) that should be removed for clarity.
+* The spellchecker hooks into `transliterationProtectedStrings`, which the larger `protectSubstrings` routine also makes use of. Instead, the spellchecker should launch `protectSubstrings` as a callback. This should mean that false positives like record 133013 on `/reports/transliterations/page26.html`, which has its `*lpt` English part marked as misspelt, are eliminated.
+* There are still reversibility failures at `/reports/transliterations/?filter=1` relating to roman numerals. These should be added as additional regexps at the end of `transliterationProtectedStrings`.
+
