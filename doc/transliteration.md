@@ -163,7 +163,6 @@ This works by:
 
 ## TODO:
 
-* The two places that wrap `protectSubstrings` need handling of `extractFromParallelTitle` and `titleFullyInBrackets` standardised.
 * `protectSubstrings` is currently wrapped by `extractFromParallelTitle` and `titleFullyInBrackets` in the two places it is currently used. These need to be brought inside `protectSubstrings`.
 * The spellchecker hooks into `transliterationProtectedStrings`, which the larger `protectSubstrings` routine also makes use of. Instead, the spellchecker should have support for a callback, which would launch `protectSubstrings` as this callback, so that its scope matches the rest of the transliteration system, i.e. (non-protected string portions). This should for instance mean that false positives like record 133013 on `/reports/transliterations/page26.html`, which has its `*lpt` English part marked as misspelt, are eliminated.
 * There are still reversibility failures at `/reports/transliterations/?filter=1` relating to roman numerals. These should be added as additional regexps at the end of `transliterationProtectedStrings`.
