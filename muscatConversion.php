@@ -2991,7 +2991,7 @@ class muscatConversion extends frontControllerApplication
 		;";
 		$this->databaseConnection->query ($query);
 		
-		# Add to the shard the parallel title (*lpt) specification associated with the top-level *t; this gives 210 updates, which exactly matches 210 results for `SELECT * FROM `catalogue_processed` WHERE `field` LIKE 'lpt' and recordLanguage = 'Russian';`
+		# Add to the shard the parallel title (*lpt) property associated with the top-level *t; this gives 210 updates, which exactly matches 210 results for `SELECT * FROM `catalogue_processed` WHERE `field` LIKE 'lpt' and recordLanguage = 'Russian';`
 		$query = "
 			UPDATE transliterations
 			LEFT JOIN catalogue_processed ON transliterations.recordId = catalogue_processed.recordId
@@ -10586,6 +10586,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Spellcheck the strings
+		#!# This needs a proper protectedStrings callback approach - simply supplying the transliterationProtectedStrings list is not sufficient as protectedStrings does more than that; e.g. see record 133013 on /reports/transliterations/page26.html, which has its *lpt English part marked as misspelt
 		$spellcheck = application::spellcheck ($spellcheck, 'ru_RU', $this->databaseConnection, $this->settings['database'], $enableSuggestions = true, $this->transliterationProtectedStrings ());
 		
 		# Substitute the spellchecked HTML versions into the table

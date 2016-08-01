@@ -98,7 +98,9 @@ There is a transliterations report at `/reports/transliterations/?filter=1` whic
 
 This is basically just a dynamic read of the `transliterations` table.
 
-The spell-checker dynamically reads the generated Cyrillic (from BGN/PCGN) and checks for errors. This section has `protectSubstrings` applied. Further details are below.
+The spell-checker dynamically reads the generated Cyrillic (from BGN/PCGN) and checks for errors.
+
+The spell-checker library function is supplied with a protected strings list from `transliterationProtectedStrings`. However, this implementation is deficient and instead needs `protectSubstrings` applied.
 
 
 ## Protected strings
