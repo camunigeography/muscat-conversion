@@ -3112,7 +3112,7 @@ class muscatConversion extends frontControllerApplication
 		# Example use:
 		echo "hello" | translit -r -t "BGN PCGN 1947"
 	*/
-	public function transliterateBgnLatinToCyrillic ($bgnLatin, $lpt, $language)
+	public function transliterateBgnLatinToCyrillic ($bgnLatin, $lpt, $language, $endIfNonTransliterable = false)
 	{
 		# Ensure language is supported
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return $bgnLatin;}
@@ -3120,6 +3120,12 @@ class muscatConversion extends frontControllerApplication
 		# Handle parallel titles, e.g. "Title in Russian = Equivalent in English = Equivalent in French"; see: /fields/lpt/values/ ; effectively this overwrites the incoming string so that only the Russian part is considered; the overall string will then be glued back together after the transliteration below
 		if (!$bgnLatin = $this->extractFromParallelTitle ($bgnLatin, $lpt, $parallelTitleSeparator = ' = ', $parallelTitles /* passed back by reference */, $error /* passed back by reference */)) {
 			return false;	// $error will now be written to
+		}
+		
+		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/ ; this should take effect after parallel titles have been split off
+		if ($this->titleFullyInBrackets ($bgnLatin)) {
+			// $error should not be given a string, as this scenario is not an error, e.g. /records/75010/ , /records/167609/ , /records/178982/
+			return ($endIfNonTransliterable ? false : $bgnLatin);
 		}
 		
 		# Protect string portions (e.g. English language, HTML portions) prior to transliteration
@@ -3180,7 +3186,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to transliterate from Library of Congress (ALA LC) to Cyrillic; this is only run in a non-batched context; see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
-	public function transliterateLocLatinToCyrillic ($locLatin, $lpt, &$error = '')
+	public function transliterateLocLatinToCyrillic ($locLatin, $lpt, &$error = '', $endIfNonTransliterable = false)
 	{
 		# Handle parallel titles, e.g. "Title in Russian = Equivalent in English = Equivalent in French"; see: /fields/lpt/values/ ; effectively this overwrites the incoming string so that only the Russian part is considered; the overall string will then be glued back together after the transliteration below
 		#!# This might be better handled as creating protected substrings; in batch mode, the equals sign would probably need to be included
@@ -3192,7 +3198,7 @@ class muscatConversion extends frontControllerApplication
 		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/ ; this should take effect after parallel titles have been split off
 		if ($this->titleFullyInBrackets ($locLatin)) {
 			// $error should not be given a string, as this scenario is not an error, e.g. /records/75010/ , /records/167609/ , /records/178982/
-			return false;
+			return ($endIfNonTransliterable ? false : $locLatin);
 		}
 		
 		# Protect string portions (e.g. English language, HTML portions) prior to transliteration
@@ -6637,6 +6643,7 @@ class muscatConversion extends frontControllerApplication
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return false;}	// Return false to ensure no result, unlike the main transliterate() routine
 		
 		# Pass the value into the transliterator
+		#!# Need to clarify why there is still BGN latin remaining
 		#!# Old transliteration needs to be upgraded in catalogue_processed and here in MARC generation
 		#!# Need to determine whether the $lpt argument should ever be looked up, i.e. whether the $value represents a title and the record is in Russian
 		$output = $this->transliterateBgnLatinToCyrillic ($value, $lpt = false, $language);
