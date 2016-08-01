@@ -10527,9 +10527,9 @@ class muscatConversion extends frontControllerApplication
 		$totalRecords = number_format ($totalRecords);
 		$failuresOnly = (isSet ($_GET['filter']) && $_GET['filter'] == '1');
 		if ($failuresOnly) {
-			$html .= "\n<p><a href=\"{$this->baseUrl}/reports/transliterations/\">Show all ($totalRecords)</a> | <strong>Filtering to reversibility failures only ({$totalFailures})</strong></p>";
+			$html .= "\n<p><a href=\"{$this->baseUrl}/reports/transliterations/\">Show all ($totalRecords)</a> | <strong>Filtering to reversibility failures only (" . number_format ($totalFailures) . ")</strong></p>";
 		} else {
-			$html .= "\n<p><strong>Showing all ($totalRecords)</strong> | <a href=\"{$this->baseUrl}/reports/transliterations/?filter=1\">Filter to reversibility failures only ({$totalFailures})</a></p>";
+			$html .= "\n<p><strong>Showing all ($totalRecords)</strong> | <a href=\"{$this->baseUrl}/reports/transliterations/?filter=1\">Filter to reversibility failures only (" . number_format ($totalFailures) . ")</a></p>";
 		}
 		
 		# Add link to editing the definition
