@@ -68,7 +68,7 @@ This involves the following steps:
 
  a. **Transliterate BGN/PCGN to Cyrillic.** The `title_latin` is transliterated to Cyrillic and stored as `title` using `transliterateBgnLatinToCyrillic`, using the Lingua Translit program and using the XML definition defined in `/tables/reverseTransliteration.xml` which is written by the interface at `/transliterator.html`. This takes around 20 minutes. It is not currently batched.
   
-  * This section needs `protectSubstrings` applied. Further details are below.
+  * This section has `protectSubstrings` applied. Further details are below.
 
  b. **Transliterate back from Cyrillic to BGN/PCGN as a reversibility check.** As a reversibility check, the new Cyrillic in `title` is forward-transliterated back and stored in `title_forward`, using `transliterateCyrillicToBgnLatin`. This takes around 15 seconds, and is batched (all shards processed at once).
  
