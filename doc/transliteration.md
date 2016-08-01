@@ -98,9 +98,19 @@ There is a transliterations report at `/reports/transliterations/?filter=1` whic
 
 This is basically just a dynamic read of the `transliterations` table.
 
-The spell-checker dynamically reads the generated Cyrillic (from BGN/PCGN) and checks for errors.
+At the point the a page of the transliterations table is loaded, the spell-checker dynamically reads the generated Cyrillic (from BGN/PCGN) and checks for errors. These are marked with a red wavy underline, by wrapping words in a `<span>` tag, visible in supported browsers. (Firefox has native support, and Chrome requires the `--enable-experimental-web-platform-features` flag to be enabled.)
 
-The spell-checker library function is supplied with a protected strings list from `transliterationProtectedStrings`. However, this implementation is deficient and instead needs `protectSubstrings` applied.
+The spell-checker library function (application::spellcheck) is supplied with a protected strings list from `transliterationProtectedStrings`. However, this implementation is deficient and instead needs `protectSubstrings` applied.
+
+As the spell-checker is resource-intensive, and is given (by default) 1,000 record titles to check at once, the library function is equipped with support for caching via a database table, which works as follows:
+
+  * The database handle is supplied to it.
+  * This creates a table `spellcheckcache` if this does not already exist
+  * The database table is indexed by spellchecked word, with two associated fields: an `isCorrect` flag and a set of `suggestions` (stored as a pipe-separated list)
+  * The entire table is retrieved and loaded into an array in memory.
+  * The spell-checker works through all the runtime-supplied strings.
+  * If present in the cache, this is used; if not it is looked up using `enchant`.
+  * New words are inserted added to cache, and the database table is replaced with the new cache list.
 
 
 ## Protected strings
@@ -156,6 +166,6 @@ This works by:
 * The two places that wrap `protectSubstrings` need handling of `extractFromParallelTitle` and `titleFullyInBrackets` standardised. At present, one contains a `return false` as a way to flag a string not requiring transliteration.
 * `protectSubstrings` is currently wrapped by `extractFromParallelTitle` and `titleFullyInBrackets` in the two places it is currently used. These need to be brought inside `protectSubstrings`.
 * The spellchecker library function has a pile of deprecated options (e.g. its own block protection option `protectBlockRegexp`) that should be removed for clarity.
-* The spellchecker hooks into `transliterationProtectedStrings`, which the larger `protectSubstrings` routine also makes use of. Instead, the spellchecker should launch `protectSubstrings` as a callback. This should mean that false positives like record 133013 on `/reports/transliterations/page26.html`, which has its `*lpt` English part marked as misspelt, are eliminated.
+* The spellchecker hooks into `transliterationProtectedStrings`, which the larger `protectSubstrings` routine also makes use of. Instead, the spellchecker should launch `protectSubstrings` as a callback, so that its scope matches the rest of the transliteration system, i.e. (non-protected string proportions). This should for instance mean that false positives like record 133013 on `/reports/transliterations/page26.html`, which has its `*lpt` English part marked as misspelt, are eliminated.
 * There are still reversibility failures at `/reports/transliterations/?filter=1` relating to roman numerals. These should be added as additional regexps at the end of `transliterationProtectedStrings`.
 
