@@ -3107,7 +3107,7 @@ class muscatConversion extends frontControllerApplication
 		
 		Lingua Translit documentation:
 		http://www.lingua-systems.com/translit/downloads/lingua-translit-developer-manual-eng.pdf
-		http://search.cpan.org/~alinke/Lingua-Translit-0.22/lib/Lingua/Translit.pm#ADDING_NEW_TRANSLITERATIONS
+		http://search.cpan.org/~alinke/Lingua-Translit/lib/Lingua/Translit.pm#ADDING_NEW_TRANSLITERATIONS
 		
 		# Example use:
 		echo "hello" | translit -r -t "BGN PCGN 1947"
