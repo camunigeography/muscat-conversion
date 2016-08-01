@@ -41,7 +41,8 @@ This involves the following steps:
   
     * `id` Shard ID, e.g. `1262:7`
 	* `recordId` Record ID, e.g. `1262`
-	* `field` Field, e.g. `t` (i.e. *t*)
+	* `field` Field, e.g. `t` (i.e. *t)
+	* `lpt` Field, for Parallel title languages (i.e. *lpt); examples: `Russian = French`, `English = Russian`, matching `... = ...` in *t
 	* `title_latin` Title (latin characters), unmodified from original data, e.g. `Za polyarnym krugom`
 	* `title_latin_tt` *tt if present, e.g. `Beyond the Arctic Circle`
 	* `title` Reverse-transliterated title in UTF-8 Cyrillic, e.g. `За полярным кругом`
@@ -57,9 +58,11 @@ This involves the following steps:
  c. Records that have one of the fields, e.g. `*t` at top level (marked `topLevel = 1`) have each such shard copied from the processed table to the transliterations table, into the `title_latin` field.
 	* Note that [Titles fully in brackets like this] are excluded from this process
 	
- d. Similarly, `*tt` where present (at top level) is copied into `title_latin_tt`.
+ d. The parallel title (`*lpt`) property associated with the top-level `*t` is added. This is done by looking up the `*lpt` field in the processed table with a matching `recordId`, and adding it where the `title_latin` contains the lpt delimeter, ` = `.
 	
- e. Thus we now have a table containing shards with field `title_latin` containing the BGN/PCGN string that needs to be upgraded (and `title_latin_tt` for records having `*tt`).
+ e. Similarly, `*tt` where present (at top level) is copied into `title_latin_tt`.
+	
+ f. Thus we now have a table containing shards with field `title_latin` containing the BGN/PCGN string that needs to be upgraded (and `title_latin_tt` for records having `*tt`).
 	
 2. The routine `transliterateTransliterationsTable` is entered. For each shard:
 
