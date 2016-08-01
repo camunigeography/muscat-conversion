@@ -107,7 +107,7 @@ The spell-checker library function is supplied with a protected strings list fro
 
 Any conversion involving conversion of a reverse-transliterated string (i.e. currently in BGN/PCGN or LoC) to  Cyrillic needs some strings protected from conversion.
 
-Conversion from Cyrillic back to Latin never needs string protection.
+Conversion from Cyrillic back to Latin never needs string protection, as the conversion table will naturally ignore Latin characters and only consider the Cyrillic characters, which also have a one-to-one mapping.
 
 There is therefore a routine called `protectSubstrings` which takes the string and caches parts of the string away, replacing with a unique token, such as `<||367||>` .
 
