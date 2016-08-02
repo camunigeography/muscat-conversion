@@ -3112,10 +3112,13 @@ class muscatConversion extends frontControllerApplication
 		# Example use:
 		echo "hello" | translit -r -t "BGN PCGN 1947"
 	*/
-	public function transliterateBgnLatinToCyrillic ($stringLatin, $lpt, $language, $endIfNonTransliterable = false)
+	public function transliterateBgnLatinToCyrillic ($stringLatin, $lpt, $language)
 	{
 		# Ensure language is supported
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return $stringLatin;}
+		
+		# Flag that titles fully in brackets should just have their string returned as-is
+		$endIfNonTransliterable = false;
 		
 		# Handle parallel titles, e.g. "Title in Russian = Equivalent in English = Equivalent in French"; see: /fields/lpt/values/ ; effectively this overwrites the incoming string so that only the Russian part is considered; the overall string will then be glued back together after the transliteration below
 		#!# This might be better handled as creating protected substrings; in batch mode, the equals sign would probably need to be included
@@ -3125,6 +3128,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/ ; this should take effect after parallel titles have been split off
+		#!# Bug that the other $parallelTitles will be lost if the string is returned
 		if ($this->titleFullyInBrackets ($stringLatin)) {
 			// $error should not be given a string, as this scenario is not an error, e.g. /records/75010/ , /records/167609/ , /records/178982/
 			return ($endIfNonTransliterable ? false : $stringLatin);
@@ -3198,6 +3202,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/ ; this should take effect after parallel titles have been split off
+		#!# Bug that the other $parallelTitles will be lost if the string is returned
 		if ($this->titleFullyInBrackets ($stringLatin)) {
 			// $error should not be given a string, as this scenario is not an error, e.g. /records/75010/ , /records/167609/ , /records/178982/
 			return ($endIfNonTransliterable ? false : $stringLatin);
