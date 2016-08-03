@@ -11,6 +11,7 @@ class muscatConversion extends frontControllerApplication
 		'missingd_problem' => 'records without a *d that are not *ser and either no status or status is GLACIOPAMS',
 		'missingacc_info' => 'records without a *acc',
 		'missingt_problem' => 'records without a *t',
+		'multiplet_problem' => 'records with multiple adjacent *t values',
 		'emptytvariants_problem' => 'records with an empty *t/*tt/*tc',
 		'sermissingr_problem' => '*ser records without a *r, except where location is Not in SPRI',
 		'artwithoutlocstatus_problem' => '*art records where there is no *loc and no *status',
@@ -7934,6 +7935,23 @@ class muscatConversion extends frontControllerApplication
 				id AS recordId
 			FROM catalogue_xml
 			WHERE EXTRACTVALUE(xml, 'count(/*/tg/t)') = 0
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with multiple adjacent *t values
+	private function report_multiplet ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'multiplet' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE fieldslist LIKE '%@t@t@%'
 		";
 		
 		# Return the query
