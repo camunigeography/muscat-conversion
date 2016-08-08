@@ -3125,16 +3125,8 @@ class muscatConversion extends frontControllerApplication
 			return false;	// $error will now be written to
 		}
 		
-		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/ ; this should take effect after parallel titles have been split off - the Russian part is the only part in the scope of transliteration, with other languages to be ignored by 880; however, [A] = B should logically never exist, and indeed this does not appear in the data
-		#!# Bug that the other $parallelTitles will be lost if the string is returned
-		if ($this->titleFullyInBrackets ($stringLatin)) {
-			// $error should not be given a string, as this scenario is not an error, e.g. /records/75010/ , /records/167609/ , /records/178982/
-			$nonTransliterable = true;	// Flag that this is not transliterable, passed back by reference
-			return $stringLatin;
-		}
-		
 		# Protect string portions (e.g. English language, HTML portions) prior to transliteration
-		$stringLatin = $this->protectSubstrings ($stringLatin, $protectedParts);
+		$stringLatin = $this->protectSubstrings ($stringLatin, $protectedParts, $nonTransliterable /* passed back by reference */);
 		
 		/* Note:
 		 * Ideally we would use:
@@ -3200,16 +3192,8 @@ class muscatConversion extends frontControllerApplication
 			return false;	// $error will now be written to
 		}
 		
-		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/ ; this should take effect after parallel titles have been split off - the Russian part is the only part in the scope of transliteration, with other languages to be ignored by 880; however, [A] = B should logically never exist, and indeed this does not appear in the data
-		#!# Bug that the other $parallelTitles will be lost if the string is returned
-		if ($this->titleFullyInBrackets ($stringLatin)) {
-			// $error should not be given a string, as this scenario is not an error, e.g. /records/75010/ , /records/167609/ , /records/178982/
-			$nonTransliterable = true;	// Flag that this is not transliterable, passed back by reference
-			return $stringLatin;
-		}
-		
 		# Protect string portions (e.g. English language, HTML portions) prior to transliteration
-		$stringLatin = $this->protectSubstrings ($stringLatin, $protectedParts);
+		$stringLatin = $this->protectSubstrings ($stringLatin, $protectedParts, $nonTransliterable /* passed back by reference */);
 		
 		# Transliterate, first loading if necessary the Library of Congress transliterations definition, copied from https://github.com/umpirsky/Transliterator/blob/master/src/Transliterator/data/ru/ALA_LC.php
 		if (!isSet ($this->locTransliterationDefinition)) {
@@ -3287,8 +3271,11 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to protect string portions (e.g. English language, HTML portions) prior to transliteration; can be undone with a simple strtr()
-	private function protectSubstrings ($string, &$protectedParts)
+	private function protectSubstrings ($string, &$protectedParts, &$nonTransliterable = false)
 	{
+		# Initialise a list of protected parts, which will be passed back by reference
+		$protectedParts = array ();
+		
 		# Start an array of replacements
 		$replacements = array ();
 		
@@ -3320,6 +3307,14 @@ class muscatConversion extends frontControllerApplication
 			}
 		}
 		
+		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/ ; this should take effect after parallel titles have been split off - the Russian part is the only part in the scope of transliteration, with other languages to be ignored by 880; however, [A] = B should logically never exist, and indeed this does not appear in the data
+		#!# Bug that the other $parallelTitles will be lost if the string is returned
+		if ($this->titleFullyInBrackets ($string)) {
+			// $error should not be given a string, as this scenario is not an error, e.g. /records/75010/ , /records/167609/ , /records/178982/
+			$nonTransliterable = true;	// Flag that this is not transliterable, passed back by reference
+			$replacements = array ($string);	// Overwrite any other replacements up to this point, as they can be ignored as irrelevant
+		}
+		
 		# At this point, all strings are known to be fixed strings, not regexps
 		
 		# For performance reasons, reduce complexity of the preg_replace below by doing a basic substring match first
@@ -3328,9 +3323,6 @@ class muscatConversion extends frontControllerApplication
 				unset ($replacements[$index]);
 			}
 		}
-		
-		# Initialise a list of protected parts, which will be passed back by reference
-		$protectedParts = array ();
 		
 		# If no replacements, return the string unmodified
 		if (!$replacements) {
