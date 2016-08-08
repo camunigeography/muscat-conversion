@@ -3118,15 +3118,9 @@ class muscatConversion extends frontControllerApplication
 		# Ensure language is supported
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return $stringLatin;}
 		
-		# Handle parallel titles, e.g. "Title in Russian = Equivalent in English = Equivalent in French"; see: /fields/lpt/values/ ; effectively this overwrites the incoming string so that only the Russian part is considered; the overall string will then be glued back together after the transliteration below
-		#!# This might be better handled as creating protected substrings; in batch mode, the equals sign would probably need to be included
-		#!# Need to support this in the spell-checker also
-		if (!$stringLatin = $this->extractFromParallelTitle ($stringLatin, $lpt, $parallelTitleSeparator = ' = ', $parallelTitles /* passed back by reference */, $error /* passed back by reference */)) {
-			return false;	// $error will now be written to
-		}
-		
-		# Protect string portions (e.g. English language, HTML portions) prior to transliteration
-		$stringLatin = $this->protectSubstrings ($stringLatin, $protectedParts, $nonTransliterable /* passed back by reference */);
+		# Protect string portions (e.g. English language, HTML portions, parallel title portions, [Titles fully in brackets like this]) prior to transliteration
+		$stringLatin = $this->protectSubstrings ($stringLatin, $lpt, $protectedParts, $error /* passed back by reference */, $nonTransliterable /* passed back by reference */);
+		if ($error) {return false;}
 		
 		/* Note:
 		 * Ideally we would use:
@@ -3147,12 +3141,6 @@ class muscatConversion extends frontControllerApplication
 		
 		# Reinstate protected substrings
 		$cyrillic = strtr ($cyrillic, $protectedParts);
-		
-		# Re-construct the Parallel title; e.g. /records/37081/ , /records/197449/ , /records/133013/
-		if ($parallelTitles) {
-			$parallelTitles['Russian'] = $cyrillic;
-			$cyrillic = implode ($parallelTitleSeparator, $parallelTitles);
-		}
 		
 		# Return the transliteration
 		return $cyrillic;
@@ -3185,15 +3173,9 @@ class muscatConversion extends frontControllerApplication
 	# Function to transliterate from Library of Congress (ALA LC) to Cyrillic; this is only run in a non-batched context; see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
 	public function transliterateLocLatinToCyrillic ($stringLatin, $lpt, &$error = '', &$nonTransliterable = false)
 	{
-		# Handle parallel titles, e.g. "Title in Russian = Equivalent in English = Equivalent in French"; see: /fields/lpt/values/ ; effectively this overwrites the incoming string so that only the Russian part is considered; the overall string will then be glued back together after the transliteration below
-		#!# This might be better handled as creating protected substrings; in batch mode, the equals sign would probably need to be included
-		#!# Need to support this in the spell-checker also
-		if (!$stringLatin = $this->extractFromParallelTitle ($stringLatin, $lpt, $parallelTitleSeparator = ' = ', $parallelTitles /* passed back by reference */, $error /* passed back by reference */)) {
-			return false;	// $error will now be written to
-		}
-		
-		# Protect string portions (e.g. English language, HTML portions) prior to transliteration
-		$stringLatin = $this->protectSubstrings ($stringLatin, $protectedParts, $nonTransliterable /* passed back by reference */);
+		# Protect string portions (e.g. English language, HTML portions, parallel title portions, [Titles fully in brackets like this]) prior to transliteration
+		$stringLatin = $this->protectSubstrings ($stringLatin, $lpt, $protectedParts, $error /* passed back by reference */, $nonTransliterable /* passed back by reference */);
+		if ($error) {return false;}
 		
 		# Transliterate, first loading if necessary the Library of Congress transliterations definition, copied from https://github.com/umpirsky/Transliterator/blob/master/src/Transliterator/data/ru/ALA_LC.php
 		if (!isSet ($this->locTransliterationDefinition)) {
@@ -3204,26 +3186,16 @@ class muscatConversion extends frontControllerApplication
 		# Reinstate protected substrings
 		$cyrillic = strtr ($cyrillic, $protectedParts);
 		
-		# Re-construct the Parallel title; e.g. /records/37081/ , /records/197449/ , /records/133013/
-		if ($parallelTitles) {
-			$parallelTitles['Russian'] = $cyrillic;
-			$cyrillic = implode ($parallelTitleSeparator, $parallelTitles);
-		}
-		
 		# Return the transliteration
 		return $cyrillic;
 	}
 	
 	
 	# Function to handle extraction of parallel titles
-	private function extractFromParallelTitle ($russianAsTransliteratedLatin, $lpt, $parallelTitleSeparator, &$parallelTitles = array (), &$error = '')
+	private function nonTransliterablePartsInParallelTitle ($russianAsTransliteratedLatin, $lpt, &$error = '')
 	{
-		# End if no parallel title definition in the record
-		if (!$lpt) {
-			return $russianAsTransliteratedLatin;
-		}
-		
 		# Tokenise the definition
+		$parallelTitleSeparator = ' = ';
 		$parallelTitleLanguages = explode ($parallelTitleSeparator, $lpt);
 		$parallelTitleComponents = explode ($parallelTitleSeparator, $russianAsTransliteratedLatin);
 		
@@ -3243,8 +3215,9 @@ class muscatConversion extends frontControllerApplication
 			return false;
 		}
 		
-		# Return the string for transliteration
-		return $parallelTitles['Russian'];
+		# Return the portions that are not for transliteration, so they can be protected
+		unset ($parallelTitles['Russian']);
+		return $parallelTitles;
 	}
 	
 	
@@ -3270,14 +3243,22 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to protect string portions (e.g. English language, HTML portions) prior to transliteration; can be undone with a simple strtr()
-	private function protectSubstrings ($string, &$protectedParts, &$nonTransliterable = false)
+	# Function to protect string portions (e.g. English language, HTML portions, parallel title portions, [Titles fully in brackets like this]) prior to transliteration; can be undone with a simple strtr()
+	private function protectSubstrings ($string, $lpt, &$protectedParts, &$error = '', &$nonTransliterable = false)
 	{
 		# Initialise a list of protected parts, which will be passed back by reference
 		$protectedParts = array ();
 		
 		# Start an array of replacements
 		$replacements = array ();
+		
+		# Handle parallel titles, e.g. "Title in Russian = Equivalent in English = Equivalent in French"; see: /fields/lpt/values/
+		if ($lpt) {
+			if (!$nonTransliterableParts = $this->nonTransliterablePartsInParallelTitle ($string, $lpt, $error /* passed back by reference */)) {
+				return false;	// $error will now be written to
+			}
+			$replacements = array_merge ($replacements, array_values ($nonTransliterableParts));
+		}
 		
 		# Protect parts in italics, which are Latin names that a publisher would not translate
 		preg_match_all ('|(<em>.+</em>)|uU', $string, $italicisedNameMatches);		// Uses /U ungreedy, to avoid "a <em>b</em> c <em>d</em> e" becoming "a  e"
