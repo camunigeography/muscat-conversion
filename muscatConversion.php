@@ -6940,11 +6940,10 @@ class muscatConversion extends frontControllerApplication
 		# Subclass, due to the complexity of this field
 		require_once ('generate245.php');
 		$generate245 = new generate245 ($this, $xml, $authorsFields, $languageMode);
-		if (!$value = $generate245->main ($error)) {
-			if ($error) {
-				$recordId = $this->xPathValue ($xml, '//q0');
-				echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';
-			}
+		$value = $generate245->main ($error);
+		if ($error) {
+			$recordId = $this->xPathValue ($xml, '//q0');
+			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';
 		}
 		
 		# Return the value, which may be false if transliteration not intended
