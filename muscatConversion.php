@@ -3113,13 +3113,10 @@ class muscatConversion extends frontControllerApplication
 		# Example use:
 		echo "hello" | translit -r -t "BGN PCGN 1947"
 	*/
-	public function transliterateBgnLatinToCyrillic ($stringLatin, $lpt, $language)
+	public function transliterateBgnLatinToCyrillic ($stringLatin, $lpt, $language, &$nonTransliterable = false)
 	{
 		# Ensure language is supported
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return $stringLatin;}
-		
-		# Flag that titles fully in brackets should just have their string returned as-is
-		$endIfNonTransliterable = false;
 		
 		# Handle parallel titles, e.g. "Title in Russian = Equivalent in English = Equivalent in French"; see: /fields/lpt/values/ ; effectively this overwrites the incoming string so that only the Russian part is considered; the overall string will then be glued back together after the transliteration below
 		#!# This might be better handled as creating protected substrings; in batch mode, the equals sign would probably need to be included
@@ -3128,11 +3125,12 @@ class muscatConversion extends frontControllerApplication
 			return false;	// $error will now be written to
 		}
 		
-		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/ ; this should take effect after parallel titles have been split off
+		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/ ; this should take effect after parallel titles have been split off - the Russian part is the only part in the scope of transliteration, with other languages to be ignored by 880; however, [A] = B should logically never exist, and indeed this does not appear in the data
 		#!# Bug that the other $parallelTitles will be lost if the string is returned
 		if ($this->titleFullyInBrackets ($stringLatin)) {
 			// $error should not be given a string, as this scenario is not an error, e.g. /records/75010/ , /records/167609/ , /records/178982/
-			return ($endIfNonTransliterable ? false : $stringLatin);
+			$nonTransliterable = true;	// Flag that this is not transliterable, passed back by reference
+			return $stringLatin;
 		}
 		
 		# Protect string portions (e.g. English language, HTML portions) prior to transliteration
@@ -3193,7 +3191,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to transliterate from Library of Congress (ALA LC) to Cyrillic; this is only run in a non-batched context; see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
-	public function transliterateLocLatinToCyrillic ($stringLatin, $lpt, &$error = '', $endIfNonTransliterable = false)
+	public function transliterateLocLatinToCyrillic ($stringLatin, $lpt, &$error = '', &$nonTransliterable = false)
 	{
 		# Handle parallel titles, e.g. "Title in Russian = Equivalent in English = Equivalent in French"; see: /fields/lpt/values/ ; effectively this overwrites the incoming string so that only the Russian part is considered; the overall string will then be glued back together after the transliteration below
 		#!# This might be better handled as creating protected substrings; in batch mode, the equals sign would probably need to be included
@@ -3202,11 +3200,12 @@ class muscatConversion extends frontControllerApplication
 			return false;	// $error will now be written to
 		}
 		
-		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/ ; this should take effect after parallel titles have been split off
+		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/ ; this should take effect after parallel titles have been split off - the Russian part is the only part in the scope of transliteration, with other languages to be ignored by 880; however, [A] = B should logically never exist, and indeed this does not appear in the data
 		#!# Bug that the other $parallelTitles will be lost if the string is returned
 		if ($this->titleFullyInBrackets ($stringLatin)) {
 			// $error should not be given a string, as this scenario is not an error, e.g. /records/75010/ , /records/167609/ , /records/178982/
-			return ($endIfNonTransliterable ? false : $stringLatin);
+			$nonTransliterable = true;	// Flag that this is not transliterable, passed back by reference
+			return $stringLatin;
 		}
 		
 		# Protect string portions (e.g. English language, HTML portions) prior to transliteration

@@ -45,10 +45,10 @@ class generate245
 		# Transliterate title (used for $a and possible $b) if required
 		if ($this->languageMode != 'default') {
 			$lpt = $this->muscatConversion->xPathValue ($this->xml, '//lpt');	// Languages of parallel title, e.g. "Russian = English"
-			$this->t = $this->muscatConversion->transliterateLocLatinToCyrillic ($this->t, $lpt, $error, $endIfNonTransliterable = true);
+			$this->t = $this->muscatConversion->transliterateLocLatinToCyrillic ($this->t, $lpt, $error, $nonTransliterable /* passed back by reference */);
 			
 			# End if the transliteration has determined that the string is not actually intended for transliteration, e.g. [Titles fully in brackets like this]; e.g. /records/31750/
-			if ($this->t === false) {return false;}
+			if ($nonTransliterable) {return false;}
 		}
 		
 		# Determine first and second indicator
