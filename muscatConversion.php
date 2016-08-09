@@ -299,6 +299,10 @@ class muscatConversion extends frontControllerApplication
 	# Suppression keyword in *status
 	private $suppressionStatusKeyword = 'SUPPRESS';
 	
+	# A numbered token pattern for substring protection consisting of a safe string not likely to be present in the data and which will not be affected by any transliteration operation
+	private $protectedSubstringsPattern = '<||%i||>';		// %i represents an index that will be generated, e.g. '<||367||>', which acts as a token representing the value of $replacements[367]
+	private $protectedSubstringsRegexp = '<\|\|[0-9]+\|\|>';	// Equivalent, as regexp
+	
 	
 	# Caches
 	private $lookupTablesCache = array ();
@@ -2963,6 +2967,7 @@ class muscatConversion extends frontControllerApplication
 			`title_latin` TEXT COLLATE utf8_unicode_ci COMMENT 'Title (latin characters), unmodified from original data',
 			`title_latin_tt` TEXT COLLATE utf8_unicode_ci COMMENT '*tt if present',
 			`title` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Reverse-transliterated title',
+			`title_spellcheck_html` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Reverse-transliterated title (spellcheck HTML)',
 			`title_forward` TEXT COLLATE utf8_unicode_ci COMMENT 'Forward transliteration from generated Cyrillic (BGN/PCGN)',
 			`forwardCheckFailed` INT(1) NULL COMMENT 'Forward check failed?',
 			`title_loc` TEXT COLLATE utf8_unicode_ci COMMENT 'Forward transliteration from generated Cyrillic (Library of Congress)',
@@ -3031,8 +3036,16 @@ class muscatConversion extends frontControllerApplication
 		#!# The same issue about crosstalk in unsafe batching presumably applies to line-by-line conversions, i.e. C (etc.) will get translated later in the same line; need to check on this
 		$language = 'Russian';
 		$dataTransliterated = array ();
+		$cyrillicPreSubstitutions = array ();
+		$protectedPartsPreSubstitutions = array ();
 		foreach ($data as $id => $entry) {
-			$dataTransliterated[$id] = $this->transliterateBgnLatinToCyrillic ($entry['title_latin'], $entry['lpt'], $language);
+			$dataTransliterated[$id] = $this->transliterateBgnLatinToCyrillic ($entry['title_latin'], $entry['lpt'], $language, $cyrillicPreSubstitutions[$id] /* passed back by reference */, $protectedPartsPreSubstitutions[$id] /* passed back by reference */);
+		}
+		
+		# Obtain an HTML string with embedded spellchecking data
+		$dataTransliteratedSpellcheckHtml = application::spellcheck ($cyrillicPreSubstitutions, 'ru_RU', $this->protectedSubstringsRegexp, $this->databaseConnection, $this->settings['database']);
+		foreach ($dataTransliteratedSpellcheckHtml as $id => $cyrillicPreSubstitution) {
+			$dataTransliteratedSpellcheckHtml[$id] = strtr ($cyrillicPreSubstitution, $protectedPartsPreSubstitutions[$id]);
 		}
 		
 		# Do a comparison check by forward-transliterating the generated Cyrillic (takes around 15 seconds)
@@ -3046,6 +3059,7 @@ class muscatConversion extends frontControllerApplication
 		foreach ($data as $id => $entry) {
 			$conversions[$id] = array (
 				'title'					=> $dataTransliterated[$id],
+				'title_spellcheck_html'	=> $dataTransliteratedSpellcheckHtml[$id],
 				'title_forward'			=> $forwardBgnTransliterations[$id],
 				'forwardCheckFailed'	=> (strtolower ($entry['title_latin']) != strtolower ($forwardBgnTransliterations[$id]) ? 1 : NULL),	// Case-insensitive comparison pending upstream fix on http://unicode.org/cldr/trac/ticket/9316
 				'title_loc'				=> $forwardLocTransliterations[$id],
@@ -3114,7 +3128,7 @@ class muscatConversion extends frontControllerApplication
 		# Example use:
 		echo "hello" | translit -r -t "BGN PCGN 1947"
 	*/
-	public function transliterateBgnLatinToCyrillic ($stringLatin, $lpt, $language, &$nonTransliterable = false)
+	public function transliterateBgnLatinToCyrillic ($stringLatin, $lpt, $language, &$cyrillicPreSubstitution = false, &$protectedPartsPreSubstitution = false, &$nonTransliterable = false)
 	{
 		# Ensure language is supported
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return $stringLatin;}
@@ -3139,6 +3153,10 @@ class muscatConversion extends frontControllerApplication
 		# Perform transliteration
 		$command = "{$this->cpanDir}/bin/translit -trans '{$this->supportedReverseTransliterationLanguages[$language]}'";	//  --reverse
 		$cyrillic = application::createProcess ($command, $stringLatin);
+		
+		# Cache the pre-substitution cyrillic and protected parts, so that these can be batch-spellchecked; these are returned back by reference
+		$cyrillicPreSubstitution = $cyrillic;
+		$protectedPartsPreSubstitution = $protectedParts;
 		
 		# Reinstate protected substrings
 		$cyrillic = strtr ($cyrillic, $protectedParts);
@@ -3311,13 +3329,10 @@ class muscatConversion extends frontControllerApplication
 			return $string;
 		}
 		
-		# Define a numbered token pattern consisting of a safe string not likely to be present in the data and which will not be affected by any transliteration operation
-		$pattern = '<||%i||>';	// %i represents an index that will be generated, e.g. '<||367||>', which acts as a token representing the value of $replacements[367]
-		
 		# Create a token for each protected part; this is passed back by reference, for easy restoration
 		$i = 0;
 		foreach ($replacements as $replacement) {
-			$key = str_replace ('%i', $i++, $pattern);
+			$key = str_replace ('%i', $i++, $this->protectedSubstringsPattern);
 			$protectedParts[$key] = $replacement;	// e.g. '<||12||>' => 'Fungi'
 		}
 		
@@ -10564,6 +10579,7 @@ class muscatConversion extends frontControllerApplication
 		foreach ($data as $id => $record) {
 			unset ($data[$id]['id']);
 			unset ($data[$id]['shardId']);
+			unset ($data[$id]['title']);
 		}
 		
 		# Add English *tt to the Muscat latin field
@@ -10583,21 +10599,6 @@ class muscatConversion extends frontControllerApplication
 			unset ($data[$id]['forwardCheckFailed']);
 		}
 		
-		# Extract strings to spellcheck as key/value pairs
-		$spellcheck = array ();
-		foreach ($data as $id => $record) {
-			$spellcheck[$id] = $record['title'];
-		}
-		
-		# Spellcheck the strings
-		#!# This needs a proper protectedStrings callback approach - simply supplying the transliterationProtectedStrings list is not sufficient as protectedStrings does more than that; e.g. see record 133013 on /reports/transliterations/page26.html, which has its *lpt English part marked as misspelt
-		$spellcheck = application::spellcheck ($spellcheck, 'ru_RU', $this->databaseConnection, $this->settings['database'], $enableSuggestions = true, $this->transliterationProtectedStrings ());
-		
-		# Substitute the spellchecked HTML versions into the table
-		foreach ($spellcheck as $id => $string) {
-			$data[$id]['title'] = $string;
-		}
-		
 		# Link each record
 		foreach ($data as $id => $record) {
 			$data[$id]['recordId'] = "<a href=\"{$this->baseUrl}/records/{$record['recordId']}/\">{$record['recordId']}</a>";
@@ -10612,7 +10613,7 @@ class muscatConversion extends frontControllerApplication
 		# Render as HTML; records already may contain tags
 		$tableHeadingSubstitutions = array (
 			'recordId' => '#',
-			'title' => 'Generated Cyrillic (from BGN/PCGN)',
+			'title_spellcheck_html' => 'Generated Cyrillic (from BGN/PCGN)',
 			'title_latin' => 'Muscat (transliteration, as entered)',
 			'title_loc' => 'Library of Congress Cyrillic (Voyager)',
 		);
