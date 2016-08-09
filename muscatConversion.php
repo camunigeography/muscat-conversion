@@ -1709,6 +1709,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Add pagination links and controls
+		$paginationLinks = '';
 		if ($dataRaw) {
 			$html .= $listingTypeSwitcherHtml;
 			$html .= $recordsPerPageFormHtml;
