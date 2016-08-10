@@ -3046,7 +3046,7 @@ class muscatConversion extends frontControllerApplication
 		# Obtain an HTML string with embedded spellchecking data
 		$dataTransliteratedSpellcheckHtml = application::spellcheck ($cyrillicPreSubstitutions, 'ru_RU', $this->protectedSubstringsRegexp, $this->databaseConnection, $this->settings['database']);
 		foreach ($dataTransliteratedSpellcheckHtml as $id => $cyrillicPreSubstitution) {
-			$dataTransliteratedSpellcheckHtml[$id] = strtr ($cyrillicPreSubstitution, $protectedPartsPreSubstitutions[$id]);
+			$dataTransliteratedSpellcheckHtml[$id] = $this->reinstateProtectedSubstrings ($cyrillicPreSubstitution, $protectedPartsPreSubstitutions[$id]);
 		}
 		
 		# Do a comparison check by forward-transliterating the generated Cyrillic (takes around 15 seconds)
@@ -3160,10 +3160,17 @@ class muscatConversion extends frontControllerApplication
 		$protectedPartsPreSubstitution = $protectedParts;
 		
 		# Reinstate protected substrings
-		$cyrillic = strtr ($cyrillic, $protectedParts);
+		$cyrillic = $this->reinstateProtectedSubstrings ($cyrillic, $protectedParts);
 		
 		# Return the transliteration
 		return $cyrillic;
+	}
+	
+	
+	# Function to reinstate protected substrings
+	private function reinstateProtectedSubstrings ($cyrillic, $protectedParts)
+	{
+		return $cyrillic = strtr ($cyrillic, $protectedParts);
 	}
 	
 	
@@ -3204,7 +3211,7 @@ class muscatConversion extends frontControllerApplication
 		$cyrillic = str_replace ($this->locTransliterationDefinition['lat'], $this->locTransliterationDefinition['cyr'], $stringLatin);
 		
 		# Reinstate protected substrings
-		$cyrillic = strtr ($cyrillic, $protectedParts);
+		$cyrillic = $this->reinstateProtectedSubstrings ($cyrillic, $protectedParts);
 		
 		# Return the transliteration
 		return $cyrillic;
