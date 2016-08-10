@@ -45,7 +45,7 @@ class generate245
 		# Transliterate title (used for $a and possible $b) if required
 		if ($this->languageMode != 'default') {
 			$lpt = $this->muscatConversion->xPathValue ($this->xml, '//lpt');	// Languages of parallel title, e.g. "Russian = English"
-			$this->t = $this->muscatConversion->transliterateLocLatinToCyrillic ($this->t, $lpt, $error, $nonTransliterable /* passed back by reference */);
+			$this->t = $this->muscatConversion->transliteration->transliterateLocLatinToCyrillic ($this->t, $lpt, $error, $nonTransliterable /* passed back by reference */);
 			
 			# End if the transliteration has determined that the string is not actually intended for transliteration, e.g. [Titles fully in brackets like this]; e.g. /records/31750/
 			if ($nonTransliterable) {return false;}
@@ -221,7 +221,7 @@ class generate245
 				
 				# Register this value
 				#!# Old transliteration needs to be upgraded in catalogue_processed and here in MARC generation
-				$statementOfResponsibility .= ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliterateBgnLatinToCyrillic ($string, false, $this->languageMode));
+				$statementOfResponsibility .= ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliteration->transliterateBgnLatinToCyrillic ($string, false, $this->languageMode));
 				
 				# Next *a
 				$aIndex++;
@@ -270,7 +270,7 @@ class generate245
 		$nIndex = 1;	// XPaths are indexed from 1, not 0
 		while ($string = $this->classifyNdField ($path . "/n[$nIndex]")) {
 			#!# Old transliteration needs to be upgraded in catalogue_processed and here in MARC generation
-			$subValues[] = ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliterateBgnLatinToCyrillic ($string, false, $this->languageMode));	// e.g. /records/1844/
+			$subValues[] = ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliteration->transliterateBgnLatinToCyrillic ($string, false, $this->languageMode));	// e.g. /records/1844/
 			
 			# Next
 			$nIndex++;

@@ -14,6 +14,8 @@ The aim is that all such records:
 
 These involve two distinct processes.
 
+Code handling raw transliteration is in `/transliteration.php`.
+
 ## Phases
 
 ### Phase 0: Preparations in processed table
