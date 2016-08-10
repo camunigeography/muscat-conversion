@@ -2999,6 +2999,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->query ($query);
 		
 		# Add to the shard the parallel title (*lpt) property associated with the top-level *t; this gives 210 updates, which exactly matches 210 results for `SELECT * FROM `catalogue_processed` WHERE `field` LIKE 'lpt' and recordLanguage = 'Russian';`
+		#!# This isn't happening for the analytic part (e.g. pseudo-analytic example /records/6498/ shown in /reports/transliterations/ ) as they have no *lpt in the bottom-half of the record
 		$query = "
 			UPDATE transliterations
 			LEFT JOIN catalogue_processed ON transliterations.recordId = catalogue_processed.recordId
