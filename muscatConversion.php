@@ -2942,7 +2942,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Obtain an HTML string with embedded spellchecking data
-		$dataTransliteratedSpellcheckHtml = application::spellcheck ($cyrillicPreSubstitutions, 'ru_RU', $this->getProtectedSubstringsRegexp (), $this->databaseConnection, $this->settings['database']);
+		$dataTransliteratedSpellcheckHtml = application::spellcheck ($cyrillicPreSubstitutions, 'ru_RU', $this->transliteration->getProtectedSubstringsRegexp (), $this->databaseConnection, $this->settings['database']);
 		foreach ($dataTransliteratedSpellcheckHtml as $id => $cyrillicPreSubstitution) {
 			$dataTransliteratedSpellcheckHtml[$id] = $this->transliteration->reinstateProtectedSubstrings ($cyrillicPreSubstitution, $protectedPartsPreSubstitutions[$id]);
 		}

@@ -400,7 +400,7 @@ class transliteration
 	
 	
 	# Function to reinstate protected substrings
-	private function reinstateProtectedSubstrings ($cyrillic, $protectedParts)
+	public function reinstateProtectedSubstrings ($cyrillic, $protectedParts)
 	{
 		return $cyrillic = strtr ($cyrillic, $protectedParts);
 	}
