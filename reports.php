@@ -139,7 +139,7 @@ class reports
 	
 	
 	# Constructor
-	public function __construct ($muscatConversion, $locationCodes, $orderStatusKeywords, $acquisitionDate, $ksStatusTokens, $mergeTypes)
+	public function __construct ($muscatConversion, $locationCodes, $orderStatusKeywords, $suppressionStatusKeyword, $acquisitionDate, $ksStatusTokens, $mergeTypes)
 	{
 		# Create main property handles
 		$this->muscatConversion = $muscatConversion;
@@ -150,6 +150,7 @@ class reports
 		# Create other property handles
 		$this->locationCodes = $locationCodes;
 		$this->orderStatusKeywords = $orderStatusKeywords;
+		$this->suppressionStatusKeyword = $suppressionStatusKeyword;
 		$this->acquisitionDate = $acquisitionDate;
 		$this->ksStatusTokens = $ksStatusTokens;
 		$this->mergeTypes = $mergeTypes;
