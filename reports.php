@@ -223,6 +223,7 @@ class reports
 				AND fieldslist NOT LIKE '%@ser@%'
 				AND (
 					   fieldslist NOT LIKE '%@status@%'
+					OR (field = 'status' AND value = 'SUPPRESS')
 					OR (field = 'status' AND value = 'GLACIOPAMS')
 				)
 			";
@@ -611,6 +612,7 @@ class reports
 				    fieldslist LIKE '%@status@%'
 				AND field = 'status'
 				AND value != 'GLACIOPAMS'
+				AND value != 'SUPPRESS'
 			";
 		
 		# Return the query
@@ -633,6 +635,7 @@ class reports
 				AND fieldslist LIKE '%@location@%'
 				AND field = 'status'
 				AND value != 'GLACIOPAMS'
+				AND value != 'SUPPRESS'
 			";
 		
 		# Return the query
@@ -1522,6 +1525,7 @@ class reports
 			WHERE
 				(
 					   fieldslist NOT LIKE '%@status@%'
+					OR (field = 'status' AND value = 'SUPPRESS')
 					OR (field = 'status' AND value = 'GLACIOPAMS')
 				)
 				AND
