@@ -2234,6 +2234,7 @@ class reports
 	
 	
 	# Records with a note containing the word 'missing' without a *ks MISSING; not all will actually be missing
+	#!# This report needs support for a whitelist, to be supplied
 	public function report_notemissing ()
 	{
 		# Define the query
