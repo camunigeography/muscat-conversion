@@ -2767,6 +2767,13 @@ class reports
 		$query = "INSERT INTO listing_seriestitlemismatches{$variantNumber} (title, instances) \n {$query};";
 		$result = $this->databaseConnection->execute ($query);
 		
+		# Fix entities; e.g. title of /records/196750/ ; see: https://stackoverflow.com/questions/30194976/
+		$sql = "
+			UPDATE `listing_seriestitlemismatches{$variantNumber}`
+			SET title = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( title   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
+		;";
+		$this->databaseConnection->execute ($sql);
+		
 		# Return the result
 		return true;
 	}
