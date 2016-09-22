@@ -7009,6 +7009,7 @@ class muscatConversion extends frontControllerApplication
 		$result = '';
 		
 		# Get *kg or end; records will usually be /art/in or /art/j only, but there are some /doc records
+		#!# At present this leaves tens of thousands of journal analytics without links (because they don't have explicit *kg fields)
 		if (!$hostId = $this->xPathValue ($xml, '//k2/kg')) {return false;}	// Data checked that no records contain more than one *kg
 		
 		# Obtain the processed MARC record; note that createMarcRecords processes the /doc records before /art/in records
@@ -7034,6 +7035,7 @@ class muscatConversion extends frontControllerApplication
 		$subfields = array ();
 		
 		# Add 773 ‡a: Copy in the 1XX (Main entry heading) from the host record, omitting subfield codes; *art/*in records only
+		#!# Needs implementation for things that are /art/j
 		if ($recordType == '/art/in') {
 			if (isSet ($marc['100'])) {
 				$subfields[] = $this->combineSubfieldValues ('a', $marc['100']);
@@ -7074,6 +7076,8 @@ class muscatConversion extends frontControllerApplication
 		# Add 773 ‡w: Copy in the 001 (Record control number) from the host record; this will need to be modified in the target Voyager system post-import
 		#!# For one of the merge strategies, this number will be known
 		$subfields[] = "{$this->doubleDagger}w" . $marc['001'][0]['line'];
+		
+		#!# Might need date also
 		
 		# Compile the result
 		$result = implode (' ', $subfields);
