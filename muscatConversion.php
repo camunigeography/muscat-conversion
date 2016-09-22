@@ -6227,6 +6227,7 @@ class muscatConversion extends frontControllerApplication
 		$string .= 'n';		// Indicates record is newly-input
 		
 		# Position 06: One-character alphabetic code used to define the characteristics and components of the record.
+		#!# If merging, we would need to have a check that this matches
 		switch ($this->form) {
 			case 'Internet resource':
 			case 'Microfiche':
@@ -6254,6 +6255,7 @@ class muscatConversion extends frontControllerApplication
 		$string .= $value06;
 		
 		# Position 07: Bibliographic level
+		#!# If merging, we would need to have a check that this matches
 		$position7Values = array (
 			'/art/in'	=> 'a',
 			'/art/j'	=> 'b',
@@ -6277,15 +6279,19 @@ class muscatConversion extends frontControllerApplication
 		
 		# Positions 12-16: Base address of data: Computer-generated, five-character numeric string that indicates the first character position of the first variable control field in a record.
 		# "This is calculated and updated when the bib record is loaded into the Voyager database, so you if you're not able to calculate it at your end you could just set it to 00000."
+		#!# If merging, we would probably overwrite whatever is currently present in Voyager as 00000, so the computer re-computes it
 		$string .= '00000';
 		
 		# Position 17: Encoding level: One-character alphanumeric code that indicates the fullness of the bibliographic information and/or content designation of the MARC record. 
+		#!# If merging, we think that # is better than 7; other values would need to be checked; NB the value '7' could be a useful means to determine Voyager records that are minimal (i.e. of limited use)
 		$string .= '#';
 		
 		# Position 18: Descriptive cataloguing form
+		#!# If merging, we would need to check with the UL that our 'a' trumps '#'; other values would need to be checked
 		$string .= 'a';	// Denotes AACR2
 		
 		# Position 19: Multipart resource record level
+		#!# If merging, we need to check that our '#' is equivalent to ' ' in Voyager syntax
 		$string .= '#';	// Denotes not specified or not applicable
 		
 		# Position 20: Length of the length-of-field portion: Always contains a 4.
