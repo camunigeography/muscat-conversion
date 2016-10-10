@@ -3248,15 +3248,15 @@ class muscatConversion extends frontControllerApplication
 				INSERT INTO `periodicallocationmatches` (recordId, title, parentRecordId, parentLocation, parentTitle)
 				SELECT
 					child.recordId,
-					EXTRACTVALUE(xml, '{$titleField}') AS title,
+					REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '{$titleField}')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\") AS title
 					periodicallocations.recordId AS parentRecordId,
 					parent.value AS parentLocation,
 					periodicallocations.title AS parentTitle	-- Necessary to enable HAVING, but useful for debugging anyway
 				FROM catalogue_processed AS child
 				LEFT JOIN catalogue_xml ON child.recordId = catalogue_xml.id
 				LEFT JOIN " . ($isExactMatch
-					? "periodicallocations ON periodicallocations.title = EXTRACTVALUE(xml, '{$titleField}')"
-					: "periodicallocations ON EXTRACTVALUE(xml, '{$titleField}') LIKE CONCAT(periodicallocations.title, '%')"
+					? "periodicallocations ON periodicallocations.title = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '{$titleField}')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")"
+					: "periodicallocations ON REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '{$titleField}')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\") LIKE CONCAT(periodicallocations.title, '%')"
 					) . "
 				LEFT JOIN catalogue_processed AS parent ON periodicallocations.recordId = parent.recordId AND parent.field = 'Location'
 				WHERE child.field = 'location' AND child.value = 'Periodical'
