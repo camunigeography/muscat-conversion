@@ -3251,14 +3251,20 @@ class muscatConversion extends frontControllerApplication
 					EXTRACTVALUE(xml, '{$titleField}') AS title,
 					periodicallocations.recordId AS parentRecordId,
 					parent.value AS parentLocation,
-					periodicallocations.title AS parentTitle	/* Necessary to enable HAVING, but useful for debugging anyway */
+					periodicallocations.title AS parentTitle	-- Necessary to enable HAVING, but useful for debugging anyway
 				FROM catalogue_processed AS child
 				LEFT JOIN catalogue_xml ON child.recordId = catalogue_xml.id
-				LEFT JOIN " . ($isExactMatch ? "periodicallocations ON periodicallocations.title = EXTRACTVALUE(xml, '{$titleField}')" : "periodicallocations ON EXTRACTVALUE(xml, '{$titleField}') LIKE CONCAT(periodicallocations.title, '%')") . "
+				LEFT JOIN " . ($isExactMatch
+					? "periodicallocations ON periodicallocations.title = EXTRACTVALUE(xml, '{$titleField}')"
+					: "periodicallocations ON EXTRACTVALUE(xml, '{$titleField}') LIKE CONCAT(periodicallocations.title, '%')"
+					) . "
 				LEFT JOIN catalogue_processed AS parent ON periodicallocations.recordId = parent.recordId AND parent.field = 'Location'
 				WHERE child.field = 'location' AND child.value = 'Periodical'
 				AND LENGTH(EXTRACTVALUE(xml, '{$titleField}')) > 0
-				" . (!$isExactMatch ? "HAVING periodicallocations.title IS NOT NULL	/* Necessary to strip out LEFT JOIN non-matches; INNER JOIN runs too slowly */" : '') . "
+				" . ($isExactMatch
+					? ''
+					: "HAVING periodicallocations.title IS NOT NULL	-- Necessary to strip out LEFT JOIN non-matches; INNER JOIN is too slow"
+					) . "
 			;";
 			$this->databaseConnection->execute ($sql);
 		}
