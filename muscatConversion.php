@@ -3255,7 +3255,7 @@ class muscatConversion extends frontControllerApplication
 				FROM catalogue_processed AS child
 				LEFT JOIN catalogue_xml ON child.recordId = catalogue_xml.id
 				LEFT JOIN " . ($isExactMatch
-					? "periodicallocations ON periodicallocations.title = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '{$titleField}')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")"
+					? "periodicallocations ON periodicallocations.title = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( BINARY EXTRACTVALUE(xml, '{$titleField}')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")"
 					: "periodicallocations ON REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '{$titleField}')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\") LIKE CONCAT(periodicallocations.title, '%')"
 					) . "
 				LEFT JOIN catalogue_processed AS parent ON periodicallocations.recordId = parent.recordId AND parent.field = 'Location'
