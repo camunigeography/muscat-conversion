@@ -3062,9 +3062,11 @@ class muscatConversion extends frontControllerApplication
 				xml text COLLATE utf8_unicode_ci COMMENT 'XML representation of Muscat record',
 				langauge VARCHAR(255) NULL COLLATE utf8_unicode_ci COMMENT 'Record language',
 				parallelTitleLanguages VARCHAR(255) NULL COLLATE utf8_unicode_ci COMMENT 'Parallel title languages',
-			  PRIMARY KEY (id)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='XML representation of Muscat records';
-		";
+				matchTitle VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_bin NULL COMMENT 'Title for binary matching purposes (/art/j/tg/t or /doc/ts[1])',
+			  PRIMARY KEY (id),
+			  INDEX(matchTitle)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='XML representation of Muscat records'
+		;";
 		$this->databaseConnection->execute ($sql);
 		
 		# Cross insert the IDs
@@ -3098,6 +3100,19 @@ class muscatConversion extends frontControllerApplication
 			SET parallelTitleLanguages = value
 		;";
 		$this->databaseConnection->execute ($query);
+		
+		# Add match title lookups, which are compared as binary strings
+		$groupings = array (
+			'/art/j/tg/t',	// 123,797 rows, 8 seconds
+			'/doc/ts[1]',	//  11,149 rows, 3 seconds
+		);
+		foreach ($groupings as $titleField) {
+			$query = "UPDATE catalogue_xml
+				SET matchTitle = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '{$titleField}')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
+				WHERE LENGTH(EXTRACTVALUE(xml, '{$titleField}')) > 0
+			;";
+			$this->databaseConnection->execute ($query);
+		}
 	}
 	
 	
@@ -3248,15 +3263,15 @@ class muscatConversion extends frontControllerApplication
 				INSERT INTO `periodicallocationmatches` (recordId, title, parentRecordId, parentLocation, parentTitle)
 				SELECT
 					child.recordId,
-					REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '{$titleField}')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\") AS title
+					catalogue_xml.matchTitle AS title
 					periodicallocations.recordId AS parentRecordId,
 					parent.value AS parentLocation,
 					periodicallocations.title AS parentTitle	-- Necessary to enable HAVING, but useful for debugging anyway
 				FROM catalogue_processed AS child
 				LEFT JOIN catalogue_xml ON child.recordId = catalogue_xml.id
 				LEFT JOIN " . ($isExactMatch
-					? "periodicallocations ON periodicallocations.title = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( BINARY EXTRACTVALUE(xml, '{$titleField}')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")"
-					: "periodicallocations ON REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '{$titleField}')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\") LIKE CONCAT(periodicallocations.title, '%')"
+					? "periodicallocations ON catalogue_xml.matchTitle = periodicallocations.title"	/* matchTitle is utf8_bin so test will be exact binary match */
+					: "periodicallocations ON catalogue_xml.matchTitle LIKE CONCAT(periodicallocations.title, '%')"
 					) . "
 				LEFT JOIN catalogue_processed AS parent ON periodicallocations.recordId = parent.recordId AND parent.field = 'Location'
 				WHERE child.field = 'location' AND child.value = 'Periodical'
