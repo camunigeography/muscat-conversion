@@ -3202,13 +3202,13 @@ class muscatConversion extends frontControllerApplication
 	# Function to replace location=Periodical in the processed records with the real, looked-up values; dependencies: catalogue_processed and catalogue_xml
 	private function processPeriodicalLocations ()
 	{
-		# Create the table, clearing it out first if existing from a previous import
+		# Create a table of periodicals, with their title and location(s), clearing it out first if existing from a previous import
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.periodicallocations;";
 		$this->databaseConnection->execute ($sql);
 		$sql = "CREATE TABLE IF NOT EXISTS `periodicallocations` (
-			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
-			`recordId` int(6) NOT NULL COMMENT 'Record number',
-			`title` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title (/ser/tg/t)',
+			`id` INT(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
+			`recordId` INT(6) NOT NULL COMMENT 'Record number',
+			`title` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title (/ser/tg/t)'
 			PRIMARY KEY (id),
 			INDEX(recordId),
 			INDEX(title)
@@ -3220,18 +3220,11 @@ class muscatConversion extends frontControllerApplication
 		$sql = "
 			INSERT INTO `periodicallocations` (recordId, title)
 			SELECT
-				id AS recordId,
-				EXTRACTVALUE(xml, '//ser/tg/t') AS title
-			FROM catalogue_xml
-			WHERE EXTRACTVALUE(xml, '//ser') != ''	/* i.e. is a *ser */
-		";
-		$this->databaseConnection->execute ($sql);
-		
-		# Fix entities; e.g. see /records/23956/ ; see: https://stackoverflow.com/questions/30194976/
-		$sql = "
-			UPDATE `periodicallocations`
-			SET title = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( title   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
-		;";
+				recordId,
+				value AS title
+			FROM catalogue_processed
+			WHERE xPath = '/ser/tg/t'
+		;";		// 3359 rows inserted
 		$this->databaseConnection->execute ($sql);
 		
 		# Create the table of matches, clearing it out first if existing from a previous import
