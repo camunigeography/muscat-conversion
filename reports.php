@@ -2851,7 +2851,7 @@ class reports
 		$table = 'transliterations';
 		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], $table);
 		$filterConstraint = 'WHERE forwardCheckFailed = 1';
-		$totalFailures = $this->databaseConnection->getTotal ($this->settings['database'], $table, $constraint);
+		$totalFailures = $this->databaseConnection->getTotal ($this->settings['database'], $table, $filterConstraint);
 		
 		# Determine whether to filter to reversibility failures only
 		$totalRecords = number_format ($totalRecords);
@@ -3276,8 +3276,26 @@ class reports
 	# View for report_volume volume number conversions
 	public function report_volumenumbers_view ()
 	{
-		# (Re-)generate the data
-		$this->muscatConversion->createVolumeNumbersTable ();
+		# Start the HTML
+		$html = '';
+		
+		# Regenerate on demand during testing
+		// $this->muscatConversion->createVolumeNumbersTable ();
+		
+		# Determine totals
+		$table = 'volumenumbers';
+		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], $table);
+		$filterConstraint = "WHERE a REGEXP '[0-9]'";
+		$totalFailures = $this->databaseConnection->getTotal ($this->settings['database'], $table, $filterConstraint);
+		
+		# Determine whether to filter to reversibility failures only
+		$totalRecords = number_format ($totalRecords);
+		$enableFilter = (isSet ($_GET['filter']) && $_GET['filter'] == '1');
+		if ($enableFilter) {
+			$html .= "\n<p><a href=\"{$this->baseUrl}/reports/volumenumbers/\">Show all ($totalRecords)</a> | <strong>Filtering to cases of \$a containing numbers only (" . number_format ($totalFailures) . ")</strong></p>";
+		} else {
+			$html .= "\n<p><strong>Showing all ($totalRecords)</strong> | <a href=\"{$this->baseUrl}/reports/volumenumbers/?filter=1\">Filtering to cases of \$a containing numbers only (" . number_format ($totalFailures) . ")</a></p>";
+		}
 		
 		# Define a manual query
 		$query = "
@@ -3289,18 +3307,20 @@ class reports
 				v,
 				result,
 				matchedRegexp
-			FROM {$this->settings['database']}.volumenumbers
+			FROM {$this->settings['database']}.{$table}
+			" . ($enableFilter ? $filterConstraint : '') . "
 			ORDER BY a, recordId
 		;";
 		
 		# Obtain the headings
-		$tableHeadingSubstitutions = $this->databaseConnection->getHeadings ($this->settings['database'], 'volumenumbers');
+		$tableHeadingSubstitutions = $this->databaseConnection->getHeadings ($this->settings['database'], $table);
 		
-		# Obtain the listing HTML
-		$html = $this->reportListing (NULL, 'volume strings', false, 'id', $query, $tableHeadingSubstitutions);
+		# Obtain the listing HTML and highlight the subfields
+		$reportListing = $this->reportListing (NULL, 'volume strings', false, 'id', $query, $tableHeadingSubstitutions);
+		$reportListing = $this->muscatConversion->highlightSubfields ($reportListing);
 		
-		# Highlight subfields
-		$html = $this->muscatConversion->highlightSubfields ($html);
+		# Add the report
+		$html .= $reportListing;
 		
 		# Return the HTML
 		return $html;
