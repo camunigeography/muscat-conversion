@@ -3258,8 +3258,8 @@ class muscatConversion extends frontControllerApplication
 		# Insert the data for each grouping; note that the periodicallocations table is no longer needed after this
 		#!# For the inexact matching, there is the problem that the partial join could find the wrong record; these are being fixed up to add a consistent separator in Muscat; the match below will then need to be adjusted to do an exact match against the section on the child side before the ' ;', e.g.: "SELECT * FROM `catalogue_processed` WHERE `field` IN ('ts','t') AND `value` LIKE 'Seismological Bulletin%';"
 		$groupings = array (
-			'//art/j/tg/t'	=> true,		// for /art/j records; requires exact match
-			'//doc/ts[1]'		=> false,	// for /doc records; requires at least partial match, e.g. "Annals of Glaciology 9" in child record's (first) /doc/ts matches "Annals of Glaciology" in parent (periodicallocations.title); 82 matches; /records/209527/ is an example with two *ts values - the first is used in Muscat as the match
+			'/art/j/tg/t'	=> true,	// for /art/j records; requires exact match
+			'/doc/ts[1]'	=> false,	// for /doc records; requires at least partial match, e.g. "Annals of Glaciology 9" in child record's (first) /doc/ts matches "Annals of Glaciology" in parent (periodicallocations.title); 82 matches; /records/209527/ is an example with two *ts values - the first is used in Muscat as the match
 		);
 		foreach ($groupings as $titleField => $isExactMatch) {
 			$sql = "
@@ -3268,7 +3268,7 @@ class muscatConversion extends frontControllerApplication
 					child.recordId,
 					catalogue_xml.matchTitle AS title
 					periodicallocations.recordId AS parentRecordId,
-					parent.value AS parentLocation,
+					periodicallocations.location AS parentLocation,
 					periodicallocations.title AS parentTitle	-- Necessary to enable HAVING, but useful for debugging anyway
 				FROM catalogue_processed AS child
 				LEFT JOIN catalogue_xml ON child.recordId = catalogue_xml.id
@@ -3276,7 +3276,6 @@ class muscatConversion extends frontControllerApplication
 					? "periodicallocations ON catalogue_xml.matchTitle = periodicallocations.title"	/* matchTitle is utf8_bin so test will be exact binary match */
 					: "periodicallocations ON catalogue_xml.matchTitle LIKE CONCAT(periodicallocations.title, '%')"
 					) . "
-				LEFT JOIN catalogue_processed AS parent ON periodicallocations.recordId = parent.recordId AND parent.field = 'Location'
 				WHERE child.field = 'location' AND child.value = 'Periodical'
 				AND LENGTH(EXTRACTVALUE(xml, '{$titleField}')) > 0
 				" . ($isExactMatch
