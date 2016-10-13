@@ -3062,6 +3062,7 @@ class muscatConversion extends frontControllerApplication
 				langauge VARCHAR(255) NULL COLLATE utf8_unicode_ci COMMENT 'Record language',
 				parallelTitleLanguages VARCHAR(255) NULL COLLATE utf8_unicode_ci COMMENT 'Parallel title languages',
 				matchTitle VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_bin NULL COMMENT 'Title for binary matching purposes (/art/j/tg/t or /doc/ts[1])',
+				matchTitleField VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_bin NULL COMMENT 'Field to which the matchTitle refers',
 			  PRIMARY KEY (id),
 			  INDEX(matchTitle)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='XML representation of Muscat records'
@@ -3107,7 +3108,9 @@ class muscatConversion extends frontControllerApplication
 		);
 		foreach ($groupings as $titleField) {
 			$query = "UPDATE catalogue_xml
-				SET matchTitle = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '{$titleField}')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
+				SET
+					matchTitle = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '{$titleField}')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"),
+					matchTitleField = '{$titleField}'
 				WHERE LENGTH(EXTRACTVALUE(xml, '{$titleField}')) > 0
 			;";
 			$this->databaseConnection->execute ($query);
