@@ -3732,7 +3732,7 @@ class muscatConversion extends frontControllerApplication
 			a VARCHAR(255) DEFAULT NULL COMMENT '{$this->doubleDagger}a value in result',
 			v VARCHAR(255) DEFAULT NULL COMMENT '{$this->doubleDagger}V value in result',
 			result VARCHAR(255) DEFAULT NULL COMMENT 'Result of translation',
-			matchedRegexp VARCHAR(255) DEFAULT NULL COMMENT 'Result of translation',
+			matchedRegexp VARCHAR(255) DEFAULT NULL COMMENT 'Matched regexp',
 			PRIMARY KEY (id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of volume numbers'
 		;";

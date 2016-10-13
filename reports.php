@@ -3291,8 +3291,11 @@ class reports
 			ORDER BY recordId
 		;";
 		
+		# Obtain the headings
+		$tableHeadingSubstitutions = $this->databaseConnection->getHeadings ($this->settings['database'], 'volumenumbers');
+		
 		# Obtain the listing HTML
-		$html = $this->reportListing (NULL, 'volume strings', false, 'id', $query);
+		$html = $this->reportListing (NULL, 'volume strings', false, 'id', $query, $tableHeadingSubstitutions);
 		
 		# Highlight subfields
 		$html = $this->muscatConversion->highlightSubfields ($html);
