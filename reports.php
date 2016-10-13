@@ -2848,13 +2848,15 @@ class reports
 		//$this->createTransliterationsTable ();
 		
 		# Determine totals
-		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], 'transliterations');
-		$totalFailures = $this->databaseConnection->getTotal ($this->settings['database'], 'transliterations', 'WHERE forwardCheckFailed = 1');
+		$table = 'transliterations';
+		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], $table);
+		$filterConstraint = 'WHERE forwardCheckFailed = 1';
+		$totalFailures = $this->databaseConnection->getTotal ($this->settings['database'], $table, $constraint);
 		
 		# Determine whether to filter to reversibility failures only
 		$totalRecords = number_format ($totalRecords);
-		$failuresOnly = (isSet ($_GET['filter']) && $_GET['filter'] == '1');
-		if ($failuresOnly) {
+		$enableFilter = (isSet ($_GET['filter']) && $_GET['filter'] == '1');
+		if ($enableFilter) {
 			$html .= "\n<p><a href=\"{$this->baseUrl}/reports/transliterations/\">Show all ($totalRecords)</a> | <strong>Filtering to reversibility failures only (" . number_format ($totalFailures) . ")</strong></p>";
 		} else {
 			$html .= "\n<p><strong>Showing all ($totalRecords)</strong> | <a href=\"{$this->baseUrl}/reports/transliterations/?filter=1\">Filter to reversibility failures only (" . number_format ($totalFailures) . ")</a></p>";
@@ -2866,8 +2868,8 @@ class reports
 		# Define the query
 		$query = "SELECT
 				*
-			FROM {$this->settings['database']}.transliterations
-			" . ($failuresOnly ? 'WHERE forwardCheckFailed = 1' : '') . "
+			FROM {$this->settings['database']}.{$table}
+			" . ($enableFilter ? $filterConstraint : '') . "
 		;";
 		
 		# Default to 1000 per page
