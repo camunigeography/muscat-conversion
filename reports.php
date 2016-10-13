@@ -3288,7 +3288,7 @@ class reports
 				result,
 				matchedRegexp
 			FROM {$this->settings['database']}.volumenumbers
-			ORDER BY recordId
+			ORDER BY a, recordId
 		;";
 		
 		# Obtain the headings
