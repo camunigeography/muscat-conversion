@@ -3208,7 +3208,8 @@ class muscatConversion extends frontControllerApplication
 		$sql = "CREATE TABLE IF NOT EXISTS `periodicallocations` (
 			`id` INT(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
 			`recordId` INT(6) NOT NULL COMMENT 'Record number',
-			`title` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title (/ser/tg/t)'
+			`title` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title (/ser/tg/t)',
+			`location` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Location (/ser/loc/location, grouped)',	-- TEXT due to GROUP_CONCAT field length below
 			PRIMARY KEY (id),
 			INDEX(recordId),
 			INDEX(title)
@@ -3218,12 +3219,22 @@ class muscatConversion extends frontControllerApplication
 		
 		# Insert the data
 		$sql = "
-			INSERT INTO `periodicallocations` (recordId, title)
+			INSERT INTO `periodicallocations` (recordId, title, location)
 			SELECT
-				recordId,
-				value AS title
+				catalogue_processed.recordId,
+				catalogue_processed.value AS title,
+				location.value AS location
 			FROM catalogue_processed
-			WHERE xPath = '/ser/tg/t'
+			LEFT JOIN (
+				-- Ensure one-to-one mapping with parents that have more than one *location, e.g. /records/204332/ , by using GROUP_CONCAT to pre-group these before doing the JOIN
+				SELECT
+					recordId,
+					GROUP_CONCAT(value SEPARATOR '; ') AS value
+				FROM catalogue_processed
+				WHERE xPath = '/ser/loc/location'
+				GROUP BY recordId
+			) AS location ON catalogue_processed.recordId = location.recordId
+			WHERE catalogue_processed.xPath = '/ser/tg/t'
 		;";		// 3359 rows inserted
 		$this->databaseConnection->execute ($sql);
 		
