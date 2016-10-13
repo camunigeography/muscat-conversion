@@ -1345,7 +1345,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to render a table of values
-	public function valuesTable ($data, $searchField = false, $linkPrefix = false, $idField = false, $enableSortability = true)
+	public function valuesTable ($data, $searchField = false, $linkPrefix = false, $idField = false, $enableSortability = true, $tableHeadingSubstitutions = array ('id' => '#'))
 	{
 		# Add links to each title if required (search implementation)
 		if ($searchField) {
@@ -1372,7 +1372,6 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Compile the HTML
-		$tableHeadingSubstitutions = array ('id' => '#');
 		$html = '';
 		if ($enableSortability) {
 			$html .= "\n" . '<!-- Enable table sortability: --><script language="javascript" type="text/javascript" src="http://www.geog.cam.ac.uk/sitetech/sorttable.js"></script>';

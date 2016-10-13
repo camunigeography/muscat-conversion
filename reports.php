@@ -2652,7 +2652,7 @@ class reports
 	
 	
 	# Helper function to get a listing
-	private function reportListing ($table, $description, $searchField, $idField = false, $query = false)
+	private function reportListing ($table, $description, $searchField, $idField = false, $query = false, $tableHeadingSubstitutions = array ('id' => '#'))
 	{
 		# Start the HTML
 		$html = '';
@@ -2686,7 +2686,7 @@ class reports
 		$html .= "\n<p>There are <strong>" . number_format (count ($data)) . '</strong> ' . $description . ($totalInstances ? ', representing <strong>' . number_format ($totalInstances) . ' records</strong> affected' : '') . ':</p>';
 		
 		# Render the table
-		$html .= $this->muscatConversion->valuesTable ($data, $searchField, false, $idField);
+		$html .= $this->muscatConversion->valuesTable ($data, $searchField, false, $idField, true, $tableHeadingSubstitutions);
 		
 		# Return the HTML
 		return $html;
