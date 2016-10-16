@@ -3265,11 +3265,12 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($sql);
 		
 		# Insert the data for each grouping; note that the periodicallocations table is no longer needed after this
+		#!# Check that the following notes are now resolved following work c. 16/10/2016: For /doc records; requires at least partial match, e.g. "Annals of Glaciology 9" in child record's (first) /doc/ts matches "Annals of Glaciology" in parent (periodicallocations.title); 82 matches; /records/209527/ is an example with two *ts values - the first is used in Muscat as the match
 		$groupings = array (
-			'/art/j/tg/t'	=> true,	// for /art/j records; requires exact match
-			'/doc/ts[1]'	=> false,	// for /doc records; requires at least partial match, e.g. "Annals of Glaciology 9" in child record's (first) /doc/ts matches "Annals of Glaciology" in parent (periodicallocations.title); 82 matches; /records/209527/ is an example with two *ts values - the first is used in Muscat as the match
+			'/art/j/tg/t',	// 79,988 with "HAVING parentLocation IS NOT NULL", or 82,185 without
+			'/doc/ts[1]',	//    280 with "HAVING parentLocation IS NOT NULL", or 294    without
 		);
-		foreach ($groupings as $titleField => $isExactMatch) {
+		foreach ($groupings as $titleField) {
 			$sql = "
 				INSERT INTO `periodicallocationmatches` (recordId, title, parentRecordId, parentLocation, parentTitle)
 				SELECT
@@ -3283,7 +3284,7 @@ class muscatConversion extends frontControllerApplication
 				LEFT JOIN periodicallocations ON catalogue_xml.matchTitle = periodicallocations.title	/* matchTitle is utf8_bin so test will be exact binary match */
 				WHERE child.field = 'location' AND child.value = 'Periodical'
 				AND LENGTH(EXTRACTVALUE(xml, '{$titleField}')) > 0
-				HAVING periodicallocations.title IS NOT NULL		-- Necessary to strip out LEFT JOIN non-matches; JOIN is too slow
+				HAVING periodicallocations.title IS NOT NULL		-- Necessary to strip out LEFT JOIN non-matches; INNER JOIN is too slow
 				ORDER BY recordId
 			;";
 			$this->databaseConnection->execute ($sql);
