@@ -3212,7 +3212,7 @@ class muscatConversion extends frontControllerApplication
 			`id` INT(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
 			`recordId` INT(6) NOT NULL COMMENT 'Record number',
 			`title` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title (/ser/tg/t)',
-			`location` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Location (/ser/loc/location, grouped)',	-- TEXT due to GROUP_CONCAT field length below
+			`location` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Location(s) (/ser/loc/location, grouped)',	-- TEXT due to GROUP_CONCAT field length below
 			PRIMARY KEY (id),
 			INDEX(recordId),
 			INDEX(title)
