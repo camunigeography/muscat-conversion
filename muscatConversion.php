@@ -794,7 +794,7 @@ class muscatConversion extends frontControllerApplication
 				$data = $this->getRecords ($id, 'processed');
 				$schemaFlattenedXmlWithContainership = $this->getSchema (true);
 				$record = array ();
-				$record['xml'] = xml::dropSerialRecordIntoSchema ($schemaFlattenedXmlWithContainership, $data, $xPathMatches, $errorHtml, $debugString);
+				$record['xml'] = xml::dropSerialRecordIntoSchema ($schemaFlattenedXmlWithContainership, $data, $xPathMatches, $xPathMatchesWithIndex, $errorHtml, $debugString);
 			*/
 				$output = "\n<div class=\"graybox\">" . "\n<pre>" . htmlspecialchars ($record[$type]) . "\n</pre>\n</div>";
 				break;
@@ -2232,8 +2232,11 @@ class muscatConversion extends frontControllerApplication
 		$sql = "INSERT INTO catalogue_processed SELECT * FROM catalogue_rawdata;";
 		$this->databaseConnection->execute ($sql);
 		
-		# Add a field to store the XPath of the field
-		$sql = "ALTER TABLE catalogue_processed ADD xPath VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field' AFTER value;";
+		# Add a field to store the XPath of the field (e.g. /doc/ts) and the same but with a numeric specifier (e.g. /doc/ts[1])
+		$sql = "ALTER TABLE catalogue_processed
+			ADD xPath VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field (path only)',
+			ADD xPathWithIndex VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field (path with index)'
+			AFTER value;";
 		$this->databaseConnection->execute ($sql);
 		
 		# Add a field to store the original pre-transliteration value
@@ -3164,7 +3167,7 @@ class muscatConversion extends frontControllerApplication
 			$inserts = array ();
 			$processedRecordXPaths = array ();
 			foreach ($records as $recordId => $record) {
-				$xml = xml::dropSerialRecordIntoSchema ($schemaFlattenedXmlWithContainership, $record, $xPathMatches, $errorHtml, $debugString);
+				$xml = xml::dropSerialRecordIntoSchema ($schemaFlattenedXmlWithContainership, $record, $xPathMatches, $xPathMatchesWithIndex, $errorHtml, $debugString);
 				if ($errorHtml) {
 					$html  = "<p class=\"warning\">Record <a href=\"{$this->baseUrl}/records/{$recordId}/\">{$recordId}</a> could not be converted to XML:</p>";
 					$html .= "\n" . $errorHtml;
@@ -3185,7 +3188,8 @@ class muscatConversion extends frontControllerApplication
 				foreach ($xPathMatches as $line => $xPath) {
 					$shardId = $recordId . ':' . $line;		// e.g. "1000:0"
 					$processedRecordXPaths[$shardId] = array (
-						'xPath'	=> $xPath,
+						'xPath'				=> $xPath,
+						'xPathWithIndex'	=> $xPathMatchesWithIndex[$line],	// $xPathMatchesWithIndex use the same index by line, so safe to do in in the $xPathMatches loop
 					);
 				}
 			}
