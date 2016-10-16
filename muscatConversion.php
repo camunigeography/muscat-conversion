@@ -3269,7 +3269,7 @@ class muscatConversion extends frontControllerApplication
 				INSERT INTO `periodicallocationmatches` (recordId, title, parentRecordId, parentLocation, parentTitle)
 				SELECT
 					child.recordId,
-					catalogue_xml.matchTitle AS title
+					catalogue_xml.matchTitle AS title,
 					periodicallocations.recordId AS parentRecordId,
 					periodicallocations.location AS parentLocation,
 					periodicallocations.title AS parentTitle	-- Necessary to enable HAVING, but useful for debugging anyway
