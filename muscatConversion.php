@@ -3281,10 +3281,7 @@ class muscatConversion extends frontControllerApplication
 					periodicallocations.title AS parentTitle	-- Necessary to enable HAVING, but useful for debugging anyway
 				FROM catalogue_processed AS child
 				LEFT JOIN catalogue_xml ON child.recordId = catalogue_xml.id
-				LEFT JOIN " . ($isExactMatch
-					? "periodicallocations ON catalogue_xml.matchTitle = periodicallocations.title"	/* matchTitle is utf8_bin so test will be exact binary match */
-					: "periodicallocations ON catalogue_xml.matchTitle LIKE CONCAT(periodicallocations.title, '%')"
-					) . "
+				LEFT JOIN periodicallocations ON catalogue_xml.matchTitle = periodicallocations.title	/* matchTitle is utf8_bin so test will be exact binary match */
 				WHERE child.field = 'location' AND child.value = 'Periodical'
 				AND LENGTH(EXTRACTVALUE(xml, '{$titleField}')) > 0
 				" . ($isExactMatch
