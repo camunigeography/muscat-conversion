@@ -3284,10 +3284,7 @@ class muscatConversion extends frontControllerApplication
 				LEFT JOIN periodicallocations ON catalogue_xml.matchTitle = periodicallocations.title	/* matchTitle is utf8_bin so test will be exact binary match */
 				WHERE child.field = 'location' AND child.value = 'Periodical'
 				AND LENGTH(EXTRACTVALUE(xml, '{$titleField}')) > 0
-				" . ($isExactMatch
-					? ''
-					: "HAVING periodicallocations.title IS NOT NULL	-- Necessary to strip out LEFT JOIN non-matches; INNER JOIN is too slow"
-					) . "
+				HAVING periodicallocations.title IS NOT NULL		-- Necessary to strip out LEFT JOIN non-matches; JOIN is too slow
 			;";
 			$this->databaseConnection->execute ($sql);
 		}
