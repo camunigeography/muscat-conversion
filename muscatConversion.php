@@ -3103,10 +3103,10 @@ class muscatConversion extends frontControllerApplication
 		
 		# Add match title lookups, which are compared as binary strings
 		$groupings = array (
-			'/art/j/tg/t',	// 123,797 rows, 8 seconds
-			'/doc/ts[1]',	//  11,149 rows, 3 seconds
+			'/art/j/tg/t'	=> true,	// 123,797 rows, 8 seconds
+			'/doc/ts[1]'	=> false,	//  11,149 rows, 3 seconds
 		);
-		foreach ($groupings as $titleField) {
+		foreach ($groupings as $titleField => $isExactMatch) {
 			$query = "UPDATE catalogue_xml
 				SET
 					matchTitle = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '{$titleField}')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"),
@@ -3114,6 +3114,12 @@ class muscatConversion extends frontControllerApplication
 				WHERE LENGTH(EXTRACTVALUE(xml, '{$titleField}')) > 0
 			;";
 			$this->databaseConnection->execute ($query);
+			
+			# For /doc/ts[1], the title may be a partial match, so trim to the title only by splitting off the ' ; ' (there is only ever one), e.g. "Burt Franklin Research and Source Works Series ; 60" becomes "Burt Franklin Research and Source Works Series"
+			if (!$isExactMatch) {	// Though actually this check isn't needed, because (by observation) /art/j/tg/t never has ' ; '
+				$query = "UPDATE catalogue_xml SET matchTitle = SUBSTRING_INDEX(matchTitle,' ; ', 1) WHERE matchTitleField = '{$titleField}';";
+				$this->databaseConnection->execute ($query);
+			}
 		}
 	}
 	
