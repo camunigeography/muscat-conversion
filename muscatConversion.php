@@ -3285,6 +3285,7 @@ class muscatConversion extends frontControllerApplication
 				WHERE child.field = 'location' AND child.value = 'Periodical'
 				AND LENGTH(EXTRACTVALUE(xml, '{$titleField}')) > 0
 				HAVING periodicallocations.title IS NOT NULL		-- Necessary to strip out LEFT JOIN non-matches; JOIN is too slow
+				ORDER BY recordId
 			;";
 			$this->databaseConnection->execute ($sql);
 		}
