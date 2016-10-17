@@ -1816,6 +1816,9 @@ class muscatConversion extends frontControllerApplication
 			# Upgrade the transliterations to Library of Congress
 			$this->upgradeTransliterationsToLoc ();
 			
+			# Replace location=Periodical in the processed records with the real, looked-up values
+			$this->processPeriodicalLocations ();
+			
 			# Finish character processing stage
 			$html .= "\n<p>{$this->tick} The character processing has been done.</p>";
 			
@@ -3076,9 +3079,6 @@ class muscatConversion extends frontControllerApplication
 		# Create the XML for each record
 		$this->processXmlRecords ();
 		
-		# Replace location=Periodical in the processed records with the real, looked-up values
-		$this->processPeriodicalLocations ();
-		
 		# Invalidate XML records containing location=Periodical, to force regeneration
 		$query = "UPDATE catalogue_xml SET xml = NULL WHERE xml LIKE '%<location>Periodical</location>%';";
 		$this->databaseConnection->execute ($query);
@@ -3188,7 +3188,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to replace location=Periodical in the processed records with the real, looked-up values; dependencies: catalogue_processed and catalogue_xml
+	# Function to replace location=Periodical in the processed records with the real, looked-up values; dependencies: catalogue_processed
 	private function processPeriodicalLocations ()
 	{
 		# Create a table of periodicals, with their title and location(s), clearing it out first if existing from a previous import
