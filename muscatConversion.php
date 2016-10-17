@@ -3224,7 +3224,7 @@ class muscatConversion extends frontControllerApplication
 				GROUP BY recordId
 			) AS location ON catalogue_processed.recordId = location.recordId
 			WHERE catalogue_processed.xPath = '/ser/tg/t'
-		;";		// 3359 rows inserted
+		;";		// 3,359 rows inserted
 		$this->databaseConnection->execute ($sql);
 		
 		# Create the table of matches, clearing it out first if existing from a previous import
@@ -3246,7 +3246,8 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($sql);
 		
 		# Insert the data for each grouping; note that the periodicallocations table is no longer needed after this
-		#!# Check that the following notes are now resolved following work c. 16/10/2016: For /doc records; requires at least partial match, e.g. "Annals of Glaciology 9" in child record's (first) /doc/ts matches "Annals of Glaciology" in parent (periodicallocations.title); 82 matches; /records/209527/ is an example with two *ts values - the first is used in Muscat as the match
+		# For /doc records this requires at least partial match, e.g. "Annals of Glaciology ; 9" in child record's (first) /doc/ts matches "Annals of Glaciology" in parent (periodicallocations.title)
+		# /records/209527/ is an example with two *ts values - the first is used in Muscat as the match
 		$groupings = array (
 			'/art/j/tg/t'	=> true,	// 79,988 results; NB To permit NULL right-side results, i.e. unmatched parent (giving 82,185 results), change the HAVING clause to "HAVING value != ''"
 			'/doc/ts[1]'	=> false,	//    280 results; NB To permit NULL right-side results, i.e. unmatched parent (giving    294 results), change the HAVING clause to "HAVING value IS NOT NULL"
