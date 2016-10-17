@@ -3240,6 +3240,7 @@ class muscatConversion extends frontControllerApplication
 			`parentRecordId` int(6) NULL COMMENT 'Record number of parent',
 			`parentLocation` varchar(255) COLLATE utf8_unicode_ci NULL COMMENT 'Parent location',
 			`parentTitle` varchar(255) COLLATE utf8_unicode_ci NULL COMMENT 'Parent title',
+			`matchTitleField` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Field to which the matchTitle refers',
 			PRIMARY KEY (id),
 			INDEX(recordId),
 			INDEX(parentRecordId)
@@ -3282,12 +3283,13 @@ class muscatConversion extends frontControllerApplication
 					catalogue_xml.matchTitle AS title,
 					periodicallocations.recordId AS parentRecordId,
 					periodicallocations.location AS parentLocation,
-					periodicallocations.title AS parentTitle	-- Necessary to enable HAVING, but useful for debugging anyway
+					periodicallocations.title AS parentTitle,	-- Necessary to enable HAVING, but useful for debugging anyway
+					'{$titleField}' AS matchTitleField
 				FROM catalogue_processed AS child
 				LEFT JOIN catalogue_xml ON child.recordId = catalogue_xml.id AND matchTitleField = '{$titleField}'
 				LEFT JOIN periodicallocations ON catalogue_xml.matchTitle = periodicallocations.title	/* matchTitle is utf8_bin so test will be exact binary match */
 				WHERE child.field = 'location' AND child.value = 'Periodical'
-				AND LENGTH(EXTRACTVALUE(xml, '{$titleField}')) > 0
+				AND LENGTH(EXTRACTVALUE(catalogue_xml.xml, '{$titleField}')) > 0
 				HAVING periodicallocations.title IS NOT NULL		-- Necessary to strip out LEFT JOIN non-matches; INNER JOIN is too slow
 				ORDER BY recordId
 			;";
