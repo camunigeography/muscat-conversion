@@ -3064,10 +3064,7 @@ class muscatConversion extends frontControllerApplication
 				xml text COLLATE utf8_unicode_ci COMMENT 'XML representation of Muscat record',
 				langauge VARCHAR(255) NULL COLLATE utf8_unicode_ci COMMENT 'Record language',
 				parallelTitleLanguages VARCHAR(255) NULL COLLATE utf8_unicode_ci COMMENT 'Parallel title languages',
-				matchTitle VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_bin NULL COMMENT 'Title for binary matching purposes (/art/j/tg/t or /doc/ts[1])',
-				matchTitleField VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_bin NULL COMMENT 'Field to which the matchTitle refers',
-			  PRIMARY KEY (id),
-			  INDEX(matchTitle)
+			  PRIMARY KEY (id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='XML representation of Muscat records'
 		;";
 		$this->databaseConnection->execute ($sql);
@@ -3240,34 +3237,13 @@ class muscatConversion extends frontControllerApplication
 			`parentRecordId` int(6) NULL COMMENT 'Record number of parent',
 			`parentLocation` varchar(255) COLLATE utf8_unicode_ci NULL COMMENT 'Parent location',
 			`parentTitle` varchar(255) COLLATE utf8_unicode_ci NULL COMMENT 'Parent title',
-			`matchTitleField` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Field to which the matchTitle refers',
+			`matchTitleField` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Field used in matching',
 			PRIMARY KEY (id),
 			INDEX(recordId),
 			INDEX(parentRecordId)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of periodical location matches'
 		;";
 		$this->databaseConnection->execute ($sql);
-		
-		# Add match title lookups, which are compared as binary strings
-		$groupings = array (
-			'/art/j/tg/t'	=> true,	// 123,797 rows, 8 seconds
-			'/doc/ts[1]'	=> false,	//  11,149 rows, 3 seconds
-		);
-		foreach ($groupings as $titleField => $isExactMatch) {
-			$query = "UPDATE catalogue_xml
-				SET
-					matchTitle = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '{$titleField}')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"),
-					matchTitleField = '{$titleField}'
-				WHERE LENGTH(EXTRACTVALUE(xml, '{$titleField}')) > 0
-			;";
-			$this->databaseConnection->execute ($query);
-			
-			# For /doc/ts[1], the title may be a partial match, so trim to the title only by splitting off the ' ; ' (there is only ever one), e.g. "Burt Franklin Research and Source Works Series ; 60" becomes "Burt Franklin Research and Source Works Series"
-			if (!$isExactMatch) {	// Though actually this check isn't needed, because (by observation) /art/j/tg/t never has ' ; '
-				$query = "UPDATE catalogue_xml SET matchTitle = SUBSTRING_INDEX(matchTitle,' ; ', 1) WHERE matchTitleField = '{$titleField}';";
-				$this->databaseConnection->execute ($query);
-			}
-		}
 		
 		# Insert the data for each grouping; note that the periodicallocations table is no longer needed after this
 		#!# Check that the following notes are now resolved following work c. 16/10/2016: For /doc records; requires at least partial match, e.g. "Annals of Glaciology 9" in child record's (first) /doc/ts matches "Annals of Glaciology" in parent (periodicallocations.title); 82 matches; /records/209527/ is an example with two *ts values - the first is used in Muscat as the match
