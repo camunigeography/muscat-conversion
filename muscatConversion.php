@@ -3277,8 +3277,9 @@ class muscatConversion extends frontControllerApplication
 		);
 		foreach ($groupings as $titleField) {
 			$sql = "
-				INSERT INTO `periodicallocationmatches` (recordId, title, parentRecordId, parentLocation, parentTitle)
+				INSERT INTO `periodicallocationmatches`
 				SELECT
+					NULL,	-- Auto-populate auto-increment field
 					child.recordId,
 					catalogue_xml.matchTitle AS title,
 					periodicallocations.recordId AS parentRecordId,
