@@ -3272,26 +3272,27 @@ class muscatConversion extends frontControllerApplication
 		# Insert the data for each grouping; note that the periodicallocations table is no longer needed after this
 		#!# Check that the following notes are now resolved following work c. 16/10/2016: For /doc records; requires at least partial match, e.g. "Annals of Glaciology 9" in child record's (first) /doc/ts matches "Annals of Glaciology" in parent (periodicallocations.title); 82 matches; /records/209527/ is an example with two *ts values - the first is used in Muscat as the match
 		$groupings = array (
-			'/art/j/tg/t',	// 79,988 with "HAVING parentLocation IS NOT NULL", or 82,185 without
-			'/doc/ts[1]',	//    280 with "HAVING parentLocation IS NOT NULL", or 294    without
+			'/art/j/tg/t'	=> true,	// 79,988 results; NB To permit NULL right-side results, i.e. unmatched journal (giving 82,185 results), change the HAVING clause to "HAVING value != ''"
+			'/doc/ts[1]'	=> false,	//    280 results; NB To permit NULL right-side results, i.e. unmatched journal (giving 294 results), change the HAVING clause to "HAVING value IS NOT NULL"
 		);
+		
+		#!#  Need to move this matching just before the transliteration, so that the /art/j/tg/t /records/167320/ can join to its parent /records/33585/ and then AFTER that it gets upgraded
 		foreach ($groupings as $titleField) {
 			$sql = "
 				INSERT INTO `periodicallocationmatches`
 				SELECT
 					NULL,	-- Auto-populate auto-increment field
 					child.recordId,
-					catalogue_xml.matchTitle AS title,
+					" . ($isExactMatch ? 'selfTitle.value' : "SUBSTRING_INDEX(selfTitle.value,' ; ', 1)") . " AS value,
 					periodicallocations.recordId AS parentRecordId,
 					periodicallocations.location AS parentLocation,
-					periodicallocations.title AS parentTitle,	-- Necessary to enable HAVING, but useful for debugging anyway
+					periodicallocations.title AS parentTitle,
 					'{$titleField}' AS matchTitleField
 				FROM catalogue_processed AS child
-				LEFT JOIN catalogue_xml ON child.recordId = catalogue_xml.id AND matchTitleField = '{$titleField}'
-				LEFT JOIN periodicallocations ON catalogue_xml.matchTitle = periodicallocations.title	/* matchTitle is utf8_bin so test will be exact binary match */
+				LEFT JOIN catalogue_processed AS selfTitle ON child.recordId = selfTitle.recordId AND " . ($isExactMatch ? 'selfTitle.xPath' : 'selfTitle.xPathWithIndex') . " = '{$titleField}'
+				LEFT JOIN periodicallocations ON " . ($isExactMatch ? 'selfTitle.value' : "SUBSTRING_INDEX(selfTitle.value,' ; ', 1)") . " = BINARY periodicallocations.title
 				WHERE child.field = 'location' AND child.value = 'Periodical'
-				AND LENGTH(EXTRACTVALUE(catalogue_xml.xml, '{$titleField}')) > 0
-				HAVING periodicallocations.title IS NOT NULL		-- Necessary to strip out LEFT JOIN non-matches; INNER JOIN is too slow
+				HAVING periodicallocations.title IS NOT NULL	-- Necessary to strip out LEFT JOIN non-matches; INNER JOIN is too slow
 				ORDER BY recordId
 			;";
 			$this->databaseConnection->execute ($sql);
