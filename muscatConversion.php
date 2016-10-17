@@ -3103,27 +3103,6 @@ class muscatConversion extends frontControllerApplication
 			SET parallelTitleLanguages = value
 		;";
 		$this->databaseConnection->execute ($query);
-		
-		# Add match title lookups, which are compared as binary strings
-		$groupings = array (
-			'/art/j/tg/t'	=> true,	// 123,797 rows, 8 seconds
-			'/doc/ts[1]'	=> false,	//  11,149 rows, 3 seconds
-		);
-		foreach ($groupings as $titleField => $isExactMatch) {
-			$query = "UPDATE catalogue_xml
-				SET
-					matchTitle = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '{$titleField}')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"),
-					matchTitleField = '{$titleField}'
-				WHERE LENGTH(EXTRACTVALUE(xml, '{$titleField}')) > 0
-			;";
-			$this->databaseConnection->execute ($query);
-			
-			# For /doc/ts[1], the title may be a partial match, so trim to the title only by splitting off the ' ; ' (there is only ever one), e.g. "Burt Franklin Research and Source Works Series ; 60" becomes "Burt Franklin Research and Source Works Series"
-			if (!$isExactMatch) {	// Though actually this check isn't needed, because (by observation) /art/j/tg/t never has ' ; '
-				$query = "UPDATE catalogue_xml SET matchTitle = SUBSTRING_INDEX(matchTitle,' ; ', 1) WHERE matchTitleField = '{$titleField}';";
-				$this->databaseConnection->execute ($query);
-			}
-		}
 	}
 	
 	
@@ -3267,6 +3246,27 @@ class muscatConversion extends frontControllerApplication
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of periodical location matches'
 		;";
 		$this->databaseConnection->execute ($sql);
+		
+		# Add match title lookups, which are compared as binary strings
+		$groupings = array (
+			'/art/j/tg/t'	=> true,	// 123,797 rows, 8 seconds
+			'/doc/ts[1]'	=> false,	//  11,149 rows, 3 seconds
+		);
+		foreach ($groupings as $titleField => $isExactMatch) {
+			$query = "UPDATE catalogue_xml
+				SET
+					matchTitle = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( EXTRACTVALUE(xml, '{$titleField}')   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\"),
+					matchTitleField = '{$titleField}'
+				WHERE LENGTH(EXTRACTVALUE(xml, '{$titleField}')) > 0
+			;";
+			$this->databaseConnection->execute ($query);
+			
+			# For /doc/ts[1], the title may be a partial match, so trim to the title only by splitting off the ' ; ' (there is only ever one), e.g. "Burt Franklin Research and Source Works Series ; 60" becomes "Burt Franklin Research and Source Works Series"
+			if (!$isExactMatch) {	// Though actually this check isn't needed, because (by observation) /art/j/tg/t never has ' ; '
+				$query = "UPDATE catalogue_xml SET matchTitle = SUBSTRING_INDEX(matchTitle,' ; ', 1) WHERE matchTitleField = '{$titleField}';";
+				$this->databaseConnection->execute ($query);
+			}
+		}
 		
 		# Insert the data for each grouping; note that the periodicallocations table is no longer needed after this
 		#!# Check that the following notes are now resolved following work c. 16/10/2016: For /doc records; requires at least partial match, e.g. "Annals of Glaciology 9" in child record's (first) /doc/ts matches "Annals of Glaciology" in parent (periodicallocations.title); 82 matches; /records/209527/ is an example with two *ts values - the first is used in Muscat as the match
