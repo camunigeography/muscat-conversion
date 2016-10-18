@@ -2847,20 +2847,55 @@ class reports
 		//ini_set ('max_execution_time', 0);
 		//$this->createTransliterationsTable ();
 		
+		# Start a list of SQL constraints for the listing
+		$where = array ();
+		
+		# Get the XPath types
+		$xPathTypesQuery = "SELECT xPath, COUNT(*) AS total FROM transliterations GROUP BY xPath ORDER BY xPath;";
+		$xPathTypes = $this->databaseConnection->getPairs ($xPathTypesQuery);
+		
+		# Determine if a valid XPath filter has been specified
+		$xPathFilter = (isSet ($_GET['xpath']) && isSet ($xPathTypes[$_GET['xpath']]) ? $_GET['xpath'] : false);
+		if ($xPathFilter) {
+			$where[] = "xpath = '{$xPathFilter}'";
+		}
+		
 		# Determine totals
 		$table = 'transliterations';
 		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], $table);
-		$filterConstraint = 'WHERE forwardCheckFailed = 1';
-		$totalFailures = $this->databaseConnection->getTotal ($this->settings['database'], $table, $filterConstraint);
+		$filterConstraint = 'forwardCheckFailed = 1';
+		$totalFailures = $this->databaseConnection->getTotal ($this->settings['database'], $table, 'WHERE ' . $filterConstraint);
 		
 		# Determine whether to filter to reversibility failures only
-		$totalRecords = number_format ($totalRecords);
 		$enableFilter = (isSet ($_GET['filter']) && $_GET['filter'] == '1');
 		if ($enableFilter) {
-			$html .= "\n<p><a href=\"{$this->baseUrl}/reports/transliterations/\">Show all ($totalRecords)</a> | <strong>Filtering to reversibility failures only (" . number_format ($totalFailures) . ")</strong></p>";
-		} else {
-			$html .= "\n<p><strong>Showing all ($totalRecords)</strong> | <a href=\"{$this->baseUrl}/reports/transliterations/?filter=1\">Filter to reversibility failures only (" . number_format ($totalFailures) . ")</a></p>";
+			$where[] = $filterConstraint;
 		}
+		if ($enableFilter) {
+			$html .= "\n<p><a href=\"{$this->baseUrl}/reports/transliterations/" . ($xPathFilter ? "?xpath={$xPathFilter}" : '') . "\">Show all (" . number_format ($totalRecords) . ")</a> | <strong>Filtering to reversibility failures only (" . number_format ($totalFailures) . ")</strong></p>";
+		} else {
+			$html .= "\n<p><strong>Showing all (" . number_format ($totalRecords) . ")</strong> | <a href=\"{$this->baseUrl}/reports/transliterations/?filter=1" . ($xPathFilter ? "&amp;xpath={$xPathFilter}" : '') . "\">Filter to reversibility failures only (" . number_format ($totalFailures) . ")</a></p>";
+		}
+		
+		# Add links to XPaths for filtering
+		$xPathTypesList = array ();
+		$xPathTypes = array_merge (array ('' => $totalRecords), $xPathTypes);
+		foreach ($xPathTypes as $xPathType => $total) {
+			$xPathTypesList[$xPathType] = '';
+			if ($xPathFilter != $xPathType) {	// Do not hyperlink any currently-selected item
+				$xPathTypesList[$xPathType] .= "<a href=\"{$this->baseUrl}/reports/transliterations/" . ($xPathType || $enableFilter ? '?' : '') . ($enableFilter ? 'filter=1' . ($xPathType ? '&amp;' : '') : '') . ($xPathType ? "xpath={$xPathType}" : '') . '">';
+			} else {
+				$xPathTypesList[$xPathType] .= '<strong>';
+			}
+			$xPathTypesList[$xPathType] .= ($xPathType == '' ? 'No type filter' : $xPathType);
+			$xPathTypesList[$xPathType] .= ' (' . number_format ($total) . ')';
+			if ($xPathFilter != $xPathType) {
+				$xPathTypesList[$xPathType] .= '</a>';
+			} else {
+				$xPathTypesList[$xPathType] .= '</strong>';
+			}
+		}
+		$html .= "\n<p>Filter by type: " . implode (' | ', $xPathTypesList) . '</p>';
 		
 		# Add link to editing the definition
 		$html .= "\n<p>You can <a href=\"{$this->baseUrl}/transliterator.html\">edit the reverse-transliteration definition</a>.</p>";
@@ -2869,7 +2904,7 @@ class reports
 		$query = "SELECT
 				*
 			FROM {$this->settings['database']}.{$table}
-			" . ($enableFilter ? $filterConstraint : '') . "
+			" . ($where ? 'WHERE ' . implode (' AND ', $where) : '') . "
 		;";
 		
 		# Default to 1000 per page
