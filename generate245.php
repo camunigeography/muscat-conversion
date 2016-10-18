@@ -40,7 +40,7 @@ class generate245
 		}
 		
 		# Obtain the title, by looking at *ser/*tg/*t OR *doc/*tg/*t OR *art/*tg/*t
-		$this->t = $this->muscatConversion->xPathValue ($this->xml, "/{$this->mainRecordTypePrefix}/tg/t");
+		$this->t = $this->muscatConversion->xPathValue ($this->xml, "{$this->mainRecordTypePrefix}/tg/t");
 		
 		# Transliterate title (used for $a and possible $b) if required
 		if ($this->languageMode != 'default') {
