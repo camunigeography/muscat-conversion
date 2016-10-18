@@ -140,9 +140,10 @@ class muscatConversion extends frontControllerApplication
 	);
 	
 	# Supported transliteration upgrade (BGN/PCGN -> Library of Congress) fields, at top level
-	private $transliterationUpgradeFieldsTopLevel = array (
+	private $transliterationUpgradeFields = array (
 		  '/art/tg/t',
-		'/art/j/tg/t',		// This non- top-level field is here due to the 6-month temporary change, documented in de76c129e15053ae71a1012d2f2157906576f62d
+	   '/art/in/tg/t',
+		'/art/j/tg/t',
 		  '/doc/tg/t',
 		  '/ser/tg/t',
 	);
@@ -2900,10 +2901,10 @@ class muscatConversion extends frontControllerApplication
 					value AS title_latin
 				FROM catalogue_processed
 				WHERE
-					    xPath IN('" . implode ("', '", $this->transliterationUpgradeFieldsTopLevel) . "')
+					    xPath IN('" . implode ("', '", $this->transliterationUpgradeFields) . "')
 					AND value NOT REGEXP '^{$literalBackslash}{$literalBackslash}[([^{$literalBackslash}]]+){$literalBackslash}{$literalBackslash}]$'		/* Exclude [Titles fully in brackets like this] */
 					AND recordLanguage = '{$language}'
-		;";	// 39,153 rows inserted
+		;";	// 41,515 rows inserted
 		$this->databaseConnection->query ($query);
 		
 		# Add to the shard the parallel title (*lpt) property associated with the top-level *t; this gives 210 updates, which exactly matches 210 results for `SELECT * FROM `catalogue_processed` WHERE `field` LIKE 'lpt' and recordLanguage = 'Russian';`
