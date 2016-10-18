@@ -1807,6 +1807,9 @@ class muscatConversion extends frontControllerApplication
 			#   Dependencies: catalogue_processed
 			$this->massDataFixes ();
 			
+			# Replace location=Periodical in the processed records with the real, looked-up values
+			$this->processPeriodicalLocations ();
+			
 			# Create the UDC translations table
 			$this->createUdcTranslationsTable ();
 			
@@ -1815,9 +1818,6 @@ class muscatConversion extends frontControllerApplication
 			
 			# Upgrade the transliterations to Library of Congress
 			$this->upgradeTransliterationsToLoc ();
-			
-			# Replace location=Periodical in the processed records with the real, looked-up values
-			$this->processPeriodicalLocations ();
 			
 			# Finish character processing stage
 			$html .= "\n<p>{$this->tick} The character processing has been done.</p>";
@@ -3189,6 +3189,8 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to replace location=Periodical in the processed records with the real, looked-up values; dependencies: catalogue_processed
+	# NB This matching is done before the transliteration phase, so that the /art/j/tg/t matches its parent (e.g. /records/167320/ joins to its parent /records/33585/ ) and then AFTER that it gets upgraded
+	#!# There is still the problem that the target name itself does not get upgraded
 	private function processPeriodicalLocations ()
 	{
 		# Create a table of periodicals, with their title and location(s), clearing it out first if existing from a previous import
@@ -3252,8 +3254,6 @@ class muscatConversion extends frontControllerApplication
 			'/art/j/tg/t'	=> true,	// 79,988 results; NB To permit NULL right-side results, i.e. unmatched parent (giving 82,185 results), change the HAVING clause to "HAVING value != ''"
 			'/doc/ts[1]'	=> false,	//    280 results; NB To permit NULL right-side results, i.e. unmatched parent (giving    294 results), change the HAVING clause to "HAVING value IS NOT NULL"
 		);
-		
-		#!#  Need to move this matching just before the transliteration, so that the /art/j/tg/t /records/167320/ can join to its parent /records/33585/ and then AFTER that it gets upgraded
 		foreach ($groupings as $titleField => $isExactMatch) {
 			$sql = "
 				INSERT INTO `periodicallocationmatches`
