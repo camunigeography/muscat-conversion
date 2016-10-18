@@ -6383,7 +6383,7 @@ class muscatConversion extends frontControllerApplication
 			'Sound cassette'		=> 'ss#|||||||||||',
 			'Sound disc'			=> 'sd#||||nn|||||',
 			'DVD'					=> 'vd#|v||z|',
-			'Videorecording'		=> 'vu#|u||u|',
+			'Videorecording'		=> 'vf#|u||u|',
 		);
 		
 		# Look up the value and return it
