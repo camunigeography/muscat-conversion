@@ -141,7 +141,10 @@ class muscatConversion extends frontControllerApplication
 	
 	# Supported transliteration upgrade (BGN/PCGN -> Library of Congress) fields, at top level
 	private $transliterationUpgradeFieldsTopLevel = array (
-		't',
+		  '/art/tg/t',
+		'/art/j/tg/t',		// This non- top-level field is here due to the 6-month temporary change, documented in de76c129e15053ae71a1012d2f2157906576f62d
+		  '/doc/tg/t',
+		  '/ser/tg/t',
 	);
 	
 	# Acquisition date cut-off for on-order -type items; these range from 22/04/1992 to 30/10/2015; the intention of this date is that 'recent' on-order items (intended to be 1 year ago) would be migrated but suppressed, and the rest deleted - however, this needs review
@@ -2897,8 +2900,7 @@ class muscatConversion extends frontControllerApplication
 					value AS title_latin
 				FROM catalogue_processed
 				WHERE
-					    field IN('" . implode ("', '", $this->transliterationUpgradeFieldsTopLevel) . "')
-					AND topLevel = 1
+					    xPath IN('" . implode ("', '", $this->transliterationUpgradeFieldsTopLevel) . "')
 					AND value NOT REGEXP '^{$literalBackslash}{$literalBackslash}[([^{$literalBackslash}]]+){$literalBackslash}{$literalBackslash}]$'		/* Exclude [Titles fully in brackets like this] */
 					AND recordLanguage = '{$language}'
 		;";	// 39,153 rows inserted
