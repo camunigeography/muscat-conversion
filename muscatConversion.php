@@ -2867,6 +2867,7 @@ class muscatConversion extends frontControllerApplication
 			`id` VARCHAR(10) NOT NULL COMMENT 'Processed shard ID (catalogue_processed.id)',
 			`recordId` INT(11) NULL COMMENT 'Record ID',
 			`field` VARCHAR(255) NULL COMMENT 'Field',
+			`xPath` VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field (path only)',
 			`lpt` VARCHAR(255) NULL COMMENT 'Parallel title languages',
 			`title_latin` TEXT COLLATE utf8_unicode_ci COMMENT 'Title (latin characters), unmodified from original data',
 			`title_latin_tt` TEXT COLLATE utf8_unicode_ci COMMENT '*tt if present',
@@ -2887,11 +2888,12 @@ class muscatConversion extends frontControllerApplication
 		# Populate the transliterations table
 		$literalBackslash = '\\';
 		$query = "
-			INSERT INTO transliterations (id, recordId, field, title_latin)
+			INSERT INTO transliterations (id, recordId, field, xPath, title_latin)
 				SELECT
 					id,
 					recordId,
 					field,
+					xPath,
 					value AS title_latin
 				FROM catalogue_processed
 				WHERE
@@ -2899,7 +2901,7 @@ class muscatConversion extends frontControllerApplication
 					AND topLevel = 1
 					AND value NOT REGEXP '^{$literalBackslash}{$literalBackslash}[([^{$literalBackslash}]]+){$literalBackslash}{$literalBackslash}]$'		/* Exclude [Titles fully in brackets like this] */
 					AND recordLanguage = '{$language}'
-		;";
+		;";	// 39,153 rows inserted
 		$this->databaseConnection->query ($query);
 		
 		# Add to the shard the parallel title (*lpt) property associated with the top-level *t; this gives 210 updates, which exactly matches 210 results for `SELECT * FROM `catalogue_processed` WHERE `field` LIKE 'lpt' and recordLanguage = 'Russian';`
