@@ -2281,8 +2281,9 @@ class muscatConversion extends frontControllerApplication
 				-- Get the *in or *j switchover point within each record that has an *in / *j; records without will be untouched
 				SELECT
 					recordId,line
-			    FROM catalogue_rawdata
-			    WHERE field IN('in', 'j')
+				FROM catalogue_rawdata
+--				WHERE field IN('in', 'j')
+				WHERE field = 'in'
 			) AS lineIds ON catalogue_processed.recordId = lineIds.recordId
 			SET topLevel = 0
 			WHERE
