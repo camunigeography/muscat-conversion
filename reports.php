@@ -109,6 +109,7 @@ class reports
 		'russianldottitles_problem' => 'records (Russian) with L. in title to be checked individually, possibly resolving post-migration',
 		'paralleltitlemismatch_problem' => 'records (Russian) whose parallel title component count does not match that of the title',
 		'emptyvalue_problem' => 'records with empty scalar values',
+		'sernotitle_problem' => '*ser records with no title',
 	);
 	
 	# Listing (values) reports
@@ -2418,6 +2419,25 @@ class reports
 				AND field NOT IN('doc', 'art', 'j', 'in', 'ser', 'ag', 'a', 'al', 'tg', 'e', 'n', 'ee', 'pg', 'notes', 'k', 'k2', 'loc', 'url', 'urlft', 'acq', 'acc', 'doi')
 				/* Whitelisted tags often empty considered acceptable */
 				AND field NOT IN('kw')
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *ser records with no title
+	public function report_sernotitle ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'sernotitle' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    xPath LIKE '/ser/tg/t'
+				AND value = ''
 		";
 		
 		# Return the query
