@@ -2872,7 +2872,7 @@ class muscatConversion extends frontControllerApplication
 			`recordId` INT(11) NULL COMMENT 'Record ID',
 			`field` VARCHAR(255) NULL COMMENT 'Field',
 			`xPath` VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field (path only)',
-			`lpt` VARCHAR(255) NULL COMMENT 'Parallel title languages',
+			`lpt` VARCHAR(255) NULL COMMENT 'Parallel title languages (*lpt, adjacent in hierarchy)',
 			`title_latin` TEXT COLLATE utf8_unicode_ci COMMENT 'Title (latin characters), unmodified from original data',
 			`title_latin_tt` TEXT COLLATE utf8_unicode_ci COMMENT '*tt if present',
 			`title` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Reverse-transliterated title',
@@ -2908,7 +2908,6 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->query ($query);
 		
 		# Add to the shard the parallel title (*lpt) property associated with the top-level *t; this gives 210 updates, which exactly matches 210 results for `SELECT * FROM `catalogue_processed` WHERE `field` LIKE 'lpt' and recordLanguage = 'Russian';`
-		#!# This isn't happening for the analytic part (e.g. pseudo-analytic example /records/6498/ shown in /reports/transliterations/ ) as they have no *lpt in the bottom-half of the record
 		$query = "
 			UPDATE transliterations
 			LEFT JOIN catalogue_processed ON transliterations.recordId = catalogue_processed.recordId
@@ -2916,6 +2915,19 @@ class muscatConversion extends frontControllerApplication
 			WHERE
 				    catalogue_processed.field = 'lpt'
 				AND title_latin LIKE '% = %'		-- This clause avoids e.g. both 198010:10, 198010:17 (lines 10 and 17) matching in /records/198010/
+		;";
+		$this->databaseConnection->query ($query);
+		
+		# In the special case of the *t field, where the shard is a bottom-half title, use the bottom-half *lpt when present
+		$query = "
+			UPDATE transliterations
+			INNER JOIN catalogue_processed ON
+				    transliterations.recordId = catalogue_processed.recordId
+				AND transliterations.field = 't'
+				AND catalogue_processed.field = 'lpt'
+				AND (transliterations.xPath LIKE '%/in/%' OR transliterations.xPath LIKE '%/j/%')
+				AND (catalogue_processed.xPath LIKE '%/in/%' OR catalogue_processed.xPath LIKE '%/j/%')
+			SET transliterations.lpt = catalogue_processed.value
 		;";
 		$this->databaseConnection->query ($query);
 		
