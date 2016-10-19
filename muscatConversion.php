@@ -6819,6 +6819,7 @@ class muscatConversion extends frontControllerApplication
 		# Ensure the value is in the table
 		if (!isSet ($this->udcTranslations[$value])) {
 			$recordId = $this->xPathValue ($xml, '//q0');
+			// NB For the following error, see also /reports/periodicalpam/ which covers scenario of records temporarily tagged as 'MPP'
 			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> 650 UDC field '<em>{$value}</em>' is not a valid UDC code.</p>";
 			return false;
 		}

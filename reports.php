@@ -111,6 +111,7 @@ class reports
 		'emptyvalue_problem' => 'records with empty scalar values',
 		'sernotitle_problem' => '*ser records with no title',
 		'sernonuniquetitle_problem' => '*ser records whose title is not unique',
+		'periodicalpam_problem' => 'Records with location= both Periodical and Pam',
 	);
 	
 	# Listing (values) reports
@@ -2466,6 +2467,33 @@ class reports
 					HAVING Rows > 1
 				) AS duplicateTitles
 			)
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with location= both Periodical and Pam
+	# NB: Some records within this have been manually marked with MPP such that this error is generated: "Error in record #<recordId>: 650 UDC field 'MPP' is not a valid UDC code.", e.g. /records/11000/
+	public function report_periodicalpam ()
+	{
+		# Define the query; use of IN() is not best-practice but this runs sufficiently quickly and query is simple
+		$query = "
+			SELECT
+				'periodicalpam' AS report,
+				recordId
+			FROM catalogue_rawdata
+			WHERE
+				    field = 'location'
+				AND value = 'Periodical'
+				AND recordId IN(
+					SELECT recordId
+					FROM catalogue_rawdata
+					WHERE
+						    field = 'location'
+						AND (value REGEXP '^Pam' OR value REGEXP '^Pam ')
+				)
 		";
 		
 		# Return the query
