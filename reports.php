@@ -110,6 +110,7 @@ class reports
 		'paralleltitlemismatch_problem' => 'records (Russian) whose parallel title component count does not match that of the title',
 		'emptyvalue_problem' => 'records with empty scalar values',
 		'sernotitle_problem' => '*ser records with no title',
+		'sernonuniquetitle_problem' => '*ser records whose title is not unique',
 	);
 	
 	# Listing (values) reports
@@ -2438,6 +2439,33 @@ class reports
 			WHERE
 				    xPath LIKE '/ser/tg/t'
 				AND value = ''
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *ser records whose title is not unique
+	public function report_sernonuniquetitle ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'sernonuniquetitle' AS report,
+				periodicallocations.recordId
+			FROM periodicallocations
+			WHERE title IN (
+				SELECT title
+				FROM (
+					SELECT
+						COUNT(*) AS `Rows`,
+						title
+					FROM periodicallocations
+					GROUP BY title
+					HAVING Rows > 1
+				) AS duplicateTitles
+			)
 		";
 		
 		# Return the query
