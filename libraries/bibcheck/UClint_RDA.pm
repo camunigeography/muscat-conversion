@@ -2306,6 +2306,7 @@ sub check_300 {
     }
     if ($rda == 0){
 	if (($newsubfields[$index] eq 'a') && ($newsubfields[$index+1] =~ /p\s/)) {
+	    # #!# BUG: This is a poor test - this picks up "map " which is valid according to: https://www.loc.gov/marc/bibliographic/bd300.html
 	    $self->warn ( "300: In subfield _a, p should be followed by a full stop.");
 	}
 	if (($newsubfields[$index] eq 'a') && ($newsubfields[$index+1] =~ /v\s/)) {
