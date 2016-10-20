@@ -3096,13 +3096,6 @@ class muscatConversion extends frontControllerApplication
 		# Create the XML for each record
 		$this->processXmlRecords ();
 		
-		# Invalidate XML records containing location=Periodical, to force regeneration
-		$query = "UPDATE catalogue_xml SET xml = NULL WHERE xml LIKE '%<location>Periodical</location>%';";
-		$this->databaseConnection->execute ($query);
-		
-		# Perform a second-pass of the XML processing, to fix up location=Periodical cases; a relatively small number will legitimately remain after this
-		$this->processXmlRecords ();
-		
 		# Add the language lookups
 		$query = "UPDATE catalogue_xml SET langauge = ExtractValue(xml, '/*/lang[1]');";
 		$this->databaseConnection->execute ($query);
@@ -3243,7 +3236,7 @@ class muscatConversion extends frontControllerApplication
 				GROUP BY recordId
 			) AS location ON catalogue_processed.recordId = location.recordId
 			WHERE catalogue_processed.xPath = '/ser/tg/t'
-		;";		// 3,359 rows inserted
+		;";		// 3,363 rows inserted
 		$this->databaseConnection->execute ($sql);
 		
 		# Create the table of matches, clearing it out first if existing from a previous import
