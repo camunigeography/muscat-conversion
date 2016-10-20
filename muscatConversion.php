@@ -2250,7 +2250,7 @@ class muscatConversion extends frontControllerApplication
 		$sql = "ALTER TABLE catalogue_processed ADD preTransliterationUpgradeValue TEXT NULL DEFAULT NULL COMMENT 'Value before transliteration changes' AFTER xPath;";
 		$this->databaseConnection->execute ($sql);
 		
-		# Add a field to contain the record language (first language)
+		# Add a field to contain the record language (first language); note that an *in or *j may also contain a *lang
 		$sql = "ALTER TABLE catalogue_processed ADD recordLanguage VARCHAR(255) NULL DEFAULT 'English' COMMENT 'Record language (first language)' AFTER preTransliterationUpgradeValue;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -3071,7 +3071,8 @@ class muscatConversion extends frontControllerApplication
 	
 	# Function to create XML records
 	#   Depencies: catalogue_processed
-	private function createXmlTable ()
+	# The $pathSeedingOnly is a flag for the first run which is done simply to allocate the catalogue_processed.xPath values, essentially just needing the xml::dropSerialRecordIntoSchema routine which createXmlTable() and its delegate processXmlRecords() has to wrap
+	private function createXmlTable ($pathSeedingOnly = false)
 	{
 		# Clean out the XML table
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.catalogue_xml;";
@@ -3094,7 +3095,10 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($query);
 		
 		# Create the XML for each record
-		$this->processXmlRecords ();
+		$this->processXmlRecords ($pathSeedingOnly);
+		
+		# End if only simple path seeding of catalogue_processed.xPath values is required, as remaining steps just waste CPU
+		if ($pathSeedingOnly) {return;}
 		
 		# Add the language lookups
 		$query = "UPDATE catalogue_xml SET langauge = ExtractValue(xml, '/*/lang[1]');";
@@ -3128,7 +3132,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to do the XML record processing, called from within the main XML table creation function; this will process about 1,000 records a second
-	private function processXmlRecords ()
+	private function processXmlRecords ($pathSeedingOnly = false)
 	{
 		# Get the schema
 		$schemaFlattenedXmlWithContainership = $this->getSchema (true);
@@ -3188,11 +3192,13 @@ class muscatConversion extends frontControllerApplication
 				return false;
 			}
 			
-			# Update the processed table to register the XPath values; takes around 2-15 seconds per batch of 500 sharded records
-			if (!$this->databaseConnection->updateMany ($this->settings['database'], 'catalogue_processed', $processedRecordXPaths)) {
-				echo "<p class=\"warning\">Error updating processed records to add XPath values, stopping at batch ({$recordId}):</p>";
-				echo application::dumpData ($this->databaseConnection->error (), false, true);
-				return false;
+			# If seeding the catalogue_processed.xPath values, update the processed table to register the XPath values; takes around 2-15 seconds per batch of 500 sharded records
+			if ($pathSeedingOnly) {
+				if (!$this->databaseConnection->updateMany ($this->settings['database'], 'catalogue_processed', $processedRecordXPaths)) {
+					echo "<p class=\"warning\">Error updating processed records to add XPath values, stopping at batch ({$recordId}):</p>";
+					echo application::dumpData ($this->databaseConnection->error (), false, true);
+					return false;
+				}
 			}
 		}
 	}
@@ -3203,6 +3209,9 @@ class muscatConversion extends frontControllerApplication
 	#!# There is still the problem that the target name itself does not get upgraded
 	private function processPeriodicalLocations ()
 	{
+		# Assign XPaths to catalogue_processed; this unfortunate dependency means that the XML processing has to be run twice
+		$this->createXmlTable ($pathSeedingOnly = true);
+		
 		# Create a table of periodicals, with their title and location(s), clearing it out first if existing from a previous import
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.periodicallocations;";
 		$this->databaseConnection->execute ($sql);
