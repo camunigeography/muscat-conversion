@@ -6591,8 +6591,8 @@ class muscatConversion extends frontControllerApplication
 		# Compile the overall string
 		$value = implode (' ', $subfields);
 		
-		# Ensure the value ends with a dot (if punctuation not already present); e.g. /records/4432/
-		$value = $this->macro_dotEnd ($value, NULL, $extendedCharacterList = true);
+		# Ensure the value ends with a dot (even if punctuation already present); e.g. /records/2549/ , /records/4432/
+		$value = $this->macro_dotEnd ($value, NULL);
 		
 		# Return the value
 		return $value;
