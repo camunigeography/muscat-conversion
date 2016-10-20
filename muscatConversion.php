@@ -5826,6 +5826,18 @@ class muscatConversion extends frontControllerApplication
 		$splitWords = array ('ill', 'diag', 'map', 'table', 'graph', 'port', 'col');
 		foreach ($splitWords as $word) {
 			if (substr_count ($value, $word)) {
+				
+				# If the word requires a dot after, add this if not present; e.g. /records/1584/ , /records/3478/ , /records/1163/
+				# Checked using: `SELECT * FROM catalogue_processed WHERE field IN('p','pt') AND value LIKE '%ill%' AND value NOT LIKE '%ill.%' AND value NOT REGEXP 'ill(-|\.|\'|[a-z]|$)';`
+				if ($word == 'ill') {
+					if (!substr_count ($value, $word . '.')) {
+						if (!preg_match ('/ill(-|\'|[a-z])/', $value)) {	// I.e. don't add . in middle of word or cases like ill
+							$value = str_replace ($word, $word . '.', $value);
+						}
+					}
+				}
+				
+				# Assemble
 				$split = explode ($word, $value, 2);	// Explode seems more reliable than preg_split, because it is difficult to get a good regexp that allows multiple delimeters, multiple presence of delimeter, and optional trailing string
 				$a = trim ($split[0]);
 				$b = $word . $split[1];
