@@ -96,7 +96,7 @@ class reports
 		'transliteratedenglish_problem' => 'records whose titles are being transliterated but appear to be in English',
 		'transliteratefailure_problem' => 'records whose reverse transliteration is not reversible',
 		'voyagerrecords_info' => 'records with an equivalent already in Voyager, targetted for merging',
-		'nohostlang_problem' => 'records whose *in contains a *lang but the main part does not',
+		'nohostlang_problem' => 'records whose *in or *j contains a *lang but the main part does not',
 		'emptylang_problem' => 'records with an empty *lang',
 		'bibcheckerrors_problem' => 'records with Bibcheck errors',
 		'multiplelocationsmissing_problem' => 'records with multiple locations but marked as missing',
@@ -2116,7 +2116,7 @@ class reports
 	}
 	
 	
-	# Records whose *in contains a *lang but the main part does not
+	# Records whose *in or *j contains a *lang but the main part does not
 	public function report_nohostlang ()
 	{
 		# Define the query
