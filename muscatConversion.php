@@ -1612,7 +1612,7 @@ class muscatConversion extends frontControllerApplication
 				$html .= "\n<p class=\"success\">{$this->tick}" . " All {$entityName}s are correct - congratulations!</p>";
 				return $html;
 			} else {
-				$html .= "\n<p class=\"warning\">" . '<img src="/images/icons/exclamation.png" /> The following ' . (($totalAvailable == 1) ? "{$entityName} match" : number_format ($totalAvailable) . " {$entityName}s match") . ':</p>';
+				$html .= "\n<p class=\"warning\">" . '<img src="/images/icons/exclamation.png" /> The following ' . (($totalAvailable == 1) ? "{$entityName} matches" : number_format ($totalAvailable) . " {$entityName}s match") . ':</p>';
 			}
 		} else {
 			if (!$dataRaw) {
