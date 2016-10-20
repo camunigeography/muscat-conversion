@@ -2286,8 +2286,7 @@ class muscatConversion extends frontControllerApplication
 				SELECT
 					recordId,line
 				FROM catalogue_rawdata
---				WHERE field IN('in', 'j')
-				WHERE field = 'in'
+				WHERE field IN('in', 'j')
 			) AS lineIds ON catalogue_processed.recordId = lineIds.recordId
 			SET topLevel = 0
 			WHERE
