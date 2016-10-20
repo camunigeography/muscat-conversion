@@ -2987,8 +2987,18 @@ class reports
 		# Default to 1000 per page
 		$this->settings['paginationRecordsPerPageDefault'] = 1000;
 		
+		# Determine query string for pagination consistency if required
+		$parameters = $_GET;
+		$internalParameters = array ('action', 'item', 'page');
+		foreach ($internalParameters as $internalParameter) {
+			if (isSet ($parameters[$internalParameter])) {
+				unset ($parameters[$internalParameter]);
+			}
+		}
+		$queryString = http_build_query ($parameters);
+		
 		# Obtain the listing HTML, passing in the renderer callback function name
-		$html .= $this->muscatConversion->recordListing (false, $query, array (), '/reports/transliterations/', false, false, $view = 'callback(transliterationsRenderer)');
+		$html .= $this->muscatConversion->recordListing (false, $query, array (), '/reports/transliterations/', false, $queryString, $view = 'callback(transliterationsRenderer)');
 		
 		# Return the HTML
 		return $html;
