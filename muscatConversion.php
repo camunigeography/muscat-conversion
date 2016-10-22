@@ -390,7 +390,7 @@ class muscatConversion extends frontControllerApplication
 		# Loop through each report, detecting whether each report is informational, and rewriting the name
 		$reports = array ();	// Array of report key names without flag appended
 		foreach ($reportsRaw as $key => $value) {
-			if (preg_match ('/^(.+)_(info|problem|problemok)$/', $key, $matches)) {
+			if (preg_match ('/^(.+)_(info|postmigration|problem|problemok)$/', $key, $matches)) {
 				$key = $matches[1];
 				$reportStatuses[$key] = $matches[2];
 				$reports[$key] = $value;	// Register under new name
