@@ -2235,7 +2235,7 @@ class muscatConversion extends frontControllerApplication
 		$sql = "INSERT INTO catalogue_processed SELECT * FROM catalogue_rawdata;";
 		$this->databaseConnection->execute ($sql);
 		
-		# Set a flag for each shard which shows whether it is in the top-half (main) part of the record, or in the *in block; this is necessary so that the transliteration upgrade can deal with only top-level titles rather than any *t
+		# Set a flag for each shard which show its position, either top (i.e. the main part of the record) or bottom (in the *in block)
 		$sql = "ALTER TABLE catalogue_processed ADD topLevel INT(1) NOT NULL DEFAULT 1 COMMENT 'Whether the shard is within the top level part of the record' AFTER value;";
 		$this->databaseConnection->execute ($sql);
 		$sql = "UPDATE catalogue_processed
