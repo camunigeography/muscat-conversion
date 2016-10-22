@@ -2870,6 +2870,7 @@ class muscatConversion extends frontControllerApplication
 			`id` VARCHAR(10) NOT NULL COMMENT 'Processed shard ID (catalogue_processed.id)',
 			`recordId` INT(11) NULL COMMENT 'Record ID',
 			`field` VARCHAR(255) NULL COMMENT 'Field',
+			`topLevel` INT(1) NULL COMMENT 'Whether the shard is within the top level part of the record',
 			`xPath` VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field (path only)',
 			`lpt` VARCHAR(255) NULL COMMENT 'Parallel title languages (*lpt, adjacent in hierarchy)',
 			`title_latin` TEXT COLLATE utf8_unicode_ci COMMENT 'Title (latin characters), unmodified from original data',
@@ -2891,11 +2892,12 @@ class muscatConversion extends frontControllerApplication
 		# Populate the transliterations table
 		$literalBackslash = '\\';
 		$query = "
-			INSERT INTO transliterations (id, recordId, field, xPath, title_latin)
+			INSERT INTO transliterations (id, recordId, field, topLevel, xPath, title_latin)
 				SELECT
 					id,
 					recordId,
 					field,
+					topLevel,
 					xPath,
 					value AS title_latin
 				FROM catalogue_processed
