@@ -7131,7 +7131,8 @@ class muscatConversion extends frontControllerApplication
 				
 				# If publisher and year are present, use (no-space)-comma-space for the splitter between those two, combining them before colon splitting of other fields; e.g. /records/2614/ ; confirmed that, if reaching this point, $marc['260'][0]['subfields'] always contains 3 subfields
 				if (isSet ($marc['260'][0]['subfields']['b']) && isSet ($marc['260'][0]['subfields']['c'])) {
-					$marc['260'][0]['subfields']['_'][0] = rtrim ($marc['260'][0]['subfields']['b'][0]) . ', ' . $marc['260'][0]['subfields']['c'][0];	// Make a virtual field, $_
+					$subfieldBValue = rtrim ($marc['260'][0]['subfields']['b'][0]);	// Extract to avoid double-comma in next line, e.g. /records/103259/
+					$marc['260'][0]['subfields']['_'][0] = $subfieldBValue . (substr ($subfieldBValue, -1) != ',' ? ',' : '') . ' ' . $marc['260'][0]['subfields']['c'][0];	// Make a virtual field, $_
 					unset ($marc['260'][0]['subfields']['b']);
 					unset ($marc['260'][0]['subfields']['c']);
 				}
