@@ -3069,8 +3069,7 @@ class muscatConversion extends frontControllerApplication
 	
 	# Function to create XML records
 	#   Depencies: catalogue_processed
-	# The $pathSeedingOnly is a flag for the first run which is done simply to allocate the catalogue_processed.xPath values, essentially just needing the xml::dropSerialRecordIntoSchema routine which createXmlTable() and its delegate processXmlRecords() has to wrap
-	private function createXmlTable ($pathSeedingOnly = false)
+	private function createXmlTable ()
 	{
 		# Clean out the XML table
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.catalogue_xml;";
@@ -3093,10 +3092,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($query);
 		
 		# Create the XML for each record
-		$this->processXmlRecords ($pathSeedingOnly);
-		
-		# End if only simple path seeding of catalogue_processed.xPath values is required, as remaining steps just waste CPU
-		if ($pathSeedingOnly) {return;}
+		$this->processXmlRecords ();
 		
 		# Add the language lookups
 		$query = "UPDATE catalogue_xml SET langauge = ExtractValue(xml, '/*/lang[1]');";
@@ -3130,7 +3126,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to do the XML record processing, called from within the main XML table creation function; this will process about 1,000 records a second
-	private function processXmlRecords ($pathSeedingOnly = false)
+	private function processXmlRecords ()
 	{
 		# Get the schema
 		$schemaFlattenedXmlWithContainership = $this->getSchema (true);
@@ -3190,13 +3186,11 @@ class muscatConversion extends frontControllerApplication
 				return false;
 			}
 			
-			# If seeding the catalogue_processed.xPath values, update the processed table to register the XPath values; takes around 2-15 seconds per batch of 500 sharded records
-			if ($pathSeedingOnly) {
-				if (!$this->databaseConnection->updateMany ($this->settings['database'], 'catalogue_processed', $processedRecordXPaths)) {
-					echo "<p class=\"warning\">Error updating processed records to add XPath values, stopping at batch ({$recordId}):</p>";
-					echo application::dumpData ($this->databaseConnection->error (), false, true);
-					return false;
-				}
+			# Update the processed table to register the XPath values; takes around 2-15 seconds per batch of 500 sharded records
+			if (!$this->databaseConnection->updateMany ($this->settings['database'], 'catalogue_processed', $processedRecordXPaths)) {
+				echo "<p class=\"warning\">Error updating processed records to add XPath values, stopping at batch ({$recordId}):</p>";
+				echo application::dumpData ($this->databaseConnection->error (), false, true);
+				return false;
 			}
 		}
 	}
