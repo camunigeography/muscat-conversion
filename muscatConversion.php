@@ -7114,7 +7114,7 @@ class muscatConversion extends frontControllerApplication
 			
 			
 			# Add a comma at the end; we know that there will be always be something following this, because in the (current) /art/in context, all parents are know to have a title
-			$subfields[] = $aSubfieldValue . ', ';
+			$subfields[] = $aSubfieldValue . ',';
 		}
 		
 		# Add 773 ‡t: Copy in the 245 (Title) ‡a and ‡b from the host record, omitting subfield codes, stripping leading articles
