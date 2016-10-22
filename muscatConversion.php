@@ -868,6 +868,13 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Function to provide subfield stripping
+	public function stripSubfields ($string)
+	{
+		return preg_replace ("/({$this->doubleDagger}[a-z0-9])/", '', $string);
+	}
+	
+	
 	# Function to provide prepending of source registry indicators
 	private function showSourceRegistry ($record, $sourceRegistry)
 	{
@@ -7042,9 +7049,26 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Macro to generate the 500 (displaying free-form text version of 773), whose logic is closely associated with 773
+	private function macro_generate500 ($value, $xml, $parameter_unused, $authorsFields_unused)
+	{
+		# Get the data from the 773
+		if (!$result = $this->macro_generate773 ($value, $xml, $parameter_unused, $authorsFields_unused, $mode500 = true)) {return false;}
+		
+		# Strip subfield indicators
+		$result = $this->stripSubfields ($result);
+		
+		# Prefix 'In: ' at the start
+		$result = "{$this->doubleDagger}a" . 'In: ' . $result;
+		
+		# Return the result
+		return $result;
+	}
+	
+	
 	# Macro to generate the 773 (Host Item Entry) field; see: http://www.loc.gov/marc/bibliographic/bd773.html ; e.g. /records/2071/
 	#!# 773 is not currently being generated for /art/j analytics (generally *location=Periodical); this is because of the *kg check below; the spec needs to define some implementation for this; for *location=Pam, the same information goes in a 500 field rather than a 773; again this needs a spec
-	private function macro_generate773 ($value, $xml)
+	private function macro_generate773 ($value, $xml, $parameter_unused, $authorsFields_unused, $mode500 = false)
 	{
 		# Start a result
 		$result = '';
@@ -7124,11 +7148,15 @@ class muscatConversion extends frontControllerApplication
 			}
 		}
 		
-		# Add 773 ‡w: Copy in the 001 (Record control number) from the host record; this will need to be modified in the target Voyager system post-import
+		# Except in 500 mode, add 773 ‡w: Copy in the 001 (Record control number) from the host record; this will need to be modified in the target Voyager system post-import
 		#!# For one of the merge strategies, this number will be known
-		$subfields[] = "{$this->doubleDagger}w" . $marc['001'][0]['line'];
+		if (!$mode500) {
+			$subfields[] = "{$this->doubleDagger}w" . $marc['001'][0]['line'];
+		}
 		
 		#!# Might need date also
+		
+		#!# Might need volume also
 		
 		# Compile the result
 		$result = implode (' ', $subfields);
