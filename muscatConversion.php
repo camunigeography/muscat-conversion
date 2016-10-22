@@ -7076,11 +7076,15 @@ class muscatConversion extends frontControllerApplication
 		# Start a list of subfields
 		$subfields = array ();
 		
-		# Add 773 ‡a: Copy in the 1XX (Main entry heading) from the host record, omitting subfield codes; *art/*in records only
+		# Add 773 ‡a; *art/*in records only
 		#!# Needs implementation for things that are /art/j
 		if ($recordType == '/art/in') {
+			
+			# If the host record has a 100 field, copy in the 1XX (Main entry heading) from the host record, omitting subfield codes; otherwise use 245 $c
 			if (isSet ($marc['100'])) {
-				$subfields[] = $this->combineSubfieldValues ('a', $marc['100']);
+				$aSubfieldValue = $this->combineSubfieldValues ('a', $marc['100']);
+			} else if (isSet ($marc['245'])) {
+				$aSubfieldValue = $this->combineSubfieldValues ('a', $marc['245'], array ('c')) . ',';
 			}
 		}
 		
