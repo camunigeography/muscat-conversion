@@ -7086,6 +7086,12 @@ class muscatConversion extends frontControllerApplication
 			} else if (isSet ($marc['245'])) {
 				$aSubfieldValue = $this->combineSubfieldValues ('a', $marc['245'], array ('c')) . ',';
 			}
+			
+			#!# Need to strip '.' (to avoid e.g. "Martin Smith.,") if not an initial, or initials (like Eds.); this may need to be a crude string replacement because we don't have access to the tokenisation
+			
+			
+			# Add a comma at the end; we know that there will be always be something following this, because in the (current) /art/in context, all parents are know to have a title
+			$subfields[] = $aSubfieldValue . ', ';
 		}
 		
 		# Add 773 ‡t: Copy in the 245 (Title) ‡a and ‡b from the host record, omitting subfield codes, stripping leading articles
