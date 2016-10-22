@@ -7137,7 +7137,7 @@ class muscatConversion extends frontControllerApplication
 				}
 				
 				# Split by colon
-				$subfields[] = $this->combineSubfieldValues ('d', $marc['260'], array (), ': ');
+				$subfields[] = $this->combineSubfieldValues ('d', $marc['260'], array (), ': ', false, $normaliseTrailingImplode = true);
 			}
 		}
 		
@@ -7167,8 +7167,21 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to combine subfield values in a line to a single string
-	private function combineSubfieldValues ($parentSubfield, $field, $onlySubfields = array (), $implodeSubfields = ', ', $stripLeadingArticleLanguage = false)
+	private function combineSubfieldValues ($parentSubfield, $field, $onlySubfields = array (), $implodeSubfields = ', ', $stripLeadingArticleLanguage = false, $normaliseTrailingImplode = false)
 	{
+		# If normalising the implode so that an existing trailing string (e.g. ':') is present, remove it to avoid duplicates, e.g. /records/103259/
+		if ($normaliseTrailingImplode) {
+			$token = trim ($implodeSubfields);
+			foreach ($field[0]['subfields'] as $subfield => $subfieldValues) {
+				foreach ($subfieldValues as $subfieldKey => $subfieldValue) {
+					$subfieldValue = trim ($subfieldValue);
+					if (substr ($subfieldValue, 0 - strlen ($token)) == $token) {
+						$field[0]['subfields'][$subfield][$subfieldKey] = trim (substr ($subfieldValue, 0, 0 - strlen ($token)));
+					}
+				}
+			}
+		}
+		
 		# Create the result
 		$fieldValues = array ();
 		foreach ($field[0]['subfields'] as $subfield => $subfieldValues) {	// Only [0] used, as it is known that all fields using this function are non-repeatable fields
