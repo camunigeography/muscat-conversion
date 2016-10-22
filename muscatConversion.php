@@ -139,13 +139,9 @@ class muscatConversion extends frontControllerApplication
 		'D',		// Dead serial
 	);
 	
-	# Supported transliteration upgrade (BGN/PCGN -> Library of Congress) fields, at top level
+	# Supported transliteration upgrade (BGN/PCGN -> Library of Congress) fields, at either (top/bottom) level of a record
 	private $transliterationUpgradeFields = array (
-		  '/art/tg/t',
-	   '/art/in/tg/t',
-		'/art/j/tg/t',
-		  '/doc/tg/t',
-		  '/ser/tg/t',
+		't',
 	);
 	
 	# Acquisition date cut-off for on-order -type items; these range from 22/04/1992 to 30/10/2015; the intention of this date is that 'recent' on-order items (intended to be 1 year ago) would be migrated but suppressed, and the rest deleted - however, this needs review
@@ -2902,7 +2898,7 @@ class muscatConversion extends frontControllerApplication
 					value AS title_latin
 				FROM catalogue_processed
 				WHERE
-					    xPath IN('" . implode ("', '", $this->transliterationUpgradeFields) . "')
+					    field IN('" . implode ("', '", $this->transliterationUpgradeFields) . "')
 					AND value NOT REGEXP '^{$literalBackslash}{$literalBackslash}[([^{$literalBackslash}]]+){$literalBackslash}{$literalBackslash}]$'		/* Exclude [Titles fully in brackets like this] */
 					AND recordLanguage = '{$language}'
 		;";	// 41,515 rows inserted
@@ -2926,8 +2922,8 @@ class muscatConversion extends frontControllerApplication
 				    transliterations.recordId = catalogue_processed.recordId
 				AND transliterations.field = 't'
 				AND catalogue_processed.field = 'lpt'
-				AND (transliterations.xPath LIKE '%/in/%' OR transliterations.xPath LIKE '%/j/%')
-				AND (catalogue_processed.xPath LIKE '%/in/%' OR catalogue_processed.xPath LIKE '%/j/%')
+				AND transliterations.topLevel = 0
+				AND catalogue_processed.topLevel = 0
 			SET transliterations.lpt = catalogue_processed.value
 		;";
 		$this->databaseConnection->query ($query);
@@ -3211,9 +3207,6 @@ class muscatConversion extends frontControllerApplication
 	#!# There is still the problem that the target name itself does not get upgraded
 	private function processPeriodicalLocations ()
 	{
-		# Assign XPaths to catalogue_processed; this unfortunate dependency means that the XML processing has to be run twice
-		$this->createXmlTable ($pathSeedingOnly = true);
-		
 		# Create a table of periodicals, with their title and location(s), clearing it out first if existing from a previous import
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.periodicallocations;";
 		$this->databaseConnection->execute ($sql);
