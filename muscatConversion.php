@@ -5526,20 +5526,6 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# URL fixing
-	#!# Ideally get rid of this once the data is fixed up
-	private function macro_urlFix ($value)
-	{
-		# Add http:// if not at start
-		if (!preg_match ('~^(http|https|ftp)://~', $value)) {
-			$value = 'http://' . $value;
-		}
-		
-		# Return the value, possibly modified
-		return $value;
-	}
-	
-	
 	# Macro to prepend a string if there is a value
 	private function macro_prepend ($value, $xml, $text)
 	{
