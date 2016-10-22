@@ -17,7 +17,7 @@ class reports
 		'tcnotone_problem' => 'records without exactly one *tc',
 		'tgmismatch_problemok' => 'records whose *tg count does not match *t (not all will be errors)',
 		'missingrpl_info' => 'records without a *rpl',
-		'missingrplstatus_problem' => 'records in SPRI without a *rpl and without a *status, that are not *ser',
+		'missingrplstatus_postmigration' => 'records in SPRI without a *rpl and without a *status, that are not *ser',
 		'rploncewitho_info' => 'records having only one *rpl and *rpl is O',
 		'rpl3charaz09_problem' => 'records having *rpl not matching [A-Z0-9]{1,3}',
 		'locwithoutlocation_problem' => '*loc records where there is no *location',
@@ -71,7 +71,7 @@ class reports
 		'multipletoptt_problem' => 'records containing more than one top-level *tt field',
 		'invaliddatestring_problem' => 'records with an invalid date string (though some are valid)',
 		'multipledate_info' => 'records with more than one *d',
-		'multiplept_problem' => 'records with more than one *pt',
+		'multiplept_postmigration' => 'records with more than one *pt',
 		'serlocloc_problem' => '*ser records with two or more locations (though some are valid)',
 		'artinperiodical_info' => '*art/*in records with location=Periodical',
 		'multipleal_info' => 'records with multiple *al values',
@@ -99,13 +99,13 @@ class reports
 		'nohostlang_problem' => 'records whose *in or *j contains a *lang but the main part does not',
 		'emptylang_problem' => 'records with an empty *lang',
 		'bibcheckerrors_problem' => 'records with Bibcheck errors',
-		'multiplelocationsmissing_problem' => 'records with multiple locations but marked as missing',
+		'multiplelocationsmissing_postmigration' => 'records with multiple locations but marked as missing',
 		'notemissing_problem' => "records with a note containing the word 'missing' without a *ks MISSING; not all will actually be missing",
 		'emptyauthorcontainers_problem' => "records with empty author containers",
 		'backslashg_problem' => 'records with \g remaining',
 		'possiblearticle_problem' => 'records with a 245 starting with a possible article',
 		'bracketednfcount_problem' => 'records with a bracketed title starting with a leading article, for checking the nfcount',
-		'russianbracketedtitle_problem' => 'records marked *lang=Russian with a fully-bracketed title',
+		'russianbracketedtitle_postmigration' => 'records marked *lang=Russian with a fully-bracketed title',
 		'russianldottitles_problem' => 'records (Russian) with L. in title to be checked individually, possibly resolving post-migration',
 		'paralleltitlemismatch_problem' => 'records (Russian) whose parallel title component count does not match that of the title',
 		'emptyvalue_problem' => 'records with empty scalar values',
@@ -401,6 +401,8 @@ class reports
 	
 	
 	# Records in SPRI without a *rpl and without a *status, that are not *ser
+	# This was aiming to identify records that a broad subject heading
+	# This is basically now a non-priority post-migration task
 	public function report_missingrplstatus ()
 	{
 		# Define the query
@@ -1680,6 +1682,7 @@ class reports
 	
 	
 	# Records with more than one *pt; this report is for helping determine how to represent 300 repeatable $a ; see: https://www.loc.gov/marc/bibliographic/bd300.html
+	# Post-migration fix-up will be required
 	public function report_multiplept ()
 	{
 		# Define the query
@@ -2341,6 +2344,7 @@ class reports
 	
 	
 	# Records marked *lang=Russian with a fully-bracketed title; see createTransliterationsTable ()
+	# These represent records for a post-migration task where someone needs to research what the titles should actually be
 	public function report_russianbracketedtitle ()
 	{
 		# Define the query
