@@ -7107,7 +7107,7 @@ class muscatConversion extends frontControllerApplication
 			if (isSet ($marc['100'])) {
 				$aSubfieldValue = $this->combineSubfieldValues ('a', $marc['100']);
 			} else if (isSet ($marc['245'])) {
-				$aSubfieldValue = $this->combineSubfieldValues ('a', $marc['245'], array ('c')) . ',';
+				$aSubfieldValue = $this->combineSubfieldValues ('a', $marc['245'], array ('c'));
 			}
 			
 			#!# Need to strip '.' (to avoid e.g. "Martin Smith.,") if not an initial, or initials (like Eds.); this may need to be a crude string replacement because we don't have access to the tokenisation
