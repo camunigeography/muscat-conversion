@@ -3179,7 +3179,6 @@ class muscatConversion extends frontControllerApplication
 			}
 			
 			# Update these records
-			// if (!$this->databaseConnection->insertMany ($this->settings['database'], 'catalogue_xml', $inserts, false, $onDuplicateKeyUpdate = true)) {
 			if (!$this->databaseConnection->replaceMany ($this->settings['database'], 'catalogue_xml', $inserts)) {
 				echo "<p class=\"warning\">Error generating XML, stopping at batch ({$recordId}):</p>";
 				echo application::dumpData ($this->databaseConnection->error (), false, true);
