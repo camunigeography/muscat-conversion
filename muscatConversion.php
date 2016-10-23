@@ -4514,21 +4514,4 @@ class muscatConversion extends frontControllerApplication
 	}
 }
 
-
-# Useful link: http://stackoverflow.com/questions/4287822/need-a-mysql-query-for-selecting-from-a-table-storing-key-value-pairs
-
-
-/*
-# http://stackoverflow.com/questions/4666042/sql-query-to-get-total-rows-and-total-rows-matching-specific-condition
-
-SELECT
-	COUNT(CASE WHEN fields LIKE '%|q0|%' THEN 1 END) as has_q0,
-	COUNT(CASE WHEN fields NOT LIKE '%|q0|%' THEN 1 END) as has_no_q0
-FROM
-	(SELECT recordId, CONCAT('|', GROUP_CONCAT(field SEPARATOR '||'), '|') As fields FROM catalogue GROUP BY recordId) AS records
-WHERE 1;
-
-*/
-
-
 ?>
