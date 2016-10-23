@@ -3115,6 +3115,14 @@ class muscatConversion extends frontControllerApplication
 			SET parallelTitleLanguages = value
 		;";
 		$this->databaseConnection->execute ($query);
+		
+		# Add the xPath values to the transliterations table, for the purposes of the filtering in the transliterations report
+		$query = "
+			UPDATE transliterations
+			INNER JOIN catalogue_processed ON transliterations.id = catalogue_processed.id
+			SET transliterations.xPath = catalogue_processed.xPath
+		;";
+		$this->databaseConnection->execute ($query);
 	}
 	
 	
