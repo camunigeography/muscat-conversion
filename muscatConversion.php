@@ -2913,13 +2913,14 @@ class muscatConversion extends frontControllerApplication
 		;";	// 41,515 rows inserted
 		$this->databaseConnection->query ($query);
 		
-		# Add to the shard the parallel title (*lpt) property associated with the top-level *t; this gives 210 updates, which exactly matches 210 results for `SELECT * FROM `catalogue_processed` WHERE `field` LIKE 'lpt' and recordLanguage = 'Russian';`
+		# In the special case of the *t field, add to the shard the parallel title (*lpt) property associated with the top-level *t; this gives 210 updates, which exactly matches 210 results for `SELECT * FROM `catalogue_processed` WHERE `field` LIKE 'lpt' and recordLanguage = 'Russian';`
 		$query = "
 			UPDATE transliterations
 			LEFT JOIN catalogue_processed ON transliterations.recordId = catalogue_processed.recordId
 			SET lpt = value
 			WHERE
 				    catalogue_processed.field = 'lpt'
+				AND field = 't'
 				AND title_latin LIKE '% = %'		-- This clause avoids e.g. both 198010:10, 198010:17 (lines 10 and 17) matching in /records/198010/
 		;";
 		$this->databaseConnection->query ($query);
@@ -2942,7 +2943,8 @@ class muscatConversion extends frontControllerApplication
 			DELETE FROM transliterations
 			WHERE
 				    topLevel = 0
-			    AND recordId IN(
+			    AND field = 't'
+				AND recordId IN(
 					SELECT recordId
 				    FROM `catalogue_processed`
 				    WHERE
@@ -2961,6 +2963,7 @@ class muscatConversion extends frontControllerApplication
 			SET title_latin_tt = value
 			WHERE
 				    catalogue_processed.field = 'tt'
+				AND transliterations.field = 't'
 				AND topLevel = 1
 		;";
 		$this->databaseConnection->query ($query);
