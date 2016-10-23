@@ -2059,9 +2059,11 @@ class reports
 	
 	
 	# Records whose titles are being transliterated but appear to be in English
+	#!# Needs support for parallel titles, e.g. /records/167316/
 	public function report_transliteratedenglish ()
 	{
-		# Define e with dot above ("U+0117 : LATIN SMALL LETTER E WITH DOT ABOVE")
+		# Define e with dot above
+		$EDot = chr(0xc4).chr(0x96);	// http://www.fileformat.info/info/unicode/char/0116/index.htm
 		$eDot = chr(0xc4).chr(0x97);	// http://www.fileformat.info/info/unicode/char/0117/index.htm
 		
 		# Define the query
@@ -2078,6 +2080,7 @@ class reports
 			) AS transliterations_firstParts
 			WHERE
 				   title_latin REGEXP '(the | of )'
+				OR title_latin LIKE BINARY '%{$EDot}%'
 				OR title_latin LIKE BINARY '%{$eDot}%'
 		";
 		
