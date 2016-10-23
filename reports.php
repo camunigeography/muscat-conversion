@@ -2062,10 +2062,6 @@ class reports
 	#!# Needs support for parallel titles, e.g. /records/167316/
 	public function report_transliteratedenglish ()
 	{
-		# Define e with dot above
-		$EDot = chr(0xc4).chr(0x96);	// http://www.fileformat.info/info/unicode/char/0116/index.htm
-		$eDot = chr(0xc4).chr(0x97);	// http://www.fileformat.info/info/unicode/char/0117/index.htm
-		
 		# Define the query
 		$query = "
 			SELECT
@@ -2075,13 +2071,11 @@ class reports
 				SELECT
 					recordId,
 					title,
+-- #!# Check this
 					IF (INSTR(title_latin,'[') > 0, LEFT(title_latin,LOCATE('[',title_latin) - 1), title_latin) AS title_latin
 				FROM transliterations
 			) AS transliterations_firstParts
-			WHERE
-				   title_latin REGEXP '(the | of )'
-				OR title_latin LIKE BINARY '%{$EDot}%'
-				OR title_latin LIKE BINARY '%{$eDot}%'
+			WHERE title_latin REGEXP '(the | of )'
 		";
 		
 		# Return the query
