@@ -3588,12 +3588,6 @@ class muscatConversion extends frontControllerApplication
 					AND value NOT LIKE '%out of copyright%'
 				) -- 1507 records
 				
-				OR (
-					    EXTRACTVALUE(xml, '//doc/tg/t') = ''
-					AND EXTRACTVALUE(xml, '//art/tg/t') = ''
-					AND EXTRACTVALUE(xml, '//ser/tg/t') = ''
-				) -- 71 records
-				
 		;";
 		$this->databaseConnection->execute ($query);
 		
