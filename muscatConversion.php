@@ -2964,8 +2964,12 @@ class muscatConversion extends frontControllerApplication
 			$dataTransliterated[$id] = $this->transliteration->transliterateBgnLatinToCyrillic ($entry['title_latin'], $entry['lpt'], $language, $cyrillicPreSubstitutions[$id] /* passed back by reference */, $protectedPartsPreSubstitutions[$id] /* passed back by reference */);
 		}
 		
+		# Define words to add to the dictionary
+		$langCode = 'ru_RU';
+		$addToDictionary = $this->oneColumnTableToList ("dictionary.{$langCode}.txt");
+		
 		# Obtain an HTML string with embedded spellchecking data
-		$dataTransliteratedSpellcheckHtml = application::spellcheck ($cyrillicPreSubstitutions, 'ru_RU', $this->transliteration->getProtectedSubstringsRegexp (), $this->databaseConnection, $this->settings['database']);
+		$dataTransliteratedSpellcheckHtml = application::spellcheck ($cyrillicPreSubstitutions, $langCode, $this->transliteration->getProtectedSubstringsRegexp (), $this->databaseConnection, $this->settings['database'], true, $addToDictionary);
 		foreach ($dataTransliteratedSpellcheckHtml as $id => $cyrillicPreSubstitution) {
 			$dataTransliteratedSpellcheckHtml[$id] = $this->transliteration->reinstateProtectedSubstrings ($cyrillicPreSubstitution, $protectedPartsPreSubstitutions[$id]);
 		}
