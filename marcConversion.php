@@ -912,7 +912,7 @@ class marcConversion
 	
 	
 	# Macro to create 260;  $a and $b are grouped as there may be more than one publisher, e.g. /records/76743/ ; see: https://www.loc.gov/marc/bibliographic/bd260.html
-	private function macro_generate260 ($value_ignored, $xml)
+	private function macro_generate260 ($value_ignored, $xml, $transliterate = false)
 	{
 		# Start a list of values; the macro definition has already defined $a
 		$results = array ();
@@ -941,6 +941,17 @@ class marcConversion
 				$puValue = $this->xPathValue ($xml, "//pg[$pgIndex]/pu[{$puIndex}]");	// e.g. /records/1223/ has multiple
 				if ($puIndex > 1 && !strlen ($puValue)) {break;}	// Empty $pu is fine for first and will show [s.n.], but after that should not appear
 				$puValues[] = $this->formatPu ($puValue);
+			}
+			
+			# Transliterate if required
+			if ($transliterate) {
+				if ($puValues) {
+					foreach ($puValues as $index => $puValue) {
+						$xPath = '//lang[1]';	// Choose first only
+						$language = $this->xPathValue ($xml, $xPath);
+						$puValues[$index] = $this->macro_transliterate ($puValue, NULL, $language);
+					}
+				}
 			}
 			
 			# Assemble the result

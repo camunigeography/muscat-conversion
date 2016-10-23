@@ -45,6 +45,7 @@ A  880 {/*|macro:generateAuthors(100,transliterated)|macro:880subfield6(100)}
 A  880 {/*|macro:generateAuthors(110,transliterated)|macro:880subfield6(110)}
 A  880 {/*|macro:generateAuthors(111,transliterated)|macro:880subfield6(111)}
 A  880 {/*|macro:generate245(transliterated)|macro:880subfield6(245)}
+A  880 ## {/*|macro:generate260(transliterated)|macro:880subfield6(260)}
 #AR 880 3# ‡a{//tg/ta|macro:colonSplit(b)|macro:transliterate|macro:880subfield6(246)}
 A  880 0# {//ts|macro:generate490|macro:transliterateSubfields(*)|macro:880subfield6(490)}
 A  880 {/*|macro:generateAuthors(700,transliterated)|macro:880subfield6(700)}
