@@ -44,6 +44,8 @@ This involves the following steps:
     * `id` Shard ID, e.g. `1262:7`
 	* `recordId` Record ID, e.g. `1262`
 	* `field` Field, e.g. `t` (i.e. *t)
+	* `topLevel`, for whether the record is at the top level (1 or 0)
+	* `xPath`, copied in later giving the actual XPath of the shard within the record, e.g. `/ser/tg/t`
 	* `lpt` Field, for Parallel title languages (i.e. *lpt); examples: `Russian = French`, `English = Russian`, matching `... = ...` in *t
 	* `title_latin` Title (latin characters), unmodified from original data, e.g. `Za polyarnym krugom`
 	* `title_latin_tt` *tt if present, e.g. `Beyond the Arctic Circle`
@@ -64,7 +66,11 @@ This involves the following steps:
 	
  e. Similarly, `*tt` where present (at top level) is copied into `title_latin_tt`.
 	
- f. Thus we now have a table containing shards with field `title_latin` containing the BGN/PCGN string that needs to be upgraded (and `title_latin_tt` for records having `*tt`).
+ f. In the special case of the `*t` field, where the shard is a bottom-half title, if there is a bottom-half `*lpt` present, the `lpt` value is substituted for this.
+	
+ g. In the special case of the `*t` field, if there is a local (`*in` or `*j`) language, if this does not match a language in the scope of transliteration, this shard is deleted.
+	
+ h. Thus we now have a table containing shards with field `title_latin` containing the BGN/PCGN string that needs to be upgraded (and `title_latin_tt` for records having `*tt`).
 	
 2. The routine `transliterateTransliterationsTable` is entered. For each shard:
 
@@ -86,6 +92,7 @@ This involves the following steps:
  
  b. **Thus transliterated strings in the processed table now are LoC (for all supported fields).** BGN/PCGN transliterations have been wiped out (for each supported field). Even though this has come from Cyrillic, this is a fully-reversible process.
 
+
 ### Phase 2: Add Cyrillic 880 fields into the MARC records
 
 The eventual MARC records need an 880 field containing the Cyrillic equivalent (known as the 'alternate graphic representation').
@@ -93,6 +100,7 @@ The eventual MARC records need an 880 field containing the Cyrillic equivalent (
 Conversion in the records of LoC to Cyrillic is done dynamically using `macro_transliterate`. It takes the new LoC reverse transliteration in the record and converts it into Cyrillic. The transliterations table is not used.
 
 This section has `protectSubstrings` applied. Further details are below.
+
 
 ### Phase 3: Create transliterations report
 
@@ -102,7 +110,9 @@ This is basically just a dynamic read of the `transliterations` table.
 
 At the point the a page of the transliterations table is loaded, the spell-checker dynamically reads the generated Cyrillic (from BGN/PCGN) and checks for errors. These are marked with a red wavy underline, by wrapping words in a `<span>` tag, visible in supported browsers. (Firefox has native support, and Chrome requires the `--enable-experimental-web-platform-features` flag to be enabled.)
 
-The spell-checker library function (application::spellcheck) is supplied with a protected strings list from `transliterationProtectedStrings`. However, this implementation is deficient and instead needs `protectSubstrings` applied.
+The spell-checker library function (application::spellcheck) is supplied with a protected strings list from `transliterationProtectedStrings`.
+
+The spell-checker library function is also supplied with a list of strings in `tables/dictionary.ru_RU.txt` which are dynamically added to the dictionary for the session. This simply avoids red-lining of words known to be correct.
 
 As the spell-checker is resource-intensive, and is given (by default) 1,000 record titles to check at once, the library function is equipped with support for caching via a database table, which works as follows:
 
@@ -114,6 +124,7 @@ As the spell-checker is resource-intensive, and is given (by default) 1,000 reco
   * If present in the cache, this is used; if not it is looked up using `enchant`.
   * New words are inserted added to cache, and the database table is replaced with the new cache list.
 
+Later on in the process, during the `createXmlTable` phase, the XPaths are copied in. These are present purely for observation purposes, and not involved in or required by the processing stages above.
 
 ## Protected strings
 
