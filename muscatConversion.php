@@ -871,13 +871,6 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to provide subfield stripping
-	public function stripSubfields ($string)
-	{
-		return preg_replace ("/({$this->doubleDagger}[a-z0-9])/", '', $string);
-	}
-	
-	
 	# Function to provide prepending of source registry indicators
 	private function showSourceRegistry ($record, $sourceRegistry)
 	{

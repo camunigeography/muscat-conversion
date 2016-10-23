@@ -2286,6 +2286,13 @@ class marcConversion
 	}
 	
 	
+	# Function to provide subfield stripping
+	public function stripSubfields ($string)
+	{
+		return preg_replace ("/({$this->doubleDagger}[a-z0-9])/", '', $string);
+	}
+	
+	
 	# Macro to generate the 773 (Host Item Entry) field; see: http://www.loc.gov/marc/bibliographic/bd773.html ; e.g. /records/2071/
 	#!# 773 is not currently being generated for /art/j analytics (generally *location=Periodical); this is because of the *kg check below; the spec needs to define some implementation for this; for *location=Pam, the same information goes in a 500 field rather than a 773; again this needs a spec
 	private function macro_generate773 ($value, $xml, $parameter_unused, $authorsFields_unused, $mode500 = false)
