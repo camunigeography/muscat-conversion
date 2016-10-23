@@ -2937,6 +2937,23 @@ class muscatConversion extends frontControllerApplication
 		;";
 		$this->databaseConnection->query ($query);
 		
+		# In the special case of the *t field, delete each shard from the scope of transliteration where it has an associated local (*in / *j) language, i.e. where the shard is a bottom-half title, and it is marked separately as a non-relevant language (e.g. Russian record but /art/j/lang = 'English'); e.g. /records/9820/ , /records/27093/ , /records/57745/
+		$query = "
+			DELETE FROM transliterations
+			WHERE
+				    topLevel = 0
+			    AND recordId IN(
+					SELECT recordId
+				    FROM `catalogue_processed`
+				    WHERE
+						    `field` LIKE 'lang'
+						AND topLevel = 0
+						AND recordLanguage = '{$language}'
+						AND `value` != '{$language}'
+				)
+		;";
+		$this->databaseConnection->query ($query);
+		
 		# In the special case of the *t field, add in *tt (translated title) where that exists
 		$query = "
 			UPDATE transliterations
