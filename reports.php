@@ -1011,14 +1011,13 @@ class reports
 	public function report_loclocloc ()
 	{
 		# Define the query
-		#!# NB This requires the XML representation to have been compiled first
 		$query = "
 			SELECT
 				'loclocloc' AS report,
 				id AS recordId
 			FROM fieldsindex
 			WHERE fieldslist REGEXP '@location.*@location.*@location'
-			";
+		";
 		
 		# Return the query
 		return $query;
