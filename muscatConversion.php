@@ -142,6 +142,7 @@ class muscatConversion extends frontControllerApplication
 	# Supported transliteration upgrade (BGN/PCGN -> Library of Congress) fields, at either (top/bottom) level of a record
 	private $transliterationUpgradeFields = array (
 		't',
+		'pu',
 	);
 	
 	# Acquisition date cut-off for on-order -type items; these range from 22/04/1992 to 30/10/2015; the intention of this date is that 'recent' on-order items (intended to be 1 year ago) would be migrated but suppressed, and the rest deleted - however, this needs review
@@ -2966,6 +2967,16 @@ class muscatConversion extends frontControllerApplication
 				AND topLevel = 1
 		;";
 		$this->databaseConnection->query ($query);
+		
+		# In the special case of the *pu field, clear out special tokens
+		$query = "
+			DELETE FROM transliterations
+			WHERE
+				    field = 'pu'
+				AND value IN('[n.pub.]', 'n.pub.', '[n.p.]')
+		;";
+		$this->databaseConnection->query ($query);
+		
 		
 		# Trigger a transliteration run
 		$this->transliterateTransliterationsTable ();
