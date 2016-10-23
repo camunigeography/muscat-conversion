@@ -378,9 +378,12 @@ class muscatConversion extends frontControllerApplication
 		# Start a list of informational reports
 		$reportStatuses = array ();
 		
+		# Start a registry of listings-type reports that implement a count
+		$this->countableListings = array ();
+		
 		# Loop through each report and each listing, detecting the status, and rewriting the name
-		$this->reportsList  = $this->parseReportNames ($this->reportsList , $reportStatuses);
-		$this->listingsList = $this->parseReportNames ($this->listingsList, $reportStatuses);
+		$this->reportsList  = $this->parseReportNames ($this->reportsList , $reportStatuses, $this->countableListings);
+		$this->listingsList = $this->parseReportNames ($this->listingsList, $reportStatuses, $this->countableListings);
 		
 		# Return the status list
 		return $reportStatuses;
@@ -388,15 +391,18 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Helper function to strip any flag from report key names
-	private function parseReportNames ($reportsRaw, &$reportStatuses)
+	private function parseReportNames ($reportsRaw, &$reportStatuses, &$countableListings)
 	{
 		# Loop through each report, detecting whether each report is informational, and rewriting the name
 		$reports = array ();	// Array of report key names without flag appended
 		foreach ($reportsRaw as $key => $value) {
-			if (preg_match ('/^(.+)_(info|postmigration|problem|problemok)$/', $key, $matches)) {
+			if (preg_match ('/^(.+)_(info|postmigration|problem|problemok)(|_countable)$/', $key, $matches)) {
 				$key = $matches[1];
 				$reportStatuses[$key] = $matches[2];
 				$reports[$key] = $value;	// Register under new name
+				if ($matches[3]) {
+					$countableListings[] = $key;
+				}
 			} else {
 				$reportStatuses[$key] = NULL;	// Unknown status
 			}
@@ -494,7 +500,7 @@ class muscatConversion extends frontControllerApplication
 			$key = $report . ($this->reportStatuses[$report] ? ' ' . $this->reportStatuses[$report] : '');	// Add CSS class if status known
 			$link = $this->reportLink ($report);
 			$table[$key]['Description'] = "<a href=\"{$link}\">" . ucfirst (htmlspecialchars ($description)) . '</a>';
-			$table[$key]['Problems?'] = ($this->isListing ($report) ? '<span class="faded right">n/a</span>' : ($counts[$report] ? '<span class="warning right">' . number_format ($counts[$report]) : '<span class="success right">' . 'None') . '</span>');
+			$table[$key]['Problems?'] = (($this->isListing ($report) && !in_array ($report, $this->countableListings)) ? '<span class="faded right">n/a</span>' : ($counts[$report] ? '<span class="warning right">' . number_format ($counts[$report]) : '<span class="success right">' . 'None') . '</span>');
 			$percentage = ($counts[$report] ? round (100 * ($counts[$report] / $totalRecords), 2) . '%' : '-');
 			$table[$key]['%'] = ($this->isListing ($report) ? '<span class="faded right">n/a</span>' : '<span class="comment right">' . ($percentage === '0%' ? '0.01%' : $percentage) . '</span>');
 		}
