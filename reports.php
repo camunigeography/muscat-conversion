@@ -120,10 +120,9 @@ class reports
 		'diacritics_info' => 'listing: counts of diacritics used in the raw data',
 		'journaltitles_info' => 'listing: journal titles',
 		'seriestitles_info' => 'listing: series titles',
-#!# Need to create an equivalent report which shows counts
-		'seriestitlemismatches1_problem' => "listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = 'Periodical')",
-		'seriestitlemismatches2_problem' => "listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc is empty)",
-		'seriestitlemismatches3_problem' => 'listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = other)',
+		'seriestitlemismatches1_problem_countable' => "listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = 'Periodical')",
+		'seriestitlemismatches2_problem_countable' => "listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc is empty)",
+		'seriestitlemismatches3_problem_countable' => 'listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = other)',
 		'languages' => 'listing: languages',
 		'transliterations' => 'listing: transliterations',
 		'paralleltitlelanguages' => 'listing: records with parallel titles, filtered to Russian',
@@ -2798,7 +2797,7 @@ class reports
 	
 	
 	# Listing of articles without a matching serial (journal) title in another record; function is used by three variants
-	public function report_seriestitlemismatches ($variantNumber, $locCondition)
+	private function report_seriestitlemismatches ($variantNumber, $locCondition)
 	{
 		# Create the table
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.listing_seriestitlemismatches{$variantNumber};";
@@ -2854,6 +2853,17 @@ class reports
 		$sql = "
 			UPDATE `listing_seriestitlemismatches{$variantNumber}`
 			SET title = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( title   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
+		;";
+		$this->databaseConnection->execute ($sql);
+		
+		# Add an entry, without reference to recordId, into the report results table, purely for counting purposes
+		$sql = "
+			INSERT INTO reportresults (report,recordId)
+			SELECT
+				-- Get as many rows as exist, but ignore the actual data in them:
+				'seriestitlemismatches{$variantNumber}' AS report,
+				-1 AS recordId
+				FROM listing_seriestitlemismatches{$variantNumber}
 		;";
 		$this->databaseConnection->execute ($sql);
 		

@@ -3837,7 +3837,7 @@ class muscatConversion extends frontControllerApplication
 		$reports = $this->getReports ();
 		foreach ($reports as $reportId => $description) {
 			
-			# Skip listing type reports, which implement data handling directly, and which are handled separately in runListings ()
+			# Skip listing type reports, which implement data handling directly (and optional countability support), and which are handled separately in runListings ()
 			if ($this->isListing ($reportId)) {continue;}
 			
 			# Run the report
