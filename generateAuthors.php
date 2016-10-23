@@ -67,7 +67,7 @@ class generateAuthors
 	# Constructor
 	public function __construct ($muscatConversion, $mainRecordXml, $languageModes)
 	{
-		# Create a class property handle to the parent class
+		# Create class property handles to the parent class
 		$this->muscatConversion = $muscatConversion;
 		$this->databaseConnection = $muscatConversion->databaseConnection;
 		$this->settings = $muscatConversion->settings;
