@@ -2261,13 +2261,13 @@ class muscatConversion extends frontControllerApplication
 		
 		# Add a field to store the XPath of the field (e.g. /doc/ts) and the same but with a numeric specifier (e.g. /doc/ts[1])
 		$sql = "ALTER TABLE catalogue_processed
-			ADD xPath VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field (path only)',
-			ADD xPathWithIndex VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field (path with index)'
-			AFTER value;";
+			ADD xPath          VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field (path only)'       AFTER topLevel,
+			ADD xPathWithIndex VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field (path with index)' AFTER xPath
+		;";
 		$this->databaseConnection->execute ($sql);
 		
 		# Add a field to store the original pre-transliteration value
-		$sql = "ALTER TABLE catalogue_processed ADD preTransliterationUpgradeValue TEXT NULL DEFAULT NULL COMMENT 'Value before transliteration changes' AFTER xPath;";
+		$sql = "ALTER TABLE catalogue_processed ADD preTransliterationUpgradeValue TEXT NULL DEFAULT NULL COMMENT 'Value before transliteration changes' AFTER xPathWithIndex;";
 		$this->databaseConnection->execute ($sql);
 		
 		# Add a field to contain the record language (first language); note that an *in or *j may also contain a *lang
