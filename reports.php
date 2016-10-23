@@ -2065,6 +2065,9 @@ class reports
 	# Records whose titles are being transliterated but appear to be in English
 	public function report_transliteratedenglish ()
 	{
+		# Define e with dot above ("U+0117 : LATIN SMALL LETTER E WITH DOT ABOVE")
+		$eDot = chr(0xc4).chr(0x97);	// http://www.fileformat.info/info/unicode/char/0117/index.htm
+		
 		# Define the query
 		$query = "
 			SELECT
@@ -2077,7 +2080,9 @@ class reports
 					IF (INSTR(title_latin,'[') > 0, LEFT(title_latin,LOCATE('[',title_latin) - 1), title_latin) AS title_latin
 				FROM transliterations
 			) AS transliterations_firstParts
-			WHERE `title_latin` REGEXP '(the | of )'
+			WHERE
+				   title_latin REGEXP '(the | of )'
+				OR title_latin LIKE BINARY '%{$eDot}%'
 		";
 		
 		# Return the query
