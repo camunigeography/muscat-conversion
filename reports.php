@@ -120,12 +120,10 @@ class reports
 		'diacritics_info' => 'listing: counts of diacritics used in the raw data',
 		'journaltitles_info' => 'listing: journal titles',
 		'seriestitles_info' => 'listing: series titles',
-/* problem: */
 #!# Need to create an equivalent report which shows counts
-		'seriestitlemismatches1' => "listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = 'Periodical')",
-/* problem: */
-		'seriestitlemismatches2' => "listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc is empty)",
-		'seriestitlemismatches3' => 'listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = other)',
+		'seriestitlemismatches1_problem' => "listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = 'Periodical')",
+		'seriestitlemismatches2_problem' => "listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc is empty)",
+		'seriestitlemismatches3_problem' => 'listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = other)',
 		'languages' => 'listing: languages',
 		'transliterations' => 'listing: transliterations',
 		'paralleltitlelanguages' => 'listing: records with parallel titles, filtered to Russian',
