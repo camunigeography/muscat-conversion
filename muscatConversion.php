@@ -3798,8 +3798,6 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Generate the output files and attach errors to the database records
-		#!# May need to set order so that two-part records have parents output first
-		#!# Need to chunk output into blocks of 10,000 then zip
 		require_once ('createMarcExport.php');
 		$createMarcExport = new createMarcExport ($this, $this->applicationRoot, $this->recordProcessingOrder);
 		foreach ($this->filesets as $fileset => $label) {
