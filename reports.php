@@ -2323,7 +2323,7 @@ class reports
 	public function report_bracketednfcount ()
 	{
 		# Get the leading articles list, indexed by language
-		$leadingArticles = $this->muscatConversion->leadingArticles ($groupByLanguage = false);
+		$leadingArticles = $this->muscatConversion->marcConversion->leadingArticles ($groupByLanguage = false);
 		
 		# Define the query
 		$query = "

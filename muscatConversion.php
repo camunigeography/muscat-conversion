@@ -342,6 +342,15 @@ class muscatConversion extends frontControllerApplication
 		# Define unicode symbols
 		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
 		
+		# Create a handle to the transliteration module
+		require_once ('transliteration.php');
+		$this->transliteration = new transliteration ($this);
+		$this->supportedReverseTransliterationLanguages = $this->transliteration->getSupportedReverseTransliterationLanguages ();
+		
+		# Create a handle to the MARC conversion module
+		require_once ('marcConversion.php');
+		$this->marcConversion = new marcConversion ($this, $this->transliteration, $this->supportedReverseTransliterationLanguages, $this->ksStatusTokens, $this->locationCodes, $this->suppressionStatusKeyword);
+		
 		# Create a handle to the reports module
 		require_once ('reports.php');
 		$this->reports = new reports ($this, $this->locationCodes, $this->orderStatusKeywords, $this->suppressionStatusKeyword, $this->acquisitionDate, $this->ksStatusTokens, $this->mergeTypes);
@@ -353,15 +362,6 @@ class muscatConversion extends frontControllerApplication
 		
 		# Merge the listings array into the main reports list
 		$this->reportsList += $this->listingsList;
-		
-		# Create a handle to the transliteration module
-		require_once ('transliteration.php');
-		$this->transliteration = new transliteration ($this);
-		$this->supportedReverseTransliterationLanguages = $this->transliteration->getSupportedReverseTransliterationLanguages ();
-		
-		# Create a handle to the MARC conversion module
-		require_once ('marcConversion.php');
-		$this->marcConversion = new marcConversion ($this, $this->transliteration, $this->supportedReverseTransliterationLanguages, $this->ksStatusTokens, $this->locationCodes, $this->suppressionStatusKeyword);
 	}
 	
 	
@@ -3479,6 +3479,24 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Function to load the ISBN validation library if not already loaded; see: https://github.com/Fale/isbn , and a manual checker at: http://www.isbn-check.com/
+	public function loadIsbnValidationLibrary ()
+	{
+		# Load if not already loaded
+		if (!isSet ($this->isbn)) {
+			
+			# This is a Composer package, so work around the autoloading requirement; see: http://stackoverflow.com/questions/599670/how-to-include-all-php-files-from-a-directory
+			foreach (glob ($this->applicationRoot . '/libraries/isbn/src/Isbn/*.php') as $filename) {
+				include $filename;
+			}
+			
+			# Load and instantiate the library
+			require_once ('libraries/isbn/src/Isbn/Isbn.php');
+			$this->isbn = new Isbn\Isbn();
+		}
+	}
+	
+	
 	# Function to import existing Voyager records
 	private function createExternalRecords ()
 	{
@@ -3802,7 +3820,7 @@ class muscatConversion extends frontControllerApplication
 		# Generate the result
 		$updates = array ();
 		foreach ($data as $recordId => $ts) {
-			$result = $this->macro_generate490 ($ts, NULL, NULL, NULL, $matchedRegexp);
+			$result = $this->marcConversion->macro_generate490 ($ts, NULL, NULL, NULL, $matchedRegexp);
 			$subfieldValues = $this->parseSubfieldsToPairs ($result, $knownSingular = true);
 			$updates[$recordId] = array (
 				'a' => $subfieldValues['a'],
