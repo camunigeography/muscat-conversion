@@ -237,7 +237,7 @@ class muscatConversion extends frontControllerApplication
 				'icon' => 'chart_pie',
 			),
 			'postmigration' => array (
-				'description' => 'Post-migration',
+				'description' => 'Post-migration tasks',
 				'url' => 'postmigration/',
 				'tab' => 'Post-migration',
 				'icon' => 'script',
@@ -516,12 +516,19 @@ class muscatConversion extends frontControllerApplication
 			}
 		}
 		
+		# Get the post-migration descriptions
+		$postmigrationDescriptions = $this->reports->postmigrationDescriptions ();
+		
 		# Convert to an HTML list
 		$table = array ();
 		foreach ($reports as $report => $description) {
 			$key = $report . ($this->reportStatuses[$report] ? ' ' . $this->reportStatuses[$report] : '');	// Add CSS class if status known
 			$link = $this->reportLink ($report);
 			$table[$key]['Description'] = "<a href=\"{$link}\">" . ucfirst (htmlspecialchars ($description)) . '</a>';
+			if ($filterStatus == 'postmigration') {
+				$table[$key]['Description']  = '<h4>' . $table[$key]['Description'] . '</h4>';
+				$table[$key]['Description'] .= '<p>' . (isSet ($postmigrationDescriptions[$report]) ? $postmigrationDescriptions[$report] : '<em class="comment">[No description yet]</em>') . '</p>';
+			}
 			$table[$key]['Problems?'] = (($this->isListing ($report) && !in_array ($report, $this->countableListings)) ? '<span class="faded right">n/a</span>' : ($counts[$report] ? '<span class="warning right">' . number_format ($counts[$report]) : '<span class="success right">' . 'None') . '</span>');
 			$percentage = ($counts[$report] ? round (100 * ($counts[$report] / $totalRecords), 2) . '%' : '-');
 			$table[$key]['%'] = ($this->isListing ($report) ? '<span class="faded right">n/a</span>' : '<span class="comment right">' . ($percentage === '0%' ? '0.01%' : $percentage) . '</span>');
