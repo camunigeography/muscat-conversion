@@ -2265,6 +2265,9 @@ class marcConversion
 	# Macro to generate the 500 (displaying free-form text version of 773), whose logic is closely associated with 773
 	private function macro_generate500 ($value, $xml, $parameter_unused, $authorsFields_unused)
 	{
+		#!# In the case of all records whose serial title is listed in /reports/seriestitlemismatches3/ , need to branch at this point and create a 500 note from the local information (i.e. the record itself, not the parent, as in 773 below)
+		
+		
 		# Get the data from the 773
 		if (!$result = $this->macro_generate773 ($value, $xml, $parameter_unused, $authorsFields_unused, $mode500 = true)) {return false;}
 		
