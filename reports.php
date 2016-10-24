@@ -125,7 +125,7 @@ class reports
 		'seriestitlemismatches3_problem_countable' => 'listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = other)',
 		'languages_info' => 'listing: languages',
 		'transliterations_problem_countable' => 'listing: transliterations',
-		'paralleltitlelanguages' => 'listing: records with parallel titles, filtered to Russian',
+		'paralleltitlelanguages_info' => 'listing: records with parallel titles, filtered to Russian',
 		'distinctn1notfollowedbyn2' => 'Distinct values of all *n1 fields that are not immediately followed by a *n2 field',
 		'distinctn2notprecededbyn1' => 'Distinct values of all *n2 fields that are not immediately preceded by a *n1 field',
 		'kwunknown' => 'records where kw is unknown, showing the bibliographer concerned',
@@ -134,7 +134,7 @@ class reports
 		'volumenumbers_info' => 'volume number results arising from the 490 macro',
 		'voyagerlocations' => 'Muscat locations that do not map to Voyager locations',
 		'translationnotevalues' => 'records containing a note regarding translation - distinct values',
-		'mergestatus' => 'records with a merge status',
+		'mergestatus_info' => 'records with a merge status',
 	);
 	
 	
