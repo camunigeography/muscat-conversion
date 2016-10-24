@@ -3411,6 +3411,7 @@ class muscatConversion extends frontControllerApplication
 				marcPreMerge TEXT NULL COLLATE utf8_unicode_ci COMMENT 'Pre-merged MARC representation of local Muscat record',
 				marc TEXT COLLATE utf8_unicode_ci COMMENT 'MARC representation of Muscat record',
 				bibcheckErrors TEXT NULL COLLATE utf8_unicode_ci COMMENT 'Bibcheck errors, if any',
+				suppressReasons VARCHAR(255) NULL DEFAULT NULL COMMENT 'Reason(s) for status=suppress' AFTER `bibcheckErrors`,
 			  PRIMARY KEY (id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC representation of Muscat records'
 		;";
@@ -3633,35 +3634,35 @@ class muscatConversion extends frontControllerApplication
 		$query = "UPDATE catalogue_marc SET status = 'migrate';";
 		$this->databaseConnection->execute ($query);
 		
-		# Records to suppress
+		# Records to suppress, defined as a set of scenarios represented by a token
 		#!# Fix hard-coded date
 		#!# Check whether locationCode locations with 'Periodical' are correct to suppress
 		#!# Major issue: problem with e.g. /records/3929/ where two records need to be created, but not both should be suppressed; there are around 1,000 of these
-		#!# Consider adding 917 local note stating which rule(s) resulted in the suppression
-		$query = "UPDATE catalogue_marc
-			LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
-			LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
-			SET status = 'suppress'
-			WHERE 1=0
+		#!# Consider adding 917 local note stating the rule(s) that resulted in the suppression
+		$suppressionScenarios = array (
+			
+			# 5,420 records
+			'STATUS-RECEIVED' =>
+				"   field = 'status' AND value = 'RECEIVED'
+				",
 				
-				OR (
-				   field = 'status' AND value = 'RECEIVED'
-				) -- 5420 records
+			# Records marked specifically to suppress, e.g. Pamphlets needing review, post-migration; this has been achieved using a BCPL routine to mark the records as such
+			# 25,266 records
+			'EXPLICIT-SUPPRESS' =>
+				"   field = 'status' AND value = '{$this->suppressionStatusKeyword}'
+				",
 				
-				OR (
-					-- Records marked specifically to suppress, e.g. Pamphlets needing review, post-migration; this has been achieved using a BCPL routine to mark the records as such
-				   field = 'status' AND value = '{$this->suppressionStatusKeyword}'
-				) -- 25266 records
-				
-				OR (
-					    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
+			# 717 records
+			'ON-ORDER-RECENT' =>
+				"	    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
 					/* #!# /records/145472/ is the only one that has invalid syntax */
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
 					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
-				) -- 717 records
+				",
 				
-				OR (
-					    field = 'location'
+			# 9,932 records
+			'EXTERNAL-LOCATION' =>
+				"	    field = 'location'
 					AND value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
 					AND (
 						   value IN('', '-', '??', 'Not in SPRI', 'Periodical')
@@ -3669,19 +3670,31 @@ class muscatConversion extends frontControllerApplication
 						OR value LIKE '%Cambridge University%'
 						OR value LIKE 'Picture Library Store : Video%'
 						)
-				) -- 9932 records
+				",
 				
-				OR (
-					    field IN('note', 'local', 'priv')
+			# 1507 records
+			'OFFPRINT-OR-PHOTOCOPY' =>
+				"	    field IN('note', 'local', 'priv')
 					AND (
 						   value LIKE '%offprint%'
 						OR value LIKE '%photocopy%'
 						)
 					AND value NOT LIKE '%out of copyright%'
-				) -- 1507 records
+				",
 				
-		;";
-		$this->databaseConnection->execute ($query);
+		);
+		foreach ($suppressionScenarios as $reason => $conditions) {
+			$query = "UPDATE catalogue_marc
+				LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
+				LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
+				SET
+					status = 'suppress',
+					suppressReasons = IF(suppressReasons IS NULL, '|{$reason}|', CONCAT(suppressReasons, '{$reason}|'))
+				WHERE
+					{$conditions}
+			;";
+			$this->databaseConnection->execute ($query);
+		}
 		
 		# Records to ignore (highest priority)
 		$query = "UPDATE catalogue_marc
