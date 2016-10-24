@@ -2911,7 +2911,8 @@ class muscatConversion extends frontControllerApplication
 					    field IN('" . implode ("', '", $this->transliterationUpgradeFields) . "')
 					AND value NOT REGEXP '^{$literalBackslash}{$literalBackslash}[([^{$literalBackslash}]]+){$literalBackslash}{$literalBackslash}]$'		/* Exclude [Titles fully in brackets like this] */
 					AND recordLanguage = '{$language}'
-		;";	// 41,515 rows inserted
+				ORDER BY recordId,id
+		;";	// 54,715 rows inserted
 		$this->databaseConnection->query ($query);
 		
 		# In the special case of the *t field, add to the shard the parallel title (*lpt) property associated with the top-level *t; this gives 210 updates, which exactly matches 210 results for `SELECT * FROM `catalogue_processed` WHERE `field` LIKE 'lpt' and recordLanguage = 'Russian';`
