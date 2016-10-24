@@ -729,7 +729,7 @@ class marcConversion
 		
 		# Determine the subfield, by performing a validation; seems to permit EANs like 5391519681503 in /records/211150/
 		$this->muscatConversion->loadIsbnValidationLibrary ();
-		$isValid = $this->isbn->validation->isbn ($value);
+		$isValid = $this->muscatConversion->isbn->validation->isbn ($value);
 		$subfield = $this->doubleDagger . ($isValid ? 'a' : 'z');
 		
 		# Assemble the return value, adding qualifying information if required
