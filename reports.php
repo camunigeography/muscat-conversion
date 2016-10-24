@@ -2979,24 +2979,32 @@ class reports
 		}
 		
 		# Add links to XPaths for filtering
-		$xPathTypesList = array ();
+		$xPathTypesListByField = array ();
 		$xPathTypes = array_merge (array ('' => $totalRecords), $xPathTypes);
 		foreach ($xPathTypes as $xPathType => $total) {
-			$xPathTypesList[$xPathType] = '';
+			$field = ($xPathType ? substr ($xPathType, strrpos ($xPathType, '/') + 1) : '');	// e.g. 't' or 'pu', or '' for no filter
+			$xPathTypesListByField[$field][$xPathType] = '';
 			if ($xPathFilter != $xPathType) {	// Do not hyperlink any currently-selected item
-				$xPathTypesList[$xPathType] .= "<a href=\"{$this->baseUrl}/reports/transliterations/" . ($xPathType || $enableFilter ? '?' : '') . ($enableFilter ? 'filter=1' . ($xPathType ? '&amp;' : '') : '') . ($xPathType ? "xpath={$xPathType}" : '') . '">';
+				$xPathTypesListByField[$field][$xPathType] .= "<a href=\"{$this->baseUrl}/reports/transliterations/" . ($xPathType || $enableFilter ? '?' : '') . ($enableFilter ? 'filter=1' . ($xPathType ? '&amp;' : '') : '') . ($xPathType ? "xpath={$xPathType}" : '') . '">';
 			} else {
-				$xPathTypesList[$xPathType] .= '<strong>';
+				$xPathTypesListByField[$field][$xPathType] .= '<strong>';
 			}
-			$xPathTypesList[$xPathType] .= ($xPathType == '' ? 'No type filter' : $xPathType);
-			$xPathTypesList[$xPathType] .= ' (' . number_format ($total) . ')';
+			$xPathTypesListByField[$field][$xPathType] .= ($xPathType == '' ? 'No type filter' : $xPathType);
+			$xPathTypesListByField[$field][$xPathType] .= ' (' . number_format ($total) . ')';
 			if ($xPathFilter != $xPathType) {
-				$xPathTypesList[$xPathType] .= '</a>';
+				$xPathTypesListByField[$field][$xPathType] .= '</a>';
 			} else {
-				$xPathTypesList[$xPathType] .= '</strong>';
+				$xPathTypesListByField[$field][$xPathType] .= '</strong>';
 			}
 		}
-		$html .= "\n<p>Filter by type: " . implode (' | ', $xPathTypesList) . '</p>';
+		
+		# Compile the HTML
+		foreach ($xPathTypesListByField as $field => $xPathTypesList) {
+			$xPathTypesListByField[$field] = implode (' &nbsp; <span class="faded">|</span> &nbsp; ', $xPathTypesList);
+		}
+		$html .= "\n<p>Then filter by type:<br />";
+		$html .= "\n" . application::htmlTableKeyed ($xPathTypesListByField, array (), $omitEmpty = false, 'lines', $allowHtml = true);
+		$html .= '</p>';
 		
 		# Add link to editing the definition
 		$html .= "\n<p>You can <a href=\"{$this->baseUrl}/transliterator.html\">edit the reverse-transliteration definition</a>.</p>";
