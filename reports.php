@@ -122,7 +122,7 @@ class reports
 		'seriestitles_info' => 'listing: series titles',
 		'seriestitlemismatches1_problem_countable' => "listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = 'Periodical')",
 		'seriestitlemismatches2_problem_countable' => "listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc is empty)",
-		'seriestitlemismatches3_problem_countable' => 'listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = other)',
+		'seriestitlemismatches3_postmigration_countable' => 'listing: articles without a matching serial (journal) title in another record, that are not pamphlets or in the special collection (loc = other)',
 		'languages_info' => 'listing: languages',
 		'transliterations_problem_countable' => 'listing: transliterations',
 		'paralleltitlelanguages_info' => 'listing: records with parallel titles, filtered to Russian',
