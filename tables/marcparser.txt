@@ -1,12 +1,12 @@
 # IMPORTANT: This file is NOT actively used by the importer, but is created when updating the definition purely for the purposes of creating an file version that can be checked into the versioning repository.
    LDR {/*|macro:generateLeader}
-A  001 SPRI{/q0}
+A  001 SPRI-{/q0}
 A  005 {/*|macro:migrationDatetime}
 A  007 {/*|macro:generate007}
 A  008 {/*|macro:generate008}
 AR 020 ## {/*/isbn|macro:validisbn}
 AR 022 ## ‡a{/*/issn}
-A  035 ## ‡aSPRI{/q0}
+A  035 ## ‡aSPRI-{/q0}
 A  040 ## ‡aUkCU-P‡beng‡eaacr
 A  041 i{'0'|macro:languages041(true)}# ‡a{/.|macro:languages041}
 A  100 {/*|macro:generateAuthors(100)}
