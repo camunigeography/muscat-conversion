@@ -25,7 +25,7 @@
 	Use MacroFrontControllerApplication "$baseUrl/" "Muscat conversion project"
 	
 	# Application routing
-	RewriteRule ^$baseUrl/(reports|fields|statistics|import|export)/$ $baseUrl/index.html?action=$1 [L]
+	RewriteRule ^$baseUrl/(reports|fields|statistics|postmigration|import|export)/$ $baseUrl/index.html?action=$1 [L]
 	RewriteRule ^$baseUrl/(schema|marcparser|transliterator|merge).html$ $baseUrl/index.html?action=$1 [L]
 	RewriteRule ^$baseUrl/(records|search)/$ $baseUrl/index.html?action=$1 [L,QSA]
 	RewriteRule ^$baseUrl/(search)/page([0-9]+).html$ $baseUrl/index.html?action=$1&page=$2 [L,QSA]

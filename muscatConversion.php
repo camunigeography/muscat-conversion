@@ -196,6 +196,11 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Define available tasks
 		$actions = array (
+			'home' => array (
+				'description' => false,
+				'url' => '',
+				'tab' => '<img src="/images/icons/house.png" alt="Home" border="0" />',
+			),
 			'reports' => array (
 				'description' => false,
 				'url' => 'reports/',
@@ -228,8 +233,14 @@ class muscatConversion extends frontControllerApplication
 			'statistics' => array (
 				'description' => 'Statistics',
 				'url' => 'statistics/',
-				'tab' => 'Statistics',
+				'tab' => 'Stats',
 				'icon' => 'chart_pie',
+			),
+			'postmigration' => array (
+				'description' => 'Post-migration',
+				'url' => 'postmigration/',
+				'tab' => 'Post-migration',
+				'icon' => 'script',
 			),
 			'import' => array (
 				'description' => 'Import',
@@ -422,6 +433,7 @@ class muscatConversion extends frontControllerApplication
 		$html  = "\n<h2>Welcome</h2>";
 		$html .= $this->reportsJumplist ();
 		$html .= "\n<p>This administrative system enables Library staff at SPRI to get an overview of problems with Muscat records so that they can be prepared for eventual export to Voyager.</p>";
+		$html .= "\n<p class=\"right\">Or filter to: <a href=\"{$this->baseUrl}/postmigration/\">post-migration only</a></p>";
 		$html .= "\n<h3>Reports available</h3>";
 		$html .= $this->reportsTable ();
 		
@@ -472,10 +484,19 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to create a reports list
-	private function reportsTable ()
+	private function reportsTable ($filterStatus = false)
 	{
 		# Get the list of reports
 		$reports = $this->getReports ();
+		
+		# Filter if required
+		if ($filterStatus) {
+			foreach ($reports as $report => $description) {
+				if ($this->reportStatuses[$report] != $filterStatus) {
+					unset ($reports[$report]);
+				}
+			}
+		}
 		
 		# Get the counts
 		$counts = $this->getCounts ();
@@ -1755,6 +1776,21 @@ class muscatConversion extends frontControllerApplication
 		
 		# Show the HTML
 		echo $html;
+	}
+	
+	
+	# Post-migration tasks page
+	public function postmigration ()
+	{
+		# Start the HTML
+		$html = "\n" . '<p>This section lists the post-migration tasks.</p>';
+		
+		# Show the listing
+		$html .= $this->reportsTable ('postmigration');
+		
+		# Show the HTML
+		echo $html;
+		
 	}
 	
 	

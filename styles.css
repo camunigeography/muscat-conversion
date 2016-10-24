@@ -9,6 +9,8 @@
 #muscatconversion .fieldsjumplist select {margin: 0;}
 #muscatconversion .listing {clear: right;}	/* Clear right following fieldstabs */
 #muscatconversion .listing h3 {margin-top: 1.2em;}
+#muscatconversion ul.tabs {clear: right;}
+#muscatconversion ul.tabs li a {margin-left: 1px;}
 #muscatconversion ul.tabs li.selected {font-weight: bold;}
 #muscatconversion table.lines.regulated tr td:first-child {width: 60px;}
 #muscatconversion table.record tr td.description {color: gray;}
