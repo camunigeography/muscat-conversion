@@ -2951,8 +2951,15 @@ class reports
 		# Start a list of SQL constraints for the listing
 		$where = array ();
 		
+		# Determine whether to filter to reversibility failures only
+		$enableFilter = (isSet ($_GET['filter']) && $_GET['filter'] == '1');
+		$filterConstraint = 'forwardCheckFailed = 1';
+		if ($enableFilter) {
+			$where[] = $filterConstraint;
+		}
+		
 		# Get the XPath types
-		$xPathTypesQuery = "SELECT xPath, COUNT(*) AS total FROM transliterations GROUP BY xPath ORDER BY xPath;";
+		$xPathTypesQuery = "SELECT xPath, COUNT(*) AS total FROM transliterations " . ($enableFilter ? 'WHERE ' . $filterConstraint : '') . " GROUP BY xPath ORDER BY xPath;";
 		$xPathTypes = $this->databaseConnection->getPairs ($xPathTypesQuery);
 		
 		# Determine if a valid XPath filter has been specified
@@ -2964,14 +2971,9 @@ class reports
 		# Determine totals
 		$table = 'transliterations';
 		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], $table);
-		$filterConstraint = 'forwardCheckFailed = 1';
 		$totalFailures = $this->databaseConnection->getTotal ($this->settings['database'], $table, 'WHERE ' . $filterConstraint);
 		
-		# Determine whether to filter to reversibility failures only
-		$enableFilter = (isSet ($_GET['filter']) && $_GET['filter'] == '1');
-		if ($enableFilter) {
-			$where[] = $filterConstraint;
-		}
+		# Show top-level filter controls
 		if ($enableFilter) {
 			$html .= "\n<p><a href=\"{$this->baseUrl}/reports/transliterations/" . ($xPathFilter ? "?xpath={$xPathFilter}" : '') . "\">Show all (" . number_format ($totalRecords) . ")</a> | <strong>Filtering to reversibility failures only (" . number_format ($totalFailures) . ")</strong></p>";
 		} else {
@@ -2980,9 +2982,9 @@ class reports
 		
 		# Add links to XPaths for filtering
 		$xPathTypesListByField = array ();
-		$xPathTypes = array_merge (array ('' => $totalRecords), $xPathTypes);
+		$xPathTypes = array_merge (array ('' => ($enableFilter ? $totalFailures : $totalRecords)), $xPathTypes);
 		foreach ($xPathTypes as $xPathType => $total) {
-			$field = ($xPathType ? substr ($xPathType, strrpos ($xPathType, '/') + 1) : '');	// e.g. 't' or 'pu', or '' for no filter
+			$field = ($xPathType ? substr ($xPathType, strrpos ($xPathType, '/') + 1) . '*' : '');	// e.g. 't' or 'pu', or '' for no filter
 			$xPathTypesListByField[$field][$xPathType] = '';
 			if ($xPathFilter != $xPathType) {	// Do not hyperlink any currently-selected item
 				$xPathTypesListByField[$field][$xPathType] .= "<a href=\"{$this->baseUrl}/reports/transliterations/" . ($xPathType || $enableFilter ? '?' : '') . ($enableFilter ? 'filter=1' . ($xPathType ? '&amp;' : '') : '') . ($xPathType ? "xpath={$xPathType}" : '') . '">';
