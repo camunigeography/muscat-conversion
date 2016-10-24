@@ -69,7 +69,7 @@ class reports
 		'multiplej_problem' => 'records containing more than one *j field',
 		'multipletopt_problem' => 'records containing more than one top-level *t field',
 		'multipletoptt_problem' => 'records containing more than one top-level *tt field',
-		'invaliddatestring_problem' => 'records with an invalid date string (though some are valid)',
+		'invaliddatestring_problem' => 'records with an invalid date string',
 		'multipledate_info' => 'records with more than one *d',
 		'multiplept_postmigration' => 'records with more than one *pt',
 		'serlocloc_problem' => '*ser records with two or more locations (though some are valid)',
@@ -1646,10 +1646,15 @@ class reports
 			FROM catalogue_processed
 			WHERE
 				    field = 'r'
-				AND value REGEXP '([0-9]{3}[-0-9])'
+				AND value REGEXP '([0-9]{3}[-0-9])'										-- Must look like a year, i.e. matches XXXX or XXX-
+				AND value NOT REGEXP '^\\\\[([0-9]{4})\\\\]$'										-- [XXXX] is fine
+				AND value NOT REGEXP '^([0-9]{4})-([0-9]{2}), ([0-9]{4})$'				-- XXXX-XX, XXXX is fine
+				AND value NOT REGEXP '^([0-9]{4})-([0-9]{2}), ([0-9]{4})-$'				-- XXXX-XX, XXXX- is fine
+				AND value NOT REGEXP '^([0-9]{4})-([0-9]{2}), ([0-9]{4})-([0-9]{2})$'	-- XXXX-XX, XXXX-XX is fine
+				AND value NOT REGEXP '^([0-9]{4})-([0-9]{2}), ([0-9]{4})-([0-9]{2}), ([0-9]{4})-([0-9]{2})$'	-- XXXX-XX, XXXX-XX, XXXX-XX is fine
 				AND (
-					   value NOT REGEXP '[-0-9]$'
-					OR value REGEXP '([0-9]{4})-([0-9]{2})([^0-9])'
+					   value NOT REGEXP '[-0-9]$'										-- Error if does not end X or -
+					OR value REGEXP '([0-9]{4})-([0-9]{2})([^0-9])'						-- Error if XXXX-XX then not a number
 				)
 		";
 		
