@@ -1274,7 +1274,6 @@ class reports
 	
 	
 	# Records with invalid ISBN number, excluding ones known to be wrong in the printed original publication
-	#!# NB this does *not* perform a full check-digit check - see macro_validisbn for that
 	public function report_isbninvalid ()
 	{
 		# Obtain a list of every ISBN present; note that some records have more than one *isbn, so cannot index by recordId
