@@ -3641,18 +3641,18 @@ class muscatConversion extends frontControllerApplication
 		#!# Consider adding 917 local note stating the rule(s) that resulted in the suppression
 		$suppressionScenarios = array (
 			
-			# 5,420 records
+			# 5,376 records
 			'STATUS-RECEIVED' =>
 				"   field = 'status' AND value = 'RECEIVED'
 				",
 				
 			# Records marked specifically to suppress, e.g. Pamphlets needing review, post-migration; this has been achieved using a BCPL routine to mark the records as such
-			# 25,266 records
+			# 25,233 records
 			'EXPLICIT-SUPPRESS' =>
 				"   field = 'status' AND value = '{$this->suppressionStatusKeyword}'
 				",
 				
-			# 717 records
+			# 15 records
 			'ON-ORDER-RECENT' =>
 				"	    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
 					/* #!# /records/145472/ is the only one that has invalid syntax */
@@ -3660,7 +3660,7 @@ class muscatConversion extends frontControllerApplication
 					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
 				",
 				
-			# 9,932 records
+			# 8,325 records
 			'EXTERNAL-LOCATION' =>
 				"	    field = 'location'
 					AND value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
@@ -3672,7 +3672,7 @@ class muscatConversion extends frontControllerApplication
 						)
 				",
 				
-			# 1507 records
+			# 886 records
 			'OFFPRINT-OR-PHOTOCOPY' =>
 				"	    field IN('note', 'local', 'priv')
 					AND (
