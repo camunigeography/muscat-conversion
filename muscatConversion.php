@@ -3661,6 +3661,14 @@ class muscatConversion extends frontControllerApplication
 					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
 				"),
 				
+			'ON-ORDER-OLD' => array (
+				# 15,863 records
+				'Item on order recently unlikely to be fulfilled, but item remains desirable and of bibliographic interest',
+				"	    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
+					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
+					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
+				"),
+				
 			'EXTERNAL-LOCATION' => array (
 				# 8,325 records
 				'Item of bibliographic interest, but not held at SPRI, so no holdings record can be created',
@@ -3707,11 +3715,7 @@ class muscatConversion extends frontControllerApplication
 			SET status = 'ignore'
 			WHERE
 				   (field = 'status' AND value = 'ORDER CANCELLED')
-				OR (
-					    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
-					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
-					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
-					)
+				
 				OR (field = 'location' AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection'))
 			-- 1846 records in total
 		;";
