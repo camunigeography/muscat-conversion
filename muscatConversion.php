@@ -3632,11 +3632,43 @@ class muscatConversion extends frontControllerApplication
 		$query = "UPDATE catalogue_marc SET status = 'migrate';";
 		$this->databaseConnection->execute ($query);
 		
+		# Records to suppress
+		$suppressionScenarios = $this->getSuppressionScenarios ();
+		foreach ($suppressionScenarios as $reasonToken => $suppressionScenario) {
+			$conditions = $suppressionScenario[1];
+			$query = "UPDATE catalogue_marc
+				LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
+				LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
+				SET
+					status = 'suppress',
+					suppressReasons = IF(suppressReasons IS NULL, '|{$reasonToken}|', CONCAT(suppressReasons, '{$reasonToken}|'))
+				WHERE
+					{$conditions}
+			;";
+			$this->databaseConnection->execute ($query);
+		}
+		
+		# Records to ignore (highest priority)
+		#!# Currently will exclude records that are *also* held at IGS rather than *only* held at IGS - data work is in progress
+		$query = "UPDATE catalogue_marc
+			LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
+			LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
+			SET status = 'ignore'
+			WHERE
+				(field = 'location' AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection'))
+		;";
+		$this->databaseConnection->execute ($query);
+	}
+	
+	
+	# Function to define suppression scenarios
+	private function getSuppressionScenarios ()
+	{
 		# Records to suppress, defined as a set of scenarios represented by a token
 		#!# Check whether locationCode locations with 'Periodical' are correct to suppress
 		#!# Major issue: problem with e.g. /records/3929/ where two records need to be created, but not both should be suppressed; there are around 1,000 of these
 		#!# Consider adding 917 local note stating the rule(s) that resulted in the suppression
-		$suppressionScenarios = array (
+		return $suppressionScenarios = array (
 			
 			'STATUS-RECEIVED' => array (
 				# 5,376 records
@@ -3645,7 +3677,7 @@ class muscatConversion extends frontControllerApplication
 				"),
 				
 			'ORDER-CANCELLED' => array (
-				# 5,376 records
+				# 232 records
 				'Order cancelled by SPRI, but record retained for accounting/audit purposes in the event that the item arrives',
 				"   field = 'status' AND value = 'ORDER CANCELLED'
 				"),
@@ -3666,7 +3698,7 @@ class muscatConversion extends frontControllerApplication
 				"),
 				
 			'ON-ORDER-OLD' => array (
-				# 15,863 records
+				# 654 records; see also: /reports/onorderold/ which matches
 				'Item on order recently unlikely to be fulfilled, but item remains desirable and of bibliographic interest',
 				"	    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
@@ -3698,29 +3730,6 @@ class muscatConversion extends frontControllerApplication
 				"),
 				
 		);
-		foreach ($suppressionScenarios as $reasonToken => $suppressionScenario) {
-			$conditions = $suppressionScenario[1];
-			$query = "UPDATE catalogue_marc
-				LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
-				LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
-				SET
-					status = 'suppress',
-					suppressReasons = IF(suppressReasons IS NULL, '|{$reasonToken}|', CONCAT(suppressReasons, '{$reasonToken}|'))
-				WHERE
-					{$conditions}
-			;";
-			$this->databaseConnection->execute ($query);
-		}
-		
-		# Records to ignore (highest priority)
-		$query = "UPDATE catalogue_marc
-			LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
-			LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
-			SET status = 'ignore'
-			WHERE
-				(field = 'location' AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection'))
-		;";
-		$this->databaseConnection->execute ($query);
 	}
 	
 	
