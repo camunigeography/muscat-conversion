@@ -37,6 +37,52 @@
 
 
 	<rule>
+		<from>IEA</from>
+		<to>ИЭА</to>
+		<context>
+			<after>\b</after>
+			<before>\b</before>
+		</context>
+	</rule>
+	<rule>
+		<from>IEIOPP</from>
+		<to>ИЭОПП</to>
+		<context>
+			<after>\b</after>
+			<before>\b</before>
+		</context>
+	</rule>
+	<rule>
+		<from>BNIIOENG</from>
+		<to>ВНИИОЭНГ</to>
+		<context>
+			<after>\b</after>
+			<before>\b</before>
+		</context>
+	</rule>
+	<rule>
+		<from>IEPS</from>
+		<to>ИЭПС</to>
+		<context>
+			<after>\b</after>
+			<before>\b</before>
+		</context>
+	</rule>
+  	<rule>
+ 		<from>Vneshneekon</from>
+		<to>Внешнеэкон</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+  	<rule>
+ 		<from>vneshneekon</from>
+		<to>внешнеэкон</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
 		<from>chinchiyiiler</from>
 		<to>чинчийиилэр</to>
 		<context>
