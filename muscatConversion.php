@@ -3646,10 +3646,16 @@ class muscatConversion extends frontControllerApplication
 				"   field = 'status' AND value = 'RECEIVED'
 				"),
 				
-			# NB This has been achieved using a BCPL routine to mark the records as such
+			'ORDER-CANCELLED' => array (
+				# 5,376 records
+				'Order cancelled by SPRI, but record retained for accounting/audit purposes in the event that the item arrives',
+				"   field = 'status' AND value = 'ORDER CANCELLED'
+				"),
+				
 			'EXPLICIT-SUPPRESS' => array (
 				# 25,233 records
 				'Record marked specifically to suppress, e.g. pamphlets needing review, etc.',
+				# NB This has been achieved using a BCPL routine to mark the records as such
 				"   field = 'status' AND value = '{$this->suppressionStatusKeyword}'
 				"),
 				
@@ -3714,10 +3720,7 @@ class muscatConversion extends frontControllerApplication
 			LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
 			SET status = 'ignore'
 			WHERE
-				   (field = 'status' AND value = 'ORDER CANCELLED')
-				
-				OR (field = 'location' AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection'))
-			-- 1846 records in total
+				(field = 'location' AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection'))
 		;";
 		$this->databaseConnection->execute ($query);
 	}
