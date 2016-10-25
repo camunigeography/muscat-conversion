@@ -146,7 +146,6 @@ class muscatConversion extends frontControllerApplication
 	);
 	
 	# Acquisition date cut-off for on-order -type items; these range from 22/04/1992 to 30/10/2015; the intention of this date is that 'recent' on-order items (intended to be 1 year ago) would be migrated but suppressed, and the rest deleted - however, this needs review
-	#!# This date is subject to review, as is whether any should be deleted (since these have value as a statement of desire to obtain), or indeed any should be migrated (and re-entered in Voyager)
 	private $acquisitionDate = '2015-01-01';
 	
 	# Order *status keywords
