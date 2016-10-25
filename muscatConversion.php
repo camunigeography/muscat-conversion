@@ -3654,7 +3654,6 @@ class muscatConversion extends frontControllerApplication
 			# 15 records
 			'ON-ORDER-RECENT' =>
 				"	    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
-					/* #!# /records/145472/ is the only one that has invalid syntax */
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
 					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
 				",
