@@ -3411,7 +3411,7 @@ class muscatConversion extends frontControllerApplication
 				marcPreMerge TEXT NULL COLLATE utf8_unicode_ci COMMENT 'Pre-merged MARC representation of local Muscat record',
 				marc TEXT COLLATE utf8_unicode_ci COMMENT 'MARC representation of Muscat record',
 				bibcheckErrors TEXT NULL COLLATE utf8_unicode_ci COMMENT 'Bibcheck errors, if any',
-				suppressReasons VARCHAR(255) NULL DEFAULT NULL COMMENT 'Reason(s) for status=suppress' AFTER `bibcheckErrors`,
+				suppressReasons VARCHAR(255) NULL DEFAULT NULL COMMENT 'Reason(s) for status=suppress',
 			  PRIMARY KEY (id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC representation of Muscat records'
 		;";
