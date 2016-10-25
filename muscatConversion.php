@@ -46,7 +46,7 @@ class muscatConversion extends frontControllerApplication
 			'label'		=> '<img src="/images/icons/page_white_code_red.png" alt="" border="0" /> Muscat as MARC',
 			'title'		=> 'Representation of the XML data as MARC21, via the defined parser description',
 			'errorHtml'	=> "The MARC21 representation of the Muscat record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
-			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc', 'bibcheckErrors'),
+			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc', 'bibcheckErrors', 'suppressReasons'),
 			'idField'	=> 'id',
 			'orderBy'	=> 'id',
 			'class'		=> false,
@@ -358,7 +358,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Create a handle to the MARC conversion module
 		require_once ('marcConversion.php');
-		$this->marcConversion = new marcConversion ($this, $this->transliteration, $this->supportedReverseTransliterationLanguages, $this->ksStatusTokens, $this->locationCodes, $this->suppressionStatusKeyword);
+		$this->marcConversion = new marcConversion ($this, $this->transliteration, $this->supportedReverseTransliterationLanguages, $this->ksStatusTokens, $this->locationCodes, $this->suppressionStatusKeyword, $this->getSuppressionScenarios ());
 		
 		# Create a handle to the reports module
 		require_once ('reports.php');
@@ -793,7 +793,7 @@ class muscatConversion extends frontControllerApplication
 				$data = $this->getRecords ($id, 'xml');
 				$marcParserDefinition = $this->getMarcParserDefinition ();
 				$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ());
-				$record['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $errorString, $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $marcPreMerge /* passed back by reference */, $sourceRegistry /* passed back by reference */);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
+				$record['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $errorString, $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $record['suppressReasons'], $marcPreMerge /* passed back by reference */, $sourceRegistry /* passed back by reference */);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
 				$output  = "\n<p>The MARC output uses the <a target=\"_blank\" href=\"{$this->baseUrl}/marcparser.html\">parser definition</a> to do the mapping from the XML representation.</p>";
 				if ($record['bibcheckErrors']) {
 					$output .= "\n<pre>" . "\n<p class=\"warning\">Bibcheck " . (substr_count ($record['bibcheckErrors'], "\n") ? 'errors' : 'error') . ":</p>" . $record['bibcheckErrors'] . "\n</pre>";
@@ -3488,10 +3488,11 @@ class muscatConversion extends frontControllerApplication
 				# Arrange as a set of inserts
 				$inserts = array ();
 				foreach ($records as $id => $record) {
-					$mergeType      = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeType'] : false);
-					$mergeVoyagerId	= (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeVoyagerId'] : false);
+					$mergeType       = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeType'] : false);
+					$mergeVoyagerId	 = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeVoyagerId'] : false);
+					$suppressReasons = (isSet ($mergeData[$id]) ? $mergeData[$id]['suppressReasons'] : false);
 					$marcPreMerge = NULL;	// Reset for next iteration
-					$marc = $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $errorString, $mergeDefinition, $mergeType, $mergeVoyagerId, $marcPreMerge);
+					$marc = $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $errorString, $mergeDefinition, $mergeType, $mergeVoyagerId, $suppressReasons, $marcPreMerge);
 					if ($errorString) {
 						$html  = "<p class=\"warning\">Record <a href=\"{$this->baseUrl}/records/{$id}/\">{$id}</a> could not be converted to MARC:</p>";
 						$html .= "\n<p><img src=\"/images/icons/exclamation.png\" class=\"icon\" /> {$errorString}</p>";
@@ -3641,7 +3642,7 @@ class muscatConversion extends frontControllerApplication
 				LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
 				SET
 					status = 'suppress',
-					suppressReasons = IF(suppressReasons IS NULL, '|{$reasonToken}|', CONCAT(suppressReasons, '{$reasonToken}|'))
+					suppressReasons = IF(suppressReasons IS NULL, '{$reasonToken}', CONCAT(suppressReasons, ', {$reasonToken}'))
 				WHERE
 					{$conditions}
 			;";
@@ -3667,7 +3668,6 @@ class muscatConversion extends frontControllerApplication
 		# Records to suppress, defined as a set of scenarios represented by a token
 		#!# Check whether locationCode locations with 'Periodical' are correct to suppress
 		#!# Major issue: problem with e.g. /records/3929/ where two records need to be created, but not both should be suppressed; there are around 1,000 of these
-		#!# Consider adding 917 local note stating the rule(s) that resulted in the suppression
 		return $suppressionScenarios = array (
 			
 			'STATUS-RECEIVED' => array (
@@ -3719,7 +3719,7 @@ class muscatConversion extends frontControllerApplication
 				"),
 				
 			'OFFPRINT-OR-PHOTOCOPY' => array (
-				# 886 records
+				# 1,553 records
 				'Item needing review to determine provenance with respect to copyright',
 				"	    field IN('note', 'local', 'priv')
 					AND (

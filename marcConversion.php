@@ -4,7 +4,7 @@
 class marcConversion
 {
 	# Constructor
-	public function __construct ($muscatConversion, $transliteration, $supportedReverseTransliterationLanguages, $ksStatusTokens, $locationCodes, $suppressionStatusKeyword)
+	public function __construct ($muscatConversion, $transliteration, $supportedReverseTransliterationLanguages, $ksStatusTokens, $locationCodes, $suppressionStatusKeyword, $suppressionScenarios)
 	{
 		# Create class property handles to the parent class
 		$this->muscatConversion = $muscatConversion;
@@ -18,6 +18,7 @@ class marcConversion
 		$this->ksStatusTokens = $ksStatusTokens;
 		$this->locationCodes = $locationCodes;
 		$this->suppressionStatusKeyword = $suppressionStatusKeyword;
+		$this->suppressionScenarios = $suppressionScenarios;
 		
 		# Define unicode symbols
 		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
@@ -27,7 +28,7 @@ class marcConversion
 	
 	# Main entry point
 	# NB XPath functions can have PHP modifications in them using php:functionString - may be useful in future http://www.sitepoint.com/php-dom-using-xpath/ http://cowburn.info/2009/10/23/php-funcs-xpath/
-	public function convertToMarc ($marcParserDefinition, $recordXml, &$errorString = '', $mergeDefinition = array (), $mergeType = false, $mergeVoyagerId = false, &$marcPreMerge = NULL, &$sourceRegistry = array ())
+	public function convertToMarc ($marcParserDefinition, $recordXml, &$errorString = '', $mergeDefinition = array (), $mergeType = false, $mergeVoyagerId = false, $suppressReasons = false, &$marcPreMerge = NULL, &$sourceRegistry = array ())
 	{
 		# Ensure the error string is clean for each iteration
 		$errorString = '';
@@ -36,6 +37,9 @@ class marcConversion
 		$this->field880subfield6ReciprocalLinks = array ();		// This is indexed by the master field, ignoring any mutations within multilines
 		$this->field880subfield6Index = 0;
 		$this->field880subfield6FieldInstanceIndex = array ();
+		
+		# Create property handle
+		$this->suppressReasons = $suppressReasons;
 		
 		# Ensure the line-by-line syntax is valid, extract macros, and construct a data structure representing the record
 		if (!$datastructure = $this->convertToMarc_InitialiseDatastructure ($recordXml, $marcParserDefinition, $errorString)) {return false;}
@@ -2691,6 +2695,29 @@ class marcConversion
 		$result = implode ('; ', $acc);
 		
 		# Return the result
+		return $result;
+	}
+	
+	
+	# Macro to generate a 917 record for the supression reason
+	private function macro_showSuppressionReason ($value, $xml)
+	{
+		# End if no suppress reason(s)
+		if (!$this->suppressReasons) {return false;}
+		
+		# Explode by comma
+		$suppressReasons = explode (', ', $this->suppressReasons);
+		
+		# Create a list of results
+		$resultLines = array ();
+		foreach ($suppressReasons as $suppressReason) {
+			$resultLines[] = 'Suppression reason: ' . $suppressReason . ' (' . $this->suppressionScenarios[$suppressReason][0] . ')';
+		}
+		
+		# Implode the list
+		$result = implode ("\n" . "917 ## {$this->doubleDagger}a", $resultLines);
+		
+		# Return the result line/multiline
 		return $result;
 	}
 	
