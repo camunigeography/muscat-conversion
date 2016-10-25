@@ -143,6 +143,7 @@ class muscatConversion extends frontControllerApplication
 	private $transliterationUpgradeFields = array (
 		't',
 		'pu',
+		'n1', 'n2',
 	);
 	
 	# Acquisition date cut-off for on-order -type items; these range from 22/04/1992 to 30/10/2015; the intention of this date is that 'recent' on-order items (intended to be 1 year ago) would be migrated but suppressed, and the rest deleted - however, this needs review
