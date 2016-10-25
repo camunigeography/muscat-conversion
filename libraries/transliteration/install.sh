@@ -8,7 +8,8 @@ if [ ! -f ./bin/translit ] ; then
 	
 	mkdir cpan
 	cd cpan/
-	wget http://www.cpan.org/authors/id/A/AL/ALINKE/Lingua-Translit-0.22.tar.gz
+	cp -pr ../Lingua-Translit-0.22.tar.gz .
+	#wget http://www.cpan.org/authors/id/A/AL/ALINKE/Lingua-Translit-0.22.tar.gz
 	tar zxvf Lingua-Translit-*.tar.gz
 	cd Lingua-Translit*
 	perl Makefile.PL PREFIX=../
