@@ -3633,7 +3633,6 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($query);
 		
 		# Records to suppress, defined as a set of scenarios represented by a token
-		#!# Fix hard-coded date
 		#!# Check whether locationCode locations with 'Periodical' are correct to suppress
 		#!# Major issue: problem with e.g. /records/3929/ where two records need to be created, but not both should be suppressed; there are around 1,000 of these
 		#!# Consider adding 917 local note stating the rule(s) that resulted in the suppression
