@@ -2387,7 +2387,7 @@ class reports
 	}
 	
 	
-	# Records (Russian) with L. in title to be checked individually, possibly resolving post-migration; this is to check whether this is an initial of a name or L. for Linnaeus
+	# Records (Russian) with L. in title to be checked individually; this is to check whether this is an initial of a name or L. for Linnaeus
 	public function report_russianldottitles ()
 	{
 		# Define the query
@@ -2400,6 +2400,18 @@ class reports
 				    field = 't'
 				AND value LIKE BINARY '%L.%'
 				AND recordLanguage = 'Russian'
+				AND recordId NOT IN (
+					2968, 8249, 11369, 14883, 15923, 20439, 22852, 26047, 27641, 27648,
+					32528, 37510, 37952, 37969, 44884, 45763, 45779, 48105, 48300, 48876,
+					55456, 55457, 55458, 55460, 55462, 55907, 60875, 60882, 61024, 61025,
+					63978, 65138, 65492, 68381, 78533, 80552, 80556, 89897, 90009, 90384,
+					90688, 95569, 96208, 96730, 109206, 109808, 109811, 110973, 121155, 126067,
+					135942, 136135, 136136, 136137, 136138, 136139, 136140, 136141, 136142, 136143,
+					136144, 136226, 136438, 137371, 141472, 151603, 158531, 160640, 163045, 164418,
+					164419, 164420, 164421, 164527, 168001, 168238, 168748, 168750, 169566, 182580,
+					189597, 189598, 189599, 189600, 189601, 189647, 189649, 189650, 189651, 195000,
+					196210, 199199, 202068, 208508, 209325, 211060, 212808
+				)
 		";
 		
 		# Return the query
