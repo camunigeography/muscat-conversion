@@ -3640,26 +3640,30 @@ class muscatConversion extends frontControllerApplication
 		#!# Consider adding 917 local note stating the rule(s) that resulted in the suppression
 		$suppressionScenarios = array (
 			
-			# 5,376 records
-			'STATUS-RECEIVED' =>
+			'STATUS-RECEIVED' => array (
+				# 5,376 records
+				'Item is being processed, i.e. has been accessioned and is with a bibliographer for classifying and cataloguing',
 				"   field = 'status' AND value = 'RECEIVED'
-				",
+				"),
 				
-			# Records marked specifically to suppress, e.g. Pamphlets needing review, post-migration; this has been achieved using a BCPL routine to mark the records as such
-			# 25,233 records
-			'EXPLICIT-SUPPRESS' =>
+			# NB This has been achieved using a BCPL routine to mark the records as such
+			'EXPLICIT-SUPPRESS' => array (
+				# 25,233 records
+				'Record marked specifically to suppress, e.g. pamphlets needing review, etc.',
 				"   field = 'status' AND value = '{$this->suppressionStatusKeyword}'
-				",
+				"),
 				
-			# 15 records
-			'ON-ORDER-RECENT' =>
+			'ON-ORDER-RECENT' => array (
+				# 15 records
+				'Item on order recently with expectation of being fulfilled',
 				"	    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
 					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
-				",
+				"),
 				
-			# 8,325 records
-			'EXTERNAL-LOCATION' =>
+			'EXTERNAL-LOCATION' => array (
+				# 8,325 records
+				'Item of bibliographic interest, but not held at SPRI, so no holdings record can be created',
 				"	    field = 'location'
 					AND value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
 					AND (
@@ -3668,26 +3672,28 @@ class muscatConversion extends frontControllerApplication
 						OR value LIKE '%Cambridge University%'
 						OR value LIKE 'Picture Library Store : Video%'
 						)
-				",
+				"),
 				
-			# 886 records
-			'OFFPRINT-OR-PHOTOCOPY' =>
+			'OFFPRINT-OR-PHOTOCOPY' => array (
+				# 886 records
+				'Item needing review to determine provenance with respect to copyright',
 				"	    field IN('note', 'local', 'priv')
 					AND (
 						   value LIKE '%offprint%'
 						OR value LIKE '%photocopy%'
 						)
 					AND value NOT LIKE '%out of copyright%'
-				",
+				"),
 				
 		);
-		foreach ($suppressionScenarios as $reason => $conditions) {
+		foreach ($suppressionScenarios as $reasonToken => $suppressionScenario) {
+			$conditions = $suppressionScenario[1];
 			$query = "UPDATE catalogue_marc
 				LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
 				LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
 				SET
 					status = 'suppress',
-					suppressReasons = IF(suppressReasons IS NULL, '|{$reason}|', CONCAT(suppressReasons, '{$reason}|'))
+					suppressReasons = IF(suppressReasons IS NULL, '|{$reasonToken}|', CONCAT(suppressReasons, '{$reasonToken}|'))
 				WHERE
 					{$conditions}
 			;";
