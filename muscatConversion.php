@@ -334,11 +334,10 @@ class muscatConversion extends frontControllerApplication
 		# Determine the import lockfile location
 		$this->lockfile = $this->exportsProcessingTmp . 'lockfile.txt';
 		
-		# Ensure an import is not running
-		if ($importHtml = $this->importInProgress ()) {
-			$allowedDuringImport = (isSet ($this->actions[$this->action]['allowDuringImport']) && $this->actions[$this->action]['allowDuringImport']);
-			if (!$allowedDuringImport) {
-				echo $importHtml;
+		# Show if an import is running, and prevent a second import running
+		if ($importHtml = $this->importInProgress (24, $blockUi = false)) {
+			echo $importHtml;
+			if ($this->action == 'import') {
 				return false;
 			}
 		}
