@@ -1852,7 +1852,7 @@ class marcConversion
 	#!# Currently almost all parts of the conversion system assume a single *ts - this will need to be fixed; likely also to need to expand 880 mirrors to be repeatable
 	#!# Repeatability experimentally added to 490 at definition level, but this may not work properly as the field reads in *vno for instance; all derived uses of *ts need to be checked
 	#!# Issue of missing $a needs to be resolved in original data
-	private function macro_generate490 ($ts, $xml, $ignored, $authorsFieldsIgnored, &$matchedRegexp = false)
+	public function macro_generate490 ($ts, $xml, $ignored, $authorsFieldsIgnored, &$matchedRegexp = false)
 	{
 		# Obtain the *ts value or end
 		if (!strlen ($ts)) {return false;}
@@ -2500,7 +2500,7 @@ class marcConversion
 	
 	
 	# Function to parse subfields into key-value pairs
-	private function parseSubfieldsToPairs ($line, $knownSingular = false)
+	public function parseSubfieldsToPairs ($line, $knownSingular = false)
 	{
 		# Tokenise
 		$tokens = $this->tokeniseToSubfields ($line);
