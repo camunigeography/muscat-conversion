@@ -1176,7 +1176,18 @@ class marcConversion
 		# Get the leading articles list, indexed by language
 		$leadingArticles = $this->leadingArticles ();
 		
+		# If the the value is surrounded by square brackets, then it can be taken as English, and the record language itself ignored
+		#!# Check on effect of *to or *tc, as per /reports/bracketednfcount/
+		if ($isSquareBracketed = ((substr ($value, 0, 1) == '[') && (substr ($value, -1, 1) == ']'))) {
+			$language = 'English';	// E.g. /records/14153/
+			if (preg_match ('/^\[La /', $value)) {	// All in /reports/bracketednfcount/ were reviewed and found to be English, except /records/9196/
+				$language = 'French';
+			}
+		}
+		
 		# If a forced language is not specified, obtain the language value for the record
+		#!# //lang may no longer be reliable following introduction of *lang data within *in or *j
+		#!# For the 240 field, this needs to take the language whose index number is the same as t/tt/to...
 		if (!$language) {
 			$xPath = '//lang[1]';	// Choose first only
 			$language = $this->xPathValue ($xml, $xPath);
@@ -1184,8 +1195,6 @@ class marcConversion
 		
 		# If no language specified, choose 'English'
 		if (!strlen ($language)) {$language = 'English';}
-		
-		#!# Need to handle the scenario of a title (*t/*to/*tc ?) starting with a bracket but the language is not English, as it may be that the bracket indicates the string is English; see /reports/bracketednfcount/
 		
 		# End if the language is not in the list of leading articles
 		if (!isSet ($leadingArticles[$language])) {return '0';}
