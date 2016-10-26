@@ -3750,7 +3750,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($query);
 		
 		# Read the values back and return them
-		$query = "SELECT id, mergeType, mergeVoyagerId FROM {$this->settings['database']}.catalogue_marc WHERE mergeType IS NOT NULL";
+		$query = "SELECT id, mergeType, mergeVoyagerId, suppressReasons FROM {$this->settings['database']}.catalogue_marc WHERE mergeType IS NOT NULL;";
 		$mergeData = $this->databaseConnection->getData ($query, "{$this->settings['database']}.catalogue_marc");
 		return $mergeData;
 	}
