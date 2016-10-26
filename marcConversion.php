@@ -11,6 +11,7 @@ class marcConversion
 		$this->databaseConnection = $muscatConversion->databaseConnection;
 		$this->settings = $muscatConversion->settings;
 		$this->applicationRoot = $muscatConversion->applicationRoot;
+		$this->baseUrl = $muscatConversion->baseUrl;
 		
 		# Create other handles
 		$this->transliteration = $transliteration;
