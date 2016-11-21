@@ -3454,6 +3454,10 @@ class muscatConversion extends frontControllerApplication
 		$query = 'SET SESSION max_allowed_packet = ' . $maxQueryLength . ';';
 		$this->databaseConnection->execute ($query);
 		
+		# Get the suppress reasons list for this chunk
+		$query = "SELECT id,suppressReasons FROM catalogue_marc WHERE suppressReasons IS NOT NULL;";
+		$suppressReasonsList = $this->databaseConnection->getPairs ($query);
+		
 		# Start a list of records which require a second-pass arising from 773 processing where the host does not exist at time of processing
 		$this->marcSecondPass = array ();
 		
@@ -3495,7 +3499,7 @@ class muscatConversion extends frontControllerApplication
 				foreach ($records as $id => $record) {
 					$mergeType       = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeType'] : false);
 					$mergeVoyagerId	 = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeVoyagerId'] : false);
-					$suppressReasons = (isSet ($mergeData[$id]) ? $mergeData[$id]['suppressReasons'] : false);
+					$suppressReasons = (isSet ($suppressReasonsList[$id]) ? $suppressReasonsList[$id] : false);
 					$marcPreMerge = NULL;	// Reset for next iteration
 					$marc = $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $errorString, $mergeDefinition, $mergeType, $mergeVoyagerId, $suppressReasons, $marcPreMerge);
 					if ($secondPassRecordId = $this->marcConversion->getSecondPassRecordId ()) {
@@ -3757,7 +3761,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($query);
 		
 		# Read the values back and return them
-		$query = "SELECT id, mergeType, mergeVoyagerId, suppressReasons FROM {$this->settings['database']}.catalogue_marc WHERE mergeType IS NOT NULL;";
+		$query = "SELECT id, mergeType, mergeVoyagerId FROM {$this->settings['database']}.catalogue_marc WHERE mergeType IS NOT NULL;";
 		$mergeData = $this->databaseConnection->getData ($query, "{$this->settings['database']}.catalogue_marc");
 		return $mergeData;
 	}
