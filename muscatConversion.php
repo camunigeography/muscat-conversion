@@ -667,7 +667,7 @@ class muscatConversion extends frontControllerApplication
 			if ($id = $this->recordSearchForm ($html)) {
 				
 				# State if not found
-				if (!$this->getRecords ($id, false, $convertEntities = true)) {
+				if (!$this->getRecords ($id, 'rawdata', $convertEntities = true)) {
 					$html .= "\n<p>There is no such record <em>" . htmlspecialchars ($id) . '</em>. Please try searching again.</p>';
 					echo $html;
 					return false;
@@ -1130,11 +1130,8 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to get records (or a single record)
-	private function getRecords ($ids /* or single ID */, $type = false, $convertEntities = false, $linkFields = false)
+	private function getRecords ($ids /* or single ID */, $type, $convertEntities = false, $linkFields = false)
 	{
-		# Determine the type whose table will be looked up from
-		$type = ($type ? $type : 'rawdata');
-		
 		# Determine if this is a sharded table (i.e. a record is spread across multiple entries)
 		$isSharded = ($this->types[$type]['idField'] == 'recordId');
 		
