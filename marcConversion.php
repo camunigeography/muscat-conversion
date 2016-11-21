@@ -34,6 +34,9 @@ class marcConversion
 		# Ensure the error string is clean for each iteration
 		$errorString = '';
 		
+		# Ensure the second-pass record ID flag is clean; this is used for a second-pass arising from 773 processing where the host does not exist at time of processing
+		$this->secondPassRecordId = NULL;
+		
 		# Create fresh containers for 880 reciprocal links for this record
 		$this->field880subfield6ReciprocalLinks = array ();		// This is indexed by the master field, ignoring any mutations within multilines
 		$this->field880subfield6Index = 0;
@@ -101,6 +104,13 @@ class marcConversion
 		
 		# Return the record
 		return $record;
+	}
+	
+	
+	# Getter for second-pass record ID
+	public function getSecondPassRecordId ()
+	{
+		return $this->secondPassRecordId;
 	}
 	
 	
@@ -2320,7 +2330,7 @@ class marcConversion
 			# If the record exists as XML, this simply means the host MARC record has not yet been processed, therefore register for the child for reprocessing in the second pass phase; otherwise this is a genuine error
 			$recordId = $this->xPathValue ($xml, '//q0');
 			if ($hostRecordXmlExists = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_xml', 'id', $conditions = array ('id' => $hostId))) {
-				$this->marcSecondPass[] = $recordId;
+				$this->secondPassRecordId = $recordId;
 			} else {	// Real error, to be reported
 				echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> Cannot match *kg, as there is no host record <a href=\"{$this->baseUrl}/records/{$hostId}/\">#{$hostId}</a>.</p>";
 			}

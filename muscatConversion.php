@@ -3457,7 +3457,7 @@ class muscatConversion extends frontControllerApplication
 		$query = 'SET SESSION max_allowed_packet = ' . $maxQueryLength . ';';
 		$this->databaseConnection->execute ($query);
 		
-		# Start a list of records which require a second-parse arising from 773 processing where the host does not exist at time of processing
+		# Start a list of records which require a second-pass arising from 773 processing where the host does not exist at time of processing
 		$this->marcSecondPass = array ();
 		
 		# Process records in the given order, so that processing of field 773 will have access to *doc/*ser processed records up-front
@@ -3483,9 +3483,8 @@ class muscatConversion extends frontControllerApplication
 					;";
 					if (!$ids = $this->databaseConnection->getPairs ($query)) {break;}	// Break the while (true) loop and move to next record type
 					
+				# For the second pass, use the second pass list that has been generated in the standard processing phase, once only
 				} else {
-					
-					# For the second pass, use the second pass list that has been generated in the standard processing phase, once only
 					if (!$this->marcSecondPass) {break;}	// Break the while (true) loop
 					$ids = $this->marcSecondPass;
 					$this->marcSecondPass = false;	// Ensure once only
@@ -3502,6 +3501,9 @@ class muscatConversion extends frontControllerApplication
 					$suppressReasons = (isSet ($mergeData[$id]) ? $mergeData[$id]['suppressReasons'] : false);
 					$marcPreMerge = NULL;	// Reset for next iteration
 					$marc = $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $errorString, $mergeDefinition, $mergeType, $mergeVoyagerId, $suppressReasons, $marcPreMerge);
+					if ($secondPassRecordId = $this->marcConversion->getSecondPassRecordId ()) {
+						$this->marcSecondPass[] = $secondPassRecordId;
+					}
 					if ($errorString) {
 						$html  = "<p class=\"warning\">Record <a href=\"{$this->baseUrl}/records/{$id}/\">{$id}</a> could not be converted to MARC:</p>";
 						$html .= "\n<p><img src=\"/images/icons/exclamation.png\" class=\"icon\" /> {$errorString}</p>";
