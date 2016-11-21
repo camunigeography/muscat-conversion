@@ -3020,7 +3020,6 @@ class muscatConversion extends frontControllerApplication
 		;";
 		$this->databaseConnection->query ($query);
 		
-		
 		# Trigger a transliteration run
 		$this->transliterateTransliterationsTable ();
 	}
@@ -3155,7 +3154,8 @@ class muscatConversion extends frontControllerApplication
 	
 	# Function to create XML records
 	#   Depencies: catalogue_processed
-	private function createXmlTable ()
+	# The $pathSeedingOnly is a flag for the first run which is done simply to allocate the catalogue_processed.xPath values, essentially just needing the xml::dropSerialRecordIntoSchema routine which createXmlTable() and its delegate processXmlRecords() has to wrap
+	private function createXmlTable ($pathSeedingOnly = false)
 	{
 		# Clean out the XML table
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.catalogue_xml;";
@@ -3178,7 +3178,10 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($query);
 		
 		# Create the XML for each record
-		$this->processXmlRecords ();
+		$this->processXmlRecords ($pathSeedingOnly);
+		
+		# End if only simple path seeding of catalogue_processed.xPath values is required, as remaining steps just waste CPU
+		if ($pathSeedingOnly) {return;}
 		
 		# Add the language lookups
 		$query = "UPDATE catalogue_xml SET langauge = ExtractValue(xml, '/*/lang[1]');";
@@ -3220,7 +3223,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to do the XML record processing, called from within the main XML table creation function; this will process about 1,000 records a second
-	private function processXmlRecords ()
+	private function processXmlRecords ($pathSeedingOnly = false)
 	{
 		# Get the schema
 		$schemaFlattenedXmlWithContainership = $this->getSchema (true);
@@ -3279,21 +3282,26 @@ class muscatConversion extends frontControllerApplication
 				return false;
 			}
 			
-			# Update the processed table to register the XPath values; takes around 2-15 seconds per batch of 500 sharded records
-			if (!$this->databaseConnection->updateMany ($this->settings['database'], 'catalogue_processed', $processedRecordXPaths)) {
-				echo "<p class=\"warning\">Error updating processed records to add XPath values, stopping at batch ({$recordId}):</p>";
-				echo application::dumpData ($this->databaseConnection->error (), false, true);
-				return false;
+			# If seeding the catalogue_processed.xPath values, update the processed table to register the XPath values; takes around 2-15 seconds per batch of 500 sharded records
+			if ($pathSeedingOnly) {
+				if (!$this->databaseConnection->updateMany ($this->settings['database'], 'catalogue_processed', $processedRecordXPaths)) {
+					echo "<p class=\"warning\">Error updating processed records to add XPath values, stopping at batch ({$recordId}):</p>";
+					echo application::dumpData ($this->databaseConnection->error (), false, true);
+					return false;
+				}
 			}
 		}
 	}
 	
 	
-	# Function to replace location=Periodical in the processed records with the real, looked-up values; dependencies: catalogue_processed
+	# Function to replace location=Periodical in the processed records with the real, looked-up values; dependencies: catalogue_processed with xPath field populated
 	# NB This matching is done before the transliteration phase, so that the /art/j/tg/t matches its parent (e.g. /records/167320/ joins to its parent /records/33585/ ) and then AFTER that it gets upgraded
 	#!# There is still the problem that the target name itself does not get upgraded
 	private function processPeriodicalLocations ()
 	{
+		# Assign XPaths to catalogue_processed; this unfortunate dependency means that the XML processing has to be run twice
+		$this->createXmlTable ($pathSeedingOnly = true);
+		
 		# Create a table of periodicals, with their title and location(s), clearing it out first if existing from a previous import
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.periodicallocations;";
 		$this->databaseConnection->execute ($sql);
@@ -3309,7 +3317,7 @@ class muscatConversion extends frontControllerApplication
 		;";
 		$this->databaseConnection->execute ($sql);
 		
-		# Insert the data
+		# Insert the data; note that the query assumes presence of catalogue_processed.xPath
 		$sql = "
 			INSERT INTO `periodicallocations` (recordId, title, location)
 			SELECT
