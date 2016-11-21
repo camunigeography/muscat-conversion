@@ -2070,7 +2070,7 @@ class reports
 			FROM catalogue_processed AS child
 			LEFT JOIN catalogue_xml ON child.recordId = catalogue_xml.id
 			LEFT JOIN periodicallocations ON EXTRACTVALUE(xml, '//doc/ts[1]') LIKE CONCAT(periodicallocations.title, '%')
-			LEFT JOIN catalogue_processed AS parent ON periodicallocations.recordId = parent.recordId AND parent.field = 'Location'
+			LEFT JOIN catalogue_processed AS parent ON periodicallocations.recordId = parent.recordId AND parent.field = 'location'
 			WHERE child.field = 'location' AND child.value = 'Periodical'
 			AND LENGTH(EXTRACTVALUE(xml, '//doc/ts[1]')) > 0
 		";
