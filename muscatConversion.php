@@ -53,6 +53,9 @@ class muscatConversion extends frontControllerApplication
 		),
 	);
 	
+	# Define the number of the first real record in the data
+	private $firstRealRecord = 1000;		// Records 1-999 are internal documentation records
+	
 	# Fieldsindex fields
 	private $fieldsIndexFields = array (
 		'title' => 'tc',
@@ -2094,9 +2097,6 @@ class muscatConversion extends frontControllerApplication
 	# Rearrange to insertable datastructure
 	private function convertToCsv ($lines)
 	{
-		# Define the number of the first real record in the data
-		$firstRealRecord = 1000;
-		
 		# Loop through each line, and split
 		$record = array ();
 		foreach ($lines as $lineNumber => $line) {
@@ -2116,7 +2116,7 @@ class muscatConversion extends frontControllerApplication
 			}
 			
 			# Skip the documentation records (within range 1-999)
-			if ($recordId < $firstRealRecord) {return false;}
+			if ($recordId < $this->firstRealRecord) {return false;}
 			
 			# Assemble the line as one of the inserts
 			$record[$lineNumber] = array (
@@ -2129,7 +2129,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Convert to CSV
 		require_once ('csv.php');
-		$csv = csv::dataToCsv ($record, '', ',', array (), $includeHeaderRow = ($recordId == $firstRealRecord));
+		$csv = csv::dataToCsv ($record, '', ',', array (), $includeHeaderRow = ($recordId == $this->firstRealRecord));
 		
 		# Return the CSV
 		return $csv;
@@ -3238,7 +3238,7 @@ class muscatConversion extends frontControllerApplication
 		while (true) {	// Until the break
 			
 			# Get the next chunk of record IDs to update, until all are done
-			$query = "SELECT id FROM catalogue_xml WHERE xml IS NULL AND id >= 1000 LIMIT {$chunksOf};";	// Records 1-999 are internal documentation records
+			$query = "SELECT id FROM catalogue_xml WHERE xml IS NULL AND id >= {$this->firstRealRecord} LIMIT {$chunksOf};";
 			if (!$ids = $this->databaseConnection->getPairs ($query)) {break;}
 			
 			# Get the records for this chunk, using the processed data (as that includes character conversions)
@@ -3478,7 +3478,7 @@ class muscatConversion extends frontControllerApplication
 					WHERE
 						    type = '{$recordType}'
 						AND marc IS NULL
-						AND id >= 1000
+						AND id >= {$this->firstRealRecord}
 					LIMIT {$chunksOf}
 					;";
 					if (!$ids = $this->databaseConnection->getPairs ($query)) {break;}	// Break the while (true) loop and move to next record type
