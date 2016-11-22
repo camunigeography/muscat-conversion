@@ -34,13 +34,13 @@ class marcConversion
 		# Ensure the error string is clean for each iteration
 		$errorString = '';
 		
-		# Ensure the second-pass record ID flag is clean; this is used for a second-pass arising from 773 processing where the host does not exist at time of processing
-		$this->secondPassRecordId = NULL;
-		
 		# Create fresh containers for 880 reciprocal links for this record
 		$this->field880subfield6ReciprocalLinks = array ();		// This is indexed by the master field, ignoring any mutations within multilines
 		$this->field880subfield6Index = 0;
 		$this->field880subfield6FieldInstanceIndex = array ();
+		
+		# Ensure the second-pass record ID flag is clean; this is used for a second-pass arising from 773 processing where the host does not exist at time of processing
+		$this->secondPassRecordId = NULL;
 		
 		# Create property handle
 		$this->suppressReasons = $suppressReasons;
@@ -53,6 +53,9 @@ class marcConversion
 		
 		# Load the record as a valid XML object
 		$xml = $this->loadXmlRecord ($recordXml);
+		
+		# Determine the record number, used by several macros
+		$this->recordId = $this->xPathValue ($xml, '//q0');
 		
 		# Up-front, process author fields
 		require_once ('generateAuthors.php');
@@ -67,8 +70,7 @@ class marcConversion
 		if (!$datastructure = $this->convertToMarc_ExpandVerticallyRepeatableFields ($datastructure, $errorString)) {return false;}
 		
 		# Process the record
-		$recordId = $this->xPathValue ($xml, '//q0');
-		$record = $this->convertToMarc_ProcessRecord ($datastructure, $errorString, $recordId);
+		$record = $this->convertToMarc_ProcessRecord ($datastructure, $errorString);
 		
 		# Determine the length, in bytes, which is the first five characters of the 000 (Leader), padded
 		$bytes = mb_strlen ($record);
@@ -78,18 +80,18 @@ class marcConversion
 		# If required, merge with an existing Voyager record, returning by reference the pre-merge record, and below returning the merged record
 		if ($mergeType) {
 			$marcPreMerge = $record;	// Save to argument returned by reference
-			$record = $this->mergeWithExistingVoyager ($record, $recordId, $mergeDefinition, $mergeType, $mergeVoyagerId, $sourceRegistry, $errorString);
+			$record = $this->mergeWithExistingVoyager ($record, $mergeDefinition, $mergeType, $mergeVoyagerId, $sourceRegistry, $errorString);
 		}
 		
 		# Report any UTF-8 problems
 		if (strlen ($record) && !htmlspecialchars ($record)) {	// i.e. htmlspecialchars fails
-			$errorString .= "UTF-8 conversion failed in record <a href=\"{$this->baseUrl}/records/{$recordId}/\">#{$recordId}</a>.";
+			$errorString .= "UTF-8 conversion failed in record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">#{$this->recordId}</a>.";
 			return false;
 		}
 		
 		# Do a check to report any case of an invalid subfield indicator
 		if (preg_match_all ("/{$this->doubleDagger}[^a-z0-9]/u", $record, $matches)) {
-			$errorString .= "Invalid " . (count ($matches[0]) == 1 ? 'subfield' : 'subfields') . " (" . implode (', ', $matches[0]) . ") detected in record <a href=\"{$this->baseUrl}/records/{$recordId}/\">#{$recordId}</a>.";
+			$errorString .= "Invalid " . (count ($matches[0]) == 1 ? 'subfield' : 'subfields') . " (" . implode (', ', $matches[0]) . ") detected in record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">#{$this->recordId}</a>.";
 			// Leave the record visible rather than return false
 		}
 		
@@ -98,7 +100,7 @@ class marcConversion
 		$total880fields = count ($matches[0]);
 		$total880dollar6Instances = substr_count ($record, "{$this->doubleDagger}6 880-");
 		if ($total880fields != $total880dollar6Instances) {
-			$errorString .= "Mismatch in 880 field/link counts ({$total880fields} vs {$total880dollar6Instances}) in record <a href=\"{$this->baseUrl}/records/{$recordId}/\">#{$recordId}</a>.";
+			$errorString .= "Mismatch in 880 field/link counts ({$total880fields} vs {$total880dollar6Instances}) in record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">#{$this->recordId}</a>.";
 			// Leave the record visible rather than return false
 		}
 		
@@ -134,7 +136,7 @@ class marcConversion
 	
 	
 	# Function to perform merge of a MARC record with an existing Voyager record
-	private function mergeWithExistingVoyager ($localRecord, $recordId, $mergeDefinitions, $mergeType, $mergeVoyagerId, &$sourceRegistry = array (), &$errorString)
+	private function mergeWithExistingVoyager ($localRecord, $mergeDefinitions, $mergeType, $mergeVoyagerId, &$sourceRegistry = array (), &$errorString)
 	{
 		# Start a source registry, to store which source each line comes from
 		$sourceRegistry = array ();
@@ -142,7 +144,7 @@ class marcConversion
 		# End if merge type is unsupported; this will result in an empty record
 		#!# Need to ensure this is reported during the import also
 		if (!isSet ($this->mergeTypes[$mergeType])) {
-			$errorString = "Merge failed for Muscat record #{$recordId}!";
+			$errorString = "Merge failed for Muscat record #{$this->recordId}!";
 			return false;
 		}
 		
@@ -151,7 +153,7 @@ class marcConversion
 		
 		# Get the existing Voyager record
 		if (!$voyagerRecord = $this->getExistingVoyagerRecord ($mergeVoyagerId)) {
-			$errorString = "Merge failed for Muscat record #{$recordId}!";
+			$errorString = "Merge failed for Muscat record #{$this->recordId}!";
 			return false;
 		}
 		
@@ -177,7 +179,7 @@ class marcConversion
 		
 		/*
 		echo "recordId:";
-		application::dumpData ($recordId);
+		application::dumpData ($this->recordId);
 		echo "mergeType:";
 		application::dumpData ($mergeType);
 		echo "localRecordStructure:";
@@ -579,7 +581,7 @@ class marcConversion
 	
 	
 	# Function to process the record
-	private function convertToMarc_ProcessRecord ($datastructure, $errorString, $recordId)
+	private function convertToMarc_ProcessRecord ($datastructure, $errorString)
 	{
 		# Process each line
 		$outputLines = array ();
@@ -659,7 +661,7 @@ class marcConversion
 			
 			# Report data mismatches
 			if (!isSet ($outputLines[$lineOutputKey])) {
-				echo "<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> line output key {$lineOutputKey} does not exist in the output lines.</p>";
+				echo "<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> line output key {$lineOutputKey} does not exist in the output lines.</p>";
 			}
 			
 			# For multilines, split the line into parts, prepend the link token
@@ -1385,8 +1387,7 @@ class marcConversion
 				if ($marcCode) {
 					$h[] = $marcCode;
 				} else {
-					$recordId = $this->xPathValue ($xml, '//q0');
-					echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> the record included a language note but the language '<em>{$language}</em>'.</p>";
+					echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> the record included a language note but the language '<em>{$language}</em>'.</p>";
 				}
 			}
 		}
@@ -1664,8 +1665,7 @@ class marcConversion
 		require_once ('generate008.php');
 		$generate008 = new generate008 ($this, $xml);
 		if (!$value = $generate008->main ($error)) {
-			$recordId = $this->xPathValue ($xml, '//q0');
-			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';
+			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';
 		}
 		
 		# Return the value
@@ -1807,8 +1807,7 @@ class marcConversion
 		$generate245 = new generate245 ($this, $xml, $authorsFields, $languageMode);
 		$value = $generate245->main ($error);
 		if ($error) {
-			$recordId = $this->xPathValue ($xml, '//q0');
-			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';
+			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';
 		}
 		
 		# Return the value, which may be false if transliteration not intended
@@ -2078,9 +2077,8 @@ class marcConversion
 		
 		# Ensure the value is in the table
 		if (!isSet ($this->udcTranslations[$value])) {
-			$recordId = $this->xPathValue ($xml, '//q0');
 			// NB For the following error, see also /reports/periodicalpam/ which covers scenario of records temporarily tagged as 'MPP'
-			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> 650 UDC field '<em>{$value}</em>' is not a valid UDC code.</p>";
+			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> 650 UDC field '<em>{$value}</em>' is not a valid UDC code.</p>";
 			return false;
 		}
 		
@@ -2150,8 +2148,7 @@ class marcConversion
 		
 		# Ensure the value is in the table
 		if (!isSet ($mappings[$value])) {
-			$recordId = $this->xPathValue ($xml, '//q0');
-			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> 650 PGA field {$value} is not a valid PGA code letter.</p>";
+			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> 650 PGA field {$value} is not a valid PGA code letter.</p>";
 			return false;
 		}
 		
@@ -2328,11 +2325,10 @@ class marcConversion
 		if (!$hostRecord = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'marc', $conditions = array ('id' => $hostId))) {
 			
 			# If the record exists as XML, this simply means the host MARC record has not yet been processed, therefore register for the child for reprocessing in the second pass phase; otherwise this is a genuine error
-			$recordId = $this->xPathValue ($xml, '//q0');
 			if ($hostRecordXmlExists = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_xml', 'id', $conditions = array ('id' => $hostId))) {
-				$this->secondPassRecordId = $recordId;
+				$this->secondPassRecordId = $this->recordId;
 			} else {	// Real error, to be reported
-				echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$recordId}/\">record #{$recordId}</a>:</strong> Cannot match *kg, as there is no host record <a href=\"{$this->baseUrl}/records/{$hostId}/\">#{$hostId}</a>.</p>";
+				echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> Cannot match *kg, as there is no host record <a href=\"{$this->baseUrl}/records/{$hostId}/\">#{$hostId}</a>.</p>";
 			}
 			return false;
 		}
