@@ -2319,17 +2319,20 @@ class marcConversion
 		
 		# Get *kg or end; records will usually be /art/in or /art/j only, but there are some /doc records
 		#!# At present this leaves tens of thousands of journal analytics without links (because they don't have explicit *kg fields)
-		if (!$hostId = $this->xPathValue ($xml, '//k2/kg')) {return false;}	// Data checked that no records contain more than one *kg
+		#!# Data had previously been checked that no records contain more than one *kg, but this is not currently the case
+		if (!$hostId = $this->xPathValue ($xml, '//k2/kg')) {return false;}
 		
 		# Obtain the processed MARC record; note that createMarcRecords processes the /doc records before /art/in records
 		if (!$hostRecord = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'marc', $conditions = array ('id' => $hostId))) {
 			
-			# If the record exists as XML, this simply means the host MARC record has not yet been processed, therefore register for the child for reprocessing in the second pass phase; otherwise this is a genuine error
-			if ($hostRecordXmlExists = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_xml', 'id', $conditions = array ('id' => $hostId))) {
-				$this->secondPassRecordId = $this->recordId;
-			} else {	// Real error, to be reported
+			# Validate that the host record exists; if this fails, the data is wrong
+			if (!$hostRecordXmlExists = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_xml', 'id', $conditions = array ('id' => $hostId))) {
 				echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> Cannot match *kg, as there is no host record <a href=\"{$this->baseUrl}/records/{$hostId}/\">#{$hostId}</a>.</p>";
 			}
+			
+			# The host MARC record has not yet been processed, therefore register the child for reprocessing in the second-pass phase
+			$this->secondPassRecordId = $this->recordId;
+			
 			return false;
 		}
 		
