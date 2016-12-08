@@ -3025,6 +3025,9 @@ class muscatConversion extends frontControllerApplication
 		;";
 		$this->databaseConnection->query ($query);
 		
+		# Populate the Library of Congress name authority list
+		$this->populateLocNameAuthorities ();
+		
 		# Trigger a transliteration run
 		$this->transliterateTransliterationsTable ();
 	}
