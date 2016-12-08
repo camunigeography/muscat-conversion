@@ -149,6 +149,11 @@ class muscatConversion extends frontControllerApplication
 		'n1', 'n2',
 	);
 	
+	# Define fields for transliteration name matching
+	private $transliterationNameMatchingFields = array (
+		'n1',
+	);
+	
 	# Acquisition date cut-off for on-order -type items; these range from 22/04/1992 to 30/10/2015; the intention of this date is that 'recent' on-order items (intended to be 1 year ago) would be migrated but suppressed, and the rest deleted - however, this needs review
 	private $acquisitionDate = '2015-01-01';
 	
@@ -3034,14 +3039,24 @@ class muscatConversion extends frontControllerApplication
 		;";
 		$this->databaseConnection->query ($query);
 		
-		# Populate the Library of Congress name authority list
-		$this->populateLocNameAuthorities ();
-		
-		# Populate the Google names data
-		$this->populateGoogleNames ();
-		
 		# Trigger a transliteration run
 		$this->transliterateTransliterationsTable ();
+		
+		# Populate the Library of Congress name authority list and mark the matches (with inNameAuthorityList = 1)
+		$this->populateLocNameAuthorities ();
+		
+		# Populate the Google names data and mark the matches (with inNameAuthorityList = 2)
+		$this->populateGoogleNames ();
+		
+		# Mark items not matching a name authority as 0 (rather than leaving as NULL)
+		$query = "
+			UPDATE transliterations
+			SET inNameAuthorityList = 0
+			WHERE
+				    transliterations.field IN('" . implode ("', '", $this->transliterationNameMatchingFields) . "')
+				AND inNameAuthorityList IS NULL
+		;";
+		$this->databaseConnection->query ($query);
 	}
 	
 	
@@ -3092,9 +3107,6 @@ class muscatConversion extends frontControllerApplication
 		
 		# Insert the data (takes around 15 seconds)
 		$this->databaseConnection->updateMany ($this->settings['database'], 'transliterations', $conversions, $chunking = 5000);
-		
-		# Mark whether names for some fields are in the Library of Congress name authority list or Google names data
-		$this->markMatchingNames ();
 		
 		# Signal success
 		return true;
@@ -4764,48 +4776,17 @@ class muscatConversion extends frontControllerApplication
 		# Close the file
 		fclose ($handle);
 		
-		# Confirm success
-		return true;
-	}
-	
-	
-	# Function to mark whether names for some fields are in the Library of Congress name authority list or Google names data
-	private function markMatchingNames ()
-	{
-		# Clear out existing data
-		$query = " UPDATE transliterations SET inNameAuthorityList = NULL;";
-		$this->databaseConnection->query ($query);
-		
-		# Define fields in scope
-		$locCompareFields = array ('n1');
-		
-		# Perform matches
+		# Mark whether names for some fields are in the Library of Congress name authority list or Google names data
 		$query = "
 			UPDATE transliterations
 			INNER JOIN locnames ON transliterations.title = locnames.surname
 			SET inNameAuthorityList = 1
-			WHERE transliterations.field IN('" . implode ("', '", $locCompareFields) . "')
+			WHERE transliterations.field IN('" . implode ("', '", $this->transliterationNameMatchingFields) . "')
 		;";
 		$this->databaseConnection->query ($query);
 		
-		# Perform matches
-		$query = "
-			UPDATE transliterations
-			INNER JOIN googlenames ON transliterations.title = googlenames.surname
-			SET inNameAuthorityList = 2
-			WHERE transliterations.field IN('" . implode ("', '", $locCompareFields) . "')
-		;";
-		$this->databaseConnection->query ($query);
-		
-		# Mark non-matching as 0 (rather than leaving as NULL)
-		$query = "
-			UPDATE transliterations
-			SET inNameAuthorityList = 0
-			WHERE
-				    transliterations.field IN('" . implode ("', '", $locCompareFields) . "')
-				AND inNameAuthorityList IS NULL
-		;";
-		$this->databaseConnection->query ($query);
+		# Confirm success
+		return true;
 	}
 	
 	
@@ -4862,6 +4843,15 @@ class muscatConversion extends frontControllerApplication
 			$error = 'Error inserting Google names data';
 			return false;
 		}
+		
+		# Perform matches
+		$query = "
+			UPDATE transliterations
+			INNER JOIN googlenames ON transliterations.title = googlenames.surname
+			SET inNameAuthorityList = 2
+			WHERE transliterations.field IN('" . implode ("', '", $this->transliterationNameMatchingFields) . "')
+		;";
+		$this->databaseConnection->query ($query);
 		
 		# Confirm success
 		return true;
