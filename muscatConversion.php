@@ -300,10 +300,10 @@ class muscatConversion extends frontControllerApplication
 				'parent' => 'admin',
 				'administrator' => true,
 			),
-			'googlenames' => array (
-				'description' => 'Google names',
-				'subtab' => 'Google names',
-				'url' => 'googlenames.html',
+			'othernames' => array (
+				'description' => 'Other names data',
+				'subtab' => 'Other names data',
+				'url' => 'othernames.html',
 				'icon' => 'cd',
 				'parent' => 'admin',
 				'administrator' => true,
@@ -3045,8 +3045,8 @@ class muscatConversion extends frontControllerApplication
 		# Populate the Library of Congress name authority list and mark the matches (with inNameAuthorityList = 1)
 		$this->populateLocNameAuthorities ();
 		
-		# Populate the Google names data and mark the matches (with inNameAuthorityList = 2)
-		$this->populateGoogleNames ();
+		# Populate the other names data and mark the matches (with inNameAuthorityList = 2)
+		$this->populateOtherNames ();
 		
 		# Mark items not matching a name authority as 0 (rather than leaving as NULL)
 		$query = "
@@ -4776,7 +4776,7 @@ class muscatConversion extends frontControllerApplication
 		# Close the file
 		fclose ($handle);
 		
-		# Mark whether names for some fields are in the Library of Congress name authority list or Google names data
+		# Mark whether names (for selected fields) are in the Library of Congress name authority list
 		$query = "
 			UPDATE transliterations
 			INNER JOIN locnames ON transliterations.title = locnames.surname
@@ -4790,8 +4790,8 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Page to preprocess the Google names data
-	public function googlenames ()
+	# Page to preprocess the other names data
+	public function othernames ()
 	{
 		# Start the HTML
 		$html = '';
@@ -4801,11 +4801,11 @@ class muscatConversion extends frontControllerApplication
 		$confirmation = 'Yes, begin';
 		if ($this->areYouSure ($message, $confirmation, $html)) {
 			
-			# Populate the Google names data
-			if (!$this->populateGoogleNames ($error)) {
+			# Populate the other names data
+			if (!$this->populateOtherNames ($error)) {
 				$html = "\n<p>{$this->cross} {$error}</p>";
 			} else {
-				$html = "\n<p>{$this->tick} The Google names data was processed.</p>";
+				$html = "\n<p>{$this->tick} The other names data was processed.</p>";
 			}
 		}
 		
@@ -4814,40 +4814,43 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to populate the Google names data
-	private function populateGoogleNames (&$error = false)
+	# Function to populate the other names data
+	private function populateOtherNames (&$error = false)
 	{
+		# Define the other names data file
+		$file = $this->applicationRoot . '/tables/othernames.tsv';
+		
 		# Read in the TSV file
-		$tsv = file_get_contents ($this->applicationRoot . '/tables/googlenames.tsv');
+		$tsv = file_get_contents ($file);
 		
 		# Convert from TSV
 		require_once ('csv.php');
-		$googleNames = csv::tsvToArray (trim ($tsv));
+		$otherNames = csv::tsvToArray (trim ($tsv));
 		
 		# Create/re-create the table
-		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.googlenames;";
+		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.othernames;";
 		$this->databaseConnection->execute ($sql);
 		$sql = "
-			CREATE TABLE googlenames (
+			CREATE TABLE othernames (
 				id INT(11) NOT NULL AUTO_INCREMENT COMMENT 'Automatic key',
 				surname VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Surname',
 				results INT(11) NOT NULL COMMENT 'Number of results',
 				PRIMARY KEY (id),
 				INDEX(surname)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of names sourced from Google';
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of names sourced from other sources';
 		";
 		$this->databaseConnection->execute ($sql);
 		
 		# Insert the data
-		if (!$this->databaseConnection->insertMany ($this->settings['database'], 'googlenames', $googleNames)) {
-			$error = 'Error inserting Google names data';
+		if (!$this->databaseConnection->insertMany ($this->settings['database'], 'othernames', $otherNames)) {
+			$error = 'Error inserting other names data';
 			return false;
 		}
 		
 		# Perform matches
 		$query = "
 			UPDATE transliterations
-			INNER JOIN googlenames ON transliterations.title = googlenames.surname
+			INNER JOIN othernames ON transliterations.title = othernames.surname
 			SET inNameAuthorityList = 2
 			WHERE transliterations.field IN('" . implode ("', '", $this->transliterationNameMatchingFields) . "')
 		;";
