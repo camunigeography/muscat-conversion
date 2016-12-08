@@ -4820,6 +4820,9 @@ class muscatConversion extends frontControllerApplication
 		# Define the other names data file
 		$file = $this->applicationRoot . '/tables/othernames.tsv';
 		
+		# Build up this data up over time
+		$this->obtainSaveOtherNamesData ($file);
+		
 		# Read in the TSV file
 		$tsv = file_get_contents ($file);
 		
@@ -4859,6 +4862,64 @@ class muscatConversion extends frontControllerApplication
 		# Confirm success
 		return true;
 	}
+	
+	
+	# Function to obtain and save other names data
+	private function obtainSaveOtherNamesData ($file)
+	{
+		# Get list of names needing population
+		$limit = 100;
+		$query = "SELECT
+			DISTINCT title
+			FROM transliterations
+			WHERE
+				    field IN('n1')
+				AND inNameAuthorityList = 0
+			ORDER BY id
+			LIMIT {$limit}
+		;";
+		$names = $this->databaseConnection->getPairs ($query);
+		
+		# Data is retrieved on behalf of the current user
+		ini_set ('user_agent', $_SERVER['HTTP_USER_AGENT']);
+		
+		# Work through each name
+		$results = array ();
+		$i = 0;
+		foreach ($names as $name) {
+			$i++;
+			
+			# Obtain the data for the query, as a phrase
+			# Copyright note: The result data itself is *not* saved - only a count is done to determine presence or not
+			$url = 'https://duckduckgo.com/html/?q="' . urlencode ($name) . '"';
+			$serpHtml = @file_get_contents ($url);
+			
+			# Stop if server forbids access
+			if (substr_count ($http_response_header[0], '403 Forbidden')) {
+				echo "<p class=\"warning\">ERROR: Got HTTP response status <tt>{$http_response_header[0]}</tt> for request {$i}.</p>";
+				break;
+			}
+			
+			# Skip if result not OK
+			// application::dumpData ($http_response_header);
+			if (!substr_count ($http_response_header[0], '200 OK')) {
+				echo "<p class=\"warning\">ERROR: Got HTTP response status <tt>{$http_response_header[0]}</tt> for search for <em>" . htmlspecialchars ($name) . '</em></p>';
+				continue;
+			}
+			
+			# Count the results
+			$total = substr_count ($serpHtml, '<div class="result results_links results_links_deep web-result ">');
+			
+			# Add the new result to the TSV
+			$string = $name . "\t" . $total . "\n";
+			file_put_contents ($file, $string, FILE_APPEND);
+			
+			# Be patient, to avoid unreasonable request rates
+			$wait = rand (5, 20);
+			sleep ($wait);
+		}
+	}
+	
 	
 	
 	# Function to process the merge definition
