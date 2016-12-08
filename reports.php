@@ -3109,6 +3109,9 @@ class reports
 			}
 			if ($cssClass) {
 				$data[$id]['title_spellcheck_html'] = "<span class=\"{$cssClass}\">" . $data[$id]['title_spellcheck_html'] . '</span>';
+				if ($data[$id]['inNameAuthorityList'] == '0') {
+					$data[$id]['title_spellcheck_html'] .= ' <a href="https://www.google.co.uk/search?q=' . htmlspecialchars (strip_tags ($data[$id]['title_spellcheck_html'])) . '" target="_blank" class="noarrow"><img src="/images/icons/magnifier.png" alt="" class="icon" /></a>';
+				}
 			}
 			unset ($data[$id]['inNameAuthorityList']);
 		}
