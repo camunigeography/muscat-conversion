@@ -3037,6 +3037,9 @@ class muscatConversion extends frontControllerApplication
 		# Populate the Library of Congress name authority list
 		$this->populateLocNameAuthorities ();
 		
+		# Populate the Google names data
+		$this->populateGoogleNames ();
+		
 		# Trigger a transliteration run
 		$this->transliterateTransliterationsTable ();
 	}
@@ -4808,7 +4811,7 @@ class muscatConversion extends frontControllerApplication
 		$confirmation = 'Yes, begin';
 		if ($this->areYouSure ($message, $confirmation, $html)) {
 			
-			# Populate the LoC name authority data
+			# Populate the Google names data
 			if (!$this->populateGoogleNames ($error)) {
 				$html = "\n<p>{$this->cross} {$error}</p>";
 			} else {
