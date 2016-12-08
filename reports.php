@@ -3103,13 +3103,14 @@ class reports
 		# Show whether the generated Cyrillic is in the name authority list, where the data exists
 		foreach ($data as $id => $record) {
 			switch ($data[$id]['inNameAuthorityList']) {
-				case '1': $cssClass = 'present'; break;
 				case '0': $cssClass = 'absent';  break;
+				case '1': $cssClass = 'present'; break;
+				case '2': $cssClass = 'probable'; break;
 				default: $cssClass = NULL; // No data, e.g. field relevant
 			}
 			if ($cssClass) {
 				$data[$id]['title_spellcheck_html'] = "<span class=\"{$cssClass}\">" . $data[$id]['title_spellcheck_html'] . '</span>';
-				if ($data[$id]['inNameAuthorityList'] == '0') {
+				if (in_array ($data[$id]['inNameAuthorityList'], array ('0', '2'), true)) {
 					$data[$id]['title_spellcheck_html'] .= ' <a href="https://www.google.co.uk/search?q=' . htmlspecialchars (strip_tags ($data[$id]['title_spellcheck_html'])) . '" target="_blank" class="noarrow"><img src="/images/icons/magnifier.png" alt="" class="icon" /></a>';
 				}
 			}

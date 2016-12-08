@@ -3093,8 +3093,8 @@ class muscatConversion extends frontControllerApplication
 		# Insert the data (takes around 15 seconds)
 		$this->databaseConnection->updateMany ($this->settings['database'], 'transliterations', $conversions, $chunking = 5000);
 		
-		# Mark whether names for some fields are in the Library of Congress name authority list
-		$this->markMatchingLocNameAuthorities ();
+		# Mark whether names for some fields are in the Library of Congress name authority list or Google names data
+		$this->markMatchingNames ();
 		
 		# Signal success
 		return true;
@@ -4769,8 +4769,8 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to mark whether names for some fields are in the Library of Congress name authority list
-	private function markMatchingLocNameAuthorities ()
+	# Function to mark whether names for some fields are in the Library of Congress name authority list or Google names data
+	private function markMatchingNames ()
 	{
 		# Clear out existing data
 		$query = " UPDATE transliterations SET inNameAuthorityList = NULL;";
@@ -4784,6 +4784,15 @@ class muscatConversion extends frontControllerApplication
 			UPDATE transliterations
 			INNER JOIN locnames ON transliterations.title = locnames.surname
 			SET inNameAuthorityList = 1
+			WHERE transliterations.field IN('" . implode ("', '", $locCompareFields) . "')
+		;";
+		$this->databaseConnection->query ($query);
+		
+		# Perform matches
+		$query = "
+			UPDATE transliterations
+			INNER JOIN googlenames ON transliterations.title = googlenames.surname
+			SET inNameAuthorityList = 2
 			WHERE transliterations.field IN('" . implode ("', '", $locCompareFields) . "')
 		;";
 		$this->databaseConnection->query ($query);
