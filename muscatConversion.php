@@ -3022,7 +3022,7 @@ class muscatConversion extends frontControllerApplication
 			DELETE FROM transliterations
 			WHERE
 				    field = 'pu'
-				AND value IN('[n.pub.]', 'n.pub.', '[n.p.]')
+				AND title_latin IN('[n.pub.]', 'n.pub.', '[n.p.]')
 		;";
 		$this->databaseConnection->query ($query);
 		
