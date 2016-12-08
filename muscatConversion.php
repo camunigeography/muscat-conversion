@@ -287,6 +287,14 @@ class muscatConversion extends frontControllerApplication
 				'administrator' => true,
 				'allowDuringImport' => true,
 			),
+			'loc' => array (
+				'description' => 'LoC names',
+				'subtab' => 'LoC names',
+				'url' => 'loc.html',
+				'icon' => 'cd',
+				'parent' => 'admin',
+				'administrator' => true,
+			),
 			'export' => array (
 				'description' => 'Export MARC21 output',
 				'tab' => 'Export',
@@ -4604,6 +4612,143 @@ class muscatConversion extends frontControllerApplication
 		
 		# Show the HTML
 		echo $html;
+	}
+	
+	
+	# Page to preprocess the LoC name authority data
+	public function loc ()
+	{
+		# Start the HTML
+		$html = '';
+		
+		# Obtain confirmation from the user
+		$message = '<strong>Begin processing?</strong>';
+		$confirmation = 'Yes, begin';
+		if ($this->areYouSure ($message, $confirmation, $html)) {
+			
+			# Allow long script execution
+			ini_set ('max_execution_time', 0);
+			
+			# Allow large queries for the chunking operation
+			$maxQueryLength = (1024 * 1024 * 32);	// i.e. this many MB
+			$query = 'SET SESSION max_allowed_packet = ' . $maxQueryLength . ';';
+			$this->databaseConnection->execute ($query);
+			
+			# Populate the LoC name authority data
+			if (!$this->populateLocNameAuthorities ($error)) {
+				$html = "\n<p>{$this->cross} {$error}</p>";
+			} else {
+				$html = "\n<p>{$this->tick} The LoC name authority data was processed.</p>";
+			}
+		}
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# Function to populate the LoC name authority data
+	private function populateLocNameAuthorities (&$error = false)
+	{
+		# Create the new external records table
+		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.locnames;";
+		$this->databaseConnection->execute ($sql);
+		$sql = "
+			CREATE TABLE locnames (
+				id INT(11) NOT NULL AUTO_INCREMENT COMMENT 'Automatic key',
+				locId VARCHAR(255) NOT NULL COMMENT 'LoC ID',
+				surname VARCHAR(255) NULL COMMENT 'Surname',
+				name VARCHAR(1024) NOT NULL COMMENT 'Name (full string)',
+				url VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'URL',
+			  PRIMARY KEY (id)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of Library of Congress authority names';
+		";
+		$this->databaseConnection->execute ($sql);
+		
+		# Define cyrillic character list, defined at https://en.wikipedia.org/wiki/Russian_alphabet
+		$cyrillicCharacters = array (
+			'\u0410', '\u0430', '\u0411', '\u0431', '\u0412', '\u0432', '\u0413', '\u0433', '\u0414', '\u0434',
+			'\u0415', '\u0435', '\u0401', '\u0451', '\u0416', '\u0436', '\u0417', '\u0437', '\u0418', '\u0438',
+			'\u0419', '\u0439', '\u041A', '\u043A', '\u041B', '\u043B', '\u041C', '\u043C', '\u041D', '\u043D',
+			'\u041E', '\u043E', '\u041F', '\u043F', '\u0420', '\u0440', '\u0421', '\u0441', '\u0422', '\u0442',
+			'\u0423', '\u0443', '\u0424', '\u0444', '\u0425', '\u0445', '\u0426', '\u0446', '\u0427', '\u0447',
+			'\u0428', '\u0448', '\u0429', '\u0449', '\u042A', '\u044A', '\u042B', '\u044B', '\u042C', '\u044C',
+			'\u042D', '\u044D', '\u042E', '\u044E', '\u042F', '\u044F'
+		);
+		
+		# Convert cryllic to single string for use in a regexp
+		$cyrillicList = json_decode ('"' . implode ($cyrillicCharacters) . '"');
+		
+		# Work through each line in the data; the file is 12G, "LC Name Authority File (SKOS/RDF only)" at http://id.loc.gov/download/
+		$handle = fopen ($this->applicationRoot . '/tables/authoritiesnames.nt.skos', 'r');
+		if (!$handle) {
+			$error = 'Error opening the LoC name authority file.';
+			return false;
+		}
+		
+		# Read through each line and chunk the inserts
+		$inserts = array ();
+		$chunksOf = 5000;
+		$i = 0;
+		while (($line = fgets ($handle)) !== false) {
+			
+			# Limit to Lexical Labels as defined at: http://www.w3.org/2004/02/skos/core#altLabel
+			# Line looks like:
+			#  <http://id.loc.gov/authorities/names/n79033037> <http://www.w3.org/2004/02/skos/core#altLabel> "\u041A\u0440\u043E\u043F\u043E\u0442\u043A\u0438\u043D, \u041F\u0435\u04420440 \u0410\u043B\u0435\u043A\u0441\u0435\u0435\u0432\u0438\u0447, kni\uFE20a\uFE21z\u02B9, 1842-1921"@EN .
+			if (!substr_count ($line, '<http://www.w3.org/2004/02/skos/core#altLabel>')) {continue;}
+			
+			# Parse out the line
+			preg_match ('|^<(http://id.loc.gov/authorities/names/([^>]+))> <http://www.w3.org/2004/02/skos/core#altLabel> "([^"]+)".+$|i', $line, $matches);
+			
+			# Convert the unicode character references (e.g. \u041A\u0440\u043E\u043F... ) into standard UTF-8 strings
+			$name = json_decode ('"' . $matches[3] . '"');
+			
+			# Extract the surname, i.e. the section before the first comma
+			$surname = strtok ($name, ',');
+			
+			# Ensure the surname is made up of Cyrillic characters only
+			if (!preg_match ("/^([{$cyrillicList}]+)$/", $surname)) {continue;}
+			
+			# Register the insert
+			$inserts[] = array (
+				'id'		=> NULL,			// Assign automatically
+				'locId'		=> $matches[2],		// e.g. n79033037
+				'surname'	=> $surname,		
+				'name'		=> $name,			
+				'url'		=> $matches[1],		// e.g. http://id.loc.gov/authorities/names/n79033037
+			);
+			
+			# Implement the chunk counter
+			$i++;
+			
+			# Add the chunk of inserts periodically
+			if ($i == $chunksOf) {
+				if (!$this->databaseConnection->insertMany ($this->settings['database'], 'locnames', $inserts)) {
+					echo "<p class=\"warning\">Error inserting LoC authority names, stopping at batched ({$i}):</p>";
+					echo application::dumpData ($this->databaseConnection->error (), false, true);
+					return false;
+				}
+				
+				# Reset for next chunk
+				$i = 0;
+				$inserts = array ();
+			}
+		}
+		
+		# Add residual chunk
+		if ($inserts) {
+			if (!$this->databaseConnection->insertMany ($this->settings['database'], 'locnames', $inserts)) {
+				echo "<p class=\"warning\">Error inserting LoC authority names, stopping at batched ({$i}):</p>";
+				echo application::dumpData ($this->databaseConnection->error (), false, true);
+				return false;
+			}
+		}
+		
+		# Close the file
+		fclose ($handle);
+		
+		# Confirm success
+		return true;
 	}
 	
 	
