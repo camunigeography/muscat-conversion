@@ -295,6 +295,14 @@ class muscatConversion extends frontControllerApplication
 				'parent' => 'admin',
 				'administrator' => true,
 			),
+			'googlenames' => array (
+				'description' => 'Google names',
+				'subtab' => 'Google names',
+				'url' => 'googlenames.html',
+				'icon' => 'cd',
+				'parent' => 'admin',
+				'administrator' => true,
+			),
 			'export' => array (
 				'description' => 'Export MARC21 output',
 				'tab' => 'Export',
@@ -4657,7 +4665,7 @@ class muscatConversion extends frontControllerApplication
 	# Function to populate the LoC name authority data
 	private function populateLocNameAuthorities (&$error = false)
 	{
-		# Create the new external records table
+		# Create the LoC name authority data records table
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.locnames;";
 		$this->databaseConnection->execute ($sql);
 		$sql = "
@@ -4732,8 +4740,7 @@ class muscatConversion extends frontControllerApplication
 			# Add the chunk of inserts periodically
 			if ($i == $chunksOf) {
 				if (!$this->databaseConnection->insertMany ($this->settings['database'], 'locnames', $inserts)) {
-					echo "<p class=\"warning\">Error inserting LoC authority names, stopping at batched ({$i}):</p>";
-					echo application::dumpData ($this->databaseConnection->error (), false, true);
+					$error = "Error inserting LoC authority names, stopping at batched ({$i})";
 					return false;
 				}
 				
@@ -4746,8 +4753,7 @@ class muscatConversion extends frontControllerApplication
 		# Add residual chunk
 		if ($inserts) {
 			if (!$this->databaseConnection->insertMany ($this->settings['database'], 'locnames', $inserts)) {
-				echo "<p class=\"warning\">Error inserting LoC authority names, stopping at batched ({$i}):</p>";
-				echo application::dumpData ($this->databaseConnection->error (), false, true);
+				$error = "Error inserting LoC authority names, stopping at batched ({$i})";
 				return false;
 			}
 		}
@@ -4788,6 +4794,65 @@ class muscatConversion extends frontControllerApplication
 				AND inNameAuthorityList IS NULL
 		;";
 		$this->databaseConnection->query ($query);
+	}
+	
+	
+	# Page to preprocess the Google names data
+	public function googlenames ()
+	{
+		# Start the HTML
+		$html = '';
+		
+		# Obtain confirmation from the user
+		$message = '<strong>Begin processing?</strong>';
+		$confirmation = 'Yes, begin';
+		if ($this->areYouSure ($message, $confirmation, $html)) {
+			
+			# Populate the LoC name authority data
+			if (!$this->populateGoogleNames ($error)) {
+				$html = "\n<p>{$this->cross} {$error}</p>";
+			} else {
+				$html = "\n<p>{$this->tick} The Google names data was processed.</p>";
+			}
+		}
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# Function to populate the Google names data
+	private function populateGoogleNames (&$error = false)
+	{
+		# Read in the TSV file
+		$tsv = file_get_contents ($this->applicationRoot . '/tables/googlenames.tsv');
+		
+		# Convert from TSV
+		require_once ('csv.php');
+		$googleNames = csv::tsvToArray (trim ($tsv));
+		
+		# Create/re-create the table
+		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.googlenames;";
+		$this->databaseConnection->execute ($sql);
+		$sql = "
+			CREATE TABLE googlenames (
+				id INT(11) NOT NULL AUTO_INCREMENT COMMENT 'Automatic key',
+				surname VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Surname',
+				results INT(11) NOT NULL COMMENT 'Number of results',
+				PRIMARY KEY (id),
+				INDEX(surname)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of names sourced from Google';
+		";
+		$this->databaseConnection->execute ($sql);
+		
+		# Insert the data
+		if (!$this->databaseConnection->insertMany ($this->settings['database'], 'googlenames', $googleNames)) {
+			$error = 'Error inserting Google names data';
+			return false;
+		}
+		
+		# Confirm success
+		return true;
 	}
 	
 	
