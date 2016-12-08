@@ -3081,7 +3081,6 @@ class reports
 			unset ($data[$id]['id']);
 			unset ($data[$id]['shardId']);
 			unset ($data[$id]['title']);
-			unset ($data[$id]['inNameAuthorityList']);
 		}
 		
 		# Add English *tt to the Muscat latin field
@@ -3099,6 +3098,19 @@ class reports
 			}
 			unset ($data[$id]['title_forward']);
 			unset ($data[$id]['forwardCheckFailed']);
+		}
+		
+		# Show whether the generated Cyrillic is in the name authority list, where the data exists
+		foreach ($data as $id => $record) {
+			switch ($data[$id]['inNameAuthorityList']) {
+				case '1': $cssClass = 'present'; break;
+				case '0': $cssClass = 'absent';  break;
+				default: $cssClass = NULL; // No data, e.g. field relevant
+			}
+			if ($cssClass) {
+				$data[$id]['title_spellcheck_html'] = "<span class=\"{$cssClass}\">" . $data[$id]['title_spellcheck_html'] . '</span>';
+			}
+			unset ($data[$id]['inNameAuthorityList']);
 		}
 		
 		# Link each record

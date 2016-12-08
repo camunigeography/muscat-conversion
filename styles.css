@@ -48,6 +48,8 @@
 #muscatconversion p.colourkey {float: right; margin-right: 20px; color: #999;}
 #muscatconversion span.sourcem {color: #191970;}
 #muscatconversion span.sourcev {color: brown;}
+#muscatconversion table td span.present {background-color: rgba(227, 249, 217, 0.7);}
+#muscatconversion table td span.absent {background-color: rgba(252, 199, 200, 0.7);}
 
 /* Print styles */
 @media print {

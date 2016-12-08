@@ -4669,7 +4669,7 @@ class muscatConversion extends frontControllerApplication
 				url VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'URL',
 			  PRIMARY KEY (id),
 			  INDEX(surname)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of Library of Congress authority names';
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of Library of Congress name authority list';
 		";
 		$this->databaseConnection->execute ($sql);
 		
