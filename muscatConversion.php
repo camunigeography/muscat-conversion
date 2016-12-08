@@ -4855,7 +4855,9 @@ class muscatConversion extends frontControllerApplication
 			UPDATE transliterations
 			INNER JOIN othernames ON transliterations.title = othernames.surname
 			SET inNameAuthorityList = 2
-			WHERE transliterations.field IN('" . implode ("', '", $this->transliterationNameMatchingFields) . "')
+			WHERE
+				    transliterations.field IN('" . implode ("', '", $this->transliterationNameMatchingFields) . "')
+				AND results >= 10	/* Require high confidence */
 		;";
 		$this->databaseConnection->query ($query);
 		
