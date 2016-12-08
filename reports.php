@@ -3076,11 +3076,12 @@ class reports
 	# Callback to provide a renderer
 	public function transliterationsRenderer ($data)
 	{
-		# Remove internal IDs
+		# Remove internal fields
 		foreach ($data as $id => $record) {
 			unset ($data[$id]['id']);
 			unset ($data[$id]['shardId']);
 			unset ($data[$id]['title']);
+			unset ($data[$id]['inNameAuthorityList']);
 		}
 		
 		# Add English *tt to the Muscat latin field

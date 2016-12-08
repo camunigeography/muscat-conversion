@@ -2933,6 +2933,7 @@ class muscatConversion extends frontControllerApplication
 			`title_forward` TEXT COLLATE utf8_unicode_ci COMMENT 'Forward transliteration from generated Cyrillic (BGN/PCGN)',
 			`forwardCheckFailed` INT(1) NULL COMMENT 'Forward check failed?',
 			`title_loc` TEXT COLLATE utf8_unicode_ci COMMENT 'Forward transliteration from generated Cyrillic (Library of Congress)',
+			`inNameAuthorityList` INT(1) NULL DEFAULT NULL COMMENT 'Whether the title value is in the LoC name authority list',
 			PRIMARY KEY (`id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of transliterations'
 		;";
@@ -3080,6 +3081,9 @@ class muscatConversion extends frontControllerApplication
 		
 		# Insert the data (takes around 15 seconds)
 		$this->databaseConnection->updateMany ($this->settings['database'], 'transliterations', $conversions, $chunking = 5000);
+		
+		# Mark whether names for some fields are in the Library of Congress name authority list
+		$this->markMatchingLocNameAuthorities ();
 		
 		# Signal success
 		return true;
@@ -4663,7 +4667,8 @@ class muscatConversion extends frontControllerApplication
 				surname VARCHAR(255) NULL COMMENT 'Surname',
 				name VARCHAR(1024) NOT NULL COMMENT 'Name (full string)',
 				url VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'URL',
-			  PRIMARY KEY (id)
+			  PRIMARY KEY (id),
+			  INDEX(surname)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of Library of Congress authority names';
 		";
 		$this->databaseConnection->execute ($sql);
@@ -4752,6 +4757,37 @@ class muscatConversion extends frontControllerApplication
 		
 		# Confirm success
 		return true;
+	}
+	
+	
+	# Function to mark whether names for some fields are in the Library of Congress name authority list
+	private function markMatchingLocNameAuthorities ()
+	{
+		# Clear out existing data
+		$query = " UPDATE transliterations SET inNameAuthorityList = NULL;";
+		$this->databaseConnection->query ($query);
+		
+		# Define fields in scope
+		$locCompareFields = array ('n1');
+		
+		# Perform matches
+		$query = "
+			UPDATE transliterations
+			INNER JOIN locnames ON transliterations.title = locnames.surname
+			SET inNameAuthorityList = 1
+			WHERE transliterations.field IN('" . implode ("', '", $locCompareFields) . "')
+		;";
+		$this->databaseConnection->query ($query);
+		
+		# Mark non-matching as 0 (rather than leaving as NULL)
+		$query = "
+			UPDATE transliterations
+			SET inNameAuthorityList = 0
+			WHERE
+				    transliterations.field IN('" . implode ("', '", $locCompareFields) . "')
+				AND inNameAuthorityList IS NULL
+		;";
+		$this->databaseConnection->query ($query);
 	}
 	
 	
