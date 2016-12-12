@@ -4882,8 +4882,8 @@ class muscatConversion extends frontControllerApplication
 		;";
 		$names = $this->databaseConnection->getPairs ($query);
 		
-		# Data is retrieved on behalf of the current user
-		ini_set ('user_agent', $_SERVER['HTTP_USER_AGENT']);
+		# Set user agent
+		ini_set ('user_agent', 'Scott Polar Research Institute - Muscat catalogue conversion project. Using Wikipedia to obtain counts for 6,000 Russian authors.');
 		
 		# Work through each name
 		$results = array ();
@@ -4893,8 +4893,9 @@ class muscatConversion extends frontControllerApplication
 			
 			# Obtain the data for the query, as a phrase
 			# Copyright note: The result data itself is *not* saved - only a count is done to determine presence or not
-			$url = 'https://duckduckgo.com/html/?q="' . urlencode ($name) . '"';
-			$serpHtml = @file_get_contents ($url);
+			# https://www.mediawiki.org/wiki/API:Search#Example
+			$url = 'https://ru.wikipedia.org/w/api.php?action=query&list=search&srlimit=1&srprop=size|wordcount|timestamp|snippet&formatversion=2&srwhat=text&format=json&srsearch="' . urlencode ($name) . '"';
+			$searchResult = @file_get_contents ($url);
 			
 			# Stop if server forbids access
 			if (substr_count ($http_response_header[0], '403 Forbidden')) {
@@ -4909,19 +4910,19 @@ class muscatConversion extends frontControllerApplication
 				continue;
 			}
 			
-			# Count the results
-			$total = substr_count ($serpHtml, '<div class="result results_links results_links_deep web-result ">');
+			# Get the count of results
+			$searchResultJson = json_decode ($searchResult, true);
+			$total = $searchResultJson['query']['searchinfo']['totalhits'];
 			
 			# Add the new result to the TSV
 			$string = $name . "\t" . $total . "\n";
 			file_put_contents ($file, $string, FILE_APPEND);
 			
 			# Be patient, to avoid unreasonable request rates
-			$wait = rand (5, 20);
+			$wait = 1.5;
 			sleep ($wait);
 		}
 	}
-	
 	
 	
 	# Function to process the merge definition
