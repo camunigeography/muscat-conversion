@@ -4857,7 +4857,7 @@ class muscatConversion extends frontControllerApplication
 			SET inNameAuthorityList = 2
 			WHERE
 				    transliterations.field IN('" . implode ("', '", $this->transliterationNameMatchingFields) . "')
-				AND results >= 10	/* Require high confidence */
+				AND results >= 5	/* Require high confidence */
 		;";
 		$this->databaseConnection->query ($query);
 		
