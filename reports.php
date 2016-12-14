@@ -3102,15 +3102,16 @@ class reports
 		
 		# Show whether the generated Cyrillic is in the name authority list, where the data exists
 		foreach ($data as $id => $record) {
-			switch ($data[$id]['inNameAuthorityList']) {
-				case '0': $cssClass = 'absent';  break;
-				case '1': $cssClass = 'present'; break;
-				case '2': $cssClass = 'probable'; break;
+			switch (true) {
+				case $data[$id]['inNameAuthorityList'] == '-1'                  : $cssClass = 'present';  break;	// LoC
+				case $data[$id]['inNameAuthorityList'] == '-9999'               : $cssClass = 'absent';   break;	// No match
+				case in_array ($data[$id]['inNameAuthorityList'], range (0, 4)) : $cssClass = 'absent';   break;	// 0-4 matches in Russian Wikipedia
+				case $data[$id]['inNameAuthorityList'] >= 5                     : $cssClass = 'probable'; break;	// 5+ matches in Russian Wikipedia
 				default: $cssClass = NULL; // No data, e.g. field relevant
 			}
 			if ($cssClass) {
 				$data[$id]['title_spellcheck_html'] = "<span class=\"{$cssClass}\">" . $data[$id]['title_spellcheck_html'] . '</span>';
-				if (in_array ($data[$id]['inNameAuthorityList'], array ('0', '2'), true)) {
+				if ($data[$id]['inNameAuthorityList'] != -1) {
 					$data[$id]['title_spellcheck_html'] .= ' <a href="https://www.google.co.uk/search?q=' . htmlspecialchars ('"' . strip_tags ($data[$id]['title_spellcheck_html']) . '"') . '" target="_blank" class="noarrow"><img src="/images/icons/magnifier.png" alt="" class="icon" /></a>';
 				}
 			}

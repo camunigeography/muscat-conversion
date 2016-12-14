@@ -2946,7 +2946,7 @@ class muscatConversion extends frontControllerApplication
 			`title_forward` TEXT COLLATE utf8_unicode_ci COMMENT 'Forward transliteration from generated Cyrillic (BGN/PCGN)',
 			`forwardCheckFailed` INT(1) NULL COMMENT 'Forward check failed?',
 			`title_loc` TEXT COLLATE utf8_unicode_ci COMMENT 'Forward transliteration from generated Cyrillic (Library of Congress)',
-			`inNameAuthorityList` INT(1) NULL DEFAULT NULL COMMENT 'Whether the title value is in the LoC name authority list',
+			`inNameAuthorityList` INT(11) SIGNED NULL DEFAULT NULL COMMENT 'Whether the title value is in the LoC name authority list',
 			PRIMARY KEY (`id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of transliterations'
 		;";
@@ -3042,16 +3042,16 @@ class muscatConversion extends frontControllerApplication
 		# Trigger a transliteration run
 		$this->transliterateTransliterationsTable ();
 		
-		# Populate the Library of Congress name authority list and mark the matches (with inNameAuthorityList = 1)
+		# Populate the Library of Congress name authority list and mark the matches (with inNameAuthorityList = -1)
 		$this->populateLocNameAuthorities ();
 		
-		# Populate the other names data and mark the matches (with inNameAuthorityList = 2)
+		# Populate the other names data and mark the matches (with inNameAuthorityList = count)
 		$this->populateOtherNames ();
 		
 		# Mark items not matching a name authority as 0 (rather than leaving as NULL)
 		$query = "
 			UPDATE transliterations
-			SET inNameAuthorityList = 0
+			SET inNameAuthorityList = -9999
 			WHERE
 				    transliterations.field IN('" . implode ("', '", $this->transliterationNameMatchingFields) . "')
 				AND inNameAuthorityList IS NULL
@@ -4780,7 +4780,7 @@ class muscatConversion extends frontControllerApplication
 		$query = "
 			UPDATE transliterations
 			INNER JOIN locnames ON transliterations.title = locnames.surname
-			SET inNameAuthorityList = 1
+			SET inNameAuthorityList = -1
 			WHERE transliterations.field IN('" . implode ("', '", $this->transliterationNameMatchingFields) . "')
 		;";
 		$this->databaseConnection->query ($query);
@@ -4854,10 +4854,9 @@ class muscatConversion extends frontControllerApplication
 		$query = "
 			UPDATE transliterations
 			INNER JOIN othernames ON transliterations.title = othernames.surname
-			SET inNameAuthorityList = 2
+			SET inNameAuthorityList = othernames.results
 			WHERE
 				    transliterations.field IN('" . implode ("', '", $this->transliterationNameMatchingFields) . "')
-				AND results >= 5	/* Require high confidence */
 		;";
 		$this->databaseConnection->query ($query);
 		
