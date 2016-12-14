@@ -4855,8 +4855,7 @@ class muscatConversion extends frontControllerApplication
 			UPDATE transliterations
 			INNER JOIN othernames ON transliterations.title = othernames.surname
 			SET inNameAuthorityList = othernames.results
-			WHERE
-				    transliterations.field IN('" . implode ("', '", $this->transliterationNameMatchingFields) . "')
+			WHERE transliterations.field IN('" . implode ("', '", $this->transliterationNameMatchingFields) . "')
 		;";
 		$this->databaseConnection->query ($query);
 		
@@ -4869,20 +4868,21 @@ class muscatConversion extends frontControllerApplication
 	private function obtainSaveOtherNamesData ($file)
 	{
 		# Get list of names needing population
-		$limit = 100;
 		$query = "SELECT
 			DISTINCT title
 			FROM transliterations
 			WHERE
-				    field IN('n1')
-				AND inNameAuthorityList = 0
+				    field IN('" . implode ("', '", $this->transliterationNameMatchingFields) . "')
+				AND inNameAuthorityList IS NULL							-- i.e. hasn't yet been allocated any value
+				AND title NOT IN(
+					SELECT DISTINCT surname AS title FROM othernames	-- 5965 values, so IN() performance will not be completely terrible
+				)
 			ORDER BY id
-			LIMIT {$limit}
 		;";
 		$names = $this->databaseConnection->getPairs ($query);
 		
 		# Set user agent
-		ini_set ('user_agent', 'Scott Polar Research Institute - Muscat catalogue conversion project. Using Wikipedia to obtain counts for 6,000 Russian authors.');
+		ini_set ('user_agent', 'Scott Polar Research Institute - Muscat catalogue conversion project. Using Russian Wikipedia to obtain hit counts for c. 6,000 Russian authors.');
 		
 		# Work through each name
 		$results = array ();
