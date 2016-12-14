@@ -139,7 +139,7 @@ class reports
 	
 	
 	# Constructor
-	public function __construct ($muscatConversion, $locationCodes, $orderStatusKeywords, $suppressionStatusKeyword, $acquisitionDate, $ksStatusTokens, $mergeTypes)
+	public function __construct ($muscatConversion, $locationCodes, $orderStatusKeywords, $suppressionStatusKeyword, $acquisitionDate, $ksStatusTokens, $mergeTypes, $transliterationNameMatchingFields)
 	{
 		# Create main property handles
 		$this->muscatConversion = $muscatConversion;
@@ -154,6 +154,7 @@ class reports
 		$this->acquisitionDate = $acquisitionDate;
 		$this->ksStatusTokens = $ksStatusTokens;
 		$this->mergeTypes = $mergeTypes;
+		$this->transliterationNameMatchingFields = $transliterationNameMatchingFields;
 		
 	}
 	
@@ -3002,6 +3003,17 @@ class reports
 			$where[] = "xpath = '{$xPathFilter}'";
 		}
 		
+		# Determine whether to filter to unmatched text only
+		$enableUnmatched = false;
+		$enableUnmatchedField = substr ($xPathFilter, strrpos ($xPathFilter, '/') + 1);	// Extract field from end of path
+		if (in_array ($enableUnmatchedField, $this->transliterationNameMatchingFields)) {
+			$unmatchedOptionValues = array ('0', '1', '2', '3', '4', '<2', '<3', '<4', '<5');	// Assumes level of 5 is OK
+			$default = '<5';
+			$enableUnmatched = (isSet ($_GET['unmatched']) && in_array ($_GET['unmatched'], $unmatchedOptionValues) ? $_GET['unmatched'] : $default);
+			preg_match ('/(<?)([0-9]+)/', $enableUnmatched, $matches);	// Split into optional < and number
+			$where[] = 'inNameAuthorityList >= 0 AND inNameAuthorityList ' . ($matches[1] ? ($matches[1]) : '=') . ' ' . $matches[2];
+		}
+		
 		# Determine totals
 		$table = 'transliterations';
 		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], $table);
@@ -3042,6 +3054,30 @@ class reports
 		$html .= "\n" . application::htmlTableKeyed ($xPathTypesListByField, array (), $omitEmpty = false, 'lines', $allowHtml = true);
 		$html .= '</p>';
 		
+		# Determine query string for pagination consistency if required
+		$parameters = $_GET;
+		$internalParameters = array ('action', 'item', 'page');
+		foreach ($internalParameters as $internalParameter) {
+			if (isSet ($parameters[$internalParameter])) {
+				unset ($parameters[$internalParameter]);
+			}
+		}
+		$queryString = http_build_query ($parameters);
+		
+		# For transliteration name matching fields, add level filtering control
+		if ($enableUnmatched !== false) {	// Could be zero
+			$optionsHtml = array ();
+			foreach ($unmatchedOptionValues as $option) {
+				if ($enableUnmatched == $option) {
+					$optionsHtml[$option] = '<strong>' . htmlspecialchars ($option) . '</strong>';
+				} else {
+					$parameters['unmatched'] = $option;
+					$optionsHtml[$option] = '<a href="' . htmlspecialchars ($_SERVER['SCRIPT_URL'] . '?' . str_replace ('%2F', '/', http_build_query ($parameters))) . '">' . htmlspecialchars ($option) . '</a>';
+				}
+			}
+			$html .= "\n<p id=\"semanticmatcheslinks\">For *{$enableUnmatchedField} require semantic matches: " . implode (' ', $optionsHtml) . ' match(es).</p>';
+		}
+		
 		# Add link to editing the definition
 		$html .= "\n<p>You can <a href=\"{$this->baseUrl}/transliterator.html\">edit the reverse-transliteration definition</a>.</p>";
 		
@@ -3054,16 +3090,6 @@ class reports
 		
 		# Default to 1000 per page
 		$this->settings['paginationRecordsPerPageDefault'] = 1000;
-		
-		# Determine query string for pagination consistency if required
-		$parameters = $_GET;
-		$internalParameters = array ('action', 'item', 'page');
-		foreach ($internalParameters as $internalParameter) {
-			if (isSet ($parameters[$internalParameter])) {
-				unset ($parameters[$internalParameter]);
-			}
-		}
-		$queryString = http_build_query ($parameters);
 		
 		# Obtain the listing HTML, passing in the renderer callback function name
 		$html .= $this->muscatConversion->recordListing (false, $query, array (), '/reports/transliterations/', false, $queryString, $view = 'callback(transliterationsRenderer)');
@@ -3102,17 +3128,19 @@ class reports
 		
 		# Show whether the generated Cyrillic is in the name authority list, where the data exists
 		foreach ($data as $id => $record) {
-			switch (true) {
-				case $data[$id]['inNameAuthorityList'] == '-1'                  : $cssClass = 'present';  break;	// LoC
-				case $data[$id]['inNameAuthorityList'] == '-9999'               : $cssClass = 'absent';   break;	// No match
-				case in_array ($data[$id]['inNameAuthorityList'], range (0, 4)) : $cssClass = 'absent';   break;	// 0-4 matches in Russian Wikipedia
-				case $data[$id]['inNameAuthorityList'] >= 5                     : $cssClass = 'probable'; break;	// 5+ matches in Russian Wikipedia
-				default: $cssClass = NULL; // No data, e.g. field relevant
-			}
-			if ($cssClass) {
-				$data[$id]['title_spellcheck_html'] = "<span class=\"{$cssClass}\">" . $data[$id]['title_spellcheck_html'] . '</span>';
-				if ($data[$id]['inNameAuthorityList'] >= 0) {
-					$data[$id]['title_spellcheck_html'] .= ' <a href="https://www.google.co.uk/search?q=' . htmlspecialchars ('"' . strip_tags ($data[$id]['title_spellcheck_html']) . '"') . '" target="_blank" class="noarrow"><img src="/images/icons/magnifier.png" alt="" class="icon" /></a>' . "<span class=\"small faded\">{$data[$id]['inNameAuthorityList']}</span>";
+			if (in_array ($record['field'], $this->transliterationNameMatchingFields)) {
+				switch (true) {
+					case $data[$id]['inNameAuthorityList'] == '-1'                  : $cssClass = 'present';  break;	// LoC
+					case $data[$id]['inNameAuthorityList'] == '-9999'               : $cssClass = 'absent';   break;	// No match
+					case in_array ($data[$id]['inNameAuthorityList'], range (0, 4)) : $cssClass = 'absent';   break;	// 0-4 matches in Russian Wikipedia
+					case $data[$id]['inNameAuthorityList'] >= 5                     : $cssClass = 'probable'; break;	// 5+ matches in Russian Wikipedia
+					default: $cssClass = NULL; // No data, e.g. field relevant
+				}
+				if ($cssClass) {
+					$data[$id]['title_spellcheck_html'] = "<span class=\"{$cssClass}\">" . $data[$id]['title_spellcheck_html'] . '</span>';
+					if ($data[$id]['inNameAuthorityList'] >= 0) {
+						$data[$id]['title_spellcheck_html'] .= ' <a href="https://www.google.co.uk/search?q=' . htmlspecialchars ('"' . strip_tags ($data[$id]['title_spellcheck_html']) . '"') . '" target="_blank" class="noarrow"><img src="/images/icons/magnifier.png" alt="" class="icon" /></a>' . "<span class=\"small faded\">{$data[$id]['inNameAuthorityList']}</span>";
+					}
 				}
 			}
 			unset ($data[$id]['inNameAuthorityList']);

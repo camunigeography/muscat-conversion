@@ -26,7 +26,8 @@
 #muscatconversion table.reports tr.problem td {background-color: #fcc7c8;}
 #muscatconversion table.reports tr.ok td {background-color: #e3f9d9;}
 #muscatconversion table.reports tr.postmigration td {background-color: #cdd0fe;}
-
+#muscatconversion #semanticmatcheslinks a, #muscatconversion #semanticmatcheslinks strong {border: 1px solid #ddd; padding: 1px 4px; margin-right: 2px;}
+#muscatconversion #semanticmatcheslinks strong {background-color: #eee;}
 #muscatconversion #form_definition {font-family: Lucida Console, courier, monospace; line-height: 1.5em; padding: 10px;}
 #muscatconversion ul.downloads li a {font-weight: bold; width: 18em;}
 #muscatconversion img.extension.file-txt {display: none;}
