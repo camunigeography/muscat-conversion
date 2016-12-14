@@ -4820,9 +4820,32 @@ class muscatConversion extends frontControllerApplication
 		# Define the other names data file
 		$file = $this->applicationRoot . '/tables/othernames.tsv';
 		
-		# Build up this data up over time
+		# Initialise the other names data table with existing data
+		$this->buildOtherNamesTable ($file);
+		
+		# Add any new values to the data file
 		$this->obtainSaveOtherNamesData ($file);
 		
+		# Re-initialise the other names data table with existing data
+		$this->buildOtherNamesTable ($file);
+		
+		# Perform matches
+		$query = "
+			UPDATE transliterations
+			INNER JOIN othernames ON transliterations.title = othernames.surname
+			SET inNameAuthorityList = othernames.results
+			WHERE transliterations.field IN('" . implode ("', '", $this->transliterationNameMatchingFields) . "')
+		;";
+		$this->databaseConnection->query ($query);
+		
+		# Confirm success
+		return true;
+	}
+	
+	
+	# Function to insert other names data
+	private function buildOtherNamesTable ($file)
+	{
 		# Read in the TSV file
 		$tsv = file_get_contents ($file);
 		
@@ -4849,18 +4872,6 @@ class muscatConversion extends frontControllerApplication
 			$error = 'Error inserting other names data';
 			return false;
 		}
-		
-		# Perform matches
-		$query = "
-			UPDATE transliterations
-			INNER JOIN othernames ON transliterations.title = othernames.surname
-			SET inNameAuthorityList = othernames.results
-			WHERE transliterations.field IN('" . implode ("', '", $this->transliterationNameMatchingFields) . "')
-		;";
-		$this->databaseConnection->query ($query);
-		
-		# Confirm success
-		return true;
 	}
 	
 	
