@@ -3030,7 +3030,7 @@ class reports
 		$xPathTypesListByField = array ();
 		$xPathTypes = array_merge (array ('' => ($enableFilter ? $totalFailures : $totalRecords)), $xPathTypes);
 		foreach ($xPathTypes as $xPathType => $total) {
-			$field = ($xPathType ? substr ($xPathType, strrpos ($xPathType, '/') + 1) . '*' : '');	// e.g. 't' or 'pu', or '' for no filter
+			$field = ($xPathType ? '*' . substr ($xPathType, strrpos ($xPathType, '/') + 1) : '');	// e.g. 't' or 'pu', or '' for no filter
 			$xPathTypesListByField[$field][$xPathType] = '';
 			if ($xPathFilter != $xPathType) {	// Do not hyperlink any currently-selected item
 				$xPathTypesListByField[$field][$xPathType] .= "<a href=\"{$this->baseUrl}/reports/transliterations/" . ($xPathType || $enableFilter ? '?' : '') . ($enableFilter ? 'filter=1' . ($xPathType ? '&amp;' : '') : '') . ($xPathType ? "xpath={$xPathType}" : '') . '">';
