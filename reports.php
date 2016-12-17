@@ -3047,12 +3047,13 @@ class reports
 		# Determine whether to filter to unmatched text only
 		$enableUnmatched = false;
 		$enableUnmatchedField = substr ($xPathFilter, strrpos ($xPathFilter, '/') + 1);	// Extract field from end of path
-		if (in_array ($enableUnmatchedField, $this->transliterationNameMatchingFields)) {
+		$unmatchingInScope = (in_array ($enableUnmatchedField, $this->transliterationNameMatchingFields));
+		if ($unmatchingInScope) {
 			$unmatchedOptionValues = array ('0', '1', '2', '3', '4', '<2', '<3', '<4', '<5');	// Assumes level of 5 is OK
-			$default = '<5';
-			$enableUnmatched = (isSet ($_GET['unmatched']) && in_array ($_GET['unmatched'], $unmatchedOptionValues) ? $_GET['unmatched'] : $default);
-			preg_match ('/(<?)([0-9]+)/', $enableUnmatched, $matches);	// Split into optional < and number
-			$where[] = 'inNameAuthorityList >= 0 AND inNameAuthorityList ' . ($matches[1] ? ($matches[1]) : '=') . ' ' . $matches[2];
+			if ($enableUnmatched = (isSet ($_GET['unmatched']) && in_array ($_GET['unmatched'], $unmatchedOptionValues) ? $_GET['unmatched'] : false)) {
+				preg_match ('/(<?)([0-9]+)/', $enableUnmatched, $matches);	// Split into optional < and number
+				$where[] = 'inNameAuthorityList >= 0 AND inNameAuthorityList ' . ($matches[1] ? ($matches[1]) : '=') . ' ' . $matches[2];
+			}
 		}
 		
 		# Determine totals
@@ -3106,7 +3107,7 @@ class reports
 		$queryString = http_build_query ($parameters);
 		
 		# For transliteration name matching fields, add level filtering control
-		if ($enableUnmatched !== false) {	// Could be zero
+		if ($unmatchingInScope) {
 			$optionsHtml = array ();
 			foreach ($unmatchedOptionValues as $option) {
 				if ($enableUnmatched == $option) {
