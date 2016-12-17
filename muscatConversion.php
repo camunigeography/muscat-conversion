@@ -3039,6 +3039,15 @@ class muscatConversion extends frontControllerApplication
 		;";
 		$this->databaseConnection->query ($query);
 		
+		# For the *n1 field, clear out cases consisting of special tokens (e.g. 'Anon.') because no attempt has been made to add protected string support for name authority checking; the records themselves (e.g. /records/6451/ ) are fine as these tokens are defined in the protected strings table so will be protected from transliteration
+		$query = "
+			DELETE FROM transliterations
+			WHERE
+				    field IN('" . implode ("', '", $this->transliterationNameMatchingFields) . "')
+				AND title_latin IN('Anon.')
+		;";
+		$this->databaseConnection->query ($query);
+		
 		# Trigger a transliteration run
 		$this->transliterateTransliterationsTable ();
 		
