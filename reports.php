@@ -101,6 +101,7 @@ class reports
 		'bibcheckerrors_problem' => 'records with Bibcheck errors',
 		'multiplelocationsmissing_postmigration' => 'records with multiple locations but marked as missing',
 		'notemissing_problem' => "records with a note containing the word 'missing' without a *ks MISSING; not all will actually be missing",
+		'missingphysical_postmigration' => "records with a note containing the word 'missing' indicating items for reviewing of physical documents (i.e. not actually data work)",
 		'emptyauthorcontainers_problem' => "records with empty author containers",
 		'backslashg_problem' => 'records with \g remaining',
 		'possiblearticle_problem' => 'records with a 245 starting with a possible article',
@@ -2261,8 +2262,7 @@ class reports
 	}
 	
 	
-	# Records with a note containing the word 'missing' without a *ks MISSING; not all will actually be missing
-	#!# Need to create a post-migration report which uses the same list of numbers, as items for reviewing of physical documents (which is not actual data work)
+	# Records with a note containing the word 'missing' without a *ks MISSING; a whitelist excludes those that are not actually missing
 	public function report_notemissing ()
 	{
 		# Define the query
@@ -2277,20 +2277,50 @@ class reports
 				AND value LIKE '%missing%'
                 AND xml NOT LIKE '%<ks>MISSING%'
 				AND recordId NOT IN (
-					1383, 1505, 1768, 2876, 3432, 3841, 3977, 4960, 5053, 5675,
-					6786, 8015, 8384, 8537, 10224, 12034, 12189, 12571, 13849, 14580,
-					16071, 19824, 20296, 23801, 23855, 23860, 28936, 29518, 29673, 31106,
-					37067, 40626, 40644, 40851, 41809, 41973, 46545, 47315, 50061, 51959,
-					51975, 52245, 52800, 56034, 57540, 58223, 61770, 64232, 67889, 68283,
-					83687, 84133, 84331, 84346, 88409, 105785, 109544, 116681, 117144, 119322,
-					121376, 132172, 133074, 134320, 134477, 137784, 145945, 146265, 150833, 150867,
-					151620, 161098, 164668, 165710, 169943, 170621, 171496, 172091, 174600, 176826,
-					181335, 184673, 189412, 190165, 191528, 196214, 198135, 209397, 210665, 214682
+					" . implode (', ', $this->getNoteMissing ()) . "
 				)
 		";
 		
 		# Return the query
 		return $query;
+	}
+	
+	
+	# Records with a note containing the word 'missing' indicating items for reviewing of physical documents (i.e. not actually data work)
+	public function report_missingphysical ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'missingphysical' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				recordId IN (
+					" . implode (', ', $this->getNoteMissing ()) . "
+				)
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Function to return the notemissing list
+	private function getNoteMissing ()
+	{
+		# List of records where the word 'missing' appears but for a different reason that is not relevant for exclusion purposes, but needs post-migration record work or physical changes
+		return array (
+			1383, 1505, 1768, 2876, 3432, 3841, 3977, 4960, 5053, 5675,
+			6786, 8015, 8384, 8537, 10224, 12034, 12189, 12571, 13849, 14580,
+			16071, 19824, 20296, 23801, 23855, 23860, 28936, 29518, 29673, 31106,
+			37067, 40626, 40644, 40851, 41809, 41973, 46545, 47315, 50061, 51959,
+			51975, 52245, 52800, 56034, 57540, 58223, 61770, 64232, 67889, 68283,
+			83687, 84133, 84331, 84346, 88409, 105785, 109544, 116681, 117144, 119322,
+			121376, 132172, 133074, 134320, 134477, 137784, 145945, 146265, 150833, 150867,
+			151620, 161098, 164668, 165710, 169943, 170621, 171496, 172091, 174600, 176826,
+			181335, 184673, 189412, 190165, 191528, 196214, 198135, 209397, 210665, 214682,
+		);
 	}
 	
 	
