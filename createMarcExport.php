@@ -176,7 +176,7 @@ class createMarcExport
 			unlink ($errorsUnfilteredFilename);
 		}
 		
-		# Define and execute the command for converting the text version to binary, generating the errors listing file
+		# Define and execute the command for converting the text version to binary, generating the errors listing file; NB errors.txt is a hard-coded location in Bibcheck, hence the file-moving requirement
 		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; perl lint_test.pl {$directory}/spri-marc-{$fileset}.mrc 2>> errors.txt ; mv errors.txt {$errorsUnfilteredFilename}";
 		shell_exec ($command);
 		
