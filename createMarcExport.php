@@ -295,7 +295,7 @@ class createMarcExport
 			
 		*/
 		$errorsString = file_get_contents ($errorsFilename);
-		preg_match_all ("/\sSPRI([0-9]+)(?U).+\^{25,}\s+((?U).+)\s+(?:={25,}|$)/sD", $errorsString, $errors, PREG_SET_ORDER);
+		preg_match_all ("/\sSPRI-([0-9]+)(?U).+\^{25,}\s+((?U).+)\s+(?:={25,}|$)/sD", $errorsString, $errors, PREG_SET_ORDER);
 		
 		# End if none
 		if (!$errors) {return;}
