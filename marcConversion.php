@@ -63,26 +63,8 @@ class marcConversion
 		$generateAuthors = new generateAuthors ($this, $xml, $languageModes);
 		$authorsFields = $generateAuthors->getValues ();
 		
-		# Up-front, obtain the host ID (if any) from *kg, used in both 773 and 500
-		$hostId = $this->xPathValue ($xml, '//k2/kg');
-		
-		# If there is a host ID, up-front obtain that host record
-		$this->hostRecord = NULL;
-		if ($hostId) {
-			
-			# Obtain the processed MARC record; note that createMarcRecords processes the /doc records before /art/in records
-			$this->hostRecord = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'marc', $conditions = array ('id' => $hostId));
-			
-			# If there is no host record yet (because the ordering is such that it has not yet been reached), validate that the host record exists; if this fails, the record itself is wrong and therefore report this error
-			if (!$this->hostRecord) {
-				if (!$hostRecordXmlExists = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_xml', 'id', $conditions = array ('id' => $hostId))) {
-					echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> Cannot match *kg, as there is no host record <a href=\"{$this->baseUrl}/records/{$hostId}/\">#{$hostId}</a>.</p>";
-				}
-			}
-			
-			# The host MARC record has not yet been processed, therefore register the child for reprocessing in the second-pass phase
-			$this->secondPassRecordId = $this->recordId;
-		}
+		# Up-front, look up the host record, if any
+		$this->hostRecord = $this->lookupHostRecord ($xml);
 		
 		# Perform XPath replacements
 		if (!$datastructure = $this->convertToMarc_PerformXpathReplacements ($datastructure, $xml, $authorsFields, $errorString)) {return false;}
@@ -2328,6 +2310,30 @@ class marcConversion
 	public function stripSubfields ($string)
 	{
 		return preg_replace ("/({$this->doubleDagger}[a-z0-9])/", '', $string);
+	}
+	
+	
+	# Function to look up the host record, if any
+	private function lookupHostRecord ($xml)
+	{
+		# Up-front, obtain the host ID (if any) from *kg, used in both 773 and 500
+		if (!$hostId = $this->xPathValue ($xml, '//k2/kg')) {return NULL;}
+		
+		# Obtain the processed MARC record; note that createMarcRecords processes the /doc records before /art/in records
+		$hostRecord = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'marc', $conditions = array ('id' => $hostId));
+		
+		# If there is no host record yet (because the ordering is such that it has not yet been reached), validate that the host record exists; if this fails, the record itself is wrong and therefore report this error
+		if (!$hostRecord) {
+			if (!$hostRecordXmlExists = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_xml', 'id', $conditions = array ('id' => $hostId))) {
+				echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> Cannot match *kg, as there is no host record <a href=\"{$this->baseUrl}/records/{$hostId}/\">#{$hostId}</a>.</p>";
+			}
+		}
+		
+		# The host MARC record has not yet been processed, therefore register the child for reprocessing in the second-pass phase
+		$this->secondPassRecordId = $this->recordId;
+		
+		# Return the host record
+		return $hostRecord;
 	}
 	
 	
