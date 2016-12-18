@@ -63,6 +63,9 @@ class marcConversion
 		$generateAuthors = new generateAuthors ($this, $xml, $languageModes);
 		$authorsFields = $generateAuthors->getValues ();
 		
+		# Up-front, obtain the host ID (if any) from *kg, used in both 773 and 500
+		$this->hostId = $this->xPathValue ($xml, '//k2/kg');
+		
 		# Perform XPath replacements
 		if (!$datastructure = $this->convertToMarc_PerformXpathReplacements ($datastructure, $xml, $authorsFields, $errorString)) {return false;}
 		
@@ -2317,17 +2320,17 @@ class marcConversion
 		# Start a result
 		$result = '';
 		
-		# Get *kg or end; records will usually be /art/in or /art/j only, but there are some /doc records
+		# Only relevant if there is a *kg; records will usually be /art/in or /art/j only, but there are some /doc records
 		#!# At present this leaves tens of thousands of journal analytics without links (because they don't have explicit *kg fields)
 		#!# Data had previously been checked that no records contain more than one *kg, but this is not currently the case
-		if (!$hostId = $this->xPathValue ($xml, '//k2/kg')) {return false;}
+		if (!$this->hostId) {return false;}
 		
 		# Obtain the processed MARC record; note that createMarcRecords processes the /doc records before /art/in records
-		if (!$hostRecord = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'marc', $conditions = array ('id' => $hostId))) {
+		if (!$hostRecord = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'marc', $conditions = array ('id' => $this->hostId))) {
 			
-			# Validate that the host record exists; if this fails, the data is wrong
-			if (!$hostRecordXmlExists = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_xml', 'id', $conditions = array ('id' => $hostId))) {
-				echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> Cannot match *kg, as there is no host record <a href=\"{$this->baseUrl}/records/{$hostId}/\">#{$hostId}</a>.</p>";
+			# Validate that the host record exists; if this fails, the record itself is wrong
+			if (!$hostRecordXmlExists = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_xml', 'id', $conditions = array ('id' => $this->hostId))) {
+				echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> Cannot match *kg, as there is no host record <a href=\"{$this->baseUrl}/records/{$this->hostId}/\">#{$this->hostId}</a>.</p>";
 			}
 			
 			# The host MARC record has not yet been processed, therefore register the child for reprocessing in the second-pass phase
