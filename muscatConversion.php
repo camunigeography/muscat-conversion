@@ -3442,6 +3442,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to create MARC records
+	# See: doc/createMarcRecords.md
 	private function createMarcRecords ()
 	{
 		# Create the volume numbers table, used for observation of the effect of the generate490 macro
