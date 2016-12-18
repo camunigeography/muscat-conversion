@@ -64,7 +64,25 @@ class marcConversion
 		$authorsFields = $generateAuthors->getValues ();
 		
 		# Up-front, obtain the host ID (if any) from *kg, used in both 773 and 500
-		$this->hostId = $this->xPathValue ($xml, '//k2/kg');
+		$hostId = $this->xPathValue ($xml, '//k2/kg');
+		
+		# If there is a host ID, up-front obtain that host record
+		$this->hostRecord = NULL;
+		if ($hostId) {
+			
+			# Obtain the processed MARC record; note that createMarcRecords processes the /doc records before /art/in records
+			$this->hostRecord = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'marc', $conditions = array ('id' => $hostId));
+			
+			# If there is no host record yet (because the ordering is such that it has not yet been reached), validate that the host record exists; if this fails, the record itself is wrong and therefore report this error
+			if (!$this->hostRecord) {
+				if (!$hostRecordXmlExists = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_xml', 'id', $conditions = array ('id' => $hostId))) {
+					echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> Cannot match *kg, as there is no host record <a href=\"{$this->baseUrl}/records/{$hostId}/\">#{$hostId}</a>.</p>";
+				}
+			}
+			
+			# The host MARC record has not yet been processed, therefore register the child for reprocessing in the second-pass phase
+			$this->secondPassRecordId = $this->recordId;
+		}
 		
 		# Perform XPath replacements
 		if (!$datastructure = $this->convertToMarc_PerformXpathReplacements ($datastructure, $xml, $authorsFields, $errorString)) {return false;}
@@ -2320,27 +2338,13 @@ class marcConversion
 		# Start a result
 		$result = '';
 		
-		# Only relevant if there is a *kg; records will usually be /art/in or /art/j only, but there are some /doc records
+		# Only relevant if there is a host record (i.e. has a *kg which exists); records will usually be /art/in or /art/j only, but there are some /doc records
 		#!# At present this leaves tens of thousands of journal analytics without links (because they don't have explicit *kg fields)
 		#!# Data had previously been checked that no records contain more than one *kg, but this is not currently the case
-		if (!$this->hostId) {return false;}
-		
-		# Obtain the processed MARC record; note that createMarcRecords processes the /doc records before /art/in records
-		if (!$hostRecord = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'marc', $conditions = array ('id' => $this->hostId))) {
-			
-			# Validate that the host record exists; if this fails, the record itself is wrong
-			if (!$hostRecordXmlExists = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_xml', 'id', $conditions = array ('id' => $this->hostId))) {
-				echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> Cannot match *kg, as there is no host record <a href=\"{$this->baseUrl}/records/{$this->hostId}/\">#{$this->hostId}</a>.</p>";
-			}
-			
-			# The host MARC record has not yet been processed, therefore register the child for reprocessing in the second-pass phase
-			$this->secondPassRecordId = $this->recordId;
-			
-			return false;
-		}
+		if (!$this->hostRecord) {return false;}
 		
 		# Parse out the host record
-		$marc = $this->parseMarcRecord ($hostRecord);
+		$marc = $this->parseMarcRecord ($this->hostRecord);
 		
 		# Obtain the record type
 		$recordType = $this->recordType ($xml);
