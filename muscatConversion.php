@@ -128,7 +128,7 @@ class muscatConversion extends frontControllerApplication
 		"Friends' Room"								=> 'SPRI-FRI',
 		"Museum Working Collection"					=> 'SPRI-MUS',
 		'153-158 Wubbold Room'						=> 'SPRI-SER',
-		// SPRI-NIS defined in code below
+		// SPRI-NIS defined in marcConversion code
 	);
 	
 	# Define known *ks values that represent status values rather than classifications
@@ -3767,6 +3767,7 @@ class muscatConversion extends frontControllerApplication
 					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
 				"),
 				
+			#!# Needs review - concern that this means that items with more than one location could get in the suppression bucket; see e-mail 19/12/2016
 			'EXTERNAL-LOCATION' => array (
 				# 8,325 records
 				'Item of bibliographic interest, but not held at SPRI, so no holdings record can be created',
