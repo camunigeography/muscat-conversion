@@ -2346,7 +2346,6 @@ class marcConversion
 		
 		# Only relevant if there is a host record (i.e. has a *kg which exists); records will usually be /art/in or /art/j only, but there are some /doc records
 		#!# At present this leaves tens of thousands of journal analytics without links (because they don't have explicit *kg fields)
-		#!# Data had previously been checked that no records contain more than one *kg, but this is not currently the case
 		if (!$this->hostRecord) {return false;}
 		
 		# Parse out the host record
