@@ -3475,7 +3475,7 @@ class muscatConversion extends frontControllerApplication
 		$query = "INSERT INTO catalogue_marc (id) (SELECT DISTINCT(recordId) FROM catalogue_rawdata);";
 		$this->databaseConnection->execute ($query);
 		
-		# Determine the type
+		# Determine and set the record type
 		$query = "UPDATE catalogue_marc
 			JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
 			SET type = CASE
@@ -3715,7 +3715,6 @@ class muscatConversion extends frontControllerApplication
 		#!# Currently will exclude records that are *also* held at IGS rather than *only* held at IGS - data work is in progress
 		$query = "UPDATE catalogue_marc
 			LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
-			LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
 			SET status = 'ignore'
 			WHERE
 				(field = 'location' AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection'))
