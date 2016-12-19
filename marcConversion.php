@@ -1,10 +1,14 @@
 <?php
 
+
+#!# Improve efficiency in this class by creating properties (e.g. XML, and recordId) instead of passing them around or looking-up several times
+
+
 # Class to handle conversion of the data to MARC format
 class marcConversion
 {
 	# Constructor
-	public function __construct ($muscatConversion, $transliteration, $supportedReverseTransliterationLanguages, $ksStatusTokens, $locationCodes, $suppressionStatusKeyword, $suppressionScenarios)
+	public function __construct ($muscatConversion, $transliteration, $supportedReverseTransliterationLanguages, $mergeTypes, $ksStatusTokens, $locationCodes, $suppressionStatusKeyword, $suppressionScenarios)
 	{
 		# Create class property handles to the parent class
 		$this->muscatConversion = $muscatConversion;
@@ -16,6 +20,7 @@ class marcConversion
 		# Create other handles
 		$this->transliteration = $transliteration;
 		$this->supportedReverseTransliterationLanguages = $supportedReverseTransliterationLanguages;
+		$this->mergeTypes = $mergeTypes;
 		$this->ksStatusTokens = $ksStatusTokens;
 		$this->locationCodes = $locationCodes;
 		$this->suppressionStatusKeyword = $suppressionStatusKeyword;

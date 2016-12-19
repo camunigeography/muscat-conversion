@@ -383,7 +383,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Create a handle to the MARC conversion module
 		require_once ('marcConversion.php');
-		$this->marcConversion = new marcConversion ($this, $this->transliteration, $this->supportedReverseTransliterationLanguages, $this->ksStatusTokens, $this->locationCodes, $this->suppressionStatusKeyword, $this->getSuppressionScenarios ());
+		$this->marcConversion = new marcConversion ($this, $this->transliteration, $this->supportedReverseTransliterationLanguages, $this->mergeTypes, $this->ksStatusTokens, $this->locationCodes, $this->suppressionStatusKeyword, $this->getSuppressionScenarios ());
 		
 		# Create a handle to the reports module
 		require_once ('reports.php');
