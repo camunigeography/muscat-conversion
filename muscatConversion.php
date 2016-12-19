@@ -2198,8 +2198,10 @@ class muscatConversion extends frontControllerApplication
 		$sqlFilename = $this->exportsProcessingTmp . "catalogue_{$type}.sql";
 		file_put_contents ($sqlFilename, $sql);
 		
-		# Execute the SQL
-		$this->databaseConnection->runSql ($this->settings, $sqlFilename, $isFile = true);
+		# Execute the SQL, reporting any UTF-8 invalid character string errors (or other problems)
+		if (!$this->databaseConnection->runSql ($this->settings, $sqlFilename, $isFile = true, $outputText)) {
+			echo "\n<p class=\"warning\">ERROR: Importing {$sqlFilename} failed with database error: <tt>" . htmlspecialchars ($outputText) . '</tt></p>';
+		}
 	}
 	
 	
