@@ -281,6 +281,36 @@ class marcConversion
 	}
 	
 	
+	# Function to obtain the data for an existing Voyager record, as a multi-dimensional array indexed by field then an array of lines for that field
+	public function getExistingVoyagerRecord ($mergeVoyagerId, &$errorText = '')
+	{
+		# If the merge voyager ID is not yet a pure integer (i.e. not yet a one-to-one lookup), state this and end
+		if (!ctype_digit ($mergeVoyagerId)) {
+			$errorText = 'There is not yet a one-to-one match, so no Voyager record can be displayed.';
+			return false;
+		}
+		
+		# Look up Voyager record, or end (e.g. no match)
+		if (!$voyagerRecordShards = $this->databaseConnection->select ($this->settings['database'], 'catalogue_external', array ('voyagerId' => $mergeVoyagerId))) {
+			$errorText = "Error: the specified Voyager record (#{$mergeVoyagerId}) could not be found in the external datasource.";
+			return false;
+		}
+		
+		# Construct the record lines
+		$recordLines = array ();
+		foreach ($voyagerRecordShards as $shard) {
+			$hasIndicators = (!preg_match ('/^(LDR|00[0-9])$/', $shard['field']));
+			$recordLines[] = $shard['field'] . ($hasIndicators ? ' ' . $shard['indicators'] : '') . ' ' . $shard['data'];
+		}
+		
+		# Implode to text string
+		$record = implode ("\n", $recordLines);
+		
+		# Return the record text block
+		return $record;
+	}
+	
+	
 	# Function to load an XML record string as XML
 	public function loadXmlRecord ($record)
 	{
