@@ -152,7 +152,7 @@ class marcConversion
 		# End if merge type is unsupported; this will result in an empty record
 		#!# Need to ensure this is reported during the import also
 		if (!isSet ($this->mergeTypes[$mergeType])) {
-			$errorString = "Merge failed for Muscat record #{$this->recordId} - unsupported merge type.";
+			$errorString = "Merge failed for Muscat record #{$this->recordId}: unsupported merge type {$mergeType}.";
 			return false;
 		}
 		
@@ -161,7 +161,7 @@ class marcConversion
 		
 		# Get the existing Voyager record
 		if (!$voyagerRecord = $this->getExistingVoyagerRecord ($mergeVoyagerId)) {
-			$errorString = "Merge failed for Muscat record #{$this->recordId} - could not retrieve existing Voyager record.";
+			$errorString = "Merge failed for Muscat record #{$this->recordId}: could not retrieve existing Voyager record.";
 			return false;
 		}
 		
