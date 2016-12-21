@@ -4866,6 +4866,7 @@ class muscatConversion extends frontControllerApplication
 				id INT(11) NOT NULL AUTO_INCREMENT COMMENT 'Automatic key',
 				surname VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Surname',
 				results INT(11) NOT NULL COMMENT 'Number of results',
+				source VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Source',
 				PRIMARY KEY (id),
 				INDEX(surname)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of names sourced from other sources';
@@ -4930,7 +4931,7 @@ class muscatConversion extends frontControllerApplication
 			$total = $searchResultJson['query']['searchinfo']['totalhits'];
 			
 			# Add the new result to the TSV
-			$string = $name . "\t" . $total . "\n";
+			$string = $name . "\t" . $total . "\t" . 'Wikipedia Russia' . "\n";
 			file_put_contents ($file, $string, FILE_APPEND);
 			
 			# Be patient, to avoid unreasonable request rates
