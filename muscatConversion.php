@@ -360,7 +360,9 @@ class muscatConversion extends frontControllerApplication
 		
 		# Show if an import is running, and prevent a second import running
 		if ($importHtml = $this->importInProgress (24, $blockUi = false)) {
-			echo $importHtml;
+			if (!isSet ($this->actions[$this->action]['export'])) {		// Show the warning unless using AJAX data
+				echo $importHtml;
+			}
 			if ($this->action == 'import') {
 				return false;
 			}
