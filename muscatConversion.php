@@ -4929,9 +4929,24 @@ class muscatConversion extends frontControllerApplication
 			# Get the count of results
 			$searchResultJson = json_decode ($searchResult, true);
 			$total = $searchResultJson['query']['searchinfo']['totalhits'];
+			$source = 'Wikipedia Russia';
+			
+			# If no value, try next source
+			if (!$total) {
+				
+				# Obtain the data
+				$url = 'http://aleph.rsl.ru/F?func=find-a&CON_LNG=ENG&find_code=WAU&request="' . urlencode ($name) . '"';
+				$searchResult = @file_get_contents ($url);
+				
+				# Scrape the result from the page
+				if (preg_match ("/Records?\s+[0-9]+\s+\-\s+[0-9]+\s+of\s+([0-9]+)\s+/", $searchResult, $matches)) {
+					$total = $matches[1];
+					$source = 'Russian State Library Catalog';
+				}
+			}
 			
 			# Add the new result to the TSV
-			$string = $name . "\t" . $total . "\t" . 'Wikipedia Russia' . "\n";
+			$string = $name . "\t" . $total . "\t" . $source . "\n";
 			file_put_contents ($file, $string, FILE_APPEND);
 			
 			# Be patient, to avoid unreasonable request rates
