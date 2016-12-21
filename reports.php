@@ -3179,9 +3179,9 @@ class reports
 					default: $cssClass = NULL; // No data, e.g. field relevant
 				}
 				if ($cssClass) {
-					$data[$id]['title_spellcheck_html'] = "<span class=\"{$cssClass}\">" . $data[$id]['title_spellcheck_html'] . '</span>';
+					$data[$id]['title_spellcheck_html'] = "\n\t\t\t" . "<span class=\"{$cssClass}\">" . $data[$id]['title_spellcheck_html'] . '</span>';
 					if ($data[$id]['inNameAuthorityList'] >= 0) {
-						$data[$id]['title_spellcheck_html'] .= ' <a href="https://www.google.co.uk/search?q=' . htmlspecialchars ('"' . trim (strip_tags ($data[$id]['title_spellcheck_html'])) . '"') . '" target="_blank" class="noarrow"><img src="/images/icons/magnifier.png" alt="" class="icon" /></a>' . "<span class=\"small faded\">{$data[$id]['inNameAuthorityList']}</span>";
+						$data[$id]['title_spellcheck_html'] .= "\n\t\t\t" . '<a href="https://www.google.co.uk/search?q=' . htmlspecialchars ('"' . trim (strip_tags ($data[$id]['title_spellcheck_html'])) . '"') . '" target="_blank" class="noarrow"><img src="/images/icons/magnifier.png" alt="" class="icon" /></a>' . "<span class=\"small faded\">{$data[$id]['inNameAuthorityList']}</span>";
 					}
 				}
 			}
@@ -3206,7 +3206,7 @@ class reports
 			'title_latin' => 'Muscat (transliteration, as entered)',
 			'title_loc' => 'Library of Congress Cyrillic (Voyager)',
 		);
-		$html  = application::htmlTable ($data, $tableHeadingSubstitutions, 'lines', $keyAsFirstColumn = false, false, $allowHtml = true, false, false, false, array (), $compress = true);
+		$html .= application::htmlTable ($data, $tableHeadingSubstitutions, 'lines', $keyAsFirstColumn = false, false, $allowHtml = true);
 		
 		# Render the HTML
 		return $html;
