@@ -3058,6 +3058,9 @@ class muscatConversion extends frontControllerApplication
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of names ticked during manual checking';
 		";
 		$this->databaseConnection->execute ($sql);
+		
+		# Mark in the manually-reviewed ('ticked') names data and mark the matches (with inNameAuthorityList = -1000)
+		$this->markTickedNames ();
 	}
 	
 	
@@ -4817,7 +4820,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to populate the other names data
-	private function populateOtherNames (&$error = false)
+	private function populateOtherNames ()
 	{
 		# Define the other names data file
 		$file = $this->applicationRoot . '/tables/othernames.tsv';
@@ -4934,6 +4937,22 @@ class muscatConversion extends frontControllerApplication
 			$wait = 1.5;
 			sleep ($wait);
 		}
+	}
+	
+	
+	# Function to mark in the manually-reviewed ('ticked') names data
+	private function markTickedNames ()
+	{
+		# Perform matches
+		$query = "
+			UPDATE transliterations
+			INNER JOIN tickednames ON transliterations.id = tickednames.id
+			SET inNameAuthorityList = tickednames.results
+		;";
+		$this->databaseConnection->query ($query);
+		
+		# Confirm success
+		return true;
 	}
 	
 	
