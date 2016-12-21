@@ -5023,19 +5023,26 @@ class muscatConversion extends frontControllerApplication
 			# Delete the record
 			if (!$this->databaseConnection->delete ($this->settings['database'], 'tickednames', array ('surname' => $data['title']))) {return false;}
 			
+			# Dynamically update the transliterations table
+			$this->databaseConnection->update ($this->settings['database'], 'transliterations', array ('inNameAuthorityList' => 0), array ('id' => $data['id']));
+			
 			# Return success code
 			return -1;	// Removed
 		}
 		
 		# Construct the new record
+		$value = '-1000';	// Flag to indicate manual review
 		$insert = array (
-			'id' => $data['id'],
+			'id' => $data['id'],	// Shard ID
 			'surname' => $data['title'],
-			'results' => '-1000',	// Flag to indicate manual review
+			'results' => $value,
 		);
 		
-		# Insert the data
+		# Insert the data to the persistent data table
 		if (!$this->databaseConnection->insert ($this->settings['database'], 'tickednames', $insert)) {return false;}
+		
+		# Dynamically update the transliterations table
+		$this->databaseConnection->update ($this->settings['database'], 'transliterations', array ('inNameAuthorityList' => $value), array ('id' => $data['id']));
 		
 		# Return success code
 		return 1;	// Added
