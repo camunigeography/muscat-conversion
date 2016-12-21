@@ -3146,8 +3146,6 @@ class reports
 	{
 		# Remove internal fields
 		foreach ($data as $id => $record) {
-			unset ($data[$id]['id']);
-			unset ($data[$id]['shardId']);
 			unset ($data[$id]['title']);
 		}
 		
@@ -3179,13 +3177,15 @@ class reports
 					default: $cssClass = NULL; // No data, e.g. field relevant
 				}
 				if ($cssClass) {
-					$data[$id]['title_spellcheck_html'] = "\n\t\t\t" . "<span class=\"{$cssClass}\">" . $data[$id]['title_spellcheck_html'] . '</span>';
+					$data[$id]['title_spellcheck_html'] = "\n\t\t\t" . "<span class=\"whitelisting {$cssClass}\">" . $data[$id]['title_spellcheck_html'] . '</span>';
 					if ($data[$id]['inNameAuthorityList'] >= 0) {
 						$data[$id]['title_spellcheck_html'] .= "\n\t\t\t" . '<a href="https://www.google.co.uk/search?q=' . htmlspecialchars ('"' . trim (strip_tags ($data[$id]['title_spellcheck_html'])) . '"') . '" target="_blank" class="noarrow"><img src="/images/icons/magnifier.png" alt="" class="icon" /></a>' . "<span class=\"small faded\">{$data[$id]['inNameAuthorityList']}</span>";
+						$data[$id]['title_spellcheck_html'] .= "\n\t\t\t" . '&nbsp; <img class="whitelist" data-id="' . $record['id'] . '" src="/images/icons/thumb_up.png" title="Mark name as OK" alt="" class="icon" />';
 					}
 				}
 			}
 			unset ($data[$id]['inNameAuthorityList']);
+			unset ($data[$id]['id']);	// Shard ID
 		}
 		
 		# Link each record
@@ -3199,7 +3199,45 @@ class reports
 			unset ($data[$id]['field']);
 		}
 		
-		# Render as HTML; records already may contain tags
+		# Start the HTML with the dynamic clickability
+		$html  = "\n" . '<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>';
+		$html .= "
+		<script type=\"text/javascript\">
+			$(function() {
+				$('img.whitelist').click(function() {
+					
+					var id = $(this).data('id');
+					var text = $(this).siblings('.whitelisting').text().trim();
+					
+					$.ajax({
+						type: 'GET',
+						data: 'do=whitelist&id=' + id,
+						success: function(data) {
+							
+							// Set the class for each matching text
+							var cssClass = (data.result == 1 ? 'probable' : 'absent');
+							$('span.whitelisting').filter(function() {
+								return $(this).text().trim() === text;
+							}).removeClass('absent').removeClass('probable').addClass(cssClass);
+							
+							// Toggle thumbs up/down adjacent to each matching text
+							var imgSrc = (data.result == 1 ? 'thumb_down.png' : 'thumb_up.png');
+							$('span.whitelisting').filter(function() {
+								return $(this).text() === text;
+							}).siblings('img.whitelist').attr('src', '/images/icons/' + imgSrc);
+						},
+						error: function() {
+							alert ('Error: could not whitelist this item!');
+						},
+						url: '{$this->baseUrl}/data.json',
+						cache: false
+					});
+				});
+			});
+		</script>
+		";
+		
+		# Add the table as HTML; records already may contain tags
 		$tableHeadingSubstitutions = array (
 			'recordId' => '#',
 			'title_spellcheck_html' => 'Generated Cyrillic (from BGN/PCGN)',

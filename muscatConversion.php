@@ -316,6 +316,12 @@ class muscatConversion extends frontControllerApplication
 				'administrator' => true,
 				'allowDuringImport' => true,
 			),
+			'data' => array (
+				'description' => 'AJAX endpoint',
+				'url' => 'data.json',
+				'export' => true,
+				'allowDuringImport' => true,
+			),
 		);
 		
 		# Return the actions
@@ -3040,6 +3046,18 @@ class muscatConversion extends frontControllerApplication
 				AND inNameAuthorityList IS NULL
 		;";
 		$this->databaseConnection->query ($query);
+		
+		# Create the ticked names table if it does not yet exist; this is persistent data between imports and should not be cleared
+		$sql = "
+			CREATE TABLE IF NOT EXISTS tickednames (
+				id VARCHAR(10) NOT NULL COMMENT 'Processed shard ID (catalogue_processed.id)',
+				surname VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Surname',
+				results INT(11) NOT NULL COMMENT 'Number of results',
+				PRIMARY KEY (id),
+				INDEX(surname)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of names ticked during manual checking';
+		";
+		$this->databaseConnection->execute ($sql);
 	}
 	
 	
@@ -4953,6 +4971,74 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the string
 		return $definition;
+	}
+	
+	
+	# AJAX endpoint
+	public function data ()
+	{
+		# Always return JSON response
+		header ('Content-Type: application/json');
+		
+		# Obtain the posted data
+		if (isSet ($_GET['do'])) {
+			
+			# Construct the handler method
+			$function = 'data' . ucfirst ($_GET['do']);	// e.g. dataWhitelist
+			if (method_exists ($this, $function)) {
+				
+				# Run the handler and send the result to the response
+				if ($result = $this->$function ()) {
+					$response = array ('result' => $result);
+				}
+			}
+		}
+		
+		# Error if no response defined
+		if (!isSet ($response)) {
+			header ('HTTP/1.1 500 Internal Server Error');
+			$response = array ('error' => 'Request was invalid');
+		}
+		
+		# Transmit the response
+		echo json_encode ($response);
+	}
+	
+	
+	# Handler for AJAX endpoint for whitelisting
+	public function dataWhitelist ()
+	{
+		# Ensure an ID is defined
+		if (!isSet ($_GET['id'])) {return false;}
+		
+		# Ensure the ID is in shard format
+		if (!preg_match ('/^([0-9]+):([0-9]+)$/', $_GET['id'])) {return false;}
+		
+		# Get the data
+		if (!$data = $this->databaseConnection->selectOne ($this->settings['database'], 'transliterations', array ('id' => $_GET['id']))) {return false;}
+		
+		# If the name already exists, treat this as a deletion
+		if ($this->databaseConnection->selectOne ($this->settings['database'], 'tickednames', array ('surname' => $data['title']))) {
+			
+			# Delete the record
+			if (!$this->databaseConnection->delete ($this->settings['database'], 'tickednames', array ('surname' => $data['title']))) {return false;}
+			
+			# Return success code
+			return -1;	// Removed
+		}
+		
+		# Construct the new record
+		$insert = array (
+			'id' => $data['id'],
+			'surname' => $data['title'],
+			'results' => '-1000',	// Flag to indicate manual review
+		);
+		
+		# Insert the data
+		if (!$this->databaseConnection->insert ($this->settings['database'], 'tickednames', $insert)) {return false;}
+		
+		# Return success code
+		return 1;	// Added
 	}
 }
 
