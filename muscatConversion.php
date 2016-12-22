@@ -3517,13 +3517,13 @@ class muscatConversion extends frontControllerApplication
 					
 					# Get the next chunk of record IDs to update for this type, until all are done
 					$query = "SELECT
-						id
-					FROM catalogue_marc
-					WHERE
-						    type = '{$recordType}'
-						AND marc IS NULL
-						AND id >= {$this->firstRealRecord}
-					LIMIT {$chunksOf}
+							id
+						FROM catalogue_marc
+						WHERE
+							    type = '{$recordType}'
+							AND marc IS NULL
+							AND id >= {$this->firstRealRecord}
+						LIMIT {$chunksOf}
 					;";
 					if (!$ids = $this->databaseConnection->getPairs ($query)) {break;}	// Break the while (true) loop and move to next record type
 					
@@ -3557,9 +3557,6 @@ class muscatConversion extends frontControllerApplication
 					$suppressReasons = (isSet ($suppressReasonsList[$id]) ? $suppressReasonsList[$id] : false);
 					$marcPreMerge = NULL;	// Reset for next iteration
 					$marc = $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $errorString, $mergeDefinition, $mergeType, $mergeVoyagerId, $suppressReasons, $marcPreMerge);
-					if ($secondPassRecordId = $this->marcConversion->getSecondPassRecordId ()) {
-						$this->marcSecondPass[] = $secondPassRecordId;
-					}
 					if ($errorString) {
 						$html  = "<p class=\"warning\">Record <a href=\"{$this->baseUrl}/records/{$id}/\">{$id}</a> could not be converted to MARC:</p>";
 						$html .= "\n<p><img src=\"/images/icons/exclamation.png\" class=\"icon\" /> {$errorString}</p>";
@@ -3570,6 +3567,11 @@ class muscatConversion extends frontControllerApplication
 						'marcPreMerge' => $marcPreMerge,
 						'marc' => $marc,
 					);
+					
+					# If the record has generated a second pass requirement if it has a parent, register the ID
+					if ($secondPassRecordId = $this->marcConversion->getSecondPassRecordId ()) {
+						$this->marcSecondPass[] = $secondPassRecordId;
+					}
 				}
 				
 				# Insert the records (or update for the second pass); ON DUPLICATE KEY UPDATE is a dirty but useful method of getting a multiple update at once (as this doesn't require a WHERE clause, which can't be used as there is more than one record to be inserted)
