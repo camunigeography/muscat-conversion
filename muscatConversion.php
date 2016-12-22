@@ -4822,7 +4822,7 @@ class muscatConversion extends frontControllerApplication
 			
 			# Populate the other names data
 			if (!$this->populateOtherNames ($error)) {
-				$html = "\n<p>{$this->cross} {$error}</p>";
+				$html = "\n<p class=\"warning\">ERROR: {$this->cross} {$error}</p>";
 			} else {
 				$html = "\n<p>{$this->tick} The other names data was processed.</p>";
 			}
@@ -4834,19 +4834,19 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to populate the other names data
-	private function populateOtherNames ()
+	private function populateOtherNames (&$error = false)
 	{
 		# Define the other names data file
 		$file = $this->applicationRoot . '/tables/othernames.tsv';
 		
 		# Initialise the other names data table with existing data
-		$this->buildOtherNamesTable ($file);
+		if (!$this->buildOtherNamesTable ($file, $error)) {return false;}
 		
 		# Add any new values to the data file
 		$this->obtainSaveOtherNamesData ($file);
 		
 		# Re-initialise the other names data table with existing data
-		$this->buildOtherNamesTable ($file);
+		if (!$this->buildOtherNamesTable ($file, $error)) {return false;}
 		
 		# Perform matches
 		$query = "
@@ -4863,14 +4863,20 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to insert other names data
-	private function buildOtherNamesTable ($file)
+	private function buildOtherNamesTable ($file, &$error = false)
 	{
 		# Read in the TSV file
-		$tsv = file_get_contents ($file);
+		if (!$tsv = @file_get_contents ($file)) {
+			$error = "Could not open the {$file} other names file.";
+			return false;
+		}
 		
 		# Convert from TSV
 		require_once ('csv.php');
 		$otherNames = csv::tsvToArray (trim ($tsv));
+		
+		# End if none, e.g. if new file
+		if (!$otherNames) {return true;}
 		
 		# Create/re-create the table
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.othernames;";
@@ -4889,9 +4895,12 @@ class muscatConversion extends frontControllerApplication
 		
 		# Insert the data
 		if (!$this->databaseConnection->insertMany ($this->settings['database'], 'othernames', $otherNames)) {
-			$error = 'Error inserting other names data';
+			$error = 'Error inserting other names data.';
 			return false;
 		}
+		
+		# Signal access
+		return true;
 	}
 	
 	
