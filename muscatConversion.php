@@ -4930,6 +4930,10 @@ class muscatConversion extends frontControllerApplication
 		foreach ($names as $name) {
 			$i++;
 			
+			# Start a hit count and sources list
+			$total = 0;
+			$sources = array ();
+			
 			# Obtain the data for the query, as a phrase
 			# Copyright note: The result data itself is *not* saved - only a count is done to determine presence or not
 			# https://www.mediawiki.org/wiki/API:Search#Example
@@ -4951,25 +4955,30 @@ class muscatConversion extends frontControllerApplication
 			
 			# Get the count of results
 			$searchResultJson = json_decode ($searchResult, true);
-			$total = $searchResultJson['query']['searchinfo']['totalhits'];
-			$source = 'Wikipedia Russia';
+			if ($searchResultJson['query']['searchinfo']['totalhits']) {
+				$thisTotal = (int) $searchResultJson['query']['searchinfo']['totalhits'];
+				$total += $thisTotal;
+				$sources[] = "Wikipedia Russia ({$thisTotal})";
+			}
 			
-			# If no value, try next source
+			# Obtain the data
+			$url = 'http://aleph.rsl.ru/F?func=find-a&CON_LNG=ENG&find_code=WAU&request="' . urlencode ($name) . '"';
+			$searchResult = @file_get_contents ($url);
+			
+			# Scrape the result from the page
+			if (preg_match ("/Records?\s+[0-9]+\s+\-\s+[0-9]+\s+of\s+([0-9]+)\s+/", $searchResult, $matches)) {
+				$thisTotal = (int) $matches[1];
+				$total += $thisTotal;
+				$sources[] = "Russian State Library Catalog ({$thisTotal})";
+			}
+			
+			# If no total, state no source
 			if (!$total) {
-				
-				# Obtain the data
-				$url = 'http://aleph.rsl.ru/F?func=find-a&CON_LNG=ENG&find_code=WAU&request="' . urlencode ($name) . '"';
-				$searchResult = @file_get_contents ($url);
-				
-				# Scrape the result from the page
-				if (preg_match ("/Records?\s+[0-9]+\s+\-\s+[0-9]+\s+of\s+([0-9]+)\s+/", $searchResult, $matches)) {
-					$total = $matches[1];
-					$source = 'Russian State Library Catalog';
-				}
+				$sources[] = 'No results (tried Wikipedia Russia, Russian State Library Catalog)';
 			}
 			
 			# Add the new result to the TSV
-			$string = $name . "\t" . $total . "\t" . $source . "\n";
+			$string = $name . "\t" . $total . "\t" . implode (', ', $sources) . "\n";
 			file_put_contents ($file, $string, FILE_APPEND);
 			
 			# Be patient, to avoid unreasonable request rates

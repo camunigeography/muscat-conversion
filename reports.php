@@ -2792,7 +2792,7 @@ class reports
 	}
 	
 	
-	# View for report_seriestitles
+	# View for report_journaltitles
 	public function report_journaltitles_view ()
 	{
 		return $html = $this->reportListing ('listing_journaltitles', 'distinct journal titles', 'journaltitle');
