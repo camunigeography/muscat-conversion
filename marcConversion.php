@@ -2547,7 +2547,7 @@ class marcConversion
 	
 	
 	# Macro to parse out a MARC record into subfields
-	private function parseMarcRecord ($marc)
+	public function parseMarcRecord ($marc, $parseSubfieldsToPairs = true)
 	{
 		# Parse the record
 		preg_match_all ('/^([LDR0-9]{3}) (?:([#0-9]{2}) )?(.+)$/mu', $marc, $matches, PREG_SET_ORDER);
@@ -2560,7 +2560,7 @@ class marcConversion
 				'fullLine'		=> $match[0],
 				'line'			=> $match[3],
 				'indicators'	=> $match[2],
-				'subfields'		=> $this->parseSubfieldsToPairs ($match[3]),
+				'subfields'		=> ($parseSubfieldsToPairs ? $this->parseSubfieldsToPairs ($match[3]) : $match[3]),
 			);
 		}
 		

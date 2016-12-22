@@ -1,0 +1,60 @@
+# These tests are ran against the generated MARC output
+
+# Format is:
+#  
+# Number (manually-assigned, so that they can be referenced elsewhere in code)
+# Description
+# Record number
+# MARC field
+# Pattern (either simple string or regexp starting with slash delimeter)
+
+
+1
+Basic test
+1000
+001
+/^SPRI-[0-9]{4}$/
+
+2
+Ensure that the data has been fully-loaded - this specifies a record very near the end
+215073
+001
+SPRI-215073
+
+3
+Ensure *lpt parsing
+8690
+245
+ch = Register
+
+4
+FIXME: 500 should not have :,
+5472
+500
+1882-83 : die
+
+5
+FIXME: Ensure <em> is correctly encoded so that it disappears - avoid e-dot appearing
+8690
+245
+parokhoda "Andre
+
+6
+FIXME: Roman numerals followed by hyphen should not be transliterated
+206607
+880
+XVII-
+
+7
+FIXME: Roman numerals followed by hyphen should not be transliterated
+143341
+880
+XXI-
+
+8
+Unescape Muscat escaped asterisks @*
+19682
+520
+(*495)
+
+

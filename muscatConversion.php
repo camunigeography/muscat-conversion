@@ -1814,6 +1814,7 @@ class muscatConversion extends frontControllerApplication
 			'external'				=> 'Regenerate external Voyager records only (c. ? minutes)',
 			'outputstatus'			=> 'Regenerate output status only (c. 15 seconds)',
 			'exports'				=> 'Regenerate MARC export files and Bibcheck report (c. 30 minutes)',
+			'tests'					=> 'Run automated tests',
 			'reports'				=> 'Regenerate reports only (c. 7 minutes)',
 			'listings'				=> 'Regenerate listings reports only (c. 45 minutes)',
 		);
@@ -1919,15 +1920,21 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Run (pre-process) the reports
-		if (($importType == 'full') || ($importType == 'reports')) {
+		if (($importType == 'reports') || ($importType == 'full')) {
 			$this->runReports ();
 			$html .= "\n<p>{$this->tick} The <a href=\"{$this->baseUrl}/reports/\">reports</a> have been generated.</p>";
 		}
 		
-		# Run (pre-process) the reports
-		if (($importType == 'full') || ($importType == 'listings')) {
+		# Run (pre-process) the listings reports
+		if (($importType == 'listings') || ($importType == 'full')) {
 			$this->runListings ();
 			$html .= "\n<p>{$this->tick} The <a href=\"{$this->baseUrl}/reports/\">listings reports</a> have been generated.</p>";
+		}
+		
+		# Run (pre-process) the tests
+		if (($importType == 'tests') || ($importType == 'full')) {
+			$this->runTests ();
+			$html .= "\n<p>{$this->tick} The <a href=\"{$this->baseUrl}/reports/\">tests</a> have been generated.</p>";
 		}
 		
 		# Signal success
@@ -4065,6 +4072,106 @@ class muscatConversion extends frontControllerApplication
 			$reportFunction = 'report_' . $report;
 			$this->reports->$reportFunction ();
 		}
+	}
+	
+	
+	# Function to run tests and generate test results
+	public function runTests ()
+	{
+		# Now create the statistics table; this is pre-compiled for performance
+		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.tests;";
+		$this->databaseConnection->execute ($sql);
+		$sql = "
+			CREATE TABLE `tests` (
+			  `id` INT(1) NOT NULL AUTO_INCREMENT COMMENT 'Test #',
+			  `result` INT(1) NOT NULL COMMENT 'Result',	-- 1=passed, 0=failed
+			  `description` VARCHAR(255) NOT NULL COMMENT 'Description',
+			  `recordId` INT(6) NOT NULL COMMENT 'Record number',
+			  `marcField` VARCHAR(3) NOT NULL COMMENT 'MARC field',
+			  `expected` VARCHAR(255) NOT NULL COMMENT 'Expected',
+			  `found` TEXT NULL COMMENT 'Found line(s)',
+			  PRIMARY KEY (`id`)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Test results';";
+		$this->databaseConnection->execute ($sql);
+		
+		# Load the tests definition
+		$testsString = file_get_contents ($this->applicationRoot . '/tests/tests.txt');
+		
+		# Parse to tests
+		$fields = array ('id', 'description', 'recordId', 'marcField', 'expected');	// In order of appearance in definition
+		$tests = application::parseBlocks ($testsString, $fields);
+		
+		# Pre-load the MARC records
+		$ids = array ();
+		foreach ($tests as $test) {
+			$ids[] = $test['recordId'];
+		}
+		$marcRecords = $this->databaseConnection->selectPairs ($this->settings['database'], 'catalogue_marc', array ('id' => $ids), array ('id', 'marc'));
+		
+		# Run each test and add in the result
+		foreach ($tests as $id => $test) {
+			$tests[$id]['id'] = $test['id'];
+			
+			# Parse the record
+			$recordId = $test['recordId'];
+			$record = $this->marcConversion->parseMarcRecord ($marcRecords[$recordId], false);
+			// application::dumpData ($record);
+			
+			# Assume failure
+			$tests[$id]['found'] = NULL;
+			$tests[$id]['result'] = 0;	// Assume failure
+			
+			# Loop through each matching field
+			$field = $test['marcField'];
+			if (!isSet ($record[$field])) {
+				// Report will turn found = NULL into a statement that the line is not present
+				continue;	// Next test
+			}
+			
+			# Add the found line(s)
+			$lines = array ();
+			foreach ($record[$field] as $line) {
+				$lines[] = $line['fullLine'];
+			}
+			$tests[$id]['found'] = implode ("\n", $lines);
+			
+			# Determine if the test is a regexp test (starting with a slash, e.g. '/[a-z]/i') or a simple string match
+			$isRegexpTest = preg_match ('|^/|', $test['expected']);
+			
+			# Test each matching line for a result; comparisons are done against the line after the field number and space, i.e. tests against indicators + content
+			foreach ($record[$field] as $line) {
+				if ($isRegexpTest) {
+					$result = (preg_match ($test['expected'], $line['line'], $matches));
+				} else {
+					$result = substr_count ($line['line'], $test['expected']);
+				}
+				
+				# Stop if match found
+				if ($result) {
+					$tests[$id]['result'] = 1;
+					break;
+				}
+			}
+		}
+		
+		# Insert the results
+		$this->databaseConnection->insertMany ($this->settings['database'], 'tests', $tests);
+		
+		# Implement countability, by adding an entry, without reference to recordId, into the report results table, first clearing any existing result in case this is being run dynamically
+		$this->databaseConnection->delete ($this->settings['database'], 'reportresults', array ('report' => 'tests'));
+		$sql = "
+			INSERT INTO reportresults (report,recordId)
+				SELECT
+					-- Get as many rows as failures exist, but ignore the actual data in them:
+					'tests' AS report,
+					-1 AS recordId
+				FROM tests
+				WHERE result = 0
+		;";
+		$this->databaseConnection->execute ($sql);
+		
+		# Return the result
+		return true;
 	}
 	
 	

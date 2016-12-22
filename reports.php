@@ -136,6 +136,7 @@ class reports
 		'voyagerlocations' => 'Muscat locations that do not map to Voyager locations',
 		'translationnotevalues' => 'records containing a note regarding translation - distinct values',
 		'mergestatus_info' => 'records with a merge status',
+		'tests_problem_countable' => 'automated tests',
 	);
 	
 	
@@ -3730,7 +3731,64 @@ class reports
 		$html  = "\n" . '<!-- Enable table sortability: --><script language="javascript" type="text/javascript" src="/sitetech/sorttable.js"></script>';
 		$html .= application::htmlTable ($data, $tableHeadingSubstitutions, 'lines compressed sortable" id="sortable', $keyAsFirstColumn = false, false, $allowHtml = true, false, false, false, array (), $compress = true);
 		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Automated tests
+	public function report_tests ()
+	{
+		// No action needed - the view is created dynamically
+		return true;
+	}
+	
+	
+	# View for automated tests
+	public function report_tests_view ()
+	{
+		# Regenerate if required
+		$this->muscatConversion->runTests ();
+		
+		# Obtain the data
+		$data = $this->databaseConnection->select ($this->settings['database'], 'tests');
+		
+		# Format fields
+		foreach ($data as $id => $test) {
+			
+			# Pass/fail icon
+			$data[$id]['result'] = ($test['result'] ? '<img src="/images/icons/tick.png" title="Passed" alt="Tick" class="icon" />' : '<img src="/images/icons/cross.png" title="Failed" alt="Cross" class="icon" />');
+			
+			# Link record
+			$data[$id]['recordId'] = "<a href=\"{$this->baseUrl}/records/{$test['recordId']}/\">{$test['recordId']}</a>";
+			
+			# Description and expected lines
+			$data[$id]['description'] = htmlspecialchars ($test['description']);
+			$data[$id]['expected'] = '<tt>' . htmlspecialchars ($test['expected']) . '</tt>';
+			
+			# Found lines
+			if ($test['found']) {
+				$found = htmlspecialchars ($test['found']);
+				if ($test['result']) {
+					$matched = $test['expected'];
+					if ($isRegexpTest = preg_match ('|^/|', $test['expected'], $matches)) {
+						if (preg_match ($test['expected'], substr ($found, 4), $matches)) {	// substr(..., 4) strips off the fieldnumber and its space
+							$matched = $matches[0];
+						}
+					}
+					$found = str_replace ($matched, '<span class="found">' . $matched . '</span>', $found);
+				}
+				$data[$id]['found'] = '<tt>' . nl2br ($found) . '</tt>';
+			} else {
+				$data[$id]['found'] = '<span class="comment">[Record or field not present.]</span>';
+			}
+		}
+		
 		# Render the HTML
+		$headings = $this->databaseConnection->getHeadings ($this->settings['database'], 'tests');
+		$html = application::htmlTable ($data, $headings, $class = 'tests graybox', $keyAsFirstColumn = false, false, $allowHtml = true, false, $addCellClasses = true);
+		
+		# Return the HTML
 		return $html;
 	}
 }
