@@ -3529,7 +3529,19 @@ class muscatConversion extends frontControllerApplication
 					
 				# For the second pass, use the second pass list that has been generated in the standard processing phase, once only
 				} else {
-					if (!$this->marcSecondPass) {break;}	// Break the while (true) loop
+					
+					if (!$this->marcSecondPass) {break;}	// End if the second-pass phase has now already been run
+					
+					/* Should only be a small number (84 cases as of 22/12/2016), as shown by comparing the $this->recordProcessingOrder with:
+						SELECT
+							REPLACE(child.xPath, '/k2/kg', '') AS childType,
+							parent.xPath AS parentType,
+							COUNT(*) AS total
+						FROM `catalogue_processed` AS child
+						LEFT JOIN catalogue_processed AS parent ON child.value  = parent.recordId AND parent.`line` = 1
+						WHERE child.`field` = 'kg'
+						GROUP BY childType, parentType
+					*/
 					$ids = $this->marcSecondPass;
 					$this->marcSecondPass = false;	// Ensure once only
 				}
