@@ -3762,8 +3762,11 @@ class reports
 			# Link record
 			$data[$id]['recordId'] = "<a href=\"{$this->baseUrl}/records/{$test['recordId']}/\">{$test['recordId']}</a>";
 			
-			# Description and expected lines
+			# Description
 			$data[$id]['description'] = htmlspecialchars ($test['description']);
+			$data[$id]['description'] = preg_replace ('|(/reports/[^/]+/)|', "<a href=\"{$this->baseUrl}\\1\">\\1</a>", $data[$id]['description']);
+			
+			# Expected
 			$data[$id]['expected'] = '<tt>' . htmlspecialchars ($test['expected']) . '</tt>';
 			
 			# Found lines
