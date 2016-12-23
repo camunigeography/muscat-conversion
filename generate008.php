@@ -614,11 +614,12 @@ class generate008
 				# If *t contains Festschrift => 1 then |
 				$t = $this->muscatConversion->xPathValue ($this->xml, '//t');
 				$tt = $this->muscatConversion->xPathValue ($this->xml, '//tt');
-				if (preg_match ('/Festsxchrift/i', $t) || preg_match ('/Festxschrift/i', $tt)) {	// Simple match to deal with cases of records having two *t like 13607
+				if (preg_match ('/Festschrift/i', $t) || preg_match ('/Festschrift/i', $tt)) {	// Simple match to deal with cases of records having two *t like /records/13607/
 					return '1' . '|';
-				} else {
-					return '|' . '|';
 				}
+				
+				# Otherwise ||
+				return '|' . '|';	// (test #38)
 			
 			case '/ser':
 			case '/art/j':
