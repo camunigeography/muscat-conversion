@@ -273,4 +273,9 @@ aeng
 008
 epo
 
+45
+1-y becomes 1-й in Cyrillic
+29343
+880
+Выпуск 1-й.
 
