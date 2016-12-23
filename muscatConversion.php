@@ -146,7 +146,7 @@ class muscatConversion extends frontControllerApplication
 	private $transliterationUpgradeFields = array (
 		't',
 		'pu',
-		'n1', 'n2',
+		'n1', 'n2', 'nd',	// NB Keep these three together as generate245::classifyNdField() (as called from generate245::statementOfResponsibility() ) assumes they will be in sync in terms of transliteration
 	);
 	
 	# Define fields for transliteration name matching
