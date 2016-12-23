@@ -50,7 +50,7 @@ class generate245
 			
 			# Do the transliteration
 			$lpt = $this->muscatConversion->xPathValue ($this->xml, $lptFieldXpath);	// Languages of parallel title, e.g. "Russian = English"
-			$this->t = $this->muscatConversion->transliteration->transliterateLocLatinToCyrillic ($this->t, $lpt, $error, $nonTransliterable /* passed back by reference */);
+			$this->t = $this->muscatConversion->transliteration->transliterateLocLatinToCyrillic ($this->t, $lpt, $error, $nonTransliterable /* passed back by reference */);	// (test #49)
 			
 			# End if the transliteration has determined that the string is not actually intended for transliteration, e.g. [Titles fully in brackets like this]; e.g. /records/31750/
 			if ($nonTransliterable) {return false;}
@@ -225,8 +225,7 @@ class generate245
 				}
 				
 				# Register this value
-				#!# Old transliteration needs to be upgraded in catalogue_processed and here in MARC generation
-				$statementOfResponsibility .= ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliteration->transliterateBgnLatinToCyrillic ($string, false, $this->languageMode));
+				$statementOfResponsibility .= ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliteration->transliterateLocLatinToCyrillic ($string, false));
 				
 				# Next *a
 				$aIndex++;

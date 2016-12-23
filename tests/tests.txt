@@ -297,4 +297,13 @@ Ditto, mid-word
 245
 tetra-n-butilammon
 
+49
+Cyrillic should not contain a ligature (e.g. from transliterating "Int͡skirveli")
+29550
+880
+Инцкирвели
+
+
+
+
 
