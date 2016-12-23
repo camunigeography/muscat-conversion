@@ -34,10 +34,10 @@ FIXME: 500 should not have :,
 1882-83 : die
 
 5
-FIXME: Ensure <em> is correctly encoded so that it disappears - avoid e-dot appearing
+Use of " as a pseudo- word boundary character, so that "<em>...</em>" gets protected rather than result in e-dot; see: /reports/transliterateem/
 8690
 245
-parokhoda "Andre
+parokhoda "Andrei Pervozvannyi" v
 
 6
 FIXME: Roman numerals followed by hyphen should not be transliterated
@@ -278,4 +278,6 @@ epo
 29343
 880
 Выпуск 1-й.
+
+
 

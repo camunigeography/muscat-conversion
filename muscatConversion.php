@@ -2489,7 +2489,7 @@ class muscatConversion extends frontControllerApplication
 		$unicodeSubscripts['='] = chr(0xE2).chr(0x82).chr(0x8C);
 		$unicodeSubscripts['('] = chr(0xE2).chr(0x82).chr(0x8D);
 		$unicodeSubscripts[')'] = chr(0xE2).chr(0x82).chr(0x8E);
-		$unicodeSubscripts['n'] = chr(0xE2).chr(0x82).chr(0x99);
+		$unicodeSubscripts['n'] = chr(0xE2).chr(0x82).chr(0x99);	// 'LATIN SUBSCRIPT SMALL LETTER N' (U+2099) - http://www.fileformat.info/info/unicode/char/2099/index.htm
 		
 		# Letter/number combinations whose component characters can be represented, or partially represented, as real Unicode
 		$unicodeSubscripts['++'] = $unicodeSubscripts['+'] . $unicodeSubscripts['+'];
