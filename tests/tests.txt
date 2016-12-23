@@ -57,4 +57,71 @@ Unescape Muscat escaped asterisks @*
 520
 (*495)
 
+9
+008 position 06-14 continuing serials e.g. 1990-
+1036
+008
+u1964uuuu
+
+10
+008 position 06-14 "Undated-"
+177897
+008
+uuuuuuuuu
+
+11
+008 position 06-14 "-"
+184400
+008
+uuuuuuuuu
+
+12
+008 position 06-14 "1977?-"
+57312
+008
+u1977uuuu
+
+13
+008 position 06-14 "1945-73, 1989-"
+19832
+008
+u1945uuuu
+
+14
+008 position 06-14 normalise YYYY-YY "1960-61"
+1034
+008
+d19601961
+
+15
+008 position 06-14 *ser normalise YYYY "1991"
+1052
+008
+d19911991
+
+16
+008 position 06-14 handle absent date "[n.d.]"
+1102
+008
+nuuuuuuuu
+
+17
+008 position 06-14 Probable date "[1994]"
+1306
+008
+s1994####
+
+18
+008 position 06-14 *art simple date "1915"
+11150
+008
+s1915####
+
+19
+008 position 06-14 "1923 (1931 printing)"
+12522
+008
+r19311923
+
+
 

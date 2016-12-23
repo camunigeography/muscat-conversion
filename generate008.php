@@ -88,17 +88,17 @@ class generate008
 		if ($this->recordType == '/ser') {
 			
 			# For continuing serials, e.g. ends with "1990-", there is no end date
-			# Example: /records/1036/
-			if ($hasYear && preg_match ('/-$/', $yearString)) {		// $hasYear check to catch /records/177897/ which has "undated-" and /records/184400/ which has "-"; will not cause problems for e.g. /records/57312/ which has "1977?-" or /records/19832/ which has "1945-73, 89-" - they will get the first four-digit year as intended
+			# E.g. /records/1036/ (test #9)
+			if ($hasYear && preg_match ('/-$/', $yearString)) {		// $hasYear check to catch /records/177897/ which has "undated-" (test #10) and /records/184400/ which has "-" (test #11); will not cause problems for e.g. /records/57312/ which has "1977?-" (test #12) or /records/19832/ which has "1945-73, 89-" (test #13) - they will get the first four-digit year as intended
 				return 'u' . $yearMatches[1] . 'uuuu';
 			}
 			
 			# Normalise cases of incorrect data specified as YYYY-YY, e.g. "1990-95" which should be "1990-1995"; all manually checked that these are all 19xx dates (not 18xx/20xx/etc.)
-			# Example: /records/1034/
+			# E.g. /records/1034/ (test #14)
 			$yearString = preg_replace ('/([0-9]{4})-([0-9]{2})($|[^0-9])/', '\1-19\2\3', $yearString);
 			
 			# Determine the last present year in *r (which could validly be the same as the first year if the string is just "1990" - this would mean a serial that starts in 1990 and ends in 1990)
-			# Example: /records/1052/
+			# E.g. /records/1052/ (test #15)
 			preg_match_all ('/([0-9]{4})/', $yearString, $lastYearMatches, PREG_PATTERN_ORDER);		// See: http://stackoverflow.com/questions/23343087/
 			$lastYear = end ($lastYearMatches[0]);
 			
@@ -113,7 +113,7 @@ class generate008
 		# 06:    If *d in *doc or *art does not contain at least one year (e.g. '[n.d.]', '-', '?'), designator is 'n';
 		# 07-10: If 06 is 'n', 07-10 contain 'uuuu';
 		# 11-14: If 06 is 'n' or 's', 11-14 contain 'uuuu';
-		# Example: /records/1306/ , /records/1102/
+		# E.g. /records/1102/ (test #16)
 		if (!$hasYear) {
 			return 'n' . 'uuuu' . 'uuuu';
 		}
@@ -121,9 +121,8 @@ class generate008
 		# 06:    For *doc and *art, if *d is of the format '1984 (2014 printing)', designator is 'r';
 		# 07-10: if 06 is 'r', 07-10 contain the later of the two years, i.e. '2014' if *d is '1984 (2014 printing)';
 		# 11-14: if 06 is 'r', 11-14 contain the earlier of the two years, i.e. '1984' if *d is '1984 (2014 printing)'
-		# NB /records/12681/ which has "1924 (December printing)" intentionally does not comply; so this will fall through to s
 		# The printing year never has a - in practice, so for this reason we do not to worry about - => u replacement
-		# Example: /records/12522/
+		# E.g. /records/12522/ (test #19)
 		if (preg_match ('/^([0-9]{3}[-0-9]) \(([0-9]{4}) printing\)$/', $yearString, $printingMatches)) {
 			return 'r' . $printingMatches[2] . $printingMatches[1];
 		}
@@ -131,7 +130,7 @@ class generate008
 		# 06:    otherwise designator is 's'
 		# 07-10: if 06 is 's', 07-10 contain the year from *d (i.e. no other characters e.g. '[', ']' or '?') - any digits replaced by hyphens in Muscat should be replaced by 'u' in Voyager
 		# 11-14: If 06 is 'n' or 's', 11-14 contain '####';
-		# Example: /records/11150/
+		# E.g. /records/1306/ (test #17), /records/11150/ (test #18)
 		$yearMatches[1] = str_replace ('-', 'u', $yearMatches[1]);
 		return 's' . $yearMatches[1] . '####';
 	}
