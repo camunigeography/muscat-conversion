@@ -240,7 +240,7 @@ class transliteration
 		}
 		
 		# Protect parts in italics, which are Latin names that a publisher would not translate
-		preg_match_all ('|(<em>.+</em>)|uU', $string, $italicisedNameMatches);		// Uses /U ungreedy, to avoid "a <em>b</em> c <em>d</em> e" becoming "a  e"
+		preg_match_all ('|(<em>.+</em>)|uU', $string, $italicisedNameMatches);		// Uses /U ungreedy, to avoid "a <em>b</em> c <em>d</em> e" becoming "a  e" (test #46)
 		$replacements = array_merge ($replacements, $italicisedNameMatches[1]);
 		
 		# Add in HTML tags for protection; NB in theory all <em> and </em> tags will have been swallowed already so in practice these are not necessary here
