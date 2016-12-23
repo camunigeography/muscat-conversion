@@ -5029,7 +5029,7 @@ class muscatConversion extends frontControllerApplication
 		$names = $this->databaseConnection->getPairs ($query);
 		
 		# Set user agent
-		ini_set ('user_agent', 'Scott Polar Research Institute - Muscat catalogue conversion project. Using Russian Wikipedia to obtain hit counts for c. 6,000 Russian authors.');
+		ini_set ('user_agent', 'Scott Polar Research Institute - Muscat catalogue conversion project. Obtaining (and caching) hit counts for c. 9,700 Russian author names.');
 		
 		# Work through each name
 		$results = array ();
