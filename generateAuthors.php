@@ -316,7 +316,7 @@ class generateAuthors
 				}
 				
 				# Obtain the value
-				# In the case of each *e/*n, *role, with Relator Term lookup substitution, is incorporated; example: /records/47079/ ; this is done inside classifyAdField ()
+				# In the case of each *e/*n, *role, with Relator Term lookup substitution, is incorporated; e.g. /records/47079/ ; this is done inside classifyAdField ()
 				$line = $this->main ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]", 700);
 				
 				# Register the line, if it has resulted in a line, adding the field code, which may have been modified in main()
@@ -332,7 +332,7 @@ class generateAuthors
 			$eIndex++;
 		}
 		
-		# Check for a *ke which is a flag indicating that there are analytic (child) records; e.g.: /records/7463/
+		# Check for a *ke which is a flag indicating that there are analytic (child) records; e.g. /records/7463/
 		if ($this->muscatConversion->xPathValue ($this->mainRecordXml, '//ke')) {		// Is just a flag, not a useful value; e.g. record 7463 contains "\&lt;b&gt; Analytics \&lt;b(l) ~l 1000/&quot;ME7463&quot;/ ~&gt;" which creates a button in the Muscat GUI
 			
 			# Look up the records whose *kg matches, e.g. /records/9375/ has *kg=7463, so this indicates that 9375 (which will be an *art) is a child of 7463
@@ -936,7 +936,7 @@ class generateAuthors
 			}
 		}
 		
-		# Look at the first or only *doc/*ag OR *art/*ag; example: /records/1165/
+		# Look at the first or only *doc/*ag OR *art/*ag; e.g. /records/1165/
 		$ad = $this->muscatConversion->xPathValue ($this->xml, $path . '/following-sibling::ad');
 		if (strlen ($ad)) {
 			$value = $this->_classifySingleValueNdOrAdField ($value, $ad, true);
@@ -954,7 +954,7 @@ class generateAuthors
 	private function addAffField ($path, $value)
 	{
 		# Is there a *aff in *doc/*ag OR *art/*ag?
-		# If so, Add to 100 field; example: /records/121449/
+		# If so, Add to 100 field; e.g. /records/121449/
 		$aff = $this->muscatConversion->xPathValue ($this->xml, $path . '/following-sibling::aff');
 		if (strlen ($aff)) {
 			$value .= ", {$this->doubleDagger}u{$aff}";
