@@ -285,4 +285,16 @@ Prevent multiple italic sections being swallowed in transliterated protected str
 245
 Belukha ili beluga
 
+47
+In transliteration, ensure mid-word italics get properly tokenised (rather than remaining as <em> and thus e-dot)
+91018
+245
+fazovoĭ p-T-diagrammy
+
+48
+Ditto, mid-word
+79687
+245
+tetra-n-butilammon
+
 

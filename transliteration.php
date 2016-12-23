@@ -300,8 +300,12 @@ class transliteration
 		$replacements = array ();
 		$delimiter = '/';
 		foreach ($protectedParts as $replacementToken => $fixedString) {
+			
+			# Determine whether a protected part is italics, as this not have a word boundary requirement, as the italics are an explicit part of the string
+			$isTagSurround = preg_match ('|^<em>.+</em>$|', $fixedString);
+			
 			#!# Hyphen in post- word boundary needs review
-			$search = $delimiter . '(^|\s|\(|")' . preg_quote ($fixedString, $delimiter) . '($|\s|\)|\.|-|,|:|")' . $delimiter;
+			$search = $delimiter . ($isTagSurround ? '' : '(^|\s|\(|")') . preg_quote ($fixedString, $delimiter) . ($isTagSurround ? '' : '($|\s|\)|\.|-|,|:|")') . $delimiter;
 			$replacements[$search] = '\1' . $replacementToken . '\2';	// \1 and \2 are the word boundary strings (e.g. a space) which need to be restored
 		}
 		
