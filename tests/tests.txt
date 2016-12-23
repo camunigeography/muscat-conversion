@@ -123,5 +123,154 @@ s1915####
 008
 r19311923
 
+20
+008 position 15-17: Place of publication
+169741
+008
+enk
+
+21
+008 position 18-20 form=CD-ROM gets ###
+2023
+008
+tma###
+
+22
+008 position 18-20 form=Sound cassette gets |||
+102409
+008
+fr#|||
+
+23
+008 position 18-20 form=Poster gets nnn
+95733
+008
+xx#nnn
+
+24
+008 position 18-20 Videorecording 60 min gets 060
+1968
+008
+060
+
+25
+008 position 18-20 Videorecording [? mins] gets |||
+78699
+008
+nz#|||
+
+26
+008 position 18-20 diags gets a##
+1115
+008
+a##
+
+27
+008 position 18-20 diags and map gets a and b
+1144
+008
+ab#
+
+28
+008 position 18-20 Journal *freq=irregular gets # then x (then #)
+1027
+008
+#x#
+
+29
+008 position 21 form=Map gets |
+101161
+008
+xx#||||
+
+30
+008 position 22 form=Microfiche *doc gets |
+1186
+008
+xx#####|
+
+31
+008 position 22 form=Microfiche *art/*j gets b
+11291
+008
+xx##u#|b
+
+32
+008 position 23 form=PDF gets s
+201908
+008
+ar#|ss
+
+33
+008 positions 24-27 form=Map gets #|##
+101161
+008
+#|##
+
+34
+008 positions 24-27 *ser Bibliographies gets |b
+1005
+008
+|b##
+
+35
+008 positions 24-27 *local=Offprint gets 2
+198459
+008
+2###
+
+36
+008 position 28 *kw example gets o
+15998
+008
+#o0
+
+37
+008 position 29 *ks=061.3 gets d
+4263
+008
+d|
+
+38
+008 positions 30-31 *doc *form=CD gets ##
+167945
+008
+###|
+
+39
+008 positions 30-31 *art/*in *t contains Festschrift gets 1|
+13607
+008
+1|
+
+40
+008 position 33 *doc *k=82-1 gets p
+1319
+008
+p#
+
+41
+008 position 33 *ser *lang=French gets b
+1031
+008
+#b|
+
+42
+008 position 34 *ks=92(08) gets d
+2505
+008
+deng
+
+43
+008 position 34 *t starts autobiography gets a
+6046
+008
+aeng
+
+44
+008 positions 35-36 *lang; test uses Esperanto (=epo)
+29970
+008
+epo
 
 

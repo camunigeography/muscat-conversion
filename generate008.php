@@ -136,7 +136,7 @@ class generate008
 	}
 	
 	
-	# 008 pos. 15-17: Place of publication, production, or execution
+	# 008 pos. 15-17: Place of publication, production, or execution (test #20)
 	private function position_15_17 ()
 	{
 		# Extract the value
@@ -220,14 +220,14 @@ class generate008
 				case '3.5 floppy disk':
 				case 'CD-ROM':
 				case 'DVD-ROM':
-					return str_repeat ('#', 3);
+					return str_repeat ('#', 3);		// (test #21)
 				case 'Map':
 				case 'CD':
 				case 'Sound cassette':
 				case 'Sound disc':
-					return str_repeat ('|', 3);
+					return str_repeat ('|', 3);		// (test #22)
 				case 'Poster':
-					return str_repeat ('n', 3);
+					return str_repeat ('n', 3);		// (test #23)
 				case 'DVD':
 				case 'Videorecording':
 					
@@ -236,14 +236,14 @@ class generate008
 						return str_repeat ('|', 3);
 					}
 					if ($p == '[? mins]') {
-						return str_repeat ('|', 3);
+						return str_repeat ('|', 3);	// (test #25)
 					}
 					if (!preg_match ('/([0-9]+) min/', $p, $matches)) {return NULL;}
 					$minutes = $matches[1];
 					if ($minutes > 999) {
 						return '000';
 					}
-					return str_pad ($minutes, 3, '0', STR_PAD_LEFT);
+					return str_pad ($minutes, 3, '0', STR_PAD_LEFT);	// (test #24)
 			}
 		}
 		
@@ -253,8 +253,8 @@ class generate008
 				
 				# Add codes to stack of maximum three characters based on either *p or *pt, padding missing characters to the right with #
 				$strings = array (
-					'ill|diag'	=> 'a',	# If *p or *pt contains 'ill*' OR 'diag*' => a in pos. 18
-					'map'		=> 'b',	# If *p or *pt contains 'map*' => b in pos. 18 unless full, in which case => b in pos. 19
+					'ill|diag'	=> 'a',	# If *p or *pt contains 'ill*' OR 'diag*' => a in pos. 18 (test #26)
+					'map'		=> 'b',	# If *p or *pt contains 'map*' => b in pos. 18 unless full, in which case => b in pos. 19 (test #27)
 					'plate'		=> 'f',	# If *p or *pt contains 'plate*' => f in pos. 18 unless full, in which case => f in pos. 19 unless full, in which case => f in pos. 20
 				);
 				$stack = '';
@@ -265,7 +265,7 @@ class generate008
 						$stack .= $result;
 					}
 				}
-				return str_pad ($stack, 3, '#', STR_PAD_RIGHT);	// e.g. 'abf', 'ab#', 'a##', '###'
+				return str_pad ($stack, 3, '#', STR_PAD_RIGHT);	// e.g. 'abf', 'ab#', 'a##', '###' (test #27)
 				
 			case '/ser':
 			case '/art/j':
@@ -275,7 +275,7 @@ class generate008
 				$value .= $this->muscatConversion->lookupValue ('journalFrequencies', 'No *freq', false, false, $freq, 'Regularity');
 				$value .= '#';
 				
-				return $value;
+				return $value;	// (test #28)
 		}
 		
 		# Flag error
@@ -283,7 +283,7 @@ class generate008
 	}
 	
 	
-	# 008 pos. 18-34: Material specific coded elements: 21
+	# 008 pos. 18-34: Material specific coded elements: 21 (test #29)
 	private function position_18_34__21 ()
 	{
 		if ($this->isMultimediaish) {
@@ -314,7 +314,7 @@ class generate008
 	}
 	
 	
-	# 008 pos. 18-34: Material specific coded elements: 22
+	# 008 pos. 18-34: Material specific coded elements: 22 (test #30) (test #31)
 	private function position_18_34__22 ()
 	{
 		if ($this->isMultimediaish) {
@@ -356,7 +356,7 @@ class generate008
 	}
 	
 	
-	# 008 pos. 18-34: Material specific coded elements: 23
+	# 008 pos. 18-34: Material specific coded elements: 23 (test #32)
 	private function position_18_34__23 ()
 	{
 		if ($this->isMultimediaish) {
@@ -408,7 +408,7 @@ class generate008
 				case 'DVD-ROM':
 					return '##|#';
 				case 'Map':
-					return '#|##';
+					return '#|##';	// (test #33)
 				case 'CD':
 				case 'Sound cassette':
 				case 'Sound disc':
@@ -429,7 +429,7 @@ class generate008
 		}
 		
 		# If record starts with *kw 'Bibliograph(y|ies)' => b
-		if ($this->kFieldMatches ('kw', 'Bibliograph')) {$stack .= 'b';}
+		if ($this->kFieldMatches ('kw', 'Bibliograph')) {$stack .= 'b';} // (test #34)
 		
 		# If record starts with *kw 'Dictionaries*' => d
 		if ($this->kFieldMatches ('kw', 'Dictionar')) {$stack .= 'd';}
@@ -451,7 +451,7 @@ class generate008
 		
 		# For /doc and /art/in, if *local and/or *note contain 'offprint' => 2
 		if (in_array ($this->recordType, array ('/doc', '/art/in'))) {
-			if ($this->fieldRepeatableContainsBoundedStart ('local', 'offprint') || $this->fieldRepeatableContainsBoundedStart ('note', 'offprint')) {$stack .= '2';}
+			if ($this->fieldRepeatableContainsBoundedStart ('local', 'offprint') || $this->fieldRepeatableContainsBoundedStart ('note', 'offprint')) {$stack .= '2';}	// (test #35)
 		}
 		
 		# If *t contains [could be anywhere in the title] 'calendar*' => 5
@@ -480,7 +480,7 @@ class generate008
 		# If record has *kw 'Organizations, government' => o
 		$kwValues = $this->muscatConversion->xPathValues ($this->xml, '//k[%i]/kw');
 		foreach ($kwValues as $kw) {
-			if ($kw == 'Organizations, government') {return 'o';}
+			if ($kw == 'Organizations, government') {return 'o';}	// (test #36)
 		}
 		
 		# Else => |
@@ -510,8 +510,8 @@ class generate008
 			}
 		}
 		
-		# If *k contains '061.3' OR *loc contains '061.3' => 1
-		if ($this->kContains0613 () || $this->locationContains0613 ()) {return 'd';}
+		# If *k contains '061.3' OR *location contains '061.3' => 1
+		if ($this->kContains0613 () || $this->locationContains0613 ()) {return 'd';}	// (test #37)
 		
 		# Else => 0
 		return '0';
@@ -614,7 +614,7 @@ class generate008
 				# If *t contains Festschrift => 1 then |
 				$t = $this->muscatConversion->xPathValue ($this->xml, '//t');
 				$tt = $this->muscatConversion->xPathValue ($this->xml, '//tt');
-				if (preg_match ('/Festschrift/i', $t) || preg_match ('/Festschrift/i', $tt)) {	// Simple match to deal with cases of records having two *t like /records/13607/
+				if (preg_match ('/Festschrift/i', $t) || preg_match ('/Festschrift/i', $tt)) {	// Simple match to deal with cases of records having two *t like /records/13607/ (test #39)
 					return '1' . '|';
 				}
 				
@@ -663,7 +663,7 @@ class generate008
 				
 				# Check for specific *k values
 				$strings = array (
-					'82-1' => 'p',
+					'82-1' => 'p',	// (test #40)
 					'82-2' => 'd',
 					'82-3' => '1',
 				);
@@ -677,7 +677,7 @@ class generate008
 			case '/ser':
 			case '/art/j':
 				
-				$lang = $this->muscatConversion->xPathValue ($this->xml, '(//lang)[1]', false);
+				$lang = $this->muscatConversion->xPathValue ($this->xml, '(//lang)[1]', false);	// (test #41)
 				return $this->muscatConversion->lookupValue ('languageCodes', 'English', true, false, $lang, 'Script Code');	// Script code is defined for position 33 at https://www.loc.gov/marc/bibliographic/bd008s.html
 		}
 		
@@ -732,7 +732,7 @@ class generate008
 			case '/art/in':
 				
 				# If *t contains 'autobiography' => a
-				if ($this->fieldContainsBoundedStart ('t', 'autobiograph')) {return 'a';}
+				if ($this->fieldContainsBoundedStart ('t', 'autobiograph')) {return 'a';}	// (test #43)
 				
 				# Else if *location contains '92[*' => b
 				$location = $this->muscatConversion->xPathValue ($this->xml, '//location');
@@ -742,7 +742,7 @@ class generate008
 				if (preg_match ('/\b92\(08\)/', $location)) {return 'c';}
 				
 				# Else if record contains *k '92[*' or *k '92(08)' => d
-				if ($this->kContains92Bracket9208 ()) {return 'd';}
+				if ($this->kContains92Bracket9208 ()) {return 'd';}	// (test #42)
 				
 				# Else => #
 				return '#';
@@ -788,7 +788,7 @@ class generate008
 	}
 	
 	
-	# 008 pos. 35-37: Language
+	# 008 pos. 35-37: Language (test #44)
 	private function position_35_37 ()
 	{
 		$lang = $this->muscatConversion->xPathValue ($this->xml, '(//lang)[1]', false);
