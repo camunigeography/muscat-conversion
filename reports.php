@@ -95,6 +95,7 @@ class reports
 		'doctsperiodicaltitle_problem' => '*doc records whose (first) *ts does not match the start of a periodical title',
 		'transliteratedenglish_problem' => 'records whose titles are being transliterated but appear to be in English',
 		'transliteratefailure_problem' => 'records whose reverse transliteration is not reversible',
+		'transliterateem_problem' => 'records whose transliteration contains an incorrect <em> following transliteration',
 		'voyagerrecords_info' => 'records with an equivalent already in Voyager, targetted for merging',
 		'nohostlang_problem' => 'records whose *in or *j contains a *lang but the main part does not',
 		'emptylang_problem' => 'records with an empty *lang',
@@ -2118,6 +2119,23 @@ class reports
 				recordId
 			FROM transliterations
 			WHERE forwardCheckFailed = 1
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records whose transliteration contains an incorrect <em> following transliteration
+	public function report_transliterateem ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'transliterateem' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE value LIKE BINARY '%<" . chr(0xc4).chr(0x97) . "m>%'		-- U+0117 : LATIN SMALL LETTER E WITH DOT ABOVE: http://www.fileformat.info/info/unicode/char/0117/index.htm
 		";
 		
 		# Return the query
