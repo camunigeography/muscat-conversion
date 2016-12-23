@@ -262,6 +262,7 @@ class generate245
 	
 	
 	# Function to deal with a role and siblings; NB this is also used directly by the generate250b macro
+	# NB There are no cases in the data of 250 (which uses *ee) being in Russian, as verified by: `SELECT *  FROM catalogue_processed WHERE field LIKE 'n%' AND xPath LIKE '%/ee%' AND recordLanguage = 'Russian';`
 	public function roleAndSiblings ($path)
 	{
 		# Obtain the role value, or end if none
@@ -273,8 +274,7 @@ class generate245
 		$subValues = array ();
 		$nIndex = 1;	// XPaths are indexed from 1, not 0
 		while ($string = $this->classifyNdField ($path . "/n[$nIndex]")) {
-			#!# Old transliteration needs to be upgraded in catalogue_processed and here in MARC generation
-			$subValues[] = ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliteration->transliterateBgnLatinToCyrillic ($string, false, $this->languageMode));	// e.g. /records/1844/
+			$subValues[] = ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliteration->transliterateLocLatinToCyrillic ($string, false));	// e.g. /records/1844/ (test #50)
 			
 			# Next
 			$nIndex++;

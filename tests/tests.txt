@@ -298,10 +298,16 @@ Ditto, mid-word
 tetra-n-butilammon
 
 49
-Cyrillic should not contain a ligature (e.g. from transliterating "Int͡skirveli")
+Cyrillic should not contain a ligature in *ag/*n.. (e.g. from transliterating "Int͡skirveli")
 29550
 880
 Инцкирвели
+
+50
+Cyrillic should not contain a ligature in *e/*n/*n.. (e.g. from transliterating "Zherebt͡sov")
+1844
+880
+Compiled by И.Л. Жеребцов
 
 
 
