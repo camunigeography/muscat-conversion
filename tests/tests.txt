@@ -37,7 +37,7 @@ FIXME: 500 should not have :,
 Use of " as a pseudo- word boundary character, so that "<em>...</em>" gets protected rather than result in e-dot; see: /reports/transliterateem/
 8690
 245
-parokhoda "Andrei Pervozvannyi" v
+parokhoda "Andrey Pervozvannyy" v
 
 6
 FIXME: Roman numerals followed by hyphen should not be transliterated
