@@ -3766,7 +3766,10 @@ class reports
 	public function report_tests_view ()
 	{
 		# Regenerate if required
-		$this->muscatConversion->runTests ();
+		if (!$this->muscatConversion->runTests ($error)) {
+			$html = "\n<p class=\"warning\">The tests are not correctly defined, with the test harness reporting an error: <tt>{$error}</tt></p>";
+			return $html;
+		}
 		
 		# Obtain the data
 		$data = $this->databaseConnection->select ($this->settings['database'], 'tests');

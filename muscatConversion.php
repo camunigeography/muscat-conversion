@@ -4078,7 +4078,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to run tests and generate test results
-	public function runTests ()
+	public function runTests (&$error = false)
 	{
 		# Now create the statistics table; this is pre-compiled for performance
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.tests;";
@@ -4101,7 +4101,10 @@ class muscatConversion extends frontControllerApplication
 		
 		# Parse to tests
 		$fields = array ('id', 'description', 'recordId', 'marcField', 'expected');	// In order of appearance in definition
-		$tests = application::parseBlocks ($testsString, $fields);
+		if (!$tests = application::parseBlocks ($testsString, $fields, $error)) {
+			// $error will now be set to the error
+			return false;
+		}
 		
 		# Pre-load the MARC records
 		$ids = array ();
