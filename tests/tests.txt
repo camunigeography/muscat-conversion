@@ -309,11 +309,17 @@ Cyrillic should not contain a ligature in *e/*n/*n.. (e.g. from transliterating 
 880
 Compiled by И.Л. Жеребцов
 
-50
+51
 Cyrillic should not contain a ligature in 880-700 (e.g. from transliterating "Zherebt͡sov")
 1844
 880
 700-03 ‡aЖеребцов, И. Л.,‡ecompiler
+
+52
+Ensure 'Anon.' is treated as a transliterated protected string
+6451
+880
+Anon.
 
 
 
