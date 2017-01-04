@@ -321,5 +321,29 @@ Ensure 'Anon.' is treated as a transliterated protected string
 880
 Anon.
 
+53
+English-name author should not result in an 880 transliteration
+151048
+!880
+700-04
+
+54
+English-name author should not be transliterated (880-245)
+151048
+880
+J.A. Dowdeswell,
+
+55
+Dot-e transliteration failure should not occur in 245
+151048
+245
+Michael
+
+56
+Relator terms should be in English in records in scope of transliteration
+1844
+880
+editor.
+
 
 
