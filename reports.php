@@ -3774,8 +3774,16 @@ class reports
 		# Obtain the data
 		$data = $this->databaseConnection->select ($this->settings['database'], 'tests');
 		
+		# Count passing tests
+		$totalPassed = 0;
+		
 		# Format fields
 		foreach ($data as $id => $test) {
+			
+			# Add to pass counter if passed
+			if ($test['result']) {
+				$totalPassed += 1;
+			}
 			
 			# Pass/fail icon
 			$data[$id]['result'] = ($test['result'] ? '<img src="/images/icons/tick.png" title="Passed" alt="Tick" class="icon" />' : '<img src="/images/icons/cross.png" title="Failed" alt="Cross" class="icon" />');
@@ -3814,9 +3822,19 @@ class reports
 			unset ($data[$id]['negativeTest']);
 		}
 		
+		# Show pass (and fail) rate
+		$totalTests = count ($data);
+		$percentagePassed = round (($totalPassed / $totalTests) * 100, 1);
+		$totalFailed = $totalTests - $totalPassed;
+		$percentageFailed = round (($totalFailed / $totalTests) * 100, 1);
+		$html  = "\n<div class=\"graybox\">";
+		$html .= "\n<p class=\"success\">Tests passing: {$totalPassed} / {$totalTests} ({$percentagePassed}%).</p>";
+		$html .= "\n<p class=\"warning\">Tests failing: {$totalFailed} / {$totalTests} ({$percentageFailed}%).</p>";
+		$html .= "\n</div>";
+		
 		# Render the HTML
 		$headings = $this->databaseConnection->getHeadings ($this->settings['database'], 'tests');
-		$html = application::htmlTable ($data, $headings, $class = 'tests graybox', $keyAsFirstColumn = false, false, $allowHtml = true, false, $addCellClasses = true);
+		$html .= application::htmlTable ($data, $headings, $class = 'tests graybox', $keyAsFirstColumn = false, false, $allowHtml = true, false, $addCellClasses = true);
 		
 		# Return the HTML
 		return $html;
