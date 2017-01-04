@@ -4090,6 +4090,7 @@ class muscatConversion extends frontControllerApplication
 			  `description` VARCHAR(255) NOT NULL COMMENT 'Description',
 			  `recordId` INT(6) NOT NULL COMMENT 'Record number',
 			  `marcField` VARCHAR(3) NOT NULL COMMENT 'MARC field',
+			  `negativeTest` INT(1) NOT NULL COMMENT 'Negative test?',
 			  `expected` VARCHAR(255) NOT NULL COMMENT 'Expected',
 			  `found` TEXT NULL COMMENT 'Found line(s)',
 			  PRIMARY KEY (`id`)
@@ -4126,8 +4127,15 @@ class muscatConversion extends frontControllerApplication
 			$tests[$id]['found'] = NULL;
 			$tests[$id]['result'] = 0;	// Assume failure
 			
+			# Determine if the test is a negative test (i.e. fails if there is a match), starting with '! '
+			$tests[$id]['negativeTest'] = NULL;
+			if (preg_match ('/^!(.+)$/', $test['marcField'], $matches)) {
+				$tests[$id]['negativeTest'] = true;
+				$tests[$id]['marcField'] = $matches[1];	// Overwrite
+			}
+			
 			# Loop through each matching field
-			$field = $test['marcField'];
+			$field = $tests[$id]['marcField'];
 			if (!isSet ($record[$field])) {
 				// Report will turn found = NULL into a statement that the line is not present
 				continue;	// Next test
@@ -4144,6 +4152,7 @@ class muscatConversion extends frontControllerApplication
 			$isRegexpTest = preg_match ('|^/|', $test['expected']);
 			
 			# Test each matching line for a result; comparisons are done against the line after the field number and space, i.e. tests against indicators + content
+			$isFound = false;
 			foreach ($record[$field] as $line) {
 				if ($isRegexpTest) {
 					$result = (preg_match ($test['expected'], $line['line'], $matches));
@@ -4151,11 +4160,24 @@ class muscatConversion extends frontControllerApplication
 					$result = substr_count ($line['line'], $test['expected']);
 				}
 				
-				# Stop if match found
+				# Register if match found
 				if ($result) {
-					$tests[$id]['result'] = 1;
-					break;
+					$isFound = true;
 				}
+				
+				# For a positive test, stop if found, as no need to test further lines
+				if (!$tests[$id]['negativeTest']) {
+					if ($isFound) {
+						break;
+					}
+				}
+			}
+			
+			# Register the result
+			if ($tests[$id]['negativeTest']) {
+				$tests[$id]['result'] = !$isFound;
+			} else {
+				$tests[$id]['result'] = $isFound;
 			}
 		}
 		

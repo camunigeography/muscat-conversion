@@ -3787,25 +3787,31 @@ class reports
 			$data[$id]['description'] = htmlspecialchars ($test['description']);
 			$data[$id]['description'] = preg_replace ('|(/reports/[^/]+/)|', "<a href=\"{$this->baseUrl}\\1\">\\1</a>", $data[$id]['description']);
 			
+			# MARC field
+			$data[$id]['marcField'] = ($data[$id]['negativeTest'] ? '!' : '') . $data[$id]['marcField'];
+			
 			# Expected
 			$data[$id]['expected'] = '<tt>' . htmlspecialchars ($test['expected']) . '</tt>';
 			
 			# Found lines
 			if ($test['found']) {
 				$found = htmlspecialchars ($test['found']);
-				if ($test['result']) {
+				if ($test['result'] || $data[$id]['negativeTest']) {
 					$matched = $test['expected'];
 					if ($isRegexpTest = preg_match ('|^/|', $test['expected'], $matches)) {
 						if (preg_match ($test['expected'], substr ($found, 4), $matches)) {	// substr(..., 4) strips off the fieldnumber and its space
 							$matched = $matches[0];
 						}
 					}
-					$found = str_replace ($matched, '<span class="found">' . $matched . '</span>', $found);
+					$found = str_replace ($matched, '<span class="found' . ($data[$id]['negativeTest'] ? ' negative' : '') . '">' . $matched . '</span>', $found);
 				}
 				$data[$id]['found'] = '<tt>' . nl2br ($found) . '</tt>';
 			} else {
 				$data[$id]['found'] = '<span class="comment">[Record or field not present.]</span>';
 			}
+			
+			# Remove internal field
+			unset ($data[$id]['negativeTest']);
 		}
 		
 		# Render the HTML

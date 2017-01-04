@@ -54,6 +54,7 @@
 #muscatconversion table td span.probable {background-color: rgba(255,255, 153, 0.7);}
 #muscatconversion table.tests td, #muscatconversion table.tests th {padding-right: 10px;}
 #muscatconversion table.tests span.found {background-color: rgb(200, 255, 200);}
+#muscatconversion table.tests span.found.negative {background-color: rgb(252, 199, 200);}
 
 /* Print styles */
 @media print {
