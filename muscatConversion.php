@@ -4163,6 +4163,7 @@ class muscatConversion extends frontControllerApplication
 				# Register if match found
 				if ($result) {
 					$isFound = true;
+					$tests[$id]['found'] = $line['fullLine'];	// Show only the relevant line
 				}
 				
 				# For a positive test, stop if found, as no need to test further lines
