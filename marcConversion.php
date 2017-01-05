@@ -980,7 +980,7 @@ class marcConversion
 				$puValues[] = $this->formatPu ($puValue);
 			}
 			
-			# Transliterate if required
+			# Transliterate if required; e.g. /records/6996/ (test #58)
 			if ($transliterate) {
 				if ($puValues) {
 					foreach ($puValues as $index => $puValue) {
@@ -1523,7 +1523,12 @@ class marcConversion
 		# Pass the value into the transliterator
 		#!# Need to clarify why there is still BGN latin remaining
 		#!# Old transliteration needs to be upgraded in catalogue_processed and here in MARC generation - needs to be upgraded for 880-700 field, e.g. /records/1844/, but need to check all callers to macro_transliterate to see if they are consistently using Loc
-		#!# Callers are: 8880-490:transliterateSubfields (uses //ts (1240 shards) and //vno (37 shards), MORE TODO
+		/*
+			Callers are:
+			880-490:transliterateSubfields(a) uses //ts (1240 shards)
+			generate260 uses //pg[]/pu[], but 880 generate260(transliterated); e.g. /records/6996/ (test #58)
+			MORE TODO
+		*/
 		#!# Need to determine whether the $lpt argument should ever be looked up, i.e. whether the $value represents a title and the record is in Russian
 		$output = $this->transliteration->transliterateBgnLatinToCyrillic ($value, $lpt = false, $language);
 		

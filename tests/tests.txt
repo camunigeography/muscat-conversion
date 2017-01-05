@@ -351,6 +351,12 @@ editor.
 880
 /490-03 .+‡vChast 2/
 
+58
+880 260 for Russian records now has $b transliteration enabled
+6996
+880
+‡bПросвящение
+
 
 
 
