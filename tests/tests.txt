@@ -357,6 +357,29 @@ editor.
 880
 ‡bПросвящение
 
+59
+The first *art/*ag/*a field should map to the 1XX field
+7195
+100
+Lecointe, Georges
+
+60
+Any further *art/*ag/*a fields should map to 7XX fields
+8249
+700
+Maslov, A. L.
+
+61
+Any *art/*ag/*al fields should map to 7XX fields
+1963
+700
+Davies, 'Taff' Gwion
+
+62
+Any *art/*e/*n fields should map to 7XX fields
+5126
+700
+Wild, J. J.
 
 
 

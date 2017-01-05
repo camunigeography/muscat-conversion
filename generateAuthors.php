@@ -35,10 +35,10 @@
 
 /* Key checks:
 
-	- the first *art/*ag/*a field should map to the 1XX field			e.g. /records/7195/
-	- any further *art/*ag/*a fields should map to 7XX fields			e.g. /records/8249/
-	- any *art/*ag/*al fields should map to 7XX fields					e.g. /records/1963/
-	- any *art/*e/*n fields should map to 7XX fields					e.g. /records/5126/
+	- the first *art/*ag/*a field should map to the 1XX field			e.g. /records/7195/ (test #59)
+	- any further *art/*ag/*a fields should map to 7XX fields			e.g. /records/8249/ (test #60)
+	- any *art/*ag/*al fields should map to 7XX fields					e.g. /records/1963/ (test #61)
+	- any *art/*e/*n fields should map to 7XX fields					e.g. /records/5126/ (test #62)
 	
 	However...
 	
@@ -333,7 +333,7 @@ class generateAuthors
 		}
 		
 		# Check for a *ke which is a flag indicating that there are analytic (child) records; e.g. /records/7463/
-		if ($this->muscatConversion->xPathValue ($this->mainRecordXml, '//ke')) {		// Is just a flag, not a useful value; e.g. record 7463 contains "\&lt;b&gt; Analytics \&lt;b(l) ~l 1000/&quot;ME7463&quot;/ ~&gt;" which creates a button in the Muscat GUI
+		if ($this->muscatConversion->xPathValue ($this->mainRecordXml, '//ke')) {		// Is just a flag, not a useful value; e.g. /records/7463/ contains "\&lt;b&gt; Analytics \&lt;b(l) ~l 1000/&quot;ME7463&quot;/ ~&gt;" which creates a button in the Muscat GUI
 			
 			# Look up the records whose *kg matches, e.g. /records/9375/ has *kg=7463, so this indicates that 9375 (which will be an *art) is a child of 7463
 			$currentRecordId = $this->muscatConversion->xPathValue ($this->mainRecordXml, '/q0');
