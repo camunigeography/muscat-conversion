@@ -114,6 +114,7 @@ class reports
 		'sernotitle_problem' => '*ser records with no title',
 		'sernonuniquetitle_problem' => '*ser records whose title is not unique',
 		'periodicalpam_problem' => 'Records with location= both Periodical and Pam',
+		'russianvolumenumbers_info' => 'Russian records with a volume number',
 	);
 	
 	# Listing (values) reports
@@ -2591,6 +2592,36 @@ class reports
 					WHERE
 						    field = 'location'
 						AND (value REGEXP '^Pam' OR value REGEXP '^Pam ')
+				)
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Russian records with a volume number
+	# This report is intended to help in diagnosis of whether 880 490 $v should be transliterated or not (i.e. use transliterateSubfields(av) rather than transliterateSubfields(a); e.g.:
+	#   /records/36622/ has *ts ending "; Vyp. 12"
+	#   /records/71583/ has *ts ending "; v. 1" which might be Russian
+	#   /records/136356/ has *vno "Chast 2"
+	#   /records/30602/ which has no *ts but inconsistently (compared to /records/136356/ ) has $vno "Vol.1", though this would not end up with a 880 490 $v
+	public function report_russianvolumenumbers ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'russianvolumenumbers' AS report,
+				recordId
+			FROM catalogue_processed
+			LEFT JOIN fieldsindex on catalogue_processed.recordId = fieldsindex.id
+			WHERE
+					fieldslist LIKE '%@ts@%'
+				AND `recordLanguage` LIKE 'Russian'
+				AND (
+						(`field` = 'ts' AND `value` LIKE '%;%' AND `value` NOT REGEXP '; ?([0-9\(\)]+)$')
+					OR
+					    (`field` = 'vno')
 				)
 		";
 		

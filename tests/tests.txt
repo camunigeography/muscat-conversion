@@ -345,5 +345,13 @@ Relator terms should be in English in records in scope of transliteration
 880
 editor.
 
+57
+880 490 $v for Russian records having *ts with a *vno should not be transliterated (pending further discussion)
+136356
+880
+/490-03 .+‡vChast 2/
+
+
+
 
 
