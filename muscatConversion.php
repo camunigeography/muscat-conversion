@@ -4142,6 +4142,14 @@ class muscatConversion extends frontControllerApplication
 				}
 			}
 			if (!$fieldsMatching) {
+				
+				# In the case of a negative test, and the test is for presence ('*'), pass the test
+				if ($tests[$id]['negativeTest']) {
+					if ($test['expected'] == '*') {
+						$tests[$id]['result'] = true;
+					}
+				}
+				
 				// Report will turn found = NULL into a statement that the line is not present
 				continue;	// Next test
 			}
