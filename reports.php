@@ -3844,7 +3844,7 @@ class reports
 					}
 					$found = str_replace ($matched, '<span class="found' . ($data[$id]['negativeTest'] ? ' negative' : '') . '">' . $matched . '</span>', $found);
 				}
-				$data[$id]['found'] = '<tt>' . nl2br ($found) . '</tt>';
+				$data[$id]['found'] = '<tt>' . nl2br (application::str_truncate ($found, 700, "{$this->baseUrl}/records/{$test['recordId']}/")) . '</tt>';
 			} else {
 				$data[$id]['found'] = '<span class="comment">[Record or field not present.]</span>';
 			}
