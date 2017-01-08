@@ -145,7 +145,7 @@ class generateAuthors
 		# Subfield ‡u, if present, needs to go before subfield ‡e (test #90)
 		$line = $this->shiftSubfieldU ($line);
 		
-		# Pass through the transliterator if required
+		# Pass through the transliterator if required; e.g. /records/6653/ (test #107), /records/23186/ (test #108)
 		$line = $this->muscatConversion->macro_transliterateSubfields ($line, NULL, $this->transliterableSubfields[$this->field], NULL, $languageMode);
 		
 		# Ensure the line ends with punctuation; e.g. /records/1218/ (test #72) , /records/1221/ (test #73)
@@ -203,9 +203,9 @@ class generateAuthors
 			$lines[$index] = $this->shiftSubfieldU ($line);
 		}
 		
-		# Pass each line through the transliterator if required
+		# Pass each line through the transliterator if required (test #108)
 		foreach ($lines as $index => $line) {
-			$fieldNumber = (preg_match ('/^([0-9]{3}) /', $line, $matches) ? $matches[1] : $this->field);	// Line 1 will use the native field number, but any subsequent lines in a multiline will have a field number added the start
+			$fieldNumber = (preg_match ('/^([0-9]{3}) /', $line, $matches) ? $matches[1] : $this->field);	// Line 1 will use the native field number, but any subsequent lines in a multiline will have a field number added the start (test #109)
 			$lines[$index] = $this->muscatConversion->macro_transliterateSubfields ($line, NULL, $this->transliterableSubfields[$fieldNumber], NULL, $languageMode);
 		}
 		
@@ -236,13 +236,13 @@ class generateAuthors
 		# Start a list of 700 line values
 		$lines = array ();
 		
-		# If there is already a 700 field arising from generateFirstEntity, which will be a standard scalar string, register this first by transfering it into the lines format and resetting the 700 registry
+		# If there is already a 700 field arising from generateFirstEntity, which will be a standard scalar string, register this first by transfering it into the lines format and resetting the 700 registry (test #109)
 		if ($this->values[$this->languageMode][700]) {
 			$lines[] = $this->values[$this->languageMode][700];
 			$this->values[$this->languageMode][700] = false;		// Reset
 		}
 		
-		# Check it is *doc/*ag or *art/*ag (i.e. ignore *ser records)
+		# Check it is *doc/*ag or *art/*ag (i.e. ignore *ser records), e.g. /records/107192/ (test #110)
 		# After this point, the only looping is through top-level *a* fields, e.g. /*/ag but not /*/in/ag
 		if ($ser = $this->muscatConversion->xPathValue ($this->mainRecordXml, '/ser')) {
 			return $lines;
@@ -256,7 +256,7 @@ class generateAuthors
 			$aIndex = 1;	// XPaths are indexed from 1, not 0
 			while ($this->muscatConversion->xPathValue ($this->mainRecordXml, "/*/ag[$agIndex]/a[{$aIndex}]")) {
 				
-				# Skip the first /*ag/*a
+				# Skip the first /*ag/*a, e.g. /records/1127/ (tests #112, #113)
 				if ($agIndex == 1 && $aIndex == 1) {
 					$aIndex++;
 					continue;
@@ -265,21 +265,21 @@ class generateAuthors
 				# Obtain the value
 				$line = $this->main ($this->mainRecordXml, "/*/ag[$agIndex]/a[{$aIndex}]", 700);
 				
-				# Register the line, adding the field code, which may have been modified in main()
+				# Register the line, adding the field code, which may have been modified in main(), e.g. /records/1127/ (test #114)
 				$lines[] = $this->field . ' ' . $line;
 				
-				# Next *a
+				# Next *a, e.g. /records/1333/ (test #115)
 				$aIndex++;
 			}
 			
-			# Loop through each *al (author) in this *ag (author group)
+			# Loop through each *al (author) in this *ag (author group), e.g. /records/1565/ (test #116)
 			$alIndex = 1;	// XPaths are indexed from 1, not 0
 			while ($this->muscatConversion->xPathValue ($this->mainRecordXml, "/*/ag[$agIndex]/al[{$alIndex}]")) {
 				
 				# Obtain the value
 				$line = $this->main ($this->mainRecordXml, "/*/ag[$agIndex]/al[{$alIndex}]", 700);
 				
-				# The "*al Detail" block (and ", ‡g (alternative name)", once only) is added
+				# The "*al Detail" block (and ", ‡g (alternative name)", once only) is added, e.g. /records/29234/ (test #118)
 				#!# Not yet checked cases for when a $g might already exist, to check this works
 				if (!substr_count ($line, "{$this->doubleDagger}g")) {
 					$line  = $this->muscatConversion->macro_dotEnd ($line, NULL, $extendedCharacterList = '.?!');		// e.g. /records/2787/ ; "700: Subfield g must be preceded by a full stop, question mark or exclamation mark." (test #83)
@@ -289,7 +289,7 @@ class generateAuthors
 				# Register the line, adding the field code, which may have been modified in main()
 				$lines[] = $this->field . ' ' . $line;
 				
-				# Next *al
+				# Next *al, e.g. /records/29234/ (test #117)
 				$alIndex++;
 			}
 			
@@ -301,7 +301,7 @@ class generateAuthors
 		$eIndex = 1;
 		while ($this->muscatConversion->xPathValue ($this->mainRecordXml, "/*/e[$eIndex]")) {
 			
-			# Within each *e, for each *n add the contributor block
+			# Within each *e, for each *n add the contributor block, e.g. /records/1247/ (test #119)
 			$nIndex = 1;	// XPaths are indexed from 1, not 0
 			while ($this->muscatConversion->xPathValue ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]")) {
 				
@@ -323,7 +323,7 @@ class generateAuthors
 					$lines[] = $this->field . ' ' . $line;
 				}
 				
-				# Next *n
+				# Next *n, e.g. /records/2295/ (test #120)
 				$nIndex++;
 			}
 			
@@ -1015,7 +1015,7 @@ class generateAuthors
 			$replacements = array_unique ($replacements);
 			$subfieldCode = (in_array ($this->field, array (111, 711)) ? 'j' : 'e');	// X11 have Relator Term in $j; see: http://www.loc.gov/marc/bibliographic/bd711.html
 			foreach ($replacements as $replacement) {
-				$value .= ",{$this->doubleDagger}{$subfieldCode}{$replacement}";
+				$value .= ",{$this->doubleDagger}{$subfieldCode}{$replacement}";	// No space before $e, whether the first or multiple, as shown at https://www.loc.gov/marc/bibliographic/bd700.html e.g. /records/2295/ (tests #121, #122), 
 			}
 		}
 		

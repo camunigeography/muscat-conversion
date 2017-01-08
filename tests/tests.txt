@@ -645,11 +645,99 @@ In author handling, support substring match (e.g. 'Translated from the Icelandic
 700
 ‡etranslator
 
+107
+100 ‡a transliteration results in 880
+6653
+880
+100-01 ‡aБогданович, К. И.
+
+108
+700 ‡a transliteration in Russian record results in 880
+23186
+880
+‡aСементовский, В. Н.
+
+109
+Ensure correct multiline handling of 880 in authors module
+23186
+880
+‡aНовосильский, П. М.
+
+110
+In generate other entities phase of authors, ensure second author in a *ser does not appear
+107192
+!700
+*
+
 111
 Ensure field code does not appear twice in generate other entities phase of authors
 1127
 !700
  700
 
+112
+In generate other entities phase of authors, ensure first author does not reappear in a 700 but is in 100 (see also next test)
+1127
+!700
+‡aEvers, Dietrich
 
+113
+In generate other entities phase of authors, ensure first author does not reappear in a 700 but is in 100 (see also previous test)
+1127
+100
+‡aEvers, Dietrich
+
+114
+In generate other entities phase of authors, ensure second author appears in 700
+1127
+700
+‡aStölting, Siegfried
+
+115
+In generate other entities phase of authors, ensure third author appears in 700
+1333
+700
+‡aTyaptirgyanov, M.
+
+116
+In generate other entities phase of authors, ensure first *al in *ag appears
+1565
+700
+‡aFaleev, V. I.
+
+117
+In generate other entities phase of authors, ensure second *al in *ag appears
+29234
+700
+‡aJaster, Jan
+
+118
+Check ‡g(alternative name) appears for such authors
+29234
+700
+‡aChudzikowska, Jadwiga.‡g(alternative name)
+
+119
+Check *e (first) becomes 700
+1247
+700
+‡aChilderhose, R. J.
+
+120
+Check second *e becomes a 700
+2295
+700
+‡aSonnini, C. S.
+
+121
+Relator term ‡e does not have a space before
+2295
+700
+‡aSonnini, C. S.,‡econtributor
+
+122
+Multiple relator term ‡e values do not have space between
+2295
+700
+‡econtributor,‡eeditor.
 
