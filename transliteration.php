@@ -117,7 +117,7 @@ class transliteration
 	
 	
 	# Function to transliterate from Library of Congress (ALA LC) to Cyrillic; this is only run in a non-batched context; see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
-	# Useful tool at: http://www.translitteration.com/transliteration/en/russian/ala-lc/ but note that latin 'A' is incorrectly returned as Cyrillic A (lookalike) (reported on 5/1/2017)
+	# Useful tool at: http://www.translitteration.com/transliteration/en/russian/ala-lc/
 	public function transliterateLocLatinToCyrillic ($stringLatin, $lpt, &$error = '', &$nonTransliterable = false)
 	{
 		# Protect string portions (e.g. English language, HTML portions, parallel title portions, [Titles fully in brackets like this]) prior to transliteration
