@@ -4134,17 +4134,24 @@ class muscatConversion extends frontControllerApplication
 				$tests[$id]['marcField'] = $matches[1];	// Overwrite
 			}
 			
-			# Loop through each matching field
-			$field = $tests[$id]['marcField'];
-			if (!isSet ($record[$field])) {
+			# Obtain an array of matching field numbers (usually only one, e.g. 100, unless wildcard used, e.g. 1xx, which would match 100, 110, 111), if any
+			$fieldsMatching = array ();
+			foreach ($record as $field => $lines) {
+				if (fnmatch ($tests[$id]['marcField'], $field)) {	// Simple match or wildcard match (e.g. testing $fieldNumber 100 against 100 or 1xx)
+					$fieldsMatching[] = $field;	// Won't be duplicated, as $record is already indexed by field number
+				}
+			}
+			if (!$fieldsMatching) {
 				// Report will turn found = NULL into a statement that the line is not present
 				continue;	// Next test
 			}
 			
 			# Add the found line(s)
 			$lines = array ();
-			foreach ($record[$field] as $line) {
-				$lines[] = $line['fullLine'];
+			foreach ($fieldsMatching as $field) {
+				foreach ($record[$field] as $line) {
+					$lines[] = $line['fullLine'];
+				}
 			}
 			$tests[$id]['found'] = implode ("\n", $lines);
 			
@@ -4153,23 +4160,25 @@ class muscatConversion extends frontControllerApplication
 			
 			# Test each matching line for a result; comparisons are done against the line after the field number and space, i.e. tests against indicators + content
 			$isFound = false;
-			foreach ($record[$field] as $line) {
-				if ($isRegexpTest) {
-					$result = (preg_match ($test['expected'], $line['line'], $matches));
-				} else {
-					$result = substr_count ($line['line'], $test['expected']);
-				}
-				
-				# Register if match found
-				if ($result) {
-					$isFound = true;
-					$tests[$id]['found'] = $line['fullLine'];	// Show only the relevant line
-				}
-				
-				# For a positive test, stop if found, as no need to test further lines
-				if (!$tests[$id]['negativeTest']) {
-					if ($isFound) {
-						break;
+			foreach ($fieldsMatching as $field) {
+				foreach ($record[$field] as $line) {
+					if ($isRegexpTest) {
+						$result = (preg_match ($test['expected'], $line['line'], $matches));
+					} else {
+						$result = substr_count ($line['line'], $test['expected']);
+					}
+					
+					# Register if match found
+					if ($result) {
+						$isFound = true;
+						$tests[$id]['found'] = $line['fullLine'];	// Show only the relevant line
+					}
+					
+					# For a positive test, stop if found, as no need to test further lines
+					if (!$tests[$id]['negativeTest']) {
+						if ($isFound) {
+							break;
+						}
 					}
 				}
 			}
