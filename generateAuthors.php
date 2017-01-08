@@ -217,8 +217,7 @@ class generateAuthors
 		# Implode the lines
 		$value = implode ("\n", $lines);
 		
-		# As a special-case, remove the field code from the first line, as the $this->field number will be already present in the MARC parser definition
-		#!# This whole block may not be needed - not clear
+		# As a special-case, remove the field code from the first line, as the $this->field number will be already present in the MARC parser definition, e.g. /records/1127/ (test #111)
 		if (preg_match ('/^([0-9]{3} )/', $value)) {
 			$value = mb_substr ($value, 4);	// I.e. chop first four characters, e.g. "700 "
 		}

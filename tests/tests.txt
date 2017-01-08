@@ -644,3 +644,12 @@ In author handling, support substring match (e.g. 'Translated from the Icelandic
 1639
 700
 ‡etranslator
+
+111
+Ensure field code does not appear twice in generate other entities phase of authors
+1127
+!700
+ 700
+
+
+
