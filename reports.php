@@ -3827,7 +3827,7 @@ class reports
 			$data[$id]['description'] = preg_replace ('|(/reports/[^/]+/)|', "<a href=\"{$this->baseUrl}\\1\">\\1</a>", $data[$id]['description']);
 			
 			# MARC field
-			$data[$id]['marcField'] = ($data[$id]['negativeTest'] ? '!' : '') . $data[$id]['marcField'];
+			$data[$id]['marcField'] = ($data[$id]['negativeTest'] ? '!' : '') . ($data[$id]['indicatorTest'] ? 'i' : '') . $data[$id]['marcField'];
 			
 			# Expected
 			$data[$id]['expected'] = '<tt>' . htmlspecialchars ($test['expected']) . '</tt>';
@@ -3849,8 +3849,9 @@ class reports
 				$data[$id]['found'] = '<span class="comment">[Record or field not present.]</span>';
 			}
 			
-			# Remove internal field
+			# Remove internal fields
 			unset ($data[$id]['negativeTest']);
+			unset ($data[$id]['indicatorTest']);
 		}
 		
 		# Show pass (and fail) rate

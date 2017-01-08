@@ -4091,6 +4091,7 @@ class muscatConversion extends frontControllerApplication
 			  `recordId` INT(6) NOT NULL COMMENT 'Record number',
 			  `marcField` VARCHAR(3) NOT NULL COMMENT 'MARC field',
 			  `negativeTest` INT(1) NOT NULL COMMENT 'Negative test?',
+			  `indicatorTest` INT(1) NOT NULL COMMENT 'Indicator test?',
 			  `expected` VARCHAR(255) NOT NULL COMMENT 'Expected',
 			  `found` TEXT NULL COMMENT 'Found line(s)',
 			  PRIMARY KEY (`id`)
@@ -4127,10 +4128,17 @@ class muscatConversion extends frontControllerApplication
 			$tests[$id]['found'] = NULL;
 			$tests[$id]['result'] = 0;	// Assume failure
 			
-			# Determine if the test is a negative test (i.e. fails if there is a match), starting with '! '
+			# Determine if the test is a negative test (i.e. fails if there is a match), starting with '!'
 			$tests[$id]['negativeTest'] = NULL;
-			if (preg_match ('/^!(.+)$/', $test['marcField'], $matches)) {
+			if (preg_match ('/^!(.+)$/', $tests[$id]['marcField'], $matches)) {
 				$tests[$id]['negativeTest'] = true;
+				$tests[$id]['marcField'] = $matches[1];	// Overwrite
+			}
+			
+			# Determine if the test is an indicator test, starting with 'i'
+			$tests[$id]['indicatorTest'] = NULL;
+			if (preg_match ('/^i(.+)$/', $tests[$id]['marcField'], $matches)) {
+				$tests[$id]['indicatorTest'] = true;
 				$tests[$id]['marcField'] = $matches[1];	// Overwrite
 			}
 			
@@ -4170,10 +4178,18 @@ class muscatConversion extends frontControllerApplication
 			$isFound = false;
 			foreach ($fieldsMatching as $field) {
 				foreach ($record[$field] as $line) {
+					
+					# Determine what to test
+					$dataString = $line['line'];
+					if ($tests[$id]['indicatorTest']) {
+						$dataString = $line['indicators'];
+					}
+					
+					# Run the test
 					if ($isRegexpTest) {
-						$result = (preg_match ($test['expected'], $line['line'], $matches));
+						$result = (preg_match ($test['expected'], $dataString, $matches));
 					} else {
-						$result = substr_count ($line['line'], $test['expected']);
+						$result = substr_count ($dataString, $test['expected']);
 					}
 					
 					# Register if match found
