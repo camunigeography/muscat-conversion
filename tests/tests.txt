@@ -381,6 +381,11 @@ Any *art/*e/*n fields should map to 7XX fields
 700
 Wild, J. J.
 
+63
+Note handling
+9189
+876
+the bird
 
 
 
