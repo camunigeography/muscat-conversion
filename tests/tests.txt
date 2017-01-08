@@ -346,13 +346,13 @@ Relator terms should be in English in records in scope of transliteration
 editor.
 
 57
-880 490 $v for Russian records having *ts with a *vno should not be transliterated (pending further discussion)
+880 490 ‡v for Russian records having *ts with a *vno should not be transliterated (pending further discussion)
 136356
 880
 /490-03 .+‡vChast 2/
 
 58
-880 260 for Russian records now has $b transliteration enabled
+880 260 for Russian records now has ‡b transliteration enabled
 6996
 880
 ‡bПросвящение
@@ -399,7 +399,248 @@ Any *art/*in/*ag/*al fields should NOT map to a 7XX field
 !7**
 Karol Edmond
 
+66
+Record has multiple languages
+1220
+041
+‡anor‡aeng‡ager
 
+67
+No 100 generated for *ser
+1062
+!100
+*
 
+68
+1xx generated for *doc/*ag/*a
+1392
+110
+International Arctic Science Committee
 
+69
+1xx generated for *art/*ag/*a (see also next test)
+4179
+100
+Campsterianus
 
+70
+1xx not generated for *art/*in/*ag/*a (see also previous test)
+4179
+!100
+Jones
+
+71
+1xx generated for *art/*ag/*a in a record having *art/*j
+1109
+100
+Ward
+
+72
+Ensure the 100 line ends with punctuation; this example is bracket
+1218
+100
+/\)$/
+
+73
+Ensure the 100 line ends with punctuation; this example is dot
+1221
+700
+/\.$/
+
+74
+Second author appears as 700, not 100 (see also next test)
+7457
+!100
+Andersson
+
+75
+Second author appears as 700, not 100 (see also previous test)
+7457
+700
+Andersson
+
+76
+Author in analytic child is pulled into parent (here parent record 7463 and child 9375 which has author Heurck)
+7463
+700
+Heurck
+
+77
+Title in analytic child is pulled into parent (here parent record 7463 and child 9375)
+7463
+700
+‡aHeurck, H. van.‡tBotanique: diatomées.
+
+78
+Analytic has second indicator set to 2 for 700
+7463
+i700
+12
+
+79
+Author in analytic child is pulled into parent (here parent record 7463 and child 7569 which has corporate author)
+7463
+710
+Expédition Antarctique Belge
+
+80
+Corporate author
+7569
+110
+Expédition Antarctique Belge
+
+81
+Ensure the 7xx line ends with punctuation; this example is bracket (similar to test #72)
+7463
+700
+/et conclusions.$/
+
+82
+Ensure the 7xx line ends with punctuation; this example is dot (similar to test #73)
+7463
+700
+/Gamasidae\)$/
+
+83
+700: Subfield g must be preceded by a full stop, question mark or exclamation mark
+2787
+700
+.‡g(alternative name)
+
+84
+If the author is also a *e illustrator (for example), do not create a second entry (700) as well as the 100
+147053
+!700
+Debenham, Frank
+
+85
+Each *e/*n, *role, with Relator Term lookup substitution, results in 700
+47079
+700
+Michael, Henry N.,‡eeditor.
+
+86
+An *n1 with value 'others' does not result in a 700
+8988
+!700
+others
+
+87
+*ke value in parent record is just a GUI indicator, not resulting in MARC data
+1221
+!700
+ME1221
+
+88
+Analytic children only have their first author pulled in (e.g. second author of record 7501 ignored)
+7463
+!700
+Stephani
+
+89
+700: Subfield ‡t must be preceded by a question mark, full stop, hyphen or closing parenthesis; here testing dot
+9843
+700
+.‡t
+
+90
+Authors: subfield ‡u, if present, goes before subfield ‡e
+127378
+700
+, ‡uHUN-FOMI-RSC,‡eeditor.
+
+91
+Space out initials for authors (see also next test)
+1296
+100
+J. J.
+
+92
+245 does not space out initials for authors (see also previous test)
+1296
+245
+J.J.
+
+93
+110 separates *a/*n1 portions before and after dot into ‡a and ‡b (see also next test)
+127474
+110
+‡aCanada.‡b Royal Commission
+
+94
+110 does not separate *a/*n1 portions on exceptions list (see also previous test)
+124936
+110
+‡aFrederick A. Cook Society.
+
+95
+Spacing out initials should be tolerant of Cyrillic transliteration
+175507
+700
+M. Kh.
+
+96
+Spacing out initials should be tolerant of non-ASCII initials
+201319
+100
+Č. M.
+
+97
+Spacing out initials should be tolerant of non-ASCII initials, copied into parent 700
+44492
+700
+Č. M.
+
+98
+In *nd classification, strip italic tags
+45578
+100
+‡cSir.
+
+99
+In *nd classification, handle special-cases which generate a ‡b
+165177
+100
+‡b I,‡cPrince of Monaco.
+
+100
+In *ad classification, date appears as ‡d
+6575
+100
+Williams,‡d 1863-1945.
+
+101
+In *ad classification, avoid space after comma before ‡d to avoid Bibcheck error "100: Subfield d must be preceded by a comma"
+6575
+100
+,‡d
+
+102
+Basic *ad classification check
+1165
+100
+‡etranslator
+
+103
+Basic *aff classification check
+121449
+100
+‡uGBR-UMa-SG
+
+104
+1xx: If first *ag is actually an editor, mutate to 7xx
+31105
+710
+‡aJapan Antarctic Survey,‡eeditor.
+
+105
+In author handling, allow exact relator terms match (e.g. 'editor')
+113955
+700
+‡eeditor
+
+106
+In author handling, support substring match (e.g. 'Translated from the Icelandic by')
+1639
+700
+‡etranslator

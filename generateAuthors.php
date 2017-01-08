@@ -79,7 +79,7 @@ class generateAuthors
 		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
 		
 		# Determine the language of the record
-		$recordLanguages = $this->muscatConversion->xPathValues ($mainRecordXml, '(//lang)[%i]', false);	// e.g. /records/2071/ , /records/1392/ , /records/17053/ have multiple languages
+		$recordLanguages = $this->muscatConversion->xPathValues ($mainRecordXml, '(//lang)[%i]', false);	// e.g. /records/1220/ , /records/8690/ have multiple languages (test #66)
 		
 		# Process both normal and transliterated modes
 		foreach ($languageModes as $languageMode) {
@@ -130,11 +130,11 @@ class generateAuthors
 		$this->languageMode = $languageMode;
 		
 		# Look at the first or only *doc/*ag/*a OR *art/*ag/*a
-		#   *ser     like /records/1062/ would not match
-		#   *doc     like /records/1392/ will match
-		#   *art/in  like /records/4179/ will match; its /art/in/ag/a will be ignored
-		#   *art/in with /art/in/ag/ but not /art/ag like /records/45318/ will not match
-		#   *art/j   like /records/1109/ will match; its /art/in/ag/a will be ignored
+		#   *ser     like /records/1062/ would not match (test #67)
+		#   *doc     like /records/1392/ will match (test #68)
+		#   *art/in  like /records/4179/ will match (test #69); its /art/in/ag/a will be ignored (test #70)
+		#   *art/in with /art/in/ag/ but not /art/ag like /records/45318/ will not match (same as test #70)
+		#   *art/j   like /records/1109/ will match (test #71)
 		if (!$a = $this->muscatConversion->xPathValue ($this->mainRecordXml, '//ag[parent::doc|parent::art]/a')) {
 			return false;	// The entry in $this->values for this field will be left as when initialised, i.e. false
 		}
@@ -142,13 +142,13 @@ class generateAuthors
 		# Do the classification
 		$line = $this->main ($this->mainRecordXml, '//ag[parent::doc|parent::art][1]/a[1]', 100);
 		
-		# Subfield ‡u, if present, needs to go before subfield ‡e
+		# Subfield ‡u, if present, needs to go before subfield ‡e (test #90)
 		$line = $this->shiftSubfieldU ($line);
 		
 		# Pass through the transliterator if required
 		$line = $this->muscatConversion->macro_transliterateSubfields ($line, NULL, $this->transliterableSubfields[$this->field], NULL, $languageMode);
 		
-		# Ensure the line ends with punctuation; e.g. /records/1218/ , /records/1221/
+		# Ensure the line ends with punctuation; e.g. /records/1218/ (test #72) , /records/1221/ (test #73)
 		$line = $this->muscatConversion->macro_dotEnd ($line, NULL, $extendedCharacterList = true);
 		
 		# Write the value into the values registry
@@ -158,7 +158,7 @@ class generateAuthors
 	
 	# Other entities generation entry point, which assumes 700 but may become 710/711; see: http://www.loc.gov/marc/bibliographic/bd700.html
 	/*
-	 * This is basically all the people involved in the book except the first author, which if present is covered in 100/110/111.
+	 * This is basically all the people involved in the book except the first author, which if present is covered in 100/110/111. (tests #74, #75)
 	 * It includes people in the analytic (child) records, but limited to the first of them for each such child record
 	 * This creates multiple 700 lines, the lines being created as the outcome of the loop below
 	 * Each "contributor block" referenced below refers to the author components, which are basically the 'classify' functions elsewhere in this class
@@ -173,7 +173,7 @@ class generateAuthors
 	 * - When considering the *e/*n, there is a guard clause to skip cases of 'the author' as the 100 field would have already pulled in that person (e.g. the 100 field could create "<name> $eIllustrator" indicating the author <name> is also the illustrator)
 	 * - Check for a *ke which is a flag indicating that there are analytic (child) records, e.g. as present in /records/7463/
 	 * - Look up the records whose *kg matches, e.g. /records/9375/ has *kg=7463, so this indicates that 9375 (which will be an *art) is a child of 7463
-	 * - For each *kg's *art (i.e. child *art record): take the first *art/*ag/*a/ (only the first) in that record within the *ag block, i.e. /records/9375/ /art/ag/a "contributor block", and also add the title (i.e. *art/*tg/*t); the second indicator is set to '2' to indicate that this 700 line is an 'Analytical entry'
+	 * - For each *kg's *art (i.e. child *art record): take the first *art/*ag/*a/ (only the first) in that record within the *ag block, i.e. /records/9375/ /art/ag/a "contributor block" (test #76), and also add the title (i.e. *art/*tg/*t) (test #77); the second indicator is set to '2' to indicate that this 700 line is an 'Analytical entry' (test #78)
 	 * - Every 700 has a fixed string ", ‡5 UkCU-P." at the end (representing the Institution to which field applies)
 	 * 
 	 * Handling of multiple entries:
@@ -198,7 +198,7 @@ class generateAuthors
 			return false;		// The entry in $this->values[$this->languageMode] for this field will be left as when initialised, i.e. false
 		}
 		
-		# Subfield ‡u, if present, needs to go before subfield ‡e
+		# Subfield ‡u, if present, needs to go before subfield ‡e (test #90)
 		foreach ($lines as $index => $line) {
 			$lines[$index] = $this->shiftSubfieldU ($line);
 		}
@@ -209,7 +209,7 @@ class generateAuthors
 			$lines[$index] = $this->muscatConversion->macro_transliterateSubfields ($line, NULL, $this->transliterableSubfields[$fieldNumber], NULL, $languageMode);
 		}
 		
-		# Ensure each line ends with punctuation; e.g. /records/1218/ , /records/1221/
+		# Ensure each line ends with punctuation; e.g. /records/7463/ (tests #81 and #82)
 		foreach ($lines as $index => $line) {
 			$lines[$index] = $this->muscatConversion->macro_dotEnd ($line, NULL, $extendedCharacterList = true);
 		}
@@ -283,7 +283,7 @@ class generateAuthors
 				# The "*al Detail" block (and ", ‡g (alternative name)", once only) is added
 				#!# Not yet checked cases for when a $g might already exist, to check this works
 				if (!substr_count ($line, "{$this->doubleDagger}g")) {
-					$line  = $this->muscatConversion->macro_dotEnd ($line, NULL, $extendedCharacterList = '.?!');		// e.g. /records/2787/ ; "700: Subfield g must be preceded by a full stop, question mark or exclamation mark."
+					$line  = $this->muscatConversion->macro_dotEnd ($line, NULL, $extendedCharacterList = '.?!');		// e.g. /records/2787/ ; "700: Subfield g must be preceded by a full stop, question mark or exclamation mark." (test #83)
 					$line .= "{$this->doubleDagger}g" . '(alternative name)';
 				}
 				
@@ -306,7 +306,7 @@ class generateAuthors
 			$nIndex = 1;	// XPaths are indexed from 1, not 0
 			while ($this->muscatConversion->xPathValue ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]")) {
 				
-				# When considering the *e/*n, there is a guard clause to skip cases of 'the author' as the 100 field would have already pulled in that person (e.g. the 100 field could create "<name> $eIllustrator" indicating the author <name> is also the illustrator); e.g. /records/147053/
+				# When considering the *e/*n, there is a guard clause to skip cases of 'the author' as the 100 field would have already pulled in that person (e.g. the 100 field could create "<name> $eIllustrator" indicating the author <name> is also the illustrator); e.g. /records/147053/ (test #84)
 				#!# Move this check into the main processing?
 				#!# Check this is as expected for e.g. /records/147053/
 				$n1 = $this->muscatConversion->xPathValue ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]/n1");
@@ -316,11 +316,11 @@ class generateAuthors
 				}
 				
 				# Obtain the value
-				# In the case of each *e/*n, *role, with Relator Term lookup substitution, is incorporated; e.g. /records/47079/ ; this is done inside classifyAdField ()
+				# In the case of each *e/*n, *role, with Relator Term lookup substitution, is incorporated; e.g. /records/47079/ (test #85) ; this is done inside classifyAdField ()
 				$line = $this->main ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]", 700);
 				
 				# Register the line, if it has resulted in a line, adding the field code, which may have been modified in main()
-				if ($line) {	// E.g. /records/8988/ which has "others" should not result in a line for /*/e[1]/n[2] due to classifyN1Field having "return false"
+				if ($line) {	// E.g. /records/8988/ which has "others" should not result in a line for /*/e[1]/n[2] due to classifyN1Field having "return false" (test #86)
 					$lines[] = $this->field . ' ' . $line;
 				}
 				
@@ -333,20 +333,20 @@ class generateAuthors
 		}
 		
 		# Check for a *ke which is a flag indicating that there are analytic (child) records; e.g. /records/7463/
-		if ($this->muscatConversion->xPathValue ($this->mainRecordXml, '//ke')) {		// Is just a flag, not a useful value; e.g. /records/7463/ contains "\&lt;b&gt; Analytics \&lt;b(l) ~l 1000/&quot;ME7463&quot;/ ~&gt;" which creates a button in the Muscat GUI
+		if ($this->muscatConversion->xPathValue ($this->mainRecordXml, '//ke')) {		// Is just a flag, not a useful value (test #87); e.g. /records/1221/ contains "\<b> Analytics \<b(l) ~l 1000/"ME1221"/ ~>" which creates a button in the Muscat GUI
 			
-			# Look up the records whose *kg matches, e.g. /records/9375/ has *kg=7463, so this indicates that 9375 (which will be an *art) is a child of 7463
+			# Look up the records whose *kg matches, e.g. /records/9375/ has *kg=7463, so this indicates that 9375 (which will be an *art) is a child of 7463 (tests #76 and #77)
 			$currentRecordId = $this->muscatConversion->xPathValue ($this->mainRecordXml, '/q0');
 			if ($children = $this->getAnalyticChildren ($currentRecordId)) {	// Returns records as array (id=>xmlObject, ...)
 				
 				# Loop through each *kg's *art (i.e. child *art record)
 				foreach ($children as $id => $childRecordXml) {
 					
-					# Take the first *art/*ag/*a/ (only the first) in that record within the *ag block, i.e. /records/9375/ /art/ag/a "contributor block"; the second indicator is set to '2' to indicate that this 700 line is an 'Analytical entry'
+					# Take the first *art/*ag/*a/ (only the first (test #88)) in that record within the *ag block, i.e. /records/9375/ /art/ag/a "contributor block" (test #76); the second indicator is set to '2' to indicate that this 700 line is an 'Analytical entry' (test #78)
 					$line = $this->main ($childRecordXml, "/*/ag[1]/a[1]", 700, '2');
 					
 					# Add the title (i.e. *art/*tg/*t)
-					$line  = $this->muscatConversion->macro_dotEnd ($line, NULL, $extendedCharacterList = '?.-)');		// e.g. /records/9843/ , /records/13620/ ; "700: Subfield _t must be preceded by a question mark, full stop, hyphen or closing parenthesis."
+					$line  = $this->muscatConversion->macro_dotEnd ($line, NULL, $extendedCharacterList = '?.-)');		// (test #89) e.g. /records/9843/ , /records/13620/ ; "700: Subfield _t must be preceded by a question mark, full stop, hyphen or closing parenthesis."
 					$line .= "{$this->doubleDagger}t" . $this->muscatConversion->xPathValue ($childRecordXml, '/*/tg/t');
 					
 					# Register the line, adding the field code, which may have been modified in main()
@@ -360,7 +360,7 @@ class generateAuthors
 	}
 	
 	
-	# Function to shift subfield ‡u, if present, to go before subfield ‡e; e.g. /records/127378/ , /records/134669/ , /records/135235/
+	# Function to shift subfield ‡u, if present, to go before subfield ‡e (test #90); e.g. /records/127378/ , /records/134669/ , /records/135235/
 	private function shiftSubfieldU ($line)
 	{
 		# Take no action if both $u and $e are present
@@ -445,7 +445,7 @@ class generateAuthors
 		# Is the *n1 exactly equal to a set of specific strings?
 		$strings = array (
 			'other members of the expedition',
-			'others',
+			'others',	// E.g. /records/8988/ (test #86)
 		);
 		if (application::iin_array ($n1, $strings)) {
 			
@@ -479,7 +479,7 @@ class generateAuthors
 		if (in_array ($n1, $strings)) {
 			
 			# Add to 100 field
-			$value .= "0{$this->secondIndicator} {$this->doubleDagger}a" . $this->spaceOutInitials ($n1);	// Spacing-out needed in e.g. /records/2787/
+			$value .= "0{$this->secondIndicator} {$this->doubleDagger}a" . $this->spaceOutInitials ($n1);	// Spacing-out needed in e.g. /records/2787/ (test #91)
 			
 			# Classify *nd Field
 			$value = $this->classifyNdField ($path, $value);
@@ -570,10 +570,10 @@ class generateAuthors
 		$n1 = $this->muscatConversion->xPathValue ($this->xml, $path . '/n1');
 		
 		# Does the *a/*n1 contain '. ' (i.e. full stop followed by a space)?
-		# Is the *n1 exactly equal to one of the names listed in the 'Full Stop Space Exceptions' tab?
+		# Is the *n1 exactly equal to one of the names listed in the 'Full Stop Space Exceptions' tab? (test #94)
 		if (substr_count ($n1, '. ') && !in_array ($n1, $this->fullStopExceptionsList ())) {
 			
-			# Add to 110 field: 2# ‡a <*a/*n1 [portion up to and including first full stop]> ‡b <*a/*n1 [everything after first full stop]>; e.g. /records/127474/ , /records/1261/
+			# Add to 110 field: 2# ‡a <*a/*n1 [portion up to and including first full stop]> ‡b <*a/*n1 [everything after first full stop]> (test #93); e.g. /records/127474/ , /records/1261/
 			$n1Components = explode ('.', $n1, 2);
 			$value .= "2# {$this->doubleDagger}a{$n1Components[0]}.{$this->doubleDagger}b{$n1Components[1]}";
 			
@@ -704,7 +704,7 @@ class generateAuthors
 			$n2FieldValue  = $n2;
 		}
 		
-		# Any initials in the $a subfield should be separated by a space; e.g. /records/1296/ , /records/1868/ ; note that 245 $c does not seem to do the same: http://www.loc.gov/marc/bibliographic/bd245.html
+		# Any initials in the $a subfield should be separated by a space (test #91); e.g. /records/1296/ ; note that 245 $c does not seem to do the same: http://www.loc.gov/marc/bibliographic/bd245.html (test #92)
 		$n2FieldValue = $this->spaceOutInitials ($n2FieldValue);
 		
 		# Add the value
@@ -718,12 +718,12 @@ class generateAuthors
 	}
 	
 	
-	# Function to expand initials to add spaces; note that 245 $c requires the opposite - see spaceOutInitials() in generate245
+	# Function to expand initials to add spaces (test #91); note that 245 $c requires the opposite - see spaceOutInitials() in generate245 (test #92)
 	private function spaceOutInitials ($string)
 	{
-		# Any initials should be separated by a space; e.g. /records/1296/ , /records/1868/
-		# This is tolerant of transliterated Cyrillic values, e.g. /records/194996/ which has "Ye.V." to become "Ye. V."
-		$regexp = '/\b([^ ]{1,2})(\.)([^ ]{1,2})/u';	// Unicode flag needed given e.g. Polish initial in /records/201319/ (and therefore /records/44492/ )
+		# Any initials should be separated by a space; e.g. /records/1296/
+		# This is tolerant of transliterated Cyrillic values (test #95), e.g. /records/175507/ or (old example) /records/194996/ which has "Ye.V." to become "E.V."
+		$regexp = '/\b([^ ]{1,2})(\.)([^ ]{1,2})/u';	// Unicode flag needed given e.g. Polish initial in /records/201319/ (test #96) (and therefore parent record /records/44492/ (test #97))
 		while (preg_match ($regexp, $string)) {
 			$string = preg_replace ($regexp, '\1\2 \3', $string);
 		}
@@ -747,7 +747,7 @@ class generateAuthors
 			return $value;
 		}
 		
-		# If present, strip out leading '\v' and trailing '\n'; e.g. /records/45578/
+		# If present, strip out leading '\v' and trailing '\n' italics; e.g. /records/45578/ (test #98)
 		$nd = strip_tags ($nd);
 		
 		# Is the *nd exactly equal to set of specific strings?
@@ -755,7 +755,7 @@ class generateAuthors
 			'Sr SGM'				=> ",{$this->doubleDagger}cSr, {$this->doubleDagger}uSGM",
 			'Lord, 1920-1999'		=> ",{$this->doubleDagger}cLord, {$this->doubleDagger}d 1920-1999",
 			'Rev., O.M.I.'			=> ",{$this->doubleDagger}cRev.,{$this->doubleDagger}uO.M.I.",
-			'I, Prince of Monaco'	=> ", {$this->doubleDagger}b I,{$this->doubleDagger}cPrince of Monaco",
+			'I, Prince of Monaco'	=> ", {$this->doubleDagger}b I,{$this->doubleDagger}cPrince of Monaco",		// E.g. /records/165177/ (test #99)
 			'Baron, 1880-1957'		=> ",{$this->doubleDagger}cBaron, {$this->doubleDagger}d 1880-1957",
 		);
 		if (array_key_exists ($nd, $strings)) {
@@ -813,10 +813,10 @@ class generateAuthors
 		# Check the date list if required
 		if ($checkDateList) {
 			
-			# Does the value of the $fieldValue appear on the Date list?
+			# Does the value of the $fieldValue appear on the Date list? (test #100)
 			$dateList = $this->dateList ();
 			if (in_array ($fieldValue, $dateList)) {
-				$value .= ",{$this->doubleDagger}d {$fieldValue}";		// Avoid space after comma to avoid Bibcheck error "100: Subfield d must be preceded by a comma" in /records/6575/
+				$value .= ",{$this->doubleDagger}d {$fieldValue}";		// Avoid space after comma to avoid Bibcheck error "100: Subfield d must be preceded by a comma" in /records/6575/ (test #101)
 				return $value;
 			}
 		}
@@ -936,7 +936,7 @@ class generateAuthors
 			}
 		}
 		
-		# Look at the first or only *doc/*ag OR *art/*ag; e.g. /records/1165/
+		# Look at the first or only *doc/*ag OR *art/*ag; e.g. /records/1165/ (test #102)
 		$ad = $this->muscatConversion->xPathValue ($this->xml, $path . '/following-sibling::ad');
 		if (strlen ($ad)) {
 			$value = $this->_classifySingleValueNdOrAdField ($value, $ad, true);
@@ -954,7 +954,7 @@ class generateAuthors
 	private function addAffField ($path, $value)
 	{
 		# Is there a *aff in *doc/*ag OR *art/*ag?
-		# If so, Add to 100 field; e.g. /records/121449/
+		# If so, Add to 100 field; e.g. /records/121449/ (test #103)
 		$aff = $this->muscatConversion->xPathValue ($this->xml, $path . '/following-sibling::aff');
 		if (strlen ($aff)) {
 			$value .= ", {$this->doubleDagger}u{$aff}";
@@ -977,7 +977,7 @@ class generateAuthors
 		if ($this->context1xx) {
 			if (substr_count ($value, "{$this->doubleDagger}eeditor") || substr_count ($value, "{$this->doubleDagger}ecompiler")) {
 				
-				# Change 1XX field to 7XX field: all indicators, fields and subfields remain the same; e.g. /records/31105/
+				# Change 1XX field to 7XX field: all indicators, fields and subfields remain the same; e.g. /records/31105/ (test #104)
 				$this->field += 600;		// 100->700, 110->710
 			}
 		}
@@ -999,13 +999,13 @@ class generateAuthors
 		$replacements = array ();
 		foreach ($relatorTerms as $relatorTerm => $replacement) {
 			
-			# Check for an exact match (i.e. right-hand-side of relator terms list), e.g. "editor"; e.g. /records/113955/
+			# Check for an exact match (i.e. right-hand-side of relator terms list), e.g. "editor"; e.g. /records/113955/ (test #105)
 			if (strtolower ($role) == strtolower ($replacement)) {
 				$replacements[$relatorTerm] = $replacement;
 				continue;
 			}
 			
-			# Also check for a substring match, e.g. "Translated from the Icelandic by" would match "translator"; e.g. /records/1639/
+			# Also check for a substring match, e.g. "Translated from the Icelandic by" would match "translator"; e.g. /records/1639/ (test #106)
 			if (substr_count (strtolower ($role), strtolower ($relatorTerm))) {
 				$replacements[$relatorTerm] = $replacement;
 			}
@@ -1906,12 +1906,12 @@ class generateAuthors
 	private function dateList ()
 	{
 		return array (
-			'1863-1945',	// /records/6575/
+			'1863-1945',	// /records/6575/ (test #100)
 		);
 	}
 	
 	
-	# Full stop exceptions list
+	# Full stop exceptions list (test #94)
 	private function fullStopExceptionsList ()
 	{
 		return array (
