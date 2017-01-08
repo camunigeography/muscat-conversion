@@ -35,16 +35,16 @@
 
 /* Key checks:
 
-	- the first *art/*ag/*a field should map to the 1XX field			e.g. /records/7195/ (test #59)
-	- any further *art/*ag/*a fields should map to 7XX fields			e.g. /records/8249/ (test #60)
-	- any *art/*ag/*al fields should map to 7XX fields					e.g. /records/1963/ (test #61)
-	- any *art/*e/*n fields should map to 7XX fields					e.g. /records/5126/ (test #62)
+	- The first *art/*ag/*a field should map to the 1XX field			e.g. /records/7195/ (test #59)
+	- Any further *art/*ag/*a fields should map to 7XX fields			e.g. /records/8249/ (test #60)
+	- Any *art/*ag/*al fields should map to 7XX fields					e.g. /records/1963/ (test #61)
+	- Any *art/*e/*n fields should map to 7XX fields					e.g. /records/5126/ (test #62)
 	
 	However...
 	
-	- any *art/*in/*ag/*a fields should NOT map to a 1XX or 7XX field	e.g. /records/1902/
-	- any *art/*in/*ag/*al fields should NOT map to a 7XX field			e.g. /records/3427/
-	- any *art/*in/*e/*n fields should NOT map to a 7XX field			[No cases]
+	- Any *art/*in/*ag/*a fields should NOT map to a 1XX or 7XX field	e.g. /records/1902/ (test #64)
+	- Any *art/*in/*ag/*al fields should NOT map to a 7XX field			e.g. /records/3427/ (test #65)
+	- Any *art/*in/*e/*n fields should NOT map to a 7XX field			[No cases] (checked again in Jan 2017, including *ee instead of *e in case of error)
 
 */
 

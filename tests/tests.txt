@@ -387,5 +387,19 @@ Note handling
 876
 the bird
 
+64
+Any *art/*in/*ag/*a fields should NOT map to a 1XX or 7XX field
+1902
+!1**
+Filip
+
+65
+Any *art/*in/*ag/*al fields should NOT map to a 7XX field
+3427
+!7**
+Karol Edmond
+
+
+
 
 
