@@ -533,7 +533,7 @@ class generateAuthors
 			'congr&egrave;s',	// /records/8728/ (test #129)
 			'congreso',
 			'congress', // but NOT 'United States'
-			'konferentsiya',
+			'konferent',	// Originally 'konferentsiya' but that is the pre-transliteration value; checked that this does not create mistaken hits; e.g. /records/32818/ (test #130)
 			'konferenzen',
 			'inqua',
 			'polartech',
