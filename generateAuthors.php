@@ -926,8 +926,7 @@ class generateAuthors
 	# Function to classify *ad field
 	private function classifyAdField ($path, $value)
 	{
-		# If running in a 7** context, and going through *e/*n, trigger the "Classify *e Field" subroutine check
-		#!# Not clear this is necessary; in /records/147053/ this ends up getting $e anyway even if this block is not here
+		# If running in a 7** context, and going through *e/*n, trigger the "Classify *e Field" subroutine check; e.g. /records/147053/ (test #158)
 		if (!$this->context1xx) {
 			if (preg_match ('|^/\*/e|', $path)) {
 				$role = $this->muscatConversion->xPathValue ($this->xml, $path . '/preceding-sibling::role');
