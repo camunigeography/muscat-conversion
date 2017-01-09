@@ -84,16 +84,16 @@ class generate245
 	# First indicator
 	private function firstIndicator ()
 	{
-		# Does this MARC record contain a 1XX field?
+		# Does this MARC record contain a 1XX field?; e.g. /records/210651/ (test #166), /records/1102/ (test #167), /records/1134/ (test #168)
 		return ($this->recordHas1xxField ($this->authorsFields) ? '1' : '0');
 	}
 	
 	
-	# Function to determine if the MARC record contains a 1XX field
+	# Function to determine if the MARC record contains a 1XX field; e.g. /records/210651/ (test #166), /records/1102/ (test #167), /records/1134/ (test #168)
 	private function recordHas1xxField ($authorsFields)
 	{
 		# Determine if any 1XX field has a value
-		foreach ($authorsFields as $marcCode => $value) {
+		foreach ($authorsFields['default'] as $marcCode => $value) {
 			if (preg_match ('/^1/', $marcCode)) {	// Consider only 1XX fields
 				if (strlen ($value)) {
 					return true;

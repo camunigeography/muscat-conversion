@@ -1,7 +1,7 @@
 <?php
 
 
-#!# Improve efficiency in this class by creating properties (e.g. XML, and recordId) instead of passing them around or looking-up several times
+#!# Improve efficiency in this class by creating properties (e.g. XML, authorsFields, and recordId) instead of passing them around or looking-up several times
 
 
 # Class to handle conversion of the data to MARC format

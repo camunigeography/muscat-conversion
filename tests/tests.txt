@@ -985,4 +985,25 @@ Test *e/*role handling when *n1 = 'the author'
 700
 ‡aTravis, George,‡ecompiler.
 
+166
+245 first indicator set to 1 when 100 present
+210651
+i245
+/^1./
+
+167
+245 first indicator set to 1 when other 1xx present
+1102
+i245
+/^1./
+
+168
+245 first indicator set to 1 when 100 not present
+1134
+i245
+/^0./
+
+
+
+
 
