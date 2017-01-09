@@ -985,6 +985,24 @@ Test *e/*role handling when *n1 = 'the author'
 700
 ‡aTravis, George,‡ecompiler.
 
+163
+245 uses main title when *in exists
+1104
+245
+‡aGlen Prosen and the memory of an Antarctic tragedy
+
+164
+245 "and 4 others" does not get transliterated in 880
+210651
+880
+‡cА.М. Никанаров, and 4 others.
+
+165
+245 880 gets transliteration in Russian records
+210651
+880
+‡aАнтропогенная нагрузка на устья рек Российской Арктики
+
 166
 245 first indicator set to 1 when 100 present
 210651

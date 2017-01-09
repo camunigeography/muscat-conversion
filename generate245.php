@@ -45,10 +45,10 @@ class generate245
 		# Transliterate title (used for $a and possible $b) if required
 		if ($this->languageMode != 'default') {
 			
-			# Define the lpt field XPath; this must the one directly associated with the title, e.g. /art/tg/t should not use /art/in/lpt but /art/in/tg/t should; e.g. /records/210651/ , /records/202321/
+			# Define the lpt field XPath; this must the one directly associated with the title, e.g. /art/tg/t should not use /art/in/lpt but /art/in/tg/t should; e.g. /records/210651/, /records/202321/, /records/1104/ (test #164)
 			$lptFieldXpath = "{$this->mainRecordTypePrefix}/lpt";
 			
-			# Do the transliteration
+			# Do the transliteration; e.g. /records/210651/ (test #165)
 			$lpt = $this->muscatConversion->xPathValue ($this->xml, $lptFieldXpath);	// Languages of parallel title, e.g. "Russian = English"
 			$this->t = $this->muscatConversion->transliteration->transliterateLocLatinToCyrillic ($this->t, $lpt, $error, $nonTransliterable /* passed back by reference */);	// (test #49)
 			
