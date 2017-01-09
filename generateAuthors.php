@@ -871,9 +871,9 @@ class generateAuthors
 							$keep = ($matches[3] == $valueForPrefiltering);
 							break;
 							
-						# Not - the string must not contain the specified value; e.g. "director//NOT:art director" will be ignored if the $valueForPrefiltering was "art director"
+						# Not - the string must not contain the specified value; e.g. "director//NOT:art director" will be ignored if the $valueForPrefiltering was "art director"; e.g. // /records/44786/ (test #154), /records/24674/ (test #155)
 						case 'NOT':
-							$keep = (!substr_count ($matches[3], $valueForPrefiltering));
+							$keep = (!substr_count ($valueForPrefiltering, $matches[3]));	// Partial match, e.g. 'revised//NOT:revised translation' means that "revised translation" (matches[3]) should not match *role="Revised translation by" in e.g. /records/24674/ (test #155)
 							break;
 							
 						# Requires - the overall record must have the specified XPath entry
@@ -1693,7 +1693,7 @@ class generateAuthors
 				'redaktor',
 				'redaktsyey',
 				'redigert',
-				'revised//NOT:revised translation',
+				'revised//NOT:revised translation',	// /records/44786/ (test #154), /records/24674/ (test #155)
 				'revision',
 			),
 			

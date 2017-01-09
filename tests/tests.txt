@@ -831,3 +831,15 @@ Conference handling for US Congress (see also previous test)
 111
 ‡aConference on Soil-Water Problems in Cold Regions ‡n(2nd :‡d1976 :‡cEdmonton, Alberta)
 
+
+154
+Relator term handling with //NOT flag (positive match)
+44786
+700
+,‡eeditor.
+
+155
+Relator term handling with //NOT flag (negative match)
+24674
+!700
+‡eeditor
