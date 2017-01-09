@@ -151,8 +151,8 @@ class generate245
 		
 		# Ensure the title is not empty
 		$t = $this->t;
-		if (!strlen ($t)) {$t = '[No title]';}	// E.g. /records/75010/ , /records/188580/ , /records/211866/ , found using "SELECT id, EXTRACTVALUE(xml,'//tg/t') AS tValue FROM catalogue_xml HAVING LENGTH(tValue) = 0;"
-		if ($t == '-') {$t = '[No title]';}	// E.g. /records/214258/
+		if (!strlen ($t)) {$t = '[No title]';}	// No actual cases left so cannot test (found using "SELECT id, EXTRACTVALUE(xml,'//tg/t') AS tValue FROM catalogue_xml HAVING LENGTH(tValue) = 0;") but logic left in as catch
+		if ($t == '-') {$t = '[No title]';}	// E.g. No actual cases left so cannot test; only /records/182768/ which is an *j/*tg/ which is not relevant
 		
 		# Does the *t include a colon ':'?
 		if (substr_count ($t, ':') && !substr_count ($t, '>:<')) {	// Additional clause checks avoids <sub>:</sub> being picked up in /records/183519/ ; have checked there are no other instances of '>:<'
