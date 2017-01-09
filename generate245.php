@@ -155,7 +155,7 @@ class generate245
 		if ($t == '-') {$t = '[No title]';}	// E.g. No actual cases left so cannot test; only /records/182768/ which is an *j/*tg/ which is not relevant
 		
 		# Does the *t include a colon ':'?
-		if (substr_count ($t, ':') && !substr_count ($t, '>:<')) {	// Additional clause checks avoids <sub>:</sub> being picked up in /records/183519/ ; have checked there are no other instances of '>:<'
+		if (substr_count ($t, ':')) {
 			
 			#!# Need to check spacing rules here and added trimming; e.g. see /records/12359/
 			
