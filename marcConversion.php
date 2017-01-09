@@ -1292,7 +1292,7 @@ class marcConversion
 			'det ' => 'Danish German Norwegian Swedish',
 			'die ' => 'German',
 			'een ' => 'Dutch',
-			'ei ' => 'Norwegian',
+			'ei ' => 'Norwegian',	// /records/103693/ (test #171)
 			'ein ' => 'German Norwegian',
 			'eine ' => 'German',
 			'einem ' => 'German',

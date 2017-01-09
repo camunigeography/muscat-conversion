@@ -1003,7 +1003,21 @@ i245
 i245
 /^0./
 
+169
+245 second indicator set to 4 with leading article 'the'
+1110
+i245
+/^.4/
 
+170
+245 second indicator set to 0 with no leading article
+1134
+i245
+/^.0/
 
-
+171
+245 second indicator set to 3 leading article 'Ei' in Norwegian record
+103693
+i245
+/^.3/
 
