@@ -530,6 +530,7 @@ class generateAuthors
 			'colloquy',
 			'conference',
 			'congr&eacute;s',
+			'congr&egrave;s',	// /records/8728/ (test #129)
 			'congreso',
 			'congress', // but NOT 'United States'
 			'konferentsiya',
