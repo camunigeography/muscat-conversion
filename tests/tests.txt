@@ -1039,3 +1039,44 @@ i245
 i245
 /^.3/
 
+172
+245 *t colon handling splits to ‡a: ‡b
+1119
+245
+‡aThe issue is survival :‡ba summary
+
+173
+245 *t with colon and record having *form results in ‡h; "it follows the title proper" "and precedes the remainder of the title"
+12359
+245
+North‡h[videorecording] :‡ba story
+
+174
+245 *t without colon results in ‡a
+1000
+245
+‡aAdmiralty List of Lights.
+
+175
+245 *t without colon but having *form results in ‡h after ‡a
+1186
+245
+microorganisms‡h[Microfiche]
+
+176
+245 ‡h appears in 880 for Russian records
+9543
+880
+Известия‡h[Microfiche].
+
+177
+245 *ser with *t already having dot ends with single dot
+137684
+245
+/Review\.$/
+
+178
+245 *ser with *t ending with ) gets additional . at end
+1058
+245
+/\)\.$/

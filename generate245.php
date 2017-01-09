@@ -73,7 +73,7 @@ class generate245
 		$value .= $title;
 		$value .= $statementOfResponsibility;
 		
-		# Ensure the value ends with a dot (even if other punctuation is already present)
+		# Ensure the value ends with a dot (even if other punctuation is already present); e.g. /records/137684/ , /records/178352/ avoids two dots (test #177); also /records/1058/ which ends with ) so gets ). (test #178)
 		$value = $this->muscatConversion->macro_dotEnd ($value, NULL, $extendedCharacterList = false);
 		
 		# Return the value
@@ -154,29 +154,29 @@ class generate245
 		if (!strlen ($t)) {$t = '[No title]';}	// No actual cases left so cannot test (found using "SELECT id, EXTRACTVALUE(xml,'//tg/t') AS tValue FROM catalogue_xml HAVING LENGTH(tValue) = 0;") but logic left in as catch
 		if ($t == '-') {$t = '[No title]';}	// E.g. No actual cases left so cannot test; only /records/182768/ which is an *j/*tg/ which is not relevant
 		
-		# Does the *t include a colon ':'?
+		# Does the *t include a colon ':'? E.g. /records/1119/ (test #172)
 		if (substr_count ($t, ':')) {
 			
 			#!# Need to check spacing rules here and added trimming; e.g. see /records/12359/
 			
-			# Add all text before colon
+			# Add all text before colon; e.g. /records/1119/ (test #172)
 			$titleComponents = explode (':', $t, 2);
 			$title .= $this->doubleDagger . 'a' . trim ($titleComponents[0]);
 			
-			# If there is a *form, Add to 245 field
+			# If there is a *form, Add to 245 field'; "It follows the title proper ... and precedes the remainder of the title" as per spec at http://www.loc.gov/marc/bibliographic/bd245.html ; e.g. /records/12359/ (test #173)
 			if ($form) {
 				$title .= $this->doubleDagger . 'h[' . strtolower ($form) . ']';
 			}
 			
-			# Add all text after colon
+			# Add all text after colon; e.g. /records/1119/ (test #172)
 			$title .= ' :' . $this->doubleDagger . 'b' . trim ($titleComponents[1]);
 			
 		} else {
 			
-			# Add title
+			# Add title; e.g. /records/1000/ (test #174)
 			$title .= $this->doubleDagger . 'a' . $t;
 			
-			# If there is a *form, Add to 245 field; e.g. /records/9543/
+			# If there is a *form, Add to 245 field; e.g. /records/9543/, /records/1186/ (test #175); also transliterated record example: /records/9543/ (test #176)
 			if ($form) {
 				$title .= $this->doubleDagger . 'h[' . $form . ']';
 			}
@@ -185,7 +185,7 @@ class generate245
 		# By default, a Statement of Responsibility is required
 		$this->createStatementOfResponsibility = true;
 		
-		# Are you creating this 245 field for a *ser record? If so, end; a dot will be added after if punctuation not already present; e.g. /records/137684/ , /records/178352/ avoids two dots
+		# Are you creating this 245 field for a *ser record? If so, end; a dot will be added after if punctuation not already present; e.g. /records/137684/ , /records/178352/ avoids two dots (test #177)
 		if ($this->recordType == '/ser') {
 			$this->createStatementOfResponsibility = false;		// Flag then picked up below in statementOfResponsibility ()
 		}
