@@ -8,6 +8,10 @@
 # MARC field
 # Pattern (either simple string or regexp starting with slash delimeter)
 
+# Coverage level:
+# generateAuthors: 100%
+# generate008: 100%
+
 
 1
 Basic test
