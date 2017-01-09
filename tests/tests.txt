@@ -628,7 +628,7 @@ Basic *aff classification check
 ‡uGBR-UMa-SG
 
 104
-1xx: If first *ag is actually an editor, mutate to 7xx
+1xx: If first *ag is actually an editor, mutate to 7xx (see also test #162)
 31105
 710
 ‡aJapan Antarctic Survey,‡eeditor.
@@ -957,5 +957,28 @@ Relator term handling with //REQUIRES flag (negative match)
 700
 ,‡eillustrator.
 
+159
+Test *e/*role handling when *n1 = 'the author'
+147053
+700
+,‡eillustrator.
+
+160
+100 Ensure dot at end when not naturally present
+46177
+100
+/\.$/
+
+161
+100 Ensure single dot at end when already naturally present
+46175
+100
+/L\.$/
+
+162
+1xx: If first *ag is actually an compiler, mutate to 7xx (see also test #104)
+4012
+700
+‡aTravis, George,‡ecompiler.
 
 

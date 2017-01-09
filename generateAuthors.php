@@ -960,14 +960,14 @@ class generateAuthors
 		}
 		
 		# Does the record contain a *doc/*e/*n/*n1 OR *art/*e/*n/*n1 that is equal to 'the author'?
-		# E.g. *e containing "Illustrated and translated by" and *n1 "the author"
+		# E.g. *e/*role containing "Illustrated and translated by" and *n1 "the author"; e.g. /records/147053/ (test #159)
 		$n1 = $this->muscatConversion->xPathValue ($this->xml, '//e/n/n1');
 		if ($n1 == 'the author') {
 			$role = $this->muscatConversion->xPathValue ($this->xml, '//e/role');	// Obtain the $role, having determined that *n1 matches "the author"
 			$value .= $this->relatorTermsEField ($role);
 		}
 		
-		# Does 100 field currently end with a punctuation mark?
+		# Does 100 field currently end with a punctuation mark? E.g. /records/46177/ (test #160), /records/46175/ (test #161)
 		if (!preg_match ('/[.)\]\-,;:]$/', $value)) {	// http://stackoverflow.com/a/5484178 says that only ^-]\ need to be escaped inside a character class
 			$value .= '.';
 		}
@@ -976,7 +976,7 @@ class generateAuthors
 		if ($this->context1xx) {
 			if (substr_count ($value, "{$this->doubleDagger}eeditor") || substr_count ($value, "{$this->doubleDagger}ecompiler")) {
 				
-				# Change 1XX field to 7XX field: all indicators, fields and subfields remain the same; e.g. /records/31105/ (test #104)
+				# Change 1XX field to 7XX field: all indicators, fields and subfields remain the same; e.g. /records/31105/ (test #104), /records/4012/ (test #162)
 				$this->field += 600;		// 100->700, 110->710
 			}
 		}
