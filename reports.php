@@ -3816,6 +3816,9 @@ class reports
 				$totalPassed += 1;
 			}
 			
+			# Add hash before ID to enable quicker page-searchability
+			$data[$id]['id'] = '<span class="comment">#</span>' . $data[$id]['id'];
+			
 			# Pass/fail icon
 			$data[$id]['result'] = ($test['result'] ? '<img src="/images/icons/tick.png" title="Passed" alt="Tick" class="icon" />' : '<img src="/images/icons/cross.png" title="Failed" alt="Cross" class="icon" />');
 			
