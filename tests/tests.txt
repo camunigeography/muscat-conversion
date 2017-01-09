@@ -741,3 +741,93 @@ Multiple relator term ‡e values do not have space between
 700
 ‡econtributor,‡eeditor.
 
+123
+Anon handling for 100
+1394
+100
+‡aAnonymous.
+
+124
+Single name handling for 100
+181460
+100
+‡aIgnatius.
+
+125
+Spacing-out handling in single name handling for 100
+213499
+100
+‡aE. L. H.
+
+126
+Surname-only handling for 100
+111558
+100
+‡adi Georgia.
+
+127
+Surname-only handling for 100 with entities
+3904
+100
+‡aSöderbergh.
+
+128
+Conference handling for n1 in 1xx
+50035
+111
+‡aConference on the Conservation of Antarctic Seals.
+
+129
+Conference handling for n1 in 1xx with entities
+8728
+111
+‡aCongrès
+
+130
+Conference handling for Russian LoC transliterated values
+32818
+111
+‡aNauchnai͡a konferent͡sii͡a
+
+131
+Conference handling for congress (not US Congress) (see also next test)
+55763
+111
+‡aXXIII International Geographical Congress.
+
+132
+Conference handling for US Congress (see also previous test)
+1912
+110
+‡aUnited States.‡b Congress.
+
+133
+111 ‡a: Simple conference name
+173340
+111
+/‡aArctic Science Conference\.$/
+
+134
+111 ‡a: Conference and date
+57564
+111
+‡aSymposium on Antarctic Resources ‡d(1978)
+
+135
+111 ‡a: Conference, date and location
+32965
+111
+‡aConference on Antarctica ‡d(1959 :‡cWashington, D.C.)
+
+136
+111 ‡a: Conference, number, date and location
+51434
+111
+‡aInternational Conference on Permafrost ‡n(2nd :‡d1973 :‡cYakutsk, Siberia, U.S.S.R)
+
+137
+111 ‡a: Conferences with commas not intended as delimeters
+55264
+111
+‡aConference on Soil-Water Problems in Cold Regions ‡n(2nd :‡d1976 :‡cEdmonton, Alberta)
+

@@ -362,7 +362,7 @@ class generateAuthors
 	# Function to shift subfield ‡u, if present, to go before subfield ‡e (test #90); e.g. /records/127378/ , /records/134669/ , /records/135235/
 	private function shiftSubfieldU ($line)
 	{
-		# Take no action if both $u and $e are present
+		# Take no action unless both $u and $e are present
 		if (!substr_count ($line, "{$this->doubleDagger}u") || !substr_count ($line, "{$this->doubleDagger}e")) {
 			return $line;
 		}
@@ -452,7 +452,7 @@ class generateAuthors
 			return false;	// Resets $value
 		}
 		
-		# Is the *n1 exactly equal to a set of specific strings?
+		# Is the *n1 exactly equal to a set of specific strings? E.g. /records/1394/ (test #123)
 		$strings = array (
 			'-',
 			'Anon',
@@ -473,12 +473,12 @@ class generateAuthors
 			return $value;
 		}
 		
-		# Is the *n1 exactly equal to any of the names in the 'Name in direct order' tab?
+		# Is the *n1 exactly equal to any of the names in the 'Name in direct order' tab? E.g. /records/181460/ (test #124)
 		$strings = $this->entitiesToUtf8List ($this->namesInDirectOrder ());
 		if (in_array ($n1, $strings)) {
 			
 			# Add to 100 field
-			$value .= "0{$this->secondIndicator} {$this->doubleDagger}a" . $this->spaceOutInitials ($n1);	// Spacing-out needed in e.g. /records/2787/ (test #91)
+			$value .= "0{$this->secondIndicator} {$this->doubleDagger}a" . $this->spaceOutInitials ($n1);	// Spacing-out needed in e.g. /records/213499/ (test #125)
 			
 			# Classify *nd Field
 			$value = $this->classifyNdField ($path, $value);
@@ -487,7 +487,7 @@ class generateAuthors
 			return $value;
 		}
 		
-		# Is the *n1 exactly equal to any of the names in the 'Surname only' tab?
+		# Is the *n1 exactly equal to any of the names in the 'Surname only' tab? E.g. /records/111558/ (test #126), /records/3904/ (test #127) which has HTML entities
 		$surnameOnly = $this->entitiesToUtf8List ($this->surnameOnly ());
 		if (in_array ($n1, $surnameOnly)) {
 			
@@ -504,7 +504,7 @@ class generateAuthors
 		# Explicitly throw away the so-far generated value
 		$value = false;
 		
-		# Is the *n1 a conference?
+		# Is the *n1 a conference? E.g. /records/50035/ (test #128)
 		if ($this->isConference ($n1)) {
 			
 			# Mutate to 111/711 field instead of 100/700 field
@@ -521,18 +521,18 @@ class generateAuthors
 	}
 	
 	
-	# Helper function to determine if an *n1 is conference-like
+	# Helper function to determine if an *n1 is conference-like, e.g. /records/50035/ (test #128)
 	private function isConference ($n1)
 	{
 		# Does the *n1 contain any of the following specific strings?
 		$strings = array (
 			'colloque',
 			'colloquy',
-			'conference',
+			'conference',		// /records/50035/ (test #128)
 			'congr&eacute;s',
 			'congr&egrave;s',	// /records/8728/ (test #129)
 			'congreso',
-			'congress', // but NOT 'United States'
+			'congress', // but NOT 'United States' - see below, including tests
 			'konferent',	// Originally 'konferentsiya' but that is the pre-transliteration value; checked that this does not create mistaken hits; e.g. /records/32818/ (test #130)
 			'konferenzen',
 			'inqua',
@@ -545,7 +545,7 @@ class generateAuthors
 		# Search for a match
 		foreach ($strings as $string) {
 			if (substr_count (strtolower ($n1), strtolower ($string))) {
-				if (($string == 'congress') && (substr_count (strtolower ($n1), strtolower ('United States')))) {continue;}		// Whitelist this one
+				if (($string == 'congress') && (substr_count (strtolower ($n1), strtolower ('United States')))) {continue;}		// Whitelist this one; e.g. /records/55763/ (test #131) and /records/1912/ (test #132)
 				
 				# Match is found
 				return true;
@@ -573,13 +573,13 @@ class generateAuthors
 		# Is the *n1 exactly equal to one of the names listed in the 'Full Stop Space Exceptions' tab? (test #94)
 		if (substr_count ($n1, '. ') && !in_array ($n1, $this->fullStopExceptionsList ())) {
 			
-			# Add to 110 field: 2# ‡a <*a/*n1 [portion up to and including first full stop]> ‡b <*a/*n1 [everything after first full stop]> (test #93); e.g. /records/127474/ , /records/1261/
+			# Add to 110 field: 2# ‡a <*a/*n1 [portion up to and including first full stop]> ‡b <*a/*n1 [everything after first full stop]> (test #93); e.g. /records/127474/ (test #94), /records/1261/
 			$n1Components = explode ('.', $n1, 2);
 			$value .= "2# {$this->doubleDagger}a{$n1Components[0]}.{$this->doubleDagger}b{$n1Components[1]}";
 			
 		} else {
 			
-			# Add to 110 field: 2# ‡a <*a/*n1>
+			# Add to 110 field: 2# ‡a <*a/*n1>; e.g. /records/127474/ (test #94)
 			$value .= "2# {$this->doubleDagger}a{$n1}";
 		}
 		
@@ -627,9 +627,8 @@ class generateAuthors
 			'Mass-Balance, Fluctuations',
 			// Present in Location of meeting:
 			'Washington, D.C.',
-			'Edmonton, Alberta',
+			'Edmonton, Alberta',			// /records/55264/ (test #137)
 			'Yakutsk, Siberia, U.S.S.R',
-			'Washington, D.C.',
 		);
 		$replacements = array ();
 		foreach ($whitelistStrings as $whitelistString) {
@@ -650,20 +649,20 @@ class generateAuthors
 			
 			# Simple conference name; e.g. 'Arctic Science Conference'
 			case 1:
-				// No addition
+				// No addition; e.g. /records/173340/ (test #133)
 				break;
 				
-			# Conference and date; e.g. 'Symposium on Antarctic Resources, 1978'
+			# Conference and date; e.g. 'Symposium on Antarctic Resources, 1978' /records/57564/ (test #134)
 			case 2:
 				$value .= " {$this->doubleDagger}d({$conferenceAttributes[1]})";
 				break;
 				
-			# Conference, date and location; e.g. 'Conference on Antarctica, Washington, D.C., 1959'
+			# Conference, date and location; e.g. 'Conference on Antarctica, Washington, D.C., 1959' /records/32965/ (test #135)
 			case 3:
 				$value .= " {$this->doubleDagger}d({$conferenceAttributes[2]} :{$this->doubleDagger}c{$conferenceAttributes[1]})";
 				break;
 				
-			# Conference, number, date and location; e.g. 'Conference on Antarctica, Washington, D.C., 1959'
+			# Conference, number, date and location; e.g. 'International Conference on Permafrost, 2nd, Yakutsk, Siberia, U.S.S.R, 1973' /records/51434/ (test #136)
 			case 4:
 				$value .= " {$this->doubleDagger}n({$conferenceAttributes[1]} :{$this->doubleDagger}d{$conferenceAttributes[3]} :{$this->doubleDagger}c{$conferenceAttributes[2]})";
 				break;
@@ -705,7 +704,7 @@ class generateAuthors
 		}
 		
 		# Any initials in the $a subfield should be separated by a space (test #91); e.g. /records/1296/ ; note that 245 $c does not seem to do the same: http://www.loc.gov/marc/bibliographic/bd245.html (test #92)
-		$n2FieldValue = $this->spaceOutInitials ($n2FieldValue);
+		$n2FieldValue = $this->spaceOutInitials ($n2FieldValue);	// Spacing-out needed in e.g. /records/1296/ (test #91)
 		
 		# Add the value
 		$value .= $n2FieldValue;
@@ -1031,7 +1030,7 @@ class generateAuthors
 		return array (
 			'A.Z.',
 			'Adam av Bremen',
-			'Adam of Bremen',
+			'Adam of Bremen',		// /records/127781/
 			'Adamus Bremensis',
 			'Albert',
 			'Alman',
@@ -1050,7 +1049,7 @@ class generateAuthors
 			'DJ Spooky',
 			'\'Drawer D\'',
 			'Dufferin and Ava',
-			'E.L.H.',
+			'E.L.H.',		// /records/213499/
 			'E.P.',
 			'Earl of Carnarvon',
 			'Earl of Ellesmere',
@@ -1132,7 +1131,7 @@ class generateAuthors
 			'de Bieberstein',
 			'de Met',
 			'Delisle',
-			'di Georgia',
+			'di Georgia',	// /records/111558/ (test #126)
 			'Dumas',
 			'Eitel',
 			'Ellyay',
@@ -1189,7 +1188,7 @@ class generateAuthors
 			'Sharp',
 			'Shul\'ts',
 			'Siden',
-			'S&ouml;derbergh',
+			'S&ouml;derbergh',	// /records/3904/ (test #127)
 			'Strauch',
 			'Sunman',
 			'Tabarin',
