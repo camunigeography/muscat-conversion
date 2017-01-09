@@ -4187,9 +4187,9 @@ class muscatConversion extends frontControllerApplication
 					
 					# Run the test
 					if ($isRegexpTest) {
-						$result = (preg_match ($test['expected'], $dataString, $matches));
+						$result = (preg_match ($test['expected'], $dataString, $matches));	// Test is case-sensitive unless test sets /i
 					} else {
-						$result = substr_count ($dataString, $test['expected']);
+						$result = substr_count ($dataString, $test['expected']);	// Test is case-sensitive
 					}
 					
 					# Register if match found
