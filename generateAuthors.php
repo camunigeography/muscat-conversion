@@ -678,8 +678,8 @@ class generateAuthors
 	{
 		# Is the *n2 exactly equal to a set of specific names?
 		$names = array (
-			'David B. (David Bruce)',
-			'H. (Herv&eacute;)',
+			'David B. (David Bruce)',			// /records/170179/ (test #139)
+			'H. (Herv&eacute;)',				// /records/4366/ (test #140)
 			'H. (Hippolyte)',
 			'K.V. (Konstantin Viktorovich)',
 			'L. (Letterio)',
@@ -699,8 +699,8 @@ class generateAuthors
 			
 		} else {
 			
-			# Add to 100 field: <*a/*n2>
-			$n2FieldValue  = $n2;
+			# Add to 100 field: <*a/*n2>; e.g. /records/1296/ (test #138)
+			$n2FieldValue = $n2;
 		}
 		
 		# Any initials in the $a subfield should be separated by a space (test #91); e.g. /records/1296/ ; note that 245 $c does not seem to do the same: http://www.loc.gov/marc/bibliographic/bd245.html (test #92)
@@ -735,11 +735,11 @@ class generateAuthors
 	# Function to classify *nd field
 	private function classifyNdField ($path, $value)
 	{
-		# Does the *a contain a *nd?
+		# Does the *a contain a *nd? E.g. /records/1221/ (test #141)
 		$nd = $this->muscatConversion->xPathValue ($this->xml, $path . '/nd');
 		if (!strlen ($nd)) {
 			
-			# If no, GO TO: Classify *ad Field
+			# If no, GO TO: Classify *ad Field; e.g. /records/1201/ (test #142)
 			$value = $this->classifyAdField ($path, $value);
 			
 			# Return the value
@@ -801,9 +801,9 @@ class generateAuthors
 		# Does the value of the $fieldValue appear on the Prefix list?
 		# Does the value of the $fieldValue appear on the Suffix list?
 		# Does the value of the $fieldValue appear on the Between *n1 and *n2 list?
-		$prefixes = $this->entitiesToUtf8List ($this->prefixes ());
-		$suffixes = $this->entitiesToUtf8List ($this->suffixes ());
-		$betweenN1AndN2 = $this->entitiesToUtf8List ($this->betweenN1AndN2 ());
+		$prefixes = $this->entitiesToUtf8List ($this->prefixes ());		// E.g. /records/1201/ (test #142), /records/53959/ (test #143)
+		$suffixes = $this->entitiesToUtf8List ($this->suffixes ());		// E.g. /records/23362/ (test #144)
+		$betweenN1AndN2 = $this->entitiesToUtf8List ($this->betweenN1AndN2 ());		// E.g. /records/3180/ (test #145)
 		if (in_array ($fieldValue, $prefixes) || in_array ($fieldValue, $suffixes) || in_array ($fieldValue, $betweenN1AndN2)) {
 			$value .= ",{$this->doubleDagger}c{$fieldValue}";
 			return $value;
@@ -812,7 +812,7 @@ class generateAuthors
 		# Check the date list if required
 		if ($checkDateList) {
 			
-			# Does the value of the $fieldValue appear on the Date list? (test #100)
+			# Does the value of the $fieldValue appear on the Date list? E.g. /records/6575/ (test #100)
 			$dateList = $this->dateList ();
 			if (in_array ($fieldValue, $dateList)) {
 				$value .= ",{$this->doubleDagger}d {$fieldValue}";		// Avoid space after comma to avoid Bibcheck error "100: Subfield d must be preceded by a comma" in /records/6575/ (test #101)
@@ -820,21 +820,21 @@ class generateAuthors
 			}
 		}
 		
-		# Do one or more words or phrases in the $fieldValue appear in the Relator terms list?
+		# Do one or more words or phrases in the $fieldValue appear in the Relator terms list? E.g. /records/10004/ (test #147), /records/181142/ (test #146)
 		if ($relatorTermsEField = $this->relatorTermsEField ($fieldValue)) {
 			$value .= $relatorTermsEField;
 			return $value;
 		}
 		
-		# Does the value of the $fieldValue appear on the Misc. list?
+		# Does the value of the $fieldValue appear on the Misc. list? E.g. /records/1218/ (test #148)
 		$miscList = $this->miscList ();
 		if (in_array ($fieldValue, $miscList)) {
-			$value  = $this->muscatConversion->macro_dotEnd ($value, NULL, $extendedCharacterList = '.?!');		// "700: Subfield g must be preceded by a full stop, question mark or exclamation mark."
+			$value  = $this->muscatConversion->macro_dotEnd ($value, NULL, $extendedCharacterList = '.?!');		// "700: Subfield g must be preceded by a full stop, question mark or exclamation mark." (test #148)
 			$value .= "{$this->doubleDagger}g ({$fieldValue})";
 			return $value;
 		}
 		
-		# Does the value of the $fieldValue appear on the Affiliation list?
+		# Does the value of the $fieldValue appear on the Affiliation list? E.g. /records/165077/ (test #149), /records/19171/ (test #150), /records/18045/ (test #151)
 		$affiliationList = $this->affiliationList ();
 		#!# Failing for "Zoological Museum at Berlin" (see test 149) as due to partial match
 		if (in_array ($fieldValue, $affiliationList)) {
@@ -866,7 +866,7 @@ class generateAuthors
 					# Determine whether to keep the entry in place
 					switch ($matches[2]) {
 						
-						# Only - the entire string must match the specified value; e.g. "with//ONLY:with" will be ignored if the $valueForPrefiltering was "with foo"
+						# Only - the entire string must match the specified value; e.g. "with//ONLY:with" will be ignored if the $valueForPrefiltering was "with foo"; e.g. /records/122529/ (test #152), /records/1253/ (test #153)
 						case 'ONLY':
 							$keep = ($matches[3] == $valueForPrefiltering);
 							break;
@@ -876,7 +876,7 @@ class generateAuthors
 							$keep = (!substr_count ($valueForPrefiltering, $matches[3]));	// Partial match, e.g. 'revised//NOT:revised translation' means that "revised translation" (matches[3]) should not match *role="Revised translation by" in e.g. /records/24674/ (test #155)
 							break;
 							
-						# Requires - the overall record must have the specified XPath entry
+						# Requires - the overall record must have the specified XPath entry; e.g. // /records/139689/ (test #156), /records/101462/ (test #157)
 						case 'REQUIRES':
 							$keep = ($this->muscatConversion->xPathValue ($this->xml, $matches[3]));
 							break;
@@ -899,7 +899,7 @@ class generateAuthors
 		
 		// application::dumpData ($relatorTerms);
 		
-		# Convert entities
+		# Convert entities; e.g. /records/10004/ (test #147)
 		$relatorTerms = $this->entitiesToUtf8List ($relatorTerms);
 		
 		# Return the list
@@ -1215,7 +1215,7 @@ class generateAuthors
 		return array (
 			'Commander',
 			'Hon',
-			'Sir',
+			'Sir',							// /records/1201/ (test #142)
 			'Abb&eacute;',
 			'Admiral',
 			'Admiral Lord',
@@ -1230,7 +1230,7 @@ class generateAuthors
 			'Bishop',
 			'Brigadier',
 			'Brigadier-General',
-			'Capit&aacute;n',
+			'Capit&aacute;n',				// /records/53959/ (test #143)
 			'Capitan',
 			'Capt.',
 			'Captain',
@@ -1333,7 +1333,7 @@ class generateAuthors
 			'1st Baron Tweedsmuir',
 			'1st Marquis of Dufferin and Ava',
 			'2nd Baron',
-			'2nd Baron Tweedsmuir',
+			'2nd Baron Tweedsmuir',				// /records/23362/ (test #144)
 			'4th Baron',
 			'Agent-General for Victoria',
 			'Archbishop of Uppsala',
@@ -1396,7 +1396,7 @@ class generateAuthors
 	private function betweenN1AndN2 ()
 	{
 		return array (
-			'Freiherr von',
+			'Freiherr von',		// /records/3180/ (test #145)
 		);
 	}
 	
@@ -1638,7 +1638,7 @@ class generateAuthors
 				'voorwoord',
 				'vorgemerkungen',
 				'vorwort',
-				'with//ONLY:with',	// Full match just for 'with'
+				'with//ONLY:with',	// Full match just for 'with'; e.g. /records/122529/ (test #152), /records/1253/ (test #153)
 				'zusammenarbeit',
 			),
 			
@@ -1668,9 +1668,9 @@ class generateAuthors
 			
 			'editor' => array (
 				'a cura',
-				'&aacute;tdolgozta',
+				'&aacute;tdolgozta',	// /records/10004/ (test #147)
 				'bearbeitet',
-				'co-editor',
+				'co-editor',			// /records/181142/ (test #146)
 				'co-editors',
 				'corrected',
 				'ed.',
@@ -1731,7 +1731,7 @@ class generateAuthors
 				'narrated',
 				'narration',
 				'narrator',
-				'presented//REQUIRES://form',
+				'presented//REQUIRES://form',	// /records/139689/ (test #156), /records/101462/ (test #157)
 				'presenter',
 				'read',
 			),
@@ -1883,7 +1883,7 @@ class generateAuthors
 	{
 		return array (
 			'pseud.',
-			'Campsterianus',
+			'Campsterianus',	// /records/1218/ (test #148)
 			'Pseud',
 			'pseudonym',
 		);
@@ -1895,9 +1895,9 @@ class generateAuthors
 	{
 		return array (
 			'OMI',
-			'O.M.I.',
+			'O.M.I.',						// /records/19171/ (test #150), /records/18045/ (test #151)
 			'SGM',
-			'Zoological Museum at Berlin',
+			'Zoological Museum at Berlin',	// /records/165077/ (test #149)
 		);
 	}
 	

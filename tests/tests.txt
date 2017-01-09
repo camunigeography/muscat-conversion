@@ -607,7 +607,7 @@ In *nd classification, handle special-cases which generate a ‡b
 In *ad classification, date appears as ‡d
 6575
 100
-Williams,‡d 1863-1945.
+,‡d 1863-1945.
 
 101
 In *ad classification, avoid space after comma before ‡d to avoid Bibcheck error "100: Subfield d must be preceded by a comma"
@@ -831,6 +831,101 @@ Conference handling for US Congress (see also previous test)
 111
 ‡aConference on Soil-Water Problems in Cold Regions ‡n(2nd :‡d1976 :‡cEdmonton, Alberta)
 
+138
+1xx *n2 basic handling
+1296
+100
+‡aStansfield, J. J.
+
+139
+1xx *n2 fuller form of name
+170179
+700
+‡aIrons, David B. ‡q(David Bruce)
+
+140
+1xx *n2 fuller form of name with entities
+4366
+100
+‡aFaye, H. ‡q(Hervé)
+
+141
+Check for *a not containing a *nd (see also next test)
+1105
+100
+/‡aOrvik, James M.$/
+
+142
+Check for *a containing a *nd (see also previous test)
+1201
+100
+,‡cSir.
+
+143
+1xx *nd prefix with entities
+53959
+100
+,‡cCapitán.
+
+144
+1xx *nd suffix
+23362
+100
+,‡c2nd Baron Tweedsmuir.
+
+145
+1xx *nd between *n1 and *n2
+3180
+700
+,‡cFreiherr von
+
+146
+Basic relator term handling
+181142
+710
+,‡eeditor.
+
+147
+Basic relator term handling with entities
+10004
+700
+,‡eeditor.
+
+148
+*nd misc list handling in 1xx; also: has space after ‡g
+1218
+100
+‡g (Campsterianus)
+
+149
+*ad affiliation list handling in 1xx (partial string)
+165077
+100
+‡uZoological Museum at Berlin
+
+150
+*ad affiliation list handling in 1xx (complete string match)
+19171
+100
+, ‡uO.M.I.
+
+151
+*ad affiliation with ‡c and ‡u
+18045
+100
+,‡cRev.,‡uO.M.I.
+
+152
+Relator term handling with //ONLY flag (exact match)
+122529
+700
+,‡econtributor.
+
+153
+Relator term handling with //ONLY flag (partial match)
+1253
+700
+,‡eillustrator.
 
 154
 Relator term handling with //NOT flag (positive match)
@@ -843,3 +938,17 @@ Relator term handling with //NOT flag (negative match)
 24674
 !700
 ‡eeditor
+
+156
+Relator term handling with //REQUIRES flag (positive match)
+139689
+700
+‡enarrator
+
+157
+Relator term handling with //REQUIRES flag (negative match)
+101462
+!700
+‡enarrator
+
+
