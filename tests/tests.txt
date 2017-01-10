@@ -1254,3 +1254,16 @@ Lord Terry Lewin.
 1113
 245
 ‡cPacific Circle Consortium.
+
+208
+880 245 unexpand initials to remove spaces works after transliteration
+194996
+880
+Е.В. Напрасникова.
+
+209
+245 unexpand initials correct for initial plus name
+1139
+245
+‡cC. Huntly Gordon.
+

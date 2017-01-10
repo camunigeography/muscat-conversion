@@ -364,9 +364,9 @@ class generate245
 	# Function to unexpand initials to remove spaces; this is the opposite of spaceOutInitials() in generateAuthors
 	private function unspaceOutInitials ($string)
 	{
-		# Any initials should be not be separated by a space; e.g. /records/203294/ , /records/203317/ , /records/6557/ , /records/202992/
-		# This is tolerant of transliterated Cyrillic values, e.g. /records/194996/ which has "Ye.V."
-		# This also ensures each group is an initial, e.g. avoiding /records/1139/ which has "C. Huntly"; /records/1410/ which has S. le R. (test #203)
+		# Any initials should be not be separated by a space; e.g. /records/203294/ , /records/203317/ , /records/6557/ , /records/202992/, /records/1135/ (test #202)
+		# This is tolerant of transliterated Cyrillic values, e.g. /records/194996/ which has "Ye.V." - actually no longer relevant; however, /records/194996/ confirms transliterated version works fine (test #208)
+		# This also ensures each group is an initial, e.g. avoiding /records/1139/ which has "C. Huntly" (test #209); /records/1410/ which has S. le R. (test #203)
 		$regexp = '/\b([^ ]{1,2})(\.) ([^ ]{1,2})(\.)/u';
 		while (preg_match ($regexp, $string)) {
 			$string = preg_replace ($regexp, '\1\2\3\4', $string);
