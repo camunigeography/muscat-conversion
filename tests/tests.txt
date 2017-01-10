@@ -1267,3 +1267,38 @@ Lord Terry Lewin.
 245
 ‡cC. Huntly Gordon.
 
+210
+245 Classify single value *nd field prefixes list items handling with *nd *n2 *n1
+184117
+245
+‡cAdmiral of the Fleet, Sir Henry Leach.
+
+211
+245 Classify single value *nd field prefixes list items handling with *nd *n1
+4252
+245
+‡cAmiral Pâris.
+
+212
+245 Classify single value *nd field prefixes list items with entities
+19668
+245
+‡cKommandørkaptajn F.C.S. Bangsbøll.
+
+213
+245 Classify single value *nd field between *n1 and *n2 list
+3180
+245
+‡cSigismund, Freiherr von Herberstein,
+
+214
+245 Classify single value *nd field *n2 *n1 *nd suffix
+1983
+245
+Harris B. Stewart, Jr.
+
+215
+245 Classify single value *nd field *n1 *nd
+4019
+245
+‡cH.L.L., pseud.

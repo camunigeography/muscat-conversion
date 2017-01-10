@@ -381,17 +381,17 @@ class generate245
 	private function classifySingleValueNdField ($n1, $n2, $nd)
 	{
 		# Does the value of the *nd appear on the Prefix list?
-		$prefixes = $this->entitiesToUtf8List ($this->prefixes ());
+		$prefixes = $this->entitiesToUtf8List ($this->prefixes ());	// e.g. /records/19668/ has entities (test #212)
 		if (in_array ($nd, $prefixes)) {
 			
-			# Add to 245 field: <*nd> <*n2> <*n1> [or just <*nd> <*n1> if no <*n2>]
+			# Add to 245 field: <*nd> <*n2> <*n1>; e.g. /records/184117/ (records #210) [or just <*nd> <*n1> if no <*n2>; e.g. /records/4252/ (records #211) ]
 			$string  = $nd . ' ';
 			$string .= ($n2 ? $n2 . ' ' : '');
 			$string .= $n1;
 			return $string;
 		}
 		
-		# Does the value of the *nd appear on the Between *n1 and *n2 list?
+		# Does the value of the *nd appear on the Between *n1 and *n2 list? E.g. /records/3180/ (test #213)
 		$betweenN1AndN2 = $this->entitiesToUtf8List ($this->betweenN1AndN2 ());
 		if (in_array ($nd, $betweenN1AndN2)) {
 			
@@ -402,7 +402,7 @@ class generate245
 			return $string;
 		}
 		
-		# Add to 245 field: <*n2> <*n1>, <*nd> [or just <*n1>, <*nd> if no <*n2>]
+		# Add to 245 field: <*n2> <*n1>, <*nd>; e.g. /records/1983/ (records #214) [or just <*n1>, <*nd> if no <*n2>; e.g. /records/4019/ (records #215#) ]
 		$string  = ($n2 ? $n2 . ' ' : '');
 		$string .= $n1 . ', ';
 		$string .= $nd;
@@ -410,7 +410,7 @@ class generate245
 	}
 	
 	
-	# Function to convert entities in a list (e.g. &eacute => é) to unicode
+	# Function to convert entities in a list (e.g. &eacute => é) to unicode; e.g. /records/19668/ has entities (test #212)
 	#!# Copied from generateAuthors
 	private function entitiesToUtf8List ($listRaw)
 	{
@@ -489,7 +489,7 @@ class generate245
 			'Hon.',
 			'Ing.',
 			'Kapit&auml;n',
-			'Kommand&oslash;rkaptajn',
+			'Kommand&oslash;rkaptajn',	// /records/19668/ (test #212)
 			'Korv. Kapt.',
 			'L\'Abb&eacute;',
 			'l\'Ain&eacute;',
