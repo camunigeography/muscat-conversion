@@ -313,12 +313,13 @@ class generate245
 		# Start the string
 		$string = '';
 		
-		# Obtain the n1/n2/nd values
+		# Obtain the n1/n2/nd values; e.g. /records/1201/ (test #201)
 		$n1 = $this->muscatConversion->xPathValue ($this->xml, $pathPrefix . '/n1');
 		$n2 = $this->muscatConversion->xPathValue ($this->xml, $pathPrefix . '/n2');
 		$nd = $this->muscatConversion->xPathValue ($this->xml, $pathPrefix . '/nd');
 		
-		# Initials should not be spaced out; see: "One space is used between preceding and succeeding initials if an abbreviation consists of more than a single letter." at https://www.loc.gov/marc/bibliographic/bd245.html
+		# Initials should not be spaced out for 245; e.g. /records/1135/ (test #202)
+		# See: "When adjacent initials appear in a title separated or not separated by periods, no spaces are recorded between the letters or periods." "One space is used between preceding and succeeding initials if an abbreviation consists of more than a single letter." at https://www.loc.gov/marc/bibliographic/bd245.html
 		if (strlen ($n2)) {
 			$n2 = $this->unspaceOutInitials ($n2);
 		}
@@ -326,17 +327,17 @@ class generate245
 		# Does the *a or *n contain a *nd?
 		if ($nd) {
 			
-			# If present, strip out leading '\v' and trailing '\n'; e.g. see /records/118086/
+			# If present, strip out leading '\v' and trailing '\n'; e.g. see /records/118086/ (test #204)
 			$nd = strip_tags ($nd);		// \v and \n have been converted to HTML italic tags in the catalogue_processed stage
 			
 			# *nd
 			switch ($nd) {
 				
-				# Classify Multiple Value *nd Field
+				# Classify Multiple Value *nd Field; e.g. /records/172094/ (test #205)
 				case 'Sr SGM':
 					$string .= "Sr {$n2} {$n1} (SGM)"; break;
 				case 'Lord, 1920-1999':
-					$string .= "Lord {$n2} {$n1}"; break;
+					$string .= "Lord {$n2} {$n1}"; break;	// /records/172094/ (test #205)
 				case 'Rev., O.M.I.':
 					$string .= "Rev. {$n2} {$n1}"; break;
 				case 'I, Prince of Monaco':
@@ -349,7 +350,7 @@ class generate245
 					$string .= $this->classifySingleValueNdField ($n1, $n2, $nd);
 			}
 			
-		# Add to 245 field: <*n2> <*n1> [or just <*n1> if no <*n2>]
+		# Add to 245 field: <*n2> <*n1> [or just <*n1> if no <*n2>]; e.g. /records/1134/ (test #206), /records/1113/ (test #207)
 		} else {
 			$string .= ($n2 ? $n2 . ' ' : '');
 			$string .= $n1;
@@ -365,7 +366,7 @@ class generate245
 	{
 		# Any initials should be not be separated by a space; e.g. /records/203294/ , /records/203317/ , /records/6557/ , /records/202992/
 		# This is tolerant of transliterated Cyrillic values, e.g. /records/194996/ which has "Ye.V."
-		# This also ensures each group is an initial, e.g. avoiding /records/1139/ which has "C. Huntly".
+		# This also ensures each group is an initial, e.g. avoiding /records/1139/ which has "C. Huntly"; /records/1410/ which has S. le R. (test #203)
 		$regexp = '/\b([^ ]{1,2})(\.) ([^ ]{1,2})(\.)/u';
 		while (preg_match ($regexp, $string)) {
 			$string = preg_replace ($regexp, '\1\2\3\4', $string);

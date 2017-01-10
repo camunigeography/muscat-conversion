@@ -1212,3 +1212,45 @@ Compiled by I.L. Zherebt͡sov.
 3876
 245
 drawings by A. Faguet, Mesnel, Emile Bayard and J. Stewart
+
+201
+245 Extraction of *n1, *n2, *nd
+1201
+245
+‡cSir Richard Collinson.
+
+202
+245 Initials are not spaced out
+1135
+245
+‡cR.R.
+
+203
+245 Initials spacing handling
+1410
+245
+S. le R.
+
+204
+245 Clear italics from *nd
+118086
+245
+‡cSr Alice Romanchuk (SGM).
+
+205
+245 *nd special cases
+172094
+245
+Lord Terry Lewin.
+
+206
+245 with *n2
+1134
+245
+‡cInigo Everson
+
+207
+245 without *n2
+1113
+245
+‡cPacific Circle Consortium.
