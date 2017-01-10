@@ -1081,14 +1081,104 @@ microorganisms‡h[Microfiche]
 245
 /\)\.$/
 
+179
+*ser gets no Statement of Responsibility in 245
+1058
+!245
+‡c
+
+180
+Basic Statement of Responsibility existence test
+1159
+245
+ /‡cJoëlle Robert-Lamblin.
+
+181
+245 *doc Statement of Responsibility starts with first *doc/*ag/*a
+1121
+245
+‡cNunam Kitlutsisti
+
+182
+245 *doc Statement of Responsibility continues with second *doc/*ag/*a
+1121
+245
+‡cNunam Kitlutsisti, Mary Lenz
+
+183
+245 *art Statement of Responsibility starts with first *art/*ag/*a
+1135
+245
+‡cR.R. Makarov
+
+184
+245 *art Statement of Responsibility continues with second *art/*ag/*a
+1135
+245
+‡cR.R. Makarov, C.J. Denys
+
+185
+245 *art Statement of Responsibility continues with as many authors as present
+181939
+245
+‡cP.J. Barrett, L. Carter, D. Damiani, G.B. Dunbar, E. Dunker, G. Giorgetti, M.A. Harper, R.M. McKay, F. Niessen, U. Nixdorf, A.R. Pyne, C. Riesselmann, N. Robinson, C. Hollis, P. Strong.
+
+186
+245 *art Statement of Responsibility multiple authors separated by comma-space
+1135
+245
+Makarov, C.J.
+
 187
 245 *art Statement of Responsibility multiple author groups separated by space-semicolon-space
 134805
 245
 H. Maitre ; F.
 
+188
+245 *art Statement of Responsibility multiple author groups with second author in second group
+133876
+245
+‡cJ. Walden ; J.P. Smith, R.V. Dackombe ; J. Rose.
+
+189
+245 *art Statement of Responsibility does not show *aff value
+133876
+!245
+GBR-UO-SG
+
 190
-245 art Statement of Responsibility punctuation when 'and 5 others'
+245 *art Statement of Responsibility punctuation when 'and 5 others'
 131672
 245
 Cortijo ; and 5 others.
+
+191
+245 Statement of Responsibility handling of *ad
+149106
+245
+‡cA.R. Artemʹev, ed.
+
+192
+245 Statement of Responsibility handling of multiple *ad in an *ag
+162152
+245
+‡cV.A. Aleksandrov, and 11 others, eds.
+
+193
+245 If *ag/*a group is '-' (e.g. due to *n1 = '-' only), skip entry in Statement of Responsibility
+178946
+!245
+‡c
+
+194
+245 If *ag/*a group is '-' (e.g. due to *n1 = '-' only), skip entry in Statement of Responsibility (with *ad also present)
+115773
+!245
+‡c
+
+195
+245 Add each *e role and siblings
+2930
+245
+‡cÉlie Le Guillou ; Edited by J. Arago.

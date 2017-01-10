@@ -198,32 +198,32 @@ class generate245
 	# Statement of Responsibility
 	private function statementOfResponsibility ()
 	{
-		# End if not required
+		# End if not required; e.g. /records/1058/ (which is *ser) has no $c (test #179)
 		if (!$this->createStatementOfResponsibility) {return;}
 		
-		# Start the Statement of Responsibility
+		# Start the Statement of Responsibility; e.g. /records/1159/ has a SoR (test #180)
 		$statementOfResponsibility = ' /' . "{$this->doubleDagger}c";
 		
-		# Look at first or only *doc/*ag/*a OR *art/*ag/*a
-		# THEN: Is there another *a in the parent  *doc/*ag OR *art/*ag which has not already been included in this 245 field? E.g. see /records/181939/
+		# Look at first or only *doc/*ag/*a OR *art/*ag/*a ; e.g. /records/1121/ (test #181), /records/1135/ (test #182)
+		# THEN: Is there another *a in the parent  *doc/*ag OR *art/*ag which has not already been included in this 245 field? E.g. /records/1121/ (test #183), /records/1135/ (test #184), /records/181939/ (test #185)
 		# THEN: Is there another *ag in the parent  *doc OR *art, whose *a fields have not already been included in this 245 field?
 		$agIndex = 1;
 		while ($this->muscatConversion->xPathValue ($this->xml, "{$this->mainRecordTypePrefix}/ag[$agIndex]")) {		// Check if *ag container exists
 			
 			# Separate multiple author groups with a semicolon-space; e.g. /records/134805/ (test #187), /records/131672/ (test #190)
-			#!# Need to fix failing testcase /records/131672/ #190
+			#!# Need to fix failing test #190
 			if ($agIndex > 1) {
 				$statementOfResponsibility .= ' ; ';
 			}
 			
-			# Loop through each *a (author) in this *ag (author group)
+			# Loop through each *a (author) in this *ag (author group); e.g. /records/1121/ (test #183), /records/1135/ (test #184), /records/181939/ (test #185)
 			$aIndex = 1;	// XPaths are indexed from 1, not 0
 			while ($string = $this->classifyNdField ("{$this->mainRecordTypePrefix}/ag[$agIndex]/a[{$aIndex}]")) {
 				
-				# Separate multiple authors with a comma-space
 				# Some records like /records/178946/ have *n1 = '-' which should presumably not generate an entry
 				#!# Not yet implemented
 				
+				# Separate multiple authors with a comma-space; e.g. /records/1135/ (test #186)
 				if ($aIndex > 1) {
 					$statementOfResponsibility .= ', ';
 				}
@@ -235,10 +235,10 @@ class generate245
 				$aIndex++;
 			}
 			
-			# Is there a *ad in the parent  *doc/*ag OR *art/*ag?
+			# Is there a *ad in the parent  *doc/*ag OR *art/*ag? E.g. /records/149106/ has one (test #191); /records/162152/ has multiple (test #192); /records/149107/ has implied ordering of 1+2 but this is not feasible to generalise
 			# Does the *ad have the value '-'?
-			if ($ad = $this->muscatConversion->xPathValues ($this->xml, "{$this->mainRecordTypePrefix}/ag[$agIndex]/ad[%i]")) {		// e.g. /records/149106/ has one; /records/162152/ has multiple; /records/149107/ has implied ordering of 1+2 but this is not feasible to generalise
-				$isSingleDash = (count ($ad) == 1 && $ad[1] == '-');	// NB No actual examples of any *ad = '-' across whole catalogue
+			if ($ad = $this->muscatConversion->xPathValues ($this->xml, "{$this->mainRecordTypePrefix}/ag[$agIndex]/ad[%i]")) {
+				$isSingleDash = (count ($ad) == 1 && $ad[1] == '-');	// NB No actual examples of any *ad = '-' across whole catalogue, so no testcase
 				if (!$isSingleDash) {
 					$statementOfResponsibility .= ', ' . implode (', ', $ad);	// Does not get transliterated, e.g. 'eds.'
 				}
@@ -248,7 +248,7 @@ class generate245
 			$agIndex++;
 		}
 		
-		# Does the record contain at least one *e?; e.g. /records/2930/
+		# Does the record contain at least one *e?; e.g. /records/2930/ (test #195)
 		$eIndex = 1;
 		while ($this->muscatConversion->xPathValue ($this->xml, "//e[$eIndex]")) {		// Check if *e container exists
 			
