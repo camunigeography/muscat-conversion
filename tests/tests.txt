@@ -1188,3 +1188,27 @@ Cortijo ; and 5 others.
 145630
 245
 ‡cTranslated by Henry Myers.
+
+197
+245 Role and siblings construction
+1844
+245
+Compiled by I.L. Zherebt͡sov.
+
+198
+245 Role and siblings construction (multiple *e groups)
+2295
+245
+; Additional work by Leclerc de Buffon ; revised order, notes and additions by C.S. Sonnini.
+
+199
+245 Role and siblings construction (two *n groups in *e)
+1639
+245
+; Translated from the Icelandic by Eiríkr Magnússon and William Morris.
+
+200
+245 Role and siblings construction (three *n groups in *e, triggering comma-and)
+3876
+245
+drawings by A. Faguet, Mesnel, Emile Bayard and J. Stewart

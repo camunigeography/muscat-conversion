@@ -280,16 +280,16 @@ class generate245
 	}
 	
 	
-	# Function to deal with a role and siblings; NB this is also used directly by the generate250b macro
+	# Function to deal with a role and siblings; NB this is also used directly by the generate250b macro; e.g. /records/1844/ (test #197), and /records/2295/ which has multiple *e (test #198)
 	# NB There are no cases in the data of 250 (which uses *ee) being in Russian, as verified by: `SELECT *  FROM catalogue_processed WHERE field LIKE 'n%' AND xPath LIKE '%/ee%' AND recordLanguage = 'Russian';`
 	public function roleAndSiblings ($path)
 	{
-		# Obtain the role value, or end if none
+		# Obtain the role value, or end if none; no examples so no testcase
 		if (!$role = $this->muscatConversion->xPathValue ($this->xml, $path . '/role')) {
 			return false;
 		}
 		
-		# Loop through each *a (author) in this *e/*ee
+		# Loop through each *a (author) in this *e/*ee; e.g. /records/1844/ (test #197)
 		$subValues = array ();
 		$nIndex = 1;	// XPaths are indexed from 1, not 0
 		while ($string = $this->classifyNdField ($path . "/n[$nIndex]")) {
@@ -299,7 +299,7 @@ class generate245
 			$nIndex++;
 		}
 		
-		# Compile the entry
+		# Compile the entry; e.g. /records/1639/ (test #199) and /records/3876/ (test #200) which have multiple
 		$result = $role . ' ' . application::commaAndListing ($subValues);
 		
 		# Return the value
