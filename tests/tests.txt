@@ -1080,3 +1080,15 @@ microorganisms‡h[Microfiche]
 1058
 245
 /\)\.$/
+
+187
+245 *art Statement of Responsibility multiple author groups separated by space-semicolon-space
+134805
+245
+H. Maitre ; F.
+
+190
+245 art Statement of Responsibility punctuation when 'and 5 others'
+131672
+245
+Cortijo ; and 5 others.

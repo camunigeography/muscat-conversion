@@ -210,9 +210,10 @@ class generate245
 		$agIndex = 1;
 		while ($this->muscatConversion->xPathValue ($this->xml, "{$this->mainRecordTypePrefix}/ag[$agIndex]")) {		// Check if *ag container exists
 			
-			# Separate multiple author groups with a semicolon-space
+			# Separate multiple author groups with a semicolon-space; e.g. /records/134805/ (test #187), /records/131672/ (test #190)
+			#!# Need to fix failing testcase /records/131672/ #190
 			if ($agIndex > 1) {
-				$statementOfResponsibility .= '; ';
+				$statementOfResponsibility .= ' ; ';
 			}
 			
 			# Loop through each *a (author) in this *ag (author group)
