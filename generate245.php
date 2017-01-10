@@ -221,6 +221,9 @@ class generate245
 			while ($string = $this->classifyNdField ("{$this->mainRecordTypePrefix}/ag[$agIndex]/a[{$aIndex}]")) {
 				
 				# Separate multiple authors with a comma-space
+				# Some records like /records/178946/ have *n1 = '-' which should presumably not generate an entry
+				#!# Not yet implemented
+				
 				if ($aIndex > 1) {
 					$statementOfResponsibility .= ', ';
 				}
@@ -235,7 +238,6 @@ class generate245
 			# Is there a *ad in the parent  *doc/*ag OR *art/*ag?
 			# Does the *ad have the value '-'?
 			if ($ad = $this->muscatConversion->xPathValues ($this->xml, "{$this->mainRecordTypePrefix}/ag[$agIndex]/ad[%i]")) {		// e.g. /records/149106/ has one; /records/162152/ has multiple; /records/149107/ has implied ordering of 1+2 but this is not feasible to generalise
-				#!# Check what should happen for cases similar to /records/178946/ (which has an *ag not an *ad) - presumably "Does the *ad have the value '-'?" actually refers to n1 instead
 				$isSingleDash = (count ($ad) == 1 && $ad[1] == '-');	// NB No actual examples of any *ad = '-' across whole catalogue
 				if (!$isSingleDash) {
 					$statementOfResponsibility .= ', ' . implode (', ', $ad);	// Does not get transliterated, e.g. 'eds.'
