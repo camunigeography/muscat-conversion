@@ -1182,3 +1182,9 @@ Cortijo ; and 5 others.
 2930
 245
 ‡cÉlie Le Guillou ; Edited by J. Arago.
+
+196
+245 No semicolon separator if *e without *ag
+145630
+245
+‡cTranslated by Henry Myers.
