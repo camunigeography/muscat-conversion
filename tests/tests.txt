@@ -11,6 +11,7 @@
 # Coverage level:
 # generateAuthors: 100%
 # generate008: 100%
+# generate245: 100%
 
 
 1
