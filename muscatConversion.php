@@ -961,7 +961,7 @@ class muscatConversion extends frontControllerApplication
 		$structure = trim ($structure);
 		
 		# Remove spaces if not formatted
-		#!# This is rather hacky
+		#!#C This is rather hacky
 		if (!$formatted) {
 			$structure = str_replace (array ("\n", "\r", "\t"), '', $structure);
 		}
@@ -1007,9 +1007,9 @@ class muscatConversion extends frontControllerApplication
 	private function recordForm (&$html, $miniform = false)
 	{
 		# Cache _GET and remove the action, to avoid ultimateForm thinking the form has been submitted
-		#!# This is a bit hacky, but is necessary because we set name=false in the ultimateForm constructor
+		#!#C This is a bit hacky, but is necessary because we set name=false in the ultimateForm constructor
 		$get = $_GET;	// Cache
-		#!# This general scenario is best dealt with in future by adding a 'getIgnore' parameter to the ultimateForm constructor
+		#!#C This general scenario is best dealt with in future by adding a 'getIgnore' parameter to the ultimateForm constructor
 		if (isSet ($_GET['action'])) {unset ($_GET['action']);}
 		if (isSet ($_GET['item'])) {unset ($_GET['item']);}
 		if (isSet ($_GET['thousand'])) {unset ($_GET['thousand']);}
@@ -4479,7 +4479,7 @@ class muscatConversion extends frontControllerApplication
 		$supportedMacros = $this->marcConversion->getSupportedMacros ();
 		
 		# Display a flash message if set
-		#!# Flash message support needs to be added to ultimateForm natively, as this is a common use-case
+		#!#C Flash message support needs to be added to ultimateForm natively, as this is a common use-case
 		$successMessage = 'The definition has been updated.';
 		if ($flashValue = application::getFlashMessage ('submission', $this->baseUrl . '/')) {
 			$message = "\n" . "<p>{$this->tick} <strong>" . $successMessage . '</strong></p>';
@@ -4672,7 +4672,7 @@ class muscatConversion extends frontControllerApplication
 		$language = 'Russian';
 		
 		# Display a flash message if set
-		#!# Flash message support needs to be added to ultimateForm natively, as this is a common use-case
+		#!#C Flash message support needs to be added to ultimateForm natively, as this is a common use-case
 		$successMessage = 'The definition has been updated.';
 		if ($flashValue = application::getFlashMessage ('submission', $this->baseUrl . '/')) {
 			$html .= "\n<div class=\"graybox flashmessage\">";
@@ -4771,7 +4771,7 @@ class muscatConversion extends frontControllerApplication
 		$html  = '';
 		
 		# Display a flash message if set
-		#!# Flash message support needs to be added to ultimateForm natively, as this is a common use-case
+		#!#C Flash message support needs to be added to ultimateForm natively, as this is a common use-case
 		$successMessage = 'The definition has been updated.';
 		if ($flashValue = application::getFlashMessage ('submission', $this->baseUrl . '/')) {
 			$message = "\n" . "<p>{$this->tick} <strong>" . $successMessage . '</strong></p>';

@@ -1635,7 +1635,7 @@ class marcConversion
 	
 	
 	# Helper function to determine the record type
-	#!# Copied from generate008 class
+	#!#C Copied from generate008 class
 	private function recordType ($xml)
 	{
 		# Determine the record type, used by subroutines

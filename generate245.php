@@ -119,7 +119,7 @@ class generate245
 	
 	
 	# Helper function to determine the record type
-	#!# Copied from generate008 class
+	#!#C Copied from generate008 class
 	private function recordType ()
 	{
 		# Determine the record type, used by subroutines
@@ -411,7 +411,7 @@ class generate245
 	
 	
 	# Function to convert entities in a list (e.g. &eacute => é) to unicode; e.g. /records/19668/ has entities (test #212)
-	#!# Copied from generateAuthors
+	#!#C Copied from generateAuthors; confirmed the same in January 2017
 	private function entitiesToUtf8List ($listRaw)
 	{
 		# Loop through each item in the list
@@ -428,7 +428,7 @@ class generate245
 	
 	
 	# List of prefixes; keep in sync with generateAuthors::prefixes()
-	#!# Ideally for coding purity, load this from a tables/ file - currently it is duplicated code copied from generateAuthors, and should be kept in sync
+	#!#C Copied from generateAuthors; confirmed the same in January 2017
 	private function prefixes ()
 	{
 		return array (
@@ -542,11 +542,11 @@ class generate245
 	
 	
 	# List of between *n1 and *n2
-	#!# Copied from generateAuthors
+	#!#C Copied from generateAuthors; confirmed the same in January 2017
 	private function betweenN1AndN2 ()
 	{
 		return array (
-			'Freiherr von',
+			'Freiherr von',		// /records/3180/ (test #145)
 		);
 	}
 }
