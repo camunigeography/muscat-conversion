@@ -189,7 +189,6 @@ class muscatConversion extends frontControllerApplication
 			'username' => NULL,
 			'password' => NULL,
 			'table' => false,	// Not used
-			'chunkEvery' => 2500,
 			'debugMode' => false,
 			'paginationRecordsPerPageDefault' => 50,
 			'div' => strtolower (__CLASS__),
@@ -1998,9 +1997,10 @@ class muscatConversion extends frontControllerApplication
 		# Start a container for the current record
 		$record = array ();
 		
-		# Read the file, one line at a time (file_get_contents would be too inefficient for a 220MB file if converted to an array of 190,000 records)
+		# Read the file, one line at a time (file_get_contents would be too inefficient for a 220MB file if converted to an array of 215,000 records)
 		$handle = fopen ($exportFile, 'rb');
 		$recordCounter = 0;
+		$chunkEvery = 2500;
 		while (($line = fgets ($handle, 4096)) !== false) {
 			
 			# If the line is empty, this signifies the end of the record, so compile and process the record
@@ -2009,9 +2009,9 @@ class muscatConversion extends frontControllerApplication
 				# Compile the record, adding it to the CSV string
 				$csv .= $this->addRecord ($record);
 				
-				# Every 1,000 records, append the data to the CSV to avoid large memory usage
+				# For every chunk, append the data to the CSV to avoid large memory usage
 				$recordCounter++;
-				if (($recordCounter % $this->settings['chunkEvery']) == 0) {
+				if (($recordCounter % $chunkEvery) == 0) {
 					file_put_contents ($csvFilename, $csv, FILE_APPEND);
 					$csv = '';
 				}
