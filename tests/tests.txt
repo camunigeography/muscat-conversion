@@ -9,9 +9,10 @@
 # Pattern (either simple string or regexp starting with slash delimeter)
 
 # Coverage level:
-# generateAuthors: 100%
+# createMarcExport: 100%
 # generate008: 100%
 # generate245: 100%
+# generateAuthors: 100%
 
 
 1
@@ -1303,3 +1304,83 @@ Harris B. Stewart, Jr.
 4019
 245
 ‡cH.L.L., pseud.
+
+216
+Place code xxu (USA) with no further detail is valid as SPRI has no further data, but triggers Bibcheck warning to check
+1199
+008
+xxu
+
+217
+Date range 196u in 008 is valid, but wrongly triggers Bibcheck error now whitelisted
+1150
+008
+196u####
+
+218
+Dollar in 245 is not an indicator, but wrongly triggers Bibcheck error now whitelisted
+203691
+245
+Trust $100 club
+
+219
+300 $a map is valid, but wrongly triggers Bibcheck error now whitelisted
+54670
+300
+‡aMap folio
+
+220
+300 should not split word 'bibliography' with ‡b
+54670
+300
+bibliography
+
+221
+300 should not end up with ‡a with value colon
+151371
+!300
+‡a:‡bmap
+
+222
+Dollar in 300 is not an indicator, but wrongly triggers Bibcheck error now whitelisted
+38727
+300
+, $4.95
+
+223
+Dollar in 520 is not an indicator, but wrongly triggers Bibcheck error now whitelisted
+140044
+520
+index (θ .\$t/h²\$).
+
+224
+Dollar in 541 is not an indicator, but wrongly triggers Bibcheck error now whitelisted
+145475
+541
+‡h34.95 AUS$ ‡5
+
+225
+Money value string $5 in 541 is not an indicator, but wrongly triggers Bibcheck error about repeatable field now whitelisted
+9220
+541
+‡h$50.00 ‡5UkCU-P
+
+226
+541 has $5 set, but triggers Bibcheck warning to check
+9220
+541
+‡5UkCU-P
+
+227
+008 position 33 is correctly set to a, despite wrongly triggering Bibcheck error now whitelisted
+1061
+008
+#a|
+
+228
+Record ID in 001 contains prefix 'SPRI-', which createMarcExport relies on
+1061
+001
+SPRI-1061
+
+
