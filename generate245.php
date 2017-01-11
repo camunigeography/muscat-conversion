@@ -427,15 +427,14 @@ class generate245
 	}
 	
 	
-	# List of prefixes
-	#!# Copied from generateAuthors
-	#!# Need to check this is intended to be exactly the same
+	# List of prefixes; keep in sync with generateAuthors::prefixes()
+	#!# Ideally for coding purity, load this from a tables/ file - currently it is duplicated code copied from generateAuthors, and should be kept in sync
 	private function prefixes ()
 	{
 		return array (
 			'Commander',
 			'Hon',
-			'Sir',
+			'Sir',							// /records/1201/ (test #142)
 			'Abb&eacute;',
 			'Admiral',
 			'Admiral Lord',
@@ -450,7 +449,7 @@ class generate245
 			'Bishop',
 			'Brigadier',
 			'Brigadier-General',
-			'Capit&aacute;n',
+			'Capit&aacute;n',				// /records/53959/ (test #143)
 			'Capitan',
 			'Capt.',
 			'Captain',

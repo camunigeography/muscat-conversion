@@ -1208,7 +1208,7 @@ class generateAuthors
 	}
 	
 	
-	# List of prefixes
+	# List of prefixes; keep in sync with generate245::prefixes()
 	private function prefixes ()
 	{
 		return array (
@@ -1268,7 +1268,7 @@ class generateAuthors
 			'Hon.',
 			'Ing.',
 			'Kapit&auml;n',
-			'Kommand&oslash;rkaptajn',
+			'Kommand&oslash;rkaptajn',	// /records/19668/ (test #212)
 			'Korv. Kapt.',
 			'L\'Abb&eacute;',
 			'l\'Ain&eacute;',
