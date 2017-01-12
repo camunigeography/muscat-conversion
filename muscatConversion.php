@@ -3972,7 +3972,7 @@ class muscatConversion extends frontControllerApplication
 		# Generate the result
 		$updates = array ();
 		foreach ($data as $recordId => $ts) {
-			$result = $this->marcConversion->macro_generate490 ($ts, NULL, NULL, NULL, $matchedRegexp);
+			$result = $this->marcConversion->macro_generate490 ($ts, NULL, NULL, $matchedRegexp);
 			$subfieldValues = $this->marcConversion->parseSubfieldsToPairs ($result, $knownSingular = true);
 			$updates[$recordId] = array (
 				'a' => $subfieldValues['a'],

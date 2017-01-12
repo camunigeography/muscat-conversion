@@ -1,7 +1,7 @@
 <?php
 
 
-#!# Improve efficiency in this class by creating properties (e.g. XML, authorsFields, and recordId) instead of passing them around or looking-up several times
+#!# Improve efficiency in this class by creating properties (e.g. XML) instead of passing them around or looking-up several times
 
 
 # Class to handle conversion of the data to MARC format
@@ -66,13 +66,13 @@ class marcConversion
 		require_once ('generateAuthors.php');
 		$languageModes = array_merge (array ('default'), array_keys ($this->supportedReverseTransliterationLanguages));		// Feed in the languages list, with 'default' as the first
 		$generateAuthors = new generateAuthors ($this, $xml, $languageModes);
-		$authorsFields = $generateAuthors->getValues ();
+		$this->authorsFields = $generateAuthors->getValues ();
 		
 		# Up-front, look up the host record, if any
 		$this->hostRecord = $this->lookupHostRecord ($xml);
 		
 		# Perform XPath replacements
-		if (!$datastructure = $this->convertToMarc_PerformXpathReplacements ($datastructure, $xml, $authorsFields, $errorString)) {return false;}
+		if (!$datastructure = $this->convertToMarc_PerformXpathReplacements ($datastructure, $xml, $errorString)) {return false;}
 		
 		# Expand vertically-repeatable fields
 		if (!$datastructure = $this->convertToMarc_ExpandVerticallyRepeatableFields ($datastructure, $errorString)) {return false;}
@@ -444,7 +444,7 @@ class marcConversion
 	
 	
 	# Function to perform Xpath replacements
-	private function convertToMarc_PerformXpathReplacements ($datastructure, $xml, $authorsFields, &$errorString = '')
+	private function convertToMarc_PerformXpathReplacements ($datastructure, $xml, &$errorString = '')
 	{
 		# Lookup XPath values from the record which are needed multiple times, for efficiency
 		$this->form = $this->xPathValue ($xml, '(//form)[1]', false);
@@ -530,10 +530,10 @@ class marcConversion
 						# For a vertically-repeatable field, process each value; otherwise process the compiled string
 						if ($isVerticallyRepeatable || $isHorizontallyRepeatable) {
 							foreach ($value as $index => $subValue) {
-								$value[$index] = $this->processMacros ($xml, $subValue, $macros, $authorsFields);
+								$value[$index] = $this->processMacros ($xml, $subValue, $macros);
 							}
 						} else {
-							$value = $this->processMacros ($xml, $value, $macros, $authorsFields);
+							$value = $this->processMacros ($xml, $value, $macros);
 						}
 					}
 					
@@ -736,7 +736,7 @@ class marcConversion
 	
 	
 	# Function to process strings through macros; macros should return a processed string, or false upon failure
-	private function processMacros ($xml, $string, $macros, $authorsFields)
+	private function processMacros ($xml, $string, $macros)
 	{
 		# Pass the string through each macro in turn
 		foreach ($macros as $macro) {
@@ -754,9 +754,9 @@ class marcConversion
 			# Pass the string through the macro
 			$macroMethod = 'macro_' . $macro;
 			if (is_null ($parameter)) {
-				$string = $this->{$macroMethod} ($string, $xml, NULL, $authorsFields);
+				$string = $this->{$macroMethod} ($string, $xml, NULL);
 			} else {
-				$string = $this->{$macroMethod} ($string, $xml, $parameter, $authorsFields);
+				$string = $this->{$macroMethod} ($string, $xml, $parameter);
 			}
 			
 			// Continue to next macro (if any), using the processed string as it now stands
@@ -1263,10 +1263,10 @@ class marcConversion
 	
 	
 	# Macro to set an indicator based on the presence of a 100/110 field; e.g. /records/1844/
-	private function macro_indicator1xxPresent ($defaultValue, $xml, $setValueIfAuthorsPresent, $authorsFields)
+	private function macro_indicator1xxPresent ($defaultValue, $xml, $setValueIfAuthorsPresent)
 	{
 		# If authors field present, return the new value
-		if (strlen ($authorsFields['default'][100]) || strlen ($authorsFields['default'][110]) || strlen ($authorsFields['default'][111])) {
+		if (strlen ($this->authorsFields['default'][100]) || strlen ($this->authorsFields['default'][110]) || strlen ($this->authorsFields['default'][111])) {
 			return $setValueIfAuthorsPresent;
 		}
 		
@@ -1439,7 +1439,7 @@ class marcConversion
 	
 	
 	# Function to perform transliteration on specified subfields present in a full line; this is basically a tokenisation wrapper to macro_transliterate
-	public function macro_transliterateSubfields ($value, $xml, $applyToSubfields, $authorsFields_ignored, $language = false)
+	public function macro_transliterateSubfields ($value, $xml, $applyToSubfields, $language = false)
 	{
 		# If a forced language is not specified, obtain the language value for the record
 		if (!$language) {
@@ -1732,7 +1732,7 @@ class marcConversion
 	
 	
 	# Macro for generating an authors field, e.g. 100
-	private function macro_generateAuthors ($value, $xml, $arg, $authorsFields)
+	private function macro_generateAuthors ($value, $xml, $arg)
 	{
 		# Parse the arguments
 		$fieldNumber = $arg;	// Default single argument representing the field number
@@ -1748,7 +1748,7 @@ class marcConversion
 		}
 		
 		# Return the value (which may be false, meaning no field should be created)
-		return $authorsFields[$languageMode][$fieldNumber];
+		return $this->authorsFields[$languageMode][$fieldNumber];
 	}
 	
 	
@@ -1838,7 +1838,7 @@ class marcConversion
 	
 	
 	# Macro for generating the 245 field
-	private function macro_generate245 ($value, $xml, $flag, $authorsFields)
+	private function macro_generate245 ($value, $xml, $flag)
 	{
 		# If running in transliteration mode, require a supported language
 		$languageMode = 'default';
@@ -1848,7 +1848,7 @@ class marcConversion
 		
 		# Subclass, due to the complexity of this field
 		require_once ('generate245.php');
-		$generate245 = new generate245 ($this, $xml, $authorsFields, $languageMode);
+		$generate245 = new generate245 ($this, $xml, $this->authorsFields, $languageMode);
 		$value = $generate245->main ($error);
 		if ($error) {
 			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';
@@ -1860,7 +1860,7 @@ class marcConversion
 	
 	
 	# Macro for generating the 250 field
-	private function macro_generate250 ($value, $xml, $ignored, $authorsFields)
+	private function macro_generate250 ($value, $xml, $ignored)
 	{
 		# Start an array of subfields
 		$subfields = array ();
@@ -1871,7 +1871,7 @@ class marcConversion
 		}
 		
 		# Implement subfield $b; examples given in the function
-		if ($b = $this->generate250b ($value, $xml, $ignored, $authorsFields)) {
+		if ($b = $this->generate250b ($value, $xml, $ignored, $this->authorsFields)) {
 			$subfields[] = "{$this->doubleDagger}b" . $b;
 		}
 		
@@ -1890,11 +1890,11 @@ class marcConversion
 	
 	
 	# Helper function for generating the 250 $b subfield
-	private function generate250b ($value, $xml, $ignored, $authorsFields)
+	private function generate250b ($value, $xml, $ignored)
 	{
 		# Use the role-and-siblings part of the 245 processor
 		require_once ('generate245.php');
-		$generate245 = new generate245 ($this, $xml, $authorsFields);
+		$generate245 = new generate245 ($this, $xml, $this->authorsFields);
 		
 		# Create the list of subvalues if there is *ee?; e.g. /records/3887/ , /records/7017/ (has multiple *ee and multiple *n within this) , /records/45901/ , /records/168490/
 		$subValues = array ();
@@ -1919,7 +1919,7 @@ class marcConversion
 	#!# Currently almost all parts of the conversion system assume a single *ts - this will need to be fixed; likely also to need to expand 880 mirrors to be repeatable
 	#!# Repeatability experimentally added to 490 at definition level, but this may not work properly as the field reads in *vno for instance; all derived uses of *ts need to be checked
 	#!# Issue of missing $a needs to be resolved in original data
-	public function macro_generate490 ($ts, $xml, $ignored, $authorsFieldsIgnored, &$matchedRegexp = false)
+	public function macro_generate490 ($ts, $xml, $ignored, &$matchedRegexp = false)
 	{
 		# Obtain the *ts value or end
 		if (!strlen ($ts)) {return false;}
@@ -2328,13 +2328,13 @@ class marcConversion
 	
 	
 	# Macro to generate the 500 (displaying free-form text version of 773), whose logic is closely associated with 773
-	private function macro_generate500 ($value, $xml, $parameter_unused, $authorsFields_unused)
+	private function macro_generate500 ($value, $xml, $parameter_unused)
 	{
 		#!# In the case of all records whose serial title is listed in /reports/seriestitlemismatches3/ , need to branch at this point and create a 500 note from the local information (i.e. the record itself, not the parent, as in 773 below)
 		
 		
 		# Get the data from the 773
-		if (!$result = $this->macro_generate773 ($value, $xml, $parameter_unused, $authorsFields_unused, $mode500 = true)) {return false;}
+		if (!$result = $this->macro_generate773 ($value, $xml, $parameter_unused, $mode500 = true)) {return false;}
 		
 		# Strip subfield indicators
 		$result = $this->stripSubfields ($result);
@@ -2382,7 +2382,7 @@ class marcConversion
 	
 	# Macro to generate the 773 (Host Item Entry) field; see: http://www.loc.gov/marc/bibliographic/bd773.html ; e.g. /records/2071/
 	#!# 773 is not currently being generated for /art/j analytics (generally *location=Periodical); this is because of the *kg check below; the spec needs to define some implementation for this; for *location=Pam, the same information goes in a 500 field rather than a 773; again this needs a spec
-	private function macro_generate773 ($value, $xml, $parameter_unused, $authorsFields_unused, $mode500 = false)
+	private function macro_generate773 ($value, $xml, $parameter_unused, $mode500 = false)
 	{
 		# Start a result
 		$result = '';
