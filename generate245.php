@@ -4,10 +4,10 @@
 class generate245
 {
 	# Constructor
-	public function __construct ($muscatConversion, $xml, $authorsFields, $languageMode = 'default')
+	public function __construct ($marcConversion, $xml, $authorsFields, $languageMode = 'default')
 	{
 		# Create a class property handle to the parent class
-		$this->muscatConversion = $muscatConversion;
+		$this->marcConversion = $marcConversion;
 		
 		# Create a handle to the XML
 		$this->xml = $xml;
@@ -19,7 +19,7 @@ class generate245
 		$this->languageMode = $languageMode;
 		
 		# Determine the *form value
-		$this->form = $this->muscatConversion->xPathValue ($this->xml, '(//form)[1]', false);
+		$this->form = $this->marcConversion->xPathValue ($this->xml, '(//form)[1]', false);
 		
 		# Define unicode symbols
 		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
@@ -40,7 +40,7 @@ class generate245
 		}
 		
 		# Obtain the title, by looking at *ser/*tg/*t OR *doc/*tg/*t OR *art/*tg/*t
-		$this->t = $this->muscatConversion->xPathValue ($this->xml, "{$this->mainRecordTypePrefix}/tg/t");
+		$this->t = $this->marcConversion->xPathValue ($this->xml, "{$this->mainRecordTypePrefix}/tg/t");
 		
 		# Transliterate title (used for $a and possible $b) if required
 		if ($this->languageMode != 'default') {
@@ -49,8 +49,8 @@ class generate245
 			$lptFieldXpath = "{$this->mainRecordTypePrefix}/lpt";
 			
 			# Do the transliteration; e.g. /records/210651/ (test #165)
-			$lpt = $this->muscatConversion->xPathValue ($this->xml, $lptFieldXpath);	// Languages of parallel title, e.g. "Russian = English"
-			$this->t = $this->muscatConversion->transliteration->transliterateLocLatinToCyrillic ($this->t, $lpt, $error, $nonTransliterable /* passed back by reference */);	// (test #49)
+			$lpt = $this->marcConversion->xPathValue ($this->xml, $lptFieldXpath);	// Languages of parallel title, e.g. "Russian = English"
+			$this->t = $this->marcConversion->transliteration->transliterateLocLatinToCyrillic ($this->t, $lpt, $error, $nonTransliterable /* passed back by reference */);	// (test #49)
 			
 			# End if the transliteration has determined that the string is not actually intended for transliteration, e.g. [Titles fully in brackets like this]; e.g. /records/31750/
 			if ($nonTransliterable) {return false;}
@@ -74,7 +74,7 @@ class generate245
 		$value .= $statementOfResponsibility;
 		
 		# Ensure the value ends with a dot (even if other punctuation is already present); e.g. /records/137684/ , /records/178352/ avoids two dots (test #177); also /records/1058/ which ends with ) so gets ). (test #178)
-		$value = $this->muscatConversion->macro_dotEnd ($value, NULL, $extendedCharacterList = false);
+		$value = $this->marcConversion->macro_dotEnd ($value, NULL, $extendedCharacterList = false);
 		
 		# Return the value
 		return $value;
@@ -111,7 +111,7 @@ class generate245
 	{
 		# Does the *t start with a leading article? E.g. /records/1110/ (test #169), /records/1134/ (test #170), /records/103693/ (test #171)
 		$nfCountLanguage = ($this->languageMode == 'default' ? false : $this->languageMode);	// Language mode relates to transliteration; languages like German should still have nfCount but will have 'default' language transliteration mode
-		$leadingArticleCharacterCount = $this->muscatConversion->macro_nfCount ($this->t, $this->xml, $nfCountLanguage);
+		$leadingArticleCharacterCount = $this->marcConversion->macro_nfCount ($this->t, $this->xml, $nfCountLanguage);
 		
 		# Return the leading articles count
 		return $leadingArticleCharacterCount;
@@ -130,7 +130,7 @@ class generate245
 			'/ser',
 		);
 		foreach ($recordTypes as $recordType) {
-			if ($this->muscatConversion->xPathValue ($this->xml, $recordType)) {
+			if ($this->marcConversion->xPathValue ($this->xml, $recordType)) {
 				return $recordType;	// Match found
 			}
 		}
@@ -147,7 +147,7 @@ class generate245
 		$title = '';
 		
 		# Does the record contain a *form? If multiple *form values, separate using semicolon in same square brackets
-		$form = $this->muscatConversion->xPathValue ($this->xml, '(//form)[1]', false);	// The data is known to have max one form per record
+		$form = $this->marcConversion->xPathValue ($this->xml, '(//form)[1]', false);	// The data is known to have max one form per record
 		
 		# Ensure the title is not empty
 		$t = $this->t;
@@ -208,7 +208,7 @@ class generate245
 		# THEN: Is there another *a in the parent  *doc/*ag OR *art/*ag which has not already been included in this 245 field? E.g. /records/1121/ (test #183), /records/1135/ (test #184), /records/181939/ (test #185)
 		# THEN: Is there another *ag in the parent  *doc OR *art, whose *a fields have not already been included in this 245 field?
 		$agIndex = 1;
-		while ($this->muscatConversion->xPathValue ($this->xml, "{$this->mainRecordTypePrefix}/ag[$agIndex]")) {		// Check if *ag container exists
+		while ($this->marcConversion->xPathValue ($this->xml, "{$this->mainRecordTypePrefix}/ag[$agIndex]")) {		// Check if *ag container exists
 			
 			# Start a list of non-empty authors for this *ag
 			$authorsThisAg = array ();
@@ -224,7 +224,7 @@ class generate245
 				}
 				
 				# Register this author value
-				$authorsThisAg[] = ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliteration->transliterateLocLatinToCyrillic ($string, false));
+				$authorsThisAg[] = ($this->languageMode == 'default' ? $string : $this->marcConversion->transliteration->transliterateLocLatinToCyrillic ($string, false));
 				
 				# Next *a
 				$aIndex++;
@@ -241,7 +241,7 @@ class generate245
 			
 			# Is there a *ad in the parent  *doc/*ag OR *art/*ag? E.g. /records/149106/ has one (test #191); /records/162152/ has multiple (test #192); /records/149107/ has implied ordering of 1+2 but this is not feasible to generalise
 			# Does the *ad have the value '-'?
-			if ($ad = $this->muscatConversion->xPathValues ($this->xml, "{$this->mainRecordTypePrefix}/ag[$agIndex]/ad[%i]")) {
+			if ($ad = $this->marcConversion->xPathValues ($this->xml, "{$this->mainRecordTypePrefix}/ag[$agIndex]/ad[%i]")) {
 				$isSingleDash = (count ($ad) == 1 && $ad[1] == '-');	// NB No actual examples of any *ad = '-' across whole catalogue, so no testcase
 				if (!$isSingleDash) {
 					$authorsThisAg .= ', ' . implode (', ', $ad);	// Does not get transliterated, e.g. 'eds.'
@@ -257,7 +257,7 @@ class generate245
 		
 		# Does the record contain at least one *e?; e.g. /records/2930/ (test #195)
 		$eIndex = 1;
-		while ($this->muscatConversion->xPathValue ($this->xml, "//e[$eIndex]")) {		// Check if *e container exists
+		while ($this->marcConversion->xPathValue ($this->xml, "//e[$eIndex]")) {		// Check if *e container exists
 			
 			# Add to 245 field: ; <*e/*role>
 			$peopleGroups[] = $this->roleAndSiblings ("//e[$eIndex]");
@@ -285,7 +285,7 @@ class generate245
 	public function roleAndSiblings ($path)
 	{
 		# Obtain the role value, or end if none; no examples so no testcase
-		if (!$role = $this->muscatConversion->xPathValue ($this->xml, $path . '/role')) {
+		if (!$role = $this->marcConversion->xPathValue ($this->xml, $path . '/role')) {
 			return false;
 		}
 		
@@ -293,7 +293,7 @@ class generate245
 		$subValues = array ();
 		$nIndex = 1;	// XPaths are indexed from 1, not 0
 		while ($string = $this->classifyNdField ($path . "/n[$nIndex]")) {
-			$subValues[] = ($this->languageMode == 'default' ? $string : $this->muscatConversion->transliteration->transliterateLocLatinToCyrillic ($string, false));	// e.g. /records/1844/ (test #50)
+			$subValues[] = ($this->languageMode == 'default' ? $string : $this->marcConversion->transliteration->transliterateLocLatinToCyrillic ($string, false));	// e.g. /records/1844/ (test #50)
 			
 			# Next
 			$nIndex++;
@@ -314,9 +314,9 @@ class generate245
 		$string = '';
 		
 		# Obtain the n1/n2/nd values; e.g. /records/1201/ (test #201)
-		$n1 = $this->muscatConversion->xPathValue ($this->xml, $pathPrefix . '/n1');
-		$n2 = $this->muscatConversion->xPathValue ($this->xml, $pathPrefix . '/n2');
-		$nd = $this->muscatConversion->xPathValue ($this->xml, $pathPrefix . '/nd');
+		$n1 = $this->marcConversion->xPathValue ($this->xml, $pathPrefix . '/n1');
+		$n2 = $this->marcConversion->xPathValue ($this->xml, $pathPrefix . '/n2');
+		$nd = $this->marcConversion->xPathValue ($this->xml, $pathPrefix . '/nd');
 		
 		# Initials should not be spaced out for 245; e.g. /records/1135/ (test #202)
 		# See: "When adjacent initials appear in a title separated or not separated by periods, no spaces are recorded between the letters or periods." "One space is used between preceding and succeeding initials if an abbreviation consists of more than a single letter." at https://www.loc.gov/marc/bibliographic/bd245.html
