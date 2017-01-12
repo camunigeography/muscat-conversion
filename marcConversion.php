@@ -58,6 +58,9 @@ class marcConversion
 		# Determine the record number, used by several macros
 		$this->recordId = $this->xPathValue ($this->xml, '//q0');
 		
+		# Determine the record type
+		$this->recordType = $this->recordType ();
+		
 		# Up-front, process author fields
 		require_once ('generateAuthors.php');
 		$languageModes = array_merge (array ('default'), array_keys ($this->supportedReverseTransliterationLanguages));		// Feed in the languages list, with 'default' as the first
@@ -1071,9 +1074,6 @@ class marcConversion
 		# Determine *p or *pt
 		$value = (strlen ($p) ? $p : $pt);		// Confirmed there are no records with both *p and *pt
 		
-		# Obtain the record type
-		$recordType = $this->recordType ($this->xml);
-		
 		# Firstly, break off any final + section, for use in $e below; e.g. /records/67235/
 		$e = false;
 		if (substr_count ($value, '+')) {
@@ -1109,12 +1109,12 @@ class marcConversion
 		
 		# $a (R) (Extent, pagination): If record is *doc with any or no *form, or *art with *form CD, CD-ROM, DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording: "(*v), (*p or *pt)" [all text up to and including ':']
 		# $a (R) (Extent, pagination): If record is *art with no *form or *form other than listed above: 'p. '*pt [number range after ':' and before ',']
-		if (($recordType == '/doc') || (substr_count ($recordType, '/art') && in_array ($this->form, array ('CD', 'CD-ROM', 'DVD', 'DVD-ROM', 'Sound Cassette', 'Sound Disc' or 'Videorecording')))) {
+		if (($this->recordType == '/doc') || (substr_count ($this->recordType, '/art') && in_array ($this->form, array ('CD', 'CD-ROM', 'DVD', 'DVD-ROM', 'Sound Cassette', 'Sound Disc' or 'Videorecording')))) {
 			$v = $this->xPathValue ($this->xml, '//v');
 			if (strlen ($v)) {
 				$result .= $v . ($a ? ' ' : ($b ? ',' : ''));	// e.g. /records/20704/ , /records/37420/ , /records/175872/ , /records/8988/
 			}
-		} else if (substr_count ($recordType, '/art')) {		// Not in the list of *form above
+		} else if (substr_count ($this->recordType, '/art')) {		// Not in the list of *form above
 			#!# This needs to be resolved - there are 29064 records whose XML has *pt starting with a colon: SELECT * FROM `catalogue_xml` WHERE `xml` LIKE '%<pt>:%' ; e.g. /records/1160/ which has "300 ## $a:1066-1133." which is surely wrong
 			// $result .= 'p. ';	// Spec unclear - subsequent instruction was "/records/152332/ still contains a spurious 'p' in the $a - please ensure this is not added to the record"
 		}
@@ -1150,7 +1150,7 @@ class marcConversion
 		
 		# End if no value; in this scenario, no $c should be created, i.e. the whole routine should be ended
 		if (!strlen ($result) || $value == 'unpaged') {	 // 'unpaged' at /records/1248/
-			$result = ($recordType == '/ser' ? 'v.' : '1 volume (unpaged)');	// e.g. /records/1000/ , /records/1019/ (confirmed to be fine) , /records/1332/
+			$result = ($this->recordType == '/ser' ? 'v.' : '1 volume (unpaged)');	// e.g. /records/1000/ , /records/1019/ (confirmed to be fine) , /records/1332/
 		}
 		
 		# $c (R) (Dimensions): *size ; e.g. /records/1103/ , multiple in /records/4329/
@@ -1582,8 +1582,7 @@ class marcConversion
 			'/doc'		=> 'm',
 			'/ser'		=> 's',
 		);
-		$recordType = $this->recordType ($this->xml);
-		$string .= $position7Values[$recordType];
+		$string .= $position7Values[$this->recordType];
 		
 		# Position 08: Type of control
 		$string .= '#';
@@ -1633,7 +1632,7 @@ class marcConversion
 	
 	# Helper function to determine the record type
 	#!#C Copied from generate008 class
-	private function recordType ($xml)
+	private function recordType ()
 	{
 		# Determine the record type, used by subroutines
 		$recordTypes = array (
@@ -1643,7 +1642,7 @@ class marcConversion
 			'/ser',
 		);
 		foreach ($recordTypes as $recordType) {
-			if ($this->xPathValue ($xml, $recordType)) {
+			if ($this->xPathValue ($this->xml, $recordType)) {
 				return $recordType;	// Match found
 			}
 		}
@@ -2391,15 +2390,12 @@ class marcConversion
 		# Parse out the host record
 		$marc = $this->parseMarcRecord ($this->hostRecord);
 		
-		# Obtain the record type
-		$recordType = $this->recordType ($this->xml);
-		
 		# Start a list of subfields
 		$subfields = array ();
 		
 		# Add 773 ‡a; *art/*in records only
 		#!# Needs implementation for things that are /art/j
-		if ($recordType == '/art/in') {
+		if ($this->recordType == '/art/in') {
 			
 			# If the host record has a 100 field, copy in the 1XX (Main entry heading) from the host record, omitting subfield codes; otherwise use 245 $c
 			if (isSet ($marc['100'])) {
@@ -2424,7 +2420,7 @@ class marcConversion
 		}
 		
 		# Add 773 ‡d: Copy in the 260 (Place, publisher, and date of publication) from the host record, omitting subfield codes; *art/*in records only
-		if ($recordType == '/art/in') {
+		if ($this->recordType == '/art/in') {
 			if (isSet ($marc['260'])) {
 				
 				# If publisher and year are present, use (no-space)-comma-space for the splitter between those two, combining them before colon splitting of other fields; e.g. /records/2614/ ; confirmed that, if reaching this point, $marc['260'][0]['subfields'] always contains 3 subfields
@@ -2441,7 +2437,7 @@ class marcConversion
 		}
 		
 		# Add 773 ‡g: *pt (Related parts) [of child record, i.e. not host record]; *art/*j only
-		if ($recordType == '/art/j') {
+		if ($this->recordType == '/art/j') {
 			if ($pt = $this->xPathValue ($this->xml, '/art/j/pt')) {	// e.g. /records/14527/
 				$subfields[] = "{$this->doubleDagger}g" . $pt;
 			}
