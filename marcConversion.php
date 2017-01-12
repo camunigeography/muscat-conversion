@@ -1,9 +1,5 @@
 <?php
 
-
-#!# Improve efficiency in this class by creating properties (e.g. XML) instead of passing them around or looking-up several times
-
-
 # Class to handle conversion of the data to MARC format
 class marcConversion
 {
@@ -754,9 +750,9 @@ class marcConversion
 			# Pass the string through the macro
 			$macroMethod = 'macro_' . $macro;
 			if (is_null ($parameter)) {
-				$string = $this->{$macroMethod} ($string, $this->xml, NULL);
+				$string = $this->{$macroMethod} ($string, NULL);
 			} else {
-				$string = $this->{$macroMethod} ($string, $this->xml, $parameter);
+				$string = $this->{$macroMethod} ($string, $parameter);
 			}
 			
 			// Continue to next macro (if any), using the processed string as it now stands
@@ -799,7 +795,7 @@ class marcConversion
 	
 	
 	# Macro to prepend a string if there is a value
-	private function macro_prepend ($value, $xml, $text)
+	private function macro_prepend ($value, $text)
 	{
 		# Return unmodified if no value
 		if (!$value) {return $value;}
@@ -810,27 +806,27 @@ class marcConversion
 	
 	
 	# Macro to check existence
-	private function macro_ifValue ($value, $xml, $xPath)
+	private function macro_ifValue ($value, $xPath)
 	{
-		return ($this->xPathValue ($xml, $xPath) ? $value : false);
+		return ($this->xPathValue ($this->xml, $xPath) ? $value : false);
 	}
 	
 	
 	# Macro to upper-case the first character
-	private function macro_ucfirst ($value, $xml)
+	private function macro_ucfirst ($value)
 	{
 		return mb_ucfirst ($value);
 	}
 	
 	
 	# Macro to implement a ternary check
-	private function macro_ifElse ($value_ignored /* If empty, the macro will not even be called, so the value has to be passed in by parameter */, $xml, $parameters)
+	private function macro_ifElse ($value_ignored /* If empty, the macro will not even be called, so the value has to be passed in by parameter */, $parameters)
 	{
 		# Parse the parameters
 		list ($xPath, $ifValue, $elseValue) = explode (',', $parameters, 3);
 		
 		# Determine the value
-		$value = $this->xPathValue ($xml, $xPath);
+		$value = $this->xPathValue ($this->xml, $xPath);
 		
 		# Return the result
 		return ($value ? $ifValue : $elseValue);
@@ -838,7 +834,7 @@ class marcConversion
 	
 	
 	# Splitting of strings with colons in
-	private function macro_colonSplit ($value, $xml, $splitMarker)
+	private function macro_colonSplit ($value, $splitMarker)
 	{
 		# Return unmodified if no split
 		if (!preg_match ('/^([^:]+) ?: (.+)$/', $value, $matches)) {
@@ -867,7 +863,7 @@ class marcConversion
 	
 	
 	# Splitting of strings with a dot
-	private function macro_dotSplit ($value, $xml, $splitMarker)
+	private function macro_dotSplit ($value, $splitMarker)
 	{
 		# Return unmodified if no split
 		if (!preg_match ('/^([^:]+) ?\. (.+)$/', $value, $matches)) {
@@ -883,7 +879,7 @@ class marcConversion
 	
 	
 	# Ending strings with dots
-	public function macro_dotEnd ($value, $xml_ignored, $extendedCharacterList = false)
+	public function macro_dotEnd ($value, $extendedCharacterList = false)
 	{
 		# End if no value
 		if (!strlen ($value)) {return $value;}
@@ -917,17 +913,17 @@ class marcConversion
 	
 	
 	# Macro to get multiple values as an array
-	private function macro_multipleValues ($value_ignored, $xml, $parameter)
+	private function macro_multipleValues ($value_ignored, $parameter)
 	{
 		$parameter = "({$parameter})[%i]";
-		$values = $this->xPathValues ($xml, $parameter, false);		// e.g. /records/2071/ for 546 $a //lang ; /records/6321/ for 260 $c //d
+		$values = $this->xPathValues ($this->xml, $parameter, false);		// e.g. /records/2071/ for 546 $a //lang ; /records/6321/ for 260 $c //d
 		$values = array_unique ($values);
 		return $values;
 	}
 	
 	
 	# Macro to implode subvalues
-	private function macro_implode ($values, $xml, $parameter)
+	private function macro_implode ($values, $parameter)
 	{
 		# Return empty string if no values
 		if (!$values) {return '';}
@@ -938,7 +934,7 @@ class marcConversion
 	
 	
 	# Macro to implode subvalues with the comma-and algorithm; e.g. as used for 546 (example record: /records/160854/ )
-	private function macro_commaAnd ($values, $xml, $parameter)
+	private function macro_commaAnd ($values, $parameter)
 	{
 		# Return empty string if no values
 		if (!$values) {return '';}
@@ -949,14 +945,14 @@ class marcConversion
 	
 	
 	# Macro to create 260;  $a and $b are grouped as there may be more than one publisher, e.g. /records/76743/ ; see: https://www.loc.gov/marc/bibliographic/bd260.html
-	private function macro_generate260 ($value_ignored, $xml, $transliterate = false)
+	private function macro_generate260 ($value_ignored, $transliterate = false)
 	{
 		# Start a list of values; the macro definition has already defined $a
 		$results = array ();
 		
 		# Loop through each /*pg/*[pl|pu] group; e.g. /records/76742/
 		for ($pgIndex = 1; $pgIndex <= 20; $pgIndex++) {	// XPaths are indexed from 1, not 0
-			$pg = $this->xPathValue ($xml, "//pg[{$pgIndex}]");
+			$pg = $this->xPathValue ($this->xml, "//pg[{$pgIndex}]");
 			
 			# Break out of loop if no more
 			if ($pgIndex > 1) {
@@ -966,16 +962,16 @@ class marcConversion
 			# Obtain the raw *pl value(s) for this *pg group
 			$plValues = array ();
 			for ($plIndex = 1; $plIndex <= 20; $plIndex++) {
-				$plValue = $this->xPathValue ($xml, "//pg[$pgIndex]/pl[{$plIndex}]");	// e.g. /records/1639/ has multiple
+				$plValue = $this->xPathValue ($this->xml, "//pg[$pgIndex]/pl[{$plIndex}]");	// e.g. /records/1639/ has multiple
 				if ($plIndex > 1 && !strlen ($plValue)) {break;}	// Empty $pl is fine for first and will show [S.l.], but after that should not appear
 				$plValues[] = $this->formatPl ($plValue);
 			}
 			
 			# Obtain the raw *pu value(s) for this *pg group
-			$puValue = $this->xPathValue ($xml, "//pg[$pgIndex]/pu");
+			$puValue = $this->xPathValue ($this->xml, "//pg[$pgIndex]/pu");
 			$puValues = array ();
 			for ($puIndex = 1; $puIndex <= 20; $puIndex++) {
-				$puValue = $this->xPathValue ($xml, "//pg[$pgIndex]/pu[{$puIndex}]");	// e.g. /records/1223/ has multiple
+				$puValue = $this->xPathValue ($this->xml, "//pg[$pgIndex]/pu[{$puIndex}]");	// e.g. /records/1223/ has multiple
 				if ($puIndex > 1 && !strlen ($puValue)) {break;}	// Empty $pu is fine for first and will show [s.n.], but after that should not appear
 				$puValues[] = $this->formatPu ($puValue);
 			}
@@ -985,7 +981,7 @@ class marcConversion
 				if ($puValues) {
 					foreach ($puValues as $index => $puValue) {
 						$xPath = '//lang[1]';	// Choose first only
-						$language = $this->xPathValue ($xml, $xPath);
+						$language = $this->xPathValue ($this->xml, $xPath);
 						$puValues[$index] = $this->macro_transliterate ($puValue, NULL, $language);
 					}
 				}
@@ -1006,13 +1002,13 @@ class marcConversion
 		$result = implode (' ;', $results);
 		
 		# Add $c if present; confirmed these should be treated as a single $c, comma-separated, as we have no grouping information
-		if ($dateValues = $this->xPathValues ($xml, '(//d)[%i]', false)) {
+		if ($dateValues = $this->xPathValues ($this->xml, '(//d)[%i]', false)) {
 			if ($result) {$result .= ',';}
 			$result .= "{$this->doubleDagger}c" . implode (', ', $dateValues);
 		}
 		
 		# Ensure dot at end
-		$result = $this->macro_dotEnd ($result, NULL, $extendedCharacterList = true);
+		$result = $this->macro_dotEnd ($result, $extendedCharacterList = true);
 		
 		# Return the result
 		return $result;
@@ -1059,24 +1055,24 @@ class marcConversion
 	# Note: the original data is not normalised, and the spec does not account for all cases, so the implementation here is based also on observation of various records and on examples in the MARC spec, to aim for something that is 'good enough' and similar enough to the MARC examples
 	# At its most basic level, in "16p., ill.", $a is the 16 pages, $b is things after
 	#!# Everything before a colon should describe a volume or issue number, which should end up in a 490 or 500 instead of 300 - to be discussed
-	private function macro_generate300 ($value_ignored, $xml)
+	private function macro_generate300 ($value_ignored)
 	{
 		# Start a result
 		$result = '';
 		
 		# Obtain *p
-		$pValues = $this->xPathValues ($xml, '(//p)[%i]', false);	// Multiple *p, e.g. /records/6002/ , /records/15711/
+		$pValues = $this->xPathValues ($this->xml, '(//p)[%i]', false);	// Multiple *p, e.g. /records/6002/ , /records/15711/
 		$p = ($pValues ? implode ('; ', $pValues) : '');
 		
 		# Obtain *pt
-		$ptValues = $this->xPathValues ($xml, '(//pt)[%i]', false);	// Multiple *p, e.g. /records/25179/
+		$ptValues = $this->xPathValues ($this->xml, '(//pt)[%i]', false);	// Multiple *p, e.g. /records/25179/
 		$pt = ($ptValues ? implode ('; ', $ptValues) : '');		// Decided in internal meeting to use semicolon, as comma is likely to be present within a component
 		
 		# Determine *p or *pt
 		$value = (strlen ($p) ? $p : $pt);		// Confirmed there are no records with both *p and *pt
 		
 		# Obtain the record type
-		$recordType = $this->recordType ($xml);
+		$recordType = $this->recordType ($this->xml);
 		
 		# Firstly, break off any final + section, for use in $e below; e.g. /records/67235/
 		$e = false;
@@ -1114,7 +1110,7 @@ class marcConversion
 		# $a (R) (Extent, pagination): If record is *doc with any or no *form, or *art with *form CD, CD-ROM, DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording: "(*v), (*p or *pt)" [all text up to and including ':']
 		# $a (R) (Extent, pagination): If record is *art with no *form or *form other than listed above: 'p. '*pt [number range after ':' and before ',']
 		if (($recordType == '/doc') || (substr_count ($recordType, '/art') && in_array ($this->form, array ('CD', 'CD-ROM', 'DVD', 'DVD-ROM', 'Sound Cassette', 'Sound Disc' or 'Videorecording')))) {
-			$v = $this->xPathValue ($xml, '//v');
+			$v = $this->xPathValue ($this->xml, '//v');
 			if (strlen ($v)) {
 				$result .= $v . ($a ? ' ' : ($b ? ',' : ''));	// e.g. /records/20704/ , /records/37420/ , /records/175872/ , /records/8988/
 			}
@@ -1125,8 +1121,8 @@ class marcConversion
 		
 		# If there is a *vno but no *ts (and so no 490 will be created), add this at the start, before any pagination data from *pt; e.g. /records/5174/
 		$vnoPrefix = false;
-		if ($vno = $this->xPathValue ($xml, '//vno')) {
-			if (!$ts = $this->xPathValue ($xml, '//ts')) {
+		if ($vno = $this->xPathValue ($this->xml, '//vno')) {
+			if (!$ts = $this->xPathValue ($this->xml, '//ts')) {
 				$a = $vno . (strlen ($a) ? ', ' : '') . $a;
 			}
 		}
@@ -1158,7 +1154,7 @@ class marcConversion
 		}
 		
 		# $c (R) (Dimensions): *size ; e.g. /records/1103/ , multiple in /records/4329/
-		$size = $this->xPathValues ($xml, '(//size)[%i]', false);
+		$size = $this->xPathValues ($this->xml, '(//size)[%i]', false);
 		if ($size) {
 			
 			# Normalise " cm." to avoid Bibcheck errors; e.g. /records/2709/ , /records/4331/ , /records/54851/ ; have checked no valid inner cases of cm
@@ -1178,7 +1174,7 @@ class marcConversion
 		}
 		
 		# Ensure 300 ends in a dot or closing bracket
-		$result = $this->macro_dotEnd (trim ($result), NULL, '.)]');
+		$result = $this->macro_dotEnd (trim ($result), '.)]');
 		
 		# Return the result
 		return $result;
@@ -1222,7 +1218,7 @@ class marcConversion
 	
 	
 	# Macro to generate the leading article count; this does not actually modify the string itself - just returns a number
-	public function macro_nfCount ($value, $xml_ignored, $language = false, $externalXml = NULL)
+	public function macro_nfCount ($value, $language = false, $externalXml = NULL)
 	{
 		# Get the leading articles list, indexed by language
 		$leadingArticles = $this->leadingArticles ();
@@ -1264,7 +1260,7 @@ class marcConversion
 	
 	
 	# Macro to set an indicator based on the presence of a 100/110 field; e.g. /records/1844/
-	private function macro_indicator1xxPresent ($defaultValue, $xml, $setValueIfAuthorsPresent)
+	private function macro_indicator1xxPresent ($defaultValue, $setValueIfAuthorsPresent)
 	{
 		# If authors field present, return the new value
 		if (strlen ($this->authorsFields['default'][100]) || strlen ($this->authorsFields['default'][110]) || strlen ($this->authorsFields['default'][111])) {
@@ -1363,18 +1359,18 @@ class marcConversion
 	
 	
 	# Macro to convert language codes and notes for the 041 field; see: http://www.loc.gov/marc/bibliographic/bd041.html
-	private function macro_languages041 ($value_ignored, $xml, $indicatorMode = false)
+	private function macro_languages041 ($value_ignored, $indicatorMode = false)
 	{
 		# Start the string
 		$string = '';
 		
 		# Obtain any languages used in the record
-		$languages = $this->xPathValues ($xml, '(//lang)[%i]', false);	// e.g. /records/2071/ has multiple
+		$languages = $this->xPathValues ($this->xml, '(//lang)[%i]', false);	// e.g. /records/2071/ has multiple
 		$languages = array_unique ($languages);
 		
 		# Obtain any note containing "translation from [language(s)]"
 		#!# Should *abs and *role also be considered?; see results from quick query: SELECT * FROM `catalogue_processed` WHERE `value` LIKE '%translated from original%', e.g. /records/1639/
-		$notes = $this->xPathValues ($xml, '(//note)[%i]', false);
+		$notes = $this->xPathValues ($this->xml, '(//note)[%i]', false);
 		$nonLanguageWords = array ('article', 'published', 'manuscript');	// e.g. /records/32279/ , /records/175067/ , /records/196791/
 		$translationNotes = array ();
 		foreach ($notes as $note) {
@@ -1440,12 +1436,12 @@ class marcConversion
 	
 	
 	# Function to perform transliteration on specified subfields present in a full line; this is basically a tokenisation wrapper to macro_transliterate
-	public function macro_transliterateSubfields ($value, $xml, $applyToSubfields, $language = false /* Always supplied by external callers */)
+	public function macro_transliterateSubfields ($value, $applyToSubfields, $language = false /* Parameter always supplied by external callers */)
 	{
 		# If a forced language is not specified, obtain the language value for the record
 		if (!$language) {
 			$xPath = '//lang[1]';	// Choose first only
-			$language = $this->xPathValue ($xml, $xPath);
+			$language = $this->xPathValue ($this->xml, $xPath);
 		}
 		
 		# Return unmodified if the language mode is default
@@ -1507,12 +1503,12 @@ class marcConversion
 	
 	
 	# Macro to perform transliteration
-	private function macro_transliterate ($value, $xml, $language = false)
+	private function macro_transliterate ($value, $language = false)
 	{
 		# If a forced language is not specified, obtain the language value for the record
 		if (!$language) {
 			$xPath = '//lang[1]';	// Choose first only
-			$language = $this->xPathValue ($xml, $xPath);
+			$language = $this->xPathValue ($this->xml, $xPath);
 		}
 		
 		# End without output if no language, i.e. if default
@@ -1539,7 +1535,7 @@ class marcConversion
 	
 	
 	# Macro for generating the Leader
-	private function macro_generateLeader ($value, $xml)
+	private function macro_generateLeader ($value)
 	{
 		# Start the string
 		$string = '';
@@ -1586,7 +1582,7 @@ class marcConversion
 			'/doc'		=> 'm',
 			'/ser'		=> 's',
 		);
-		$recordType = $this->recordType ($xml);
+		$recordType = $this->recordType ($this->xml);
 		$string .= $position7Values[$recordType];
 		
 		# Position 08: Type of control
@@ -1658,7 +1654,7 @@ class marcConversion
 	
 	
 	# Macro for generating a datetime
-	private function macro_migrationDatetime ($value, $xml)
+	private function macro_migrationDatetime ($value)
 	{
 		# Date and Time of Latest Transaction; see: http://www.loc.gov/marc/bibliographic/bd005.html
 		return date ('YmdHis.0');
@@ -1666,7 +1662,7 @@ class marcConversion
 	
 	
 	# Macro for generating a datetime
-	private function macro_migrationDate ($value, $xml)
+	private function macro_migrationDate ($value)
 	{
 		# Date and Time of Latest Transaction; see: http://www.loc.gov/marc/bibliographic/bd005.html
 		return date ('Ymd');
@@ -1674,7 +1670,7 @@ class marcConversion
 	
 	
 	# Macro for generating the 007 field, Physical Description Fixed Field; see: http://www.loc.gov/marc/bibliographic/bd007.html
-	private function macro_generate007 ($value, $xml)
+	private function macro_generate007 ($value)
 	{
 		# No form value
 		if (!$this->form) {return 'ta';}
@@ -1704,11 +1700,11 @@ class marcConversion
 	
 	
 	# Macro for generating the 008 field
-	private function macro_generate008 ($value, $xml)
+	private function macro_generate008 ($value)
 	{
 		# Subclass, due to the complexity of this field
 		require_once ('generate008.php');
-		$generate008 = new generate008 ($this, $xml);
+		$generate008 = new generate008 ($this, $this->xml);
 		if (!$value = $generate008->main ($error)) {
 			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';
 		}
@@ -1733,7 +1729,7 @@ class marcConversion
 	
 	
 	# Macro for generating an authors field, e.g. 100
-	private function macro_generateAuthors ($value, $xml, $arg)
+	private function macro_generateAuthors ($value, $arg)
 	{
 		# Parse the arguments
 		$fieldNumber = $arg;	// Default single argument representing the field number
@@ -1745,7 +1741,7 @@ class marcConversion
 		# If running in transliteration mode, require a supported language
 		$languageMode = 'default';
 		if ($flag == 'transliterated') {
-			if (!$languageMode = $this->getTransliterationLanguage ($xml)) {return false;}
+			if (!$languageMode = $this->getTransliterationLanguage ($this->xml)) {return false;}
 		}
 		
 		# Return the value (which may be false, meaning no field should be created)
@@ -1767,7 +1763,7 @@ class marcConversion
 	
 	
 	# Macro to add in the 880 subfield index
-	private function macro_880subfield6 ($value, $xml, $masterField)
+	private function macro_880subfield6 ($value, $masterField)
 	{
 		# End if no value
 		if (!$value) {return $value;}
@@ -1839,17 +1835,17 @@ class marcConversion
 	
 	
 	# Macro for generating the 245 field
-	private function macro_generate245 ($value, $xml, $flag)
+	private function macro_generate245 ($value, $flag)
 	{
 		# If running in transliteration mode, require a supported language
 		$languageMode = 'default';
 		if ($flag == 'transliterated') {
-			if (!$languageMode = $this->getTransliterationLanguage ($xml)) {return false;}
+			if (!$languageMode = $this->getTransliterationLanguage ($this->xml)) {return false;}
 		}
 		
 		# Subclass, due to the complexity of this field
 		require_once ('generate245.php');
-		$generate245 = new generate245 ($this, $xml, $this->authorsFields, $languageMode);
+		$generate245 = new generate245 ($this, $this->xml, $this->authorsFields, $languageMode);
 		$value = $generate245->main ($error);
 		if ($error) {
 			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';
@@ -1861,18 +1857,18 @@ class marcConversion
 	
 	
 	# Macro for generating the 250 field
-	private function macro_generate250 ($value, $xml, $ignored)
+	private function macro_generate250 ($value, $ignored)
 	{
 		# Start an array of subfields
 		$subfields = array ();
 		
 		# Implement subfield $a
-		if ($a = $this->xPathValue ($xml, '/*/edn')) {
+		if ($a = $this->xPathValue ($this->xml, '/*/edn')) {
 			$subfields[] = "{$this->doubleDagger}a" . $a;
 		}
 		
 		# Implement subfield $b; examples given in the function
-		if ($b = $this->generate250b ($value, $xml, $ignored, $this->authorsFields)) {
+		if ($b = $this->generate250b ($value, $this->xml, $ignored, $this->authorsFields)) {
 			$subfields[] = "{$this->doubleDagger}b" . $b;
 		}
 		
@@ -1883,7 +1879,7 @@ class marcConversion
 		$value = implode (' ', $subfields);
 		
 		# Ensure the value ends with a dot (even if punctuation already present); e.g. /records/2549/ , /records/4432/
-		$value = $this->macro_dotEnd ($value, NULL);
+		$value = $this->macro_dotEnd ($value);
 		
 		# Return the value
 		return $value;
@@ -1891,16 +1887,16 @@ class marcConversion
 	
 	
 	# Helper function for generating the 250 $b subfield
-	private function generate250b ($value, $xml, $ignored)
+	private function generate250b ($value, $ignored)
 	{
 		# Use the role-and-siblings part of the 245 processor
 		require_once ('generate245.php');
-		$generate245 = new generate245 ($this, $xml, $this->authorsFields);
+		$generate245 = new generate245 ($this, $this->xml, $this->authorsFields);
 		
 		# Create the list of subvalues if there is *ee?; e.g. /records/3887/ , /records/7017/ (has multiple *ee and multiple *n within this) , /records/45901/ , /records/168490/
 		$subValues = array ();
 		$eeIndex = 1;
-		while ($this->xPathValue ($xml, "//ee[$eeIndex]")) {	// Check if *ee container exists
+		while ($this->xPathValue ($this->xml, "//ee[$eeIndex]")) {	// Check if *ee container exists
 			$subValues[] = $generate245->roleAndSiblings ("//ee[$eeIndex]");
 			$eeIndex++;
 		}
@@ -1920,7 +1916,7 @@ class marcConversion
 	#!# Currently almost all parts of the conversion system assume a single *ts - this will need to be fixed; likely also to need to expand 880 mirrors to be repeatable
 	#!# Repeatability experimentally added to 490 at definition level, but this may not work properly as the field reads in *vno for instance; all derived uses of *ts need to be checked
 	#!# Issue of missing $a needs to be resolved in original data
-	public function macro_generate490 ($ts, $xml, $ignored, &$matchedRegexp = false, $reportGenerationMode = false)
+	public function macro_generate490 ($ts, $ignored, &$matchedRegexp = false, $reportGenerationMode = false)
 	{
 		# Obtain the *ts value or end
 		if (!strlen ($ts)) {return false;}
@@ -1974,7 +1970,7 @@ class marcConversion
 		
 		# If there is a *vno, add that
 		if (!$reportGenerationMode) {		// I.e. if running in MARC generation context, rather than for report generation
-			if ($vno = $this->xPathValue ($xml, '//vno')) {
+			if ($vno = $this->xPathValue ($this->xml, '//vno')) {
 				$volumeNumber = ($volumeNumber ? $volumeNumber . ', ' : '') . $vno;		// If already present, e.g. /records/1896/ , append to existing, separated by comma; records with no number in the *ts like /records/101358/ will appear as normal
 			}
 		}
@@ -2008,14 +2004,14 @@ class marcConversion
 	
 	# Macro for generating the 541 field, which looks at *acq groups; it may generate a multiline result; see: https://www.loc.gov/marc/bibliographic/bd541.html
 	#!# Support for *acc, which is currently having things like *acc/*date lost as is it not present elsewhere
-	private function macro_generate541 ($value, $xml)
+	private function macro_generate541 ($value)
 	{
 		# Start a list of results
 		$resultLines = array ();
 		
 		# Loop through each *acq in the record; e.g. multiple in /records/3959/
 		$acqIndex = 1;
-		while ($this->xPathValue ($xml, "//acq[$acqIndex]")) {
+		while ($this->xPathValue ($this->xml, "//acq[$acqIndex]")) {
 			
 			# Start a line of subfields, used to construct the values; e.g. /records/176629/
 			$subfields = array ();
@@ -2027,10 +2023,10 @@ class marcConversion
 				- IF record contains ONE *sref and ONE *kb and NO *fund => ‡c*sref '--' *kb"
 			*/
 			#!# Spec is unclear: What if there are more than one of these, or other combinations not shown here? Currently, items have any second (or third, etc.) lost, or e.g. *kb but not *sref would not show
-			$fund = $this->xPathValues ($xml, "//acq[$acqIndex]/fund[%i]");	// Code		// e.g. multiple at /records/132544/ , /records/138939/
+			$fund = $this->xPathValues ($this->xml, "//acq[$acqIndex]/fund[%i]");	// Code		// e.g. multiple at /records/132544/ , /records/138939/
 			#!# Should $kb be top-level, rather than within an *acq group? What happens if multiple *acq groups, which will each pick up the same *kb
-			$kb   = $this->xPathValues ($xml, "//kb[%i]");					// Exchange
-			$sref = $this->xPathValues ($xml, "//acq[$acqIndex]/sref[%i]");	// Supplier reference
+			$kb   = $this->xPathValues ($this->xml, "//kb[%i]");					// Exchange
+			$sref = $this->xPathValues ($this->xml, "//acq[$acqIndex]/sref[%i]");	// Supplier reference
 			$c = false;
 			if (count ($sref) == 1 && count ($fund) == 1 && !$kb) {
 				$c = $sref[1] . '--' . $fund[1];
@@ -2048,19 +2044,19 @@ class marcConversion
 			}
 			
 			# Create $a, from *o - Source of acquisition
-			if ($value = $this->xPathValue ($xml, "//acq[$acqIndex]/o")) {
+			if ($value = $this->xPathValue ($this->xml, "//acq[$acqIndex]/o")) {
 				$subfields[] = "{$this->doubleDagger}a" . $value;
 			}
 			
 			# Create $d, from *date - Date of acquisition
-			if ($value = $this->xPathValue ($xml, "//acq[$acqIndex]/date")) {
+			if ($value = $this->xPathValue ($this->xml, "//acq[$acqIndex]/date")) {
 				$subfields[] = "{$this->doubleDagger}d" . $value;
 			}
 			
 			#!# *acc/*ref?
 			
 			# Create $h, from *pr - Purchase price
-			if ($value = $this->xPathValue ($xml, "//acq[$acqIndex]/pr")) {
+			if ($value = $this->xPathValue ($this->xml, "//acq[$acqIndex]/pr")) {
 				$subfields[] = "{$this->doubleDagger}h" . $value;
 			}
 			
@@ -2100,7 +2096,7 @@ class marcConversion
 	
 	
 	# Macro to look up a *ks (UDC) value
-	private function macro_addLookedupKsValue ($value, $xml)
+	private function macro_addLookedupKsValue ($value)
 	{
 		# End if no value
 		if (!strlen ($value)) {return $value;}
@@ -2136,7 +2132,7 @@ class marcConversion
 	
 	
 	# Macro to look up a *rpl value
-	private function macro_lookupRplValue ($value, $xml)
+	private function macro_lookupRplValue ($value)
 	{
 		# Fix up incorrect data
 		if ($value == 'E1') {$value = 'E2';}
@@ -2329,13 +2325,13 @@ class marcConversion
 	
 	
 	# Macro to generate the 500 (displaying free-form text version of 773), whose logic is closely associated with 773
-	private function macro_generate500 ($value, $xml, $parameter_unused)
+	private function macro_generate500 ($value, $parameter_unused)
 	{
 		#!# In the case of all records whose serial title is listed in /reports/seriestitlemismatches3/ , need to branch at this point and create a 500 note from the local information (i.e. the record itself, not the parent, as in 773 below)
 		
 		
 		# Get the data from the 773
-		if (!$result = $this->macro_generate773 ($value, $xml, $parameter_unused, $mode500 = true)) {return false;}
+		if (!$result = $this->macro_generate773 ($value, $parameter_unused, $mode500 = true)) {return false;}
 		
 		# Strip subfield indicators
 		$result = $this->stripSubfields ($result);
@@ -2383,7 +2379,7 @@ class marcConversion
 	
 	# Macro to generate the 773 (Host Item Entry) field; see: http://www.loc.gov/marc/bibliographic/bd773.html ; e.g. /records/2071/
 	#!# 773 is not currently being generated for /art/j analytics (generally *location=Periodical); this is because of the *kg check below; the spec needs to define some implementation for this; for *location=Pam, the same information goes in a 500 field rather than a 773; again this needs a spec
-	private function macro_generate773 ($value, $xml, $parameter_unused, $mode500 = false)
+	private function macro_generate773 ($value, $parameter_unused, $mode500 = false)
 	{
 		# Start a result
 		$result = '';
@@ -2396,7 +2392,7 @@ class marcConversion
 		$marc = $this->parseMarcRecord ($this->hostRecord);
 		
 		# Obtain the record type
-		$recordType = $this->recordType ($xml);
+		$recordType = $this->recordType ($this->xml);
 		
 		# Start a list of subfields
 		$subfields = array ();
@@ -2422,7 +2418,7 @@ class marcConversion
 		# Add 773 ‡t: Copy in the 245 (Title) ‡a and ‡b from the host record, omitting subfield codes, stripping leading articles
 		if (isSet ($marc['245'])) {
 			$xPath = '//lang[1]';	// Choose first only
-			$language = $this->xPathValue ($xml, $xPath);
+			$language = $this->xPathValue ($this->xml, $xPath);
 			if (!$language) {$language = 'English';}
 			$subfields[] = $this->combineSubfieldValues ('t', $marc['245'], array ('a', 'b'), ', ', $language);
 		}
@@ -2446,7 +2442,7 @@ class marcConversion
 		
 		# Add 773 ‡g: *pt (Related parts) [of child record, i.e. not host record]; *art/*j only
 		if ($recordType == '/art/j') {
-			if ($pt = $this->xPathValue ($xml, '/art/j/pt')) {	// e.g. /records/14527/
+			if ($pt = $this->xPathValue ($this->xml, '/art/j/pt')) {	// e.g. /records/14527/
 				$subfields[] = "{$this->doubleDagger}g" . $pt;
 			}
 		}
@@ -2612,13 +2608,13 @@ class marcConversion
 	
 	
 	# Macro to lookup periodical locations, which may generate a multiline result; see: https://www.loc.gov/marc/holdings/hd852.html
-	private function macro_generate852 ($value, $xml)
+	private function macro_generate852 ($value)
 	{
 		# Start a list of results
 		$resultLines = array ();
 		
 		# Get the locations
-		$locations = $this->xPathValues ($xml, '//loc[%i]/location');
+		$locations = $this->xPathValues ($this->xml, '//loc[%i]/location');
 		
 		# Loop through each location
 		foreach ($locations as $index => $location) {
@@ -2714,7 +2710,7 @@ class marcConversion
 			# If records are missing, add public note; e.g. /records/1014/ , and /records/25728/ ; a manual query has been done that no record has BOTH "Not in SPRI" (which would result in $z already existing above) and "MISSING" using "SELECT * FROM catalogue_xml WHERE xml like BINARY '%MISSING%' and xml LIKE '%Not in SPRI%';"
 			# Note that this will set a marker for each *location; the report /reports/multiplelocationsmissing/ lists these cases, which will need to be fixed up post-migration - we are unable to work out from the Muscat record which *location the "MISSING" refers to
 			#!# Ideally also need to trigger this in cases where the record has note to this effect; or check that MISSING exists in all such cases by checking and amending records in /reports/notemissing/
-			$ksValues = $this->xPathValues ($xml, '//k[%i]/ks');
+			$ksValues = $this->xPathValues ($this->xml, '//k[%i]/ks');
 			foreach ($ksValues as $ksValue) {
 				if (substr_count ($ksValue, 'MISSING')) {		// Covers 'MISSING' and e.g. 'MISSING[2004]' etc.; e.g. /records/1323/ ; data checked to ensure that the string always appears as upper-case "MISSING" ; all records checked that MISSING* is always in the format ^MISSING\[.+\]$, using "SELECT * FROM catalogue_processed WHERE field = 'ks' AND value like  'MISSING%' AND value !=  'MISSING' AND value NOT REGEXP '^MISSING\\[.+\\]$'"
 					$result .= " {$this->doubleDagger}z" . 'Missing';
@@ -2735,7 +2731,7 @@ class marcConversion
 	
 	
 	# Macro to generate 916, which is based on *acc/*ref *acc/*date pairs
-	private function macro_generate916 ($value, $xml)
+	private function macro_generate916 ($value)
 	{
 		# Define the supported *acc/... fields that can be included
 		#!# Not sure if con, recr, status should be present; ref and date are confirmed fine
@@ -2744,12 +2740,12 @@ class marcConversion
 		# Loop through each *acq in the record; e.g. multiple in /records/3959/
 		$acc = array ();
 		$accIndex = 1;
-		while ($this->xPathValue ($xml, "//acc[$accIndex]")) {
+		while ($this->xPathValue ($this->xml, "//acc[$accIndex]")) {
 			
 			# Capture *acc/*ref and *acc/*date in this grouping
 			$components = array ();
 			foreach ($supportedFields as $field) {
-				if ($component = $this->xPathValue ($xml, "//acc[$accIndex]/{$field}")) {
+				if ($component = $this->xPathValue ($this->xml, "//acc[$accIndex]/{$field}")) {
 					$components[] = $component;
 				}
 			}
@@ -2775,7 +2771,7 @@ class marcConversion
 	
 	
 	# Macro to generate a 917 record for the supression reason
-	private function macro_showSuppressionReason ($value, $xml)
+	private function macro_showSuppressionReason ($value)
 	{
 		# End if no suppress reason(s)
 		if (!$this->suppressReasons) {return false;}
@@ -2798,10 +2794,10 @@ class marcConversion
 	
 	
 	# Macro to determine cataloguing status; this uses values from both *ks OR *status, but the coexistingksstatus report is marked clean, ensuring that no data is lost
-	private function macro_cataloguingStatus ($value, $xml)
+	private function macro_cataloguingStatus ($value)
 	{
 		# Return *ks if on the list; separate multiple values with semicolon, e.g. /records/205603/
-		$ksValues = $this->xPathValues ($xml, '//k[%i]/ks');
+		$ksValues = $this->xPathValues ($this->xml, '//k[%i]/ks');
 		$results = array ();
 		foreach ($ksValues as $ks) {
 			$ksBracketsStrippedForComparison = (substr_count ($ks, '[') ? strstr ($ks, '[', true) : $ks);	// So that "MISSING[2007]" matches against MISSING, e.g. /records/2823/ , /records/3549/
@@ -2814,7 +2810,7 @@ class marcConversion
 		}
 		
 		# Otherwise return *status (e.g. /records/1373/ ), except for records marked explicitly to be suppressed (e.g. /records/10001/ ), which is a special keyword not intended to appear in the record output
-		$status = $this->xPathValue ($xml, '//status');
+		$status = $this->xPathValue ($this->xml, '//status');
 		if ($status == $this->suppressionStatusKeyword) {return false;}
 		return $status;
 	}

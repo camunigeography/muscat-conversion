@@ -146,10 +146,10 @@ class generateAuthors
 		$line = $this->shiftSubfieldU ($line);
 		
 		# Pass through the transliterator if required; e.g. /records/6653/ (test #107), /records/23186/ (test #108)
-		$line = $this->muscatConversion->macro_transliterateSubfields ($line, NULL, $this->transliterableSubfields[$this->field], $languageMode);
+		$line = $this->muscatConversion->macro_transliterateSubfields ($line, $this->transliterableSubfields[$this->field], $languageMode);
 		
 		# Ensure the line ends with punctuation; e.g. /records/1218/ (test #72) , /records/1221/ (test #73)
-		$line = $this->muscatConversion->macro_dotEnd ($line, NULL, $extendedCharacterList = true);
+		$line = $this->muscatConversion->macro_dotEnd ($line, $extendedCharacterList = true);
 		
 		# Write the value into the values registry
 		$this->values[$this->languageMode][$this->field] = $line;
@@ -206,12 +206,12 @@ class generateAuthors
 		# Pass each line through the transliterator if required (test #108)
 		foreach ($lines as $index => $line) {
 			$fieldNumber = (preg_match ('/^([0-9]{3}) /', $line, $matches) ? $matches[1] : $this->field);	// Line 1 will use the native field number, but any subsequent lines in a multiline will have a field number added the start (test #109)
-			$lines[$index] = $this->muscatConversion->macro_transliterateSubfields ($line, NULL, $this->transliterableSubfields[$fieldNumber], $languageMode);
+			$lines[$index] = $this->muscatConversion->macro_transliterateSubfields ($line, $this->transliterableSubfields[$fieldNumber], $languageMode);
 		}
 		
 		# Ensure each line ends with punctuation; e.g. /records/7463/ (tests #81 and #82)
 		foreach ($lines as $index => $line) {
-			$lines[$index] = $this->muscatConversion->macro_dotEnd ($line, NULL, $extendedCharacterList = true);
+			$lines[$index] = $this->muscatConversion->macro_dotEnd ($line, $extendedCharacterList = true);
 		}
 		
 		# Implode the lines
@@ -282,7 +282,7 @@ class generateAuthors
 				# The "*al Detail" block (and ", ‡g (alternative name)", once only) is added, e.g. /records/29234/ (test #118)
 				#!# Not yet checked cases for when a $g might already exist, to check this works
 				if (!substr_count ($line, "{$this->doubleDagger}g")) {
-					$line  = $this->muscatConversion->macro_dotEnd ($line, NULL, $extendedCharacterList = '.?!');		// e.g. /records/2787/ ; "700: Subfield g must be preceded by a full stop, question mark or exclamation mark." (test #83)
+					$line  = $this->muscatConversion->macro_dotEnd ($line, $extendedCharacterList = '.?!');		// e.g. /records/2787/ ; "700: Subfield g must be preceded by a full stop, question mark or exclamation mark." (test #83)
 					$line .= "{$this->doubleDagger}g" . '(alternative name)';
 				}
 				
@@ -345,7 +345,7 @@ class generateAuthors
 					$line = $this->main ($childRecordXml, "/*/ag[1]/a[1]", 700, '2');
 					
 					# Add the title (i.e. *art/*tg/*t)
-					$line  = $this->muscatConversion->macro_dotEnd ($line, NULL, $extendedCharacterList = '?.-)');		// (test #89) e.g. /records/9843/ , /records/13620/ ; "700: Subfield _t must be preceded by a question mark, full stop, hyphen or closing parenthesis."
+					$line  = $this->muscatConversion->macro_dotEnd ($line, $extendedCharacterList = '?.-)');		// (test #89) e.g. /records/9843/ , /records/13620/ ; "700: Subfield _t must be preceded by a question mark, full stop, hyphen or closing parenthesis."
 					$line .= "{$this->doubleDagger}t" . $this->muscatConversion->xPathValue ($childRecordXml, '/*/tg/t');
 					
 					# Register the line, adding the field code, which may have been modified in main()
@@ -829,7 +829,7 @@ class generateAuthors
 		# Does the value of the $fieldValue appear on the Misc. list? E.g. /records/1218/ (test #148)
 		$miscList = $this->miscList ();
 		if (in_array ($fieldValue, $miscList)) {
-			$value  = $this->muscatConversion->macro_dotEnd ($value, NULL, $extendedCharacterList = '.?!');		// "700: Subfield g must be preceded by a full stop, question mark or exclamation mark." (test #148)
+			$value  = $this->muscatConversion->macro_dotEnd ($value, $extendedCharacterList = '.?!');		// "700: Subfield g must be preceded by a full stop, question mark or exclamation mark." (test #148)
 			$value .= "{$this->doubleDagger}g ({$fieldValue})";
 			return $value;
 		}

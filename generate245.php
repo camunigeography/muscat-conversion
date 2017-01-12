@@ -74,7 +74,7 @@ class generate245
 		$value .= $statementOfResponsibility;
 		
 		# Ensure the value ends with a dot (even if other punctuation is already present); e.g. /records/137684/ , /records/178352/ avoids two dots (test #177); also /records/1058/ which ends with ) so gets ). (test #178)
-		$value = $this->marcConversion->macro_dotEnd ($value, NULL, $extendedCharacterList = false);
+		$value = $this->marcConversion->macro_dotEnd ($value, $extendedCharacterList = false);
 		
 		# Return the value
 		return $value;
@@ -111,7 +111,7 @@ class generate245
 	{
 		# Does the *t start with a leading article? E.g. /records/1110/ (test #169), /records/1134/ (test #170), /records/103693/ (test #171)
 		$nfCountLanguage = ($this->languageMode == 'default' ? false : $this->languageMode);	// Language mode relates to transliteration; languages like German should still have nfCount but will have 'default' language transliteration mode
-		$leadingArticleCharacterCount = $this->marcConversion->macro_nfCount ($this->t, NULL, $nfCountLanguage, $this->xml);
+		$leadingArticleCharacterCount = $this->marcConversion->macro_nfCount ($this->t, $nfCountLanguage, $this->xml);
 		
 		# Return the leading articles count
 		return $leadingArticleCharacterCount;
