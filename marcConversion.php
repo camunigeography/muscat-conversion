@@ -57,22 +57,22 @@ class marcConversion
 		if (!$this->convertToMarc_MacrosAllSupported ($datastructure, $errorString)) {return false;}
 		
 		# Load the record as a valid XML object
-		$xml = $this->loadXmlRecord ($recordXml);
+		$this->xml = $this->loadXmlRecord ($recordXml);
 		
 		# Determine the record number, used by several macros
-		$this->recordId = $this->xPathValue ($xml, '//q0');
+		$this->recordId = $this->xPathValue ($this->xml, '//q0');
 		
 		# Up-front, process author fields
 		require_once ('generateAuthors.php');
 		$languageModes = array_merge (array ('default'), array_keys ($this->supportedReverseTransliterationLanguages));		// Feed in the languages list, with 'default' as the first
-		$generateAuthors = new generateAuthors ($this, $xml, $languageModes);
+		$generateAuthors = new generateAuthors ($this, $this->xml, $languageModes);
 		$this->authorsFields = $generateAuthors->getValues ();
 		
 		# Up-front, look up the host record, if any
-		$this->hostRecord = $this->lookupHostRecord ($xml);
+		$this->hostRecord = $this->lookupHostRecord ();
 		
 		# Perform XPath replacements
-		if (!$datastructure = $this->convertToMarc_PerformXpathReplacements ($datastructure, $xml, $errorString)) {return false;}
+		if (!$datastructure = $this->convertToMarc_PerformXpathReplacements ($datastructure, $errorString)) {return false;}
 		
 		# Expand vertically-repeatable fields
 		if (!$datastructure = $this->convertToMarc_ExpandVerticallyRepeatableFields ($datastructure, $errorString)) {return false;}
@@ -312,11 +312,11 @@ class marcConversion
 	
 	
 	# Function to load an XML record string as XML
-	public function loadXmlRecord ($record)
+	public function loadXmlRecord ($recordXml)
 	{
 		# Load the record as a valid XML object
 		$xmlProlog = '<' . '?xml version="1.0" encoding="utf-8"?' . '>';
-		$record = $xmlProlog . "\n<root>" . "\n" . $record . "\n</root>";
+		$record = $xmlProlog . "\n<root>" . "\n" . $recordXml . "\n</root>";
 		$xml = new SimpleXMLElement ($record);
 		return $xml;
 	}
@@ -444,10 +444,10 @@ class marcConversion
 	
 	
 	# Function to perform Xpath replacements
-	private function convertToMarc_PerformXpathReplacements ($datastructure, $xml, &$errorString = '')
+	private function convertToMarc_PerformXpathReplacements ($datastructure, &$errorString = '')
 	{
 		# Lookup XPath values from the record which are needed multiple times, for efficiency
-		$this->form = $this->xPathValue ($xml, '(//form)[1]', false);
+		$this->form = $this->xPathValue ($this->xml, '(//form)[1]', false);
 		
 		# Perform XPath replacements
 		$compileFailures = array ();
@@ -475,7 +475,7 @@ class marcConversion
 				} else {
 					
 					# Attempt to parse
-					$xPathResult = @$xml->xpath ('/root' . $xPath);
+					$xPathResult = @$this->xml->xpath ('/root' . $xPath);
 					
 					# Check for compile failures
 					if ($xPathResult === false) {
@@ -530,10 +530,10 @@ class marcConversion
 						# For a vertically-repeatable field, process each value; otherwise process the compiled string
 						if ($isVerticallyRepeatable || $isHorizontallyRepeatable) {
 							foreach ($value as $index => $subValue) {
-								$value[$index] = $this->processMacros ($xml, $subValue, $macros);
+								$value[$index] = $this->processMacros ($subValue, $macros);
 							}
 						} else {
-							$value = $this->processMacros ($xml, $value, $macros);
+							$value = $this->processMacros ($value, $macros);
 						}
 					}
 					
@@ -736,7 +736,7 @@ class marcConversion
 	
 	
 	# Function to process strings through macros; macros should return a processed string, or false upon failure
-	private function processMacros ($xml, $string, $macros)
+	private function processMacros ($string, $macros)
 	{
 		# Pass the string through each macro in turn
 		foreach ($macros as $macro) {
@@ -754,9 +754,9 @@ class marcConversion
 			# Pass the string through the macro
 			$macroMethod = 'macro_' . $macro;
 			if (is_null ($parameter)) {
-				$string = $this->{$macroMethod} ($string, $xml, NULL);
+				$string = $this->{$macroMethod} ($string, $this->xml, NULL);
 			} else {
-				$string = $this->{$macroMethod} ($string, $xml, $parameter);
+				$string = $this->{$macroMethod} ($string, $this->xml, $parameter);
 			}
 			
 			// Continue to next macro (if any), using the processed string as it now stands
@@ -2356,10 +2356,10 @@ class marcConversion
 	
 	
 	# Function to look up the host record, if any
-	private function lookupHostRecord ($xml)
+	private function lookupHostRecord ()
 	{
 		# Up-front, obtain the host ID (if any) from *kg, used in both 773 and 500
-		if (!$hostId = $this->xPathValue ($xml, '//k2/kg')) {return NULL;}
+		if (!$hostId = $this->xPathValue ($this->xml, '//k2/kg')) {return NULL;}
 		
 		# Obtain the processed MARC record; note that createMarcRecords processes the /doc records before /art/in records
 		$hostRecord = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'marc', $conditions = array ('id' => $hostId));
