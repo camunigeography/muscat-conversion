@@ -1222,7 +1222,7 @@ class marcConversion
 	
 	
 	# Macro to generate the leading article count; this does not actually modify the string itself - just returns a number
-	public function macro_nfCount ($value, $xml, $language = false)
+	public function macro_nfCount ($value, $xml_ignored, $language = false, $externalXml = NULL)
 	{
 		# Get the leading articles list, indexed by language
 		$leadingArticles = $this->leadingArticles ();
@@ -1241,6 +1241,7 @@ class marcConversion
 		#!# For the 240 field, this needs to take the language whose index number is the same as t/tt/to...
 		if (!$language) {
 			$xPath = '//lang[1]';	// Choose first only
+			$xml = ($externalXml ? $externalXml : $this->xml);	// Use external XML if supplied
 			$language = $this->xPathValue ($xml, $xPath);
 		}
 		
@@ -1439,7 +1440,7 @@ class marcConversion
 	
 	
 	# Function to perform transliteration on specified subfields present in a full line; this is basically a tokenisation wrapper to macro_transliterate
-	public function macro_transliterateSubfields ($value, $xml, $applyToSubfields, $language = false)
+	public function macro_transliterateSubfields ($value, $xml, $applyToSubfields, $language = false /* Always supplied by external callers */)
 	{
 		# If a forced language is not specified, obtain the language value for the record
 		if (!$language) {
@@ -1919,7 +1920,7 @@ class marcConversion
 	#!# Currently almost all parts of the conversion system assume a single *ts - this will need to be fixed; likely also to need to expand 880 mirrors to be repeatable
 	#!# Repeatability experimentally added to 490 at definition level, but this may not work properly as the field reads in *vno for instance; all derived uses of *ts need to be checked
 	#!# Issue of missing $a needs to be resolved in original data
-	public function macro_generate490 ($ts, $xml, $ignored, &$matchedRegexp = false)
+	public function macro_generate490 ($ts, $xml, $ignored, &$matchedRegexp = false, $reportGenerationMode = false)
 	{
 		# Obtain the *ts value or end
 		if (!strlen ($ts)) {return false;}
@@ -1972,7 +1973,7 @@ class marcConversion
 		}
 		
 		# If there is a *vno, add that
-		if ($xml) {		// I.e. if running in MARC generation context, rather than for report generation
+		if (!$reportGenerationMode) {		// I.e. if running in MARC generation context, rather than for report generation
 			if ($vno = $this->xPathValue ($xml, '//vno')) {
 				$volumeNumber = ($volumeNumber ? $volumeNumber . ', ' : '') . $vno;		// If already present, e.g. /records/1896/ , append to existing, separated by comma; records with no number in the *ts like /records/101358/ will appear as normal
 			}

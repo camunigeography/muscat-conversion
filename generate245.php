@@ -111,7 +111,7 @@ class generate245
 	{
 		# Does the *t start with a leading article? E.g. /records/1110/ (test #169), /records/1134/ (test #170), /records/103693/ (test #171)
 		$nfCountLanguage = ($this->languageMode == 'default' ? false : $this->languageMode);	// Language mode relates to transliteration; languages like German should still have nfCount but will have 'default' language transliteration mode
-		$leadingArticleCharacterCount = $this->marcConversion->macro_nfCount ($this->t, $this->xml, $nfCountLanguage);
+		$leadingArticleCharacterCount = $this->marcConversion->macro_nfCount ($this->t, NULL, $nfCountLanguage, $this->xml);
 		
 		# Return the leading articles count
 		return $leadingArticleCharacterCount;
