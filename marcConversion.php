@@ -175,7 +175,7 @@ class marcConversion
 		$ldr = array_pop ($allFieldNumbers);	// Remove LDR from end
 		array_unshift ($allFieldNumbers, $ldr);
 		
-		# Create a superstructure, where all fields are present from the superset, sub-indexed by source
+		# Create a superstructure, where all fields are present from the superset, sub-indexed by source; if a field is not present it will not be present in the result (test #232)
 		$superstructure = array ();
 		foreach ($allFieldNumbers as $fieldNumber) {
 			$superstructure[$fieldNumber] = array (
@@ -212,17 +212,17 @@ class marcConversion
 			if (isSet ($mergeDefinition[$fieldNumber])) {
 				switch ($mergeDefinition[$fieldNumber]) {
 					
-					case 'M':
+					case 'M':							// E.g. /records/1033/ (tests #233, #234)
 						$muscat = true;
 						$voyager = false;
 						break;
 						
-					case 'V':
+					case 'V':							// E.g. /records/10506/ (test #235)
 						$muscat = false;
 						$voyager = true;
 						break;
 						
-					case 'M else V':
+					case 'M else V':					// No definitions yet, so no tests
 						if ($recordPair['muscat']) {
 							$muscat = true;
 							$voyager = false;
@@ -232,7 +232,7 @@ class marcConversion
 						}
 						break;
 						
-					case 'V else M':
+					case 'V else M':					// E.g. /records/1033/ (tests #236, #237)
 						if ($recordPair['voyager']) {
 							$muscat = false;
 							$voyager = true;
@@ -242,7 +242,7 @@ class marcConversion
 						}
 						break;
 						
-					case 'V and M':
+					case 'V and M':						// E.g. /records/50968/ , /records/12775/ (tests #238, #239, 240, 241)
 						$muscat = true;
 						$voyager = true;
 						break;

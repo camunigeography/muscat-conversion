@@ -1383,4 +1383,66 @@ Record ID in 001 contains prefix 'SPRI-', which createMarcExport relies on
 001
 SPRI-1061
 
+232
+Merging with a field not present in either
+1033
+!916
+*
+
+233
+Merging: 'M' strategy, with M present
+1033
+866
+‡a1979-2004
+
+234
+Merging: 'M' strategy, with M and V both present
+1033
+001
+SPRI-1033
+
+235
+Merging: 'V' strategy, with V present (and M)
+10506
+245
+‡aZapiski po gidrografii.
+
+236
+Merging: 'V else M' strategy, with V present
+1033
+260
+‡aWashington, D.C.
+
+237
+Merging: 'V else M' strategy, with M present but no V
+1033
+856
+‡uhttp:
+
+238
+Merging: 'V and M' strategy, with both present (see also next test)
+50968
+651
+‡2udc‡a(*41) -- Canada.
+
+239
+Merging: 'V and M' strategy, with both present (see also previous test)
+50968
+651
+‡aCanada, Northern‡vPeriodicals.
+
+240
+Merging: 'V and M' strategy, with V only present
+12775
+710
+‡aRossiĭskiĭ Gidrologicheskiĭ Institut.
+
+241
+Merging: 'V and M' strategy, with M only present
+12775
+651
+‡2udc‡a(*50) -- Soviet Union.
+
+
+
 
