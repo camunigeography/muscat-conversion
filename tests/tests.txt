@@ -1383,6 +1383,24 @@ Record ID in 001 contains prefix 'SPRI-', which createMarcExport relies on
 001
 SPRI-1061
 
+229
+Leader byte count
+1003
+LDR
+00984
+
+230
+880 link reciprocality (see also next test)
+1062
+245
+‡6 880-01
+
+231
+880 link reciprocality (see also previous test)
+1062
+880
+‡6 245-01
+
 232
 Merging with a field not present in either
 1033
@@ -1443,6 +1461,17 @@ Merging: 'V and M' strategy, with M only present
 651
 ‡2udc‡a(*50) -- Soviet Union.
 
+242
+Leader does not have indicators
+29550
+iLDR
+''
+
+243
+00x fields do not have indicators
+29550
+i008
+''
 
 
 

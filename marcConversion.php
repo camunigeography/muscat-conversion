@@ -81,7 +81,7 @@ class marcConversion
 		
 		# Determine the length, in bytes, which is the first five characters of the 000 (Leader), padded
 		$bytes = mb_strlen ($record);
-		$bytes = str_pad ($bytes, 5, '0', STR_PAD_LEFT);
+		$bytes = str_pad ($bytes, 5, '0', STR_PAD_LEFT);	// E.g. /records/1003/ has 984 bytes so becomes 00984 (test #229)
 		$record = preg_replace ('/^LDR (_____)/m', "LDR {$bytes}", $record);
 		
 		# If required, merge with an existing Voyager record, returning by reference the pre-merge record, and below returning the merged record
@@ -102,7 +102,7 @@ class marcConversion
 			// Leave the record visible rather than return false
 		}
 		
-		# Do a check to report any case where a where 880 fields do not have both a field (starting validly with a $6) and a link back
+		# Do a check to report any case where a where 880 fields do not have both a field (starting validly with a $6) and a link back; e.g. /records/1062/ has "245 ## ‡6 880-01" and "880 ## ‡6 245-01" (test #230)
 		preg_match_all ("/^880 [0-9#]{2} {$this->doubleDagger}6 /m", $record, $matches);
 		$total880fields = count ($matches[0]);
 		$total880dollar6Instances = substr_count ($record, "{$this->doubleDagger}6 880-");
@@ -298,7 +298,7 @@ class marcConversion
 		# Construct the record lines
 		$recordLines = array ();
 		foreach ($voyagerRecordShards as $shard) {
-			$hasIndicators = (!preg_match ('/^(LDR|00[0-9])$/', $shard['field']));
+			$hasIndicators = (!preg_match ('/^(LDR|00[0-9])$/', $shard['field']));	// E.g. /records/29550/ (tests #242, #243)
 			$recordLines[] = $shard['field'] . ($hasIndicators ? ' ' . $shard['indicators'] : '') . ' ' . $shard['data'];
 		}
 		
@@ -432,6 +432,8 @@ class marcConversion
 				}
 			}
 		}
+		
+		# Report unrecognised macros
 		if ($unknownMacros) {
 			$errorString = 'Not all macros were recognised: ' . implode (', ', $unknownMacros);
 			return false;
