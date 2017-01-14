@@ -13,6 +13,8 @@
 # generate008: 100%
 # generate245: 100%
 # generateAuthors: 100%
+# marcParser (controller section): 100%
+# marcParser (macros section): 0%
 
 
 1
@@ -1473,5 +1475,148 @@ iLDR
 i008
 ''
 
+244
+MARC parser note lines do not appear in the final record
+1000
+!***
+Notes:
+
+245
+String 'macro' from MARC parser does not appear in final record
+1000
+!***
+macro
+
+246
+Spaces present between blocks in MARC parser are retained in final record
+1049
+876
+Record ‡zSPRI holds
+
+247
+MARC parser block check
+1049
+001
+SPRI-1049
+
+248
+MARC parser indicators check
+1049
+i300
+##
+
+249
+MARC parser optional block indicator (e.g. ‡?u) check
+2176
+856
+‡uurn
+
+250
+MARC parser dynamic indicator block check
+1108
+i242
+14
+
+251
+MARC parser XPath check
+1003
+866
+‡x1st ed.
+
+252
+MARC parser horizontal repeatability check
+1010
+876
+‡zAvailable online‡zLibrary holds
+
+253
+MARC parser vertical repeatability check
+1599
+650
+‡2local‡aZ
+
+254
+MARC parser fixed string check
+3056
+541
+‡5UkCU-P
+
+255
+MARC parser check of passing in XPath /
+3056
+100
+‡aBarrow, John,‡cSir.
+
+257
+MARC parser check of 'A' (all) control character: value present (see also next test)
+3056
+541
+‡aMather, J.H. (bequest) ‡5UkCU-P
+
+258
+MARC parser check of 'A' (all) control character: not value present (see also previous test)
+3057
+!541
+*
+
+259
+MARC parser check of 'E' (any [either]) control character
+1049
+876
+Record ‡zSPRI holds
+
+260
+MARC parser check that if optional block is skipped because of no value then following block will not have a space before
+1049
+876
+/^‡xFormerly exchanged/
+
+261
+MARC parser check that trailing space is trimmed
+1054
+876
+/Polar Record$/
+
+262
+MARC parser check of records with insertion of reciprocal 880 marker at start of source lines: multiline reassembly
+1697
+700
+/^‡6 880-0[1-9] ‡aUrsov/
+
+263
+MARC parser check of records with insertion of reciprocal 880 marker at start of source line: standard line
+2800
+260
+/^‡6 880-0[1-9] ‡aParis/
+
+264
+Italic stripping in final MARC record
+1131
+245
+body length of Euphausia superba Dana /‡cJ.
+
+265
+Superscript tag stripping in final MARC record
+2800
+245
+1er Partie
+
+266
+Subscript tag stripping in final MARC record
+61528
+520
+to σθ and
+
+267
+MARC parser macro chaining
+2800
+650
+/\.$/
+
+268
+MARC parser parameter parsing
+2176
+856
+urn:doi:
 
 

@@ -334,7 +334,7 @@ class marcConversion
 			# Skip empty lines
 			if (!trim ($line)) {unset ($lines[$lineNumber]);}
 			
-			# Skip comment lines
+			# Skip comment lines (test #244)
 			if (mb_substr ($line, 0, 1) == '#') {unset ($lines[$lineNumber]); continue;}
 		}
 		
@@ -379,32 +379,32 @@ class marcConversion
 				# Firstly, register macro requirements by stripping these from the end of the XPath, e.g. {/*/isbn|macro:validisbn|macro:foobar} results in $datastructure[$lineNumber]['macros'][/*/isbn|macro] = array ('xpath' => 'validisbn', 'macrosThisXpath' => 'foobar')
 				$macrosThisXpath = array ();
 				while (preg_match ('/^(.+)\|macro:([^|]+)$/', $xpath, $macroMatches)) {
-					array_unshift ($macrosThisXpath, $macroMatches[2]);
+					array_unshift ($macrosThisXpath, $macroMatches[2]);		// 'macro' does not appear in the result (test #245)
 					$xpath = $macroMatches[1];
 				}
 				if ($macrosThisXpath) {
 					$datastructure[$lineNumber]['macros'][$findBlock]['macrosThisXpath'] = $macrosThisXpath;	// Note that using [xpath]=>macrosThisXpath is not sufficient as lines can use the same xPath more than once
 				}
 				
-				# Register the full block; e.g. '‡b{//recr} ' including any trailing space
+				# Register the full block; e.g. '‡b{//recr} ' ; e.g. /records/1049/ (test #247)
 				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['fullBlock'] = $match[0];
 				
-				# Register the subfield indicator
+				# Register the subfield indicator (test #248)
 				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['subfieldIndicator'] = $subfieldIndicator;
 				
-				# Register whether the block is an optional block
+				# Register whether the block is an optional block; e.g. /records/2176/ (test #249)
 				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['isOptionalBlock'] = (bool) $optionalBlockIndicator;
 				
-				# Register whether this xPath replacement is in the indicator block
+				# Register whether this xPath replacement is in the indicator block; e.g. /records/1108/ (test #250)
 				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['isIndicatorBlockMacro'] = (bool) $isIndicatorBlockMacro;
 				
-				# Register the XPath
+				# Register the XPath; e.g. /records/1003/ (test #251)
 				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['xPath'] = $xpath;
 				
-				# If the subfield is horizontally-repeatable, save the subfield indicator that should be used for imploding, resulting in e.g. $aFoo$aBar
+				# If the subfield is horizontally-repeatable, save the subfield indicator that should be used for imploding, resulting in e.g. $aFoo$aBar ; e.g. /records/1010/ (test #252)
 				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['horizontalRepeatability'] = ($isHorizontallyRepeatable ? $subfieldIndicator : false);
 				
-				# Register any trailing space(s)
+				# Register any trailing space(s); e.g. /records/1049/ (test #246)
 				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['trailingSpace'] = $trailingSpace;
 			}
 		}
@@ -450,29 +450,29 @@ class marcConversion
 		# Lookup XPath values from the record which are needed multiple times, for efficiency
 		$this->form = $this->xPathValue ($this->xml, '(//form)[1]', false);
 		
-		# Perform XPath replacements
+		# Perform XPath replacements; e.g. /records/1003/ (test #251)
 		$compileFailures = array ();
 		foreach ($datastructure as $lineNumber => $line) {
 			
-			# Determine if the line is vertically-repeatable
+			# Determine if the line is vertically-repeatable; e.g. /records/1599/ (test #253)
 			$isVerticallyRepeatable = (in_array ('R', $datastructure[$lineNumber]['controlCharacters']));
 			
 			# Work through each XPath replacement
 			foreach ($line['xpathReplacements'] as $find => $xpathReplacementSpec) {
 				$xPath = $xpathReplacementSpec['xPath'];	// Extract from structure
 				
-				# Determine if horizontally-repeatable
+				# Determine if horizontally-repeatable; e.g. /records/1010/ (test #252)
 				$isHorizontallyRepeatable = (bool) $xpathReplacementSpec['horizontalRepeatability'];
 				
-				# Deal with fixed strings
+				# Deal with fixed strings; e.g. /records/3056/ (test #254)
 				if (preg_match ("/^'(.+)'$/", $xPath, $matches)) {
 					$value = array ($matches[1]);
 					
-				# Handle the special-case where the specified XPath is just '/', representing the whole record; this indicates that the macro will process the record as a whole, ignoring any passed in value; doing this avoids the standard XPath processor resulting in an array of two values of (1) *qo and (2) *doc/*art/*ser
+				# Handle the special-case where the specified XPath is just '/', representing the whole record; this indicates that the macro will process the record as a whole, ignoring any passed in value; doing this avoids the standard XPath processor resulting in an array of two values of (1) *qo and (2) *doc/*art/*ser ; e.g. /records/3056/ (test #255)
 				} else if ($xPath == '/') {
 					$value = array (true);	// Ensures the result processor continues, but this 'value' is then ignored
 					
-				# Otherwise, handle the standard case
+				# Otherwise, handle the standard case; e.g. /records/1003/ (test #251)
 				} else {
 					
 					# Attempt to parse
@@ -538,7 +538,7 @@ class marcConversion
 						}
 					}
 					
-					# For horizontally-repeatable fields, apply uniqueness after macro processing; e.g. if Lang1, Lang2, Lang3 becomes translatedlangA, translatedlangB, translatedlangB, unique to translatedlangA, translatedlangB
+					# For horizontally-repeatable fields, apply uniqueness after macro processing; e.g. if Lang1, Lang2, Lang3 becomes translatedlangA, translatedlangB, translatedlangB, unique to translatedlangA, translatedlangB; no examples available
 					if ($isHorizontallyRepeatable) {
 						$value = array_unique ($value);		// Key numbering may now have holes, but the next operation is imploding anyway
 					}
@@ -579,7 +579,7 @@ class marcConversion
 				continue;
 			}
 			
-			# For vertically-repeatable, first check the counts are consistent (e.g. if //k/kw generated 7 items, and //k/ks generated 5, throw an exception, as behaviour is undefined)
+			# For vertically-repeatable, first check the counts are consistent (e.g. if //k/kw generated 7 items, and //k/ks generated 5, throw an error, as behaviour is undefined); no tests possible as this is basically now deprected - no examples in parser left, as groupings all handled by macros now
 			$counts = array ();
 			foreach ($line['xpathReplacements'] as $macroBlock => $xpathReplacementSpec) {
 				$replacementValues = $xpathReplacementSpec['replacement'];
@@ -614,7 +614,7 @@ class marcConversion
 			}
 		}
 		
-		# Return the newly-expanded datastructure
+		# Return the newly-expanded datastructure; e.g. /records/1599/ (test #253)
 		return $datastructure;
 	}
 	
@@ -627,13 +627,13 @@ class marcConversion
 		foreach ($datastructure as $lineNumber => $attributes) {
 			$line = $attributes['line'];
 			
-			# Perform XPath replacements if any, working through each replacement
+			# Perform XPath replacements if any, working through each replacement; e.g. /records/1049/ (test #247)
 			if ($datastructure[$lineNumber]['xpathReplacements']) {
 				
 				# Start a flag for whether the line has content
 				$lineHasContent = false;
 				
-				# Loop through each macro block
+				# Loop through each macro block; e.g. /records/1049/ (test #247)
 				$replacements = array ();
 				foreach ($datastructure[$lineNumber]['xpathReplacements'] as $macroBlock => $xpathReplacementSpec) {
 					$replacementValue = $xpathReplacementSpec['replacement'];
@@ -642,7 +642,7 @@ class marcConversion
 					$blockHasValue = strlen ($replacementValue);
 					
 					# Register replacements
-					$fullBlock = $xpathReplacementSpec['fullBlock'];	// The original block, which includes any trailing space(s), e.g. "‡a{/*/edn} "
+					$fullBlock = $xpathReplacementSpec['fullBlock'];	// The original block, which includes any trailing space(s), e.g. "‡a{/*/edn} " ; e.g. if optional block is skipped because of no value then following block will not have a space before: /records/1049/ (test #260)
 					if ($blockHasValue) {
 						$replacements[$fullBlock] = $xpathReplacementSpec['subfieldIndicator'] . $replacementValue . $xpathReplacementSpec['trailingSpace'];
 					} else {
@@ -657,7 +657,7 @@ class marcConversion
 							$lineHasContent = true;
 						}
 						
-						# If there is an 'A' (all) control character, require all non-optional placeholders to have resulted in text
+						# If there is an 'A' (all) control character, require all non-optional placeholders to have resulted in text; e.g. /records/3056/ (test #257), /records/3057/ (test #258)
 						#!# Currently this takes no account of the use of a macro in the nonfiling-character section (e.g. 02), i.e. those macros prefixed with indicators; however in practice that should always return a string
 						if (in_array ('A', $datastructure[$lineNumber]['controlCharacters'])) {
 							if (!$xpathReplacementSpec['isOptionalBlock']) {
@@ -669,7 +669,7 @@ class marcConversion
 					}
 				}
 				
-				# If there is an 'E' ('any') control character, require at least one replacement, i.e. that content (after the field number and indicators) exists
+				# If there is an 'E' ('any' ['either']) control character, require at least one replacement, i.e. that content (after the field number and indicators) exists; e.g. /records/1049/ (test #259)
 				if (in_array ('E', $datastructure[$lineNumber]['controlCharacters'])) {
 					if (!$lineHasContent) {
 						continue;	// i.e. skip this line, preventing registration below
@@ -687,7 +687,7 @@ class marcConversion
 				$lineOutputKey = $attributes['marcCode'] . '_' . $i++;	// e.g. 650_1 for the second 650 record, 650_2 for the third, etc.
 			}
 			
-			# Trim the line; NB This will not trim within multiline output lines
+			# Trim the line, e.g. /records/1054/ (test #261); NB This will not trim within multiline output lines
 			#!# Need to check multiline outputs to ensure they are trimming
 			$line = trim ($line);
 			
@@ -695,7 +695,7 @@ class marcConversion
 			$outputLines[$lineOutputKey] = $line;
 		}
 		
-		# Insert 880 reciprocal links; see: http://www.lib.cam.ac.uk/libraries/login/documentation/Unicode_non_roman_cataloguing_handout.pdf
+		# Insert 880 reciprocal links; see: http://www.lib.cam.ac.uk/libraries/login/documentation/Unicode_non_roman_cataloguing_handout.pdf ; e.g. /records/1062/ has "245 ## ‡6 880-01" and "880 ## ‡6 245-01" (test #230)
 		foreach ($this->field880subfield6ReciprocalLinks as $lineOutputKey => $linkToken) {		// $lineOutputKey is e.g. 700_0
 			
 			# Report data mismatches
@@ -709,11 +709,11 @@ class marcConversion
 				foreach ($lines as $i => $line) {
 					$lines[$i] = $this->insertSubfieldAfterMarcFieldThenIndicators ($line, $linkToken[$i]);
 				}
-				$outputLines[$lineOutputKey] = implode ("\n", $lines);	// Reconstruct
+				$outputLines[$lineOutputKey] = implode ("\n", $lines);	// Reassemble; e.g. /records/1697/ (test #262)
 				
 			# For standard lines, do a simple insertion
 			} else {
-				$outputLines[$lineOutputKey] = $this->insertSubfieldAfterMarcFieldThenIndicators ($outputLines[$lineOutputKey], $linkToken);
+				$outputLines[$lineOutputKey] = $this->insertSubfieldAfterMarcFieldThenIndicators ($outputLines[$lineOutputKey], $linkToken);	// E.g. /records/2800/ (test #263)
 			}
 		}
 		
@@ -721,7 +721,7 @@ class marcConversion
 		$record = implode ("\n", $outputLines);
 		
 		# Strip tags (introduced in specialCharacterParsing) across the record: "in MARC there isn't a way to represent text in italics in a MARC record and get it to display in italics in the OPAC/discovery layer, so the HTML tags will need to be stripped."
-		$tags = array ('<em>', '</em>', '<sub>', '</sub>', '<sup>', '</sup>');
+		$tags = array ('<em>', '</em>', '<sub>', '</sub>', '<sup>', '</sup>');	// E.g. /records/1131/ (test #264), /records/2800/ (test #265), /records/61528/ (test #266)
 		$record = str_replace ($tags, '', $record);
 		
 		# Return the record
@@ -729,7 +729,7 @@ class marcConversion
 	}
 	
 	
-	# Function to modify a line to insert a subfield after the opening MARC field and indicators; for a multiline value, this must be one of the sublines
+	# Function to modify a line to insert a subfield after the opening MARC field and indicators; for a multiline value, this must be one of the sublines; e.g. /records/1697/ (test #262), /records/2800/ (test #263)
 	private function insertSubfieldAfterMarcFieldThenIndicators ($line, $insert)
 	{
 		return preg_replace ('/^([0-9]{3}) ([0-9#]{2}) (.+)$/', "\\1 \\2 {$insert} \\3", $line);
@@ -757,10 +757,10 @@ class marcConversion
 			if (is_null ($parameter)) {
 				$string = $this->{$macroMethod} ($string, NULL);
 			} else {
-				$string = $this->{$macroMethod} ($string, $parameter);
+				$string = $this->{$macroMethod} ($string, $parameter);	// E.g. /records/2176/ (test #268)
 			}
 			
-			// Continue to next macro (if any), using the processed string as it now stands
+			// Continue to next macro in chain (if any), using the processed string as it now stands; e.g. /records/2800/ (test #267)
 		}
 		
 		# Return the string
