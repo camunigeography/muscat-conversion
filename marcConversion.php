@@ -957,9 +957,6 @@ class marcConversion
 			$results[$pgIndex] .= " :{$this->doubleDagger}b" . implode (" :{$this->doubleDagger}b", $puValues);	// "a colon (:) when subfield $b is followed by another subfield $b" at https://www.loc.gov/marc/bibliographic/bd260.html
 		}
 		
-		# End if no values; e.g. /records/76740/
-		if (!$results) {return false;}
-		
 		# Implode by space-semicolon: "a semicolon (;) when subfield $b is followed by subfield $a" at https://www.loc.gov/marc/bibliographic/bd260.html
 		$result = implode (' ;', $results);
 		
