@@ -938,7 +938,7 @@ class marcConversion
 			for ($puIndex = 1; $puIndex <= 20; $puIndex++) {
 				$puValue = $this->xPathValue ($this->xml, "//pg[$pgIndex]/pu[{$puIndex}]");	// e.g. /records/1223/ has multiple
 				if ($puIndex > 1 && !strlen ($puValue)) {break;}	// Empty $pu is fine for first and will show [s.n.], but after that should not appear
-				$puValues[] = $this->formatPu ($puValue);
+				$puValues[] = $this->formatPu ($puValue);	// Will always return a string
 			}
 			
 			# Transliterate if required; e.g. /records/6996/ (test #58)
@@ -953,11 +953,8 @@ class marcConversion
 			}
 			
 			# Assemble the result
-			#!# Need to check for cases of $b but not $a
 			$results[$pgIndex]  = "{$this->doubleDagger}a" . implode (" ;{$this->doubleDagger}a", $plValues);
-			if ($puValues) {
-				$results[$pgIndex] .= " :{$this->doubleDagger}b" . implode (" :{$this->doubleDagger}b", $puValues);	// "a colon (:) when subfield $b is followed by another subfield $b" at https://www.loc.gov/marc/bibliographic/bd260.html
-			}
+			$results[$pgIndex] .= " :{$this->doubleDagger}b" . implode (" :{$this->doubleDagger}b", $puValues);	// "a colon (:) when subfield $b is followed by another subfield $b" at https://www.loc.gov/marc/bibliographic/bd260.html
 		}
 		
 		# End if no values; e.g. /records/76740/
