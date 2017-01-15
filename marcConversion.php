@@ -843,35 +843,6 @@ class marcConversion
 	}
 	
 	
-	# Require a dot
-	private function macro_requireDot ($value)
-	{
-		# End if none
-		if (!preg_match ('/^([^:]+) ?\. (.+)$/', $value, $matches)) {
-			return false;
-		}
-		
-		# Return unmodified if present
-		return $value;
-	}
-	
-	
-	# Splitting of strings with a dot
-	private function macro_dotSplit ($value, $splitMarker)
-	{
-		# Return unmodified if no split
-		if (!preg_match ('/^([^:]+) ?\. (.+)$/', $value, $matches)) {
-			return $value;
-		}
-		
-		# If a split is found, assemble
-		$value = trim ($matches[1]) . ". {$this->doubleDagger}{$splitMarker} " . trim ($matches[2]);
-		
-		# Return the value
-		return $value;
-	}
-	
-	
 	# Ending strings with dots
 	public function macro_dotEnd ($value, $extendedCharacterList = false)
 	{
