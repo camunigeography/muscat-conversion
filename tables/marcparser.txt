@@ -33,7 +33,6 @@ AR 651 #7 ‡2{//k/ks|macro:isRoundBracketed|macro:addLookedupKsValue|macro:dotE
 A  700 {/*|macro:generateAuthors(700)}
 A  710 {/*|macro:generateAuthors(710)}
 A  711 {/*|macro:generateAuthors(711)}
-#AR 710 1# ‡a{//ag/a[position()>1]/n1|macro:requireDot|macro:dotSplit(b)}
 A  773 0# {/|macro:generate773}
 AR 780 10 ‡t{//ft}
 AR 785 10 ‡t{//st}
