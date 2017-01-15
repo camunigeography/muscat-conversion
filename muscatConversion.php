@@ -4591,7 +4591,7 @@ class muscatConversion extends frontControllerApplication
 			$filename = $directory . "/spri-marc-{$fileset}.errors.txt";
 			$errors = file_get_contents ($filename);
 			$errorListingHtml = htmlspecialchars (trim ($errors));
-			$errorListingHtml = preg_replace ("/(\s)(SPRI)([0-9]+)/", '\1\2<a href="' . $this->baseUrl . '/records/\3/"><strong>\3</strong></a>', $errorListingHtml);
+			$errorListingHtml = preg_replace ("/(\s)(SPRI-)([0-9]+)/", '\1\2<a href="' . $this->baseUrl . '/records/\3/"><strong>\3</strong></a>', $errorListingHtml);
 			$totalErrors = (isSet ($totals[$fileset]) ? $totals[$fileset] : '0');
 			$jumplist[] = "<a href=\"#{$fileset}\" class=\"" . ($totalErrors ? 'warning' : 'success') . "\">{$label} ({$totalErrors})</a>";
 			$errorsHtml .= "\n<h4 id=\"{$fileset}\" class=\"" . ($totalErrors ? 'warning' : 'success') . "\">Errors: {$label} (" . $totalErrors . ')</h4>';
