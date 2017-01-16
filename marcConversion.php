@@ -775,10 +775,10 @@ class marcConversion
 	# Permits multimedia value EANs, which are probably valid to include as the MARC spec mentions 'EAN': https://www.loc.gov/marc/bibliographic/bd020.html ; see also http://www.activebarcode.com/codes/ean13_laenderpraefixe.html
 	private function macro_validisbn ($value)
 	{
-		# Determine the subfield, by performing a validation; seems to permit EANs like 5391519681503 in /records/211150/
+		# Determine the subfield, by performing a validation; seems to permit EANs like 5391519681503 in /records/211150/ (test #270)
 		$this->muscatConversion->loadIsbnValidationLibrary ();
 		$isValid = $this->muscatConversion->isbn->validation->isbn ($value);
-		$subfield = $this->doubleDagger . ($isValid ? 'a' : 'z');
+		$subfield = $this->doubleDagger . ($isValid ? 'a' : 'z');	// E.g. /records/211150/ (test #271), /records/49940/ (test #272)
 		
 		# Assemble the return value, adding qualifying information if required
 		$string = $subfield . $value;
@@ -788,32 +788,32 @@ class marcConversion
 	}
 	
 	
-	# Macro to prepend a string if there is a value
+	# Macro to prepend a string if there is a value; e.g. /records/49940/ (test #273)
 	private function macro_prepend ($value, $text)
 	{
 		# Return unmodified if no value
-		if (!$value) {return $value;}
+		if (!$value) {return $value;}	// E.g. /records/49941/ (test #274)
 		
 		# Prepend the text
 		return $text . $value;
 	}
 	
 	
-	# Macro to check existence
+	# Macro to check existence; e.g. /records/1058/ (test #275); no negative test possible as no case in parser definition
 	private function macro_ifValue ($value, $xPath)
 	{
 		return ($this->xPathValue ($this->xml, $xPath) ? $value : false);
 	}
 	
 	
-	# Macro to upper-case the first character
+	# Macro to upper-case the first character; e.g. /records/1054/ (test #276)
 	private function macro_ucfirst ($value)
 	{
 		return mb_ucfirst ($value);
 	}
 	
 	
-	# Macro to implement a ternary check
+	# Macro to implement a ternary check; e.g. /records/1010/ (test #277), /records/2176/ (test #278)
 	private function macro_ifElse ($value_ignored /* If empty, the macro will not even be called, so the value has to be passed in by parameter */, $parameters)
 	{
 		# Parse the parameters
@@ -827,7 +827,7 @@ class marcConversion
 	}
 	
 	
-	# Splitting of strings with colons in
+	# Splitting of strings with colons in; e.g. /records/3765/ (test #279), /records/1019/ (test #280)
 	private function macro_colonSplit ($value, $splitMarker)
 	{
 		# Return unmodified if no split
@@ -843,7 +843,7 @@ class marcConversion
 	}
 	
 	
-	# Ending strings with dots
+	# Ending strings with dots; e.g. /records/1102/ (test #281), /records/1109/ (test #282), /records/1105/ (test #283), /records/1063/ (test #284)
 	public function macro_dotEnd ($value, $extendedCharacterList = false)
 	{
 		# End if no value
@@ -869,54 +869,57 @@ class marcConversion
 	private function macro_excludeNoneValue ($value)
 	{
 		# Return false on match
-		if ($value == '-') {return false;}
-		if ($value == '??') {return false;}
+		if ($value == '-') {return false;}		// E.g. /records/138387/ (test #285)
+		if ($value == '??') {return false;}		// E.g. /records/116085/
 		
-		# Return the value
+		# Return the value; e.g. /records/1102/ (test #286)
 		return $value;
 	}
 	
 	
-	# Macro to get multiple values as an array
+	# Macro to get multiple values as an array; e.g. /records/205727/ for 546 $a //lang (test #287), no value(s): /records/1102/ (test #288)
 	private function macro_multipleValues ($value_ignored, $parameter)
 	{
 		$parameter = "({$parameter})[%i]";
-		$values = $this->xPathValues ($this->xml, $parameter, false);		// e.g. /records/2071/ for 546 $a //lang ; /records/6321/ for 260 $c //d
-		$values = array_unique ($values);
+		$values = $this->xPathValues ($this->xml, $parameter, false);
+		$values = array_unique ($values);	// e.g. /records/1337/ (test #289)
 		return $values;
 	}
 	
 	
-	# Macro to implode subvalues
+	# Macro to implode subvalues; e.g. /records/132384/ (test #290), /records/1104/ (test #291)
 	private function macro_implode ($values, $parameter)
 	{
 		# Return empty string if no values
-		if (!$values) {return '';}
+		if (!$values) {return '';}	// E.g. /records/1007/ (test #292)
 		
 		# Implode and return
 		return implode ($parameter, $values);
 	}
 	
 	
-	# Macro to implode subvalues with the comma-and algorithm; e.g. as used for 546 (example record: /records/160854/ )
+	# Macro to implode subvalues with the comma-and algorithm; e.g. as used for 546 in /records/160854/ (test #293)
 	private function macro_commaAnd ($values, $parameter)
 	{
-		# Return empty string if no values
+		# Return empty string if no values; e.g. /records/1102/ (test #296)
 		if (!$values) {return '';}
 		
-		# Implode and return
+		# Implode and return; e.g. /records/160854/ (test #293), /records/1144/ (test #294), /records/1007/ (test #295)
 		return application::commaAndListing ($values);
 	}
 	
 	
-	# Macro to create 260;  $a and $b are grouped as there may be more than one publisher, e.g. /records/76743/ ; see: https://www.loc.gov/marc/bibliographic/bd260.html
+	# Macro to create 260; $a and $b are grouped as there may be more than one publisher, e.g. /records/76743/ (#test 297); see: https://www.loc.gov/marc/bibliographic/bd260.html
 	private function macro_generate260 ($value_ignored, $transliterate = false)
 	{
+		# In transliteration mode, end if not Russian; e.g. /records/1014/ (test #316)
+		#!# Not yet implemented
+		
 		# Start a list of values; the macro definition has already defined $a
 		$results = array ();
 		
-		# Loop through each /*pg/*[pl|pu] group; e.g. /records/76742/
-		for ($pgIndex = 1; $pgIndex <= 20; $pgIndex++) {	// XPaths are indexed from 1, not 0
+		# Loop through each /*pg/*[pl|pu] group; e.g. /records/76743/ (test #297), /records/1786/ (test #298)
+		for ($pgIndex = 1; $pgIndex <= 20; $pgIndex++) {	// XPaths are indexed from 1, not 0; 20 chosen as a high number to ensure sufficient *pg groups
 			$pg = $this->xPathValue ($this->xml, "//pg[{$pgIndex}]");
 			
 			# Break out of loop if no more
@@ -927,8 +930,8 @@ class marcConversion
 			# Obtain the raw *pl value(s) for this *pg group
 			$plValues = array ();
 			for ($plIndex = 1; $plIndex <= 20; $plIndex++) {
-				$plValue = $this->xPathValue ($this->xml, "//pg[$pgIndex]/pl[{$plIndex}]");	// e.g. /records/1639/ has multiple
-				if ($plIndex > 1 && !strlen ($plValue)) {break;}	// Empty $pl is fine for first and will show [S.l.], but after that should not appear
+				$plValue = $this->xPathValue ($this->xml, "//pg[$pgIndex]/pl[{$plIndex}]");	// e.g. /records/1639/ has multiple (test #299)
+				if ($plIndex > 1 && !strlen ($plValue)) {break;}	// Empty $pl is fine for first and will show [S.l.] ('sine loco', i.e. 'without place'), e.g. /records/1484/ (test #300), but after that should not appear (no examples found)
 				$plValues[] = $this->formatPl ($plValue);
 			}
 			
@@ -936,8 +939,8 @@ class marcConversion
 			$puValue = $this->xPathValue ($this->xml, "//pg[$pgIndex]/pu");
 			$puValues = array ();
 			for ($puIndex = 1; $puIndex <= 20; $puIndex++) {
-				$puValue = $this->xPathValue ($this->xml, "//pg[$pgIndex]/pu[{$puIndex}]");	// e.g. /records/1223/ has multiple
-				if ($puIndex > 1 && !strlen ($puValue)) {break;}	// Empty $pu is fine for first and will show [s.n.], but after that should not appear
+				$puValue = $this->xPathValue ($this->xml, "//pg[$pgIndex]/pu[{$puIndex}]");	// e.g. /records/1223/ has multiple (test #301)
+				if ($puIndex > 1 && !strlen ($puValue)) {break;}	// Empty $pu is fine for first and will show [s.n.] ('sine nomine', i.e. 'without name'), e.g. /records/1730/ (test #302), but after that should not appear (no examples found)
 				$puValues[] = $this->formatPu ($puValue);	// Will always return a string
 			}
 			
@@ -947,26 +950,26 @@ class marcConversion
 					foreach ($puValues as $index => $puValue) {
 						$xPath = '//lang[1]';	// Choose first only
 						$language = $this->xPathValue ($this->xml, $xPath);
-						$puValues[$index] = $this->macro_transliterate ($puValue, NULL, $language);
+						$puValues[$index] = $this->macro_transliterate ($puValue, NULL, $language);	// [S.l.] and [s.n.] will not get transliterated as they are in brackets, e.g. /records/76740/ (test #306)
 					}
 				}
 			}
 			
 			# Assemble the result
 			$results[$pgIndex]  = "{$this->doubleDagger}a" . implode (" ;{$this->doubleDagger}a", $plValues);
-			$results[$pgIndex] .= " :{$this->doubleDagger}b" . implode (" :{$this->doubleDagger}b", $puValues);	// "a colon (:) when subfield $b is followed by another subfield $b" at https://www.loc.gov/marc/bibliographic/bd260.html
+			$results[$pgIndex] .= " :{$this->doubleDagger}b" . implode (" :{$this->doubleDagger}b", $puValues);	// "a colon (:) when subfield $b is followed by another subfield $b" at https://www.loc.gov/marc/bibliographic/bd260.html , e.g. /records/1223/ (test #304)
 		}
 		
-		# Implode by space-semicolon: "a semicolon (;) when subfield $b is followed by subfield $a" at https://www.loc.gov/marc/bibliographic/bd260.html
+		# Implode by space-semicolon: "a semicolon (;) when subfield $b is followed by subfield $a" at https://www.loc.gov/marc/bibliographic/bd260.html , e.g. /records/76743/ (test #303)
 		$result = implode (' ;', $results);
 		
-		# Add $c if present; confirmed these should be treated as a single $c, comma-separated, as we have no grouping information
+		# Add $c if present; confirmed these should be treated as a single $c, comma-separated, as we have no grouping information; e.g. /records/76740/ (test #307)
 		if ($dateValues = $this->xPathValues ($this->xml, '(//d)[%i]', false)) {
 			if ($result) {$result .= ',';}
-			$result .= "{$this->doubleDagger}c" . implode (', ', $dateValues);
+			$result .= "{$this->doubleDagger}c" . implode (', ', $dateValues);	// Nothing in spec suggests modification if empty, e.g. /records/1787/ has '-' (test #311), or /records/1102/ has [n.d.] (test #312), both of which remain as-is
 		}
 		
-		# Ensure dot at end
+		# Ensure dot at end; e.g. /records/76740/ (test #308), /records/1105/ (test #283)
 		$result = $this->macro_dotEnd ($result, $extendedCharacterList = true);
 		
 		# Return the result
@@ -977,22 +980,22 @@ class marcConversion
 	# Helper function for 260a *pl
 	private function formatPl ($plValue)
 	{
-		# If no *pl, put '[S.l.]'. ; e.g. /records/1006/ ; decision made not to make a semantic difference between between a publication that is known to have an unknown publisher (i.e. a check has been done and this is explicitly noted) vs a publication whose check has never been done, so we don't know if there is a publisher or not.
+		# If no *pl, put '[S.l.]'. ; e.g. /records/1484/ (test #300) ; decision made not to make a semantic difference between between a publication that is known to have an unknown publisher (i.e. a check has been done and this is explicitly noted) vs a publication whose check has never been done, so we don't know if there is a publisher or not.
 		if (!$plValue) {
 			return '[S.l.]';	// Meaning 'sine loco' ('without a place')
 		}
 		
-		# *pl [if *pl is '[n.p.]' or '-', this should be replaced with '[S.l.]' ]. ; e.g. /records/1102/ , /records/1787/
+		# *pl [if *pl is '[n.p.]' or '-', this should be replaced with '[S.l.]' ]. ; e.g. /records/1787/, /records/1102/ (test #308)
 		if ($plValue == '[n.p.]' || $plValue == '-') {
 			return '[S.l.]';
 		}
 		
-		# Preserve square brackets, but remove round brackets if present. ; e.g. /records/2027/ , /records/5942/ , /records/5943/
+		# Preserve square brackets, but remove round brackets if present. ; e.g. /records/2027/ , /records/5942/ (test #309) , /records/5943/ (test #310)
 		if (preg_match ('/^\((.+)\)$/', $plValue, $matches)) {
 			return $matches[1];
 		}
 		
-		# Return the value unmodified
+		# Return the value unmodified; e.g. /records/1117/ (test #315)
 		return $plValue;
 	}
 	
@@ -1000,12 +1003,12 @@ class marcConversion
 	# Helper function for 260a *pu
 	private function formatPu ($puValue)
 	{
-		# *pu [if *pu is '[n.pub.]' or '-', this should be replaced with '[s.n.]' ] ; e.g. /records/1105/ , /records/1745/
+		# *pu [if *pu is '[n.pub.]' or '-', this should be replaced with '[s.n.]' ] ; e.g. /records/1105/ , /records/1745/ (test #313)
 		if (!strlen ($puValue) || $puValue == '[n.pub.]' || $puValue == '-') {
 			return '[s.n.]';	// Meaning 'sine nomine' ('without a name')
 		}
 		
-		# Otherwise, return the value unmodified; e.g. /records/1011/
+		# Otherwise, return the value unmodified; e.g. /records/1117/ (test #314)
 		return $puValue;
 	}
 	
@@ -1020,17 +1023,17 @@ class marcConversion
 		$result = '';
 		
 		# Obtain *p
-		$pValues = $this->xPathValues ($this->xml, '(//p)[%i]', false);	// Multiple *p, e.g. /records/6002/ , /records/15711/
+		$pValues = $this->xPathValues ($this->xml, '(//p)[%i]', false);	// E.g. multiple *p: /records/15711/ , /records/6002/ (test #319); single *p: /records/1175/ (test #320); no *p: /records/1104/ (test #321)
 		$p = ($pValues ? implode ('; ', $pValues) : '');
 		
 		# Obtain *pt
-		$ptValues = $this->xPathValues ($this->xml, '(//pt)[%i]', false);	// Multiple *p, e.g. /records/25179/
+		$ptValues = $this->xPathValues ($this->xml, '(//pt)[%i]', false);	// E.g. multiple *pt: /records/25179/ (test #322); single *pt: /records/1129/ (test #323); no *pt: /records/1106/ (test #324)
 		$pt = ($ptValues ? implode ('; ', $ptValues) : '');		// Decided in internal meeting to use semicolon, as comma is likely to be present within a component
 		
-		# Determine *p or *pt
+		# Determine *p or *pt; e.g. *p /records/6002/ (test #325), /records/25179/ (test #326)
 		$value = (strlen ($p) ? $p : $pt);		// Confirmed there are no records with both *p and *pt
 		
-		# Firstly, break off any final + section, for use in $e below; e.g. /records/67235/
+		# Firstly, break off any final + section, for use in $e below; e.g. /records/67235/ (test #327)
 		$e = false;
 		if (substr_count ($value, '+')) {
 			$plusMatches = explode ('+', $value, 2);
@@ -1038,18 +1041,18 @@ class marcConversion
 			$value = trim ($plusMatches[0]);	// Override string to strip out the + section
 		}
 		
-		# Next split by the keyword which acts as separator between $a and an optional $b
+		# Next split by the keyword which acts as separator between $a and an optional $b; e.g. /records/51787/ (test #328)
 		$a = trim ($value);
 		$b = false;
 		$splitWords = array ('ill', 'diag', 'map', 'table', 'graph', 'port', 'col');
 		foreach ($splitWords as $word) {
 			if (substr_count ($value, $word)) {
 				
-				# If the word requires a dot after, add this if not present; e.g. /records/1584/ , /records/3478/ , /records/1163/
+				# If the word requires a dot after, add this if not present; e.g. /records/1584/ (test #329) , /records/1163/
 				# Checked using: `SELECT * FROM catalogue_processed WHERE field IN('p','pt') AND value LIKE '%ill%' AND value NOT LIKE '%ill.%' AND value NOT REGEXP 'ill(-|\.|\'|[a-z]|$)';`
 				if ($word == 'ill') {
 					if (!substr_count ($value, $word . '.')) {
-						if (!preg_match ('/ill(-|\'|[a-z])/', $value)) {	// I.e. don't add . in middle of word or cases like ill
+						if (!preg_match ("/{$word}(-|\'|[a-z])/", $value)) {	// I.e. don't add . in middle of word or cases like ill
 							$value = str_replace ($word, $word . '.', $value);
 						}
 					}

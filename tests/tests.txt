@@ -1547,6 +1547,12 @@ MARC parser check of passing in XPath /
 100
 ‡aBarrow, John,‡cSir.
 
+256
+Multiple *con in 563
+3056
+!563
+foxingGeneral comments:
+
 257
 MARC parser check of 'A' (all) control character: value present (see also next test)
 3056
@@ -1618,5 +1624,377 @@ MARC parser parameter parsing
 2176
 856
 urn:doi:
+
+269
+916 multiple *ref spacing (pending decision on correct formatting)
+56613
+!916
+(v.1)63025 (v.2)
+
+270
+Macro validisbn validates correct ISBN
+1182
+020
+‡a096861387X
+
+271
+Macro validisbn gives valid result for EANs
+211150
+020
+‡a5391519681503
+
+272
+Macro validisbn invalidates incorrect ISBN
+49940
+020
+‡z0871446801
+
+273
+Macro prepend: value present
+49940
+546
+‡aIn Danish.
+
+274
+Macro prepend: value not present
+49941
+!546
+*
+
+275
+Macro ifValue: value present
+1058
+242
+‡yeng
+
+276
+Macro ucfirst
+1054
+310
+‡aIrregular
+
+277
+Macro ifElse: value present
+1010
+i856
+/^4/
+
+278
+Macro ifElse: value not present
+2176
+i856
+/^#/
+
+279
+Macro colonSplit: colon present
+3765
+246
+‡aThulia : ‡b a tale
+
+280
+Macro colonSplit: colon not present
+1019
+246
+‡aCanada. Mines Branch. Monographs
+
+281
+Macro dotEnd, without extended character list: dot present
+1102
+520
+/Melville Island\.$/
+
+282
+Macro dotEnd, without extended character list: dot not present
+1109
+520
+/Vatnajökull area\.$/
+
+283
+Macro dotEnd, with extended character list: ] present
+1105
+260
+/‡c\[n.d.\]$/
+
+284
+Macro dotEnd, with extended character list: ] not present
+1063
+260
+/Research Establishment\.$/
+
+285
+Macro excludeNoneValue: string with value '-'
+138387
+!520
+*
+
+286
+Macro excludeNoneValue: normal string
+1102
+520
+‡aShips on route
+
+287
+Macro multipleValues: value(s)
+205727
+546
+‡aIn English and Inuktitut.
+
+288
+Macro multipleValues: no value
+1102
+!546
+*
+
+289
+Macro multipleValues: uniqueing
+1337
+948
+/‡bIW$/
+
+290
+Macro implode: multiple values
+132384
+948
+‡bOM, WM
+
+291
+Macro implode: single value
+1104
+948
+/‡bHS$/
+
+292
+Macro implode: no values
+1007
+!948
+‡b
+
+293
+Macro commaAnd: >2 values
+160854
+546
+‡aIn Danish, English, Greenlandic and German.
+
+294
+Macro commaAnd: 2 values
+1144
+546
+‡aIn German and French.
+
+295
+Macro commaAnd: 1 value
+1007
+546
+‡aIn English.
+
+296
+Macro commaAnd: no values
+1102
+!546
+*
+
+297
+Macro generate260: multiple *pg
+76743
+260
+‡aBoulder, CO :‡bUniversity of Colorado, Cooperative Institute for Research in Environmental Studies ;‡aParkville, Victoria :‡bUniversity of Melbourne, Meteorology Department,‡c
+
+298
+Macro generate260: single *pg
+1786
+260
+‡aParis :‡bTerres australes et antarctiques françaises,‡c
+
+299
+Macro generate260: multiple *pl within a *pg
+1639
+260
+‡aLondon ;‡aFelling-on-Tyne :‡b
+
+300
+Macro generate260: sine loco (i.e. *pg without *pl)
+1484
+260
+‡a[S.l.] :‡b
+
+301
+Macro generate260: multiple *pu within a *pg
+1223
+260
+‡a[Cambridge] :‡bNatural Environment Research Council :‡bBritish Antarctic Survey,‡c
+
+302
+Macro generate260: sine nomine (i.e. *pg without *pu)
+1730
+260
+:‡b[s.n.],‡c
+
+303
+Macro generate260: multiple *pg has semicolon between
+76743
+260
+Studies ;‡a
+
+304
+Macro generate260: multiple ‡b has colon between
+1223
+260
+‡bNatural Environment Research Council :‡bBritish 
+
+305
+Macro generate260: check against incorrect 880 (implementation pending)
+1054
+!880
+/‡a\[S.l.\] :‡b\.$/
+
+306
+Macro generate260: 880 [S.l.] and [s.n.] not transliterated
+76740
+880
+‡a[S.l.] :‡b[s.n.],‡c1985.
+
+307
+Macro generate260: date
+76740
+260
+,‡c1985.
+
+308
+Macro generate260: *pl conversion of Muscat '[n.p.]' or '-' to MARC [S.l.]
+1102
+260
+‡a[S.l.] :
+
+309
+Macro generate260: *pl remove round brackets
+5942
+260
+‡aNew York and Philadelphia :
+
+310
+Macro generate260: *pl preserve square brackets
+5943
+260
+‡a[Philadelphia, PA] :
+
+311
+Macro generate260: *d added unmodified
+1787
+260
+‡c-.
+
+312
+Macro generate260: *d added unmodified (another example)
+1102
+260
+‡c[n.d.]
+
+313
+Macro generate260: *pu conversion of Muscat '[n.pub.]' or '-' to MARC [s.n.]
+1105
+260
+:‡b[s.n.],‡
+
+314
+Macro generate260: *pu ‡b standard case
+1117
+260
+‡bCurriculum Development Centre,
+
+315
+Macro generate260: *pl ‡a standard case
+1117
+260
+‡aCanberra :
+
+316
+No 260 880 generated if record is not Russian (implementation pending)
+1014
+!880
+260-
+
+317
+260 second indicator: if *loc starts with 'Theses' second indicator should be '0' (implementation pending)
+3152
+i260
+/0$/
+
+318
+260 second indicator: normal case
+1117
+i260
+/#$/
+
+319
+Macro generate300 multiple *p
+6002
+300
+‡a2 vols. Vol. 1 (14), 409 p.; Vol. 2 (7), 393 p. :‡b
+
+320
+Macro generate300 single *p
+1175
+300
+/‡a12 p\.$/
+
+321
+Macro generate300 no *p
+1104
+300
+‡a:[1-4] :‡bill.
+
+322
+Macro generate300 multiple *pt
+25179
+300
+‡a42(12) :681-685; 43(1) :12-15;
+
+323
+Macro generate300 single *pt
+1129
+300
+/‡a2\.$/
+
+324
+Macro generate300 no *pt
+1106
+300
+‡a9 p., plates. ;‡
+
+325
+Macro generate300 *p rather than *pt
+15711
+300
+‡a67-108; 133-137 :
+
+326
+Macro generate300 *pt rather than *p
+25179
+300
+‡a42(12) :681-685; 43(1) :12-15;
+
+327
+Macro generate260 split off +
+67235
+300
+‡c30 cm. +‡esupplement.
+
+328
+Macro generate260 colon before ill. etc. (see also test #220)
+51787
+300
+‡avariously paged :‡bill. ;
+
+329
+Macro generate260 adds dot after abbreviated term ill if not present
+1584
+300
+‡bill. ;
+
+330
+Macro generate260 adds dot after abbreviated term illus if not present
+1163
+300
+‡billus.
 
 
