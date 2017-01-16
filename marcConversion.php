@@ -1044,13 +1044,13 @@ class marcConversion
 		# Next split by the keyword which acts as separator between $a and an optional $b; e.g. /records/51787/ (test #328)
 		$a = trim ($value);
 		$b = false;
-		$splitWords = array ('ill', 'diag', 'map', 'table', 'graph', 'port', 'col');
+		$splitWords = array ('illus', 'ill', 'diag', 'map', 'table', 'graph', 'port', 'col');
 		foreach ($splitWords as $word) {
 			if (substr_count ($value, $word) && preg_match ("/\b{$word}\b/", $value)) {		// Use of \b word boundary ensures not splitting bibliography at 'graph' (test #220)
 				
 				# If the word requires a dot after, add this if not present; e.g. /records/1584/ (test #329) , /records/1163/
 				# Checked using: `SELECT * FROM catalogue_processed WHERE field IN('p','pt') AND value LIKE '%ill%' AND value NOT LIKE '%ill.%' AND value NOT REGEXP 'ill(-|\.|\'|[a-z]|$)';`
-				if ($word == 'ill') {
+				if (in_array ($word, array ('illus', 'ill'))) {
 					if (!substr_count ($value, $word . '.')) {
 						if (!preg_match ("/{$word}(-|\'|[a-z])/", $value)) {	// I.e. don't add . in middle of word or cases like ill
 							$value = str_replace ($word, $word . '.', $value);
