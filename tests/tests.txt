@@ -1974,30 +1974,100 @@ Macro generate300 *pt rather than *p
 ‡a42(12) :681-685; 43(1) :12-15;
 
 327
-Macro generate260 split off +
+Macro generate300 split off +
 67235
 300
 ‡c30 cm. +‡esupplement.
 
 328
-Macro generate260 colon before ill. etc. (see also test #220)
+Macro generate300 colon before ill. etc. (see also test #220)
 51787
 300
 ‡avariously paged :‡bill. ;
 
 329
-Macro generate260 adds dot after abbreviated term ill if not present
+Macro generate300 adds dot after abbreviated term ill if not present
 1584
 300
 ‡bill. ;
 
 330
-Macro generate260 adds dot after abbreviated term illus if not present
+Macro generate300 adds dot after abbreviated term illus if not present
 1163
 300
 ‡billus.
 
+331
+Macro generate300 *v present in *doc having ‡b
+20704
+300
+‡a2 vols :‡b
 
+332
+Macro generate300 *v present in *art with a multimedia-type *form
+203063
+300
+‡aWinter.
+
+333
+Macro generate300 ‡e accompanying material
+152326
+300
+‡c33.5 cm. +‡e1 CD-ROM.
+
+334
+Macro generate300 ends with dot or closing bracket (dot case)
+67235
+300
+/‡esupplement\.$/
+
+335
+Macro generate300 $c with single *size
+1103
+300
+;‡c28 cm.
+
+336
+Macro generate300 $c with multiple *size
+9681
+300
+;‡cVols 1-17 34.5 cm. ;‡cVol. 18 25 cm.
+
+337
+Macro generate300 $c with space before cm requiring normalisation
+54851
+300
+‡c20.5 x 20.5 cm.
+
+338
+Macro generate300 $c with space before cm not requiring normalisation
+1102
+300
+‡c28 cm.
+
+339
+Macro generate300 $c with dot after cm requiring normalisation
+1407
+300
+‡c22 cm.
+
+340
+Macro generate300 $c with dot after cm not requiring normalisation
+1102
+300
+‡c28 cm.
+
+341
+Macro generate300 unpaged for *ser with empty result
+1019
+300
+/‡av\.$/
+
+342
+Macro generate300 unpaged for non- *ser
+1248
+300
+/^‡a1 volume \(unpaged\)$/
 
 343
 Macro generate300 Unpaged capitalised
@@ -2010,3 +2080,64 @@ Macro generate300 unpaged stops routine, so no $c
 174009
 300
 /^‡a1 volume \(unpaged\)$/
+
+345
+Macro generate300 unpaged for *doc with empty result
+1332
+300
+/^‡a1 volume \(unpaged\)$/
+
+346
+Macro generate300 normalise dot after p (see also next test)
+1654
+300
+‡a20 p. ;
+
+347
+Macro generate300 normalise dot after p (multiple in single string) (see also previous test)
+2031
+300
+‡a362 p., 56 p., 100 p. :
+
+348
+Macro generate300 does not add dot after v in vols
+20704
+300
+‡a2 vols
+
+349
+Macro generate300 normalises space between p and . requiring normalisation
+49133
+300
+62 p.
+
+350
+Macro generate300 normalises space between p and . not requiring normalisation
+13745
+300
+112 p.
+
+351
+Macro generate300 *vno at start of $a with other $a parts in string
+5174
+300
+‡aVol. 6, 15
+
+352
+Macro generate300 *vno at start of $a without other $a parts in string
+7174
+300
+‡aVol.2.
+
+353
+Macro generate300 *vno with *ts existing does not generate 300
+1896
+!300
+Pt. 1
+
+354
+Macro generate300 *vno with *ts existing generates 490
+1896
+490
+Pt. 1
+

@@ -1048,7 +1048,7 @@ class marcConversion
 		foreach ($splitWords as $word) {
 			if (substr_count ($pOrPt, $word) && preg_match ("/\b{$word}\b/", $pOrPt)) {		// Use of \b word boundary ensures not splitting bibliography at 'graph' (test #220)
 				
-				# If the word requires a dot after, add this if not present; e.g. /records/1584/ (test #329) , /records/1163/
+				# If the word requires a dot after, add this if not present; e.g. /records/1584/ (test #329) , /records/1163/ (test #330)
 				# Checked using: `SELECT * FROM catalogue_processed WHERE field IN('p','pt') AND value LIKE '%ill%' AND value NOT LIKE '%ill.%' AND value NOT REGEXP 'ill(-|\.|\'|[a-z]|$)';`
 				if (in_array ($word, array ('illus', 'ill'))) {
 					if (!substr_count ($pOrPt, $word . '.')) {
@@ -1058,7 +1058,7 @@ class marcConversion
 					}
 				}
 				
-				# Assemble
+				# Assemble; e.g. /records/51787/ (test #328)
 				$split = explode ($word, $pOrPt, 2);	// Explode seems more reliable than preg_split, because it is difficult to get a good regexp that allows multiple delimeters, multiple presence of delimeter, and optional trailing string
 				$a = trim ($split[0]);
 				$b = $word . $split[1];
@@ -1066,14 +1066,14 @@ class marcConversion
 			}
 		}
 		
-		# $a (R) (Extent, pagination): If record is *doc with any or no *form, or *art with *form CD, CD-ROM, DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording: "(*v), (*p or *pt)" [all text up to and including ':']
+		# $a (R) (Extent, pagination): If record is *doc with any or no *form (e.g. /records/20704/ (test #331)), or *art with *form CD, CD-ROM (e.g. /records/203063/ (test #332)), DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording: "(*v), (*p or *pt)" [all text up to and including ':']
 		$isDoc = ($this->recordType == '/doc');
 		$isArt = (substr_count ($this->recordType, '/art'));
 		$isMultimedia = (in_array ($this->form, array ('CD', 'CD-ROM', 'DVD', 'DVD-ROM', 'Sound Cassette', 'Sound Disc', 'Videorecording')));
 		if ($isDoc || ($isArt && $isMultimedia)) {
 			$vMuscat = $this->xPathValue ($this->xml, '//v');
 			if (strlen ($vMuscat)) {
-				$result = $vMuscat . ($a ? ' ' : ($b ? ',' : ''));	// e.g. /records/20704/ , /records/37420/ , /records/175872/ , /records/8988/
+				$result = $vMuscat . ($a ? ' ' : ($b ? ',' : ''));	// e.g. *doc having $b /records/20704/ (test #331), /records/, /records/37420/ , /records/175872/ , /records/8988/
 			}
 		# $a (R) (Extent, pagination): If record is *art with no *form or *form other than listed above: 'p. '*pt [number range after ':' and before ',']
 		} else if ($isArt) {	// Therefore this *art is not multimedia
@@ -1081,11 +1081,11 @@ class marcConversion
 			// $result .= 'p. ';	// Spec unclear - subsequent instruction was "/records/152332/ still contains a spurious 'p' in the $a - please ensure this is not added to the record"
 		}
 		
-		# If there is a *vno but no *ts (and so no 490 will be created), add this at the start, before any pagination data from *pt; e.g. /records/5174/
+		# If there is a *vno but no *ts (and so no 490 will be created - e.g. /records/1896/ (test #354), add this at the start, before any pagination data from *pt; e.g. /records/5174/ (test #351)
 		$vnoPrefix = false;
 		if ($vno = $this->xPathValue ($this->xml, '//vno')) {
-			if (!$ts = $this->xPathValue ($this->xml, '//ts')) {
-				$a = $vno . (strlen ($a) ? ', ' : '') . $a;
+			if (!$ts = $this->xPathValue ($this->xml, '//ts')) {	// /records/1896/ (test #353)
+				$a = $vno . (strlen ($a) ? ', ' : '') . $a;		// E.g. comma added before other $a substring in /records/5174/ (test #351); no existing $a so no comma in /records/7174/ (test #352)
 			}
 		}
 		
@@ -1093,9 +1093,9 @@ class marcConversion
 		$result .= $a;
 		
 		# Normalise 'p' to have a dot after; safe to make this change after checking: `SELECT * FROM catalogue_processed WHERE field IN('p','pt','vno','v','ts') AND value LIKE '%p%' AND value NOT LIKE '%p.%' AND value REGEXP '[0-9]p' AND value NOT REGEXP '[0-9]p( |,|\\)|\\]|$)';`
-		$result = preg_replace ('/([0-9])p([^.]|$)/', '\1p.\2', $result);	// E.g. /records/1654/ , /records/2031/ , /records/6002/
+		$result = preg_replace ('/([0-9])p([^.]|$)/', '\1p.\2', $result);	// E.g. /records/6002/ , /records/1654/ (test #346) , multiple in single string: /records/2031/ (test #347)
 		
-		# Add space between the number and the 'p.' or 'v.' ; e.g. /records/49133/ for p. ; multiple instances of page number in /records/2031/ , /records/6002/; NB No actual cases for v. in the data
+		# Add space between the number and the 'p.' or 'v.' ; e.g. /records/49133/ for p. (test #349); normalisation not required: /records/13745/ (test #350) ; multiple instances of page number in /records/2031/ ; NB No actual cases for v. in the data; avoids dot after 'vols': /records/20704/ (test #348)
 		$result = preg_replace ('/([0-9]+)([pv]\.)/', '\1 \2', $result);
 		
 		# $b (NR) (Other physical details): *p [all text after ':' and before, but not including, '+'] or *pt [all text after the ',' - i.e. after the number range following the ':']
@@ -1111,33 +1111,33 @@ class marcConversion
 		}
 		
 		# End if no value; in this scenario, no $c should be created, i.e. the whole routine should be ended
-		if (!strlen ($result) || strtolower ($pOrPt) == 'unpaged') {	 // 'unpaged' at /records/1248/ ; 'Unpaged' at /records/174009/ (test #343)
-			$result = ($this->recordType == '/ser' ? 'v.' : '1 volume (unpaged)');	// e.g. /records/1000/ , /records/1019/ (confirmed to be fine) , /records/1332/
+		if (!strlen ($result) || strtolower ($pOrPt) == 'unpaged') {	 // 'unpaged' at /records/1248/ (test #341); 'Unpaged' at /records/174009/ (test #343)
+			$result = ($this->recordType == '/ser' ? 'v.' : '1 volume (unpaged)');	// E.g. *ser with empty $result: /records/1019/ (confirmed to be fine) (test #341); *doc with empty $result: /records/1332/ (test #345); no cases of unpaged (*p or *pt) for *ser so no test; *doc with unpaged: /records/174009/ (test #343)
 			#!# Is it really correct that $c should be omitted? E.g. in /records/174009/ *size = '21x10 cm.' is thus lost
 			return $result;		// Stop, e.g. /records/174009/ (test #344)
 		}
 		
-		# $c (R) (Dimensions): *size (NB which comes before $e) ; e.g. /records/1103/ , multiple in /records/4329/
+		# $c (R) (Dimensions): *size (NB which comes before $e) ; e.g. /records/1103/ (test #335) , multiple in /records/4329/ (test #336)
 		$size = $this->xPathValues ($this->xml, '(//size)[%i]', false);
 		if ($size) {
 			
-			# Normalise " cm." to avoid Bibcheck errors; e.g. /records/2709/ , /records/4331/ , /records/54851/ ; have checked no valid inner cases of cm
+			# Normalise " cm." to avoid Bibcheck errors; e.g. /records/2709/ , /records/4331/ , /records/54851/ (test #337) ; have checked no valid inner cases of cm
 			foreach ($size as $index => $sizeItem) {
-				$sizeItem = preg_replace ('/([^ ])(cm)/', '\1 \2', $sizeItem);	// Normalise to ensure space before, i.e. "cm" -> " cm"
-				$sizeItem = preg_replace ('/(cm)(?!\.)/', '\1.\2', $sizeItem);	// Normalise to ensure dot after,    i.e. "cm" -> "cm.", if not already present
+				$sizeItem = preg_replace ('/([^ ])(cm)/', '\1 \2', $sizeItem);	// Normalise to ensure space before, i.e. "cm" -> " cm"; e.g. /records/54851/ (test #337), but not /records/1102/ which already has a space (test #338)
+				$sizeItem = preg_replace ('/(cm)(?!\.)/', '\1.\2', $sizeItem);	// Normalise to ensure dot after,    i.e. "cm" -> "cm.", if not already present; e.g. /records/1102/ (test #339), but not /records/1102/ which already has a dot (test #340)
 				$size[$index] = $sizeItem;
 			}
 			
-			# Add the size
+			# Add the size; e.g. multiple in /records/4329/ (test #336)
 			$result .= " ;{$this->doubleDagger}c" . implode (" ;{$this->doubleDagger}c", $size);
 		}
 		
-		# $e (NR) (Accompanying material): If included, '+' appears before ‡e; ‡e is then followed by *p [all text after '+']; e.g. /records/152326/ , /records/67235/
+		# $e (NR) (Accompanying material): If included, '+' appears before ‡e; ‡e is then followed by *p [all text after '+']; e.g. /records/67235/ , /records/152326/ (test #333)
 		if ($e) {
 			$result .= " +{$this->doubleDagger}e" . trim ($e);
 		}
 		
-		# Ensure 300 ends in a dot or closing bracket
+		# Ensure 300 ends in a dot or closing bracket; e.g. /records/67235/ (test #334)
 		$result = $this->macro_dotEnd (trim ($result), '.)]');
 		
 		# Return the result
