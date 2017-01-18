@@ -1031,35 +1031,35 @@ class marcConversion
 		$pt = ($ptValues ? implode ('; ', $ptValues) : '');		// Decided in internal meeting to use semicolon, as comma is likely to be present within a component
 		
 		# Determine *p or *pt; e.g. *p /records/6002/ (test #325), /records/25179/ (test #326)
-		$value = (strlen ($p) ? $p : $pt);		// Confirmed there are no records with both *p and *pt
+		$pOrPt = (strlen ($p) ? $p : $pt);		// Confirmed there are no records with both *p and *pt
 		
-		# Firstly, break off any final + section, for use in $e below; e.g. /records/67235/ (test #327)
+		# Firstly, break off any final + section, for use in $e (Accompanying material) below; e.g. /records/67235/ (test #327)
 		$e = false;
-		if (substr_count ($value, '+')) {
-			$plusMatches = explode ('+', $value, 2);
+		if (substr_count ($pOrPt, '+')) {
+			$plusMatches = explode ('+', $pOrPt, 2);
 			$e = trim ($plusMatches[1]);
-			$value = trim ($plusMatches[0]);	// Override string to strip out the + section
+			$pOrPt = trim ($plusMatches[0]);	// Override string to strip out the + section
 		}
 		
 		# Next split by the keyword which acts as separator between $a and an optional $b; e.g. /records/51787/ (test #328)
-		$a = trim ($value);
+		$a = trim ($pOrPt);
 		$b = false;
 		$splitWords = array ('illus', 'ill', 'diag', 'map', 'table', 'graph', 'port', 'col');
 		foreach ($splitWords as $word) {
-			if (substr_count ($value, $word) && preg_match ("/\b{$word}\b/", $value)) {		// Use of \b word boundary ensures not splitting bibliography at 'graph' (test #220)
+			if (substr_count ($pOrPt, $word) && preg_match ("/\b{$word}\b/", $pOrPt)) {		// Use of \b word boundary ensures not splitting bibliography at 'graph' (test #220)
 				
 				# If the word requires a dot after, add this if not present; e.g. /records/1584/ (test #329) , /records/1163/
 				# Checked using: `SELECT * FROM catalogue_processed WHERE field IN('p','pt') AND value LIKE '%ill%' AND value NOT LIKE '%ill.%' AND value NOT REGEXP 'ill(-|\.|\'|[a-z]|$)';`
 				if (in_array ($word, array ('illus', 'ill'))) {
-					if (!substr_count ($value, $word . '.')) {
-						if (!preg_match ("/{$word}(-|\'|[a-z])/", $value)) {	// I.e. don't add . in middle of word or cases like ill
-							$value = str_replace ($word, $word . '.', $value);
+					if (!substr_count ($pOrPt, $word . '.')) {
+						if (!preg_match ("/{$word}(-|\'|[a-z])/", $pOrPt)) {	// I.e. don't add . in middle of word or cases like ill
+							$pOrPt = str_replace ($word, $word . '.', $pOrPt);
 						}
 					}
 				}
 				
 				# Assemble
-				$split = explode ($word, $value, 2);	// Explode seems more reliable than preg_split, because it is difficult to get a good regexp that allows multiple delimeters, multiple presence of delimeter, and optional trailing string
+				$split = explode ($word, $pOrPt, 2);	// Explode seems more reliable than preg_split, because it is difficult to get a good regexp that allows multiple delimeters, multiple presence of delimeter, and optional trailing string
 				$a = trim ($split[0]);
 				$b = $word . $split[1];
 				break;
@@ -1111,13 +1111,13 @@ class marcConversion
 		}
 		
 		# End if no value; in this scenario, no $c should be created, i.e. the whole routine should be ended
-		if (!strlen ($result) || strtolower ($value) == 'unpaged') {	 // 'unpaged' at /records/1248/ ; 'Unpaged' at /records/174009/ (test #343)
+		if (!strlen ($result) || strtolower ($pOrPt) == 'unpaged') {	 // 'unpaged' at /records/1248/ ; 'Unpaged' at /records/174009/ (test #343)
 			$result = ($this->recordType == '/ser' ? 'v.' : '1 volume (unpaged)');	// e.g. /records/1000/ , /records/1019/ (confirmed to be fine) , /records/1332/
 			#!# Is it really correct that $c should be omitted? E.g. in /records/174009/ *size = '21x10 cm.' is thus lost
 			return $result;		// Stop, e.g. /records/174009/ (test #344)
 		}
 		
-		# $c (R) (Dimensions): *size ; e.g. /records/1103/ , multiple in /records/4329/
+		# $c (R) (Dimensions): *size (NB which comes before $e) ; e.g. /records/1103/ , multiple in /records/4329/
 		$size = $this->xPathValues ($this->xml, '(//size)[%i]', false);
 		if ($size) {
 			
