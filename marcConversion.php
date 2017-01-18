@@ -25,6 +25,9 @@ class marcConversion
 		# Define unicode symbols
 		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
 		
+		# Get the list of leading articles
+		$this->leadingArticles = $this->leadingArticles ();
+		
 	}
 	
 	
@@ -1184,9 +1187,6 @@ class marcConversion
 	# Macro to generate the leading article count; this does not actually modify the string itself - just returns a number
 	public function macro_nfCount ($value, $language = false, $externalXml = NULL)
 	{
-		# Get the leading articles list, indexed by language
-		$leadingArticles = $this->leadingArticles ();
-		
 		# If the the value is surrounded by square brackets, then it can be taken as English, and the record language itself ignored
 		#!# Check on effect of *to or *tc, as per /reports/bracketednfcount/
 		if ($isSquareBracketed = ((substr ($value, 0, 1) == '[') && (substr ($value, -1, 1) == ']'))) {
@@ -1209,10 +1209,10 @@ class marcConversion
 		if (!strlen ($language)) {$language = 'English';}
 		
 		# End if the language is not in the list of leading articles
-		if (!isSet ($leadingArticles[$language])) {return '0';}
+		if (!isSet ($this->leadingArticles[$language])) {return '0';}
 		
 		# Work through each leading article, and if a match is found, return the string length
-		foreach ($leadingArticles[$language] as $leadingArticle) {
+		foreach ($this->leadingArticles[$language] as $leadingArticle) {
 			if (preg_match ("/^(['\"\[]*{$leadingArticle}['\"]*)/i", $value, $matches)) {	// Case-insensitive match; Incorporate starting brackets in the consideration and the count (e.g. /records/27894/ ); Include known starting/trailing punctuation within the count (e.g. /records/11329/ , /records/1325/ , /records/10366/ ) as per http://www.library.yale.edu/cataloging/music/filing.htm#ignore
 				return (string) mb_strlen ($matches[1]); // The space, if present, is part of the leading article definition itself
 			}
@@ -1233,92 +1233,6 @@ class marcConversion
 		
 		# Otherwise return the default
 		return $defaultValue;
-	}
-	
-	
-	# Lookup table for leading articles in various languages; note that Russian has no leading articles; see useful list at: https://en.wikipedia.org/wiki/Article_(grammar)#Variation_among_languages
-	public function leadingArticles ($groupByLanguage = true)
-	{
-		# Define the leading articles
-		$leadingArticles = array (
-			'a ' => 'English glg Hungarian Portuguese',
-			'al-' => 'ara',			// #!# Check what should happen for 245 field in /records/62926/ which is an English record but with Al- name at start of title
-			'an ' => 'English',
-			'ane ' => 'enm',
-			'das ' => 'German',
-			'de ' => 'Danish Swedish',
-			'dem ' => 'German',
-			'den ' => 'Danish German Norwegian Swedish',
-			'der ' => 'German',
-			'det ' => 'Danish German Norwegian Swedish',
-			'die ' => 'German',
-			'een ' => 'Dutch',
-			'ei ' => 'Norwegian',	// /records/103693/ (test #171)
-			'ein ' => 'German Norwegian',
-			'eine ' => 'German',
-			'einem ' => 'German',
-			'einen ' => 'German',
-			'einer ' => 'German',
-			'eines ' => 'German',
-			'eit ' => 'Norwegian',
-			'el ' => 'Spanish',
-			'els ' => 'Catalan',
-			'en ' => 'Danish Norwegian Swedish',
-			'et ' => 'Danish Norwegian',
-			'ett ' => 'Swedish',
-			'gl ' => 'Italian',
-			'gli ' => 'Italian',
-			'ha ' => 'Hebrew',
-			'het ' => 'Dutch',
-			'ho ' => 'grc',
-			'il ' => 'Italian mlt',
-			"l'" => 'Catalan French Italian mlt',		// e.g. /records/4571/ ; Catalan checked in https://en.wikipedia.org/wiki/Catalan_grammar#Articles
-			'la ' => 'Catalan French Italian Spanish',
-			'las ' => 'Spanish',
-			'le ' => 'French Italian',
-			'les ' => 'Catalan French',
-			'lo ' => 'Italian Spanish',
-			'los ' => 'Spanish',
-			'os ' => 'Portuguese',
-			#!# Codes still present
-			'ta ' => 'grc',
-			'ton ' => 'grc',
-			'the ' => 'English',
-			'um ' => 'Portuguese',
-			'uma ' => 'Portuguese',
-			'un ' => 'Catalan Spanish French Italian',
-			'una ' => 'Catalan Spanish Italian',
-			'une ' => 'French',
-			'uno ' => 'Italian',
-			'y ' => 'wel',
-		);
-		
-		# End if not required to group by language
-		if (!$groupByLanguage) {
-			return $leadingArticles;
-		}
-		
-		# Process the list, tokenising by language
-		$leadingArticlesByLanguage = array ();
-		foreach ($leadingArticles as $leadingArticle => $languages) {
-			$languages = explode (' ', $languages);
-			foreach ($languages as $language) {
-				$leadingArticlesByLanguage[$language][] = $leadingArticle;
-			}
-		}
-		
-		/*
-		# ACTUALLY, this is not required, because a space in the text is the delimeter
-		# Arrange by longest-first
-		$sortByStringLength = create_function ('$a, $b', 'return mb_strlen ($b) - mb_strlen ($a);');
-		foreach ($leadingArticlesByLanguage as $language => $leadingArticles) {
-			usort ($leadingArticles, $sortByStringLength);	// Sort by string length
-			$leadingArticlesByLanguage[$language] = $leadingArticles;	// Overwrite list with newly-sorted list
-		}
-		*/
-		
-		# Return the array
-		return $leadingArticlesByLanguage;
 	}
 	
 	
@@ -2493,14 +2407,11 @@ class marcConversion
 	# Function to strip a leading article
 	private function stripLeadingArticle ($string, $language)
 	{
-		# Get the list of leading articles
-		$leadingArticles = $this->leadingArticles ();
-		
 		# End if language not supported
-		if (!isSet ($leadingArticles[$language])) {return $string;}
+		if (!isSet ($this->leadingArticles[$language])) {return $string;}
 		
 		# Strip from start if present
-		$list = implode ('|', $leadingArticles[$language]);
+		$list = implode ('|', $this->leadingArticles[$language]);
 		$string = preg_replace ("/^({$list})(.+)$/i", '\2', $string);	// e.g. /records/3075/ , /records/3324/
 		$string = mb_ucfirst ($string);
 		
@@ -2773,6 +2684,92 @@ class marcConversion
 		$status = $this->xPathValue ($this->xml, '//status');
 		if ($status == $this->suppressionStatusKeyword) {return false;}
 		return $status;
+	}
+	
+	
+	# Lookup table for leading articles in various languages; note that Russian has no leading articles; see useful list at: https://en.wikipedia.org/wiki/Article_(grammar)#Variation_among_languages
+	public function leadingArticles ($groupByLanguage = true)
+	{
+		# Define the leading articles
+		$leadingArticles = array (
+			'a ' => 'English glg Hungarian Portuguese',
+			'al-' => 'ara',			// #!# Check what should happen for 245 field in /records/62926/ which is an English record but with Al- name at start of title
+			'an ' => 'English',
+			'ane ' => 'enm',
+			'das ' => 'German',
+			'de ' => 'Danish Swedish',
+			'dem ' => 'German',
+			'den ' => 'Danish German Norwegian Swedish',
+			'der ' => 'German',
+			'det ' => 'Danish German Norwegian Swedish',
+			'die ' => 'German',
+			'een ' => 'Dutch',
+			'ei ' => 'Norwegian',	// /records/103693/ (test #171)
+			'ein ' => 'German Norwegian',
+			'eine ' => 'German',
+			'einem ' => 'German',
+			'einen ' => 'German',
+			'einer ' => 'German',
+			'eines ' => 'German',
+			'eit ' => 'Norwegian',
+			'el ' => 'Spanish',
+			'els ' => 'Catalan',
+			'en ' => 'Danish Norwegian Swedish',
+			'et ' => 'Danish Norwegian',
+			'ett ' => 'Swedish',
+			'gl ' => 'Italian',
+			'gli ' => 'Italian',
+			'ha ' => 'Hebrew',
+			'het ' => 'Dutch',
+			'ho ' => 'grc',
+			'il ' => 'Italian mlt',
+			"l'" => 'Catalan French Italian mlt',		// e.g. /records/4571/ ; Catalan checked in https://en.wikipedia.org/wiki/Catalan_grammar#Articles
+			'la ' => 'Catalan French Italian Spanish',
+			'las ' => 'Spanish',
+			'le ' => 'French Italian',
+			'les ' => 'Catalan French',
+			'lo ' => 'Italian Spanish',
+			'los ' => 'Spanish',
+			'os ' => 'Portuguese',
+			#!# Codes still present
+			'ta ' => 'grc',
+			'ton ' => 'grc',
+			'the ' => 'English',
+			'um ' => 'Portuguese',
+			'uma ' => 'Portuguese',
+			'un ' => 'Catalan Spanish French Italian',
+			'una ' => 'Catalan Spanish Italian',
+			'une ' => 'French',
+			'uno ' => 'Italian',
+			'y ' => 'wel',
+		);
+		
+		# End if not required to group by language
+		if (!$groupByLanguage) {
+			return $leadingArticles;
+		}
+		
+		# Process the list, tokenising by language
+		$leadingArticlesByLanguage = array ();
+		foreach ($leadingArticles as $leadingArticle => $languages) {
+			$languages = explode (' ', $languages);
+			foreach ($languages as $language) {
+				$leadingArticlesByLanguage[$language][] = $leadingArticle;
+			}
+		}
+		
+		/*
+		# ACTUALLY, this is not required, because a space in the text is the delimeter
+		# Arrange by longest-first
+		$sortByStringLength = create_function ('$a, $b', 'return mb_strlen ($b) - mb_strlen ($a);');
+		foreach ($leadingArticlesByLanguage as $language => $leadingArticles) {
+			usort ($leadingArticles, $sortByStringLength);	// Sort by string length
+			$leadingArticlesByLanguage[$language] = $leadingArticles;	// Overwrite list with newly-sorted list
+		}
+		*/
+		
+		# Return the array
+		return $leadingArticlesByLanguage;
 	}
 }
 
