@@ -1113,6 +1113,8 @@ class marcConversion
 		# End if no value; in this scenario, no $c should be created, i.e. the whole routine should be ended
 		if (!strlen ($result) || strtolower ($value) == 'unpaged') {	 // 'unpaged' at /records/1248/ ; 'Unpaged' at /records/174009/ (test #343)
 			$result = ($this->recordType == '/ser' ? 'v.' : '1 volume (unpaged)');	// e.g. /records/1000/ , /records/1019/ (confirmed to be fine) , /records/1332/
+			#!# Is it really correct that $c should be omitted? E.g. in /records/174009/ *size = '21x10 cm.' is thus lost
+			return $result;		// Stop, e.g. /records/174009/ (test #344)
 		}
 		
 		# $c (R) (Dimensions): *size ; e.g. /records/1103/ , multiple in /records/4329/

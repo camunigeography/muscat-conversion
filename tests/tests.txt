@@ -2004,3 +2004,9 @@ Macro generate300 Unpaged capitalised
 174009
 300
 ‡a1 volume (unpaged)
+
+344
+Macro generate300 unpaged stops routine, so no $c
+174009
+300
+/^‡a1 volume \(unpaged\)$/
