@@ -1067,14 +1067,17 @@ class marcConversion
 		}
 		
 		# $a (R) (Extent, pagination): If record is *doc with any or no *form, or *art with *form CD, CD-ROM, DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording: "(*v), (*p or *pt)" [all text up to and including ':']
-		# $a (R) (Extent, pagination): If record is *art with no *form or *form other than listed above: 'p. '*pt [number range after ':' and before ',']
-		if (($this->recordType == '/doc') || (substr_count ($this->recordType, '/art') && in_array ($this->form, array ('CD', 'CD-ROM', 'DVD', 'DVD-ROM', 'Sound Cassette', 'Sound Disc' or 'Videorecording')))) {
-			$v = $this->xPathValue ($this->xml, '//v');
-			if (strlen ($v)) {
-				$result .= $v . ($a ? ' ' : ($b ? ',' : ''));	// e.g. /records/20704/ , /records/37420/ , /records/175872/ , /records/8988/
+		$isDoc = ($this->recordType == '/doc');
+		$isArt = (substr_count ($this->recordType, '/art'));
+		$isMultimedia = (in_array ($this->form, array ('CD', 'CD-ROM', 'DVD', 'DVD-ROM', 'Sound Cassette', 'Sound Disc', 'Videorecording')));
+		if ($isDoc || ($isArt && $isMultimedia)) {
+			$vMuscat = $this->xPathValue ($this->xml, '//v');
+			if (strlen ($vMuscat)) {
+				$result = $vMuscat . ($a ? ' ' : ($b ? ',' : ''));	// e.g. /records/20704/ , /records/37420/ , /records/175872/ , /records/8988/
 			}
-		} else if (substr_count ($this->recordType, '/art')) {		// Not in the list of *form above
-			#!# This needs to be resolved - there are 29064 records whose XML has *pt starting with a colon: SELECT * FROM `catalogue_xml` WHERE `xml` LIKE '%<pt>:%' ; e.g. /records/1160/ which has "300 ## $a:1066-1133." which is surely wrong
+		# $a (R) (Extent, pagination): If record is *art with no *form or *form other than listed above: 'p. '*pt [number range after ':' and before ',']
+		} else if ($isArt) {	// Therefore this *art is not multimedia
+			#!# This needs to be resolved - there are 29196 records whose XML has *pt starting with a colon: SELECT * FROM `catalogue_processed` WHERE `field` LIKE 'pt' AND `value` LIKE ':%' ; e.g. /records/1160/ which has "300 ## $a:1066-1133." which is surely wrong
 			// $result .= 'p. ';	// Spec unclear - subsequent instruction was "/records/152332/ still contains a spurious 'p' in the $a - please ensure this is not added to the record"
 		}
 		
