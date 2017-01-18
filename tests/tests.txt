@@ -1998,3 +1998,9 @@ Macro generate260 adds dot after abbreviated term illus if not present
 ‡billus.
 
 
+
+343
+Macro generate300 Unpaged capitalised
+174009
+300
+‡a1 volume (unpaged)
