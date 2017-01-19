@@ -280,8 +280,7 @@ class generateAuthors
 				$line = $this->main ($this->mainRecordXml, "/*/ag[$agIndex]/al[{$alIndex}]", 700);
 				
 				# The "*al Detail" block (and ", ‡g (alternative name)", once only) is added, e.g. /records/29234/ (test #118)
-				#!# Not yet checked cases for when a $g might already exist, to check this works
-				if (!substr_count ($line, "{$this->doubleDagger}g")) {
+				if (!substr_count ($line, "{$this->doubleDagger}g")) {	// No actual cases found, so this block will always be entered
 					$line  = $this->muscatConversion->macro_dotEnd ($line, $extendedCharacterList = '.?!');		// e.g. /records/2787/ ; "700: Subfield g must be preceded by a full stop, question mark or exclamation mark." (test #83)
 					$line .= "{$this->doubleDagger}g" . '(alternative name)';
 				}
