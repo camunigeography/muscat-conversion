@@ -4103,7 +4103,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Parse to tests
 		$fields = array ('id', 'description', 'recordId', 'marcField', 'expected');	// In order of appearance in definition
-		if (!$tests = application::parseBlocks ($testsString, $fields, $error)) {
+		if (!$tests = application::parseBlocks ($testsString, $fields, true, $error)) {
 			// $error will now be set to the error
 			return false;
 		}
