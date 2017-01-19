@@ -4150,14 +4150,6 @@ class muscatConversion extends frontControllerApplication
 				}
 			}
 			
-			# In the case of a negative test, and the test is for presence ('*'), check pass/failure
-			if ($tests[$id]['negativeTest']) {
-				if ($test['expected'] == '*') {
-					$tests[$id]['result'] = (!$fieldsMatching);
-					continue;	// Next test; report will turn $tests[$id]['found'] = NULL into a statement that the line is not present
-				}
-			}
-			
 			# Add the found line(s)
 			$lines = array ();
 			foreach ($fieldsMatching as $field) {
@@ -4166,6 +4158,14 @@ class muscatConversion extends frontControllerApplication
 				}
 			}
 			$tests[$id]['found'] = implode ("\n", $lines);
+			
+			# In the case of a negative test, and the test is for presence ('*'), check pass/failure
+			if ($tests[$id]['negativeTest']) {
+				if ($test['expected'] == '*') {
+					$tests[$id]['result'] = (!$fieldsMatching);
+					continue;	// Next test; report will turn $tests[$id]['found'] = NULL into a statement that the line is not present
+				}
+			}
 			
 			# Determine if the test is a regexp test (starting with a slash, e.g. '/[a-z]/i') or a simple string match
 			$isRegexpTest = preg_match ('|^/|', $test['expected']);
