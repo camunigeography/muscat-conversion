@@ -2141,3 +2141,83 @@ Macro generate300 *vno with *ts existing generates 490
 490
 Pt. 1
 
+355
+Macro nfcount: 245 2nd indicator (based on *t) should have 4 for English *t 'The '
+1116
+i245
+/4$/
+
+356
+Macro nfcount: 245 2nd indicator (based on *t) should have 3 for Spanish 'El '
+19042
+i245
+/3$/
+
+357
+Macro nfcount: 242 2nd indicator (based on *tt) should have 4 for English *tt 'The '
+1204
+i242
+/4$/
+
+358
+Macro nfcount: 240 2nd indicator (based on *to) should have 4 for French record starting 'Les ' (pending implementation)
+1572
+i240
+/4$/
+
+359
+Macro nfcount: Special characters with initial article are counted as nonfiling characters (with: "[La ")
+9196
+i245
+/4$/
+
+360
+Macro nfcount: Special characters with initial article are counted as nonfiling characters (with: "'The D-2"...)
+56786
+i245
+/5$/
+
+361
+Macro nfcount: Special characters at start of title without initial article are not counted as nonfiling characters (without: "'Penguin'")
+4993
+i245
+/0$/
+
+362
+Macro nfcount: Special characters with initial article are counted as nonfiling characters (with: '"The home'...)
+11329
+i245
+/5$/
+
+363
+Macro nfcount: Special characters with initial article are counted as nonfiling characters (with: "The 'Esk'")
+1325
+i245
+/5$/
+
+364
+Macro nfcount: Quote mark but no leading article should be 0: "'Unmixing'"
+56593
+i245
+/0$/
+
+365
+Macro nfcount: Standard case with no leading article: "Report of"
+1125
+i245
+/0$/
+
+366
+Macro indicator1xxPresent: positive case
+1257
+i245
+/^1/
+
+367
+Macro indicator1xxPresent: negative case
+1844
+i245
+/^0/
+
+
+

@@ -1184,7 +1184,7 @@ class marcConversion
 	}
 	
 	
-	# Macro to generate the leading article count; this does not actually modify the string itself - just returns a number
+	# Macro to generate the leading article count; this does not actually modify the string itself - just returns a number; e.g. 245 (based on *t) in /records/1116/ (test #355); 245 for Spanish record in /records/19042/ (test #356); 242 field (based on *tt) in /records/1204/ (test #357)
 	public function macro_nfCount ($value, $language = false, $externalXml = NULL)
 	{
 		# If the the value is surrounded by square brackets, then it can be taken as English, and the record language itself ignored
@@ -1198,7 +1198,7 @@ class marcConversion
 		
 		# If a forced language is not specified, obtain the language value for the record
 		#!# //lang may no longer be reliable following introduction of *lang data within *in or *j
-		#!# For the 240 field, this needs to take the language whose index number is the same as t/tt/to...
+		#!# For the 240 field, this needs to take the language whose index number is the same as t/tt/to... - see /records/1572/ (test #358)
 		if (!$language) {
 			$xPath = '//lang[1]';	// Choose first only
 			$xml = ($externalXml ? $externalXml : $this->xml);	// Use external XML if supplied
@@ -1211,27 +1211,30 @@ class marcConversion
 		# End if the language is not in the list of leading articles
 		if (!isSet ($this->leadingArticles[$language])) {return '0';}
 		
-		# Work through each leading article, and if a match is found, return the string length
+		# Work through each leading article, and if a match is found, return the string length, e.g. /records/1116/ (test #355); /records/19042/ (test #356)
+		# "Diacritical marks or special characters at the beginning of a title field that does not begin with an initial article are not counted as nonfiling characters." - https://www.loc.gov/marc/bibliographic/bd245.html
+		# Therefore incorporate starting brackets in the consideration and the count if there is a leading article; see: https://www.loc.gov/marc/bibliographic/bd245.html , e.g. /records/27894/ (test #359), /records/56786/ (test #360), /records/4993/ (test #361)
+		# Include known starting/trailing punctuation within the count, e.g. /records/11329/ (test #362) , /records/1325/ (test #363) like example '15$aThe "winter mind"' in MARC documentation , /records/10366/ , as per http://www.library.yale.edu/cataloging/music/filing.htm#ignore
 		foreach ($this->leadingArticles[$language] as $leadingArticle) {
-			if (preg_match ("/^(['\"\[]*{$leadingArticle}['\"]*)/i", $value, $matches)) {	// Case-insensitive match; Incorporate starting brackets in the consideration and the count (e.g. /records/27894/ ); Include known starting/trailing punctuation within the count (e.g. /records/11329/ , /records/1325/ , /records/10366/ ) as per http://www.library.yale.edu/cataloging/music/filing.htm#ignore
+			if (preg_match ("/^(['\"\[]*{$leadingArticle}['\"]*)/i", $value, $matches)) {	// Case-insensitive match
 				return (string) mb_strlen ($matches[1]); // The space, if present, is part of the leading article definition itself
 			}
 		}
 		
-		# Return '0' by default
+		# Return '0' by default; e.g. /records/56593/ (test #364), /record/1125/ (test #365)
 		return '0';
 	}
 	
 	
-	# Macro to set an indicator based on the presence of a 100/110 field; e.g. /records/1844/
+	# Macro to set an indicator based on the presence of a 100/110 field; e.g. /records/1257/ (test #366)
 	private function macro_indicator1xxPresent ($defaultValue, $setValueIfAuthorsPresent)
 	{
-		# If authors field present, return the new value
+		# If authors field present, return the new value; e.g. /records/1257/ (test #366)
 		if (strlen ($this->authorsFields['default'][100]) || strlen ($this->authorsFields['default'][110]) || strlen ($this->authorsFields['default'][111])) {
 			return $setValueIfAuthorsPresent;
 		}
 		
-		# Otherwise return the default
+		# Otherwise return the default; e.g. /records/1844/ (test #367)
 		return $defaultValue;
 	}
 	
