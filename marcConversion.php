@@ -1246,21 +1246,21 @@ class marcConversion
 		$string = '';
 		
 		# Obtain any languages used in the record
-		$languages = $this->xPathValues ($this->xml, '(//lang)[%i]', false);	// e.g. /records/2071/ has multiple
-		$languages = array_unique ($languages);
+		$languages = $this->xPathValues ($this->xml, '(//lang)[%i]', false);	// E.g. /records/168933/ (test #369)
+		$languages = array_unique ($languages);	// E.g. /records/2071/ has two sets of French (test #368)
 		
-		# Obtain any note containing "translation from [language(s)]"
-		#!# Should *abs and *role also be considered?; see results from quick query: SELECT * FROM `catalogue_processed` WHERE `value` LIKE '%translated from original%', e.g. /records/1639/
+		# Obtain any note containing "translation from [language(s)]"; e.g. /records/4353/ (test #372) , /records/2040/ (test #373)
+		#!# Should *abs and *role also be considered?; see results from quick query: SELECT * FROM `catalogue_processed` WHERE `value` LIKE '%translated from original%', e.g. /records/1639/ and /records/175067/
 		$notes = $this->xPathValues ($this->xml, '(//note)[%i]', false);
-		$nonLanguageWords = array ('article', 'published', 'manuscript');	// e.g. /records/32279/ , /records/175067/ , /records/196791/
+		$nonLanguageWords = array ('article', 'published', 'manuscript');	// e.g. /records/196791/ , /records/32279/ (test #375)
 		$translationNotes = array ();
 		foreach ($notes as $note) {
-			# Perform a match; this is not using a starting at (^) match e.g. /records/190904/ which starts "English translation from Russian"
-			if (preg_match ('/[Tt]ranslat(?:ion|ed) (?:from|reprint of)(?: original| the|) ([a-zA-Z]+)/i', $note, $matches)) {	// Deliberately not using strip_tags, as that would pick up Translation from <em>publicationname</em> which would not be wanted anyway
+			# Perform a match, e.g. /records/175067/ (test #376); this is not using a starting at (^) match e.g. /records/190904/ which starts "English translation from Russian" (test #377)
+			if (preg_match ('/[Tt]ranslat(?:ion|ed) (?:from|reprint of)(?: original| the|) ([a-zA-Z]+)/i', $note, $matches)) {	// Deliberately not using strip_tags, as that would pick up Translation from <em>publicationname</em> which would not be wanted anyway, e.g. /records/8814/ (test #378)
 				// application::dumpData ($matches);
 				$language = $matches[1];	// e.g. 'Russian', 'English'
 				
-				# Skip blacklisted non-language words; e.g. /records/44377/ which has "Translation of article from"
+				# Skip blacklisted non-language words; e.g. /records/44377/ which has "Translation of article from", /records/32279/ (test #375)
 				if (in_array ($language, $nonLanguageWords)) {continue;}
 				
 				# Register the value
@@ -1274,28 +1274,28 @@ class marcConversion
 		# In indicator mode, return the indicator at this point: if there is a $h, the first indicator is 1 and if there is no $h, the first indicator is 0
 		if ($indicatorMode) {
 			if ($translationNotes) {
-				return '1';		// "1 - Item is or includes a translation"; e.g. /records/23776/
+				return '1';		// "1 - Item is or includes a translation"; e.g. /records/23776/ (test #379)
 			} else {
-				return '0';		// "0 - Item not a translation/does not include a translation"; e.g. /records/10009/ which is simply in another language
+				return '0';		// "0 - Item not a translation/does not include a translation"; e.g. /records/10009/ which is simply in another language (test #380)
 			}
 		}
 		
-		# If no *lang field and no note regarding translation, do not include 041 field; e.g. /records/4355/
+		# If no *lang field and no note regarding translation, do not include 041 field; e.g. /records/4355/ (test #370)
 		if (!$languages && !$translationNotes) {return false;}
 		
-		# $a: If no *lang field but note regarding translation, use 'eng'; e.g. /records/23776/
+		# $a: If no *lang field but note regarding translation, use 'eng'; e.g. /records/23776/ (test #371)
 		if (!$languages && $translationNotes) {
 			$languages[] = 'English';
 		}
 		
-		# $a: Map each language listed in *lang field to 3-digit code in Language Codes worksheet and include in separate ‡a subfield;
+		# $a: Map each language listed in *lang field to 3-digit code in Language Codes worksheet and include in separate ‡a subfield; e.g. /records/168933/ (test #369)
 		$a = array ();
 		foreach ($languages as $language) {
 			$a[] = $this->lookupValue ('languageCodes', $fallbackKey = false, true, false, $language, 'MARC Code');
 		}
 		$string = implode ("{$this->doubleDagger}a", $a);	// First $a is the parser spec
 		
-		# $h: If *note includes 'translation from [language(s)]', map each language to 3-digit code in Language Codes worksheet and include in separate ‡h subfield; e.g. /records/4353/ , /records/2040/
+		# $h: If *note includes 'translation from [language(s)]', map each language to 3-digit code in Language Codes worksheet and include in separate ‡h subfield; e.g. /records/4353/ (test #372) , /records/2040/ (test #373)
 		$h = array ();
 		if ($translationNotes) {
 			foreach ($translationNotes as $note => $language) {
@@ -1308,7 +1308,7 @@ class marcConversion
 			}
 		}
 		if ($h) {
-			$string .= "{$this->doubleDagger}h" . implode ("{$this->doubleDagger}h", $h);	// First $a is the parser spec
+			$string .= "{$this->doubleDagger}h" . implode ("{$this->doubleDagger}h", $h);	// No cases of multiple $h found so no tests
 		}
 		
 		# Return the result string

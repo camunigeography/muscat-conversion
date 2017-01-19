@@ -18,7 +18,7 @@
 
 
 1
-Basic test
+Basic test of record number generation
 1000
 001
 /^SPRI-[0-9]{4}$/
@@ -2219,5 +2219,82 @@ Macro indicator1xxPresent: negative case
 i245
 /^0/
 
+368
+Macro languages041 languages are uniqued
+2071
+041
+/‡afre$/
+
+369
+Macro languages041 multiple different languages
+168933
+041
+‡adan‡aeng‡afre
+
+370
+Macro languages041 no languages means no 041 generated
+4355
+!041
+*
+
+371
+Macro languages041 presence of note regarding translation gives eng
+23776
+041
+‡aeng‡
+
+372
+Macro languages041 "translation from" results in ‡h
+4353
+041
+‡hdan
+
+373
+Macro languages041 "translated from" results in ‡h
+2040
+041
+‡hspa
+
+374
+Macro languages041 basic lookup
+2040
+041
+‡afre
+
+375
+Macro languages041 "Translated from article" is not a note in scope of matching
+32279
+!041
+*
+
+376
+Macro languages041 Russian record also with "Translated from Norwegian by" ignores this non-matching note but shows Russian
+175067
+041
+/^‡arus$/
+
+377
+Macro languages041 match is non- start-anchored so "English translation from Russian" produces match
+190904
+041
+‡aeng‡hrus
+
+378
+Macro languages041 "Translation from <em><name></em>" with publication name in non-English record does not produce additional language match
+8814
+!041
+‡h
+
+379
+Macro languages041 in indicator mode: positive case, i.e. includes a translation (i.e. has ‡h) (see also next test)
+23776
+i041
+/^1/
+
+380
+Macro languages041 in indicator mode: negative case, i.e. does not include a translation (i.e. does not have ‡h) (see also previous test)
+10009
+i041
+/^0/
 
 
