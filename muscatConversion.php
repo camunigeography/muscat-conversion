@@ -4149,17 +4149,13 @@ class muscatConversion extends frontControllerApplication
 					$fieldsMatching[] = $field;	// Won't be duplicated, as $record is already indexed by field number
 				}
 			}
-			if (!$fieldsMatching) {
-				
-				# In the case of a negative test, and the test is for presence ('*'), pass the test
-				if ($tests[$id]['negativeTest']) {
-					if ($test['expected'] == '*') {
-						$tests[$id]['result'] = true;
-					}
+			
+			# In the case of a negative test, and the test is for presence ('*'), check pass/failure
+			if ($tests[$id]['negativeTest']) {
+				if ($test['expected'] == '*') {
+					$tests[$id]['result'] = (!$fieldsMatching);
+					continue;	// Next test; report will turn $tests[$id]['found'] = NULL into a statement that the line is not present
 				}
-				
-				// Report will turn found = NULL into a statement that the line is not present
-				continue;	// Next test
 			}
 			
 			# Add the found line(s)
