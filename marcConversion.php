@@ -1316,7 +1316,7 @@ class marcConversion
 	}
 	
 	
-	# Function to perform transliteration on specified subfields present in a full line; this is basically a tokenisation wrapper to macro_transliterate
+	# Function to perform transliteration on specified subfields present in a full line; this is basically a tokenisation wrapper to macro_transliterate; e.g. /records/35733/ (test #381), /records/1406/ (test #382)
 	public function macro_transliterateSubfields ($value, $applyToSubfields, $language = false /* Parameter always supplied by external callers */)
 	{
 		# If a forced language is not specified, obtain the language value for the record
@@ -1329,12 +1329,12 @@ class marcConversion
 		if ($language == 'default') {return $value;}
 		
 		# Ensure language is supported
-		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return false;}	// Return false to ensure no result, e.g. /records/162154/
+		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return false;}	// Return false to ensure no result, e.g. /records/162154/ (test #383)
 		
 		# If the subfield list is specified as '*', treat this as all subfields present in the string (logically, a non-empty string will always have at least one subfield), so synthesize the applyToSubfields value from what is present in the supplied string
-		if ($applyToSubfields == '*') {
+		if ($applyToSubfields == '*') {		// No actual cases at present, so no tests
 			preg_match_all ("/{$this->doubleDagger}([a-z0-9])/", $value, $matches);
-			$applyToSubfields = implode ($matches[1]);	// e.g. 'av' in the case of a 490; e.g. /records/15150/
+			$applyToSubfields = implode ($matches[1]);	// e.g. 'a' in the case of a 490; e.g. /records/15150/ , /records/1406/ (test #382)
 		}
 		
 		# Explode subfield string and prepend the double-dagger
@@ -1343,7 +1343,7 @@ class marcConversion
 			$applyToSubfields[$index] = $this->doubleDagger . $applyToSubfield;
 		}
 		
-		# Tokenise, e.g. array ([0] => "1# ", [1] => "‡a", [2] => "Chalyshev, Aleksandr Vasil'yevich.", [3] => "‡b", [4] => "Something else." ...
+		# Tokenise, e.g. array ([0] => "1# ", [1] => "‡a", [2] => "Chalyshev, Aleksandr Vasil'yevich.", [3] => "‡b", [4] => "Something else." ...; e.g. /records/35733/ (test #384)
 		$tokens = $this->tokeniseToSubfields ($value);
 		
 		# Work through the spread list
@@ -1375,7 +1375,7 @@ class marcConversion
 	}
 	
 	
-	# Function to tokenise a string into subfields
+	# Function to tokenise a string into subfields; e.g. /records/35733/ (test #
 	private function tokeniseToSubfields ($line)
 	{
 		# Tokenise, e.g. array ([0] => "1# ", [1] => "‡a", [2] => "Chalyshev, Aleksandr Vasil'yevich.", [3] => "‡b", [4] => "Something else." ...
@@ -1383,7 +1383,7 @@ class marcConversion
 	}
 	
 	
-	# Macro to perform transliteration
+	# Macro to perform transliteration; e.g. /records/6653/ (test #107), /records/23186/ (test #108)
 	private function macro_transliterate ($value, $language = false)
 	{
 		# If a forced language is not specified, obtain the language value for the record
@@ -1393,7 +1393,7 @@ class marcConversion
 		}
 		
 		# End without output if no language, i.e. if default
-		if (!$language) {return false;}
+		if (!$language) {return false;}		// No known code paths identified, as callers already appear to guard against this, so no tests
 		
 		# Ensure language is supported
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return false;}	// Return false to ensure no result, unlike the main transliterate() routine

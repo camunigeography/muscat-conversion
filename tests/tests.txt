@@ -2297,4 +2297,27 @@ Macro languages041 in indicator mode: negative case, i.e. does not include a tra
 i041
 /^0/
 
+381
+Macro transliterateSubfields basic functionality sees subfield transliterated
+35733
+880
+‡6 490-04 ‡aЖизнь замечательных людей ;‡vVypusk 19
+
+382
+Macro transliterateSubfields single subfield only present and in scope
+1406
+880
+/‡6 490-04 ‡aШкольная Библиотека$/
+
+383
+Macro transliterateSubfields ends without result if language not supported
+162154
+!880
+490-
+
+384
+Test of tokeniseToSubfields subroutine
+35733
+880
+‡6 490-04 ‡aЖизнь замечательных людей ;‡vVypusk 19
 
