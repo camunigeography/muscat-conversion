@@ -589,7 +589,7 @@ class generate008
 				if ($this->kFieldMatches ('ks', '398')) {$stack .= 'o';}
 				
 				# If record contains *k '82-1' => p
-				if ($this->kFieldMatches ('ks', '82-2')) {$stack .= 'p';}
+				if ($this->kFieldMatches ('ks', '82-1')) {$stack .= 'p';}
 				
 				# If *t contains 'interview*' => t
 				$t = $this->muscatConversion->xPathValue ($this->xml, '//t');
