@@ -1579,7 +1579,7 @@ class marcConversion
 	}
 	
 	
-	# Macro for generating the 008 field
+	# Macro for generating the 008 field; tests have full coverage as noted in the generate008 class
 	private function macro_generate008 ($value)
 	{
 		# Subclass, due to the complexity of this field

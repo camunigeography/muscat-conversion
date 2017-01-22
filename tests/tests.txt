@@ -10,7 +10,7 @@
 
 # Coverage level:
 # createMarcExport: 100%
-# generate008: 50%
+# generate008: 100%
 # generate245: 100%
 # generateAuthors: 100%
 # marcParser (controller section): 100%
@@ -2380,4 +2380,167 @@ Macro generate007: no *form
 1187
 007
 /^ta$/
+
+395
+008: test of recordType subroutine (copy in 008)
+1210
+008
+|eng
+
+396
+008: resultant value is exactly 40 characters long
+1210
+008
+/^.{40}$/
+
+397
+008: positions 00-05; migration is in 2017 :)
+1210
+008
+/^17[0-9]{4}[a-z]/
+
+398
+008: positions 06-14 *ser with unknown start and end dates
+1072
+008
+uuuuuuuuu
+
+399
+008: positions 18-20: minutes
+163911
+008
+/^.{18}\|\|\|/
+
+400
+008: positions 18-20: 2 hours
+96479
+008
+/^.{18}120/
+
+401
+008: positions 24-27: *art/*j position 24 always |
+1210
+008
+/^.{24}\|/
+
+402
+008: positions 24-27: *location = 'Theses' bounded start (at start of string)
+3152
+008
+/^.{24}m/
+
+403
+008: positions 24-27: *location = 'Theses' bounded start (in middle of string, but at word boundary)
+21127
+008
+/^.{24}m/
+
+404
+008: positions 24-27: pad out with #
+21127
+008
+/^.{24}m###/
+
+405
+008: position 28: Sound cassette
+102409
+008
+/^.{25}\|/
+
+406
+008: position 28: Default case
+9999
+008
+/^.{28}\|/
+
+407
+008: position 29: Multimedia
+182611
+008
+/^.{29}#/
+
+407
+008: position 29: Default case
+9999
+008
+/^.{29}0/
+
+408
+008: test locationContains0613 subroutine
+6201
+008
+/^.{29}d/
+
+409
+008: positions 30-31: Multimedia
+182611
+008
+/^.{30}##/
+
+410
+008: positions 30-31: Sound, with *ks ^82-2 match
+142030
+008
+/^.{30}bd/
+
+411
+008: positions 30-31: pad out with #
+178689
+008
+/^.{30}b#/
+
+412
+008: positions 30-31: *ser without *form
+1031
+008
+/^.{30}##/
+
+413
+008: positions 30-31: DVD
+160682
+008
+/^.{30}##/
+
+414
+008: position 32: fixed value is #
+1031
+008
+/^.{32}#/
+
+415
+008: position 33: Multimediaish *form
+162291
+008
+/^.{33}v/
+
+416
+008: test of kFieldMatches subroutine in word boundary mode
+21310
+008
+/^.{24}r/
+
+417
+008: position 34: Multimediaish *form
+162291
+008
+/^.{34}\|/
+
+418
+008: position 34: 92[*
+1854
+008
+/^.{34}b/
+
+419
+008: position 34: 92(08)
+1858
+008
+/^.{34}c/
+
+420
+008: ends with fixed string #d
+1000
+008
+/#d$/
+
 
