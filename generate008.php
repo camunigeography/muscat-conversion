@@ -232,6 +232,9 @@ class generate008
 				case 'Videorecording':
 					
 					$p = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '//p');
+					if ($p == '2 hrs') {	// E.g. /records/96479/ (test #400)
+						$p = '120 min';
+					}
 					if (!substr_count ($p, ' min')) {
 						return str_repeat ('|', 3);
 					}
