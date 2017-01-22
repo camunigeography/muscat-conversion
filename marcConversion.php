@@ -1596,19 +1596,20 @@ class marcConversion
 	
 	# Macro to describe Russian transliteration scheme used, for 546 $a
 	#!# Needs to be made consistent with languages041 macro
+	#!# Uses only //lang[1]
 	private function macro_isTransliterated ($language)
 	{
-		# Return string
+		# Return string; e.g. /records/1526/ (test #421)
 		if ($language == 'Russian') {
 			return 'Russian transliteration entered into original records using BGN/PCGN 1947 romanization of Russian; Cyrillic text in MARC 880 field(s) reverse transliterated from this by automated process; BGN/PCGN 1947 text then upgraded to Library of Congress romanization.';
 		}
 		
-		# No match
+		# No match; e.g. /records/1527/ (test #422)
 		return false;
 	}
 	
 	
-	# Macro for generating an authors field, e.g. 100
+	# Macro for generating an authors field, e.g. 100; tests have full coverage as noted in the generateAuthors class
 	private function macro_generateAuthors ($value, $arg)
 	{
 		# Parse the arguments

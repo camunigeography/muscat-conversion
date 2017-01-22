@@ -13,8 +13,8 @@
 # generate008: 100%
 # generate245: 100%
 # generateAuthors: 100%
-# marcParser (controller section): 100%
-# marcParser (macros section): 50%
+# marcConversion (controller section): 100%
+# marcConversion (macros section): 50%
 
 
 1
@@ -2543,4 +2543,15 @@ uuuuuuuuu
 008
 /#d$/
 
+421
+546: Macro isTransliterated triggered for Russian language record
+1526
+546
+BGN/PCGN 1947 romanization of Russian
+
+422
+546: Macro isTransliterated not triggered for non-Russian language record
+1527
+!546
+*
 
