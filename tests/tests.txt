@@ -10,11 +10,11 @@
 
 # Coverage level:
 # createMarcExport: 100%
-# generate008: 100%
+# generate008: 50%
 # generate245: 100%
 # generateAuthors: 100%
 # marcParser (controller section): 100%
-# marcParser (macros section): 0%
+# marcParser (macros section): 50%
 
 
 1
@@ -2320,4 +2320,64 @@ Test of tokeniseToSubfields subroutine
 35733
 880
 ‡6 490-04 ‡aЖизнь замечательных людей ;‡vVypusk 19
+
+385
+Leader position 06: with *form (Videorecording)
+9992
+LDR
+ng
+
+386
+Leader position 06: no *form
+1187
+LDR
+na
+
+387
+Leader position 07: *doc
+1187
+LDR
+m#
+
+388
+Leader positions 08-23
+1188
+LDR
+/#a2200000#a#4500$/
+
+389
+Test of recordType subroutine
+1104
+LDR
+a#
+
+390
+Test of migration datetime; migration is in 2017 :)
+1000
+005
+/^2017[0-9]{4}[0-9]{6}\.0$/
+
+391
+Test of migration date; migration is in 2017 :)
+1000
+948
+/^‡a2017[0-9]{4}$/
+
+392
+Macro generate007: with *form (Videorecording)
+9992
+007
+vf#|u||u|
+
+393
+Macro generate007: with *form (3.5 floppy disk)
+179694
+007
+cj#|a|||||||||
+
+394
+Macro generate007: no *form
+1187
+007
+/^ta$/
 

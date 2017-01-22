@@ -1422,7 +1422,7 @@ class marcConversion
 		$string = '';
 		
 		# Positions 00-04: "Computer-generated, five-character number equal to the length of the entire record, including itself and the record terminator. The number is right justified and unused positions contain zeros."
-		$string .= '_____';		// Will be fixed-up later in post-processing, as at this point we do not know the length of the record
+		$string .= '_____';		// Will be fixed-up later in post-processing, as at this point we do not know the length of the record (test #229)
 		
 		# Position 05: One-character alphabetic code that indicates the relationship of the record to a file for file maintenance purposes.
 		$string .= 'n';		// Indicates record is newly-input
@@ -1439,7 +1439,7 @@ class marcConversion
 			case 'Map':
 				$value06 = 'e'; break;
 			case 'DVD':
-			case 'Videorecording':
+			case 'Videorecording':			// E.g. /records/9992/ (test #385)
 				$value06 = 'g'; break;
 			case 'CD':
 			case 'Sound cassette':
@@ -1452,7 +1452,7 @@ class marcConversion
 			case 'DVD-ROM':
 				$value06 = 'm'; break;
 		}
-		if (!$this->form) {$value06 = 'a';}
+		if (!$this->form) {$value06 = 'a';}	// E.g. /records/1187/ (test #386)
 		$string .= $value06;
 		
 		# Position 07: Bibliographic level
@@ -1460,7 +1460,7 @@ class marcConversion
 		$position7Values = array (
 			'/art/in'	=> 'a',
 			'/art/j'	=> 'b',
-			'/doc'		=> 'm',
+			'/doc'		=> 'm',		// E.g. /records/1187/ (test #387)
 			'/ser'		=> 's',
 		);
 		$string .= $position7Values[$this->recordType];
@@ -1506,7 +1506,7 @@ class marcConversion
 		# Position 23: Undefined: Always contains a 0.
 		$string .= '0';
 		
-		# Return the string
+		# Return the string; e.g. /records/1188/ (test #388)
 		return $string;
 	}
 	
@@ -1517,7 +1517,7 @@ class marcConversion
 	{
 		# Determine the record type, used by subroutines
 		$recordTypes = array (
-			'/art/in',
+			'/art/in',		// E.g. /records/1104/ (test #389)
 			'/art/j',
 			'/doc',
 			'/ser',
@@ -1533,7 +1533,7 @@ class marcConversion
 	}
 	
 	
-	# Macro for generating a datetime
+	# Macro for generating a datetime; e.g. /records/1000/ (test #390)
 	private function macro_migrationDatetime ($value)
 	{
 		# Date and Time of Latest Transaction; see: http://www.loc.gov/marc/bibliographic/bd005.html
@@ -1541,7 +1541,7 @@ class marcConversion
 	}
 	
 	
-	# Macro for generating a datetime
+	# Macro for generating a datetime; e.g. /records/1000/ (test #391)
 	private function macro_migrationDate ($value)
 	{
 		# Date and Time of Latest Transaction; see: http://www.loc.gov/marc/bibliographic/bd005.html
@@ -1553,12 +1553,12 @@ class marcConversion
 	private function macro_generate007 ($value)
 	{
 		# No form value
-		if (!$this->form) {return 'ta';}
+		if (!$this->form) {return 'ta';}	// E.g. /records/1187/ (test #394)
 		
 		# Define the values
 		$field007values = array (
 			'Map'					=> 'aj#|||||',
-			'3.5 floppy disk'		=> 'cj#|a|||||||||',
+			'3.5 floppy disk'		=> 'cj#|a|||||||||',	// E.g. /records/179694/ (test #007)
 			'CD-ROM'				=> 'co#|g|||||||||',
 			'DVD-ROM'				=> 'co#|g|||||||||',
 			'Internet resource'		=> 'cr#|n|||||||||',
@@ -1571,7 +1571,7 @@ class marcConversion
 			'Sound cassette'		=> 'ss#|||||||||||',
 			'Sound disc'			=> 'sd#||||nn|||||',
 			'DVD'					=> 'vd#|v||z|',
-			'Videorecording'		=> 'vf#|u||u|',
+			'Videorecording'		=> 'vf#|u||u|',			// E.g. /records/9992/ (test #392)
 		);
 		
 		# Look up the value and return it
