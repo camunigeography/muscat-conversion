@@ -1715,7 +1715,7 @@ class marcConversion
 	}
 	
 	
-	# Macro for generating the 245 field
+	# Macro for generating the 245 field; tests have full coverage as noted in the generate245 class
 	private function macro_generate245 ($value, $flag)
 	{
 		# If running in transliteration mode, require a supported language
@@ -1743,23 +1743,23 @@ class marcConversion
 		# Start an array of subfields
 		$subfields = array ();
 		
-		# Implement subfield $a
+		# Implement subfield $a, e.g. /records/1405/ (test #433)
 		if ($a = $this->xPathValue ($this->xml, '/*/edn')) {
 			$subfields[] = "{$this->doubleDagger}a" . $a;
 		}
 		
-		# Implement subfield $b; examples given in the function
+		# Implement subfield $b; examples given in the function; e.g. /records/3887/ (test #434), /records/7017/ (has multiple *ee and multiple *n within this) (test #435)
 		if ($b = $this->generate250b ($value, $this->xml, $ignored, $this->authorsFields)) {
 			$subfields[] = "{$this->doubleDagger}b" . $b;
 		}
 		
-		# Return false if no subfields
+		# Return false if no subfields; e.g. /records/1031/ (test #436)
 		if (!$subfields) {return false;}
 		
-		# Compile the overall string
+		# Compile the overall string; e.g. /records/45901/ (test #437)
 		$value = implode (' ', $subfields);
 		
-		# Ensure the value ends with a dot (even if punctuation already present); e.g. /records/2549/ , /records/4432/
+		# Ensure the value ends with a dot (even if punctuation already present); e.g. /records/4432/ , /records/2549/ (test #438)
 		$value = $this->macro_dotEnd ($value);
 		
 		# Return the value
@@ -1774,7 +1774,7 @@ class marcConversion
 		require_once ('generate245.php');
 		$generate245 = new generate245 ($this, $this->xml, $this->authorsFields);
 		
-		# Create the list of subvalues if there is *ee?; e.g. /records/3887/ , /records/7017/ (has multiple *ee and multiple *n within this) , /records/45901/ , /records/168490/
+		# Create the list of subvalues if there is *ee?; e.g. /records/3887/ (test #434), /records/7017/ (has multiple *ee and multiple *n within this) (records #435) , /records/45901/ , /records/168490/
 		$subValues = array ();
 		$eeIndex = 1;
 		while ($this->xPathValue ($this->xml, "//ee[$eeIndex]")) {	// Check if *ee container exists
@@ -1785,7 +1785,7 @@ class marcConversion
 		# Return false if no subvalues
 		if (!$subValues) {return false;}
 		
-		# Implode values
+		# Implode values, e.g. /records/7017/ (test #435)
 		$value = implode ('; ', $subValues);
 		
 		# Return the value

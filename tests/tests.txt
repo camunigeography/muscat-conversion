@@ -15,6 +15,7 @@
 # generateAuthors: 100%
 # marcConversion (controller section): 100%
 # marcConversion (macros section): 50%
+# muscatConversion: 0%
 
 
 1
@@ -2614,3 +2615,39 @@ Macro 880subfield6 adds space for clarity after ‡6
 150141
 880
 ‡6 700-04
+
+433
+Macro generate250 ‡a
+1405
+250
+‡a10th ed.
+
+434
+Macro generate250 ‡b
+3887
+250
+‡bsuperintended by Rev. Robert Main.
+
+435
+Macro generate250 ‡b multiple sections separated by semicolon using roleAndSiblings routine
+7017
+250
+‡boriginal drawings by Chr. Krohg, Otto Sinding and E. Werenskiold; photographs taken in Greenland by Erich Dagobert von Drygalski.
+
+436
+Macro generate250 no output if no subfields
+1031
+!250
+*
+
+437
+Macro generate250 compile with space between subfields
+45901
+250
+‡a2nd ed. ‡bcontaining
+
+438
+Macro generate250 dot end
+2549
+250
+/‡aNew edition \(Fourth\).$/
