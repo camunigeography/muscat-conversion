@@ -1646,14 +1646,14 @@ class marcConversion
 	# Macro to add in the 880 subfield index
 	private function macro_880subfield6 ($value, $masterField)
 	{
-		# End if no value
+		# End if no value; e.g. 110 field in /records/151048/ (test #423)
 		if (!$value) {return $value;}
 		
 		# Determine the field instance index, starting at 0; this will always be 0 unless called from a repeatable
 		#!# Repeatable field support not checked in practice yet as there are no such fields
 		$this->field880subfield6FieldInstanceIndex[$masterField] = (isSet ($this->field880subfield6FieldInstanceIndex[$masterField]) ? $this->field880subfield6FieldInstanceIndex[$masterField] + 1 : 0);
 		
-		# For a multiline field, parse out the field number, which on subsequent lines will not necessarily be the same as the master field; e.g. /records/162152/
+		# For a multiline field, e.g. /records/162152/ (test #424), parse out the field number, which on subsequent lines will not necessarily be the same as the master field; e.g. /records/68500/ (tests #425, #426)
 		if (substr_count ($value, "\n")) {
 			
 			# Normalise first line
@@ -1664,9 +1664,9 @@ class marcConversion
 			# Convert to field, indicators, and line
 			preg_match_all ('/^([0-9]{3}) (.+)$/m', $value, $lines, PREG_SET_ORDER);
 			
-			# Construct each line
+			# Construct each line; link field may go into double digits, e.g. /records/150141/ (test #427, #428); indicators should match, e.g. /records/150141/ (test #429)
 			$values = array ();
-			foreach ($lines as $multilineSubfieldIndex => $line) {	// $line[1] will be the actual subfield code (e.g. 710), not the master field (e.g. 700), i.e. it may be a mutated value (e.g. 700 -> 710) as in e.g. /records/68500/ and similar in /records/150141/ , /records/183507/ , /records/196199/
+			foreach ($lines as $multilineSubfieldIndex => $line) {	// $line[1] will be the actual subfield code (e.g. 710), not the master field (e.g. 700), i.e. it may be a mutated value (e.g. 700 -> 710) as in e.g. /records/68500/ (tests #425, #426) and similar in /records/150141/ , /records/183507/ , /records/196199/
 				$values[] = $this->construct880Subfield6Line ($line[2], $line[1], $masterField, $this->field880subfield6FieldInstanceIndex[$masterField], $multilineSubfieldIndex);
 			}
 			
@@ -1675,7 +1675,7 @@ class marcConversion
 			
 		} else {
 			
-			# Render the line
+			# Render the line, e.g. 490 in /records/150141/ (test #430)
 			$value = $this->construct880Subfield6Line ($value, $masterField, $masterField, $this->field880subfield6FieldInstanceIndex[$masterField]);
 		}
 		
@@ -1691,10 +1691,10 @@ class marcConversion
 		$this->field880subfield6Index++;
 		
 		# Assemble the subfield for use in the 880 line
-		$indexFormatted = str_pad ($this->field880subfield6Index, 2, '0', STR_PAD_LEFT);
-		$subfield6 = $this->doubleDagger . '6 ' . $masterField . '-' . $indexFormatted;		// Decided to add space after $6 for clarity, to avoid e.g. '$6880-02' which is less clear than '$6 880-02'
+		$indexFormatted = str_pad ($this->field880subfield6Index, 2, '0', STR_PAD_LEFT);	// E.g. /records/150141/ (tests #427, #431)
+		$subfield6 = $this->doubleDagger . '6 ' . $masterField . '-' . $indexFormatted;		// Decided to add space after $6 for clarity, to avoid e.g. '$6880-02' which is less clear than '$6 880-02', e.g. /records/150141/ (test #432)
 		
-		# Insert the subfield after the indicators; this is similar to insertSubfieldAfterMarcFieldThenIndicators but without the initial MARC field number
+		# Insert the subfield after the indicators; this is similar to insertSubfieldAfterMarcFieldThenIndicators but without the initial MARC field number; e.g. /records/150141/ (test #429)
 		if (preg_match ('/^([0-9#]{2}) (.+)$/', $line)) {	// Can't get a single regexp that makes the indicator block optional
 			$line = preg_replace ('/^([0-9#]{2}) (.+)$/', "\\1 {$subfield6} \\2", $line);	// I.e. a macro block result line that includes the two indicators at the start (e.g. a 100), e.g. '1# $afoo'
 		} else {

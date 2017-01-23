@@ -2555,3 +2555,62 @@ BGN/PCGN 1947 romanization of Russian
 !546
 *
 
+423
+Macro 880subfield6 ends if no value
+151048
+!880
+110-0
+
+424
+Macro 880subfield6 incoming multiline results in multiple 880 entries
+162152
+880
+‡6 700-07 ‡aВтюрин, Борис.‡t
+
+425
+Macro 880subfield6 mutated 71x amongst other 7xx remains in order: 710 field (see also next test)
+68500
+880
+‡6 710-06 ‡aАыталын.
+
+426
+Macro 880subfield6 mutated 71x amongst other 7xx remains in order: field following 710 (see also previous test)
+68500
+880
+‡6 700-07 ‡a
+
+427
+Macro 880subfield6 multiline can go into double-digits: target (see also next test)
+150141
+880
+‡6 710-11 ‡a
+
+428
+Macro 880subfield6 multiline can go into double-digits: source (see also previous test)
+150141
+710
+‡6 880-11 ‡a
+
+429
+Macro 880subfield6 multiline retains correct indicators in middle (here testing 710-11, though not a very robust test)
+150141
+i880
+2#
+
+430
+Macro 880subfield6 single line
+150141
+880
+‡6 490-03 ‡
+
+431
+Macro 880subfield6 has zero padding when single digit
+150141
+880
+‡6 700-04 ‡
+
+432
+Macro 880subfield6 adds space for clarity after ‡6
+150141
+880
+‡6 700-04
