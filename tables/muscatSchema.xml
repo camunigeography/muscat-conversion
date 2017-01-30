@@ -9,12 +9,14 @@
 				<n1 />
 				<n2 />
 				<nd />
+				<nt /><!-- Name transliteration -->
 			</a>
 			<ad /><!-- authorial detail (usually 'and others' 'ed.' 'eds.') - repeatable field -->
 			<al><!-- alternative spelling of transliterated name or alternative name -->
 				<n1 />
 				<n2 />
 				<nd />
+				<nt /><!-- Name transliteration -->
 			</al>
 			<aff /><!-- affiliation -->
 		</ag>
@@ -33,6 +35,7 @@
 				<n1 />
 				<n2 />
 				<nd />
+				<nt /><!-- Name transliteration -->
 			</n>
 		</e>
 		<edn /><!-- edition -->
@@ -42,6 +45,7 @@
 				<n1 />
 				<n2 />
 				<nd />
+				<nt /><!-- Name transliteration -->
 			</n>
 		</ee>
 		<pg><!-- where two or more publishers, from different places, have collaborated -->
@@ -126,12 +130,14 @@
 				<n1 />
 				<n2 />
 				<nd />
+				<nt /><!-- Name transliteration -->
 			</a>
 			<ad /><!-- authorial detail (usually 'and others' 'ed.' 'eds.') -->
 			<al><!-- alternative spelling of transliterated name or alternative name -->
 				<n1 />
 				<n2 />
 				<nd />
+				<nt /><!-- Name transliteration -->
 			</al>
 			<aff /><!-- affiliation -->
 		</ag>
@@ -150,6 +156,7 @@
 				<n1 />
 				<n2 />
 				<nd />
+				<nt /><!-- Name transliteration -->
 			</n>
 		</e>
 		<in><!-- information about the document (i.e. book or conference proceedings etc.) in which the article occurs, which can be followed by: -->
@@ -159,12 +166,14 @@
 					<n1 />
 					<n2 />
 					<nd />
+					<nt /><!-- Name transliteration -->
 				</a>
 				<ad /><!-- authorial detail ..... -->
 				<al><!-- alternative spelling of transliterated name or alternative name -->
 					<n1 />
 					<n2 />
 					<nd />
+					<nt /><!-- Name transliteration -->
 				</al>
 				<aff /><!-- affiliated author (not used at present) -->
 			</ag>
@@ -184,6 +193,7 @@
 					<n1 />
 					<n2 />
 					<nd />
+					<nt /><!-- Name transliteration -->
 				</n>
 			</ee>
 			<vno /><!-- the volume number of the work, in multi-volume works -->
@@ -355,12 +365,14 @@
 				<n1 />
 				<n2 />
 				<nd />
+				<nt /><!-- Name transliteration -->
 			</a>
 			<ad /><!-- authorial detail (usually 'and others' 'ed.' 'eds.') - repeatable field -->
 			<al><!-- alternative spelling of transliterated name or alternative name -->
 				<n1 />
 				<n2 />
 				<nd />
+				<nt /><!-- Name transliteration -->
 			</al>
 			<aff /><!-- affiliation -->
 		</ag>
