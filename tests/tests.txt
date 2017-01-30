@@ -331,10 +331,10 @@ Ensure 'Anon.' is treated as a transliterated protected string
 Anon.
 
 53
-English-name author should not result in an 880 transliteration
+English-name author should not result in an 880 transliteration (implementation pending)
 151048
 !880
-700-04
+Доwдесwелл, J. А.
 
 54
 English-name author should not be transliterated (880-245)
