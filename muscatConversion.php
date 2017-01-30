@@ -767,8 +767,8 @@ class muscatConversion extends frontControllerApplication
 		
 		# Get the data
 		$query = "SELECT
-			(SELECT MAX(recordId) AS id FROM catalogue_rawdata WHERE id < {$id}) AS previous,
-			(SELECT MIN(recordId) AS id FROM catalogue_rawdata WHERE id > {$id}) AS next
+			(SELECT MAX(id) AS id FROM catalogue_xml WHERE id < {$id}) AS previous,
+			(SELECT MIN(id) AS id FROM catalogue_xml WHERE id > {$id}) AS next
 		;";
 		$data = $this->databaseConnection->getOne ($query);
 		
