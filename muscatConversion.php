@@ -1811,7 +1811,7 @@ class muscatConversion extends frontControllerApplication
 		$importTypes = array (
 			'full'					=> 'FULL import (c. 10.8 hours)',
 			'xml'					=> 'Regenerate XML only (c. 6 minutes)',
-			'marc'					=> 'Regenerate MARC only (c. 2.5 hours)',
+			'marc'					=> 'Regenerate MARC only (c. 1.25 hours)',
 			'external'				=> 'Regenerate external Voyager records only (c. ? minutes)',
 			'outputstatus'			=> 'Regenerate output status only (c. 15 seconds)',
 			'exports'				=> 'Regenerate MARC export files and Bibcheck report (c. 30 minutes)',
