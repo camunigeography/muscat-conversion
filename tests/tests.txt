@@ -2651,3 +2651,16 @@ Macro generate250 dot end
 2549
 250
 /‡aNew edition \(Fourth\).$/
+
+439
+245: If there is a / in the title explicitly, use that and discard all people groups
+10503
+245
+/^‡aMuseum Bulletin \/‡c\[Victoria Memorial Museum\]\.$/
+
+440
+245: / title handling not triggered by </em>
+1131
+245
+of Euphausia superba Dana /‡cJ. Mauchline.
+

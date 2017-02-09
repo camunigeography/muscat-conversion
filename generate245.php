@@ -154,6 +154,13 @@ class generate245
 		if (!strlen ($t)) {$t = '[No title]';}	// No actual cases left so cannot test (found using "SELECT id, EXTRACTVALUE(xml,'//tg/t') AS tValue FROM catalogue_xml HAVING LENGTH(tValue) = 0;") but logic left in as catch
 		if ($t == '-') {$t = '[No title]';}	// E.g. No actual cases left so cannot test; only /records/182768/ which is an *j/*tg/ which is not relevant
 		
+		# If there is a / in the title explicitly, use that and discard all people groups; e.g. /records/10503/ (test #439); not triggered by </em> (test #440)
+		$this->muscatSorDelimiter = ' / ';	// Decided not to tolerate any cases with space not present after
+		if (substr_count ($t, $this->muscatSorDelimiter)) {
+			list ($t, $statementOfResponsibility) = explode ($this->muscatSorDelimiter, $this->t, 2);
+			$t = trim ($t);
+		}
+		
 		# Does the *t include a colon ':'? E.g. /records/1119/ (test #172)
 		if (substr_count ($t, ':')) {
 			
@@ -264,6 +271,12 @@ class generate245
 			
 			# Next e
 			$eIndex++;
+		}
+		
+		# If there is a / in the title explicitly, use that and discard all people groups; e.g. /records/10503/ (test #439); not triggered by </em> (test #440)
+		if (substr_count ($this->t, $this->muscatSorDelimiter)) {
+			list ($t, $statementOfResponsibility) = explode ($this->muscatSorDelimiter, $this->t, 2);
+			$peopleGroups = array (trim ($statementOfResponsibility));
 		}
 		
 		# End if no author groups resulting in output; e.g. /records/178946/ (test #193), /records/115773/ (test #194), /records/2930/ (test #195), /records/145630/ (test #196)
