@@ -1883,18 +1883,18 @@ class marcConversion
 	}
 	
 	
-	# Macro for generating the 541 field, which looks at *acq groups; it may generate a multiline result; see: https://www.loc.gov/marc/bibliographic/bd541.html
+	# Macro for generating the 541 field, which looks at *acq groups; it may generate a multiline result, e.g. /records/3959/ (test #456); see: https://www.loc.gov/marc/bibliographic/bd541.html
 	#!# Support for *acc, which is currently having things like *acc/*date lost as is it not present elsewhere
 	private function macro_generate541 ($value)
 	{
 		# Start a list of results
 		$resultLines = array ();
 		
-		# Loop through each *acq in the record; e.g. multiple in /records/3959/
+		# Loop through each *acq in the record; e.g. multiple in /records/3959/ (test #456)
 		$acqIndex = 1;
 		while ($this->xPathValue ($this->xml, "//acq[$acqIndex]")) {
 			
-			# Start a line of subfields, used to construct the values; e.g. /records/176629/
+			# Start a line of subfields, used to construct the values; e.g. /records/176629/ (test #457)
 			$subfields = array ();
 			
 			# Support $c - constructed from *fund / *kb / *sref
@@ -1904,44 +1904,44 @@ class marcConversion
 				- IF record contains ONE *sref and ONE *kb and NO *fund => ‡c*sref '--' *kb"
 			*/
 			#!# Spec is unclear: What if there are more than one of these, or other combinations not shown here? Currently, items have any second (or third, etc.) lost, or e.g. *kb but not *sref would not show
-			$fund = $this->xPathValues ($this->xml, "//acq[$acqIndex]/fund[%i]");	// Code		// e.g. multiple at /records/132544/ , /records/138939/
+			$fund = $this->xPathValues ($this->xml, "//acq[$acqIndex]/fund[%i]");	// Code		// #!# e.g. multiple at /records/132544/ , /records/138939/ - also need tests once decision made
 			#!# Should $kb be top-level, rather than within an *acq group? What happens if multiple *acq groups, which will each pick up the same *kb
 			$kb   = $this->xPathValues ($this->xml, "//kb[%i]");					// Exchange
 			$sref = $this->xPathValues ($this->xml, "//acq[$acqIndex]/sref[%i]");	// Supplier reference
 			$c = false;
 			if (count ($sref) == 1 && count ($fund) == 1 && !$kb) {
-				$c = $sref[1] . '--' . $fund[1];
+				$c = $sref[1] . '--' . $fund[1];	// E.g. /records/176629/ (test #459)
 			} else if (count ($sref) == 1 && count ($kb) == 1 && !$fund) {
-				$c = $sref[1] . '--' . $kb[1];
+				$c = $sref[1] . '--' . $kb[1];		// E.g. /records/195699/ (test #460)
 			} else if ($fund) {
-				$c = $fund[1];
+				$c = $fund[1];	// E.g. /records/132544/ (test #458)
 			} else if ($kb) {
-				$c = $kb[1];
+				$c = $kb[1];	// E.g. /records/1010/ (test #461)
 			} else if ($sref) {
-				$c = $sref[1];
+				$c = $sref[1];	// E.g. /records/168419/ (test #462)
 			}
 			if ($c) {
 				$subfields[] = "{$this->doubleDagger}c" . $c;
 			}
 			
-			# Create $a, from *o - Source of acquisition
+			# Create $a, from *o - Source of acquisition, e.g. /records/1050/ (test #463)
 			if ($value = $this->xPathValue ($this->xml, "//acq[$acqIndex]/o")) {
 				$subfields[] = "{$this->doubleDagger}a" . $value;
 			}
 			
-			# Create $d, from *date - Date of acquisition
+			# Create $d, from *date - Date of acquisition, e.g. /records/3173/ (test #464)
 			if ($value = $this->xPathValue ($this->xml, "//acq[$acqIndex]/date")) {
 				$subfields[] = "{$this->doubleDagger}d" . $value;
 			}
 			
 			#!# *acc/*ref?
 			
-			# Create $h, from *pr - Purchase price
+			# Create $h, from *pr - Purchase price, e.g. /records/3173/ (test #465)
 			if ($value = $this->xPathValue ($this->xml, "//acq[$acqIndex]/pr")) {
 				$subfields[] = "{$this->doubleDagger}h" . $value;
 			}
 			
-			# Register the line if subfields have been created
+			# Register the line if subfields have been created, e.g. /records/3173/ (test #466)
 			if ($subfields) {
 				$subfields[] = "{$this->doubleDagger}5" . 'UkCU-P';	// Institution to which field applies, i.e. SPRI
 				$resultLines[] = implode (' ', $subfields);
@@ -1951,10 +1951,10 @@ class marcConversion
 			$acqIndex++;
 		}
 		
-		# End if no lines
+		# End if no lines, e.g. /records/3174/ (test #467)
 		if (!$resultLines) {return false;}
 		
-		# Implode the list
+		# Implode the list, e.g. /records/3959/ (tests #456, #468)
 		$result = implode ("\n" . '541 0# ', $resultLines);
 		
 		# Return the result

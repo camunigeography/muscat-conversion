@@ -2747,3 +2747,85 @@ Macro generate490 $a normalise space before semicolon
 31402
 490
 SSSR ;‡vTom 27
+
+456
+541 multiline
+3959
+541
+/^‡aBreitfuss ‡5UkCU-P$/
+
+457
+541 single line
+176629
+541
+‡ca2085809--BA Russia ‡a
+
+458
+541 ‡c *fund alone becomes ‡c
+132544
+541
+‡cAO4J7D ‡a
+
+459
+541 ‡c *fund and *sref
+176629
+541
+‡ca2085809--BA Russia ‡a
+
+460
+541 ‡c *fund and *kb but no *fund
+195699
+541
+‡c60129--Exchange - PR and PGA ‡a
+
+461
+541 ‡c *kb
+1010
+541
+‡cExchange - PR ‡a
+
+462
+451 ‡c *sref
+168419
+541
+‡c329400 ‡a
+
+463
+451 ‡a
+1050
+541
+‡aMinistry of Works and Division (gift) ‡
+
+464
+451 ‡d
+3173
+541
+‡d2001/01/11 ‡
+
+465
+451 ‡h
+3173
+541
+‡h85.00 UKP ‡
+
+466
+541 ‡5
+3173
+541
+/ ‡5UkCU-P$/
+
+467
+No 541 created if no *acq and no *kb
+3174
+!541
+*
+
+468
+541 multiline also gets correct indicator
+3959
+i541
+/^0#$/
+
+
+
+
