@@ -2700,4 +2700,22 @@ Macro generate490 with explicit semicolon divider space trimming
 490
 Bilderbuchs ;‡vI-IV
 
+448
+Macro generate490 split using volume numbers regexp list (first in list)
+38395
+490
+Project ;‡v261, Final Report
+
+449
+Macro generate490 longest first
+6264
+490
+;‡vparts 1 and 2
+
+450
+Macro generate490 compare case-insensitively
+170770
+490
+;‡vno. 355-5
+
 

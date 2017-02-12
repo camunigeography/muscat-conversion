@@ -1828,7 +1828,7 @@ class marcConversion
 			if (!isSet ($this->regexps490)) {
 				
 				# Load the regexp list
-				$this->regexps490Base = $this->muscatConversion->oneColumnTableToList ('volumeRegexps.txt');
+				$this->regexps490Base = $this->muscatConversion->oneColumnTableToList ('volumeRegexps.txt', true);
 				
 				# Add implicit boundaries to each regexp
 				$this->regexps490 = array ();
@@ -1840,7 +1840,7 @@ class marcConversion
 			# Find the first match, then stop, if any
 			foreach ($this->regexps490 as $index => $regexp) {
 				$delimeter = '~';	// Known not to be in the tables/volumeRegexps.txt list
-				if (preg_match ($delimeter . $regexp . $delimeter, $ts, $matches)) {	// Regexps are permitted to have their own captures; matches 3 onwards are just ignored
+				if (preg_match ($delimeter . $regexp . $delimeter . 'i', $ts, $matches)) {	// Regexps are permitted to have their own captures; matches 3 onwards are just ignored
 					$seriesTitle = $matches[1];
 					$volumeNumber = $matches[2];
 					$matchedRegexp = ($index + 1) . ': ' . $this->regexps490Base[$index];		// Pass back by reference the matched regexp, prefixed by the number in the list, indexed from 1
