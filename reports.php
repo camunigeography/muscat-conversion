@@ -3841,7 +3841,18 @@ class reports
 				if ($test['result'] || $data[$id]['negativeTest']) {
 					$matched = $test['expected'];
 					if ($isRegexpTest = preg_match ('|^/|', $test['expected'], $matches)) {
-						if (preg_match ($test['expected'], substr ($found, 4), $matches)) {	// substr(..., 4) strips off the fieldnumber and its space
+						
+						# Determine the extract from the full line to use for highlighting purposes
+						if ($test['indicatorTest']) {
+							$extract = substr ($found, 4, 2);		// Indicator test: The two indicator characters, starting from position 5 (i.e. '4', zero-indexed)
+						} else if (preg_match ('/^(LDR|0)/', $found)) {
+							$extract = substr ($found, 4);			// LDR/0xx fields: Strip off the fieldnumber and its space (4 characters)
+						} else {
+							$extract = substr ($found, 4 + 3);		// Standard fields: Strip off the fieldnumber and its space (4 characters) and the indicators (3 characters)
+						}
+						
+						# Do the match
+						if (preg_match ($test['expected'], $extract, $matches)) {
 							$matched = $matches[0];
 						}
 					}
