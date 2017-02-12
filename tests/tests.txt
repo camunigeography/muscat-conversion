@@ -2718,4 +2718,32 @@ Macro generate490 compare case-insensitively
 490
 ;‡vno. 355-5
 
+451
+Macro generate490 simple series title without volume number
+1188
+490
+/^‡aT-516$/
 
+452
+Macro generate490 add *vno to existing $v
+1896
+490
+‡vNo.95, Pt. 1
+
+453
+Macro generate490 $v from *vno
+101358
+490
+‡vVol. 1
+
+454
+Macro generate490 $a with $v trailing dot
+3748
+490
+Otdel ;‡vTom 1.
+
+455
+Macro generate490 $a normalise space before semicolon
+31402
+490
+SSSR ;‡vTom 27

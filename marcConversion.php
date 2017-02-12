@@ -1820,14 +1820,14 @@ class marcConversion
 			
 		} else {
 			
-			# By default, treat as simple series title without volume number
+			# By default, treat as simple series title without volume number, e.g. /records/1188/ (test #451)
 			$seriesTitle = $ts;
 			$volumeNumber = NULL;
 			
 			# Load the regexps list if not already done so
 			if (!isSet ($this->regexps490)) {
 				
-				# Load the regexp list
+				# Load the regexp list; this is sorted longest first to try to avoid ordering bugs; e.g. /records/6264/ (test #449)
 				$this->regexps490Base = $this->muscatConversion->oneColumnTableToList ('volumeRegexps.txt', true);
 				
 				# Add implicit boundaries to each regexp
@@ -1840,7 +1840,7 @@ class marcConversion
 			# Find the first match, then stop, if any
 			foreach ($this->regexps490 as $index => $regexp) {
 				$delimeter = '~';	// Known not to be in the tables/volumeRegexps.txt list
-				if (preg_match ($delimeter . $regexp . $delimeter . 'i', $ts, $matches)) {	// Regexps are permitted to have their own captures; matches 3 onwards are just ignored
+				if (preg_match ($delimeter . $regexp . $delimeter . 'i', $ts, $matches)) {	// Regexps are permitted to have their own captures; matches 3 onwards are just ignored; this is done case-insensitively, e.g.: /records/170770/ (test #450)
 					$seriesTitle = $matches[1];
 					$volumeNumber = $matches[2];
 					$matchedRegexp = ($index + 1) . ': ' . $this->regexps490Base[$index];		// Pass back by reference the matched regexp, prefixed by the number in the list, indexed from 1
@@ -1852,7 +1852,7 @@ class marcConversion
 		# If there is a *vno, add that
 		if (!$reportGenerationMode) {		// I.e. if running in MARC generation context, rather than for report generation
 			if ($vno = $this->xPathValue ($this->xml, '//vno')) {
-				$volumeNumber = ($volumeNumber ? $volumeNumber . ', ' : '') . $vno;		// If already present, e.g. /records/1896/ , append to existing, separated by comma; records with no number in the *ts like /records/101358/ will appear as normal
+				$volumeNumber = ($volumeNumber ? $volumeNumber . ', ' : '') . $vno;		// If already present, e.g. /records/1896/ (test #452), append to existing, separated by comma; records with no number in the *ts like /records/101358/ will appear as normal (test #453)
 			}
 		}
 		
@@ -1862,15 +1862,15 @@ class marcConversion
 		# Deal with optional volume number
 		if (strlen ($volumeNumber)) {
 			
-			# Strip any trailing ,. character in $a, and re-trim
+			# Strip any trailing ,. character in $a, and re-trim, e.g. /records/3748/ (test #454)
 			$string = preg_replace ('/^(.+)[.,]$/', '\1', $string);
 			$string = trim ($string);
 			
-			# Add space-semicolon before $v if not already present
+			# Add space-semicolon before $v if not already present, e.g. /records/3748/ (test #454)
 			if (mb_substr ($string, -1) != ';') {	// Normalise to end ";"
 				$string .= ' ;';
 			}
-			if (mb_substr ($string, -2) != ' ;') {	// Normalise to end " ;"
+			if (mb_substr ($string, -2) != ' ;') {	// Normalise to end " ;", e.g. /records/31402/ (test #455)
 				$string = preg_replace ('/;$/', ' ;', $string);
 			}
 			
