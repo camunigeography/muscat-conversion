@@ -142,7 +142,7 @@ class generate008
 		# Extract the value
 		$pl = $this->muscatConversion->xPathValue ($this->xml, '(//pl)[1]', false);
 		
-		# Look it up in the country codes table
+		# Look it up in the country codes table; brackets are stripped, e.g. /records/2027/ (test #482)
 		return $this->muscatConversion->lookupValue ('countryCodes', '', true, $stripBrackets = true, $pl, 'MARC Country Code');
 	}
 	

@@ -2904,3 +2904,52 @@ Glaciology: general.
 651
 ‡a(*62) -- Canadian Arctic waters.
 
+482
+lookupTable round bracket stripping
+2027
+008
+/^.{15}au#/
+
+483
+lookupTable case-insensitive comparison (input side) (see also #489)
+52260
+008
+/^.{18}ar/
+
+484
+Basic lookupTable test
+173681
+008
+/^.{18}ar/
+
+485
+Undo Muscat escaped asterisks @*
+180287
+008
+/^.{15}ru#/
+
+486
+loadLookupTable needs definition of empty value fallback value
+180290
+008
+/^.{18}#u/
+
+487
+loadLookupTable needs definition of false fallback value
+180289
+008
+/^.{35}eng/
+
+488
+loadLookupTable does diacritic substitution
+148511
+008
+/^.{18}qn/
+
+489
+loadLookupTable case-insensitive comparison (definition side) (see also #483)
+52260
+008
+/^.{18}ar/
+
+

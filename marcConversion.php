@@ -2092,9 +2092,9 @@ class marcConversion
 		# Load the lookup table
 		$lookupTable = $this->loadLookupTable ($table, $fallbackKey, $caseSensitiveComparison, $stripBrackets);
 		
-		# If required, strip surrounding square/round brackets if present, e.g. "[Frankfurt]" => "Frankfurt" or "(Frankfurt)" => "Frankfurt"
+		# If required, strip surrounding square/round brackets if present, e.g. "[Frankfurt]" => "Frankfurt" or "(Frankfurt)" => "Frankfurt", e.g. /records/2027/ (test #482)
 		# Note that '(' is an odd Muscat convention, and '[' is the MARC convention
-		# Note: In the actual data for 260, preserve square brackets, but remove round brackets if present
+		# Note: In the actual data for 260, square brackets are preserved but round brackets are removed if present - see formatPl and its tests
 		$valueOriginal = $value;	// Cache
 		if ($stripBrackets) {
 			if (preg_match ('/^[\[|\(](.+)[\]|\)]$/', $value, $matches)) {
@@ -2102,7 +2102,7 @@ class marcConversion
 			}
 		}
 		
-		# If doing case-insensitive comparison, convert the supplied value to lower case
+		# If doing case-insensitive comparison, convert the supplied value to lower case, e.g. /records/52260/ (test #483)
 		if (!$caseSensitiveComparison) {
 			$value = mb_strtolower ($value);
 		}
@@ -2124,7 +2124,7 @@ class marcConversion
 	}
 	
 	
-	# Function to load and process a lookup table
+	# Function to load and process a lookup table, e.g. /records/173681/ (test #484)
 	private function loadLookupTable ($table, $fallbackKey, $caseSensitiveComparison, $stripBrackets)
 	{
 		# Lookup from cache if present
@@ -2135,7 +2135,7 @@ class marcConversion
 		# Get the data table
 		$lookupTable = file_get_contents ($this->applicationRoot . '/tables/' . $table . '.tsv');
 		
-		# Undo Muscat escaped asterisks @*
+		# Undo Muscat escaped asterisks @* , e.g. /records/180287/ (test #485)
 		$lookupTable = $this->muscatConversion->unescapeMuscatAsterisks ($lookupTable);
 		
 		# Convert to TSV
@@ -2145,21 +2145,21 @@ class marcConversion
 		
 		# Define the fallback value in case that is needed
 		if (!isSet ($lookupTableRaw[''])) {
-			$lookupTableRaw[''] = $lookupTableRaw[$fallbackKey];
+			$lookupTableRaw[''] = $lookupTableRaw[$fallbackKey];	// E.g. /records/180290/ (test #486)
 		}
-		$lookupTableRaw[false]	= $lookupTableRaw[$fallbackKey];	// Boolean false also needs to be defined because no-match value from an xPathValue() lookup will be false
+		$lookupTableRaw[false]	= $lookupTableRaw[$fallbackKey];	// Boolean false also needs to be defined because no-match value from an xPathValue() lookup will be false, e.g. /records/180289/ (test #487)
 		
-		# Obtain required resources
+		# Obtain diacritic definitions
 		$diacriticsTable = $this->muscatConversion->diacriticsTable ();
 		
 		# Perform conversions on the key names
 		$lookupTable = array ();
 		foreach ($lookupTableRaw as $key => $values) {
 			
-			# Convert diacritics
+			# Convert diacritics, e.g. /records/148511/ (test #488)
 			$key = strtr ($key, $diacriticsTable);
 			
-			# Strip surrounding square/round brackets if present, e.g. "[Frankfurt]" => "Frankfurt" or "(Frankfurt)" => "Frankfurt"
+			# Strip surrounding square/round brackets if present, e.g. "[Frankfurt]" => "Frankfurt" or "(Frankfurt)" => "Frankfurt"; no examples found but tested manually
 			if ($stripBrackets) {
 				if (preg_match ('/^[\[|\(](.+)[\]|\)]$/', $key, $matches)) {
 					$key = $matches[1];
@@ -2180,7 +2180,7 @@ class marcConversion
 			$lookupTable[$key] = $values;
 		}
 		
-		# If doing case-insensitive comparison, convert values to lower case
+		# If doing case-insensitive comparison, convert values to lower case, e.g. /records/52260/ (test #489)
 		if (!$caseSensitiveComparison) {
 			$lookupTableLowercaseKeys = array ();
 			foreach ($lookupTable as $key => $values) {
