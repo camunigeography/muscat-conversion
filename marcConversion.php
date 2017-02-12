@@ -3,6 +3,10 @@
 # Class to handle conversion of the data to MARC format
 class marcConversion
 {
+	# Class properties
+	private $lookupTablesCache = array ();
+	
+	
 	# Constructor
 	public function __construct ($muscatConversion, $transliteration, $supportedReverseTransliterationLanguages, $mergeTypes, $ksStatusTokens, $locationCodes, $suppressionStatusKeyword, $suppressionScenarios)
 	{
