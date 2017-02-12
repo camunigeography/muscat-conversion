@@ -2670,3 +2670,9 @@ Roman numerals range
 880
 XVII-XIX
 
+443
+Macro generate250 ‡b no $b due to absence of *ee
+1405
+250
+/‡a10th ed\.$/
+

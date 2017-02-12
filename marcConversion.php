@@ -1782,7 +1782,7 @@ class marcConversion
 			$eeIndex++;
 		}
 		
-		# Return false if no subvalues
+		# Return false if no subvalues, i.e. no $b due to absence of *ee, e.g. /records/1405/ (test #443)
 		if (!$subValues) {return false;}
 		
 		# Implode values, e.g. /records/7017/ (test #435)
