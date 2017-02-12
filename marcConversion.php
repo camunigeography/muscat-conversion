@@ -1962,14 +1962,14 @@ class marcConversion
 	}
 	
 	
-	# Macro to determine if a value is not surrounded by round brackets
+	# Macro to determine if a value is not surrounded by round brackets, e.g. /records/1003/ (tests #469, #470)
 	private function macro_isNotRoundBracketed ($value)
 	{
 		return ((mb_substr ($value, 0, 1) != '(') || (mb_substr ($value, -1) != ')') ? $value : false);
 	}
 	
 	
-	# Macro to determine if a value is surrounded by round brackets
+	# Macro to determine if a value is surrounded by round brackets, e.g. /records/1003/ (tests #471, #472)
 	private function macro_isRoundBracketed ($value)
 	{
 		return ((mb_substr ($value, 0, 1) == '(') && (mb_substr ($value, -1) == ')') ? $value : false);
@@ -1987,24 +1987,24 @@ class marcConversion
 			$this->udcTranslations = $this->databaseConnection->selectPairs ($this->settings['database'], 'udctranslations', array (), array ('ks', 'kw'));
 		}
 		
-		# Split out any additional description string
+		# Split out any additional description string for re-insertation below, e.g. /records/1008/ (test #473)
 		$description = false;
 		if (preg_match ("/^(.+)\[(.+)\]$/", $value, $matches)) {
 			$value = $matches[1];
 			$description = $matches[2];
 		}
 		
-		# Skip if a known value (before brackes, which are now stripped) to be ignored
+		# Skip if a known value (before brackes, which are now stripped) to be ignored, e.g. /records/166245/ (test #474)
 		if (in_array ($value, $this->ksStatusTokens)) {return false;}
 		
-		# Ensure the value is in the table
+		# Ensure the value is in the table, e.g. /records/166245/ (test #475)
 		if (!isSet ($this->udcTranslations[$value])) {
 			// NB For the following error, see also /reports/periodicalpam/ which covers scenario of records temporarily tagged as 'MPP'
 			echo "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> 650 UDC field '<em>{$value}</em>' is not a valid UDC code.</p>";
 			return false;
 		}
 		
-		# Construct the result string
+		# Construct the result string, e.g. /records/166245/ (test #475)
 		$string = strtolower ('UDC') . $this->doubleDagger . 'a' . $value . ' -- ' . $this->udcTranslations[$value] . ($description ? ": {$description}" : false);
 		
 		# Return the result string
@@ -2015,11 +2015,11 @@ class marcConversion
 	# Macro to look up a *rpl value
 	private function macro_lookupRplValue ($value)
 	{
-		# Fix up incorrect data
+		# Fix up incorrect data, e.g. /records/16098/ (test #477)
 		if ($value == 'E1') {$value = 'E2';}
 		if ($value == 'H' ) {$value = 'H1';}
 		
-		# Define the *rpl mappings
+		# Define the *rpl mappings, e.g. /records/16098/ (test #478)
 		$mappings = array (
 			'A'		=> 'Geophysical sciences (general)',
 			'B'		=> 'Geology and soil sciences',
@@ -2074,7 +2074,7 @@ class marcConversion
 			return false;
 		}
 		
-		# Construct the result string
+		# Construct the result string, e.g. /records/1102/ (test #479)
 		$string = 'local' . $this->doubleDagger . 'a' . $value . ' -- ' . $mappings[$value];
 		
 		# Return the result string

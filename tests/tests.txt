@@ -2826,6 +2826,81 @@ No 541 created if no *acq and no *kb
 i541
 /^0#$/
 
+469
+isNotRoundBracketed test (positive case)
+1003
+650
+656.61.05
 
+470
+isNotRoundBracketed test (negative case)
+1003
+!650
+(*7)
 
+471
+isRoundBracketed test (positive case)
+1003
+651
+(*7)
+
+472
+isRoundBracketed test (negative case)
+1003
+!651
+656.61.05
+
+473
+addLookedupKsValue *ks has additional description string
+1008
+650
+: 1962- British Antarctic Survey.
+
+474
+addLookedupKsValue *ks status tokens match
+166245
+!650
+PGA
+
+475
+addLookedupKsValue UDC lookup
+166245
+650
+‡a82 -- Literature.
+
+476
+650 ends with dot
+166245
+650
+/Komi: Komi\.$/
+
+477
+650 *rpl E1 fixed up to E2
+16098
+650
+‡aE2
+
+478
+650 *rpl description lookup
+16098
+650
+Glaciology: general.
+
+479
+650 *rpl assembly
+1102
+650
+/^‡2local‡aL -- Communication and transportation\.$/
+
+480
+650 repeatability
+1102
+650
+‡a656.61.052
+
+481
+651 repeatability
+1102
+651
+‡a(*62) -- Canadian Arctic waters.
 
