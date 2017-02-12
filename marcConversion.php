@@ -2209,19 +2209,19 @@ class marcConversion
 	}
 	
 	
-	# Macro to generate the 500 (displaying free-form text version of 773), whose logic is closely associated with 773
+	# Macro to generate the 500 (displaying free-form text version of 773), whose logic is closely associated with 773, e.g. /records/1109/ (test #490)
 	private function macro_generate500 ($value, $parameter_unused)
 	{
 		#!# In the case of all records whose serial title is listed in /reports/seriestitlemismatches3/ , need to branch at this point and create a 500 note from the local information (i.e. the record itself, not the parent, as in 773 below)
 		
 		
-		# Get the data from the 773
+		# Get the data from the 773, e.g. /records/1109/ (test #490)
 		if (!$result = $this->macro_generate773 ($value, $parameter_unused, $mode500 = true)) {return false;}
 		
-		# Strip subfield indicators
+		# Strip subfield indicators, e.g. /records/1129/ (test #491)
 		$result = $this->stripSubfields ($result);
 		
-		# Prefix 'In: ' at the start
+		# Prefix 'In: ' at the start, e.g. /records/1129/ (test #492)
 		$result = "{$this->doubleDagger}a" . 'In: ' . $result;
 		
 		# Return the result
@@ -2229,7 +2229,7 @@ class marcConversion
 	}
 	
 	
-	# Function to provide subfield stripping
+	# Function to provide subfield stripping, e.g. /records/1129/ (test #491)
 	public function stripSubfields ($string)
 	{
 		return preg_replace ("/({$this->doubleDagger}[a-z0-9])/", '', $string);
@@ -2239,7 +2239,7 @@ class marcConversion
 	# Function to look up the host record, if any
 	private function lookupHostRecord ()
 	{
-		# Up-front, obtain the host ID (if any) from *kg, used in both 773 and 500
+		# Up-front, obtain the host ID (if any) from *kg, used in both 773 and 500, e.g. /records/1129/ (test #493)
 		if (!$hostId = $this->xPathValue ($this->xml, '//k2/kg')) {return NULL;}
 		
 		# Obtain the processed MARC record; note that createMarcRecords processes the /doc records before /art/in records

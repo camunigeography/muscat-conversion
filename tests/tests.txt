@@ -2952,4 +2952,27 @@ loadLookupTable case-insensitive comparison (definition side) (see also #483)
 008
 /^.{18}ar/
 
+490
+generate500 basic test
+1109
+500
+‡aIn: British Schools Exploring Society. Report. 1978-79 :1-38, ill., maps (1 folding)
+
+491
+generate500 strips subfield indicators
+1129
+500
+Biomass Handbook. 2
+
+492
+generate500 prefix
+1129
+500
+‡aIn: 
+
+493
+773 lookupHostRecord
+1129
+773
+‡wSPRI-57536
 
