@@ -2676,3 +2676,28 @@ Macro generate250 ‡b no $b due to absence of *ee
 250
 /‡a10th ed\.$/
 
+444
+Macro generate490 no *ts means no output
+1253
+!490
+*
+
+445
+Macro generate490 with explicit semicolon divider
+2296
+490
+Bilderbuchs ;‡vI-IV Heft
+
+446
+Macro generate490 with explicit semicolon divider
+5517
+490
+Command Papers ;‡vC.6253, 6368
+
+447
+Macro generate490 with explicit semicolon divider space trimming
+2296
+490
+Bilderbuchs ;‡vI-IV
+
+

@@ -1799,7 +1799,7 @@ class marcConversion
 	#!# Issue of missing $a needs to be resolved in original data
 	public function macro_generate490 ($ts, $ignored, &$matchedRegexp = false, $reportGenerationMode = false)
 	{
-		# Obtain the *ts value or end
+		# Obtain the *ts value or end, e.g. no *ts in /records/1253/ (test #444)
 		if (!strlen ($ts)) {return false;}
 		
 		# Series titles:
@@ -1809,13 +1809,13 @@ class marcConversion
 		# Ensure the matched regexp, passed back by reference, is reset
 		$matchedRegexp = false;
 		
-		# If the *ts contains a semicolon, this indicates specifically-cleaned data, so handle this explicitly; e.g. /records/2296/
+		# If the *ts contains a semicolon, this indicates specifically-cleaned data, so handle this explicitly; e.g. /records/2296/ (test #445)
 		if (substr_count ($ts, ';')) {
 			
-			# Allocate the pieces before and after the semicolon; see: http://stackoverflow.com/a/717388/180733
-			$parts = explode (';', $ts);
-			$volumeNumber = trim (array_pop ($parts));
-			$seriesTitle = trim (implode (';', $parts));
+			# Allocate the pieces before and after the semicolon; records checked to ensure none have more than one semicolon, e.g. /records/5517/ (test #446)
+			list ($seriesTitle, $volumeNumber) = explode (';', $ts, 2);
+			$seriesTitle = trim ($seriesTitle);		// E.g. /records/2296/ (test #447)
+			$volumeNumber = trim ($volumeNumber);
 			$matchedRegexp = 'Explicit semicolon match';
 			
 		} else {
