@@ -286,7 +286,7 @@ class generate245
 	# NB There are no cases in the data of 250 (which uses *ee) being in Russian, as verified by: `SELECT *  FROM catalogue_processed WHERE field LIKE 'n%' AND xPath LIKE '%/ee%' AND recordLanguage = 'Russian';`
 	public function roleAndSiblings ($path)
 	{
-		# Obtain the role value, or end if none; no examples so no testcase
+		# Obtain the role value, or end if none; no examples so no testcase; *role is not subject to transliteration, e.g. /records/1844/ (test #500)
 		if (!$role = $this->marcConversion->xPathValue ($this->xml, $path . '/role')) {
 			return false;
 		}

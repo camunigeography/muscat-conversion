@@ -2999,3 +2999,10 @@ generate500 prefix
 2650
 700
 ‡aBellingshausen, Thaddeus
+
+504
+In roleAndSiblings, *role (e.g. 'Compiled by') is not subject to transliteration
+1844
+880
+; Compiled by И.Л. Жеребцов.
+
