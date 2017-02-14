@@ -2989,20 +2989,38 @@ generate500 prefix
 ‡uhttp://dx.doi.org/10.1038/071221c0
 
 500
-880-700 not generated when *nt = None present for author (implementation pending)
-2650
-!880
-Беллингшаусен, Тhаддеус
-
-501
-700 remains generated (even though 880 is not) when *nt = None present for author
-2650
-700
-‡aBellingshausen, Thaddeus
-
-504
 In roleAndSiblings, *role (e.g. 'Compiled by') is not subject to transliteration
 1844
 880
 ; Compiled by И.Л. Жеребцов.
+
+501
+{1|7}xx should be created but contents should not be transliterated when *nt = None present for author (implementation pending) (see also #502)
+151048
+700
+Gorman, Michael R.
+
+502
+880-{1|7}xx not generated when *nt = None present for author (implementation pending), because the {1|7}xx is Latin characters (see also #501)
+2650
+!880
+Беллингшаусен, Тhаддеус
+
+503
+880-245 in scope of transliteration retains Latin characters when *nt = None present for author; this is for non-upgraded records where explicit / + authors in Cyrillic has not been defined (implementation pending)
+151048
+880
+‡cЮ.Я. Мачерет, А.Ф. Глазовский, J.A. Dowdeswell, Michael R. Gorman
+
+504
+245 in scope of transliteration, with explicit / , Russian names end up transliterated as LoC
+6449
+245
+‡clekt͡sii: Barona F. Vrangeli͡a i Vit͡se-Admirala S.O. Makarova.
+
+505
+880-245 in scope of transliteration, with explicit / , Russian names end up as Cyrillic
+6449
+880
+‡cлекции: Барона F. Врангеля и Вице-Адмирала С.О. Макарова.
 
