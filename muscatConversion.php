@@ -149,6 +149,9 @@ class muscatConversion extends frontControllerApplication
 		'n1', 'n2', 'nd',	// NB Keep these three together as generate245::classifyNdField() (as called from generate245::statementOfResponsibility() ), and generate245::roleAndSiblings() assumes they will be in sync in terms of transliteration
 		'pu',
 		'ts',
+		'ft',
+		'st',
+		'ta',
 	);
 	
 	# Define fields for transliteration name matching
