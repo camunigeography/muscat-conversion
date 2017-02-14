@@ -2988,3 +2988,14 @@ generate500 prefix
 856
 ‡uhttp://dx.doi.org/10.1038/071221c0
 
+500
+880-700 not generated when *nt = None present for author (implementation pending)
+2650
+!880
+Беллингшаусен, Тhаддеус
+
+501
+700 remains generated (even though 880 is not) when *nt = None present for author
+2650
+700
+‡aBellingshausen, Thaddeus
