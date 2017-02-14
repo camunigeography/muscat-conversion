@@ -3041,3 +3041,22 @@ In 245, when both colon and space-semicolon-space both present, choose the first
 135894
 245
 contaminants :‡breport on Akativut ; Ilusivut
+
+509
+*note goes in 500
+1019
+500
+‡aTitle varies: "Canada.
+
+510
+Multiple *note in 500
+1019
+500
+‡aPublisher varies as govt. dept. changes
+
+511
+*local goes in 876
+1019
+876
+‡zSPRI catalogue has entries for
+

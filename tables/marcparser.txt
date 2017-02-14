@@ -22,6 +22,7 @@ A  300 ## ‡a{/.|macro:generate300}
 A  310 ## ‡a{//freq|macro:ucfirst}
 AR 490 0# {//ts|macro:generate490}
 A  500 ## {/|macro:generate500}
+AR 500 ## ‡a{//notes/note}
 A  520 3# ‡a{//abs|macro:excludeNoneValue|macro:dotEnd}
 A  541 0# {/*|macro:generate541}
 A  546 ## ‡a{/*|macro:multipleValues(//lang)|macro:commaAnd|macro:prepend(In )|macro:dotEnd}
@@ -40,7 +41,7 @@ A  852 7# ‡2{/*|macro:generate852}
 E  856 i{/*|macro:ifElse(//url/urlgen,4,#)}0 ‡u?R{//doi/doifld|macro:prepend(urn:doi:)}‡u?R{//doi/doifld|macro:prepend(http://dx.doi.org/)}‡u?R{//url/urlgen}
 AR 866 #0 ‡x{//hold}
 AR 866 #0 ‡a{//r}
-E  876 ## ‡zR{//notes/note} ‡xR{//notes/priv} ‡zR{//notes/local}
+E  876 ## ‡xR{//notes/priv} ‡zR{//notes/local}
 A  880 {/*|macro:generateAuthors(100,transliterated)|macro:880subfield6(100)}
 A  880 {/*|macro:generateAuthors(110,transliterated)|macro:880subfield6(110)}
 A  880 {/*|macro:generateAuthors(111,transliterated)|macro:880subfield6(111)}
