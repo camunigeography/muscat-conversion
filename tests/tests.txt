@@ -3024,3 +3024,20 @@ Gorman, Michael R.
 880
 ‡cлекции: Барона F. Врангеля и Вице-Адмирала С.О. Макарова.
 
+506
+In 245, space-semicolon-space indicates split point for ‡b (if not already split because of : or / )
+139981
+245
+‡aAdventure at the top of the world ;‡b Adventure at the bottom of the world /‡c
+
+507
+In 245, semicolon (without surrounding spaces) does not create ‡b split point
+1154
+245
+‡aAntarctica; a guide
+
+508
+In 245, when both colon and space-semicolon-space both present, choose the first as the delimiter
+135894
+245
+contaminants :‡breport on Akativut ; Ilusivut

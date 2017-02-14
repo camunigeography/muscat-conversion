@@ -161,13 +161,31 @@ class generate245
 			$t = trim ($t);
 		}
 		
-		# Does the *t include a colon ':'? E.g. /records/1119/ (test #172)
-		if (substr_count ($t, ':')) {
+		# For potential splitting into $a and $b, firstly determine whether a colon or space-semicolon-space comes first, e.g. /records/135894/ (test #508)
+		$delimiter = false;
+		$delimiters = array (
+			':'		=> ' :',	// E.g. /records/1119/ (test #172)
+			' ; '	=> ' ;',	// E.g. /records/139981/ (test #507)
+		);
+		if (substr_count ($t, ':') || substr_count ($t, ' ; ')) {
+			$length = strlen ($t);
+			for ($i = 0; $i < $length; $i++) {
+				foreach ($delimiters as $testDelimiter => $replacement) {	// Cannot be both
+					if (substr ($t, $i, strlen ($testDelimiter)) == $testDelimiter) {
+						$delimiter = $testDelimiter;
+						break 2;
+					}
+				}
+			}
+		}
+		
+		# Does the *t include the delimiter? E.g. /records/1119/ (test #172)
+		if ($delimiter) {
 			
 			#!# Need to check spacing rules here and added trimming; e.g. see /records/12359/
 			
-			# Add all text before colon; e.g. /records/1119/ (test #172)
-			$titleComponents = explode (':', $t, 2);
+			# Add all text before delimiter; e.g. /records/1119/ (test #172)
+			$titleComponents = explode ($delimiter, $t, 2);
 			$title .= $this->doubleDagger . 'a' . trim ($titleComponents[0]);
 			
 			# If there is a *form, Add to 245 field'; "It follows the title proper ... and precedes the remainder of the title" as per spec at http://www.loc.gov/marc/bibliographic/bd245.html ; e.g. /records/12359/ (test #173)
@@ -175,8 +193,8 @@ class generate245
 				$title .= $this->doubleDagger . 'h[' . strtolower ($form) . ']';
 			}
 			
-			# Add all text after colon; e.g. /records/1119/ (test #172)
-			$title .= ' :' . $this->doubleDagger . 'b' . trim ($titleComponents[1]);
+			# Add all text after delimiter; e.g. /records/1119/ (test #172), /records/139981/ (test #507)
+			$title .= $delimiters[$delimiter] . $this->doubleDagger . 'b' . trim ($titleComponents[1]);
 			
 		} else {
 			
