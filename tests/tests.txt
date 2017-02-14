@@ -2976,3 +2976,15 @@ generate500 prefix
 773
 ‡wSPRI-57536
 
+498
+856 DOI appears as ‡uurn:doi:
+8353
+856
+‡uurn:doi:10.1038/071221c0
+
+499
+856 DOI appears also as URL
+8353
+856
+‡uhttp://dx.doi.org/10.1038/071221c0
+
