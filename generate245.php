@@ -189,25 +189,14 @@ class generate245
 			}
 		}
 		
-		# By default, a Statement of Responsibility is required
-		$this->createStatementOfResponsibility = true;
-		
-		# Are you creating this 245 field for a *ser record? If so, end; a dot will be added after if punctuation not already present; e.g. /records/137684/ , /records/178352/ avoids two dots (test #177)
-		if ($this->recordType == '/ser') {
-			$this->createStatementOfResponsibility = false;		// Flag then picked up below in statementOfResponsibility ()
-		}
-		
 		# Return the title
 		return $title;
 	}
 	
 	
-	# Statement of Responsibility
+	# Statement of Responsibility; this is also supported for *ser, e.g. /records/1028/ (test #179)
 	private function statementOfResponsibility ()
 	{
-		# End if not required; e.g. /records/1058/ (which is *ser) has no $c (test #179)
-		if (!$this->createStatementOfResponsibility) {return;}
-		
 		# Start a list of non-empty parts of the Statement of Responsibility, which will be grouped by each *ag
 		$peopleGroups = array ();
 		
