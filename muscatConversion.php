@@ -3763,7 +3763,7 @@ class muscatConversion extends frontControllerApplication
 				"),
 				
 			'EXPLICIT-SUPPRESS' => array (
-				# 25,233 records
+				# 24,658 records
 				'Record marked specifically to suppress, e.g. pamphlets needing review, etc.',
 				# NB This has been achieved using a BCPL routine to mark the records as such
 				"   field = 'status' AND value = '{$this->suppressionStatusKeyword}'
