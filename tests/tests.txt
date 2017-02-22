@@ -2664,6 +2664,12 @@ Macro generate250 dot end
 245
 of Euphausia superba Dana /‡cJ. Mauchline.
 
+441
+880: parallel title part of *t should not be transliterated
+65712
+880
+Migrations of birds of eastern Europe and northern Asia
+
 442
 Roman numerals range
 79994
