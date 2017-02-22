@@ -3555,7 +3555,7 @@ class muscatConversion extends frontControllerApplication
 						GROUP BY childType, parentType
 					*/
 					$ids = $marcSecondPass;
-					$marcSecondPass = false;	// Ensure once only
+					$marcSecondPass = array ();	// Ensure once only by resetting
 				}
 				
 				# Get the records for this chunk
@@ -3581,8 +3581,10 @@ class muscatConversion extends frontControllerApplication
 					);
 					
 					# If the record has generated a second pass requirement if it has a parent, register the ID
-					if ($secondPassRecordId = $this->marcConversion->getSecondPassRecordId ()) {
-						$marcSecondPass[] = $secondPassRecordId;
+					if ($recordType != 'secondpass') {	// Do not re-register problems on second pass, to prevent any possibility of an infinite loop
+						if ($secondPassRecordId = $this->marcConversion->getSecondPassRecordId ()) {
+							$marcSecondPass[] = $secondPassRecordId;
+						}
 					}
 				}
 				
