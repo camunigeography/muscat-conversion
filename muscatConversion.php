@@ -3514,7 +3514,7 @@ class muscatConversion extends frontControllerApplication
 		$suppressReasonsList = $this->databaseConnection->getPairs ($query);
 		
 		# Start a list of records which require a second-pass arising from 773 processing where the host does not exist at time of processing
-		$this->marcSecondPass = array ();
+		$marcSecondPass = array ();
 		
 		# Process records in the given order, so that processing of field 773 will have access to *doc/*ser processed records up-front
 		$recordProcessingOrder = array_merge ($this->recordProcessingOrder, array ('secondpass'));
@@ -3542,7 +3542,7 @@ class muscatConversion extends frontControllerApplication
 				# For the second pass, use the second pass list that has been generated in the standard processing phase, once only
 				} else {
 					
-					if (!$this->marcSecondPass) {break;}	// End if the second-pass phase has now already been run
+					if (!$marcSecondPass) {break;}	// End if the second-pass phase has now already been run
 					
 					/* Should only be a small number (84 cases as of 22/12/2016), as shown by comparing the $this->recordProcessingOrder with:
 						SELECT
@@ -3554,8 +3554,8 @@ class muscatConversion extends frontControllerApplication
 						WHERE child.`field` = 'kg'
 						GROUP BY childType, parentType
 					*/
-					$ids = $this->marcSecondPass;
-					$this->marcSecondPass = false;	// Ensure once only
+					$ids = $marcSecondPass;
+					$marcSecondPass = false;	// Ensure once only
 				}
 				
 				# Get the records for this chunk
@@ -3582,7 +3582,7 @@ class muscatConversion extends frontControllerApplication
 					
 					# If the record has generated a second pass requirement if it has a parent, register the ID
 					if ($secondPassRecordId = $this->marcConversion->getSecondPassRecordId ()) {
-						$this->marcSecondPass[] = $secondPassRecordId;
+						$marcSecondPass[] = $secondPassRecordId;
 					}
 				}
 				
