@@ -368,10 +368,20 @@ class muscatConversion extends frontControllerApplication
 		# Determine the import lockfile location
 		$this->lockfile = $this->exportsProcessingTmp . 'lockfile.txt';
 		
+		# Determine the import logfile location
+		$this->importLog = $this->exportsProcessingTmp . 'importlog.txt';
+		
 		# Show if an import is running, and prevent a second import running
 		if ($importHtml = $this->importInProgress (24, $blockUi = false)) {
 			if (!isSet ($this->actions[$this->action]['export'])) {		// Show the warning unless using AJAX data
-				echo $importHtml;
+				$html  = $importHtml;
+				if ($this->action == 'import') {
+					$html .= "\n<h3>Import progress:</h3>";
+					if (file_exists ($this->importLog)) {
+						$html .= "\n<pre>" . htmlspecialchars (file_get_contents ($this->importLog)) . "\n</pre>";
+					}
+				}
+				echo $html;
 			}
 			if ($this->action == 'import') {
 				return false;
@@ -1846,7 +1856,6 @@ class muscatConversion extends frontControllerApplication
 	public function doImport ($exportFiles, $importType, &$html)
 	{
 		# Determine the import logfile location and start the log
-		$this->importLog = $this->exportsProcessingTmp . 'importlog.txt';
 		$this->logger ("Starting {$importType} import (started by {$this->user})", $reset = true);
 		
 		# Start the HTML
