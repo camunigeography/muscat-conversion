@@ -1845,6 +1845,10 @@ class muscatConversion extends frontControllerApplication
 	# Function to do the actual import
 	public function doImport ($exportFiles, $importType, &$html)
 	{
+		# Determine the import logfile location and start the log
+		$this->importLog = $this->exportsProcessingTmp . 'importlog.txt';
+		$this->logger ("Starting {$importType} import (started by {$this->user})", $reset = true);
+		
 		# Start the HTML
 		$html = '';
 		
@@ -1954,17 +1958,35 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Write the errors to a file
+		$this->logger ('Writing errors file');
 		$errorsFile = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl . '/errors.html';
 		file_put_contents ($errorsFile, $errorsHtml);	// Recreated freshly on each import
+		
+		# Log end
+		$this->logger ('Import complete');
 		
 		# Signal success
 		return true;
 	}
 	
 	
+	# Function to provide a logger
+	public function logger ($message, $reset = false)
+	{
+		# Construct the string
+		$string = date ('Y-m-d H:i:s') . ': ' . $message . "\r\n";
+		
+		# Append to the logfile (or start fresh if resetting)
+		file_put_contents ($this->importLog, $string, ($reset ? 0 : FILE_APPEND));
+	}
+	
+	
 	# Function to process each of the Muscat files into the database
 	private function processMuscatFile ($exportFile, $type)
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__ . " for {$type} export file {$exportFile}");
+		
 		# Parse the file to a CSV
 		$csvFilename = $this->exportsProcessingTmp . "catalogue_{$type}.csv";
 		$this->parseFileToCsv ($exportFile, $csvFilename);
@@ -2215,6 +2237,9 @@ class muscatConversion extends frontControllerApplication
 	#   Dependencies: catalogue_processed and catalogue_xml
 	private function createFieldsindexTable ()
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__);
+		
 		# Now create the fields index table, based on the results of a query that combines them
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.fieldsindex;";
 		$this->databaseConnection->execute ($sql);
@@ -2305,6 +2330,9 @@ class muscatConversion extends frontControllerApplication
 	# Function to create the processed data table
 	private function createProcessedTable ()
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__);
+		
 		# Now create the processed table, which will be used for amending the raw data, e.g. to convert special characters and upgrade the Cyrillic transliterations
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.catalogue_processed;";
 		$this->databaseConnection->execute ($sql);
@@ -2373,6 +2401,9 @@ class muscatConversion extends frontControllerApplication
 	# Function to create the statistics table
 	private function createStatisticsTable ($tableComment)
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__);
+		
 		# Now create the statistics table; this is pre-compiled for performance
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.statistics;";
 		$this->databaseConnection->execute ($sql);
@@ -2404,6 +2435,9 @@ class muscatConversion extends frontControllerApplication
 	# Run parsing of special escape characters (see section 3.4 of the Library Manual); see http://lists.mysql.com/mysql/193376 for notes on backslash handling in MySQL
 	private function specialCharacterParsing ()
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__);
+		
 		# Start a list of queries
 		$queries = array ();
 		
@@ -2913,6 +2947,9 @@ class muscatConversion extends frontControllerApplication
 	# Function to fix up data en-masse
 	private function massDataFixes ()
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__);
+		
 		# Remove "pub. " and "pub." from *loc
 		$queries[] = "UPDATE `catalogue_processed` SET value = REPLACE(value, 'pub. ', '') WHERE field = 'location';";	// # 304 rows
 		$queries[] = "UPDATE `catalogue_processed` SET value = REPLACE(value, 'pub.', '') WHERE field = 'location';";	// # 13927 rows
@@ -2937,6 +2974,9 @@ class muscatConversion extends frontControllerApplication
 	*/
 	private function createTransliterationsTable ()
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__);
+		
 		# Create the table
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.transliterations;";
 		$this->databaseConnection->execute ($sql);
@@ -3224,6 +3264,9 @@ class muscatConversion extends frontControllerApplication
 	# The $pathSeedingOnly is a flag for the first run which is done simply to allocate the catalogue_processed.xPath values, essentially just needing the xml::dropSerialRecordIntoSchema routine which createXmlTable() and its delegate processXmlRecords() has to wrap
 	private function createXmlTable ($pathSeedingOnly = false)
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__);
+		
 		# Clean out the XML table
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.catalogue_xml;";
 		$this->databaseConnection->execute ($sql);
@@ -3278,6 +3321,9 @@ class muscatConversion extends frontControllerApplication
 	# Function to upgrade the shards consisting of transliterated strings to Library of Congress (LoC). This copies back and over the processed table with the new LoC transliterations, saving the pre-transliteration upgrade value
 	private function upgradeTransliterationsToLoc ()
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__);
+		
 		# Upgrade the processed record shards containing transliteration to use the new Library of Congress transliterations, and save the original BGN/PCGN value
 		$query = "UPDATE catalogue_processed
 			INNER JOIN transliterations ON catalogue_processed.id = transliterations.id
@@ -3366,6 +3412,9 @@ class muscatConversion extends frontControllerApplication
 	#!# There is still the problem that the target name itself does not get upgraded
 	private function processPeriodicalLocations ()
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__);
+		
 		# Assign XPaths to catalogue_processed; this unfortunate dependency means that the XML processing has to be run twice
 		$this->createXmlTable ($pathSeedingOnly = true);
 		
@@ -3468,6 +3517,9 @@ class muscatConversion extends frontControllerApplication
 	# See: doc/createMarcRecords.md
 	private function createMarcRecords (&$errorsHtml)
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__);
+		
 		# Create the volume numbers table, used for observation of the effect of the generate490 macro
 		$this->createVolumeNumbersTable ();
 		
@@ -3476,6 +3528,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($sql);
 		
 		# Create the new MARC table
+		$this->logger ('Creating catalogue_marc table');
 		$sql = "
 			CREATE TABLE IF NOT EXISTS catalogue_marc (
 				id int(11) NOT NULL COMMENT 'Record number',
@@ -3493,6 +3546,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($sql);
 		
 		# Cross insert the IDs
+		$this->logger ('Cross-inserting IDs to catalogue_marc table');
 		$query = "INSERT INTO catalogue_marc (id) (SELECT DISTINCT(recordId) FROM catalogue_rawdata);";
 		$this->databaseConnection->execute ($query);
 		
@@ -3535,6 +3589,7 @@ class muscatConversion extends frontControllerApplication
 		# Process records in the given order, so that processing of field 773 will have access to *doc/*ser processed records up-front
 		$recordProcessingOrder = array_merge ($this->recordProcessingOrder, array ('secondpass'));
 		foreach ($recordProcessingOrder as $recordType) {
+			$this->logger ('In ' . __METHOD__ . ", starting {$recordType} record type group");
 			
 			# Process the records in chunks
 			$chunksOf = 500;	// Change max_allowed_packet above if necessary
@@ -3571,6 +3626,7 @@ class muscatConversion extends frontControllerApplication
 						GROUP BY childType, parentType
 					*/
 					$ids = $marcSecondPass;
+					$this->logger ('In ' . __METHOD__ . ', second pass has ' . count ($ids) . ' records');
 					$marcSecondPass = array ();	// Ensure once only by resetting
 				}
 				
@@ -3605,6 +3661,7 @@ class muscatConversion extends frontControllerApplication
 				}
 				
 				# Insert the records (or update for the second pass); ON DUPLICATE KEY UPDATE is a dirty but useful method of getting a multiple update at once (as this doesn't require a WHERE clause, which can't be used as there is more than one record to be inserted)
+				$this->logger ('In ' . __METHOD__ . ", in {$recordType} record type group, adding " . count ($inserts) . ' records');
 				if (!$this->databaseConnection->insertMany ($this->settings['database'], 'catalogue_marc', $inserts, false, $onDuplicateKeyUpdate = true)) {
 					$html  = "<p class=\"warning\">Error generating MARC, stopping at batched ({$id}):</p>";
 					$html .= application::dumpData ($this->databaseConnection->error (), false, true);
@@ -3643,6 +3700,9 @@ class muscatConversion extends frontControllerApplication
 	# Function to import existing Voyager records
 	private function createExternalRecords ()
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__);
+		
 		# Load the Voyager records file
 		$voyagerRecordsFile = file_get_contents ($this->applicationRoot . '/tables/' . 'spri_serials_recs_with_spri_mfhd_attached.mrk');
 		
@@ -3727,6 +3787,9 @@ class muscatConversion extends frontControllerApplication
 	# Function to set the status of each MARC record
 	private function marcRecordsSetStatus ()
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__);
+		
 		# NB Unfortunately CASE does not seem to support compound statements, so these three statements are basically a CASE in reverse; see: http://stackoverflow.com/a/18170014/180733
 		
 		# Default to migrate
@@ -3858,6 +3921,9 @@ class muscatConversion extends frontControllerApplication
 	# Function to create a table of UDC translations
 	private function createUdcTranslationsTable ()
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__);
+		
 		# Create the table, clearing it out first if existing from a previous import
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.udctranslations;";
 		$this->databaseConnection->execute ($sql);
@@ -3958,6 +4024,9 @@ class muscatConversion extends frontControllerApplication
 	# Function to create the volume numbers table, used for observation of the effect of the generate490 macro
 	public function createVolumeNumbersTable ()
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__);
+		
 		# Create the table, clearing it out first if existing from a previous import
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.volumenumbers;";
 		$this->databaseConnection->execute ($sql);
@@ -4012,6 +4081,9 @@ class muscatConversion extends frontControllerApplication
 	# Function to create all MARC exports
 	private function createMarcExports ($regenerateReport = false)
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__);
+		
 		# If regenerating, clear existing Bibcheck errors in the database
 		if ($regenerateReport) {
 			$this->databaseConnection->update ($this->settings['database'], 'catalogue_marc', array ('bibcheckErrors' => NULL));
@@ -4035,6 +4107,9 @@ class muscatConversion extends frontControllerApplication
 	# Function to run the reports
 	private function runReports ()
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__);
+		
 		# Clean out the report results table
 		$query = "DROP TABLE IF EXISTS {$this->settings['database']}.reportresults;";
 		$this->databaseConnection->query ($query);
@@ -4091,6 +4166,9 @@ class muscatConversion extends frontControllerApplication
 	# Function to run the listing reports
 	private function runListings ()
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__);
+		
 		# Run each listing report
 		foreach ($this->listingsList as $report => $description) {
 			$reportFunction = 'report_' . $report;
@@ -4102,6 +4180,9 @@ class muscatConversion extends frontControllerApplication
 	# Function to run tests and generate test results
 	public function runTests (&$error = false)
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__);
+		
 		# Now create the statistics table; this is pre-compiled for performance
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.tests;";
 		$this->databaseConnection->execute ($sql);
