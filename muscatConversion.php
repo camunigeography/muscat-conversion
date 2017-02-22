@@ -1839,6 +1839,9 @@ class muscatConversion extends frontControllerApplication
 		# Start the HTML
 		$html = '';
 		
+		# Start the error log
+		$errorsHtml = '';
+		
 		# Ensure that GROUP_CONCAT fields do not overflow
 		$sql = "SET SESSION group_concat_max_len := @@max_allowed_packet;";		// Otherwise GROUP_CONCAT truncates the combined strings
 		$this->databaseConnection->execute ($sql);
@@ -1907,7 +1910,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Create the MARC records
 		if (($importType == 'full') || ($importType == 'marc')) {
-			if ($this->createMarcRecords ()) {
+			if ($this->createMarcRecords ($errorsHtml /* amended by reference */)) {
 				$html .= "\n<p>{$this->tick} The MARC versions of the records have been generated.</p>";
 			}
 		}
@@ -1940,6 +1943,10 @@ class muscatConversion extends frontControllerApplication
 			$this->runTests ();
 			$html .= "\n<p>{$this->tick} The <a href=\"{$this->baseUrl}/reports/\">tests</a> have been generated.</p>";
 		}
+		
+		# Write the errors to a file
+		$errorsFile = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl . '/errors.html';
+		file_put_contents ($errorsFile, $errorsHtml);	// Recreated freshly on each import
 		
 		# Signal success
 		return true;
@@ -3450,7 +3457,7 @@ class muscatConversion extends frontControllerApplication
 	
 	# Function to create MARC records
 	# See: doc/createMarcRecords.md
-	private function createMarcRecords ()
+	private function createMarcRecords (&$errorsHtml)
 	{
 		# Create the volume numbers table, used for observation of the effect of the generate490 macro
 		$this->createVolumeNumbersTable ();
@@ -3572,7 +3579,7 @@ class muscatConversion extends frontControllerApplication
 					if ($errorString) {
 						$html  = "<p class=\"warning\">Record <a href=\"{$this->baseUrl}/records/{$id}/\">{$id}</a> could not be converted to MARC:</p>";
 						$html .= "\n<p><img src=\"/images/icons/exclamation.png\" class=\"icon\" /> {$errorString}</p>";
-						echo $html;
+						$errorsHtml .= $html;
 					}
 					$inserts[$id] = array (
 						'id' => $id,
@@ -3590,8 +3597,9 @@ class muscatConversion extends frontControllerApplication
 				
 				# Insert the records (or update for the second pass); ON DUPLICATE KEY UPDATE is a dirty but useful method of getting a multiple update at once (as this doesn't require a WHERE clause, which can't be used as there is more than one record to be inserted)
 				if (!$this->databaseConnection->insertMany ($this->settings['database'], 'catalogue_marc', $inserts, false, $onDuplicateKeyUpdate = true)) {
-					echo "<p class=\"warning\">Error generating MARC, stopping at batched ({$id}):</p>";
-					echo application::dumpData ($this->databaseConnection->error (), false, true);
+					$html  = "<p class=\"warning\">Error generating MARC, stopping at batched ({$id}):</p>";
+					$html .= application::dumpData ($this->databaseConnection->error (), false, true);
+					$errorsHtml .= $html;
 					return false;
 				}
 			}
