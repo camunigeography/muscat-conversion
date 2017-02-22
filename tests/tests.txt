@@ -2982,6 +2982,30 @@ generate500 prefix
 773
 ‡wSPRI-57536
 
+494
+773 *kg not present so no 773
+2075
+!773
+*
+
+495
+773 ‡a: pull in 100 ‡a
+2073
+773
+‡aAnonymous., ‡
+
+496
+773 ‡a: pull in 245 ‡c
+1222
+773
+‡aRebecca Aird, ed., ‡
+
+497
+773 ‡a has comma after, as all parents are known to have a title
+1222
+773
+ed., ‡t
+
 498
 856 DOI appears as ‡uurn:doi:
 8353

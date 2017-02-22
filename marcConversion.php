@@ -2262,14 +2262,14 @@ class marcConversion
 	}
 	
 	
-	# Macro to generate the 773 (Host Item Entry) field; see: http://www.loc.gov/marc/bibliographic/bd773.html ; e.g. /records/2071/
+	# Macro to generate the 773 (Host Item Entry) field; see: http://www.loc.gov/marc/bibliographic/bd773.html ; e.g. /records/1129/ (test #493)
 	#!# 773 is not currently being generated for /art/j analytics (generally *location=Periodical); this is because of the *kg check below; the spec needs to define some implementation for this; for *location=Pam, the same information goes in a 500 field rather than a 773; again this needs a spec
 	private function macro_generate773 ($value, $parameter_unused, $mode500 = false)
 	{
 		# Start a result
 		$result = '';
 		
-		# Only relevant if there is a host record (i.e. has a *kg which exists); records will usually be /art/in or /art/j only, but there are some /doc records
+		# Only relevant if there is a host record (i.e. has a *kg which exists); records will usually be /art/in or /art/j only, but there are some /doc records, e.g. /records/1129/ (test #493), or negative case /records/2075/ (test #494)
 		#!# At present this leaves tens of thousands of journal analytics without links (because they don't have explicit *kg fields)
 		if (!$this->hostRecord) {return false;}
 		
@@ -2285,15 +2285,15 @@ class marcConversion
 			
 			# If the host record has a 100 field, copy in the 1XX (Main entry heading) from the host record, omitting subfield codes; otherwise use 245 $c
 			if (isSet ($marc['100'])) {
-				$aSubfieldValue = $this->combineSubfieldValues ('a', $marc['100']);
+				$aSubfieldValue = $this->combineSubfieldValues ('a', $marc['100']);	// E.g. lookup of record 2070 in /records/2074/ (test #495)
 			} else if (isSet ($marc['245'])) {
-				$aSubfieldValue = $this->combineSubfieldValues ('a', $marc['245'], array ('c'));
+				$aSubfieldValue = $this->combineSubfieldValues ('a', $marc['245'], array ('c'));	// E.g. lookup of record 1221 in /records/1222/ (test #496)
 			}
 			
 			#!# Need to strip '.' (to avoid e.g. "Martin Smith.,") if not an initial, or initials (like Eds.); this may need to be a crude string replacement because we don't have access to the tokenisation
 			
 			
-			# Add a comma at the end; we know that there will be always be something following this, because in the (current) /art/in context, all parents are know to have a title
+			# Add a comma at the end; we know that there will be always be something following this, because in the (current) /art/in context, all parents are known to have a title, e.g. /records/1222/ (test #497)
 			$subfields[] = $aSubfieldValue . ',';
 		}
 		
