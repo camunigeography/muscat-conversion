@@ -16,11 +16,11 @@ class generate008
 	
 	
 	# Main
-	public function main (&$error = false)
+	public function main (&$errorString = false)
 	{
 		# Determine the record type or end
 		if (!$this->recordType = $this->recordType ()) {
-			$error = '008 field: Could not determine record type';
+			$errorString .= '008 field: Could not determine record type';
 			return false;
 		}
 		
@@ -47,13 +47,13 @@ class generate008
 			
 			# Get and append the value
 			$function = 'position_' . str_replace ('-', '_', $positions);
-			$string = $this->{$function} ();
+			$string = $this->{$function} ($errorString);
 			$value .= $string;
 			
 			# Sanity-check that the string length is 40; e.g. /records/1210/ (test #396)
 			$length = mb_strlen ($string);
 			if ($length != $expectedLength) {
-				$error = "008 field " . (substr_count ($positions, '-') ? 'positions' : 'position') . " {$positions}: Length is {$length} but should be {$expectedLength}";
+				$errorString .= "008 field " . (substr_count ($positions, '-') ? 'positions' : 'position') . " {$positions}: Length is {$length} but should be {$expectedLength}";
 				return false;
 			}
 		}
@@ -137,21 +137,21 @@ class generate008
 	
 	
 	# 008 pos. 15-17: Place of publication, production, or execution; e.g. /records/169741/ (test #20)
-	private function position_15_17 ()
+	private function position_15_17 (&$errorString)
 	{
 		# Extract the value
 		$pl = $this->muscatConversion->xPathValue ($this->xml, '(//pl)[1]', false);
 		
 		# Look it up in the country codes table; brackets are stripped, e.g. /records/2027/ (test #482)
-		return $this->muscatConversion->lookupValue ('countryCodes', '', true, $stripBrackets = true, $pl, 'MARC Country Code');
+		return $this->muscatConversion->lookupValue ('countryCodes', '', true, $stripBrackets = true, $pl, 'MARC Country Code', $errorString);
 	}
 	
 	
 	# 008 pos. 18-34: Material specific coded elements
-	private function position_18_34 ()
+	private function position_18_34 (&$errorString)
 	{
 		# Compile the value by delegating each part
-		$value  = $this->position_18_34__18_20 ();
+		$value  = $this->position_18_34__18_20 ($errorString);
 		$value .= $this->position_18_34__21    ();
 		$value .= $this->position_18_34__22    ();
 		$value .= $this->position_18_34__23    ();
@@ -160,7 +160,7 @@ class generate008
 		$value .= $this->position_18_34__29    ();
 		$value .= $this->position_18_34__30_31 ();
 		$value .= $this->position_18_34__32    ();
-		$value .= $this->position_18_34__33    ();
+		$value .= $this->position_18_34__33    ($errorString);
 		$value .= $this->position_18_34__34    ();
 		
 		# Return the string
@@ -213,7 +213,7 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 18-20
-	private function position_18_34__18_20 ()
+	private function position_18_34__18_20 (&$errorString)
 	{
 		if ($this->isMultimediaish) {
 			switch ($this->form) {
@@ -274,8 +274,8 @@ class generate008
 			case '/art/j':
 				
 				$freq = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '//freq');
-				$value  = $this->muscatConversion->lookupValue ('journalFrequencies', 'No *freq', false, false, $freq, 'Frequency');
-				$value .= $this->muscatConversion->lookupValue ('journalFrequencies', 'No *freq', false, false, $freq, 'Regularity');
+				$value  = $this->muscatConversion->lookupValue ('journalFrequencies', 'No *freq', false, false, $freq, 'Frequency' , $errorString);
+				$value .= $this->muscatConversion->lookupValue ('journalFrequencies', 'No *freq', false, false, $freq, 'Regularity', $errorString);
 				$value .= '#';
 				
 				return $value;	// E.g. /records/1027/ (test #28)
@@ -639,7 +639,7 @@ class generate008
 	
 	
 	# 008 pos. 18-34: Material specific coded elements: 33
-	private function position_18_34__33 ()
+	private function position_18_34__33 (&$errorString)
 	{
 		if ($this->isMultimediaish) {
 			switch ($this->form) {
@@ -681,7 +681,7 @@ class generate008
 			case '/art/j':
 				
 				$lang = $this->muscatConversion->xPathValue ($this->xml, '(//lang)[1]', false);	// E.g. /records/1031/ (test #41)
-				return $this->muscatConversion->lookupValue ('languageCodes', 'English', true, false, $lang, 'Script Code');	// Script code is defined for position 33 at https://www.loc.gov/marc/bibliographic/bd008s.html
+				return $this->muscatConversion->lookupValue ('languageCodes', 'English', true, false, $lang, 'Script Code', $errorString);	// Script code is defined for position 33 at https://www.loc.gov/marc/bibliographic/bd008s.html
 		}
 		
 		# Flag error
@@ -792,10 +792,10 @@ class generate008
 	
 	
 	# 008 pos. 35-37: Language; e.g. /records/29970/ (test #44)
-	private function position_35_37 ()
+	private function position_35_37 (&$errorString)
 	{
 		$lang = $this->muscatConversion->xPathValue ($this->xml, '(//lang)[1]', false);
-		return $this->muscatConversion->lookupValue ('languageCodes', 'English', true, false, $lang, 'MARC Code');
+		return $this->muscatConversion->lookupValue ('languageCodes', 'English', true, false, $lang, 'MARC Code', $errorString);
 	}
 	
 	

@@ -146,7 +146,7 @@ class generateAuthors
 		$line = $this->shiftSubfieldU ($line);
 		
 		# Pass through the transliterator if required; e.g. /records/6653/ (test #107), /records/23186/ (test #108)
-		$line = $this->muscatConversion->macro_transliterateSubfields ($line, $this->transliterableSubfields[$this->field], $languageMode);
+		$line = $this->muscatConversion->macro_transliterateSubfields ($line, $this->transliterableSubfields[$this->field], $errorString_ignored, $languageMode);
 		
 		# Ensure the line ends with punctuation; e.g. /records/1218/ (test #72), /records/1221/ (test #73)
 		$line = $this->muscatConversion->macro_dotEnd ($line, $extendedCharacterList = true);
@@ -206,7 +206,7 @@ class generateAuthors
 		# Pass each line through the transliterator if required (test #108)
 		foreach ($lines as $index => $line) {
 			$fieldNumber = (preg_match ('/^([0-9]{3}) /', $line, $matches) ? $matches[1] : $this->field);	// Line 1 will use the native field number, but any subsequent lines in a multiline will have a field number added the start (test #109)
-			$lines[$index] = $this->muscatConversion->macro_transliterateSubfields ($line, $this->transliterableSubfields[$fieldNumber], $languageMode);
+			$lines[$index] = $this->muscatConversion->macro_transliterateSubfields ($line, $this->transliterableSubfields[$fieldNumber], $errorString_ignored, $languageMode);
 		}
 		
 		# Ensure each line ends with punctuation; e.g. /records/7463/ (tests #81 and #82)
