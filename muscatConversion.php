@@ -371,6 +371,9 @@ class muscatConversion extends frontControllerApplication
 		# Determine the import logfile location
 		$this->importLog = $this->exportsProcessingTmp . 'importlog.txt';
 		
+		# Determine the errors logfile location, used for logging import errors
+		$this->errorsFile = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl . '/errors.html';
+		
 		# Show if an import is running, and prevent a second import running
 		if ($importHtml = $this->importInProgress (24, $blockUi = false)) {
 			if (!isSet ($this->actions[$this->action]['export'])) {		// Show the warning unless using AJAX data
@@ -1842,11 +1845,10 @@ class muscatConversion extends frontControllerApplication
 		$this->importUi ($importFiles, $importTypes, $fileCreationInstructionsHtml, 'txt');
 		
 		# Show errors file if present
-		$errorsFile = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl . '/errors.html';
-		if (is_file ($errorsFile)) {
+		if (is_file ($this->errorsFile)) {
 			$html  = "\n<hr />";
 			$html .= "\n<h3>Errors from import:</h3>";
-			$html .= file_get_contents ($errorsFile);
+			$html .= file_get_contents ($this->errorsFile);
 			echo $html;
 		}
 	}
@@ -1966,10 +1968,8 @@ class muscatConversion extends frontControllerApplication
 			$html .= "\n<p>{$this->tick} The <a href=\"{$this->baseUrl}/reports/\">tests</a> have been generated.</p>";
 		}
 		
-		# Write the errors to a file
-		$this->logger ('Writing errors file');
-		$errorsFile = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl . '/errors.html';
-		file_put_contents ($errorsFile, $errorsHtml);	// Recreated freshly on each import
+		# Write the errors to the errors log
+		$this->logErrors ($errorsHtml, true);
 		
 		# Log end
 		$this->logger ('Import complete');
@@ -1987,6 +1987,17 @@ class muscatConversion extends frontControllerApplication
 		
 		# Append to the logfile (or start fresh if resetting)
 		file_put_contents ($this->importLog, $string, ($reset ? 0 : FILE_APPEND));
+	}
+	
+	
+	# Function to provide an error logger
+	public function logErrors ($errorsHtml, $reset = false)
+	{
+		# Log start
+		$this->logger ('Writing errors file');
+		
+		# Append to the logfile (or start fresh if resetting)
+		file_put_contents ($this->errorsFile, $errorsHtml, ($reset ? 0 : FILE_APPEND));	// Recreated freshly on each import
 	}
 	
 	
