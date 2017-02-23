@@ -3292,7 +3292,8 @@ class muscatConversion extends frontControllerApplication
 		;";
 		$this->databaseConnection->execute ($sql);
 		
-		# Cross insert the IDs
+		# Cross-insert the IDs
+		$this->logger ('In ' . __METHOD__ . ', cross-inserting the IDs');
 		$query = "INSERT INTO catalogue_xml (id) (SELECT DISTINCT(recordId) FROM catalogue_processed);";
 		$this->databaseConnection->execute ($query);
 		
@@ -3303,10 +3304,12 @@ class muscatConversion extends frontControllerApplication
 		if ($pathSeedingOnly) {return;}
 		
 		# Add the language lookups
+		$this->logger ('In ' . __METHOD__ . ', adding the language lookups');
 		$query = "UPDATE catalogue_xml SET language = ExtractValue(xml, '/*/lang[1]');";
 		$this->databaseConnection->execute ($query);
 		
 		# Add the parallel title language lookups
+		$this->logger ('In ' . __METHOD__ . ', adding the parallel title language lookups');
 		$query = "UPDATE catalogue_xml
 			LEFT JOIN catalogue_processed ON
 				    catalogue_xml.id = catalogue_processed.recordId
@@ -3318,6 +3321,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($query);
 		
 		# Add the xPath values to the transliterations table, for the purposes of the filtering in the transliterations report
+		$this->logger ('In ' . __METHOD__ . ', adding the xPath values to the transliterations table');
 		$query = "
 			UPDATE transliterations
 			INNER JOIN catalogue_processed ON transliterations.id = catalogue_processed.id
@@ -3347,6 +3351,9 @@ class muscatConversion extends frontControllerApplication
 	# Function to do the XML record processing, called from within the main XML table creation function; this will process about 1,000 records a second
 	private function processXmlRecords ($pathSeedingOnly = false)
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__);
+		
 		# Get the schema
 		$schemaFlattenedXmlWithContainership = $this->getSchema (true);
 		
