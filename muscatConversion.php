@@ -1873,9 +1873,12 @@ class muscatConversion extends frontControllerApplication
 		# Skip the main import if required
 		if ($importType == 'full') {
 			
-			# Add each of the two Muscat data formats
+			# Add each of the two Muscat data formats, or end on failure (e.g. UTF-8 problem)
 			foreach ($exportFiles as $type => $exportFile) {
-				$tableComment = $this->processMuscatFile ($exportFile, $type, $errorsHtml);
+				if (!$tableComment = $this->processMuscatFile ($exportFile, $type, $errorsHtml)) {
+					$this->logErrors ($errorsHtml, true);
+					return false;
+				}
 			}
 			
 			# Create the processed table
