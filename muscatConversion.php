@@ -2049,6 +2049,9 @@ class muscatConversion extends frontControllerApplication
 	# Main parser
 	private function parseFileToCsv ($exportFile, $csvFilename)
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__ . " with export file {$exportFile}");
+		
 		# Create the file, doing a zero-byte write to create the file; the operations which follow are appends
 		file_put_contents ($csvFilename, '');
 		
@@ -2205,6 +2208,9 @@ class muscatConversion extends frontControllerApplication
 	# Function to insert the CSV into the database
 	private function insertCsvToDatabase ($csvFilename, $type, $tableComment)
 	{
+		# Log start
+		$this->logger ('Starting ' . __METHOD__ . " with CSV file {$csvFilename}");
+		
 		# Compile the table structure
 		require_once ('csv.php');
 		
@@ -3688,7 +3694,7 @@ class muscatConversion extends frontControllerApplication
 				}
 				
 				# Insert the records (or update for the second pass); ON DUPLICATE KEY UPDATE is a dirty but useful method of getting a multiple update at once (as this doesn't require a WHERE clause, which can't be used as there is more than one record to be inserted)
-				$this->logger ('In ' . __METHOD__ . ", in {$recordType} record type group, adding " . count ($inserts) . ' records');
+				$this->logger ('In ' . __METHOD__ . ", in {$recordType} record type group, adding " . count ($inserts) . ' records; marcSecondPass is currently ' . count ($marcSecondPass) . ' records');
 				if (!$this->databaseConnection->insertMany ($this->settings['database'], 'catalogue_marc', $inserts, false, $onDuplicateKeyUpdate = true)) {
 					$html  = "<p class=\"warning\">Error generating MARC, stopping at batched ({$id}):</p>";
 					$html .= application::dumpData ($this->databaseConnection->error (), false, true);
