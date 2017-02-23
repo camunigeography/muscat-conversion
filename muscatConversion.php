@@ -1875,7 +1875,7 @@ class muscatConversion extends frontControllerApplication
 			
 			# Add each of the two Muscat data formats
 			foreach ($exportFiles as $type => $exportFile) {
-				$tableComment = $this->processMuscatFile ($exportFile, $type);
+				$tableComment = $this->processMuscatFile ($exportFile, $type, $errorsHtml);
 			}
 			
 			# Create the processed table
@@ -2002,7 +2002,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to process each of the Muscat files into the database
-	private function processMuscatFile ($exportFile, $type)
+	private function processMuscatFile ($exportFile, $type, &$errorsHtml)
 	{
 		# Log start
 		$this->logger ('Starting ' . __METHOD__ . " for {$type} export file {$exportFile}");
@@ -2013,7 +2013,9 @@ class muscatConversion extends frontControllerApplication
 		
 		# Insert the CSV data into the database
 		$tableComment = 'Data from Muscat dated: ' . $this->dateString ($exportFile);
-		$this->insertCsvToDatabase ($csvFilename, $type, $tableComment);
+		if (!$this->insertCsvToDatabase ($csvFilename, $type, $tableComment, $errorsHtml)) {
+			return false;
+		}
 		
 		# Set the table IDs to be shard IDs, as "<recordId>:<line>", e.g. 1000:0, 1000:1, ..., 1000:39, 1003:0, 1003:1, etc.
 		$sql = "ALTER TABLE {$this->settings['database']}.catalogue_{$type} CHANGE id id VARCHAR(10) NOT NULL COMMENT 'Shard ID';";		// VARCHAR(10) as records are up to 6 digits, plus colon, plus up to 999 rows per record
@@ -2206,7 +2208,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to insert the CSV into the database
-	private function insertCsvToDatabase ($csvFilename, $type, $tableComment)
+	private function insertCsvToDatabase ($csvFilename, $type, $tableComment, &$errorsHtml)
 	{
 		# Log start
 		$this->logger ('Starting ' . __METHOD__ . " with CSV file {$csvFilename}");
@@ -2254,8 +2256,12 @@ class muscatConversion extends frontControllerApplication
 		
 		# Execute the SQL, reporting any UTF-8 invalid character string errors (or other problems)
 		if (!$this->databaseConnection->runSql ($this->settings, $sqlFilename, $isFile = true, $outputText)) {
-			echo "\n<p class=\"warning\">ERROR: Importing {$sqlFilename} failed with database error: <tt>" . htmlspecialchars ($outputText) . '</tt></p>';
+			$errorsHtml .= "\n<p class=\"warning\">ERROR: Importing {$sqlFilename} failed with database error: <tt>" . htmlspecialchars ($outputText) . '</tt></p>';
+			return false;
 		}
+		
+		# Confirm success
+		return true;
 	}
 	
 	
