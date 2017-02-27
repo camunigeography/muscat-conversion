@@ -1844,13 +1844,25 @@ class muscatConversion extends frontControllerApplication
 		# Run the import UI
 		$this->importUi ($importFiles, $importTypes, $fileCreationInstructionsHtml, 'txt');
 		
+		# Show log file if present
+		$html = '';
+		if (is_file ($this->importLog)) {
+			$html .= "\n<hr />";
+			$html .= "\n<h3>Import log:</h3>";
+			$html .= "\n<pre>";
+			$html .= file_get_contents ($this->importLog);
+			$html .= "\n</pre>";
+		}
+		
 		# Show errors file if present
 		if (is_file ($this->errorsFile)) {
-			$html  = "\n<hr />";
+			$html .= "\n<hr />";
 			$html .= "\n<h3>Errors from import:</h3>";
 			$html .= file_get_contents ($this->errorsFile);
-			echo $html;
 		}
+		
+		# Show the HTML
+		echo $html;
 	}
 	
 	
