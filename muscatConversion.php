@@ -3402,9 +3402,12 @@ class muscatConversion extends frontControllerApplication
 		
 		# Process the records in chunks
 		$chunksOf = 500;	// Change max_allowed_packet above if necessary
+		$i = 0;
 		while (true) {	// Until the break
+			$i++;
 			
 			# Get the next chunk of record IDs to update, until all are done
+			$this->logger ('In ' . __METHOD__ . ", processing batch #{$i} of {$chunksOf} records");
 			$query = "SELECT id FROM catalogue_xml WHERE xml IS NULL AND id >= {$this->firstRealRecord} LIMIT {$chunksOf};";
 			if (!$ids = $this->databaseConnection->getPairs ($query)) {break;}
 			
