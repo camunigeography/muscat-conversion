@@ -196,6 +196,7 @@ class muscatConversion extends frontControllerApplication
 			'paginationRecordsPerPageDefault' => 50,
 			'div' => strtolower (__CLASS__),
 			'useFeedback' => false,
+			'importLog' => '%applicationRoot/exports-tmp/importlog.txt',
 		);
 		
 		# Return the defaults
@@ -368,9 +369,6 @@ class muscatConversion extends frontControllerApplication
 		# Determine the import lockfile location
 		$this->lockfile = $this->exportsProcessingTmp . 'lockfile.txt';
 		
-		# Determine the import logfile location
-		$this->importLog = $this->exportsProcessingTmp . 'importlog.txt';
-		
 		# Determine the errors logfile location, used for logging import errors
 		$this->errorsFile = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl . '/errors.html';
 		
@@ -379,10 +377,7 @@ class muscatConversion extends frontControllerApplication
 			if (!isSet ($this->actions[$this->action]['export'])) {		// Show the warning unless using AJAX data
 				$html  = $importHtml;
 				if ($this->action == 'import') {
-					$html .= "\n<h3>Import progress:</h3>";
-					if (file_exists ($this->importLog)) {
-						$html .= "\n<pre>" . htmlspecialchars (file_get_contents ($this->importLog)) . "\n</pre>";
-					}
+					$html .= $this->importLogHtml ('Import progress');
 				}
 				echo $html;
 			}
@@ -1839,22 +1834,13 @@ class muscatConversion extends frontControllerApplication
 		# Define the introduction HTML
 		$fileCreationInstructionsHtml  = "\n\t" . '<p>Open a Muscat terminal and type the following. Note that this can take a while to create.</p>';
 		$fileCreationInstructionsHtml .= "\n\t" . '<p>Be aware that you may have to wait until your colleagues are not using Muscat to do an export, as exporting may lock Muscat access.</p>';
-		$fileCreationInstructionsHtml .= "\n\t\t\t" . "<tt>n-voyager_export</tt>";
+		$fileCreationInstructionsHtml .= "\n\t" . "<tt>n-voyager_export</tt>";
 		
 		# Run the import UI
 		$this->importUi ($importFiles, $importTypes, $fileCreationInstructionsHtml, 'txt');
 		
-		# Show log file if present
-		$html = '';
-		if (is_file ($this->importLog)) {
-			$html .= "\n<hr />";
-			$html .= "\n<h3>Import log:</h3>";
-			$html .= "\n<pre>";
-			$html .= file_get_contents ($this->importLog);
-			$html .= "\n</pre>";
-		}
-		
 		# Show errors file if present
+		$html = '';
 		if (is_file ($this->errorsFile)) {
 			$html .= "\n<hr />";
 			$html .= "\n<h3>Errors from import:</h3>";
@@ -1869,9 +1855,6 @@ class muscatConversion extends frontControllerApplication
 	# Function to do the actual import
 	public function doImport ($exportFiles, $importType, &$html)
 	{
-		# Determine the import logfile location and start the log
-		$this->logger ("Starting {$importType} import (started by {$this->user})", $reset = true);
-		
 		# Start the HTML
 		$html = '';
 		
@@ -1986,22 +1969,8 @@ class muscatConversion extends frontControllerApplication
 		# Write the errors to the errors log
 		$this->logErrors ($errorsHtml, true);
 		
-		# Log end
-		$this->logger ('Import complete');
-		
 		# Signal success
 		return true;
-	}
-	
-	
-	# Function to provide a logger
-	public function logger ($message, $reset = false)
-	{
-		# Construct the string
-		$string = date ('Y-m-d H:i:s') . ': ' . $message . "\r\n";
-		
-		# Append to the logfile (or start fresh if resetting)
-		file_put_contents ($this->importLog, $string, ($reset ? 0 : FILE_APPEND));
 	}
 	
 	
