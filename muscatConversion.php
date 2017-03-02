@@ -1889,7 +1889,7 @@ class muscatConversion extends frontControllerApplication
 			$this->massDataFixes ();
 			
 			# Replace location=Periodical in the processed records with the real, looked-up values
-			$this->processPeriodicalLocations ();
+			$this->processPeriodicalLocations ($errorsHtml);
 			
 			# Create the UDC translations table
 			$this->createUdcTranslationsTable ();
@@ -1905,7 +1905,10 @@ class muscatConversion extends frontControllerApplication
 			
 			# Create the XML table; also available as a standalone option below
 			#   Depencies: catalogue_processed
-			$this->createXmlTable ();
+			if (!$this->createXmlTable (false, $errorsHtml)) {
+				$this->logErrors ($errorsHtml, true);
+				return false;
+			}
 			
 			# Create the fields index table
 			#  Dependencies: catalogue_processed and catalogue_xml
@@ -1920,7 +1923,10 @@ class muscatConversion extends frontControllerApplication
 		
 		# Run option to create XML table only (included in the 'full' option above) if required
 		if ($importType == 'xml') {
-			$this->createXmlTable ();
+			if (!$this->createXmlTable (false, $errorsHtml)) {
+				$this->logErrors ($errorsHtml, true);
+				return false;
+			}
 		}
 		
 		# Create the external records
@@ -3278,7 +3284,7 @@ class muscatConversion extends frontControllerApplication
 	# Function to create XML records
 	#   Depencies: catalogue_processed
 	# The $pathSeedingOnly is a flag for the first run which is done simply to allocate the catalogue_processed.xPath values, essentially just needing the xml::dropSerialRecordIntoSchema routine which createXmlTable() and its delegate processXmlRecords() has to wrap
-	private function createXmlTable ($pathSeedingOnly = false)
+	private function createXmlTable ($pathSeedingOnly = false, &$errorsHtml)
 	{
 		# Log start
 		$this->logger ('Starting ' . __METHOD__);
@@ -3305,10 +3311,12 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($query);
 		
 		# Create the XML for each record
-		$this->processXmlRecords ($pathSeedingOnly);
+		if (!$this->processXmlRecords ($pathSeedingOnly, $errorsHtml)) {
+			return false;
+		}
 		
 		# End if only simple path seeding of catalogue_processed.xPath values is required, as remaining steps just waste CPU
-		if ($pathSeedingOnly) {return;}
+		if ($pathSeedingOnly) {return true;}
 		
 		# Add the language lookups
 		$this->logger ('In ' . __METHOD__ . ', adding the language lookups');
@@ -3335,6 +3343,9 @@ class muscatConversion extends frontControllerApplication
 			SET transliterations.xPath = catalogue_processed.xPath
 		;";
 		$this->databaseConnection->execute ($query);
+		
+		# Signal success
+		return true;
 	}
 	
 	
@@ -3356,7 +3367,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to do the XML record processing, called from within the main XML table creation function; this will process about 1,000 records a second
-	private function processXmlRecords ($pathSeedingOnly = false)
+	private function processXmlRecords ($pathSeedingOnly = false, &$errorsHtml)
 	{
 		# Log start
 		$this->logger ('Starting ' . __METHOD__);
@@ -3394,8 +3405,9 @@ class muscatConversion extends frontControllerApplication
 					$html .= "\n<div class=\"graybox\">\n<h3>Crashed record:</h3>" . "\n<pre>" . htmlspecialchars ($xml) . "\n</pre>\n</div>";
 					$html .= "\n<div class=\"graybox\">\n<h3>Stack debug:</h3>" . nl2br ($debugString) . "\n</div>";
 					// $html .= "\n<div class=\"graybox\">\n<h3>Target schema:</h3>" . application::dumpData ($schemaFlattenedXmlWithContainership, false, true) . "\n</div>";
-					echo $html;
+					$errorsHtml .= $html;
 					$xml = "<q0>{$recordId}</q0>";
+					return false;
 				}
 				
 				# Register the XML record insert
@@ -3416,33 +3428,38 @@ class muscatConversion extends frontControllerApplication
 			
 			# Update these records
 			if (!$this->databaseConnection->replaceMany ($this->settings['database'], 'catalogue_xml', $inserts)) {
-				echo "<p class=\"warning\">Error generating XML, stopping at batch ({$recordId}):</p>";
-				echo application::dumpData ($this->databaseConnection->error (), false, true);
+				$html  = "<p class=\"warning\">Error generating XML, stopping at batch ({$recordId}):</p>";
+				$html .= application::dumpData ($this->databaseConnection->error (), false, true);
+				$errorsHtml .= $html;
 				return false;
 			}
 			
 			# If seeding the catalogue_processed.xPath values, update the processed table to register the XPath values; takes around 2-15 seconds per batch of 500 sharded records
 			if ($pathSeedingOnly) {
 				if (!$this->databaseConnection->updateMany ($this->settings['database'], 'catalogue_processed', $processedRecordXPaths)) {
-					echo "<p class=\"warning\">Error updating processed records to add XPath values, stopping at batch ({$recordId}):</p>";
-					echo application::dumpData ($this->databaseConnection->error (), false, true);
+					$html  = "<p class=\"warning\">Error updating processed records to add XPath values, stopping at batch ({$recordId}):</p>";
+					$html .= application::dumpData ($this->databaseConnection->error (), false, true);
+					$errorsHtml .= $html;
 					return false;
 				}
 			}
 		}
+		
+		# Signal success
+		return true;
 	}
 	
 	
 	# Function to replace location=Periodical in the processed records with the real, looked-up values; dependencies: catalogue_processed with xPath field populated
 	# NB This matching is done before the transliteration phase, so that the /art/j/tg/t matches its parent (e.g. /records/167320/ joins to its parent /records/33585/ ) and then AFTER that it gets upgraded
 	#!# There is still the problem that the target name itself does not get upgraded
-	private function processPeriodicalLocations ()
+	private function processPeriodicalLocations (&$errorsHtml)
 	{
 		# Log start
 		$this->logger ('Starting ' . __METHOD__);
 		
 		# Assign XPaths to catalogue_processed; this unfortunate dependency means that the XML processing has to be run twice
-		$this->createXmlTable ($pathSeedingOnly = true);
+		$this->createXmlTable ($pathSeedingOnly = true, $errorsHtml);
 		
 		# Create a table of periodicals, with their title and location(s), clearing it out first if existing from a previous import
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.periodicallocations;";
