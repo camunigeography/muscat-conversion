@@ -4573,6 +4573,15 @@ class muscatConversion extends frontControllerApplication
 			}
 		}
 		
+		# If there is a result, redirect to a simplified version of the URL
+		if ($result) {
+			if (array_keys ($_GET) != array_keys ($result)) {
+				$redirectTo = $this->baseUrl . '/' . $this->actions[$this->action]['url'] . '?' . http_build_query ($result);
+				$html .= application::sendHeader (302, $redirectTo, true);
+				return $result;
+			}
+		}
+		
 		# If there is a result, show the hiding system first
 		if ($result) {
 			$html .= '
