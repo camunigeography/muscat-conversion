@@ -3518,6 +3518,7 @@ class muscatConversion extends frontControllerApplication
 		# Insert the data for each grouping; note that the periodicallocations table is no longer needed after this
 		# For /doc records this requires at least partial match, e.g. "Annals of Glaciology ; 9" in child record's (first) /doc/ts matches "Annals of Glaciology" in parent (periodicallocations.title)
 		# /records/209527/ is an example with two *ts values - the first is used in Muscat as the match
+		#!# Records like /records/23120/ are now inconsistent in that they contain an explicit *kg now - need to decide what to do with these
 		$groupings = array (
 			'/art/j/tg/t'	=> true,	// 79,988 results; NB To permit NULL right-side results, i.e. unmatched parent (giving 82,185 results), change the HAVING clause to "HAVING value != ''"
 			'/doc/ts[1]'	=> false,	//    280 results; NB To permit NULL right-side results, i.e. unmatched parent (giving    294 results), change the HAVING clause to "HAVING value IS NOT NULL"
