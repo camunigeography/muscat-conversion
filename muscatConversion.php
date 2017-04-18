@@ -14,6 +14,7 @@ class muscatConversion extends frontControllerApplication
 			'idField'	=> 'recordId',
 			'orderBy'	=> 'recordId, line',
 			'class'		=> 'regulated',
+			'public'	=> false,
 		),
 		'rawdata' => array (	// Sharded records
 			'label'		=> '<img src="/images/icons/page_white_text.png" alt="" border="0" /> Raw data',
@@ -23,6 +24,7 @@ class muscatConversion extends frontControllerApplication
 			'idField'	=> 'recordId',
 			'orderBy'	=> 'recordId, line',
 			'class'		=> 'compressed',	// 'regulated'
+			'public'	=> false,
 		),
 		'processed' => array (	// Sharded records
 			'label'		=> '<img src="/images/icons/page.png" alt="" border="0" /> Processed version',
@@ -32,6 +34,7 @@ class muscatConversion extends frontControllerApplication
 			'idField'	=> 'recordId',
 			'orderBy'	=> 'recordId, line',
 			'class'		=> 'compressed',
+			'public'	=> false,
 		),
 		'xml' => array (
 			'label'		=> '<img src="/images/icons/page_white_code.png" alt="" border="0" /> Muscat as XML',
@@ -41,15 +44,17 @@ class muscatConversion extends frontControllerApplication
 			'idField'	=> 'id',
 			'orderBy'	=> 'id',
 			'class'		=> false,
+			'public'	=> false,
 		),
 		'marc' => array (
-			'label'		=> '<img src="/images/icons/page_white_code_red.png" alt="" border="0" /> Muscat as MARC',
+			'label'		=> '<img src="/images/icons/page_white_code_red.png" alt="" border="0" /> MARC record',
 			'title'		=> 'Representation of the XML data as MARC21, via the defined parser description',
 			'errorHtml'	=> "The MARC21 representation of the Muscat record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
 			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc', 'bibcheckErrors', 'suppressReasons'),
 			'idField'	=> 'id',
 			'orderBy'	=> 'id',
 			'class'		=> false,
+			'public'	=> true,
 		),
 		'presented' => array (
 			'label'		=> '<img src="/images/icons/page_white_star.png" alt="" border="0" /> Presented',
@@ -59,6 +64,7 @@ class muscatConversion extends frontControllerApplication
 			'idField'	=> 'id',
 			'orderBy'	=> 'id',
 			'class'		=> false,
+			'public'	=> true,
 		),
 	);
 	
@@ -747,6 +753,7 @@ class muscatConversion extends frontControllerApplication
 		$tabs = array ();
 		$i = 0;
 		foreach ($this->types as $type => $attributes) {
+			if (!$this->types[$type]['public'] && !$this->userIsAdministrator) {continue;}	// Hide tab if not public but viewing publicly
 			if (!$tabs[$type] = $this->recordFieldValueTable ($id, $type, $errorHtml)) {
 				if ($i == 0) {	// First one is the master record; if it does not exist, assume this is actually a genuinely non-existent record
 					$errorHtml = "There is no such record <em>{$id}</em>.";
@@ -763,6 +770,7 @@ class muscatConversion extends frontControllerApplication
 		$typesReverseOrder = array_reverse ($this->types, true);
 		$i = 1;
 		foreach ($typesReverseOrder as $type => $attributes) {
+			if (!$this->types[$type]['public'] && !$this->userIsAdministrator) {continue;}	// Hide tab if not public but viewing publicly
 			$labels[$type] = "<span accesskey=\"" . $i++ . "\" title=\"{$attributes['title']}\">" . $attributes['label'] . '</span>';
 		}
 		
@@ -854,32 +862,37 @@ class muscatConversion extends frontControllerApplication
 				
 			# Text records
 			case 'marc':
-				$output  = "\n<p>The MARC output uses the <a target=\"_blank\" href=\"{$this->baseUrl}/marcparser.html\">parser definition</a> to do the mapping from the XML representation.</p>";
-				if ($record['bibcheckErrors']) {
-					$output .= "\n<pre>" . "\n<p class=\"warning\">Bibcheck " . (substr_count ($record['bibcheckErrors'], "\n") ? 'errors' : 'error') . ":</p>" . $record['bibcheckErrors'] . "\n</pre>";
-				}
-				if ($errorString) {
-					$output .= "\n<p class=\"warning\">{$errorString}</p>";
-				}
-				$output .= "\n<div class=\"graybox marc\">";
-				$output .= "\n<p id=\"exporttarget\">Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->migrationStatus ($id) . "</strong></p>";
-				if ($record['mergeType']) {
-					$output .= "\n<p>Note: this record has <strong>merge data</strong> (managed according to the <a href=\"{$this->baseUrl}/merge.html\" target=\"_blank\">merge specification</a>), shown underneath.</p>";
-				}
-				if ($record['mergeType']) {
-					$output .= "\n" . '<p class="colourkey">Color key: <span class="sourcem">Muscat</span> / <span class="sourcev">Voyager</span></p>';
+				$output  = '';
+				if ($this->userIsAdministrator) {
+					$output  = "\n<p>The MARC output uses the <a target=\"_blank\" href=\"{$this->baseUrl}/marcparser.html\">parser definition</a> to do the mapping from the XML representation.</p>";
+					if ($record['bibcheckErrors']) {
+						$output .= "\n<pre>" . "\n<p class=\"warning\">Bibcheck " . (substr_count ($record['bibcheckErrors'], "\n") ? 'errors' : 'error') . ":</p>" . $record['bibcheckErrors'] . "\n</pre>";
+					}
+					if ($errorString) {
+						$output .= "\n<p class=\"warning\">{$errorString}</p>";
+					}
+					$output .= "\n<div class=\"graybox marc\">";
+					$output .= "\n<p id=\"exporttarget\">Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->migrationStatus ($id) . "</strong></p>";
+					if ($record['mergeType']) {
+						$output .= "\n<p>Note: this record has <strong>merge data</strong> (managed according to the <a href=\"{$this->baseUrl}/merge.html\" target=\"_blank\">merge specification</a>), shown underneath.</p>";
+					}
+					if ($record['mergeType']) {
+						$output .= "\n" . '<p class="colourkey">Color key: <span class="sourcem">Muscat</span> / <span class="sourcev">Voyager</span></p>';
+					}
 				}
 				$output .= "\n<pre>" . $this->showSourceRegistry ($this->highlightSubfields (htmlspecialchars ($record[$type])), $sourceRegistry) . "\n</pre>";
-				if ($record['mergeType']) {
-					$output .= "\n<h3>Merge data</h3>";
-					$output .= "\n<p>Merge type: {$record['mergeType']}" . (isSet ($this->mergeTypes[$record['mergeType']]) ? " ({$this->mergeTypes[$record['mergeType']]})" : '') . "\n<br />Voyager ID: #{$record['mergeVoyagerId']}.</p>";
-					$output .= "\n<h4>Pre-merge record from Muscat:</h4>";
-					$output .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($marcPreMerge)) . "\n</pre>";
-					$output .= "\n<h4>Existing Voyager record:</h4>";
-					$voyagerRecord = $this->marcConversion->getExistingVoyagerRecord ($record['mergeVoyagerId'], $voyagerRecordErrorText);	// Although it is wasteful to regenerate this, the alternative is messily passing back the record and error text as references through convertToMarc()
-					$output .= "\n<pre>" . ($voyagerRecord ? $this->highlightSubfields (htmlspecialchars ($voyagerRecord)) : $voyagerRecordErrorText) . "\n</pre>";
+				if ($this->userIsAdministrator) {
+					if ($record['mergeType']) {
+						$output .= "\n<h3>Merge data</h3>";
+						$output .= "\n<p>Merge type: {$record['mergeType']}" . (isSet ($this->mergeTypes[$record['mergeType']]) ? " ({$this->mergeTypes[$record['mergeType']]})" : '') . "\n<br />Voyager ID: #{$record['mergeVoyagerId']}.</p>";
+						$output .= "\n<h4>Pre-merge record from Muscat:</h4>";
+						$output .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($marcPreMerge)) . "\n</pre>";
+						$output .= "\n<h4>Existing Voyager record:</h4>";
+						$voyagerRecord = $this->marcConversion->getExistingVoyagerRecord ($record['mergeVoyagerId'], $voyagerRecordErrorText);	// Although it is wasteful to regenerate this, the alternative is messily passing back the record and error text as references through convertToMarc()
+						$output .= "\n<pre>" . ($voyagerRecord ? $this->highlightSubfields (htmlspecialchars ($voyagerRecord)) : $voyagerRecordErrorText) . "\n</pre>";
+					}
+					$output .= "\n</div>";
 				}
-				$output .= "\n</div>";
 				break;
 				
 			case 'xml':
