@@ -51,6 +51,15 @@ class muscatConversion extends frontControllerApplication
 			'orderBy'	=> 'id',
 			'class'		=> false,
 		),
+		'presented' => array (
+			'label'		=> '<img src="/images/icons/page_white_star.png" alt="" border="0" /> Presented',
+			'title'		=> 'Representation of the processed data as a public record',
+			'errorHtml'	=> "The presented version of the Muscat record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
+			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc', 'bibcheckErrors', 'suppressReasons'),
+			'idField'	=> 'id',
+			'orderBy'	=> 'id',
+			'class'		=> false,
+		),
 	);
 	
 	# Define the number of the first real record in the data
@@ -827,18 +836,24 @@ class muscatConversion extends frontControllerApplication
 			return false;
 		}
 		
+		# Obtain a MARC parsed version for the marc and presented output types
+		if (in_array ($type, array ('presented', 'marc'))) {
+			$data = $this->getRecords ($id, 'xml');
+			$marcParserDefinition = $this->getMarcParserDefinition ();
+			$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ());
+			$record['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $errorString, $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $record['suppressReasons'], $marcPreMerge /* passed back by reference */, $sourceRegistry /* passed back by reference */);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
+		}
+		
 		# Render the result
 		switch ($type) {
 			
+			# Presentation record
+			case 'presented':
+				$output = $this->presentedRecord ($record['marc']);
+				break;
+				
 			# Text records
 			case 'marc':
-				# Uncomment this block to compute the MARC on-the-fly for testing purposes
-			/*
-			*/
-				$data = $this->getRecords ($id, 'xml');
-				$marcParserDefinition = $this->getMarcParserDefinition ();
-				$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ());
-				$record['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $errorString, $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $record['suppressReasons'], $marcPreMerge /* passed back by reference */, $sourceRegistry /* passed back by reference */);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
 				$output  = "\n<p>The MARC output uses the <a target=\"_blank\" href=\"{$this->baseUrl}/marcparser.html\">parser definition</a> to do the mapping from the XML representation.</p>";
 				if ($record['bibcheckErrors']) {
 					$output .= "\n<pre>" . "\n<p class=\"warning\">Bibcheck " . (substr_count ($record['bibcheckErrors'], "\n") ? 'errors' : 'error') . ":</p>" . $record['bibcheckErrors'] . "\n</pre>";
@@ -846,8 +861,6 @@ class muscatConversion extends frontControllerApplication
 				if ($errorString) {
 					$output .= "\n<p class=\"warning\">{$errorString}</p>";
 				}
-			/*
-			*/
 				$output .= "\n<div class=\"graybox marc\">";
 				$output .= "\n<p id=\"exporttarget\">Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->migrationStatus ($id) . "</strong></p>";
 				if ($record['mergeType']) {
@@ -895,6 +908,110 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the HTML/XML
 		return $output;
+	}
+	
+	
+	# Function to format a presented record
+	private function presentedRecord ($record)
+	{
+		# Start the HTML
+		$html = '';
+		
+		# Parse the record into lines
+		$record = $this->marcConversion->parseMarcRecord ($record, $parseSubfieldsToPairs = true);
+		
+		# Start a list of values
+		$table = array ();
+		
+		# Title
+		$table['Title'] = false;
+		if (isSet ($record['245'])) {
+			$field245 = $record['245'][0]['subfields']['a'][0] . (isSet ($record['245'][0]['subfields']['b']) ? $record['245'][0]['subfields']['b'][0] : '');
+			$table['Title'] = preg_replace ('| /$|', '', $field245);
+			
+			# Prefer Cyrillic if present
+			if (isSet ($record['245'][0]['subfields'][6])) {
+				$linkNumber = str_replace ('880-', '', $record['245'][0]['subfields'][6][0]);	// e.g. 02
+				$linkIndex = ((int) $linkNumber) - 1;		// e.g. 1
+				$field880 = $record['880'][$linkIndex]['subfields']['a'][0] . (isSet ($record['880'][$linkIndex]['subfields']['b']) ? $record['880'][$linkIndex]['subfields']['b'][0] : '');
+				$table['Title, transliterated'] = $table['Title'];
+				$table['Title'] = preg_replace ('| /$|', '', $field880);	// Overwrite
+			}
+		}
+		
+		# Translated title
+		$table['Translated title'] = false;
+		if (isSet ($record['242'])) {
+			$field242 = $record['242'][0]['subfields']['a'][0] . (isSet ($record['242'][0]['subfields']['b']) ? $record['242'][0]['subfields']['b'][0] : '');
+			$table['Translated title'] = preg_replace ('| /$|', '', $field242);
+		}
+		
+		# Author
+		$table['Author'] = false;
+		if (isSet ($record['100'])) {
+			$table['Author'] = $record['100'][0]['subfields']['a'][0];
+		}
+		
+		# Language
+		$table['Language'] = false;
+		if (isSet ($record['546'])) {
+			$table['Language'] = preg_replace ('/^In /', '', $record['546'][0]['subfields']['a'][0]);
+		}
+		
+		# In journal
+		$table['In journal'] = false;
+		if (isSet ($record['773'])) {
+			$title = $record['773'][0]['subfields']['t'][0];
+			$year = $record['260'][0]['subfields']['c'][0];
+			$pagination = $record['773'][0]['subfields']['g'][0];
+			$recordId = $record['773'][0]['subfields']['w'][0];
+			$table['In journal'] = "<a href=\"{$this->baseUrl}/records/" . str_replace ('SPRI-', '', $recordId) . '">' . $title . '</a> (' . $year . '), ' . $pagination;
+		}
+		
+		# Abstract
+		$table['Abstract'] = false;
+		if (isSet ($record['520'])) {
+			$table['Abstract'] = $record['520'][0]['subfields']['a'][0];
+		}
+		
+		# Keywords
+		$table['Keywords'] = false;
+		$keywords = array ();
+		if (isSet ($record['650'])) {
+			foreach ($record['650'] as $line) {
+				$keywords[] = $line['subfields']['a'][0];
+			}
+		}
+		if (isSet ($record['651'])) {
+			foreach ($record['651'] as $line) {
+				$keywords[] = $line['subfields']['a'][0];
+			}
+		}
+		if ($keywords) {
+			$table['Keywords'] = implode ('<br />', $keywords);
+		}
+		
+		# Location
+		$table['Location'] = false;
+		if (isSet ($record['852'])) {
+			$table['Location'] = $record['852'][0]['subfields']['b'][0];
+		}
+		
+		# Record number
+		$table['SPRI record no.'] = str_replace ('SPRI-', '', $record['001'][0]['line']);
+		
+		# Render the HTML
+		if ($table['Title']) {
+			$html .= "\n<h3>" . htmlspecialchars ($table['Title']) . '</h3>';
+		}
+		#!# Need to support allowHtml properly - currently allows through entities
+		$html .= application::htmlTableKeyed ($table, array (), $omitEmpty = true, 'lines presented', $allowHtml = array ('In journal', 'Keywords'));
+		
+		# Debug info
+		//$html .= application::dumpData ($record, false, true);
+		
+		# Return the HTML
+		return $html;
 	}
 	
 	
@@ -1143,6 +1260,11 @@ class muscatConversion extends frontControllerApplication
 	# Function to get records (or a single record)
 	private function getRecords ($ids /* or single ID */, $type, $convertEntities = false, $linkFields = false)
 	{
+		# Special-case for presented, which is just a View for marc
+		if ($type == 'presented') {
+			$type = 'marc';
+		}
+		
 		# Determine if this is a sharded table (i.e. a record is spread across multiple entries)
 		$isSharded = ($this->types[$type]['idField'] == 'recordId');
 		

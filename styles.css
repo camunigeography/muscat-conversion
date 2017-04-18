@@ -16,6 +16,7 @@
 #muscatconversion table.record tr td.description {color: gray;}
 #muscatconversion table.record tr td.description {color: gray;}
 #muscatconversion #processed table.record tr td.xPath {color: #bbb; font-family: Lucida Console, courier, monospace; font-size: 0.83em;}
+#muscatconversion table.presented tr td:first-child {width: 150px; font-weight: bold;}
 #muscatconversion ul.previousnextlinks {float: right; margin: 0; padding: 0; line-height: 16px;}
 #muscatconversion ul.previousnextlinks li {display: inline; margin: 0; padding: 0;}
 #muscatconversion ul.previousnextlinks li a {border: 0;}
@@ -55,6 +56,7 @@
 #muscatconversion table.tests td, #muscatconversion table.tests th {padding-right: 10px;}
 #muscatconversion table.tests span.found {background-color: rgb(200, 255, 200);}
 #muscatconversion table.tests span.found.negative {background-color: rgb(252, 199, 200);}
+
 
 /* Print styles */
 @media print {
