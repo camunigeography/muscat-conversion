@@ -981,7 +981,7 @@ class muscatConversion extends frontControllerApplication
 			$year = $record['260'][0]['subfields']['c'][0];
 			$pagination = $record['773'][0]['subfields']['g'][0];
 			$recordId = $record['773'][0]['subfields']['w'][0];
-			$table['In journal'] = "<a href=\"{$this->baseUrl}/records/" . str_replace ('SPRI-', '', $recordId) . '">' . $title . '</a> (' . $year . '), ' . $pagination;
+			$table['In journal'] = "<a href=\"{$this->baseUrl}/records/" . str_replace ('SPRI-', '', $recordId) . '/">' . $title . '</a> (' . $year . '), ' . $pagination;
 		}
 		
 		# Abstract
