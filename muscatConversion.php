@@ -53,7 +53,7 @@ class muscatConversion extends frontControllerApplication
 		'marc' => array (
 			'label'		=> 'MARC record',
 			'icon'		=> 'page_white_code_red',
-			'title'		=> 'Representation of the XML data as MARC21, via the defined parser description',
+			'title'		=> "The publication's record as raw MARC21 data",
 			'errorHtml'	=> "The MARC21 representation of the Muscat record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
 			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc', 'bibcheckErrors', 'suppressReasons'),
 			'idField'	=> 'id',
@@ -62,9 +62,9 @@ class muscatConversion extends frontControllerApplication
 			'public'	=> true,
 		),
 		'presented' => array (
-			'label'		=> 'Presented',
+			'label'		=> 'Presented',		// Gets overwritten in public UI
 			'icon'		=> 'page_white_star',
-			'title'		=> 'Representation of the processed data as a public record',
+			'title'		=> 'Listing of the publication as an easy-to-read record',
 			'errorHtml'	=> "The presented version of the Muscat record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
 			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc', 'bibcheckErrors', 'suppressReasons'),
 			'idField'	=> 'id',
@@ -209,7 +209,6 @@ class muscatConversion extends frontControllerApplication
 		# Specify available arguments as defaults or as NULL (to represent a required argument)
 		$defaults = array (
 			'applicationName' => 'Muscat conversion project',
-			'authentication' => true,
 			'administrators' => true,
 			'hostname' => 'localhost',
 			'database' => 'muscatconversion',	// Requires SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX
@@ -236,18 +235,21 @@ class muscatConversion extends frontControllerApplication
 			'home' => array (
 				'description' => false,
 				'url' => '',
-				'tab' => '<img src="/images/icons/house.png" alt="Home" border="0" />',
+				'tab' => ($this->userIsAdministrator ? '<img src="/images/icons/house.png" alt="Home" border="0" />' : 'Search the catalogue'),
+				'icon' => ($this->userIsAdministrator ? NULL : 'magnifier'),
 			),
 			'reports' => array (
 				'description' => false,
 				'url' => 'reports/',
 				'tab' => 'Reports',
 				'icon' => 'asterisk_orange',
+				'administrator' => true,
 			),
 			'reportdownload' => array (
 				'description' => 'Export',
 				'url' => 'reports/',
 				'export' => true,
+				'administrator' => true,
 			),
 			'records' => array (
 				'description' => 'Records',
@@ -260,24 +262,28 @@ class muscatConversion extends frontControllerApplication
 				'url' => 'fields/',
 				'tab' => 'Fields',
 				'icon' => 'chart_organisation',
+				'administrator' => true,
 			),
 			'search' => array (
 				'description' => 'Search the catalogue',
 				'url' => 'search/',
 				'tab' => 'Search',
 				'icon' => 'magnifier',
+				'administrator' => true,
 			),
 			'statistics' => array (
 				'description' => 'Statistics',
 				'url' => 'statistics/',
 				'tab' => 'Stats',
 				'icon' => 'chart_pie',
+				'administrator' => true,
 			),
 			'postmigration' => array (
 				'description' => 'Post-migration tasks',
 				'url' => 'postmigration/',
 				'tab' => 'Post-migration',
 				'icon' => 'script',
+				'administrator' => true,
 			),
 			'import' => array (
 				'description' => 'Import',
@@ -291,8 +297,8 @@ class muscatConversion extends frontControllerApplication
 				'subtab' => 'Schema',
 				'icon' => 'tag',
 				'parent' => 'admin',
-				'administrator' => true,
 				'allowDuringImport' => true,
+				'administrator' => true,
 			),
 			'marcparser' => array (
 				'description' => 'MARC21 parser definition',
@@ -300,8 +306,8 @@ class muscatConversion extends frontControllerApplication
 				'url' => 'marcparser.html',
 				'icon' => 'chart_line',
 				'parent' => 'admin',
-				'administrator' => true,
 				'allowDuringImport' => true,
+				'administrator' => true,
 			),
 			'transliterator' => array (
 				'description' => 'Reverse-transliteration definition',
@@ -309,8 +315,8 @@ class muscatConversion extends frontControllerApplication
 				'url' => 'transliterator.html',
 				'icon' => 'arrow_refresh',
 				'parent' => 'admin',
-				'administrator' => true,
 				'allowDuringImport' => true,
+				'administrator' => true,
 			),
 			'merge' => array (
 				'description' => 'Merge definition',
@@ -318,8 +324,8 @@ class muscatConversion extends frontControllerApplication
 				'url' => 'merge.html',
 				'icon' => 'arrow_merge',
 				'parent' => 'admin',
-				'administrator' => true,
 				'allowDuringImport' => true,
+				'administrator' => true,
 			),
 			'loc' => array (
 				'description' => 'LoC names',
@@ -342,14 +348,15 @@ class muscatConversion extends frontControllerApplication
 				'tab' => 'Export',
 				'url' => 'export/',
 				'icon' => 'database_go',
-				'administrator' => true,
 				'allowDuringImport' => true,
+				'administrator' => true,
 			),
 			'data' => array (
 				'description' => 'AJAX endpoint',
 				'url' => 'data.json',
 				'export' => true,
 				'allowDuringImport' => true,
+				'administrator' => true,
 			),
 		);
 		
@@ -380,6 +387,16 @@ class muscatConversion extends frontControllerApplication
 			  `savedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Automatic timestamp'
 			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC parser definition';
 		";
+	}
+	
+	
+	# Additional processing, pre-actions
+	public function mainPreActions ()
+	{
+		# Set title for public access for general users
+		if (!$this->userIsAdministrator) {
+			$this->settings['applicationName'] = 'SPRI library catalogue';
+		}
 	}
 	
 	
@@ -496,6 +513,12 @@ class muscatConversion extends frontControllerApplication
 	# Home page
 	public function home ()
 	{
+		# If a public user, mutate to show the search page instead
+		if (!$this->userIsAdministrator) {
+			$this->search ();
+			return;
+		}
+		
 		# Welcome
 		$html  = "\n<h2>Welcome</h2>";
 		$html .= $this->reportsJumplist ();
@@ -769,6 +792,11 @@ class muscatConversion extends frontControllerApplication
 				return false;
 			}
 			$i++;
+		}
+		
+		# In public view, rename the presented record tab label
+		if (!$this->userIsAdministrator) {
+			$this->types['presented']['label'] = 'Main publication details';
 		}
 		
 		# Compile the labels, whose ordering is used for the tabbing
