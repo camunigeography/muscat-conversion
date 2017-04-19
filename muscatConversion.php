@@ -252,9 +252,9 @@ class muscatConversion extends frontControllerApplication
 				'administrator' => true,
 			),
 			'records' => array (
-				'description' => 'Records',
+				'description' => 'Browse records',
 				'url' => 'records/',
-				'tab' => 'Records',
+				'tab' => ($this->userIsAdministrator ? 'Records' : 'Browse records'),
 				'icon' => 'application_double',
 			),
 			'fields' => array (
