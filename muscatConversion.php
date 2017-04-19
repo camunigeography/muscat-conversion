@@ -2490,7 +2490,7 @@ class muscatConversion extends frontControllerApplication
 				SET f.{$field} = c.value;";
 			$this->databaseConnection->execute ($sql);
 		}
-		$sql = "UPDATE fieldsindex SET titleSortfield = " . $this->databaseConnection->trimSql ('title') . ';';
+		$sql = "UPDATE fieldsindex SET titleSortfield = " . $this->databaseConnection->trimSql ('title', $this->htmlTags) . ';';
 		$this->databaseConnection->execute ($sql);
 	}
 	
