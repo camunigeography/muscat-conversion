@@ -4583,7 +4583,7 @@ class muscatConversion extends frontControllerApplication
 			'anywhere'		=> "anywhere LIKE {$caseSensitivity} :anywhere",
 		);
 		
-		# Clear application variables out of _GET
+		# Clear framework variables out of the GET environment
 		unset ($_GET['action']);
 		if (isSet ($_GET['page'])) {
 			$page = $_GET['page'];	// Cache for later
@@ -4653,14 +4653,13 @@ class muscatConversion extends frontControllerApplication
 			if (isSet ($page)) {$_GET['page'] = $page;}
 			
 			# Display the results
-			$baseLink = '/search/';
+			$baseLink = $this->baseUrl . '/' . $this->actions[$this->action]['url'];
 			$html .= $this->recordListing (false, $query, $result, $baseLink, false, $queryStringComplete, 'table', "{$this->settings['database']}.fieldsindex");
 			
 			// application::dumpData ($query);
 			// application::dumpData ($result);
 			// application::dumpData ($this->databaseConnection->error ());
 			// application::dumpData ($data);
-			
 		}
 		
 		# Show the HTML
