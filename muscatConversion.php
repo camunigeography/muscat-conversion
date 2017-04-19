@@ -2466,7 +2466,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Add search fields, using cross-update technique at http://www.electrictoolbox.com/article/mysql/cross-table-update/ and http://dba.stackexchange.com/questions/21152/how-to-update-one-table-based-on-another-tables-values-on-the-fly
 		$sql = "ALTER TABLE fieldsindex
-			ADD title TEXT NULL COMMENT 'Title of work',
+			ADD title VARCHAR(2048) NULL COMMENT 'Title of work',
 			ADD titleSortfield TEXT NULL COMMENT 'Title of work (sort index)',
 			ADD surname TEXT NULL COMMENT 'Author surname',
 			ADD forename TEXT NULL COMMENT 'Author forename',
@@ -2480,6 +2480,7 @@ class muscatConversion extends frontControllerApplication
 			ADD isbn TEXT NULL COMMENT 'ISBN',
 			ADD location TEXT NULL COMMENT 'Location',
 			ADD anywhere TEXT NULL COMMENT 'Text anywhere within record',
+			ADD INDEX(title),
 			ADD FULLTEXT INDEX relevanceindex (anywhere)
 		;";
 		$this->databaseConnection->execute ($sql);
