@@ -115,6 +115,7 @@ class reports
 		'sernonuniquetitle_problem' => '*ser records whose title is not unique',
 		'periodicalpam_problem' => 'Records with location= both Periodical and Pam',
 		'russianvolumenumbers_info' => 'Russian records with a volume number',
+		'longtitles_problem' => 'records with long titles (>512 characters)',
 	);
 	
 	# Listing (values) reports
@@ -2623,6 +2624,25 @@ class reports
 					OR
 					    (`field` = 'vno')
 				)
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with long titles (>512 characters)
+	public function report_longtitles ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'longtitles' AS report,
+				id AS recordId
+			FROM catalogue_processed
+			WHERE
+				    field = 't'
+				AND LENGTH(value) > 512
 		";
 		
 		# Return the query
