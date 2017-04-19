@@ -20,8 +20,8 @@
 #muscatconversion ul.previousnextlinks {float: right; margin: 0; padding: 0; line-height: 16px;}
 #muscatconversion ul.previousnextlinks li {display: inline; margin: 0; padding: 0;}
 #muscatconversion ul.previousnextlinks li a {border: 0;}
-#muscatconversion div.marc {overflow-x: scroll;}
-#muscatconversion div.marc pre strong, #muscatconversion table.reportlisting strong {color: #603; font-weight: normal; background-color: #ddd; opacity: 0.7;}
+#muscatconversion #marc {overflow-x: scroll;}
+#muscatconversion #marc pre strong, #muscatconversion table.reportlisting strong {color: #603; font-weight: normal; background-color: #ddd; opacity: 0.7;}
 #muscatconversion table.reports tr td {background-color: white;}
 #muscatconversion table.reports tr.info td {background-color: #f7f7f7;}
 #muscatconversion table.reports tr.problem td {background-color: #fcc7c8;}
