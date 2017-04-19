@@ -4679,7 +4679,8 @@ class muscatConversion extends frontControllerApplication
 				$query = "SELECT
 						id,
 						title,
-					MATCH(anywhere) AGAINST(:allterms) AS relevance
+						REPLACE( TRIM(BOTH '@' FROM year), '@', ', ') AS date
+						/* , MATCH(anywhere) AGAINST(:allterms) AS relevance */
 					FROM fieldsindex
 					WHERE \n    (" . implode (")\nAND (", $constraints) . ')
 					ORDER BY titleSortfield
