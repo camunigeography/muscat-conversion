@@ -195,6 +195,9 @@ class muscatConversion extends frontControllerApplication
 	# Suppression keyword in *status
 	private $suppressionStatusKeyword = 'SUPPRESS';
 	
+	# HTML tags potentially present in output, which will then be stripped
+	private $htmlTags = array ('<em>', '</em>', '<sub>', '</sub>', '<sup>', '</sup>');
+	
 	
 	# Caches
 	private $lookupTablesCache = array ();
@@ -913,7 +916,7 @@ class muscatConversion extends frontControllerApplication
 			default:
 				$class = $this->types[$type]['class'];
 				foreach ($record as $index => $row) {
-					$showHtmlTags = array ('<em>', '</em>', '<sub>', '</sub>', '<sup>', '</sup>');
+					$showHtmlTags = $this->htmlTags;
 					foreach ($showHtmlTags as $htmlTag) {
 						$record[$index]['value'] = str_replace ($htmlTag, '<span style="color: #903;"><tt>' . htmlspecialchars ($htmlTag) . '</tt></span>', $record[$index]['value']);	// Show HTML as visible HTML
 					}
@@ -1337,7 +1340,7 @@ class muscatConversion extends frontControllerApplication
 						# Allow italics, subscripts and superscripts in records, by converting back entity versions to proper HTML
 						// $italicsPermittedInFields = array ('local', 't', 'tc');	// Find using SELECT DISTINCT (field) FROM catalogue_processed WHERE `value` LIKE '%<em>%';
 						// if (in_array ($row['field'], $italicsPermittedInFields)) {
-						$records[$recordId][$index]['value'] = str_replace (array ('&lt;em&gt;', '&lt;/em&gt;', '&lt;sub&gt;', '&lt;/sub&gt;', '&lt;sup&gt;', '&lt;/sup&gt;'), array ('<em>', '</em>', '<sub>', '</sub>', '<sup>', '</sup>'), $records[$recordId][$index]['value']);
+						$records[$recordId][$index]['value'] = str_replace (array ('&lt;em&gt;', '&lt;/em&gt;', '&lt;sub&gt;', '&lt;/sub&gt;', '&lt;sup&gt;', '&lt;/sup&gt;'), $this->htmlTags, $records[$recordId][$index]['value']);
 						// }
 					}
 					
