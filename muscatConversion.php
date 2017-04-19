@@ -267,9 +267,9 @@ class muscatConversion extends frontControllerApplication
 			'search' => array (
 				'description' => 'Search the catalogue',
 				'url' => 'search/',
-				'tab' => 'Search',
+				'tab' => ($this->userIsAdministrator ? 'Search' : NULL),
 				'icon' => 'magnifier',
-				'administrator' => true,
+				'usetab' => ($this->userIsAdministrator ? false : 'home'),
 			),
 			'statistics' => array (
 				'description' => 'Statistics',
@@ -4692,7 +4692,7 @@ class muscatConversion extends frontControllerApplication
 			if (isSet ($page)) {$_GET['page'] = $page;}
 			
 			# Display the results
-			$baseLink = $this->baseUrl . '/' . $this->actions[$this->action]['url'];
+			$baseLink = '/' . $this->actions['search']['url'];		// baseUrl will be added
 			$html .= $this->recordListing (false, $query, $result, $baseLink, false, $queryStringComplete, 'table', "{$this->settings['database']}.fieldsindex");
 			
 			// application::dumpData ($query);
@@ -4724,6 +4724,7 @@ class muscatConversion extends frontControllerApplication
 			'div' => 'ultimateform horizontalonly',
 			'autofocus' => true,
 			'size' => 40,
+			'submitTo' => $this->baseUrl . '/' . $this->actions['search']['url'],
 		));
 		$form->dataBinding (array (
 			'database' => $this->settings['database'],
