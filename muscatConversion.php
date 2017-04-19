@@ -4,10 +4,11 @@
 require_once ('frontControllerApplication.php');
 class muscatConversion extends frontControllerApplication
 {
-	# Define the types
+	# Define the types, describing each representation of the data as it passes through each conversion stage
 	private $types = array (
 		'muscatview' => array (	// Sharded records
-			'label'		=> '<img src="/images/icons/page_white.png" alt="" border="0" /> Muscat editing view',
+			'label'		=> 'Muscat editing view',
+			'icon'		=> 'page_white',
 			'title'		=> 'The data as it would be seen if editing in Muscat',
 			'errorHtml'	=> "The 'muscatview' version of record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
 			'fields'	=> array ('recordId', 'field', 'value'),
@@ -17,7 +18,8 @@ class muscatConversion extends frontControllerApplication
 			'public'	=> false,
 		),
 		'rawdata' => array (	// Sharded records
-			'label'		=> '<img src="/images/icons/page_white_text.png" alt="" border="0" /> Raw data',
+			'label'		=> 'Raw data',
+			'icon'		=> 'page_white_text',
 			'title'		=> 'The raw data as exported by Muscat',
 			'errorHtml'	=> "There is no such record <em>%s</em>. Please try searching again.",
 			'fields'	=> array ('recordId', 'field', 'value'),
@@ -27,7 +29,8 @@ class muscatConversion extends frontControllerApplication
 			'public'	=> false,
 		),
 		'processed' => array (	// Sharded records
-			'label'		=> '<img src="/images/icons/page.png" alt="" border="0" /> Processed version',
+			'label'		=> 'Processed version',
+			'icon'		=> 'page',
 			'title'		=> 'The data as exported by Muscat',
 			'errorHtml'	=> "The 'processed' version of record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
 			'fields'	=> array ('recordId', 'field', 'xPath', 'value'),
@@ -37,7 +40,8 @@ class muscatConversion extends frontControllerApplication
 			'public'	=> false,
 		),
 		'xml' => array (
-			'label'		=> '<img src="/images/icons/page_white_code.png" alt="" border="0" /> Muscat as XML',
+			'label'		=> 'Muscat as XML',
+			'icon'		=> 'page_white_code',
 			'title'		=> 'Representation of the Muscat data as XML, via the defined Schema',
 			'errorHtml'	=> "The XML representation of the Muscat record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
 			'fields'	=> array ('id', 'xml'),
@@ -47,7 +51,8 @@ class muscatConversion extends frontControllerApplication
 			'public'	=> false,
 		),
 		'marc' => array (
-			'label'		=> '<img src="/images/icons/page_white_code_red.png" alt="" border="0" /> MARC record',
+			'label'		=> 'MARC record',
+			'icon'		=> 'page_white_code_red',
 			'title'		=> 'Representation of the XML data as MARC21, via the defined parser description',
 			'errorHtml'	=> "The MARC21 representation of the Muscat record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
 			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc', 'bibcheckErrors', 'suppressReasons'),
@@ -57,7 +62,8 @@ class muscatConversion extends frontControllerApplication
 			'public'	=> true,
 		),
 		'presented' => array (
-			'label'		=> '<img src="/images/icons/page_white_star.png" alt="" border="0" /> Presented',
+			'label'		=> 'Presented',
+			'icon'		=> 'page_white_star',
 			'title'		=> 'Representation of the processed data as a public record',
 			'errorHtml'	=> "The presented version of the Muscat record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
 			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc', 'bibcheckErrors', 'suppressReasons'),
@@ -768,7 +774,7 @@ class muscatConversion extends frontControllerApplication
 		$i = 1;
 		foreach ($typesReverseOrder as $type => $attributes) {
 			if (!$this->types[$type]['public'] && !$this->userIsAdministrator) {continue;}	// Hide tab if not public but viewing publicly
-			$labels[$type] = "<span accesskey=\"" . $i++ . "\" title=\"{$attributes['title']}\">" . $attributes['label'] . '</span>';
+			$labels[$type] = "<span accesskey=\"" . $i++ . "\" title=\"{$attributes['title']}\"><img src=\"/images/icons/{$attributes['icon']}.png\" alt=\"\" border=\"0\" /> " . $attributes['label'] . '</span>';
 		}
 		
 		# Load into tabs and render
