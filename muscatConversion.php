@@ -712,7 +712,7 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to list the records
+	# Function to list the records as an index of all records
 	public function records ($id = false)
 	{
 		# Start the HTML
@@ -722,19 +722,16 @@ class muscatConversion extends frontControllerApplication
 		if (!$id) {
 			if ($id = $this->recordSearchForm ($html)) {
 				
-				# State if not found
-				if (!$this->getRecords ($id, 'rawdata', $convertEntities = true)) {
-					$html .= "\n<p>There is no such record <em>" . htmlspecialchars ($id) . '</em>. Please try searching again.</p>';
-					echo $html;
-					return false;
-				}
-				
 				# Redirect to the found record
 				$url = $_SERVER['_SITE_URL'] . $this->recordLink ($id);
 				application::sendHeader (301, $url, $html);
 				echo $html;
 				return true;
 			}
+			
+			# Browsing mode
+			$html .= "\n<p><br /><br /><strong>Or browse</strong> through the records:</p>";
+			$resultBrowse = $this->recordBrowser ($html);
 			
 			# Show the HTML and end
 			echo $html;
@@ -1132,15 +1129,20 @@ class muscatConversion extends frontControllerApplication
 		$html .= "\n<p>You can use this form to go to a specific record, by entering a record number:</p>";
 		$resultRecord = $this->recordForm ($html);
 		
-		# Browsing mode
-		$html .= "\n<p><br /><br /><strong>Or browse</strong> through the records:</p>";
-		$resultBrowse = $this->recordBrowser ($html);
-		
 		# End if no result
 		if (!$resultRecord) {return false;}
 		
 		# Get the ID
-		return $resultRecord['q'];
+		$id = $resultRecord['q'];
+		
+		# State if not found
+		if (!$this->getRecords ($id, 'rawdata', $convertEntities = true)) {
+			$html .= "\n<p class=\"warning\">There is no such record <em>" . htmlspecialchars ($id) . '</em>. Please try searching again.</p>';
+			return false;
+		}
+		
+		# Return the ID
+		return $id;
 	}
 	
 	
