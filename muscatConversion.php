@@ -80,11 +80,11 @@ class muscatConversion extends frontControllerApplication
 	# Fieldsindex fields
 	private $fieldsIndexFields = array (
 		'title' => 'tc',
-		'region' => 'ks',
 		'surname' => 'n1',
 		'forename' => 'n2',
 		'journaltitle' => '/art/j/tg/t',
 		'seriestitle' => '/doc/ts',
+		'region' => 'ks',
 		'year' => 'd',
 		'language' => 'lang',
 		'abstract' => 'abs',
@@ -2437,11 +2437,11 @@ class muscatConversion extends frontControllerApplication
 		$sql = "ALTER TABLE fieldsindex
 			ADD title TEXT NULL COMMENT 'Title of work',
 			ADD titleSortfield TEXT NULL COMMENT 'Title of work (sort index)',
-			ADD region TEXT NULL COMMENT 'Region',
 			ADD surname TEXT NULL COMMENT 'Author surname',
 			ADD forename TEXT NULL COMMENT 'Author forename',
-			ADD journaltitle TEXT NULL COMMENT 'Journal title in article records',
+			ADD journaltitle TEXT NULL COMMENT 'Journal title',
 			ADD seriestitle TEXT NULL COMMENT 'Series title',
+			ADD region TEXT NULL COMMENT 'Region',
 			ADD `year` TEXT NULL COMMENT 'Year (four digits)',
 			ADD `language` TEXT NULL COMMENT 'Language',
 			ADD abstract TEXT NULL COMMENT 'Abstract',
@@ -4567,6 +4567,10 @@ class muscatConversion extends frontControllerApplication
 		$searchClauses = array (
 			'title'		=> "title LIKE :title",
 			'title_transliterated'		=> "title_transliterated LIKE :title_transliterated",
+			'surname'		=> "surname LIKE :surname",
+			'forename'		=> "forename LIKE :forename",
+			'journaltitle'	=> "journaltitle = :journaltitle",
+			'seriestitle'	=> "seriestitle = :seriestitle",
 			'region'	=> array (
 				'Polar regions'						=> "region REGEXP '{$mysqlBacklash}({$mysqlBacklash}*[2][0-9]*{$mysqlBacklash})'",				// *2
 				'   Arctic'							=> "region REGEXP '{$mysqlBacklash}({$mysqlBacklash}*[3|4|5|6][0-9]*{$mysqlBacklash})'",		// *3 or *4 or *5 or *6
@@ -4577,10 +4581,6 @@ class muscatConversion extends frontControllerApplication
 				'   Antarctic and Southern Ocean'	=> "region REGEXP '{$mysqlBacklash}({$mysqlBacklash}*[7|8][0-9]*{$mysqlBacklash})'",			// *7/*8
 				'Non-polar regions'					=> "region REGEXP '{$mysqlBacklash}([2|3|4|5|6|7|8|9][0-9]*{$mysqlBacklash})'",	// run from (2) to (97) NB without *
 			),
-			'surname'		=> "surname LIKE :surname",
-			'forename'		=> "forename LIKE :forename",
-			'journaltitle'	=> "journaltitle = :journaltitle",
-			'seriestitle'	=> "seriestitle = :seriestitle",
 			'year'			=> "year LIKE :year",
 			'language'		=> "language LIKE :language",
 			'abstract'		=> "abstract LIKE :abstract OR keyword LIKE :keyword",
@@ -4598,8 +4598,8 @@ class muscatConversion extends frontControllerApplication
 		
 		# Start the HTML
 		$html  = '';
-		$html .= "\n<p>This search will find records that match all the query terms you enter. It is not case sensitive.</p>";
-		$html .= "\n<p><a href=\"./\">Reset</a></p>";
+		$html .= "\n<p>This search will find records that match all the query terms you enter.</p>";
+		$html .= "\nSearches are not case-sensitive.</p>";
 		
 		# Create the search form
 		$result = $this->searchForm ($html, $searchClauses);
@@ -4676,9 +4676,6 @@ class muscatConversion extends frontControllerApplication
 	# Function to provide the search form
 	private function searchForm (&$html, $searchClauses)
 	{
-		# Start the HTML
-		$html = '';
-		
 		# Run the form module
 		$form = new form (array (
 			'displayRestrictions' => false,
@@ -4690,15 +4687,19 @@ class muscatConversion extends frontControllerApplication
 			'requiredFieldIndicator' => false,
 			'reappear' => true,
 			'id' => 'searchform',
-			'submitTo' => $this->baseUrl . '/search/',
 			'databaseConnection' => $this->databaseConnection,
+			'div' => 'ultimateform horizontalonly',
+			'autofocus' => true,
+			'size' => 40,
 		));
 		$form->dataBinding (array (
 			'database' => $this->settings['database'],
 			'table' => 'fieldsindex',
-			'exclude' => array ('id', 'fieldslist', 'keyword', 'titleSortfield'),
+			'exclude' => array ('id', 'fieldslist', 'keyword', 'titleSortfield', 'location', ),
 			'textAsVarchar' => true,
+			'inputAsSearch' => true,
 			'attributes' => array (
+				'title' => array ('append' => '<input type="submit" value="Search!" />'),	#!# Ideally, ultimateForm should have a natively way to add a second submit button within the form
 				'region' => array ('type' => 'select', 'nullText' => 'Any', 'values' => array_keys ($searchClauses['region']), ),
 				'year' => array ('regexp' => '^([0-9]{4})$', 'size' => 7, 'maxlength' => 4, ),
 				'abstract' => array ('title' => 'Keyword; or<br />Text within abstract', ),		// Keyword is piggy-backed onto abstract in the search phase

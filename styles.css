@@ -56,6 +56,9 @@
 #muscatconversion table.tests td, #muscatconversion table.tests th {padding-right: 10px;}
 #muscatconversion table.tests span.found {background-color: rgb(200, 255, 200);}
 #muscatconversion table.tests span.found.negative {background-color: rgb(252, 199, 200);}
+#muscatconversion #searchform {margin-top: 2em;}
+#muscatconversion #searchform tr.title td {background-color: #f7f7f7;}
+#muscatconversion #searchform tr.title td input {font-size: 1.6em; padding: 7px; margin-right: 10px;}
 
 
 /* Print styles */
