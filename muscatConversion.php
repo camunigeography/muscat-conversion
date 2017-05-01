@@ -5575,10 +5575,8 @@ class muscatConversion extends frontControllerApplication
 			$function = 'data' . ucfirst ($_GET['do']);	// e.g. dataWhitelist
 			if (method_exists ($this, $function)) {
 				
-				# Run the handler and send the result to the response
-				if ($result = $this->$function ()) {
-					$response = array ('result' => $result);
-				}
+				# Run the handler and retrieve the response as the result
+				$response = $this->$function ();
 			}
 		}
 		
@@ -5615,7 +5613,7 @@ class muscatConversion extends frontControllerApplication
 			$this->databaseConnection->update ($this->settings['database'], 'transliterations', array ('inNameAuthorityList' => 0), array ('id' => $data['id']));
 			
 			# Return success code
-			return -1;	// Removed
+			return array ('result' => -1);	// Removed
 		}
 		
 		# Construct the new record
@@ -5633,7 +5631,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->update ($this->settings['database'], 'transliterations', array ('inNameAuthorityList' => $value), array ('id' => $data['id']));
 		
 		# Return success code
-		return 1;	// Added
+		return array ('result' => 1);	// Added
 	}
 }
 
