@@ -4754,9 +4754,10 @@ class muscatConversion extends frontControllerApplication
 			'includeOnly' => array_keys ($this->fieldsIndexFields),
 			'textAsVarchar' => true,
 			'inputAsSearch' => true,
+			'autocomplete' => $this->baseUrl . '/data.html?do=searchautocomplete&field=%field',	// term=... will be added
 			'attributes' => array (
 				'title' => array ('append' => '<input type="submit" value="Search!" />'),	#!# Ideally, ultimateForm should have a natively way to add a second submit button within the form
-				'region' => array ('type' => 'select', 'nullText' => 'Any', 'values' => array_keys ($searchClauses['region']), ),
+				'region' => array ('autocomplete' => false, 'type' => 'select', 'nullText' => 'Any', 'values' => array_keys ($searchClauses['region']), ),
 				'year' => array ('regexp' => '^([0-9]{4})$', 'size' => 7, 'maxlength' => 4, ),
 			),
 		));
@@ -4803,6 +4804,57 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the result
 		return $result;
+	}
+	
+	
+	# Handler for AJAX endpoint for search autocomplete
+	public function dataSearchautocomplete ()
+	{
+		# Ensure a field and search are both defined
+		if (!isSet ($_GET['field']) || !isSet ($_GET['term'])) {return false;}
+		
+		# Ensure the field is supported
+		if (!array_key_exists ($_GET['field'], $this->fieldsIndexFields)) {return false;}
+		
+		# Ensure there are at least three characters in the search term, to avoid heavy database traffic and useless results
+		if (mb_strlen ($_GET['term']) < 3) {return false;}
+		
+		# Get the data; use of _GET in field definition is safe against SQL injection due to previous check against $this->fieldsIndexFields
+		$query = "SELECT `{$_GET['field']}`
+			FROM searchindex
+			WHERE `{$_GET['field']}` LIKE :term
+			LIMIT 20		-- Avoid too many results in drop-down
+		;";
+		$data = $this->databaseConnection->getPairs ($query, false, array ('term' => '%' . $_GET['term'] . '%'));
+		
+		# Extract from the @ separators, and explode multiple values as new entries
+		$data = application::splitCombinedTokenList ($data, $separator = '@');
+		
+		# Strip tags
+		foreach ($data as $index => $string) {
+			$data[$index] = strip_tags ($string);
+		}
+		
+		# Natsort the list
+		natsort ($data);
+		
+		# Arrange as label/value pairs, so that the visible label can be reformatted while retaining a valid search for the value; see: http://api.jqueryui.com/autocomplete/#option-source
+		$results = array ();
+		foreach ($data as $string) {
+			$results[] = array ('value' => $string, 'label' => $string);
+		}
+		
+		# Truncate to avoid over-long autocomplete entries
+		$truncateTo = 80;
+		foreach ($results as $index => $result) {
+			if (mb_strlen ($result['label']) > $truncateTo) {
+				$results[$index]['value'] = mb_substr ($result['value'], 0, $truncateTo);
+				$results[$index]['label'] = mb_substr ($result['label'], 0, $truncateTo) . chr(0xe2).chr(0x80).chr(0xa6);	// &hellip;
+			}
+		}
+		
+		# Return the data
+		return $results;
 	}
 	
 	
