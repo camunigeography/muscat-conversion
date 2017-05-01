@@ -1677,7 +1677,7 @@ class muscatConversion extends frontControllerApplication
 			'form' => 'Form of item, if non-book',
 			'freq' => 'Frequency of title (serials only)',
 			'ft' => 'Former title',
-			'fund' => 'Purchase fund ',
+			'fund' => 'Purchase fund',
 			'hold' => 'Current holdings (serials only)',
 			'in' => '"In" larger text (i.e. Chapter "in" edited work or article "in" journal)',
 			'isbn' => 'ISBN',
@@ -1699,7 +1699,7 @@ class muscatConversion extends frontControllerApplication
 			'n' => 'Name field (used in conjunction with *e and *ee fields)',
 			'n1' => 'Name field (used in conjunction with *e and *ee fields)',
 			'n2' => 'Name field (used in conjunction with *e and *ee fields)',
-			'nd' => 'Seems to denote titles such as "Jr." and "Sir". ',
+			'nd' => 'Seems to denote titles such as "Jr." and "Sir".',
 			'note' => 'Note field',
 			'notes' => 'Denotes start of note type field',
 			'o' => 'Origin (where item came from)',
@@ -1727,8 +1727,8 @@ class muscatConversion extends frontControllerApplication
 			'tg' => 'Title group',
 			'to' => 'Title of original (if publication is a translation)',
 			'ts' => 'Title of series',
-			'tt' => 'Translation of title ',
-			'url' => 'URL ',
+			'tt' => 'Translation of title',
+			'url' => 'URL',
 			'urlft' => 'URL mirror',
 			'urlfull' => 'URL mirror',
 			'urlgen' => 'URL mirror',
@@ -4654,8 +4654,7 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Start the HTML
-		$html  = '';
-		$html .= "\n<p>This search will find records that match all the query terms you enter.</p>";
+		$html  = "\n<p>This search will find records that match all the query terms you enter.</p>";
 		$html .= "\nSearches are not case-sensitive.</p>";
 		
 		# Create the search form
@@ -4796,7 +4795,7 @@ class muscatConversion extends frontControllerApplication
 				</script>
 				<style type="text/css">#searchform {display: none;}</style>
 			';
-			$html .= "\n" . '<p><a id="showform" name="showform"><img src="/images/icons/pencil.png" alt="" border="0" /> <strong>Refine/filter this search</strong></a> if you wish, or <a href="' . "{$this->baseUrl}/{$this->actions['search']['url']}" . '"><strong>start a new search</strong></a>.</p>';
+			$html .= "\n" . '<p><a id="showform" name="showform" href="#"><img src="/images/icons/pencil.png" alt="" border="0" /> <strong>Refine/filter this search</strong></a> if you wish, or <a href="' . "{$this->baseUrl}/{$this->actions['search']['url']}" . '"><strong>start a new search</strong></a>.</p>';
 		}
 		
 		# Add the form HTML
