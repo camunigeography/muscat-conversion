@@ -2467,7 +2467,7 @@ class muscatConversion extends frontControllerApplication
 		# Add search fields, using cross-update technique at http://www.electrictoolbox.com/article/mysql/cross-table-update/ and http://dba.stackexchange.com/questions/21152/how-to-update-one-table-based-on-another-tables-values-on-the-fly
 		$sql = "ALTER TABLE fieldsindex
 			ADD title VARCHAR(2048) NULL COMMENT 'Title of work',
-			ADD titleSortfield TEXT NULL COMMENT 'Title of work (sort index)',
+			ADD titleSortfield VARCHAR(255) NULL COMMENT 'Title of work (sort index)',
 			ADD surname TEXT NULL COMMENT 'Author surname',
 			ADD forename TEXT NULL COMMENT 'Author forename',
 			ADD journaltitle TEXT NULL COMMENT 'Journal title',
@@ -2519,7 +2519,9 @@ class muscatConversion extends frontControllerApplication
 				SET f.{$field} = c.value;";
 			$this->databaseConnection->execute ($sql);
 		}
-		$sql = "UPDATE fieldsindex SET titleSortfield = " . $this->databaseConnection->trimSql ('title', $this->htmlTags) . ';';
+		
+		# Add the sortfield index, which discards quotes, HTML tags, etc.; this only needs the initial part of the string, so is limited to 200 characters, which is confirmed as fitting inside a VARCHAR(255)
+		$sql = "UPDATE fieldsindex SET titleSortfield = LEFT(" . $this->databaseConnection->trimSql ('title', $this->htmlTags) . ', 200);';
 		$this->databaseConnection->execute ($sql);
 	}
 	
