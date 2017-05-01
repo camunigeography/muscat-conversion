@@ -2490,7 +2490,6 @@ class muscatConversion extends frontControllerApplication
 		;";
 		$this->databaseConnection->execute ($sql);
 		foreach ($this->fieldsIndexFields as $field => $source) {
-			if (is_null ($source)) {continue;}	// Skip fields marked as NULL
 			$concatSeparator = '@';
 			if ($source == 'ks') {$concatSeparator = '|';}	// Regions have '@' in them
 			if ($source == 'lang') {$concatSeparator = ', ';}	// So that this is listed in report_languages_view nicely and so the search works directly from that page
@@ -4640,7 +4639,8 @@ class muscatConversion extends frontControllerApplication
 			),
 			'year'			=> 'year LIKE :year',
 			'language'		=> 'language LIKE :language',
-			'abstract'		=> 'abstract LIKE :abstract OR keyword LIKE :keyword',
+			'abstract'		=> 'abstract LIKE :abstract',
+			'keyword'		=> 'keyword LIKE :keyword',
 			'isbn'			=> 'isbn LIKE :isbn',
 			'location'		=> 'location LIKE :location',
 			'anywhere'		=> "anywhere LIKE {$caseSensitivity} :anywhere",
@@ -4683,9 +4683,6 @@ class muscatConversion extends frontControllerApplication
 				if (!substr_count ($searchClause, ' :')) {unset ($result[$key]);}	// Do not supply a value if there is no placeholder
 				$constraints[$key] = $searchClause;
 			}
-			
-			# Duplicate abstract to keyword (this is because PDO doesn't permit a named parameter to be used twice, i.e. "abstract LIKE :abstract OR keywordk LIKE :abstract")
-			if (isSet ($result['abstract'])) {$result['keyword'] = $result['abstract'];}
 			
 			# Construct the query
 			if ($completeMatch) {
@@ -4761,7 +4758,6 @@ class muscatConversion extends frontControllerApplication
 				'title' => array ('append' => '<input type="submit" value="Search!" />'),	#!# Ideally, ultimateForm should have a natively way to add a second submit button within the form
 				'region' => array ('type' => 'select', 'nullText' => 'Any', 'values' => array_keys ($searchClauses['region']), ),
 				'year' => array ('regexp' => '^([0-9]{4})$', 'size' => 7, 'maxlength' => 4, ),
-				'abstract' => array ('title' => 'Keyword; or<br />Text within abstract', ),		// Keyword is piggy-backed onto abstract in the search phase
 			),
 		));
 		$formHtml = '';
