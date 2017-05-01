@@ -2820,26 +2820,26 @@ class reports
 	# Report showing instances of journal titles
 	public function report_journaltitles ()
 	{
-		return $this->createFieldListingReport ('journaltitle');
+		return $this->createFieldListingReport ('journaltitle', 'Journal title');
 	}
 	
 	
 	# Report showing instances of series titles
 	public function report_seriestitles ()
 	{
-		return $this->createFieldListingReport ('seriestitle');
+		return $this->createFieldListingReport ('seriestitle', 'Series title');
 	}
 	
 	
 	# Function to create a report all values of a specified field
-	private function createFieldListingReport ($field)
+	private function createFieldListingReport ($field, $description)
 	{
 		# Create the table
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.listing_{$field}s;";
 		$this->databaseConnection->execute ($sql);
 		$sql = "CREATE TABLE IF NOT EXISTS `listing_{$field}s` (
 			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
-			`title` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Series title',
+			`title` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT '{$description}',
 			`instances` int(11) NOT NULL COMMENT 'Instances',
 			PRIMARY KEY (`id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of series title instances'
@@ -2850,7 +2850,7 @@ class reports
 		$query = "SELECT
 				{$field} AS title,
 				COUNT(*) AS instances
-			FROM `fieldsindex`
+			FROM fieldsindex
 			WHERE {$field} IS NOT NULL AND {$field} != ''
 			GROUP BY {$field}
 			ORDER BY " . $this->databaseConnection->trimSql ($field);
