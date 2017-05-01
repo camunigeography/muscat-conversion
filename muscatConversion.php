@@ -79,19 +79,19 @@ class muscatConversion extends frontControllerApplication
 	
 	# Fieldsindex fields
 	private $fieldsIndexFields = array (
-		'title' => 'tc',
-		'surname' => 'n1',
-		'forename' => 'n2',
-		'journaltitle' => '/art/j/tg/t',
-		'seriestitle' => '/doc/ts',
-		'region' => 'ks',
-		'year' => 'd',
-		'language' => 'lang',
-		'abstract' => 'abs',
-		'keyword' => 'kw',
-		'isbn' => 'isbn',
-		'location' => 'location',
-		'anywhere' => '*',
+		'title'			=> 'tc',
+		'surname'		=> 'n1',
+		'forename'		=> 'n2',
+		'journaltitle'	=> '/art/j/tg/t',
+		'seriestitle'	=> '/doc/ts',
+		'region'		=> 'ks',
+		'year'			=> 'd',
+		'language'		=> 'lang',
+		'abstract'		=> 'abs',
+		'keyword'		=> 'kw',
+		'isbn'			=> 'isbn',
+		'location'		=> 'location',
+		'anywhere'		=> '*',
 	);
 	
 	# Define the file sets and their labels
@@ -4622,12 +4622,12 @@ class muscatConversion extends frontControllerApplication
 		$literalBackslash	= '\\';										// PHP representation of one literal backslash
 		$mysqlBacklash		= $literalBackslash . $literalBackslash;	// http://lists.mysql.com/mysql/193376 shows that a MySQL backlash is always written as \\
 		$searchClauses = array (
-			'title'		=> "title LIKE :title",
-			'title_transliterated'		=> "title_transliterated LIKE :title_transliterated",
-			'surname'		=> "surname LIKE :surname",
-			'forename'		=> "forename LIKE :forename",
-			'journaltitle'	=> "journaltitle = :journaltitle",
-			'seriestitle'	=> "seriestitle = :seriestitle",
+			'title'			=> 'title LIKE :title',
+			'title_transliterated'		=> 'title_transliterated LIKE :title_transliterated',
+			'surname'		=> 'surname LIKE :surname',
+			'forename'		=> 'forename LIKE :forename',
+			'journaltitle'	=> 'journaltitle = :journaltitle',
+			'seriestitle'	=> 'seriestitle = :seriestitle',
 			'region'	=> array (
 				'Polar regions'						=> "region REGEXP '{$mysqlBacklash}({$mysqlBacklash}*[2][0-9]*{$mysqlBacklash})'",				// *2
 				'   Arctic'							=> "region REGEXP '{$mysqlBacklash}({$mysqlBacklash}*[3|4|5|6][0-9]*{$mysqlBacklash})'",		// *3 or *4 or *5 or *6
@@ -4638,11 +4638,11 @@ class muscatConversion extends frontControllerApplication
 				'   Antarctic and Southern Ocean'	=> "region REGEXP '{$mysqlBacklash}({$mysqlBacklash}*[7|8][0-9]*{$mysqlBacklash})'",			// *7/*8
 				'Non-polar regions'					=> "region REGEXP '{$mysqlBacklash}([2|3|4|5|6|7|8|9][0-9]*{$mysqlBacklash})'",	// run from (2) to (97) NB without *
 			),
-			'year'			=> "year LIKE :year",
-			'language'		=> "language LIKE :language",
-			'abstract'		=> "abstract LIKE :abstract OR keyword LIKE :keyword",
-			'isbn'			=> "isbn LIKE :isbn",
-			'location'		=> "location LIKE :location",
+			'year'			=> 'year LIKE :year',
+			'language'		=> 'language LIKE :language',
+			'abstract'		=> 'abstract LIKE :abstract OR keyword LIKE :keyword',
+			'isbn'			=> 'isbn LIKE :isbn',
+			'location'		=> 'location LIKE :location',
 			'anywhere'		=> "anywhere LIKE {$caseSensitivity} :anywhere",
 		);
 		
