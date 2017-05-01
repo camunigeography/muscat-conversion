@@ -536,7 +536,6 @@ class reports
 				'unmatchedbrackets' AS report,
 				recordId
 			FROM catalogue_rawdata
-			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
 			WHERE
 				(LENGTH(value)-LENGTH(REPLACE(value,'{','')))/LENGTH('{') !=	/* i.e. substr_count('{') */
 				(LENGTH(value)-LENGTH(REPLACE(value,'}','')))/LENGTH('}')		/* i.e. substr_count('}') */
@@ -556,7 +555,6 @@ class reports
 				'nestedbrackets' AS report,
 				recordId
 			FROM catalogue_rawdata
-			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
 			WHERE
 				    value REGEXP '{([^}]*){'
 				AND value REGEXP '}([^{]*)}'
@@ -633,10 +631,8 @@ class reports
 				'statusglaciopams' AS report,
 				catalogue_rawdata.recordId
 			FROM catalogue_rawdata
-			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
 			WHERE
-				    fieldslist LIKE '%@status@%'
-				AND field = 'status'
+				    field = 'status'
 				AND value != 'GLACIOPAMS'
 				AND value != 'SUPPRESS'
 			";
@@ -1100,10 +1096,8 @@ class reports
 				'notinspri' AS report,
 				catalogue_rawdata.recordId
 			FROM catalogue_rawdata
-			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
 			WHERE
-				    fieldslist LIKE '%@location@%'
-				AND field = 'location'
+				    field = 'location'
 				AND value LIKE 'Not in SPRI'
 		";
 		
@@ -1265,10 +1259,8 @@ class reports
 				'ordercancelled' AS report,
 				catalogue_rawdata.recordId
 			FROM catalogue_rawdata
-			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
 			WHERE
-				    fieldslist LIKE '%@status@%'
-				AND field = 'status'
+				    field = 'status'
 				AND value = 'ORDER CANCELLED'
 		";
 		
@@ -1907,7 +1899,6 @@ class reports
 				'offprints' AS report,
 				recordId
 			FROM catalogue_processed
-			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
 			WHERE
 				    field IN('note', 'local', 'priv')
 				AND (
@@ -3499,7 +3490,6 @@ class reports
 				value AS title,
 				COUNT(recordId) AS instances
 			FROM catalogue_processed
-			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
 			WHERE
 				    field IN('note', 'local')
 				AND value LIKE 'SPRI has%'
