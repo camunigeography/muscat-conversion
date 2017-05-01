@@ -4796,7 +4796,7 @@ class muscatConversion extends frontControllerApplication
 				</script>
 				<style type="text/css">#searchform {display: none;}</style>
 			';
-			$html .= "\n" . '<p><a id="showform" name="showform"><img src="/images/icons/pencil.png" alt="" border="0" /> <strong>Refine/filter this search</strong></a> if you wish.</p>';
+			$html .= "\n" . '<p><a id="showform" name="showform"><img src="/images/icons/pencil.png" alt="" border="0" /> <strong>Refine/filter this search</strong></a> if you wish, or <a href="' . "{$this->baseUrl}/{$this->actions['search']['url']}" . '"><strong>start a new search</strong></a>.</p>';
 		}
 		
 		# Add the form HTML
