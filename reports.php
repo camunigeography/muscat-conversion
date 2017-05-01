@@ -919,7 +919,7 @@ class reports
 					WHERE NOT (field = 'location' AND value = 'Not in SPRI')
 				) AS rawdata_filtered
 				GROUP BY recordId
-			) AS fieldsindex
+			) AS indexOfFields
 			WHERE fieldslist REGEXP '@location.*@location'
 		";
 		
@@ -953,7 +953,7 @@ class reports
 					))
 				) AS rawdata_filtered
 				GROUP BY recordId
-			) AS fieldsindex
+			) AS indexOfFields
 			WHERE fieldslist REGEXP '@location.*@location'
 		";
 		
@@ -2054,7 +2054,7 @@ class reports
 					WHERE NOT (field = 'lang' AND value = 'English')
 				) AS rawdata_filtered
 				GROUP BY recordId
-			) AS fieldsindex
+			) AS indexOfFields
 			WHERE
 				    fieldslist LIKE '%@lang@%'
 				AND fieldslist NOT LIKE '%@tt@%'
