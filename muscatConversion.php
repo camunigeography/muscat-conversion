@@ -2089,6 +2089,10 @@ class muscatConversion extends frontControllerApplication
 			#  Dependencies: catalogue_processed and catalogue_xml
 			$this->createFieldsindexTable ();
 			
+			# Create the search index table
+			#  Dependencies: fieldsindex
+			$this->createSearchindexTable ();
+			
 			# Create the statistics table
 			$this->createStatisticsTable ($tableComment);
 			
@@ -2524,6 +2528,24 @@ class muscatConversion extends frontControllerApplication
 		# Add the sortfield index, which discards quotes, HTML tags, etc.; this only needs the initial part of the string, so is limited to 200 characters, which is confirmed as fitting inside a VARCHAR(255)
 		$sql = "UPDATE fieldsindex SET titleSortfield = LEFT(" . $this->databaseConnection->trimSql ('title', $this->htmlTags) . ', 200);';
 		$this->databaseConnection->execute ($sql);
+	}
+	
+	
+	# Function to create the searchindex table
+	#   Dependencies: fieldsindex
+	private function createSearchindexTable ()
+	{
+		# Clone the fieldsindex table, including indexes, first dropping any existing searchindex table from a previous import; see: http://stackoverflow.com/a/3280042/180733
+		$this->databaseConnection->query ('DROP TABLE IF EXISTS searchindex;');
+		$this->databaseConnection->query ('CREATE TABLE searchindex LIKE fieldsindex;');
+		$this->databaseConnection->query ('INSERT searchindex SELECT * FROM fieldsindex;');
+		
+		# Remove non-needed fields to improve table efficiency
+		$query = 'ALTER TABLE searchindex
+			DROP fieldslist,	-- Not used for searching
+			DROP location		-- Not in the search field list
+		;';
+		$this->databaseConnection->query ($query);
 	}
 	
 	
@@ -4670,7 +4692,7 @@ class muscatConversion extends frontControllerApplication
 				$query = "SELECT
 						id,
 						title
-					FROM fieldsindex
+					FROM searchindex
 					WHERE \n    (" . implode (")\nAND (", $constraints) . ')
 					ORDER BY titleSortfield
 				;';
@@ -4685,7 +4707,7 @@ class muscatConversion extends frontControllerApplication
 						title,
 						REPLACE( TRIM(BOTH '@' FROM year), '@', ', ') AS date
 						/* , MATCH(anywhere) AGAINST(:allterms) AS relevance */
-					FROM fieldsindex
+					FROM searchindex
 					WHERE \n    (" . implode (")\nAND (", $constraints) . ')
 					ORDER BY titleSortfield
 				;';
@@ -4696,7 +4718,7 @@ class muscatConversion extends frontControllerApplication
 			
 			# Display the results
 			$baseLink = '/' . $this->actions['search']['url'];		// baseUrl will be added
-			$html .= $this->recordListing (false, $query, $result, $baseLink, false, $queryStringComplete, 'table', "{$this->settings['database']}.fieldsindex");
+			$html .= $this->recordListing (false, $query, $result, $baseLink, false, $queryStringComplete, 'table', "{$this->settings['database']}.searchindex");
 			
 			// application::dumpData ($query);
 			// application::dumpData ($result);
@@ -4731,8 +4753,8 @@ class muscatConversion extends frontControllerApplication
 		));
 		$form->dataBinding (array (
 			'database' => $this->settings['database'],
-			'table' => 'fieldsindex',
-			'exclude' => array ('id', 'fieldslist', 'keyword', 'titleSortfield', 'location', ),
+			'table' => 'searchindex',
+			'exclude' => array ('id', 'titleSortfield', 'keyword', ),
 			'textAsVarchar' => true,
 			'inputAsSearch' => true,
 			'attributes' => array (
