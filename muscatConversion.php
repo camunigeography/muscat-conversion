@@ -4751,7 +4751,7 @@ class muscatConversion extends frontControllerApplication
 		$form->dataBinding (array (
 			'database' => $this->settings['database'],
 			'table' => 'searchindex',
-			'exclude' => array ('id', 'titleSortfield', 'keyword', ),
+			'includeOnly' => array_keys ($this->fieldsIndexFields),
 			'textAsVarchar' => true,
 			'inputAsSearch' => true,
 			'attributes' => array (
