@@ -4789,7 +4789,8 @@ class muscatConversion extends frontControllerApplication
 			'inputAsSearch' => true,
 			'autocomplete' => $this->baseUrl . '/data.html?do=searchautocomplete&field=%field',	// term=... will be added
 			'attributes' => array (
-				'title' => array ('append' => '<input type="submit" value="Search!" />', 'autocompleteOptions' => $autocompleteOptions),	#!# Ideally, ultimateForm should have a natively way to add a second submit button within the form
+				#!# type=search should not be required - not sure what bug in ultimateForm is causing this
+				'title' => array ('type' => 'search', 'append' => '<input type="submit" value="Search!" />', 'autocompleteOptions' => $autocompleteOptions),	#!# Ideally, ultimateForm should have a natively way to add a second submit button within the form
 				'region' => array ('autocomplete' => false, 'type' => 'select', 'nullText' => 'Any', 'values' => array_keys ($searchClauses['region']), ),
 				'year' => array ('regexp' => '^([0-9]{4})$', 'size' => 7, 'maxlength' => 4, ),
 				'anywhere' => array ('autocomplete' => false, ),
