@@ -1545,7 +1545,7 @@ class muscatConversion extends frontControllerApplication
 				$link = $this->recordLink ($recordId);
 				$records[$recordId]['id'] = "<a href=\"{$link}\">{$recordId}</a>";
 			}
-			$headings = $this->databaseConnection->getHeadings ($this->settings['database'], 'fieldsindex');
+			$headings = $this->databaseConnection->getHeadings ($this->settings['database'], 'searchindex');
 			$headings['recordId'] = '#';
 			$html = application::htmlTable ($records, $headings, 'lines', $keyAsFirstColumn = false, $uppercaseHeadings = true, $allowHtml = true);
 			
