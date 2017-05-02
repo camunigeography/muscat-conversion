@@ -4863,13 +4863,24 @@ class muscatConversion extends frontControllerApplication
 		;";
 		$data = $this->databaseConnection->getPairs ($query, false, array ('term' => '%' . $_GET['term'] . '%'));
 		
-		# Extract from the @ separators, and explode multiple values as new entries
-		if ($field == 'title') {	// For titles, retain the id as index; there is no need to use splitCombinedTokenList as all titles are known to be singular
+		# Extract from the @ separators
+		if ($field == 'title') {
+			
+			# For titles, retain the id as index; there is no need to use splitCombinedTokenList as all titles are known to be singular
 			foreach ($data as $id => $title) {
 				$data[$id] = trim ($title, '@');
 			}
 		} else {
+			
+			# For other fields, explode multiple values as new entries
 			$data = application::splitCombinedTokenList ($data, $separator = '@');
+			
+			# Ensure the search term is present in each separated part; e.g. a search for 'Bar' which creates a match '@Foo@Bar@' should have the token 'Foo' eliminated after splitting
+			foreach ($data as $index => $string) {
+				if (!substr_count (mb_strtolower ($string), mb_strtolower ($_GET['term']))) {
+					unset ($data[$index]);
+				}
+			}
 		}
 		
 		# Strip tags
