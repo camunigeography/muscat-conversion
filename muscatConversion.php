@@ -4669,7 +4669,7 @@ class muscatConversion extends frontControllerApplication
 		$literalBackslash	= '\\';										// PHP representation of one literal backslash
 		$mysqlBacklash		= $literalBackslash . $literalBackslash;	// http://lists.mysql.com/mysql/193376 shows that a MySQL backlash is always written as \\
 		$searchClauses = array (
-			'title'			=> 'title LIKE :title',
+			'title'			=> "REPLACE(REPLACE(title, '<em>', ''), '</em>', '') LIKE :title",
 			'title_transliterated'		=> 'title_transliterated LIKE :title_transliterated',
 			'surname'		=> 'surname LIKE :surname',
 			'forename'		=> 'forename LIKE :forename',
