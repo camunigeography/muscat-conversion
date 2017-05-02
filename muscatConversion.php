@@ -4615,6 +4615,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Determine whether to force matching for a complete value rather than part of a value, i.e. whether 'science' matches only 'science' rather than 'academy of science' also
 		#!# Currently only implemented for the anywhere key
+		#!# Doesn't seem to work
 		$completeMatch = (isSet ($_GET['completematch']) && ($_GET['completematch'] == '1'));
 		
 		# Define the search clause templates
@@ -4682,26 +4683,14 @@ class muscatConversion extends frontControllerApplication
 			}
 			
 			# Construct the query
-			if ($completeMatch) {
-				$query = "SELECT
-						id,
-						title
-					FROM searchindex
-					WHERE \n    (" . implode (")\nAND (", $constraints) . ')
-					ORDER BY titleSortfield
-				;';
-			} else {
-				
-				# Construct the query
-				$query = "SELECT
-						id,
-						title,
-						year
-					FROM searchindex
-					WHERE \n    (" . implode (")\nAND (", $constraints) . ')
-					ORDER BY titleSortfield
-				;';
-			}
+			$query = "SELECT
+					id,
+					title,
+					year
+				FROM searchindex
+				WHERE \n    (" . implode (")\nAND (", $constraints) . ')
+				ORDER BY titleSortfield
+			;';
 			
 			# Restore $_GET['page']
 			if (isSet ($page)) {$_GET['page'] = $page;}
