@@ -1887,7 +1887,7 @@ class muscatConversion extends frontControllerApplication
 					foreach ($dataRaw as $recordId => $record) {
 						$data[$recordId] = $dataRaw[$recordId];
 						$data[$recordId]['title'] = $titles[$recordId];
-						$data[$recordId]['author'] = str_replace ('@', ', ', trim ($record['surname'], '@'));
+						$data[$recordId]['authors'] = $this->compileAuthorsString ($record['surname'], $record['forename']);
 						$data[$recordId]['journaltitle'] = str_replace ('@', ', ', trim ($record['journaltitle'], '@'));
 						$data[$recordId]['year'] = str_replace ('@', ', ', trim ($record['year'], '@'));
 					}
@@ -1905,8 +1905,8 @@ class muscatConversion extends frontControllerApplication
 						if ($record['journaltitle']) {
 							$metadata[] = 'In: <em>' . $record['journaltitle'] . '</em>';
 						}
-						if ($record['author']) {
-							$metadata[] = $record['author'];
+						if ($record['authors']) {
+							$metadata[] = $record['authors'];
 						}
 						$metadata[] = $record['year'];
 						$html .= "\n" . implode ("<br />\n", $metadata);
@@ -1946,6 +1946,28 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the HTML
 		return $html;
+	}
+	
+	
+	# Helper function to compile an authors string
+	private function compileAuthorsString ($surnameIndexerString, $forenameIndexerString)
+	{
+		$surnames = explode ('@', trim ($surnameIndexerString, '@'));
+		if ($surnames) {
+			$forenames = explode ('@', trim ($forenameIndexerString, '@'));
+			if (count ($surnames) == count ($forenames)) {
+				$names = array ();
+				foreach ($surnames as $index => $surname) {
+					$names[] = $surname . ', ' . $forenames[$index];
+				}
+				$string = implode ('; ', $names);
+			} else {
+				$string = implode ('; ', $surnames);
+			}
+		}
+		
+		# Return the result string
+		return $string;
 	}
 	
 	
