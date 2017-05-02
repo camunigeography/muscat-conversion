@@ -2455,7 +2455,7 @@ class muscatConversion extends frontControllerApplication
 		# 	GROUP BY recordId
 		# );";
 		$sql = "CREATE TABLE fieldsindex (
-			  id INT(6) NOT NULL COMMENT 'Record ID',
+			  id INT(6) NOT NULL COMMENT 'Record #',
 			  fieldslist VARCHAR(1024) NOT NULL COMMENT 'Fields list',
 			  PRIMARY KEY (`id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Summary statistics';
@@ -2478,7 +2478,7 @@ class muscatConversion extends frontControllerApplication
 			ADD journaltitle TEXT NULL COMMENT 'Journal title',
 			ADD seriestitle TEXT NULL COMMENT 'Series title',
 			ADD region TEXT NULL COMMENT 'Region',
-			ADD `year` TEXT NULL COMMENT 'Year (four digits)',
+			ADD `year` TEXT NULL COMMENT 'Year',
 			ADD `language` TEXT NULL COMMENT 'Language',
 			ADD abstract TEXT NULL COMMENT 'Abstract',
 			ADD keyword TEXT NULL COMMENT 'Keyword',
