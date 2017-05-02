@@ -1866,7 +1866,7 @@ class muscatConversion extends frontControllerApplication
 					$html .= $this->recordList ($data);
 					$html  = "\n<div class=\"graybox\">" . $html . "\n</div>";	// Surround with a box
 					break;
-				
+					
 				# Record mode
 				case ($view == 'record'):
 					
@@ -1880,18 +1880,43 @@ class muscatConversion extends frontControllerApplication
 					break;
 					
 				# Table view
-				case ($view == 'table'):
+				case ($view == 'searchresults'):
 					
-					# Replace each label with the record title, since table view shows shows titles
+					# Replace each label with the record title, since table view shows shows titles, and format the year
 					$titles = $this->getRecordTitles (array_keys ($dataRaw));
 					foreach ($dataRaw as $recordId => $record) {
 						$data[$recordId] = $dataRaw[$recordId];
 						$data[$recordId]['title'] = $titles[$recordId];
+						$data[$recordId]['author'] = str_replace ('@', ', ', trim ($record['surname'], '@'));
+						$data[$recordId]['journaltitle'] = str_replace ('@', ', ', trim ($record['journaltitle'], '@'));
 						$data[$recordId]['year'] = str_replace ('@', ', ', trim ($record['year'], '@'));
 					}
-					$html .= $this->recordList ($data, true);
-					$html .= $paginationLinks;	// Show the pagination links at the end again, since the page will be relatively long
-					$html  = "\n<div class=\"graybox\">" . $html . "\n</div>";	// Surround with a box
+					
+					# Render as a table
+					// $html .= $this->recordList ($data, true);
+					
+					# Render as boxes
+					$html .= "\n<div class=\"clearright\">";
+					foreach ($data as $record) {
+						$html .= "\n<div class=\"graybox\">";
+						$html .= "\n<p class=\"right\">#{$record['id']}</p>";
+						$html .= "\n<h4><a href=\"{$this->baseUrl}/records/{$record['id']}/\">{$record['title']}</a></h4>";
+						$metadata = array ();
+						if ($record['journaltitle']) {
+							$metadata[] = 'In: <em>' . $record['journaltitle'] . '</em>';
+						}
+						if ($record['author']) {
+							$metadata[] = $record['author'];
+						}
+						$metadata[] = $record['year'];
+						$html .= "\n" . implode ("<br />\n", $metadata);
+						$html .= "\n</div>";
+					}
+					$html .= "\n</div>";
+					
+					// # Surround with a box
+					// $html  = "\n<div class=\"graybox\">" . $html . "\n</div>";
+					
 					break;
 					
 				# Table view but showing values rather than records
@@ -1915,7 +1940,7 @@ class muscatConversion extends frontControllerApplication
 		$html = "\n<div class=\"listing\">" . $html . "\n</div>";
 		
 		# Add the pagination controls again at the end, for long pages
-		if (($view != 'listing' && $view != 'table') || count ($dataRaw) > 50) {
+		if (($view != 'listing') || count ($dataRaw) > 50) {
 			$html .= $paginationLinks;
 		}
 		
@@ -4686,6 +4711,9 @@ class muscatConversion extends frontControllerApplication
 			$query = "SELECT
 					id,
 					title,
+					surname,
+					forename,
+					journaltitle,
 					year
 				FROM searchindex
 				WHERE \n    (" . implode (")\nAND (", $constraints) . ')
@@ -4697,7 +4725,7 @@ class muscatConversion extends frontControllerApplication
 			
 			# Display the results
 			$baseLink = '/' . $this->actions['search']['url'];		// baseUrl will be added
-			$html .= $this->recordListing (false, $query, $result, $baseLink, false, $queryStringComplete, 'table', "{$this->settings['database']}.searchindex");
+			$html .= $this->recordListing (false, $query, $result, $baseLink, false, $queryStringComplete, 'searchresults', "{$this->settings['database']}.searchindex");
 		}
 		
 		# Show the HTML
@@ -4780,7 +4808,7 @@ class muscatConversion extends frontControllerApplication
 				</script>
 				<style type="text/css">#searchform {display: none;}</style>
 			';
-			$html .= "\n" . '<p><a id="showform" name="showform" href="#"><img src="/images/icons/pencil.png" alt="" border="0" /> <strong>Refine/filter this search</strong></a> if you wish, or <a href="' . "{$this->baseUrl}/{$this->actions['search']['url']}" . '"><strong>start a new search</strong></a>.</p>';
+			$html .= "\n" . '<p><a id="showform" name="showform" href="#"><img src="/images/icons/pencil.png" alt="" border="0" /> <strong>Refine/filter this search</strong></a> if you wish, or <a href="' . "{$this->baseUrl}/{$this->actions['search']['url']}" . '"><strong>start a new search</strong></a>.</p>' . "\n<hr />";
 		}
 		
 		# Add the form HTML
