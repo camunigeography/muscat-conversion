@@ -1884,9 +1884,10 @@ class muscatConversion extends frontControllerApplication
 					
 					# Replace each label with the record title, since table view shows shows titles
 					$titles = $this->getRecordTitles (array_keys ($dataRaw));
-					foreach ($dataRaw as $recordId => $label) {
+					foreach ($dataRaw as $recordId => $record) {
 						$data[$recordId] = $dataRaw[$recordId];
 						$data[$recordId]['title'] = $titles[$recordId];
+						$data[$recordId]['year'] = str_replace ('@', ', ', trim ($record['year'], '@'));
 					}
 					$html .= $this->recordList ($data, true);
 					$html .= $paginationLinks;	// Show the pagination links at the end again, since the page will be relatively long
@@ -4695,7 +4696,7 @@ class muscatConversion extends frontControllerApplication
 				$query = "SELECT
 						id,
 						title,
-						REPLACE( TRIM(BOTH '@' FROM year), '@', ', ') AS `date`
+						year
 					FROM searchindex
 					WHERE \n    (" . implode (")\nAND (", $constraints) . ')
 					ORDER BY titleSortfield
