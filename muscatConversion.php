@@ -4710,6 +4710,7 @@ class muscatConversion extends frontControllerApplication
 	{
 		# Define an autocomplete callback for auto-submit on select
 		$autocompleteOptions = array (
+			'delay'		=> 0,
 			'select'	=> 'function (event, ui) { $(this.form).submit(); }',
 		);
 		
