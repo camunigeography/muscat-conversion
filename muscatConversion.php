@@ -2485,8 +2485,7 @@ class muscatConversion extends frontControllerApplication
 			ADD isbn TEXT NULL COMMENT 'ISBN',
 			ADD location TEXT NULL COMMENT 'Location',
 			ADD anywhere TEXT NULL COMMENT 'Text anywhere within record',
-			ADD INDEX(title),
-			ADD FULLTEXT INDEX relevanceindex (anywhere)
+			ADD INDEX(title)
 		;";
 		$this->databaseConnection->execute ($sql);
 		foreach ($this->fieldsIndexFields as $field => $source) {
@@ -4666,9 +4665,6 @@ class muscatConversion extends frontControllerApplication
 			# Cache a build of the query string
 			$queryStringComplete = http_build_query ($result);
 			
-			# Compile a search token for the match which contains all terms, so that these do not include the % markers
-			$allTerms = implode (' ', $result);
-			
 			# Create a list of constraints
 			$constraints = array ();
 			foreach ($result as $key => $value) {
@@ -4694,15 +4690,11 @@ class muscatConversion extends frontControllerApplication
 				;';
 			} else {
 				
-				# Add in the allterms token
-				$result['allterms'] = $allTerms;
-				
 				# Construct the query
 				$query = "SELECT
 						id,
 						title,
-						REPLACE( TRIM(BOTH '@' FROM year), '@', ', ') AS date
-						/* , MATCH(anywhere) AGAINST(:allterms) AS relevance */
+						REPLACE( TRIM(BOTH '@' FROM year), '@', ', ') AS `date`
 					FROM searchindex
 					WHERE \n    (" . implode (")\nAND (", $constraints) . ')
 					ORDER BY titleSortfield
@@ -4715,11 +4707,6 @@ class muscatConversion extends frontControllerApplication
 			# Display the results
 			$baseLink = '/' . $this->actions['search']['url'];		// baseUrl will be added
 			$html .= $this->recordListing (false, $query, $result, $baseLink, false, $queryStringComplete, 'table', "{$this->settings['database']}.searchindex");
-			
-			// application::dumpData ($query);
-			// application::dumpData ($result);
-			// application::dumpData ($this->databaseConnection->error ());
-			// application::dumpData ($data);
 		}
 		
 		# Show the HTML
