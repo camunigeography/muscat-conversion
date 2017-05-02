@@ -415,7 +415,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Show if an import is running, and prevent a second import running
 		if ($importHtml = $this->importInProgress (24, $blockUi = false)) {
-			if (!isSet ($this->actions[$this->action]['export'])) {		// Show the warning unless using AJAX data
+			if (!isSet ($this->actions[$this->action]['export']) || !$this->user) {		// Show the warning unless using AJAX data, or on the search page and not logged in
 				$html  = $importHtml;
 				if ($this->action == 'import') {
 					$html .= $this->importLogHtml ('Import progress');
