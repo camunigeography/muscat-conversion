@@ -4745,6 +4745,7 @@ class muscatConversion extends frontControllerApplication
 				'title' => array ('append' => '<input type="submit" value="Search!" />'),	#!# Ideally, ultimateForm should have a natively way to add a second submit button within the form
 				'region' => array ('autocomplete' => false, 'type' => 'select', 'nullText' => 'Any', 'values' => array_keys ($searchClauses['region']), ),
 				'year' => array ('regexp' => '^([0-9]{4})$', 'size' => 7, 'maxlength' => 4, ),
+				'anywhere' => array ('autocomplete' => false, ),
 			),
 		));
 		$formHtml = '';
