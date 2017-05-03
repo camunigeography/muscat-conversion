@@ -5677,7 +5677,7 @@ class muscatConversion extends frontControllerApplication
 	public function data ()
 	{
 		# Always return JSON response
-		header ('Content-Type: application/json');
+		header ('Content-Type: application/json; charset=utf-8');
 		
 		# Obtain the posted data
 		if (isSet ($_GET['do'])) {
