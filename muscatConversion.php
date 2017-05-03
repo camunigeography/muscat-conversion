@@ -356,7 +356,6 @@ class muscatConversion extends frontControllerApplication
 				'url' => 'data.json',
 				'export' => true,
 				'allowDuringImport' => true,
-				'administrator' => true,
 			),
 		);
 		
@@ -5706,6 +5705,9 @@ class muscatConversion extends frontControllerApplication
 	# Handler for AJAX endpoint for whitelisting
 	public function dataWhitelist ()
 	{
+		# End if not an administrator
+		if (!$this->userIsAdministrator) {return false;}
+		
 		# Ensure an ID is defined
 		if (!isSet ($_GET['id'])) {return false;}
 		
