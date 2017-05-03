@@ -4907,8 +4907,8 @@ class muscatConversion extends frontControllerApplication
 		$truncateTo = 80;
 		foreach ($results as $index => $result) {
 			if (mb_strlen ($result['label']) > $truncateTo) {
-				$results[$index]['value'] = mb_substr ($result['value'], 0, $truncateTo);
-				$results[$index]['label'] = mb_substr ($result['label'], 0, $truncateTo) . chr(0xe2).chr(0x80).chr(0xa6);	// &hellip;
+				$results[$index]['value'] = mb_substr ($result['value'], 0, $truncateTo, 'UTF-8');
+				$results[$index]['label'] = mb_substr ($result['label'], 0, $truncateTo, 'UTF-8') . chr(0xe2).chr(0x80).chr(0xa6);	// &hellip;
 			}
 		}
 		
