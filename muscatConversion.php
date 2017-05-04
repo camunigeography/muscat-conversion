@@ -257,6 +257,11 @@ class muscatConversion extends frontControllerApplication
 				'tab' => ($this->userIsAdministrator ? 'Records' : 'Browse records'),
 				'icon' => 'application_double',
 			),
+			'record' => array (
+				'description' => 'View a record',
+				'url' => 'records/%id/',
+				'usetab' => 'records',
+			),
 			'fields' => array (
 				'description' => false,
 				'url' => 'fields/',
@@ -749,30 +754,37 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to list the records as an index of all records
-	public function records ($id = false)
+	public function records ()
 	{
 		# Start the HTML
 		$html = '';
 		
-		# If no ID, show the search form
-		if (!$id) {
-			if ($id = $this->recordSearchForm ($html)) {
-				
-				# Redirect to the found record
-				$url = $_SERVER['_SITE_URL'] . $this->recordLink ($id);
-				application::sendHeader (301, $url, $html);
-				echo $html;
-				return true;
-			}
-			
-			# Browsing mode
-			$html .= "\n<p><br /><br /><strong>Or browse</strong> through the records:</p>";
-			$resultBrowse = $this->recordBrowser ($html);
-			
-			# Show the HTML and end
+		# Show the search form
+		$id = $this->recordSearchForm ($html);
+		
+		# If a valid record has been found, redirect to it
+		if ($id) {
+			$url = $_SERVER['_SITE_URL'] . $this->recordLink ($id);
+			application::sendHeader (301, $url, $html);
 			echo $html;
 			return true;
 		}
+		
+		# Browsing mode
+		$html .= "\n<p><br /><br /><strong>Or browse</strong> through the records:</p>";
+		$resultBrowse = $this->recordBrowser ($html);
+		
+		# Show the HTML and end
+		echo $html;
+		return true;
+	}
+	
+	
+	# Function to show a record
+	public function record ($id)
+	{
+		# Start the HTML
+		$html = '';
 		
 		# Enable jQuery, needed for previous/next keyboard navigation, and tabbing
 		$html .= "\n\n\n" . '<script type="text/javascript" src="//code.jquery.com/jquery.min.js"></script>';

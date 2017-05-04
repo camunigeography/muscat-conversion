@@ -33,7 +33,7 @@
 	RewriteRule ^$baseUrl/fields/([a-z0-9]+)/$ $baseUrl/index.html?action=fields&item=$1 [L]
 	RewriteRule ^$baseUrl/fields/([a-z0-9]+)/page([0-9]+).html$ $baseUrl/index.html?action=fields&item=$1&page=$2 [L]
 	RewriteRule ^$baseUrl/fields/([a-z0-9]+)$ $baseUrl/fields/$1/ [R]
-	RewriteRule ^$baseUrl/records/([0-9]+)/$ $baseUrl/index.html?action=records&item=$1 [L]
+	RewriteRule ^$baseUrl/records/([0-9]+)/$ $baseUrl/index.html?action=record&item=$1 [L]
 	RewriteRule ^$baseUrl/records/([0-9]+)$ $baseUrl/records/$1/ [R]
 	RewriteRule ^$baseUrl/records/([0-9]+)k/$ $baseUrl/index.html?action=records&thousand=$1 [L]
 	RewriteRule ^$baseUrl/records/([0-9]+)k$ $baseUrl/records/$1k/ [R]
