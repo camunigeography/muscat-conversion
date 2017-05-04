@@ -2066,6 +2066,7 @@ class muscatConversion extends frontControllerApplication
 			'tests'					=> 'Run automated tests',
 			'reports'				=> 'Regenerate reports only (c. 7 minutes)',
 			'listings'				=> 'Regenerate listings reports only (c. 45 minutes)',
+			'searchindex'			=> 'Regenerate search index (c. 1.5 minutes)',
 		);
 		
 		# Define the introduction HTML
@@ -2211,6 +2212,12 @@ class muscatConversion extends frontControllerApplication
 		if (($importType == 'tests') || ($importType == 'full')) {
 			$this->runTests ();
 			$html .= "\n<p>{$this->tick} The <a href=\"{$this->baseUrl}/reports/\">tests</a> have been generated.</p>";
+		}
+		
+		# Run option to create the search index
+		if ($importType == 'searchindex') {
+			$this->createSearchindexTable ();
+			$html .= "\n<p>{$this->tick} The <a href=\"{$this->baseUrl}/search/\">search index</a> has been (re-)generated.</p>";
 		}
 		
 		# Write the errors to the errors log
