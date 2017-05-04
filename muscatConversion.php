@@ -1061,7 +1061,9 @@ class muscatConversion extends frontControllerApplication
 		$table['Location'] = false;
 		if (isSet ($record['852'])) {
 			$table['Location']  = $record['852'][0]['subfields']['b'][0];
-			$table['Location'] .= "<br />" . $record['852'][0]['subfields']['h'][0];
+			if (isSet ($record['852'][0]['subfields']['h'])) {
+				$table['Location'] .= "<br />" . $record['852'][0]['subfields']['h'][0];
+			}
 		}
 		
 		# Record number
