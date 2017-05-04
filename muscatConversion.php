@@ -260,7 +260,7 @@ class muscatConversion extends frontControllerApplication
 			'record' => array (
 				'description' => 'View a record',
 				'url' => 'records/%id/',
-				'usetab' => 'records',
+				'usetab' => ($this->userIsAdministrator ? 'records' : 'home' /* i.e. search */),
 			),
 			'fields' => array (
 				'description' => false,
