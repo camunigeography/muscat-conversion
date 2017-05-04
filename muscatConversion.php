@@ -1008,13 +1008,13 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# In journal
-		$table['In journal'] = false;
+		$table['In'] = false;
 		if (isSet ($record['773'])) {
 			$title = $record['773'][0]['subfields']['t'][0];
 			$year = $record['260'][0]['subfields']['c'][0];
 			$pagination = (isSet ($record['773'][0]['subfields']['g']) ? $record['773'][0]['subfields']['g'][0] : '');
 			$recordId = $record['773'][0]['subfields']['w'][0];
-			$table['In journal'] = "<a href=\"{$this->baseUrl}/records/" . str_replace ('SPRI-', '', $recordId) . '/">' . $title . '</a> (' . $year . '),' . ($pagination ? ' ' . $pagination : '');
+			$table['In'] = "<a href=\"{$this->baseUrl}/records/" . str_replace ('SPRI-', '', $recordId) . '/">' . $title . '</a> (' . $year . '),' . ($pagination ? ' ' . $pagination : '');
 		}
 		
 		# Abstract
