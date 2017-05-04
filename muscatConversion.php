@@ -396,6 +396,11 @@ class muscatConversion extends frontControllerApplication
 		if (!$this->userIsAdministrator) {
 			$this->settings['applicationName'] = 'SPRI library catalogue';
 		}
+		
+		# Ensure any code errors are not visible to general users
+		if (!$this->userIsAdministrator) {
+			ini_set ('display_errors', false);
+		}
 	}
 	
 	
