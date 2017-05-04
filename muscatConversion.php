@@ -2613,6 +2613,17 @@ class muscatConversion extends frontControllerApplication
 			DROP location		-- Not in the search field list
 		;';
 		$this->databaseConnection->query ($query);
+		
+		# Update Russian titles to use Cyrillic version
+		#!# This probably does not catch all edge-cases, like italics, but seems to be 'good enough', with 26,319 matches
+		$query = "
+			UPDATE searchindex
+			JOIN transliterations ON
+				    searchindex.id = transliterations.recordId
+				AND searchindex.title LIKE CONCAT('%@', transliterations.title_latin, '%')	-- Compare against start, rather than equals match, to deal with items with square brackets
+			SET searchindex.title = REPLACE(searchindex.title, CONCAT('@', transliterations.title_latin), CONCAT('@', transliterations.title));
+		;";
+		$this->databaseConnection->query ($query);
 	}
 	
 	
