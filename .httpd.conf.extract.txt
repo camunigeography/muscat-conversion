@@ -6,21 +6,13 @@
 #	Use MacroMuscatConversion /library/catalogue "spqr1 abc123" "/path/to/site/:/path/to/muscat-conversion/:/path/to/php/libraries/"
 
 
-<Macro MacroMuscatConversion $baseUrl $usersList $includePath>
+<Macro MacroMuscatConversion $baseUrl $includePath>
 	
 	# Include path
 	<LocationMatch $baseUrl>
 		php_value include_path "$includePath"
 	</LocationMatch>
 	
-	# Auth, limited to specified users
-	<Location $baseUrl/>
-		AuthType Ucam-WebAuth
-		AADescription "Authorisation needed"
-		Require user $usersList
-		php_value memory_limit 1000M
-	</Location>
-
 	# Front controller application support
 	Use MacroFrontControllerApplication "$baseUrl/" "Muscat conversion project"
 	
