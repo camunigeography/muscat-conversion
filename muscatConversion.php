@@ -997,6 +997,9 @@ class muscatConversion extends frontControllerApplication
 		if (isSet ($record['100'])) {
 			$table['Author'] = $record['100'][0]['subfields']['a'][0];
 		}
+		if (isSet ($record['110'])) {
+			$table['Author (corporate)'] = $record['110'][0]['subfields']['a'][0];
+		}
 		
 		# Language
 		$table['Language'] = false;
@@ -1018,6 +1021,18 @@ class muscatConversion extends frontControllerApplication
 		$table['Abstract'] = false;
 		if (isSet ($record['520'])) {
 			$table['Abstract'] = $record['520'][0]['subfields']['a'][0];
+		}
+		
+		# Notes
+		$table['Notes'] = false;
+		$notes = array ();
+		if (isSet ($record['500'])) {
+			foreach ($record['500'] as $line) {
+				$notes[] = $line['subfields']['a'][0];
+			}
+		}
+		if ($notes) {
+			$table['Notes'] = '<p>' . implode ('</p><p>', $notes) . '</p>';
 		}
 		
 		# Keywords
@@ -1052,7 +1067,7 @@ class muscatConversion extends frontControllerApplication
 			$html .= "\n<h3>" . htmlspecialchars ($table['Title']) . '</h3>';
 		}
 		#!# Need to support allowHtml properly - currently allows through entities
-		$html .= application::htmlTableKeyed ($table, array (), $omitEmpty = true, 'lines presented', $allowHtml = array ('In journal', 'Keywords'));
+		$html .= application::htmlTableKeyed ($table, array (), $omitEmpty = true, 'lines presented', $allowHtml = array ('In journal', 'Keywords', 'Notes'));
 		
 		# Debug info
 		//$html .= application::dumpData ($record, false, true);
