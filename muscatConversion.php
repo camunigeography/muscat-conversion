@@ -1000,6 +1000,10 @@ class muscatConversion extends frontControllerApplication
 				$table['Title, transliterated'] = $table['Title'];
 				$table['Title'] = preg_replace ('| /$|', '', $field880);	// Overwrite
 			}
+			
+			# Normalise colon layout
+			$table['Title'] = str_replace (' :', ': ', $table['Title']);
+			$table['Title'] = str_replace ('  ', ' ', $table['Title']);
 		}
 		
 		# Translated title
