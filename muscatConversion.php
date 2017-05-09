@@ -1011,6 +1011,10 @@ class muscatConversion extends frontControllerApplication
 		if (isSet ($record['242'])) {
 			$field242 = $record['242'][0]['subfields']['a'][0] . (isSet ($record['242'][0]['subfields']['b']) ? $record['242'][0]['subfields']['b'][0] : '');
 			$table['Translated title'] = preg_replace ('| /$|', '', $field242);
+			
+			# Normalise colon layout
+			$table['Translated title'] = str_replace (' :', ': ', $table['Translated title']);
+			$table['Translated title'] = str_replace ('  ', ' ', $table['Translated title']);
 		}
 		
 		# Author
