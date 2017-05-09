@@ -2099,7 +2099,7 @@ class muscatConversion extends frontControllerApplication
 			'tests'					=> 'Run automated tests',
 			'reports'				=> 'Regenerate reports only (c. 7 minutes)',
 			'listings'				=> 'Regenerate listings reports only (c. 45 minutes)',
-			'searchindex'			=> 'Regenerate search index (c. 1.5 minutes)',
+			'searchtables'			=> 'Regenerate search tables (c. 1.5 minutes)',
 		);
 		
 		# Define the introduction HTML
@@ -2185,9 +2185,9 @@ class muscatConversion extends frontControllerApplication
 			#  Dependencies: catalogue_processed and catalogue_xml
 			$this->createFieldsindexTable ();
 			
-			# Create the search index table
+			# Create the search tables
 			#  Dependencies: fieldsindex
-			$this->createSearchindexTable ();
+			$this->createSearchTables ();
 			
 			# Create the statistics table
 			$this->createStatisticsTable ($tableComment);
@@ -2247,9 +2247,9 @@ class muscatConversion extends frontControllerApplication
 			$html .= "\n<p>{$this->tick} The <a href=\"{$this->baseUrl}/reports/\">tests</a> have been generated.</p>";
 		}
 		
-		# Run option to create the search index
-		if ($importType == 'searchindex') {
-			$this->createSearchindexTable ();
+		# Run option to create the search tables
+		if ($importType == 'searchtables') {
+			$this->createSearchTables ();
 			$html .= "\n<p>{$this->tick} The <a href=\"{$this->baseUrl}/search/\">search index</a> has been (re-)generated.</p>";
 		}
 		
@@ -2631,9 +2631,9 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to create the searchindex table
+	# Function to create the search tables
 	#   Dependencies: fieldsindex, catalogue_xml
-	private function createSearchindexTable ()
+	private function createSearchTables ()
 	{
 		# Clone the fieldsindex table, including indexes, first dropping any existing table from a previous import; see: http://stackoverflow.com/a/3280042/180733
 		$this->databaseConnection->query ('DROP TABLE IF EXISTS searchindex;');
@@ -2662,7 +2662,6 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->query ('DROP TABLE IF EXISTS catalogue_xml_searchstable;');
 		$this->databaseConnection->query ('CREATE TABLE catalogue_xml_searchstable LIKE catalogue_xml;');
 		$this->databaseConnection->query ('INSERT catalogue_xml_searchstable SELECT * FROM catalogue_xml;');
-		
 	}
 	
 	
