@@ -406,6 +406,11 @@ class muscatConversion extends frontControllerApplication
 		if (!$this->userIsAdministrator) {
 			ini_set ('display_errors', false);
 		}
+		
+		# Enable feedback page for search users
+		if (!$this->userIsAdministrator) {
+			$this->settings['useFeedback'] = true;
+		}
 	}
 	
 	
