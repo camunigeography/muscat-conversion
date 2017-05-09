@@ -2662,6 +2662,17 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->query ('DROP TABLE IF EXISTS catalogue_xml_searchstable;');
 		$this->databaseConnection->query ('CREATE TABLE catalogue_xml_searchstable LIKE catalogue_xml;');
 		$this->databaseConnection->query ('INSERT catalogue_xml_searchstable SELECT * FROM catalogue_xml;');
+		
+		# Remove private data from the eventual MARC record in the search pages, by renaming the relevant fields in the stable XML table (used to generate MARC records on-the-fly) by prefixing an underscore (which is a valid XML name)
+		$fields = array (
+			'priv',		// Private note
+			'pr',		// Price
+		);
+		$replacements = array ();
+		foreach ($fields as $field) {
+			$this->databaseConnection->query ("UPDATE catalogue_xml_searchstable SET xml = REPLACE(xml, '<{$field}>', '<_{$field}>');");
+			$this->databaseConnection->query ("UPDATE catalogue_xml_searchstable SET xml = REPLACE(xml, '</{$field}>', '</_{$field}>');");
+		}
 	}
 	
 	
