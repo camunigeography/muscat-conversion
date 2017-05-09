@@ -896,7 +896,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Obtain a MARC parsed version for the marc and presented output types
 		if (in_array ($type, array ('presented', 'marc'))) {
-			$data = $this->getRecords ($id, 'xml');
+			$data = $this->getRecords ($id, 'xml', false, false, $searchStable = (!$this->userIsAdministrator));
 			$marcParserDefinition = $this->getMarcParserDefinition ();
 			$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ());
 			$record['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $errorString, $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $record['suppressReasons'], $marcPreMerge /* passed back by reference */, $sourceRegistry /* passed back by reference */);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
@@ -1352,7 +1352,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to get records (or a single record)
-	private function getRecords ($ids /* or single ID */, $type, $convertEntities = false, $linkFields = false)
+	private function getRecords ($ids /* or single ID */, $type, $convertEntities = false, $linkFields = false, $searchStable = false)
 	{
 		# Special-case for presented, which is just a View for marc
 		if ($type == 'presented') {
@@ -1372,8 +1372,14 @@ class muscatConversion extends frontControllerApplication
 			$fields[] = 'line';
 		}
 		
+		# Determine the table to read from
+		$table = "catalogue_{$type}";
+		if ($searchStable) {
+			$table .= '_searchstable';
+		}
+		
 		# Get the raw data, or end
-		if (!$records = $this->databaseConnection->select ($this->settings['database'], "catalogue_{$type}", $conditions = array ($this->types[$type]['idField'] => $ids), $fields, false, $this->types[$type]['orderBy'])) {return false;}
+		if (!$records = $this->databaseConnection->select ($this->settings['database'], $table, $conditions = array ($this->types[$type]['idField'] => $ids), $fields, false, $this->types[$type]['orderBy'])) {return false;}
 		
 		# Regroup by the record ID
 		$records = application::regroup ($records, $this->types[$type]['idField'], true, $regroupedColumnKnownUnique = (!$isSharded));
@@ -2626,10 +2632,10 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to create the searchindex table
-	#   Dependencies: fieldsindex
+	#   Dependencies: fieldsindex, catalogue_xml
 	private function createSearchindexTable ()
 	{
-		# Clone the fieldsindex table, including indexes, first dropping any existing searchindex table from a previous import; see: http://stackoverflow.com/a/3280042/180733
+		# Clone the fieldsindex table, including indexes, first dropping any existing table from a previous import; see: http://stackoverflow.com/a/3280042/180733
 		$this->databaseConnection->query ('DROP TABLE IF EXISTS searchindex;');
 		$this->databaseConnection->query ('CREATE TABLE searchindex LIKE fieldsindex;');
 		$this->databaseConnection->query ('INSERT searchindex SELECT * FROM fieldsindex;');
@@ -2651,6 +2657,12 @@ class muscatConversion extends frontControllerApplication
 			SET searchindex.title = REPLACE(searchindex.title, CONCAT('@', transliterations.title_latin), CONCAT('@', transliterations.title));
 		;";
 		$this->databaseConnection->query ($query);
+		
+		# Clone the XML table used for creating the MARC record dynamically, first dropping any existing table from a previous import
+		$this->databaseConnection->query ('DROP TABLE IF EXISTS catalogue_xml_searchstable;');
+		$this->databaseConnection->query ('CREATE TABLE catalogue_xml_searchstable LIKE catalogue_xml;');
+		$this->databaseConnection->query ('INSERT catalogue_xml_searchstable SELECT * FROM catalogue_xml;');
+		
 	}
 	
 	
