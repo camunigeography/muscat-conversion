@@ -429,12 +429,14 @@ class muscatConversion extends frontControllerApplication
 		
 		# Show if an import is running, and prevent a second import running
 		if ($importHtml = $this->importInProgress (24, $blockUi = false)) {
-			if (!isSet ($this->actions[$this->action]['export']) || !$this->user) {		// Show the warning unless using AJAX data, or on the search page and not logged in
-				$html  = $importHtml;
-				if ($this->action == 'import') {
-					$html .= $this->importLogHtml ('Import progress');
+			if (!isSet ($this->actions[$this->action]['export'])) {		// Show the warning unless using AJAX data
+				if ($this->userIsAdministrator) {	// Do not show the warning to public search users
+					$html  = $importHtml;
+					if ($this->action == 'import') {
+						$html .= $this->importLogHtml ('Import progress');
+					}
+					echo $html;
 				}
-				echo $html;
 			}
 			if ($this->action == 'import') {
 				return false;
@@ -2104,7 +2106,7 @@ class muscatConversion extends frontControllerApplication
 			'tests'					=> 'Run automated tests',
 			'reports'				=> 'Regenerate reports only (c. 7 minutes)',
 			'listings'				=> 'Regenerate listings reports only (c. 45 minutes)',
-			'searchtables'			=> 'Regenerate search tables (c. 1.5 minutes)',
+			'searchtables'			=> 'Regenerate search tables (c. 20 seconds)',
 		);
 		
 		# Define the introduction HTML
