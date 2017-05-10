@@ -2255,7 +2255,7 @@ class muscatConversion extends frontControllerApplication
 		# Run option to create the search tables
 		if ($importType == 'searchtables') {
 			$this->createSearchTables ();
-			$html .= "\n<p>{$this->tick} The <a href=\"{$this->baseUrl}/search/\">search index</a> has been (re-)generated.</p>";
+			$html .= "\n<p>{$this->tick} The <a href=\"{$this->baseUrl}/search/\">search</a> tables have been (re-)generated.</p>";
 		}
 		
 		# Write the errors to the errors log
@@ -4847,8 +4847,20 @@ class muscatConversion extends frontControllerApplication
 		# Define an autocomplete callback for auto-submit on select
 		$titleAutocompleteOptions = array (
 			'delay'		=> 0,
-			'select'	=> "function (event, ui) { location.href='{$this->baseUrl}' + '/records/' + ui.item.recordId + '/'; }",
+			'select'	=> "function (event, ui) {
+				$('#searchform').append ('<input type=\"hidden\" name=\"redirect\" value=\"' + ui.item.recordId + '\">');
+				$('#searchform').submit();
+			}",
 		);
+		
+		# If a redirect parameter is specified, redirect to that record ID; this strategy ensures that the number of completed searches is accurate for log statistics purposes
+		if (isSet ($_GET['redirect'])) {
+			if (is_numeric ($_GET['redirect'])) {
+				$redirectTo = $this->baseUrl . '/records/' . $_GET['redirect'] . '/';
+				$html .= application::sendHeader (302, $redirectTo, true);
+				return;
+			}
+		}
 		
 		# Run the form module
 		$form = new form (array (
