@@ -447,7 +447,9 @@ class muscatConversion extends frontControllerApplication
 		$isExportType = (isSet ($this->actions[$this->action]['export']) && $this->actions[$this->action]['export']);
 		if (!$isExportType) {
 			$this->exportDateDescription = $this->getExportDate ();
-			echo "\n<p id=\"exportdate\">{$this->exportDateDescription}</p>";
+			if ($this->userIsAdministrator) {
+				echo "\n<p id=\"exportdate\">{$this->exportDateDescription}</p>";
+			}
 		}
 		
 		# Define unicode symbols
