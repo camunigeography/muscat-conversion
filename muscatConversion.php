@@ -4792,7 +4792,7 @@ class muscatConversion extends frontControllerApplication
 		# Start the HTML
 		$html  = "\n<p>This search will find records that match all the query terms you enter.</p>";
 		$html .= "\n<p>Searches are not case-sensitive.</p>";
-		$html .= "\n<p>This catalogue covers items which were catalogued at SPRI until 2015. For later items, <a href=\"http://idiscover.lib.cam.ac.uk/primo-explore/search?vid=44CAM_PROD&amp;lang=en_US&amp;sortby=rank&amp;mode=advanced&amp;search_scope=SCO\" target=\"_blank\">search for items catalogued from 2016</a>.</p>";
+		$html .= "\n<p>This catalogue covers items which were catalogued at SPRI until 2015. For later items, <a href=\"http://idiscover.lib.cam.ac.uk/primo-explore/search?vid=44CAM_PROD&amp;lang=en_US&amp;sortby=rank&amp;mode=advanced&amp;search_scope=SCO\" target=\"_blank\">search for items catalogued from 2016</a>.<br />Also still available is the old <a href=\"http://www.spri.cam.ac.uk/library/catalogue/sprilib/\">SPRILIB</a> search interface, but this covers a smaller number of records and the data is not up-to-date.</p>";
 		
 		# Create the search form
 		$result = $this->searchForm ($html, $searchClauses);
