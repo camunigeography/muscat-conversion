@@ -855,7 +855,7 @@ class muscatConversion extends frontControllerApplication
 		# Ensure records are public in public access mode
 		$constraint = '';
 		if (!$this->userIsAdministrator) {
-			$constraint = " AND status != 'suppress'";
+			$constraint = " AND status = 'migrate'";
 		}
 		
 		# Get the data
@@ -1313,7 +1313,7 @@ class muscatConversion extends frontControllerApplication
 			$constraints = array ('FLOOR(id/1000) = :thousand');
 			$preparedStatementValues = array ('thousand' => $thousand);
 			if (!$this->userIsAdministrator) {
-				$constraints['_status'] = "status != 'suppress'";
+				$constraints['_status'] = "status = 'migrate'";
 			}
 			$query = "SELECT id FROM searchindex WHERE (" . implode (")\nAND (", $constraints) . ');';
 			$ids = $this->databaseConnection->getPairs ($query, false, $preparedStatementValues);
@@ -4846,7 +4846,7 @@ class muscatConversion extends frontControllerApplication
 			
 			# Ensure records are public in public access mode
 			if (!$this->userIsAdministrator) {
-				$constraints['_status'] = "status != 'suppress'";
+				$constraints['_status'] = "status = 'migrate'";
 			}
 			
 			# Construct the query
@@ -4993,7 +4993,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Ensure records are public in public access mode
 		if (!$this->userIsAdministrator) {
-			$constraints['_status'] = "status != 'suppress'";
+			$constraints['_status'] = "status = 'migrate'";
 		}
 		
 		# Get the data; use of _GET in field definition is safe against SQL injection due to previous check against $this->fieldsIndexFields
