@@ -1304,8 +1304,13 @@ class muscatConversion extends frontControllerApplication
 			
 			# List the values within this thousand
 			$thousand = $_GET['thousand'];	// Validated as ctype_digit above
-			$query = "SELECT id FROM fieldsindex WHERE FLOOR(id/1000) = '{$thousand}';";
-			$ids = $this->databaseConnection->getPairs ($query);
+			$constraints = array ('FLOOR(id/1000) = :thousand');
+			$preparedStatementValues = array ('thousand' => $thousand);
+			if (!$this->userIsAdministrator) {
+				$constraints['_status'] = "status != 'suppress'";
+			}
+			$query = "SELECT id FROM searchindex WHERE (" . implode (")\nAND (", $constraints) . ');';
+			$ids = $this->databaseConnection->getPairs ($query, false, $preparedStatementValues);
 			$html .= "\n<p>Records for {$thousand},xxx [or <a href=\"{$this->baseUrl}/records/\">reset</a>]:</p>";
 			$html .= $this->listNumbers ($ids);
 			return true;
