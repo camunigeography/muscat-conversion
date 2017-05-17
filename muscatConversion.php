@@ -813,6 +813,7 @@ class muscatConversion extends frontControllerApplication
 					$errorHtml = "There is no such record <em>{$id}</em>.";
 				}
 				$html .= "\n<p>{$errorHtml}</p>";
+				application::sendHeader (404);
 				echo $html;
 				return false;
 			}
@@ -1385,6 +1386,19 @@ class muscatConversion extends frontControllerApplication
 		# If only a single record is requested, make into an array of one for consistency with multiple-record processing
 		$singleRecordId = (is_array ($ids) ? false : $ids);
 		if ($singleRecordId) {$ids = array ($ids);}
+		
+		# For the record screen, ensure records are public in public access mode
+		if (!$this->userIsAdministrator) {
+			if ($singleRecordId) {
+				$constraints = array (
+					'id' => $singleRecordId,
+					'status' => 'migrate',
+				);
+				if (!$this->databaseConnection->selectOneField ($this->settings['database'], 'searchindex', 'status', $constraints)) {
+					return false;
+				}
+			}
+		}
 		
 		# Determine fields to retrieve; for sharded records, also retrieve the line number so that each record can be indexed by line, the line value for which is then discarded below
 		$fields = $this->types[$type]['fields'];
