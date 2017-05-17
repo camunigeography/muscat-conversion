@@ -852,10 +852,16 @@ class muscatConversion extends frontControllerApplication
 		# Start the HTML
 		$html = '';
 		
+		# Ensure records are public in public access mode
+		$constraint = '';
+		if (!$this->userIsAdministrator) {
+			$constraint = " AND status != 'suppress'";
+		}
+		
 		# Get the data
 		$query = "SELECT
-			(SELECT MAX(id) AS id FROM catalogue_xml WHERE id < {$id}) AS previous,
-			(SELECT MIN(id) AS id FROM catalogue_xml WHERE id > {$id}) AS next
+			(SELECT MAX(id) AS id FROM searchindex WHERE id < {$id} {$constraint}) AS previous,
+			(SELECT MIN(id) AS id FROM searchindex WHERE id > {$id} {$constraint}) AS next
 		;";
 		$data = $this->databaseConnection->getOne ($query);
 		
