@@ -2195,7 +2195,7 @@ class muscatConversion extends frontControllerApplication
 			$this->createFieldsindexTable ();
 			
 			# Create the search tables
-			#  Dependencies: fieldsindex
+			#  Dependencies: fieldsindex, catalogue_xml, catalogue_marc
 			$this->createSearchTables ();
 			
 			# Create the statistics table
@@ -2641,7 +2641,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to create the search tables
-	#   Dependencies: fieldsindex, catalogue_xml
+	#   Dependencies: fieldsindex, catalogue_xml, catalogue_marc
 	private function createSearchTables ()
 	{
 		# Clone the fieldsindex table, including indexes, first dropping any existing table from a previous import; see: http://stackoverflow.com/a/3280042/180733
@@ -2654,6 +2654,20 @@ class muscatConversion extends frontControllerApplication
 			DROP fieldslist,	-- Not used for searching
 			DROP location		-- Not in the search field list
 		;';
+		$this->databaseConnection->query ($query);
+		
+		# Add status field to enable suppression, and populate the data
+		$query = "
+			ALTER TABLE searchindex
+			ADD COLUMN status ENUM('migrate','suppress','ignore') COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Status' AFTER id,
+			ADD INDEX(status)
+		;";
+		$this->databaseConnection->query ($query);
+		$query = "
+			UPDATE searchindex
+			JOIN catalogue_marc ON searchindex.id = catalogue_marc.id
+			SET searchindex.status = catalogue_marc.status
+		;";
 		$this->databaseConnection->query ($query);
 		
 		# Update Russian titles to use Cyrillic version
@@ -4819,6 +4833,11 @@ class muscatConversion extends frontControllerApplication
 				$constraints[$key] = $searchClause;
 			}
 			
+			# Ensure records are public in public access mode
+			if (!$this->userIsAdministrator) {
+				$constraints['_status'] = "status != 'suppress'";
+			}
+			
 			# Construct the query
 			$query = "SELECT
 					id,
@@ -4957,13 +4976,22 @@ class muscatConversion extends frontControllerApplication
 		# Ensure there are at least three characters in the search term, to avoid heavy database traffic and useless results
 		if (mb_strlen ($_GET['term']) < 3) {return false;}
 		
+		# Start constraints
+		$constraints = array ("`{$field}` LIKE :term");
+		$preparedStatementValues = array ('term' => '%' . $_GET['term'] . '%');
+		
+		# Ensure records are public in public access mode
+		if (!$this->userIsAdministrator) {
+			$constraints['_status'] = "status != 'suppress'";
+		}
+		
 		# Get the data; use of _GET in field definition is safe against SQL injection due to previous check against $this->fieldsIndexFields
 		$query = "SELECT id, `{$field}`
 			FROM searchindex
-			WHERE `{$field}` LIKE :term
+			WHERE \n    (" . implode (")\nAND (", $constraints) . ")
 			LIMIT 20		-- Avoid too many results in drop-down
 		;";
-		$data = $this->databaseConnection->getPairs ($query, false, array ('term' => '%' . $_GET['term'] . '%'));
+		$data = $this->databaseConnection->getPairs ($query, false, $preparedStatementValues);
 		
 		# Extract from the @ separators
 		if ($field == 'title') {
