@@ -1863,7 +1863,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to create a record listing based on a query, with pagination
-	public function recordListing ($id, $query, $preparedStatementValues = array (), $baseLink, $listingIsProblemType = false, $queryString = false, $view = 'listing' /* listing/record/table/valuestable */, $tableViewTable = false, $knownTotalAvailable = false, $entityName = 'record')
+	public function recordListing ($id, $query, $preparedStatementValues = array (), $baseLink, $listingIsProblemType = false, $queryString = false, $view = 'listing' /* listing/record/table/valuestable */, $tableViewTable = false, $knownTotalAvailable = false, $entityName = 'record', $orderingControlsHtml = false)
 	{
 		# Assemble the query, determining whether to use $id or $query
 		if ($id) {
@@ -1972,6 +1972,9 @@ class muscatConversion extends frontControllerApplication
 						$data[$recordId]['journaltitle'] = str_replace ('@', ', ', trim ($record['journaltitle'], '@'));
 						$data[$recordId]['year'] = str_replace ('@', ', ', trim ($record['year'], '@'));
 					}
+					
+					# Show ordering controls if required
+					$html .= $orderingControlsHtml;
 					
 					# Render as a table
 					// $html .= $this->recordList ($data, true);
@@ -4830,19 +4833,53 @@ class muscatConversion extends frontControllerApplication
 			unset ($_GET['page']);
 		}
 		
+		# Define ordering types and capture (then clear) any setting from the environment
+		$orderingOptions = array (
+			'title'		=> 'Title',
+			'-year'		=> 'Year (most recent first)',
+			'year'		=> 'Year (oldest first)',
+		);
+		$orderBy = 'title';		// Default
+		$maintainParameters = array ();
+		if (isSet ($_GET['orderby'])) {
+			if (strlen ($_GET['orderby'])) {
+				if (isSet ($orderingOptions[$_GET['orderby']])) {
+					$orderBy = $_GET['orderby'];
+					$maintainParameters['order'] = $orderBy;
+				}
+			}
+			unset ($_GET['orderby']);
+		}
+		
 		# Start the HTML
 		$html  = "\n<p>This search will find records that match all the query terms you enter.</p>";
 		$html .= "\n<p>Searches are not case-sensitive.</p>";
 		$html .= "\n<p>This catalogue covers items which were catalogued at SPRI until 2015. For later items, <a href=\"http://idiscover.lib.cam.ac.uk/primo-explore/search?vid=44CAM_PROD&amp;lang=en_US&amp;sortby=rank&amp;mode=advanced&amp;search_scope=SCO\" target=\"_blank\">search for items catalogued from 2016</a>.<br />Also still available is the old <a href=\"http://www.spri.cam.ac.uk/library/catalogue/sprilib/\">SPRILIB</a> search interface, but this covers a smaller number of records and the data is not up-to-date.</p>";
 		
 		# Create the search form
-		$result = $this->searchForm ($html, $searchClauses);
+		$result = $this->searchForm ($html, $searchClauses, $maintainParameters);
 		
 		# Show results if submitted
 		if ($result) {
 			
+			# Define the base link of the page; baseUrl will be added
+			$baseLink = '/' . $this->actions['search']['url'];
+			
 			# Cache a build of the query string
 			$queryStringComplete = http_build_query ($result);
+			
+			# Implement ordering UI
+			$list = array ('Order by:');
+			foreach ($orderingOptions as $ordering => $label) {
+				$url = "{$this->baseUrl}{$baseLink}" . (isSet ($page) && is_numeric ($page) && ($page > 1) ? "page{$page}.html" : '') . "?{$queryStringComplete}&orderby=" . urlencode ($ordering);
+				$list[] = "<a href=\"" . htmlspecialchars ($url) . '"' . ($ordering == $orderBy ? ' class="selected"' : '') . '>' . htmlspecialchars ($label) . '</a>';
+			}
+			$orderingControlsHtml = application::htmlUl ($list, 0, 'orderby');
+			$queryStringComplete .= '&orderby=' . $orderBy;
+			$orderBySql = $orderBy;
+			if ($orderBy == 'title') {$orderBySql = 'titleSortfield';}
+			if (preg_match ('/^-(.+)$/', $orderBy, $matches)) {$orderBySql = $matches[1] . ' DESC';}
+			if ($orderBy != 'title') {$orderBySql .= ', titleSortfield';}	// Add secondary sorting by title
 			
 			# Create a list of constraints
 			$constraints = array ();
@@ -4872,16 +4909,15 @@ class muscatConversion extends frontControllerApplication
 					journaltitle,
 					year
 				FROM searchindex
-				WHERE \n    (" . implode (")\nAND (", $constraints) . ')
-				ORDER BY titleSortfield
-			;';
+				WHERE \n    (" . implode (")\nAND (", $constraints) . ")
+				ORDER BY {$orderBySql}
+			;";
 			
 			# Restore $_GET['page']
 			if (isSet ($page)) {$_GET['page'] = $page;}
 			
 			# Display the results
-			$baseLink = '/' . $this->actions['search']['url'];		// baseUrl will be added
-			$html .= $this->recordListing (false, $query, $result, $baseLink, false, $queryStringComplete, 'searchresults', "{$this->settings['database']}.searchindex");
+			$html .= $this->recordListing (false, $query, $result, $baseLink, false, $queryStringComplete, 'searchresults', "{$this->settings['database']}.searchindex", false, 'record', $orderingControlsHtml);
 		}
 		
 		# Show the HTML
@@ -4890,7 +4926,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to provide the search form
-	private function searchForm (&$html, $searchClauses)
+	private function searchForm (&$html, $searchClauses, $maintainParameters = array ())
 	{
 		# Define an autocomplete callback for auto-submit on select
 		$titleAutocompleteOptions = array (
@@ -4957,6 +4993,7 @@ class muscatConversion extends frontControllerApplication
 		# If there is a result, redirect to a simplified version of the URL
 		if ($result) {
 			if (array_keys ($_GET) != array_keys ($result)) {
+				$result += $maintainParameters;
 				$redirectTo = $this->baseUrl . '/' . $this->actions[$this->action]['url'] . '?' . http_build_query ($result);
 				$html .= application::sendHeader (302, $redirectTo, true);
 				return $result;
