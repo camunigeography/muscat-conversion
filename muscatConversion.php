@@ -1980,7 +1980,7 @@ class muscatConversion extends frontControllerApplication
 					$html .= "\n<div class=\"clearright\">";
 					foreach ($data as $record) {
 						$html .= "\n<div class=\"graybox\">";
-						$html .= "\n<p class=\"right\">#{$record['id']}</p>";
+						$html .= "\n<p class=\"right comment\">#{$record['id']}</p>";
 						$html .= "\n<h4><a href=\"{$this->baseUrl}/records/{$record['id']}/\">{$record['title']}</a></h4>";
 						$metadata = array ();
 						if ($record['journaltitle']) {
