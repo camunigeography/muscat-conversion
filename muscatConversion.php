@@ -2620,7 +2620,7 @@ class muscatConversion extends frontControllerApplication
 			ADD `year` TEXT NULL COMMENT 'Year',
 			ADD `language` TEXT NULL COMMENT 'Language',
 			ADD abstract TEXT NULL COMMENT 'Abstract',
-			ADD keyword TEXT NULL COMMENT 'Keyword',
+			ADD keyword TEXT NULL COMMENT 'Keyword (UDC)',
 			ADD isbn TEXT NULL COMMENT 'ISBN',
 			ADD location TEXT NULL COMMENT 'Location',
 			ADD anywhere TEXT NULL COMMENT 'Text anywhere within record',
