@@ -1004,6 +1004,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Title
 		$table['Title'] = false;
+		$table['Title, transliterated'] = false;
 		if (isSet ($record['245'])) {
 			$field245 = $record['245'][0]['subfields']['a'][0] . (isSet ($record['245'][0]['subfields']['b']) ? $record['245'][0]['subfields']['b'][0] : '');
 			$table['Title'] = preg_replace ('| /$|', '', $field245);
@@ -1020,6 +1021,10 @@ class muscatConversion extends frontControllerApplication
 			# Normalise colon layout
 			$table['Title'] = str_replace (' :', ': ', $table['Title']);
 			$table['Title'] = str_replace ('  ', ' ', $table['Title']);
+			
+			# Normalise colon layout
+			$table['Title, transliterated'] = str_replace (' :', ': ', $table['Title, transliterated']);
+			$table['Title, transliterated'] = str_replace ('  ', ' ', $table['Title, transliterated']);
 		}
 		
 		# Translated title
