@@ -1048,6 +1048,25 @@ class muscatConversion extends frontControllerApplication
 			$table['Date'] = $record['260'][0]['subfields']['c'][0];
 		}
 		
+		# Publisher
+		$table['Publisher'] = false;
+		if (isSet ($record['260'])) {
+			$publisher = array ();
+			if (isSet ($record['260'][0]['subfields']['a'])) {
+				if (!substr_count (mb_strtolower ($record['260'][0]['subfields']['a'][0]), '[s.l.]')) {
+					$publisher[] = $record['260'][0]['subfields']['a'][0];
+				}
+			}
+			if (isSet ($record['260'][0]['subfields']['b'])) {
+				if (!substr_count (mb_strtolower ($record['260'][0]['subfields']['b'][0]), '[s.n.]')) {
+					$publisher[] = $record['260'][0]['subfields']['b'][0];
+				}
+			}
+			if ($publisher) {
+				$table['Publisher'] = trim (str_replace (' : ', ': ', implode (' ', $publisher)), ',');
+			}
+		}
+		
 		# Language
 		$table['Language'] = false;
 		if (isSet ($record['546'])) {
