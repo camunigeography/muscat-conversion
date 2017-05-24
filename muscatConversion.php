@@ -1042,6 +1042,12 @@ class muscatConversion extends frontControllerApplication
 			$table['Author (corporate)'] = $record['110'][0]['subfields']['a'][0];
 		}
 		
+		# Date
+		$table['Date'] = false;
+		if (isSet ($record['260']) && isSet ($record['260'][0]['subfields']['c'])) {
+			$table['Date'] = $record['260'][0]['subfields']['c'][0];
+		}
+		
 		# Language
 		$table['Language'] = false;
 		if (isSet ($record['546'])) {
