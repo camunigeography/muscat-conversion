@@ -1019,12 +1019,8 @@ class muscatConversion extends frontControllerApplication
 			}
 			
 			# Normalise colon layout
-			$table['Title'] = str_replace (' :', ': ', $table['Title']);
-			$table['Title'] = str_replace ('  ', ' ', $table['Title']);
-			
-			# Normalise colon layout
-			$table['Title, transliterated'] = str_replace (' :', ': ', $table['Title, transliterated']);
-			$table['Title, transliterated'] = str_replace ('  ', ' ', $table['Title, transliterated']);
+			$table['Title'] = $this->normaliseColonLayout ($table['Title']);
+			$table['Title, transliterated'] = $this->normaliseColonLayout ($table['Title, transliterated']);
 		}
 		
 		# Translated title
@@ -1034,8 +1030,7 @@ class muscatConversion extends frontControllerApplication
 			$table['Translated title'] = preg_replace ('| /$|', '', $field242);
 			
 			# Normalise colon layout
-			$table['Translated title'] = str_replace (' :', ': ', $table['Translated title']);
-			$table['Translated title'] = str_replace ('  ', ' ', $table['Translated title']);
+			$table['Translated title'] = $this->normaliseColonLayout ($table['Translated title']);
 		}
 		
 		# Author
@@ -1147,6 +1142,15 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the HTML
 		return $html;
+	}
+	
+	
+	# Function to normalise colon layout in public record view
+	private function normaliseColonLayout ($string)
+	{
+		$string = str_replace (' :', ': ', $string);
+		$string = str_replace ('  ', ' ', $string);
+		return $string;
 	}
 	
 	
