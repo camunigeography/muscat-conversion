@@ -59,7 +59,11 @@
 #muscatconversion #searchform {margin-top: 2em;}
 #muscatconversion #searchform tr.title td {background-color: #f7f7f7;}
 #muscatconversion #searchform tr.title td input {font-size: 1.6em; padding: 7px; margin-right: 10px;}
-
+#muscatconversion ul.orderby {clear: right; float: right; margin: 0 0 15px; padding: 0;}
+#muscatconversion ul.orderby li {display: inline; margin: 0 0 0 5px; padding: 0;}
+#muscatconversion ul.orderby li a {color: #666; border: 1px solid #ccc; padding: 2px 6px;}
+#muscatconversion ul.orderby li a.selected {background-color: #eee; border-color: gray;}
+#muscatconversion ul.orderby li a:hover {text-decoration: none; background-color: #eee;}
 
 /* Print styles */
 @media print {
