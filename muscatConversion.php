@@ -915,7 +915,10 @@ class muscatConversion extends frontControllerApplication
 			$data = $this->getRecords ($id, 'xml', false, false, $searchStable = (!$this->userIsAdministrator));
 			$marcParserDefinition = $this->getMarcParserDefinition ();
 			$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ());
+			//$this->profileMemoryStart ();
 			$record['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $errorString, $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $record['suppressReasons'], $marcPreMerge /* passed back by reference */, $sourceRegistry /* passed back by reference */);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
+			//unset ($this->marcConversion);
+			//$this->profileMemoryEnd ();
 		}
 		
 		# Render the result
