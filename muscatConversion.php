@@ -428,18 +428,18 @@ class muscatConversion extends frontControllerApplication
 		$this->errorsFile = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl . '/errors.html';
 		
 		# Show if an import is running, and prevent a second import running
-		if ($importHtml = $this->importInProgress (24, $blockUi = false)) {
-			if (!isSet ($this->actions[$this->action]['export'])) {		// Show the warning unless using AJAX data
-				if ($this->userIsAdministrator) {	// Do not show the warning to public search users
+		if ($this->userIsAdministrator) {	// Do not show the warning to public search users or issue e-mails
+			if ($importHtml = $this->importInProgress (24, $blockUi = false)) {
+				if (!isSet ($this->actions[$this->action]['export'])) {		// Show the warning unless using AJAX data
 					$html  = $importHtml;
 					if ($this->action == 'import') {
 						$html .= $this->importLogHtml ('Import progress');
 					}
 					echo $html;
 				}
-			}
-			if ($this->action == 'import') {
-				return false;
+				if ($this->action == 'import') {
+					return false;
+				}
 			}
 		}
 		
