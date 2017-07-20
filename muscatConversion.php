@@ -1130,6 +1130,14 @@ class muscatConversion extends frontControllerApplication
 			}
 		}
 		
+		# ISBN
+		$table['ISBN'] = false;
+		if (isSet ($record['020'])) {
+			if (isSet ($record['020'][0]['subfields']['a'])) {
+				$table['ISBN'] = $record['020'][0]['subfields']['a'][0];
+			}
+		}
+		
 		# Record number
 		$table['SPRI record no.'] = str_replace ('SPRI-', '', $record['001'][0]['line']);
 		
