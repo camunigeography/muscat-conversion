@@ -3450,6 +3450,7 @@ class muscatConversion extends frontControllerApplication
 		$language = 'Russian';
 		
 		# Populate the transliterations table
+		#!# Shouldn't we be transliterating (or at least upgrading from BGN to LoC) cases of e.g. "English = Russian" but where the record is marked as *lang=English, e.g. /records/135449/ ? If so, it may be that checking for recordLanguage is not enough - we should check for *lpt containing 'Russian' also
 		$literalBackslash = '\\';
 		$query = "
 			INSERT INTO transliterations (id, recordId, field, topLevel, xPath, title_latin)
