@@ -427,6 +427,10 @@ class muscatConversion extends frontControllerApplication
 		# Determine the errors logfile location, used for logging import errors
 		$this->errorsFile = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl . '/errors.html';
 		
+		# Determine if the user for search purposes is internal, so that unsuppressed data can be shown
+		$hostname = gethostbyaddr ($_SERVER['REMOTE_ADDR']);
+		$this->searchUserIsInternal = ($this->userIsAdministrator || preg_match ('/cam\.ac\.uk$/', $hostname));
+		
 		# Show if an import is running, and prevent a second import running
 		if ($this->userIsAdministrator) {	// Do not show the warning to public search users or issue e-mails
 			if ($importHtml = $this->importInProgress (24, $blockUi = false)) {
@@ -855,7 +859,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Ensure records are public in public access mode
 		$constraint = '';
-		if (!$this->userIsAdministrator) {
+		if (!$this->searchUserIsInternal) {
 			$constraint = " AND status = 'migrate'";
 		}
 		
@@ -1107,9 +1111,7 @@ class muscatConversion extends frontControllerApplication
 		# Local notes
 		$table['Local notes'] = false;
 		$localNotes = array ();
-		$hostname = gethostbyaddr ($_SERVER['REMOTE_ADDR']);
-		$isInternal = (preg_match ('/cam\.ac\.uk$/', $hostname));
-		if ($isInternal) {
+		if ($this->searchUserIsInternal) {
 			if (isSet ($record['876'])) {
 				foreach ($record['876'] as $line) {
 					$localNotes[] = $line['subfields']['z'][0];
@@ -1374,7 +1376,7 @@ class muscatConversion extends frontControllerApplication
 			$thousand = $_GET['thousand'];	// Validated as ctype_digit above
 			$constraints = array ('FLOOR(id/1000) = :thousand');
 			$preparedStatementValues = array ('thousand' => $thousand);
-			if (!$this->userIsAdministrator) {
+			if (!$this->searchUserIsInternal) {
 				$constraints['_status'] = "status = 'migrate'";
 			}
 			$query = "SELECT id FROM searchindex WHERE (" . implode (")\nAND (", $constraints) . ');';
@@ -1449,7 +1451,7 @@ class muscatConversion extends frontControllerApplication
 		if ($singleRecordId) {$ids = array ($ids);}
 		
 		# For the record screen, ensure records are public in public access mode
-		if (!$this->userIsAdministrator) {
+		if (!$this->searchUserIsInternal) {
 			if ($singleRecordId) {
 				$constraints = array (
 					'id' => $singleRecordId,
@@ -4959,7 +4961,7 @@ class muscatConversion extends frontControllerApplication
 			}
 			
 			# Ensure records are public in public access mode
-			if (!$this->userIsAdministrator) {
+			if (!$this->searchUserIsInternal) {
 				$constraints['_status'] = "status = 'migrate'";
 			}
 			
