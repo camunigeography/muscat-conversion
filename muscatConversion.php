@@ -1104,6 +1104,22 @@ class muscatConversion extends frontControllerApplication
 			$table['Notes'] = '<p>' . implode ('</p><p>', $notes) . '</p>';
 		}
 		
+		# Local notes
+		$table['Local notes'] = false;
+		$localNotes = array ();
+		$hostname = gethostbyaddr ($_SERVER['REMOTE_ADDR']);
+		$isInternal = (preg_match ('/cam\.ac\.uk$/', $hostname));
+		if ($isInternal) {
+			if (isSet ($record['876'])) {
+				foreach ($record['876'] as $line) {
+					$localNotes[] = $line['subfields']['z'][0];
+				}
+			}
+		}
+		if ($localNotes) {
+			$table['Local notes'] = '<p>' . implode ('</p><p>', $localNotes) . '</p>';
+		}
+		
 		# Keywords
 		$table['Keywords'] = false;
 		$keywords = array ();
