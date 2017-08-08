@@ -3090,3 +3090,9 @@ Multiple *note in 500
 876
 ‡zSPRI catalogue has entries for
 
+512
+*pt with plural keyword (e.g. 'maps') creates ‡b split point
+1684
+300
+1-23 :‡bmaps, tables.
+
