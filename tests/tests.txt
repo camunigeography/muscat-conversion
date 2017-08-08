@@ -2119,16 +2119,16 @@ Macro generate300 normalises space between p and . not requiring normalisation
 112 p.
 
 351
-Macro generate300 *vno at start of $a with other $a parts in string
+300 $a should not contain *vno (see also test #352)
 5174
 300
-‡aVol. 6, 15
+‡a1-96, tables :‡b
 
 352
-Macro generate300 *vno at start of $a without other $a parts in string
-7174
-300
-‡aVol.2.
+773 ‡g should contain *vno (see also test #351 and #518)
+5174
+773
+‡g6(15) ‡w
 
 353
 Macro generate300 *vno with *ts existing does not generate 300
@@ -3126,4 +3126,9 @@ Macro generate300 *v present in *doc having ‡a creates space
 300
 ‡a:191-197.
 
+518
+773 ‡g contents of *vno should appear at the start, with a dot before other material (see also test #352)
+7865
+773
+‡gTome 2. Physique terrestre. Météorologie. Histoire naturelle. Sect. 7.
 

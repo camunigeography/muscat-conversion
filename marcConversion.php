@@ -1079,6 +1079,13 @@ class marcConversion
 			list ($analyticVolumeDesignation, $a) = explode (' :', $a, 2);
 		}
 		
+		# If there is a *vno but no *ts (and so no 490 will be created - e.g. /records/1896/ (test #354)), add this at the start of the analytic volume designation, before any pagination (extent) data from *pt; e.g. /records/5174/ (test #352)
+		if ($vno = $this->xPathValue ($this->xml, '//vno')) {
+			if (!$ts = $this->xPathValue ($this->xml, '//ts')) {	// /records/1896/ (test #353)
+				$analyticVolumeDesignation = $this->macro_dotEnd ($vno) . (strlen ($analyticVolumeDesignation) ? ' ' : '') . $analyticVolumeDesignation;		// E.g. dot added before other $a substring in /records/7865/ (test #519); no existing $a so no comma in /records/5174/ (test #352)
+			}
+		}
+		
 		#!# $a should have "p. " in front of it, unless it is unpaged
 		
 		# Assemble the datastructure
@@ -1125,14 +1132,6 @@ class marcConversion
 			// $result .= 'p. ';	// Spec unclear - subsequent instruction was "/records/152332/ still contains a spurious 'p' in the $a - please ensure this is not added to the record"
 		}
 		
-		# If there is a *vno but no *ts (and so no 490 will be created - e.g. /records/1896/ (test #354), add this at the start, before any pagination data from *pt; e.g. /records/5174/ (test #351)
-		$vnoPrefix = false;
-		if ($vno = $this->xPathValue ($this->xml, '//vno')) {
-			if (!$ts = $this->xPathValue ($this->xml, '//ts')) {	// /records/1896/ (test #353)
-				$a = $vno . (strlen ($a) ? ', ' : '') . $a;		// E.g. comma added before other $a substring in /records/5174/ (test #351); no existing $a so no comma in /records/7174/ (test #352)
-			}
-		}
-		
 		# Register the $a result
 		$result .= $a;
 		
@@ -1156,6 +1155,7 @@ class marcConversion
 		
 		# End if no value; in this scenario, no $c should be created, i.e. the whole routine should be ended
 		if (!strlen ($result) || strtolower ($pOrPt) == 'unpaged') {	 // 'unpaged' at /records/1248/ (test #341); 'Unpaged' at /records/174009/ (test #343)
+			#!# Should there be a space after "v." as per the normalisation routine above?
 			$result = ($this->recordType == '/ser' ? 'v.' : '1 volume (unpaged)');	// E.g. *ser with empty $result: /records/1019/ (confirmed to be fine) (test #341); *doc with empty $result: /records/1332/ (test #345); no cases of unpaged (*p or *pt) for *ser so no test; *doc with unpaged: /records/174009/ (test #343)
 			#!# Is it really correct that $c should be omitted? E.g. in /records/174009/ *size = '21x10 cm.' is thus lost
 			return $result;		// Stop, e.g. /records/174009/ (test #344)
