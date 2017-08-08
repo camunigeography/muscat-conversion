@@ -1128,7 +1128,6 @@ class marcConversion
 			}
 		# $a (R) (Extent, pagination): If record is *art with no *form or *form other than listed above: 'p. '*pt [number range after ':' and before ',']
 		} else if ($isArt) {	// Therefore this *art is not multimedia
-			#!# This needs to be resolved - there are 29196 records whose XML has *pt starting with a colon: SELECT * FROM `catalogue_processed` WHERE `field` LIKE 'pt' AND `value` LIKE ':%' ; e.g. /records/1160/ which has "300 ## $a:1066-1133." which is surely wrong
 			// $result .= 'p. ';	// Spec unclear - subsequent instruction was "/records/152332/ still contains a spurious 'p' in the $a - please ensure this is not added to the record"
 		}
 		
