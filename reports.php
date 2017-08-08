@@ -116,7 +116,7 @@ class reports
 		'periodicalpam_problem' => 'records with location= both Periodical and Pam',
 		'russianvolumenumbers_info' => 'Russian records with a volume number',
 		'longtitles_problem' => 'records with long titles (>512 characters)',
-		'artjwithoutvolume_problem' => 'articles in journals without a volume designation',
+		'artjwithoutvolume_problem' => 'articles in journals without a volume designation and no useful date',
 	);
 	
 	# Listing (values) reports
@@ -2642,7 +2642,7 @@ class reports
 	}
 	
 	
-	# Articles in journals without a volume designation; NB the year may be being used as a proxy
+	# Articles in journals without a volume designation and no useful date; NB the year may be being used as a proxy
 	public function report_artjwithoutvolume ()
 	{
 		# Define the query
@@ -2651,9 +2651,14 @@ class reports
 				'artjwithoutvolume' AS report,
 				recordId
 			FROM catalogue_processed
+			LEFT JOIN catalogue_xml ON catalogue_processed.id = catalogue_xml.id
 			WHERE
-				    xPath = '/art/j/pt'
+				xPath = '/art/j/pt'
 				AND value like ':%'
+				AND (
+					   catalogue_xml.xml NOT LIKE '%<d>%'
+					OR catalogue_xml.xml LIKE '%<d>%n.%</d>%'
+				)
 		";
 		
 		# Return the query
