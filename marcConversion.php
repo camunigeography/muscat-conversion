@@ -1057,7 +1057,7 @@ class marcConversion
 				
 				# If the word requires a dot after, add this if not present; e.g. /records/1584/ (test #329) , /records/1163/ (test #330)
 				# Checked using: `SELECT * FROM catalogue_processed WHERE field IN('p','pt') AND value LIKE '%ill%' AND value NOT LIKE '%ill.%' AND value NOT REGEXP 'ill(-|\.|\'|[a-z]|$)';`
-				if (in_array ($word, array ('illus', 'ill'))) {
+				if (in_array ($word, array ('illus', 'ill', 'diag', 'port', 'col'))) {
 					if (!substr_count ($pOrPt, $word . '.')) {
 						if (!preg_match ("/{$word}(-|\'|[a-z])/", $pOrPt)) {	// I.e. don't add . in middle of word or cases like ill
 							$pOrPt = str_replace ($word, $word . '.', $pOrPt);
