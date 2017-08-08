@@ -3102,3 +3102,28 @@ Macro generate300 *v present in *doc having ‡a creates space
 300
 300 ## ‡a12 vols. Variously paged.
 
+514
+773 in *art/*in with analytic volume designation present appears as ‡g
+1668
+773
+‡g7(3) ‡
+
+515
+773 in *art/*in without analytic volume designation should have no ‡g
+54886
+773
+‡d 880-02 : Novosibirsk: Nauka, 1976. ‡wSPRI-55908
+
+516
+300 ‡a should not contain volume designator (case where *pt has space-colon)
+1668
+300
+‡a233-266 :‡b
+
+517
+300 ‡a should not contain volume designator (case where *pt does not have space-colon)
+54886
+300
+‡a:191-197.
+
+

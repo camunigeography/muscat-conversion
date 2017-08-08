@@ -1073,12 +1073,21 @@ class marcConversion
 			}
 		}
 		
+		# If the $a has a space-colon, the meaning of this is "<Volume designator> :<Physical extent>"
+		$analyticVolumeDesignation = false;
+		if (substr_count ($a, ' :')) {
+			list ($analyticVolumeDesignation, $a) = explode (' :', $a, 2);
+		}
+		
+		#!# $a should have "p. " in front of it, unless it is unpaged
+		
 		# Assemble the datastructure
 		$pOrPt = array (
-			'_pOrPt'	=> $pOrPt,
-			'a'			=> $a,
-			'b'			=> $b,
-			'e'			=> $e,
+			'_pOrPt'					=> $pOrPt,
+			'a'							=> $a,
+			'b'							=> $b,
+			'e'							=> $e,
+			'analyticVolumeDesignation'	=> $analyticVolumeDesignation,
 		);
 		
 		# Return the assembled data
@@ -2353,7 +2362,11 @@ class marcConversion
 		}
 		
 		# Add 773 ‡g: *pt (Related parts) [of child record, i.e. not host record]; *art/*j only
-		if ($this->recordType == '/art/j') {
+		if ($this->recordType == '/art/in') {
+			if ($this->pOrPt['analyticVolumeDesignation']) {	// E.g. /records/1668/ creates $g (test #514), but /records/54886/ has no $g (test #515)
+				$subfields[] = "{$this->doubleDagger}g" . $this->pOrPt['analyticVolumeDesignation'];
+			}
+		} else if ($this->recordType == '/art/j') {
 			if ($pt = $this->xPathValue ($this->xml, '/art/j/pt')) {	// e.g. /records/14527/
 				$subfields[] = "{$this->doubleDagger}g" . $pt;
 			}
