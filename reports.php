@@ -116,6 +116,7 @@ class reports
 		'periodicalpam_problem' => 'records with location= both Periodical and Pam',
 		'russianvolumenumbers_info' => 'Russian records with a volume number',
 		'longtitles_problem' => 'records with long titles (>512 characters)',
+		'artjwithoutvolume_problem' => 'articles in journals without a volume designation',
 	);
 	
 	# Listing (values) reports
@@ -2634,6 +2635,25 @@ class reports
 			WHERE
 				    field = 't'
 				AND LENGTH(value) > 512
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Articles in journals without a volume designation; NB the year may be being used as a proxy
+	public function report_artjwithoutvolume ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'artjwithoutvolume' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    xPath = '/art/j/pt'
+				AND value like ':%'
 		";
 		
 		# Return the query
