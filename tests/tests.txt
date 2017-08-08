@@ -3096,3 +3096,9 @@ Multiple *note in 500
 300
 1-23 :‡bmaps, tables.
 
+513
+Macro generate300 *v present in *doc having ‡a creates space
+8988
+300
+300 ## ‡a12 vols. Variously paged.
+

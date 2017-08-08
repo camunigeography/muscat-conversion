@@ -77,6 +77,12 @@ class marcConversion
 		# Up-front, look up the host record, if any
 		$this->hostRecord = $this->lookupHostRecord ($errorString);
 		
+		# Lookup XPath values from the record which are needed multiple times, for efficiency
+		$this->form = $this->xPathValue ($this->xml, '(//form)[1]', false);
+		
+		# Up-front, process *p/*pt to split into its component parts
+		$this->pOrPt = $this->splitPOrPt ();
+		
 		# Perform XPath replacements
 		if (!$datastructure = $this->convertToMarc_PerformXpathReplacements ($datastructure, $errorString)) {return false;}
 		
@@ -454,9 +460,6 @@ class marcConversion
 	# Function to perform Xpath replacements
 	private function convertToMarc_PerformXpathReplacements ($datastructure, &$errorString = '')
 	{
-		# Lookup XPath values from the record which are needed multiple times, for efficiency
-		$this->form = $this->xPathValue ($this->xml, '(//form)[1]', false);
-		
 		# Perform XPath replacements; e.g. /records/1003/ (test #251)
 		$compileFailures = array ();
 		foreach ($datastructure as $lineNumber => $line) {
@@ -1020,14 +1023,11 @@ class marcConversion
 	}
 	
 	
-	# Macro to generate the 300 field (Physical Description); 300 is a Minimum standard field; see: https://www.loc.gov/marc/bibliographic/bd300.html
-	# Note: the original data is not normalised, and the spec does not account for all cases, so the implementation here is based also on observation of various records and on examples in the MARC spec, to aim for something that is 'good enough' and similar enough to the MARC examples
-	# At its most basic level, in "16p., ill.", $a is the 16 pages, $b is things after
-	#!# Everything before a colon should describe a volume or issue number, which should end up in a 490 or 500 instead of 300 - to be discussed
-	private function macro_generate300 ($value_ignored)
+	# Up-front, process *p/*pt to split into its component parts
+	private function splitPOrPt ()
 	{
-		# Start a result
-		$result = '';
+		# Start an array to hold the components
+		$pOrPt = array ();
 		
 		# Obtain *p
 		$pValues = $this->xPathValues ($this->xml, '(//p)[%i]', false);	// E.g. multiple *p: /records/15711/ , /records/6002/ (test #319); single *p: /records/1175/ (test #320); no *p: /records/1104/ (test #321)
@@ -1073,6 +1073,34 @@ class marcConversion
 			}
 		}
 		
+		# Assemble the datastructure
+		$pOrPt = array (
+			'_pOrPt'	=> $pOrPt,
+			'a'			=> $a,
+			'b'			=> $b,
+			'e'			=> $e,
+		);
+		
+		# Return the assembled data
+		return $pOrPt;
+	}
+	
+	
+	# Macro to generate the 300 field (Physical Description); 300 is a Minimum standard field; see: https://www.loc.gov/marc/bibliographic/bd300.html
+	# Note: the original data is not normalised, and the spec does not account for all cases, so the implementation here is based also on observation of various records and on examples in the MARC spec, to aim for something that is 'good enough' and similar enough to the MARC examples
+	# At its most basic level, in "16p., ill.", $a is the 16 pages, $b is things after
+	#!# Everything before a colon should describe a volume or issue number, which should end up in a 490 or 500 instead of 300 - to be discussed
+	private function macro_generate300 ($value_ignored)
+	{
+		# Start a result
+		$result = '';
+		
+		# Extract as local variables the componentised a,b,c values
+		$pOrPt = $this->pOrPt['_pOrPt'];
+		$a = $this->pOrPt['a'];
+		$b = $this->pOrPt['b'];
+		$e = $this->pOrPt['e'];
+		
 		# $a (R) (Extent, pagination): If record is *doc with any or no *form (e.g. /records/20704/ (test #331)), or *art with *form CD, CD-ROM (e.g. /records/203063/ (test #332)), DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording: "(*v), (*p or *pt)" [all text up to and including ':']
 		$isDoc = ($this->recordType == '/doc');
 		$isArt = (substr_count ($this->recordType, '/art'));
@@ -1080,7 +1108,7 @@ class marcConversion
 		if ($isDoc || ($isArt && $isMultimedia)) {
 			$vMuscat = $this->xPathValue ($this->xml, '//v');
 			if (strlen ($vMuscat)) {
-				$result = $vMuscat . ($a ? ' ' : ($b ? ',' : ''));	// e.g. *doc having $b /records/20704/ (test #331), /records/, /records/37420/ , /records/175872/ , /records/8988/
+				$result = $vMuscat . ($a ? ' ' : ($b ? ',' : ''));	// e.g. *doc having $b /records/20704/ (test #331), /records/, /records/37420/ , /records/175872/ , /records/8988/ (test #513)
 			}
 		# $a (R) (Extent, pagination): If record is *art with no *form or *form other than listed above: 'p. '*pt [number range after ':' and before ',']
 		} else if ($isArt) {	// Therefore this *art is not multimedia
