@@ -113,7 +113,7 @@ class reports
 		'emptyvalue_problem' => 'records with empty scalar values',
 		'sernotitle_problem' => '*ser records with no title',
 		'sernonuniquetitle_problem' => '*ser records whose title is not unique',
-		'periodicalpam_problem' => 'Records with location= both Periodical and Pam',
+		'periodicalpam_problem' => 'records with location= both Periodical and Pam',
 		'russianvolumenumbers_info' => 'Russian records with a volume number',
 		'longtitles_problem' => 'records with long titles (>512 characters)',
 	);
@@ -2629,7 +2629,7 @@ class reports
 		$query = "
 			SELECT
 				'longtitles' AS report,
-				id AS recordId
+				recordId
 			FROM catalogue_processed
 			WHERE
 				    field = 't'
