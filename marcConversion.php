@@ -1125,14 +1125,12 @@ class marcConversion
 		$e = $this->pOrPt['e'];
 		
 		# $a (R) (Extent, pagination): If record is *doc with any or no *form (e.g. /records/20704/ (test #331)), or *art with *form CD, CD-ROM (e.g. /records/203063/ (test #332)), DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording: "(*v), (*p or *pt)" [all text up to and including ':']
-		# Firstly, determine the record type, for use below
-		$isDoc = ($this->recordType == '/doc');
-		$isArt = (substr_count ($this->recordType, '/art'));
-		$isMultimedia = (in_array ($this->form, array ('CD', 'CD-ROM', 'DVD', 'DVD-ROM', 'Sound Cassette', 'Sound Disc', 'Videorecording')));
 		
 		# If a non-multimediaish article, then add p. at start if not already present: 'p. '*pt [number range after ':' and before ',']; e.g. /records/1107/ (test #524), and negative case /records/1654/ (test #525)
 		#!# Need to handle cases of "unpaged" or "variously paged"
 		#!# /records/152332/ contains a spurious 'p' before the Roman numeral in the $a - probably not a big problem
+		$isArt = (substr_count ($this->recordType, '/art'));
+		$isMultimedia = (in_array ($this->form, array ('CD', 'CD-ROM', 'DVD', 'DVD-ROM', 'Sound Cassette', 'Sound Disc', 'Videorecording')));
 		if ($isArt && !$isMultimedia) {
 			if (!substr_count ('p.', $a)) {
 				$a = 'p. ' . $a;
@@ -1140,6 +1138,7 @@ class marcConversion
 		}
 		
 		# If a doc with a *v, begin with *v; e.g. /records/20704/ (test #331), /records/37420/ , /records/8988/ (test #513)
+		$isDoc = ($this->recordType == '/doc');
 		if ($isDoc) {
 			$vMuscat = $this->xPathValue ($this->xml, '//v');
 			if (strlen ($vMuscat)) {
