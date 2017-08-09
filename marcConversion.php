@@ -1113,7 +1113,6 @@ class marcConversion
 	# Macro to generate the 300 field (Physical Description); 300 is a Minimum standard field; see: https://www.loc.gov/marc/bibliographic/bd300.html
 	# Note: the original data is not normalised, and the spec does not account for all cases, so the implementation here is based also on observation of various records and on examples in the MARC spec, to aim for something that is 'good enough' and similar enough to the MARC examples
 	# At its most basic level, in "16p., ill.", $a is the 16 pages, $b is things after
-	#!# Everything before a colon should describe a volume or issue number, which should end up in a 490 or 500 instead of 300 - to be discussed
 	private function macro_generate300 ($value_ignored)
 	{
 		# Start a result
@@ -2267,6 +2266,7 @@ class marcConversion
 	{
 		#!# In the case of all records whose serial title is listed in /reports/seriestitlemismatches3/ , need to branch at this point and create a 500 note from the local information (i.e. the record itself, not the parent, as in 773 below)
 		
+		#!# Currently, pseudo-analytics do not get a 500, because there is no 773 - e.g. /records/1126/ (test #527) - everything before a colon in its *pt that describes a volume or issue number, should end up in 500 and possibly 490
 		
 		# Get the data from the 773, e.g. /records/1109/ (test #490)
 		if (!$result = $this->macro_generate773 ($value, $parameter_unused, $errorString_ignored, $mode500 = true)) {return false;}

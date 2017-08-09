@@ -3179,3 +3179,10 @@ Macro generate300 *v present in *doc having ‡a creates space
 189056
 300
 ‡a1 disc :‡bill
+
+527
+Pseudo-analytics should get a 500
+1126
+500
+‡aOffprint: International Review of Applied Psychology
+
