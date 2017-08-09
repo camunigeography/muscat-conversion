@@ -3174,3 +3174,8 @@ Macro generate300 *v present in *doc having ‡a creates space
 300
 ‡a20 p. 
 
+526
+300 ‡a where *p (i.e. not *pt) has a colon should not create an analytic volume designation
+189056
+300
+‡a1 disc :‡bill

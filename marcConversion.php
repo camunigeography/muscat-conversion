@@ -1076,10 +1076,12 @@ class marcConversion
 		# Normalise 'p' to have a dot after; safe to make this change after checking: `SELECT * FROM catalogue_processed WHERE field IN('p','pt','vno','v','ts') AND value LIKE '%p%' AND value NOT LIKE '%p.%' AND value REGEXP '[0-9]p' AND value NOT REGEXP '[0-9]p( |,|\\)|\\]|$)';`
 		$a = preg_replace ('/([0-9])p([^.]|$)/', '\1p.\2', $a);	// E.g. /records/6002/ , /records/1654/ (test #346) , multiple in single string: /records/2031/ (test #347)
 		
-		# If the $a has a space-colon, the meaning of this is "<Volume designator> :<Physical extent>"
+		# Split off the analytic volume designation, which is only present in a *pt; this appears as a space-colon in $a; the meaning of this is "<Volume designator> :<Physical extent>"; e.g. /records/1668/ creates $g (test #514)
 		$analyticVolumeDesignation = false;
-		if (substr_count ($a, ' :')) {
-			list ($analyticVolumeDesignation, $a) = explode (' :', $a, 2);
+		if ($pt) {	// I.e. does not apply to *p, e.g. /records/189056/ (test #526)
+			if (substr_count ($a, ' :')) {
+				list ($analyticVolumeDesignation, $a) = explode (' :', $a, 2);
+			}
 		}
 		
 		# If the $a starts with colon, strip out; e.g. /records/1107/ (test #523)
@@ -1154,6 +1156,7 @@ class marcConversion
 		$result = preg_replace ('/([0-9]+)([pv]\.)/', '\1 \2', $result);
 		
 		# $b (NR) (Other physical details): *p [all text after ':' and before, but not including, '+'] or *pt [all text after the ',' - i.e. after the number range following the ':']
+		#!# $b still needs test-cases
 		if (strlen ($b)) {
 			
 			# Normalise comma/colon at end of $a; e.g. /records/9529/ , /records/152326/
