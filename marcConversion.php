@@ -1139,9 +1139,8 @@ class marcConversion
 			}
 		}
 		
-		# If a doc or multimediaish article, begin with *v; e.g. *doc having $b /records/20704/ (test #331), /records/37420/ , /records/8988/ (test #513)
-#!# This block and the $b (NR) block below still need test-cases; in general the logic around this area is not clear
-		if ($isDoc || ($isArt && $isMultimedia)) {
+		# If a doc with a *v, begin with *v; e.g. /records/20704/ (test #331), /records/37420/ , /records/8988/ (test #513)
+		if ($isDoc) {
 			$vMuscat = $this->xPathValue ($this->xml, '//v');
 			if (strlen ($vMuscat)) {
 				$a = $vMuscat . ($a ? ' ' : ($b ? ',' : '')) . $a;
