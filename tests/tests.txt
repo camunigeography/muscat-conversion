@@ -2077,10 +2077,10 @@ Macro generate300 Unpaged capitalised
 ‡a1 volume (unpaged)
 
 344
-Macro generate300 unpaged stops routine, so no $c
+Macro generate300 unpaged does contain $c
 174009
 300
-/^‡a1 volume \(unpaged\)$/
+‡a1 volume (unpaged) ;‡c33 cm.
 
 345
 Macro generate300 unpaged for *doc with empty result
