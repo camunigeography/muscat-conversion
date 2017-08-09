@@ -2364,7 +2364,8 @@ class marcConversion
 		if (in_array ($this->recordType, array ('/art/in', '/art/j'))) {
 			$gComponents = array ();
 			if ($this->pOrPt['analyticVolumeDesignation']) {	// E.g. /records/1668/ creates $g (test #514), but /records/54886/ has no $g (test #515)
-				$gComponents[] = $this->pOrPt['analyticVolumeDesignation'];
+				$prefix = (preg_match ('/^[0-9]/', $this->pOrPt['analyticVolumeDesignation']) ? 'Vol. ' : '');	// E.g. /records/1668/ (test #521), /records/1300/ (test #522)
+				$gComponents[] = $prefix . $this->pOrPt['analyticVolumeDesignation'];
 			}
 			if ($this->recordType == '/art/j') {	// E.g. /records/4844/ (test #519), /records/54886/ has no $g (test #515) as it is an *art/*in
 				if ($d = $this->xPathValue ($this->xml, '/art/j/d')) {

@@ -3133,7 +3133,7 @@ Macro generate300 *v present in *doc having ‡a creates space
 ‡gTome 2. Physique terrestre. Météorologie. Histoire naturelle. Sect. 7.
 
 519
-773 ‡g for *art/*j without a analytic volume designation should include date (*art/*j/*d)
+773 ‡g for *art/*j without an analytic volume designation should include date (*art/*j/*d)
 4844
 773
 ‡g(1882) ‡
@@ -3143,3 +3143,18 @@ Macro generate300 *v present in *doc having ‡a creates space
 1166
 773
 ‡g18 ‡
+
+521
+773 ‡g analytic volume designation should be prefixed with "Vol. " if numeric (positive match)
+1668
+773
+‡gVol. 7(3)
+
+522
+773 ‡g analytic volume designation should be prefixed with "Vol. " if numeric (negative match)
+1300
+773
+‡gSer. 3
+
+
+
