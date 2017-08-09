@@ -1147,23 +1147,23 @@ class marcConversion
 			}
 		}
 		
+		# Add space between the number and the 'p.' or 'v.' ; e.g. /records/49133/ for p. (test #349); normalisation not required: /records/13745/ (test #350) ; multiple instances of page number in /records/2031/ ; NB No actual cases for v. in the data; avoids dot after 'vols': /records/20704/ (test #348)
+		$a = preg_replace ('/([0-9]+)([pv]\.)/', '\1 \2', $a);
+		
+		# Normalise comma/colon at end of $a; e.g. /records/9529/ , /records/152326/
+		$a = trim ($a);
+		$a = preg_replace ('/(.+)[,;:]$/', '\1', $a);
+		$a = trim ($a);
+		
 		# Register the $a
 		$result .= $a;
 		
-		# Add space between the number and the 'p.' or 'v.' ; e.g. /records/49133/ for p. (test #349); normalisation not required: /records/13745/ (test #350) ; multiple instances of page number in /records/2031/ ; NB No actual cases for v. in the data; avoids dot after 'vols': /records/20704/ (test #348)
-		$result = preg_replace ('/([0-9]+)([pv]\.)/', '\1 \2', $result);
-		
 		# $b (NR) (Other physical details): *p [all text after ':' and before, but not including, '+'] or *pt [all text after the ',' - i.e. after the number range following the ':']
-		#!# $b still needs test-cases
 		if (strlen ($b)) {
-			
-			# Normalise comma/colon at end of $a; e.g. /records/9529/ , /records/152326/
-			$result = trim ($result);
-			$result = preg_replace ('/(.+)[,:]$/', '\1', $result);
-			$result = trim ($result);
-			
-			# Add $b
-			$result .= " :{$this->doubleDagger}b" . trim ($b);	// Trim whitespace at end; there will be none at start due to explicit delimeter
+			$b = trim ($b);
+			$b = preg_replace ('/(.+)[,;:]$/', '\1', $b);	// E.g. /records/9529/ (test #528)
+			$b = trim ($b);
+			$result .= " :{$this->doubleDagger}b" . $b;
 		}
 		
 		# End if no value; in this scenario, no $c should be created, i.e. the whole routine should be ended

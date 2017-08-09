@@ -3186,3 +3186,8 @@ Pseudo-analytics should get a 500
 500
 ‡aOffprint: International Review of Applied Psychology
 
+528
+300 ‡b should have trailing punctuation removed (except dot)
+9529
+300
+‡bill. ;‡c
