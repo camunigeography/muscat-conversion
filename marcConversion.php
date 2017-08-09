@@ -1168,7 +1168,6 @@ class marcConversion
 		
 		# End if no value; in this scenario, no $c should be created, i.e. the whole routine should be ended
 		if (!strlen ($result) || strtolower ($pOrPt) == 'unpaged') {	 // 'unpaged' at /records/1248/ (test #341); 'Unpaged' at /records/174009/ (test #343)
-			#!# Should there be a space after "v." as per the normalisation routine above?
 			$result = ($this->recordType == '/ser' ? 'v.' : '1 volume (unpaged)');	// E.g. *ser with empty $result: /records/1019/ (confirmed to be fine) (test #341); *doc with empty $result: /records/1332/ (test #345); no cases of unpaged (*p or *pt) for *ser so no test; *doc with unpaged: /records/174009/ (test #343)
 			#!# Is it really correct that $c should be omitted? E.g. in /records/174009/ *size = '21x10 cm.' is thus lost
 			return $result;		// Stop, e.g. /records/174009/ (test #344)
