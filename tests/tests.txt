@@ -3156,5 +3156,8 @@ Macro generate300 *v present in *doc having ‡a creates space
 773
 ‡gSer. 3
 
-
-
+523
+300 $a should not start with a colon
+1107
+300
+‡a341-343.

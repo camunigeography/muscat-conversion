@@ -1079,6 +1079,11 @@ class marcConversion
 			list ($analyticVolumeDesignation, $a) = explode (' :', $a, 2);
 		}
 		
+		# If the $a starts with colon, strip out; e.g. /records/1107/ (test #523)
+		if (preg_match ('/^:/', $a)) {
+			$a = mb_substr ($a, 1);
+		}
+		
 		# If there is a *vno but no *ts (and so no 490 will be created - e.g. /records/1896/ (test #354)), add this at the start of the analytic volume designation, before any pagination (extent) data from *pt; e.g. /records/5174/ (test #352)
 		if ($vno = $this->xPathValue ($this->xml, '//vno')) {
 			if (!$ts = $this->xPathValue ($this->xml, '//ts')) {	// /records/1896/ (test #353)
