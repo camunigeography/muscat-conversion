@@ -2360,14 +2360,21 @@ class marcConversion
 			}
 		}
 		
-		# Add 773 ‡g: *pt (Related parts) [of child record, i.e. not host record]; *art/*j only
+		# Add 773 ‡g: *pt (Related parts) [of child record, i.e. not host record]: analytic volume designation (if present), followed - if *art/*j - by (meaningful) date (if present)
 		if (in_array ($this->recordType, array ('/art/in', '/art/j'))) {
+			$gComponents = array ();
 			if ($this->pOrPt['analyticVolumeDesignation']) {	// E.g. /records/1668/ creates $g (test #514), but /records/54886/ has no $g (test #515)
-				$subfields[] = "{$this->doubleDagger}g" . $this->pOrPt['analyticVolumeDesignation'];
-			} else {
-				if ($this->recordType == '/art/j') {	// E.g. /records/4844/ (test #519)
-					$subfields[] = "{$this->doubleDagger}g" . '(' . $this->xPathValue ($this->xml, '/art/j/d') . ')';
+				$gComponents[] = $this->pOrPt['analyticVolumeDesignation'];
+			}
+			if ($this->recordType == '/art/j') {	// E.g. /records/4844/ (test #519), /records/54886/ has no $g (test #515) as it is an *art/*in
+				if ($d = $this->xPathValue ($this->xml, '/art/j/d')) {
+					if (!in_array ($d, array ('[n.d.]', '-'))) {	// E.g. /records/1166/ (test #520)
+						$gComponents[] = '(' . $this->xPathValue ($this->xml, '/art/j/d') . ')';
+					}
 				}
+			}
+			if ($gComponents) {
+				$subfields[] = "{$this->doubleDagger}g" . implode (' ', $gComponents);
 			}
 		}
 		
