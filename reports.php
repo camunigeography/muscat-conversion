@@ -119,6 +119,7 @@ class reports
 		'longtitles_problem' => 'records with long titles (>512 characters)',
 		'artjwithoutvolume_problem' => 'articles in journals without a volume designation and no useful date',
 		'docpt_problem' => '*doc records with a *pt',
+		'artform_problem' => '*art records with a *form',
 	);
 	
 	# Listing (values) reports
@@ -2700,6 +2701,25 @@ class reports
 				recordId
 			FROM catalogue_processed
 			WHERE xPath = '/doc/pt'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *art records with a *form
+	public function report_artform ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'artform' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    xPath LIKE '%/art%'
+				AND field = 'form'
 		";
 		
 		# Return the query
