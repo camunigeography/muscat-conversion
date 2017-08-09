@@ -3157,7 +3157,20 @@ Macro generate300 *v present in *doc having ‡a creates space
 ‡gSer. 3
 
 523
-300 $a should not start with a colon
+300 ‡a should not start with a colon
 1107
 300
 ‡a341-343.
+
+524
+300 ‡a should have "p. " when not already present (positive match)
+1107
+300
+‡ap. 341-343.
+
+525
+300 ‡a should have "p. " when not already present (negative match)
+1654
+300
+‡a20 p. 
+

@@ -1126,20 +1126,29 @@ class marcConversion
 		$e = $this->pOrPt['e'];
 		
 		# $a (R) (Extent, pagination): If record is *doc with any or no *form (e.g. /records/20704/ (test #331)), or *art with *form CD, CD-ROM (e.g. /records/203063/ (test #332)), DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording: "(*v), (*p or *pt)" [all text up to and including ':']
+		# Firstly, determine the record type, for use below
 		$isDoc = ($this->recordType == '/doc');
 		$isArt = (substr_count ($this->recordType, '/art'));
 		$isMultimedia = (in_array ($this->form, array ('CD', 'CD-ROM', 'DVD', 'DVD-ROM', 'Sound Cassette', 'Sound Disc', 'Videorecording')));
+		
+		# If a non-multimediaish article, then add p. at start if not already present: 'p. '*pt [number range after ':' and before ',']; e.g. /records/1107/ (test #524), and negative case /records/1654/ (test #525)
+		#!# /records/152332/ contains a spurious 'p' before the Roman numeral in the $a - probably not a big problem
+		if ($isArt && !$isMultimedia) {
+			if (!substr_count ('p.', $a)) {
+				$a = 'p. ' . $a;
+			}
+		}
+		
+		# If a doc or multimediaish article, begin with *v; e.g. *doc having $b /records/20704/ (test #331), /records/37420/ , /records/8988/ (test #513)
+#!# This block and the $b (NR) block below still need test-cases; in general the logic around this area is not clear
 		if ($isDoc || ($isArt && $isMultimedia)) {
 			$vMuscat = $this->xPathValue ($this->xml, '//v');
 			if (strlen ($vMuscat)) {
-				$result = $vMuscat . ($a ? ' ' : ($b ? ',' : ''));	// e.g. *doc having $b /records/20704/ (test #331), /records/, /records/37420/ , /records/175872/ , /records/8988/ (test #513)
+				$a = $vMuscat . ($a ? ' ' : ($b ? ',' : '')) . $a;
 			}
-		# $a (R) (Extent, pagination): If record is *art with no *form or *form other than listed above: 'p. '*pt [number range after ':' and before ',']
-		} else if ($isArt) {	// Therefore this *art is not multimedia
-			// $result .= 'p. ';	// Spec unclear - subsequent instruction was "/records/152332/ still contains a spurious 'p' in the $a - please ensure this is not added to the record"
 		}
 		
-		# Register the $a result
+		# Register the $a
 		$result .= $a;
 		
 		# Add space between the number and the 'p.' or 'v.' ; e.g. /records/49133/ for p. (test #349); normalisation not required: /records/13745/ (test #350) ; multiple instances of page number in /records/2031/ ; NB No actual cases for v. in the data; avoids dot after 'vols': /records/20704/ (test #348)
