@@ -2301,14 +2301,13 @@ class marcConversion
 	
 	
 	# Macro to generate the 773 (Host Item Entry) field; see: http://www.loc.gov/marc/bibliographic/bd773.html ; e.g. /records/1129/ (test #493)
-	#!# 773 is not currently being generated for /art/j analytics (generally *location=Periodical); this is because of the *kg check below; the spec needs to define some implementation for this; for *location=Pam, the same information goes in a 500 field rather than a 773; again this needs a spec
 	private function macro_generate773 ($value, $parameter_unused, &$errorString_ignored = false, $mode500 = false)
 	{
 		# Start a result
 		$result = '';
 		
 		# Only relevant if there is a host record (i.e. has a *kg which exists); records will usually be /art/in or /art/j only, but there are some /doc records, e.g. /records/1129/ (test #493), or negative case /records/2075/ (test #494)
-		#!# At present this leaves tens of thousands of journal analytics without links (because they don't have explicit *kg fields)
+		#!# At present this leaves tens of thousands of journal analytics without links (because they don't have explicit *kg fields) - these are pseudo-analytics
 		if (!$this->hostRecord) {return false;}
 		
 		# Parse out the host record
@@ -2317,8 +2316,7 @@ class marcConversion
 		# Start a list of subfields
 		$subfields = array ();
 		
-		# Add 773 ‡a; *art/*in records only
-		#!# Needs implementation for things that are /art/j
+		# Add 773 ‡a; *art/*in records only; $a is not used for *art/*j because journals don't have authors - instead $t is relevant
 		if ($this->recordType == '/art/in') {
 			
 			# If the host record has a 100 field, copy in the 1XX (Main entry heading) from the host record, omitting subfield codes; otherwise use 245 $c
@@ -2328,7 +2326,7 @@ class marcConversion
 				$aSubfieldValue = $this->combineSubfieldValues ('a', $marc['245'], array ('c'));	// E.g. lookup of record 1221 in /records/1222/ (test #496)
 			}
 			
-			#!# Need to strip '.' (to avoid e.g. "Martin Smith.,") if not an initial, or initials (like Eds.); this may need to be a crude string replacement because we don't have access to the tokenisation
+			#!# Need to strip '.' (to avoid e.g. "Martin Smith.,") if not an initial, or initials (like Eds.), e.g. /records/2073/ ; this may need to be a crude string replacement because we don't have access to the tokenisation
 			
 			
 			# Add a comma at the end; we know that there will be always be something following this, because in the (current) /art/in context, all parents are known to have a title, e.g. /records/1222/ (test #497)
@@ -2384,10 +2382,6 @@ class marcConversion
 		if (!$mode500) {
 			$subfields[] = "{$this->doubleDagger}w" . $marc['001'][0]['line'];
 		}
-		
-		#!# Might need date also
-		
-		#!# Might need volume also
 		
 		# Compile the result
 		$result = implode (' ', $subfields);
