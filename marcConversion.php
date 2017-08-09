@@ -1096,8 +1096,6 @@ class marcConversion
 			}
 		}
 		
-		#!# $a should have "p. " in front of it, unless it is unpaged
-		
 		# Assemble the datastructure
 		$pOrPt = array (
 			'_pOrPt'					=> $pOrPt,
@@ -1134,6 +1132,7 @@ class marcConversion
 		$isMultimedia = (in_array ($this->form, array ('CD', 'CD-ROM', 'DVD', 'DVD-ROM', 'Sound Cassette', 'Sound Disc', 'Videorecording')));
 		
 		# If a non-multimediaish article, then add p. at start if not already present: 'p. '*pt [number range after ':' and before ',']; e.g. /records/1107/ (test #524), and negative case /records/1654/ (test #525)
+		#!# Need to handle cases of "unpaged" or "variously paged"
 		#!# /records/152332/ contains a spurious 'p' before the Roman numeral in the $a - probably not a big problem
 		if ($isArt && !$isMultimedia) {
 			if (!substr_count ('p.', $a)) {
