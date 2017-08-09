@@ -1073,6 +1073,9 @@ class marcConversion
 			}
 		}
 		
+		# Normalise 'p' to have a dot after; safe to make this change after checking: `SELECT * FROM catalogue_processed WHERE field IN('p','pt','vno','v','ts') AND value LIKE '%p%' AND value NOT LIKE '%p.%' AND value REGEXP '[0-9]p' AND value NOT REGEXP '[0-9]p( |,|\\)|\\]|$)';`
+		$a = preg_replace ('/([0-9])p([^.]|$)/', '\1p.\2', $a);	// E.g. /records/6002/ , /records/1654/ (test #346) , multiple in single string: /records/2031/ (test #347)
+		
 		# If the $a has a space-colon, the meaning of this is "<Volume designator> :<Physical extent>"
 		$analyticVolumeDesignation = false;
 		if (substr_count ($a, ' :')) {
@@ -1138,9 +1141,6 @@ class marcConversion
 		
 		# Register the $a result
 		$result .= $a;
-		
-		# Normalise 'p' to have a dot after; safe to make this change after checking: `SELECT * FROM catalogue_processed WHERE field IN('p','pt','vno','v','ts') AND value LIKE '%p%' AND value NOT LIKE '%p.%' AND value REGEXP '[0-9]p' AND value NOT REGEXP '[0-9]p( |,|\\)|\\]|$)';`
-		$result = preg_replace ('/([0-9])p([^.]|$)/', '\1p.\2', $result);	// E.g. /records/6002/ , /records/1654/ (test #346) , multiple in single string: /records/2031/ (test #347)
 		
 		# Add space between the number and the 'p.' or 'v.' ; e.g. /records/49133/ for p. (test #349); normalisation not required: /records/13745/ (test #350) ; multiple instances of page number in /records/2031/ ; NB No actual cases for v. in the data; avoids dot after 'vols': /records/20704/ (test #348)
 		$result = preg_replace ('/([0-9]+)([pv]\.)/', '\1 \2', $result);
