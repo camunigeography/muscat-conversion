@@ -118,6 +118,7 @@ class reports
 		'russianvolumenumbers_info' => 'Russian records with a volume number',
 		'longtitles_problem' => 'records with long titles (>512 characters)',
 		'artjwithoutvolume_problem' => 'articles in journals without a volume designation and no useful date',
+		'docpt_problem' => '*doc records with a *pt',
 	);
 	
 	# Listing (values) reports
@@ -2682,6 +2683,23 @@ class reports
 					   catalogue_xml.xml NOT LIKE '%<d>%'
 					OR catalogue_xml.xml LIKE '%<d>%n.%</d>%'
 				)
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *doc records with a *pt
+	public function report_docpt ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'docpt' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE xPath = '/doc/pt'
 		";
 		
 		# Return the query
