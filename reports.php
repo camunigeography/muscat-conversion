@@ -69,7 +69,8 @@ class reports
 		'multiplej_problem' => 'records containing more than one *j field',
 		'multipletopt_problem' => 'records containing more than one top-level *t field',
 		'multipletoptt_problem' => 'records containing more than one top-level *tt field',
-		'invaliddatestring_problem' => 'records with an invalid date string',
+		'invaliddaterangestring_problem' => 'records with an invalid date range string',
+		'ndsyntax_problem' => 'records with invalid syntax for a non-numeric date',
 		'multipledate_info' => 'records with more than one *d',
 		'multiplept_postmigration' => 'records with more than one *pt',
 		'serlocloc_problem' => '*ser records with two or more locations (though some are valid)',
@@ -1652,8 +1653,8 @@ class reports
 	}
 	
 	
-	# Records with an invalid date string
-	public function report_invaliddatestring ()
+	# Records with an invalid date range string
+	public function report_invaliddaterangestring ()
 	{
 		# Find cases matching .^.
 		$query = "
@@ -1673,6 +1674,28 @@ class reports
 					   value NOT REGEXP '[-0-9]$'										-- Error if does not end X or -
 					OR value REGEXP '([0-9]{4})-([0-9]{2})([^0-9])'						-- Error if XXXX-XX then not a number
 				)
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with invalid syntax for a non-numeric date
+	public function report_ndsyntax ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'ndsyntax' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field = 'd'
+				AND value NOT REGEXP '[0-9]'
+				AND value != '[n.d.]'
+				/* AND value != '?' */
+				/* AND value != '-' */
 		";
 		
 		# Return the query
