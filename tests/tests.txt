@@ -3132,3 +3132,8 @@ Macro generate300 *v present in *doc having ‡a creates space
 773
 ‡gTome 2. Physique terrestre. Météorologie. Histoire naturelle. Sect. 7.
 
+519
+773 ‡g for *art/*j without a analytic volume designation should use date (*art/*j/*d) as a proxy
+4844
+773
+‡g(1882) ‡
