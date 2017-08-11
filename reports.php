@@ -3892,14 +3892,42 @@ class reports
 	# View for automated tests
 	public function report_tests_view ()
 	{
+		# Start the HTML
+		$html = '';
+		
 		# Regenerate if required
 		if (!$this->muscatConversion->runTests ($error)) {
 			$html = "\n<p class=\"warning\">The tests are not correctly defined, with the test harness reporting an error: <tt>{$error}</tt></p>";
 			return $html;
 		}
 		
+		# Add a filter form
+		$fields = array (
+			'result' => array (
+				'title'		=> 'Pass/fail',
+				'values'	=> array (1 => 'Pass', 0 => 'Fail'),
+			),
+			'description' => array (
+				'title'		=> 'Description',
+				'size'		=> 25,
+				'like'		=> true,
+			),
+			'marcField' => array (
+				'title'		=> 'MARC field',
+				'size'		=> 10,
+				'maxlength'	=> 3,
+			),
+		);
+		$conditions = $this->muscatConversion->filteringControls ($fields, $this->baseUrl . '/reports/tests/', $html);
+		
 		# Obtain the data
-		$data = $this->databaseConnection->select ($this->settings['database'], 'tests');
+		$data = $this->databaseConnection->select ($this->settings['database'], 'tests', $conditions, array (), true, false, false, true, array ('description'));
+		
+		# End if no results
+		if (!$data) {
+			$html .= "\n<br />\n<p><em>There are no results.</em></p>";
+			return $html;
+		}
 		
 		# Count passing tests
 		$totalPassed = 0;
@@ -3969,7 +3997,7 @@ class reports
 		$percentagePassed = round (($totalPassed / $totalTests) * 100, 1);
 		$totalFailed = $totalTests - $totalPassed;
 		$percentageFailed = round (($totalFailed / $totalTests) * 100, 1);
-		$html  = "\n<div class=\"graybox\">";
+		$html .= "\n<div class=\"graybox\">";
 		$html .= "\n<p class=\"success\">Tests passing: {$totalPassed} / {$totalTests} ({$percentagePassed}%).</p>";
 		$html .= "\n<p class=\"warning\">Tests failing: {$totalFailed} / {$totalTests} ({$percentageFailed}%).</p>";
 		$html .= "\n</div>";
