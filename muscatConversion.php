@@ -4666,7 +4666,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to run tests and generate test results
-	public function runTests (&$error = false)
+	public function runTests (&$error = false, $regenerateMarc = false)
 	{
 		# Log start
 		$this->logger ('Starting ' . __METHOD__);
@@ -4699,11 +4699,26 @@ class muscatConversion extends frontControllerApplication
 			return false;
 		}
 		
-		# Pre-load the MARC records
+		# Determine record IDs to load
 		$ids = array ();
 		foreach ($tests as $test) {
 			$ids[] = $test['recordId'];
 		}
+		
+		# Dynamically regenerate the MARC records
+		if ($regenerateMarc) {
+			$marcRecords = array ();
+			$marcParserDefinition = $this->getMarcParserDefinition ();
+			$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ());
+			$xmlRecords = $this->getRecords ($ids, 'xml', false, false, $searchStable = (!$this->userIsAdministrator));
+			foreach ($xmlRecords as $id => $data) {
+				// if (!in_array ($id, $regenerateIds)) {continue;}	// Skip non-needed IDs
+				$marcRecords[$id]['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $errorString, $mergeDefinition);
+			}
+			$this->databaseConnection->updateMany ($this->settings['database'], 'catalogue_marc', $marcRecords);
+		}
+		
+		# Pre-load the MARC records
 		$marcRecords = $this->databaseConnection->selectPairs ($this->settings['database'], 'catalogue_marc', array ('id' => $ids), array ('id', 'marc'));
 		
 		# Run each test and add in the result

@@ -65,6 +65,7 @@
 #muscatconversion ul.orderby li a.selected {background-color: #eee; border-color: gray;}
 #muscatconversion ul.orderby li a:hover {text-decoration: none; background-color: #eee;}
 #muscatconversion #filters select {width: 100px;}
+#muscatconversion #regenerate {text-align: right;}
 
 /* Print styles */
 @media print {
