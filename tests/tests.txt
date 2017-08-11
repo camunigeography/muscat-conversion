@@ -79,10 +79,10 @@ u1964uuuu
 uuuuuuuuu
 
 11
-008 position 06-14 "-"
-184400
+008 position 06-14 "1997/98-"
+145353
 008
-uuuuuuuuu
+/^.{2}1997uuuu/
 
 12
 008 position 06-14 "1977?-"
