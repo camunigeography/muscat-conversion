@@ -3014,9 +3014,9 @@ ed., ‡t
 
 499
 856 DOI appears also as URL
-8353
+2175
 856
-‡uhttp://dx.doi.org/10.1038/071221c0
+0023‡uhttp://dx.doi.org/10.1098
 
 500
 In roleAndSiblings, *role (e.g. 'Compiled by') is not subject to transliteration
