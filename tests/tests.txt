@@ -3142,7 +3142,7 @@ Macro generate300 *v present in *doc having ‡a creates space
 773 ‡g with *d = '[n.d.]' should not have date string appearing
 1166
 773
-‡g18 ‡
+‡gVol. 18 ‡
 
 521
 773 ‡g analytic volume designation should be prefixed with "Vol. " if numeric (positive match)
