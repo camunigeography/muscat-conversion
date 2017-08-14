@@ -3118,13 +3118,13 @@ Macro generate300 *v present in *doc having ‡a creates space
 300 ‡a should not contain volume designator (case where *pt has space-colon)
 1668
 300
-‡a233-266 :‡b
+‡ap. 233-266 :‡b
 
 517
 300 ‡a should not contain volume designator (case where *pt does not have space-colon)
 54886
 300
-‡a:191-197.
+‡ap. 191-197.
 
 518
 773 ‡g contents of *vno should appear at the start, with a dot before other material (see also test #352)
@@ -3160,7 +3160,7 @@ Macro generate300 *v present in *doc having ‡a creates space
 300 ‡a should not start with a colon
 1107
 300
-‡a341-343.
+‡ap. 341-343.
 
 524
 300 ‡a should have "p. " when not already present (positive match)
