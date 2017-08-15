@@ -2361,8 +2361,8 @@ class marcConversion
 					unset ($marc['260'][0]['subfields']['c']);
 				}
 				
-				# Split by colon
-				$subfields[] = $this->combineSubfieldValues ('d', $marc['260'], array (), ': ', false, $normaliseTrailingImplode = true);
+				# Split by space-colon-space; e.g. /records/59148/ (test #532)
+				$subfields[] = $this->combineSubfieldValues ('d', $marc['260'], array (), ' : ', false, $normaliseTrailingImplode = true);
 			}
 		}
 		

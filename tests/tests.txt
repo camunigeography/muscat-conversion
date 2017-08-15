@@ -3210,3 +3210,8 @@ Pseudo-analytics should get a 500
 773
 ‡tGeologii͡a i tektonika rudonosnykh regionov I͡akutii (sbornik). ‡d
 
+532
+773 $d uses space-colon-space between host 260 $a and $b
+67559
+773
+‡dKatowice : Uniwersytet Ślaski, 1983. ‡w
