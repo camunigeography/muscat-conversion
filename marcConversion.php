@@ -2337,11 +2337,8 @@ class marcConversion
 				$aSubfieldValue = $this->combineSubfieldValues ('a', $marc['245'], array ('c'));	// E.g. lookup of record 1221 in /records/1222/ (test #496)
 			}
 			
-			#!# Need to strip '.' (to avoid e.g. "Martin Smith.,") if not an initial, or initials (like Eds.), e.g. /records/2073/ ; this may need to be a crude string replacement because we don't have access to the tokenisation
-			
-			
-			# Add a comma at the end; we know that there will be always be something following this, because in the (current) /art/in context, all parents are known to have a title, e.g. /records/1222/ (test #497)
-			$subfields[] = $aSubfieldValue . ',';
+			# Add a dot at the end; we know that there will be always be something following this, because in the (current) /art/in context, all parents are known to have a title, e.g. /records/67559/ (test #497)
+			$subfields[] = $this->macro_dotEnd ($aSubfieldValue, $extendedCharacterList = '.])>-');	// See: https://www.oclc.org/bibformats/en/7xx/773.html which has more examples than the main MARC site
 		}
 		
 		# Add 773 ‡t: Copy in the 245 (Title) ‡a and ‡b from the host record, omitting subfield codes, stripping leading articles
