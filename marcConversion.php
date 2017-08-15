@@ -2346,7 +2346,7 @@ class marcConversion
 			$xPath = '//lang[1]';	// Choose first only
 			$language = $this->xPathValue ($this->xml, $xPath);
 			if (!$language) {$language = 'English';}
-			$subfields['x'] = $this->combineSubfieldValues ('t', $marc['245'], array ('a', 'b'), ' ', $language);	// Space separator only, as already has : in master 245; e.g. /records/67559/ (test #529), /records/59148/ (test #530)
+			$subfields['x'] = $this->combineSubfieldValues ('t', $marc['245'], array ('a', 'b'), ' ', $language);	// Space separator only, as already has : in master 245; e.g. /records/67559/ (test #529), /records/59148/ (test #530). Will automatically have a . (which replaces /) e.g. /records/59148/ (test #531)
 		}
 		
 		# Add 773 ‡d: Copy in the 260 (Place, publisher, and date of publication) from the host record, omitting subfield codes; *art/*in records only

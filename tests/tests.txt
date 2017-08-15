@@ -3204,3 +3204,9 @@ Pseudo-analytics should get a 500
 773
 ‡tGeologii͡a i tektonika rudonosnykh regionov I͡akutii (sbornik). ‡d
 
+531
+773 ‡t ends with dot
+59148
+773
+‡tGeologii͡a i tektonika rudonosnykh regionov I͡akutii (sbornik). ‡d
+
