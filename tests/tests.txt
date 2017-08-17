@@ -3215,3 +3215,9 @@ Pseudo-analytics should get a 500
 67559
 773
 ‡dKatowice : Uniwersytet Ślaski, 1983. ‡w
+
+533
+300 *pt with multiple abbreviations has each receiving dot
+147891
+300
+ill., diags.,

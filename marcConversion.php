@@ -1048,22 +1048,17 @@ class marcConversion
 			$pOrPt = trim ($plusMatches[0]);	// Override string to strip out the + section
 		}
 		
+		# Normalise abbreviations to have a dot; use of \b prevents this adding . in middle of word (e.g. for 'ill'); e.g. /records/1584/ (test #329) , /records/1163/ (test #330); supports multiple replacements, e.g. /records/147891/ (test #533)
+		# Checked using: `SELECT * FROM catalogue_processed WHERE field IN('p','pt') AND value LIKE '%ill%' AND value NOT LIKE '%ill.%' AND value NOT REGEXP 'ill(-|\.|\'|[a-z]|$)';`
+		$abbreviations = array ('illus', 'ill', 'diag', 'port', 'col', 'fig');
+		$pOrPt = preg_replace ('/' . "\b" . '(' . implode ('|', $abbreviations) . ')(s?)' . "\b" . '([^\.]|$)' . '/', '\1\2.\3', $pOrPt);
+		
 		# Next split by the keyword which acts as separating point between $a and an optional $b (i.e. is the start of an optional $b); e.g. /records/51787/ (test #328); first comma cannot be used reliably because the pagination list could be e.g. "3,5,97-100"
 		$a = trim ($pOrPt);
 		$b = false;
 		$splitWords = array ('illus', 'ill', 'diag', 'map', 'table', 'graph', 'port', 'col');	// These may be pluralised, using the s? below; e.g. /records/1684/ (test #512)
 		foreach ($splitWords as $word) {
 			if (substr_count ($pOrPt, $word) && preg_match ("/\b{$word}s?\b/", $pOrPt)) {		// Use of \b word boundary ensures not splitting bibliography at 'graph' (test #220)
-				
-				# If the word requires a dot after, add this if not present; e.g. /records/1584/ (test #329) , /records/1163/ (test #330)
-				# Checked using: `SELECT * FROM catalogue_processed WHERE field IN('p','pt') AND value LIKE '%ill%' AND value NOT LIKE '%ill.%' AND value NOT REGEXP 'ill(-|\.|\'|[a-z]|$)';`
-				if (in_array ($word, array ('illus', 'ill', 'diag', 'port', 'col'))) {
-					if (!substr_count ($pOrPt, $word . '.')) {
-						if (!preg_match ("/\b{$word}(-|\'|[a-z])/", $pOrPt)) {	// I.e. don't add . in middle of word or cases like ill
-							$pOrPt = preg_replace ("/\b{$word}/", $word . '.', $pOrPt);
-						}
-					}
-				}
 				
 				# Assemble; e.g. /records/51787/ (test #328)
 				$split = explode ($word, $pOrPt, 2);	// Explode seems more reliable than preg_split, because it is difficult to get a good regexp that allows multiple delimeters, multiple presence of delimeter, and optional trailing string
