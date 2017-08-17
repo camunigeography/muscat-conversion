@@ -1059,8 +1059,8 @@ class marcConversion
 				# Checked using: `SELECT * FROM catalogue_processed WHERE field IN('p','pt') AND value LIKE '%ill%' AND value NOT LIKE '%ill.%' AND value NOT REGEXP 'ill(-|\.|\'|[a-z]|$)';`
 				if (in_array ($word, array ('illus', 'ill', 'diag', 'port', 'col'))) {
 					if (!substr_count ($pOrPt, $word . '.')) {
-						if (!preg_match ("/{$word}(-|\'|[a-z])/", $pOrPt)) {	// I.e. don't add . in middle of word or cases like ill
-							$pOrPt = str_replace ($word, $word . '.', $pOrPt);
+						if (!preg_match ("/\b{$word}(-|\'|[a-z])/", $pOrPt)) {	// I.e. don't add . in middle of word or cases like ill
+							$pOrPt = preg_replace ("/\b{$word}/", $word . '.', $pOrPt);
 						}
 					}
 				}
@@ -1069,6 +1069,7 @@ class marcConversion
 				$split = explode ($word, $pOrPt, 2);	// Explode seems more reliable than preg_split, because it is difficult to get a good regexp that allows multiple delimeters, multiple presence of delimeter, and optional trailing string
 				$a = trim ($split[0]);
 				$b = $word . $split[1];
+				
 				break;
 			}
 		}
