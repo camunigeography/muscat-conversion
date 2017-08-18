@@ -3221,3 +3221,16 @@ Pseudo-analytics should get a 500
 147891
 300
 ill., diags.,
+
+534
+300 *pt addition of dot to abbreviation supports plural 's'
+34364
+300
+ills.,
+
+535
+300 *pt split happens on first keyword
+12780
+300
+1-28 :‡bill., diags., tables, maps.
+

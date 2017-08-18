@@ -1048,25 +1048,19 @@ class marcConversion
 			$pOrPt = trim ($plusMatches[0]);	// Override string to strip out the + section
 		}
 		
-		# Normalise abbreviations to have a dot; use of \b prevents this adding . in middle of word (e.g. for 'ill'); e.g. /records/1584/ (test #329) , /records/1163/ (test #330); supports multiple replacements, e.g. /records/147891/ (test #533)
+		# Normalise abbreviations to have a dot; use of \b prevents this adding . in middle of word (e.g. for 'ill'); e.g. /records/1584/ (test #329) , /records/1163/ (test #330); supports multiple replacements, e.g. /records/147891/ (test #533); supports optional plural 's', e.g. /records/34364/ (test #534)
 		# Checked using: `SELECT * FROM catalogue_processed WHERE field IN('p','pt') AND value LIKE '%ill%' AND value NOT LIKE '%ill.%' AND value NOT REGEXP 'ill(-|\.|\'|[a-z]|$)';`
-		$abbreviations = array ('illus', 'ill', 'diag', 'port', 'col', 'fig');
+		$abbreviations = array ('col', 'diag', 'fig', 'ill', 'illus', 'port');
 		$pOrPt = preg_replace ('/' . "\b" . '(' . implode ('|', $abbreviations) . ')(s?)' . "\b" . '([^\.]|$)' . '/', '\1\2.\3', $pOrPt);
 		
-		# Next split by the keyword which acts as separating point between $a and an optional $b (i.e. is the start of an optional $b); e.g. /records/51787/ (test #328); first comma cannot be used reliably because the pagination list could be e.g. "3,5,97-100"
+		# Next split by the keyword which acts as separating point between $a and an optional $b (i.e. is the start of an optional $b); e.g. /records/51787/ (test #328); first comma cannot be used reliably because the pagination list could be e.g. "3,5,97-100"; split is done for the first instance of a split word, e.g. /records/12780/ (test #535)
+		$splitWords = array ('col', 'diag', 'fig', 'figures', 'graph', 'ill', 'illus', 'map', 'port', 'table', );	// These may be pluralised, using the s? below; e.g. /records/1684/ (test #512)
 		$a = trim ($pOrPt);
 		$b = false;
-		$splitWords = array ('illus', 'ill', 'diag', 'map', 'table', 'graph', 'port', 'col');	// These may be pluralised, using the s? below; e.g. /records/1684/ (test #512)
-		foreach ($splitWords as $word) {
-			if (substr_count ($pOrPt, $word) && preg_match ("/\b{$word}s?\b/", $pOrPt)) {		// Use of \b word boundary ensures not splitting bibliography at 'graph' (test #220)
-				
-				# Assemble; e.g. /records/51787/ (test #328)
-				$split = explode ($word, $pOrPt, 2);	// Explode seems more reliable than preg_split, because it is difficult to get a good regexp that allows multiple delimeters, multiple presence of delimeter, and optional trailing string
-				$a = trim ($split[0]);
-				$b = $word . $split[1];
-				
-				break;
-			}
+		$matches = preg_split ('/' . "\b" . '((?:' . implode ('|', $splitWords) . ')s?' . "\b.+$)" . '/', $pOrPt, 2, PREG_SPLIT_DELIM_CAPTURE|PREG_SPLIT_NO_EMPTY);		// Use of \b word boundary ensures not splitting bibliography at 'graph' (test #220)
+		if (count ($matches) == 2) {
+			$a = trim ($matches[0]);
+			$b = trim ($matches[1]);
 		}
 		
 		# Normalise 'p' to have a dot after; safe to make this change after checking: `SELECT * FROM catalogue_processed WHERE field IN('p','pt','vno','v','ts') AND value LIKE '%p%' AND value NOT LIKE '%p.%' AND value REGEXP '[0-9]p' AND value NOT REGEXP '[0-9]p( |,|\\)|\\]|$)';`
