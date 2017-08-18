@@ -119,6 +119,7 @@ class reports
 		'longtitles_problem' => 'records with long titles (>512 characters)',
 		'artjwithoutvolume_problem' => 'articles in journals without a volume designation and no useful date',
 		'docpt_problem' => '*doc records with a *pt',
+		'artnopt_problem' => '*art records without a *pt',
 		'artform_problem' => '*art records with a *form',
 	);
 	
@@ -2701,6 +2702,25 @@ class reports
 				recordId
 			FROM catalogue_processed
 			WHERE xPath = '/doc/pt'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *art records without a *pt
+	public function report_artnopt ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'artnopt' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				    fieldslist LIKE '%@art@%'
+				AND fieldslist NOT LIKE '%@pt@%'
 		";
 		
 		# Return the query
