@@ -2248,21 +2248,43 @@ class marcConversion
 	}
 	
 	
-	# Macro to generate the 500 (displaying free-form text version of 773), whose logic is closely associated with 773, e.g. /records/1109/ (test #490)
-	private function macro_generate500 ($value, $parameter_unused)
+	# Macro to generate the 500 for analytics (displaying free-form text version of 773 or host 245), whose logic is closely associated with 773, e.g. /records/1109/ (test #490)
+	private function macro_generate500analytics ($value, $parameter_unused)
 	{
+		# End if not analytic
+		if (!in_array ($this->recordType, array ('/art/in', '/art/j'))) {return false;}
+		
+		
 		#!# In the case of all records whose serial title is listed in /reports/seriestitlemismatches3/ , need to branch at this point and create a 500 note from the local information (i.e. the record itself, not the parent, as in 773 below)
 		
 		#!# Currently, pseudo-analytics do not get a 500, because there is no 773 - e.g. /records/1126/ (test #527) - everything before a colon in its *pt that describes a volume or issue number, should end up in 500 and possibly 490
 		
-		# Get the data from the 773, e.g. /records/1109/ (test #490)
-		if (!$result = $this->macro_generate773 ($value, $parameter_unused, $errorString_ignored, $mode500 = true)) {return false;}
+		
+		# For /art/j, we use the 773 (but do not prefix with "In: ")
+		if ($this->recordType == '/art/j') {
+			
+			# Get the data from the 773, e.g. /records/1109/ (test #490)
+			if (!$result = $this->macro_generate773 ($value, $parameter_unused, $errorString_ignored, $mode500 = true)) {return false;}
+			
+		# For /art/in, we use 245 of the host record, but prefix with "In: "
+		} else if ($this->recordType == '/art/in') {
+			
+			# Obtain the 245 of the host record
+			$marc = $this->parseMarcRecord ($this->hostRecord);
+			$result = $marc['245'][0]['line'];
+			
+			# Ensure slash has space after
+			$result = str_replace ("/{$this->doubleDagger}c", "/ {$this->doubleDagger}c", $result);
+			
+			# Prefix 'In: ' at the start, e.g. /records/1222/ (test #492)
+			$result = "In: " . $result;
+		}
 		
 		# Strip subfield indicators, e.g. /records/1129/ (test #491)
 		$result = $this->stripSubfields ($result);
 		
-		# Prefix 'In: ' at the start, e.g. /records/1129/ (test #492)
-		$result = "{$this->doubleDagger}a" . 'In: ' . $result;
+		# Assign as $a
+		$result = "{$this->doubleDagger}a" . $result;
 		
 		# Return the result
 		return $result;

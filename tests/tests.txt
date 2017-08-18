@@ -2971,10 +2971,10 @@ generate500 strips subfield indicators
 Biomass Handbook. 2
 
 492
-generate500 prefix
-1129
+generate500 prefix for */art/
+1222
 500
-‡aIn: 
+‡aIn: Running the North
 
 493
 773 lookupHostRecord
