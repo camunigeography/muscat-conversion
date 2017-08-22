@@ -2273,6 +2273,9 @@ class marcConversion
 			$marc = $this->parseMarcRecord ($this->hostRecord);
 			$result = $marc['245'][0]['line'];
 			
+			# Normalise space after colon when just before $b; e.g. /records/5472/ (test #536)
+			$result = str_replace (":{$this->doubleDagger}b", ": {$this->doubleDagger}b", $result);
+			
 			# Ensure slash has space after
 			$result = str_replace ("/{$this->doubleDagger}c", "/ {$this->doubleDagger}c", $result);
 			

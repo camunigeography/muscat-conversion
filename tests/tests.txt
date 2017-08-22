@@ -3234,3 +3234,9 @@ ills.,
 300
 1-28 :‡bill., diags., tables, maps.
 
+536
+500 Normalise space after colon when just before $b
+5472
+500
+Polarforschung 1882-83 : die deutschen Expeditionen
+
