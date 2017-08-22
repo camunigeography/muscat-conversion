@@ -2251,11 +2251,9 @@ class marcConversion
 	# Macro to generate the 500 for analytics (displaying free-form text version of 773 or host 245), whose logic is closely associated with 773, e.g. /records/1109/ (test #490)
 	private function macro_generate500analytics ($value, $parameter_unused)
 	{
-		# End if not analytic
+		# End if not analytic; e.g. /records/1102/ (test #537)
 		if (!in_array ($this->recordType, array ('/art/in', '/art/j'))) {return false;}
 		
-		
-		#!# In the case of all records whose serial title is listed in /reports/seriestitlemismatches3/ , need to branch at this point and create a 500 note from the local information (i.e. the record itself, not the parent, as in 773 below)
 		
 		#!# Currently, pseudo-analytics do not get a 500, because there is no 773 - e.g. /records/1126/ (test #527) - everything before a colon in its *pt that describes a volume or issue number, should end up in 500 and possibly 490
 		
@@ -2266,17 +2264,17 @@ class marcConversion
 			# Get the data from the 773, e.g. /records/1109/ (test #490)
 			if (!$result = $this->macro_generate773 ($value, $parameter_unused, $errorString_ignored, $mode500 = true)) {return false;}
 			
-		# For /art/in, we use 245 of the host record, but prefix with "In: "
+		# For /art/in, we use 245 of the host record, but prefix with "In: " ; e.g. /records/5472/ (test #538)
 		} else if ($this->recordType == '/art/in') {
 			
-			# Obtain the 245 of the host record
+			# Obtain the 245 of the host record ; e.g. /records/5472/ (test #538)
 			$marc = $this->parseMarcRecord ($this->hostRecord);
 			$result = $marc['245'][0]['line'];
 			
 			# Normalise space after colon when just before $b; e.g. /records/5472/ (test #536)
 			$result = str_replace (":{$this->doubleDagger}b", ": {$this->doubleDagger}b", $result);
 			
-			# Ensure slash has space after
+			# Ensure slash has space just before $c; e.g. /records/2072/ (test #539)
 			$result = str_replace ("/{$this->doubleDagger}c", "/ {$this->doubleDagger}c", $result);
 			
 			# Prefix 'In: ' at the start, e.g. /records/1222/ (test #492)
@@ -2286,7 +2284,7 @@ class marcConversion
 		# Strip subfield indicators, e.g. /records/1129/ (test #491)
 		$result = $this->stripSubfields ($result);
 		
-		# Assign as $a
+		# Assign as $a, e.g. /records/1109/ (test #540)
 		$result = "{$this->doubleDagger}a" . $result;
 		
 		# Return the result

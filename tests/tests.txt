@@ -2959,7 +2959,7 @@ loadLookupTable case-insensitive comparison (definition side) (see also #483)
 /^.{18}ar/
 
 490
-generate500 basic test
+500 generate500analytics (773 mode) basic test
 1109
 500
 ‡aBritish Schools Exploring Society. Report. Vol. 1978-79 (1979)
@@ -3239,4 +3239,28 @@ ills.,
 5472
 500
 Polarforschung 1882-83 : die deutschen Expeditionen
+
+537
+500 for analytics not created for non-analytic record
+1102
+!500
+*
+
+538
+500 generate500analytics (245 mode) basic test
+5472
+500
+‡aIn: Die internationale
+
+539
+500 generate500analytics (245 mode) ensure slash has space just before $c
+2072
+500
+navigation / Anon.
+
+540
+500 generate500analytics goes in $a
+1109
+500
+‡aBritish Schools Exploring Society
 
