@@ -40,7 +40,7 @@ ch = Register
 FIXME: 500 should not have :,
 5472
 500
-1882-83 : die
+1882-83 :die
 
 5
 Use of " as a pseudo- word boundary character, so that "<em>...</em>" gets protected rather than result in e-dot; see: /reports/transliterateem/
@@ -2962,13 +2962,13 @@ loadLookupTable case-insensitive comparison (definition side) (see also #483)
 generate500 basic test
 1109
 500
-‡aIn: British Schools Exploring Society. Report. 1978-79 :1-38, ill., maps (1 folding)
+‡aBritish Schools Exploring Society. Report. Vol. 1978-79 (1979)
 
 491
 generate500 strips subfield indicators
 1129
 500
-Biomass Handbook. 2
+‡aBiomass Handbook. Vol. 2 ([1978])
 
 492
 generate500 prefix for */art/
@@ -3181,7 +3181,7 @@ Macro generate300 *v present in *doc having ‡a creates space
 ‡a1 disc :‡bill
 
 527
-Pseudo-analytics should get a 500
+FIXME: Pseudo-analytics should get a 500 [Code not yet implemented]
 1126
 500
 ‡aOffprint: International Review of Applied Psychology
