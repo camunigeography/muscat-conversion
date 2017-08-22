@@ -1690,7 +1690,7 @@ i856
 Macro colonSplit: colon present
 3765
 246
-‡aThulia : ‡b a tale
+‡aThulia :‡ba tale
 
 280
 Macro colonSplit: colon not present

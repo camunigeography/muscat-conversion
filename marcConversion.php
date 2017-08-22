@@ -837,16 +837,16 @@ class marcConversion
 	}
 	
 	
-	# Splitting of strings with colons in; e.g. /records/3765/ (test #279), /records/1019/ (test #280)
+	# Splitting of strings with colons in
 	private function macro_colonSplit ($value, $splitMarker)
 	{
-		# Return unmodified if no split
+		# Return unmodified if no split; e.g. /records/1019/ (test #280)
 		if (!preg_match ('/^([^:]+) ?: (.+)$/', $value, $matches)) {
 			return $value;
 		}
 		
-		# If a split is found, assemble
-		$value = trim ($matches[1]) . " : {$this->doubleDagger}{$splitMarker} " . trim ($matches[2]);
+		# If a split is found, assemble; e.g. /records/3765/ (test #279)
+		$value = trim ($matches[1]) . " :{$this->doubleDagger}{$splitMarker}" . trim ($matches[2]);
 		
 		# Return the value
 		return $value;
