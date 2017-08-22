@@ -2120,15 +2120,15 @@ Macro generate300 normalises space between p and . not requiring normalisation
 
 351
 300 $a should not contain *vno (see also test #352)
-5174
+6787
 300
-‡a1-96, tables :‡b
+/‡ap. 397-412.$/
 
 352
 773 ‡g should contain *vno (see also test #351 and #518)
-5174
+6787
 773
-‡g6(15) ‡w
+‡gVol. 2. ‡w
 
 353
 Macro generate300 *vno with *ts existing does not generate 300
@@ -3106,13 +3106,13 @@ Macro generate300 *v present in *doc having ‡a creates space
 773 in *art with analytic volume designation present appears as ‡g
 1668
 773
-‡g7(3) ‡
+‡gVol. 7(3) ‡
 
 515
 773 in *art/*in without analytic volume designation should have no ‡g
 54886
 773
-‡d 880-02 : Novosibirsk: Nauka, 1976. ‡wSPRI-55908
+‡d 880-02  : Novosibirsk : Nauka, 1976. ‡wSPRI-55908
 
 516
 300 ‡a should not contain volume designator (case where *pt has space-colon)

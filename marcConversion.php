@@ -1079,7 +1079,7 @@ class marcConversion
 			$a = mb_substr ($a, 1);
 		}
 		
-		# If there is a *vno but no *ts (and so no 490 will be created - e.g. /records/1896/ (test #354)), add this at the start of the analytic volume designation, before any pagination (extent) data from *pt; e.g. /records/5174/ (test #352)
+		# If there is a *vno but no *ts (and so no 490 will be created - e.g. /records/1896/ (test #354)), add this at the start of the analytic volume designation, before any pagination (extent) data from *pt; e.g. /records/6787/ (test #352) and negative test for 300 in same record /records/6787/ (test #351)
 		if ($vno = $this->xPathValue ($this->xml, '//vno')) {
 			if (!$ts = $this->xPathValue ($this->xml, '//ts')) {	// /records/1896/ (test #353)
 				$analyticVolumeDesignation = $this->macro_dotEnd ($vno) . (strlen ($analyticVolumeDesignation) ? ' ' : '') . $analyticVolumeDesignation;		// E.g. dot added before other $a substring in /records/7865/ (test #519); no existing $a so no comma in /records/5174/ (test #352)
