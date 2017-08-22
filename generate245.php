@@ -271,10 +271,10 @@ class generate245
 		
 		# Does the record contain at least one *e?; e.g. /records/2930/ (test #195)
 		$eIndex = 1;
-		while ($this->marcConversion->xPathValue ($this->xml, "//e[$eIndex]")) {		// Check if *e container exists
+		while ($this->marcConversion->xPathValue ($this->xml, "{$this->mainRecordTypePrefix}/e[$eIndex]")) {		// Check if *e container exists
 			
 			# Add to 245 field: ; <*e/*role>
-			$peopleGroups[] = $this->roleAndSiblings ("//e[$eIndex]");
+			$peopleGroups[] = $this->roleAndSiblings ("{$this->mainRecordTypePrefix}/e[$eIndex]");
 			
 			# Next e
 			$eIndex++;
