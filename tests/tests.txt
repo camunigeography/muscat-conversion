@@ -2653,7 +2653,7 @@ Macro generate250 dot end
 /‡aNew edition \(Fourth\).$/
 
 439
-245: If there is a / in the title explicitly, use that and discard all people groups
+245: If there is a / in the title explicitly, use that (see also #546)
 10503
 245
 /^‡aMuseum Bulletin \/‡c\[Victoria Memorial Museum\]\.$/
@@ -3263,4 +3263,10 @@ navigation / Anon.
 1109
 500
 ‡aBritish Schools Exploring Society
+
+546
+245: If there is a / in the title explicitly, use that and discard all people groups (see also #439)
+2683
+245
+‡aPoezdka v I͡akutsk /‡cizd. N. Shch.
 

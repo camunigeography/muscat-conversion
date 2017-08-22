@@ -21,6 +21,9 @@ class generate245
 		# Determine the *form value
 		$this->form = $this->marcConversion->xPathValue ($this->xml, '(//form)[1]', false);
 		
+		# Define the Statement of Responsibility delimiter
+		$this->muscatSorDelimiter = ' / ';	// Decided not to tolerate any cases with space not present after
+		
 		# Define unicode symbols
 		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
 		
@@ -64,7 +67,7 @@ class generate245
 		$title = $this->title ();
 		
 		# Determine the Statement of Responsibility
-		$statementOfResponsibility = $this->statementOfResponsibility ();
+		$statementOfResponsibility = $this->statementOfResponsibility ($this->mainRecordTypePrefix, $this->t);
 		
 		# Compile the value
 		$value  = $firstIndicator;
@@ -155,7 +158,6 @@ class generate245
 		if ($t == '-') {$t = '[No title]';}	// E.g. No actual cases left so cannot test; only /records/182768/ which is an *j/*tg/ which is not relevant
 		
 		# If there is a / in the title explicitly, use that and discard all people groups; e.g. /records/10503/ (test #439); not triggered by </em> (test #440)
-		$this->muscatSorDelimiter = ' / ';	// Decided not to tolerate any cases with space not present after
 		if (substr_count ($t, $this->muscatSorDelimiter)) {
 			list ($t, $statementOfResponsibility) = explode ($this->muscatSorDelimiter, $this->t, 2);
 			$t = trim ($t);
@@ -213,7 +215,7 @@ class generate245
 	
 	
 	# Statement of Responsibility; this is also supported for *ser, e.g. /records/1028/ (test #179)
-	private function statementOfResponsibility ()
+	public function statementOfResponsibility ($pathPrefix, $title)
 	{
 		# Start a list of non-empty parts of the Statement of Responsibility, which will be grouped by each *ag
 		$peopleGroups = array ();
@@ -222,14 +224,14 @@ class generate245
 		# THEN: Is there another *a in the parent  *doc/*ag OR *art/*ag which has not already been included in this 245 field? E.g. /records/1121/ (test #183), /records/1135/ (test #184), /records/181939/ (test #185)
 		# THEN: Is there another *ag in the parent  *doc OR *art, whose *a fields have not already been included in this 245 field?
 		$agIndex = 1;
-		while ($this->marcConversion->xPathValue ($this->xml, "{$this->mainRecordTypePrefix}/ag[$agIndex]")) {		// Check if *ag container exists
+		while ($this->marcConversion->xPathValue ($this->xml, "{$pathPrefix}/ag[$agIndex]")) {		// Check if *ag container exists
 			
 			# Start a list of non-empty authors for this *ag
 			$authorsThisAg = array ();
 			
 			# Loop through each *a (author) in this *ag (author group); e.g. /records/1121/ (test #183), /records/1135/ (test #184), /records/181939/ (test #185)
 			$aIndex = 1;	// XPaths are indexed from 1, not 0
-			while ($string = $this->classifyNdField ("{$this->mainRecordTypePrefix}/ag[$agIndex]/a[{$aIndex}]")) {
+			while ($string = $this->classifyNdField ("{$pathPrefix}/ag[$agIndex]/a[{$aIndex}]")) {
 				
 				# If *n1 = '-' (only), this should (presumably) not generate an entry; this is an addition to the spreadsheet spec; e.g. /records/178946/ (test #193), /records/115773/ (test #194)
 				if ($string == '-') {
@@ -255,7 +257,7 @@ class generate245
 			
 			# Is there a *ad in the parent  *doc/*ag OR *art/*ag? E.g. /records/149106/ has one (test #191); /records/162152/ has multiple (test #192); /records/149107/ has implied ordering of 1+2 but this is not feasible to generalise
 			# Does the *ad have the value '-'?
-			if ($ad = $this->marcConversion->xPathValues ($this->xml, "{$this->mainRecordTypePrefix}/ag[$agIndex]/ad[%i]")) {
+			if ($ad = $this->marcConversion->xPathValues ($this->xml, "{$pathPrefix}/ag[$agIndex]/ad[%i]")) {
 				$isSingleDash = (count ($ad) == 1 && $ad[1] == '-');	// NB No actual examples of any *ad = '-' across whole catalogue, so no testcase
 				if (!$isSingleDash) {
 					$authorsThisAg .= ', ' . implode (', ', $ad);	// Does not get transliterated, e.g. 'eds.'
@@ -271,18 +273,18 @@ class generate245
 		
 		# Does the record contain at least one *e?; e.g. /records/2930/ (test #195)
 		$eIndex = 1;
-		while ($this->marcConversion->xPathValue ($this->xml, "{$this->mainRecordTypePrefix}/e[$eIndex]")) {		// Check if *e container exists
+		while ($this->marcConversion->xPathValue ($this->xml, "{$pathPrefix}/e[$eIndex]")) {		// Check if *e container exists
 			
 			# Add to 245 field: ; <*e/*role>
-			$peopleGroups[] = $this->roleAndSiblings ("{$this->mainRecordTypePrefix}/e[$eIndex]");
+			$peopleGroups[] = $this->roleAndSiblings ("{$pathPrefix}/e[$eIndex]");
 			
 			# Next e
 			$eIndex++;
 		}
 		
-		# If there is a / in the title explicitly, use that and discard all people groups; e.g. /records/10503/ (test #439); not triggered by </em> (test #440)
-		if (substr_count ($this->t, $this->muscatSorDelimiter)) {
-			list ($t, $statementOfResponsibility) = explode ($this->muscatSorDelimiter, $this->t, 2);
+		# If there is a / in the title explicitly, use that (e.g. /records/10503/ (test #439)), and discard all people groups (e.g. /records/2683/ (test #546)); not triggered by </em> /records/1131/ (test #440)
+		if (substr_count ($title, $this->muscatSorDelimiter)) {
+			list ($t, $statementOfResponsibility) = explode ($this->muscatSorDelimiter, $title, 2);
 			$peopleGroups = array (trim ($statementOfResponsibility));
 		}
 		
