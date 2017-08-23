@@ -1498,13 +1498,18 @@ class marcConversion
 		
 		# Position 07: Bibliographic level
 		#!# If merging, we would need to have a check that this matches
-		$position7Values = array (
-			'/art/in'	=> 'a',
-			'/art/j'	=> 'b',
-			'/doc'		=> 'm',		// E.g. /records/1187/ (test #387)
-			'/ser'		=> 's',
-		);
-		$string .= $position7Values[$this->recordType];
+		$isPseudoAnalytic = (!$this->hostRecord && in_array ($this->recordType, array ('/art/in', '/art/j')));
+		if ($isPseudoAnalytic) {
+			$string .= 'm';		// E.g. /records/1330/ (test #550)
+		} else {
+			$position7Values = array (
+				'/art/in'	=> 'a',
+				'/art/j'	=> 'b',
+				'/doc'		=> 'm',		// E.g. /records/1187/ (test #387)
+				'/ser'		=> 's',
+			);
+			$string .= $position7Values[$this->recordType];
+		}
 		
 		# Position 08: Type of control
 		$string .= '#';

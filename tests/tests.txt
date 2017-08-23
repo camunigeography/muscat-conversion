@@ -3318,5 +3318,10 @@ the United States. Vol. 8. / United States. Census Office
 245
 ‡aPoezdka v I͡akutsk /‡cizd. N. Shch.
 
+550
+Leader: Position 7 for pseudo-analytic (i.e. /art with no host record) is 'm'
+1330
+LDR
+/^.{7}m/
 
 
