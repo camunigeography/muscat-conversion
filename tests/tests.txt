@@ -2959,7 +2959,7 @@ loadLookupTable case-insensitive comparison (definition side) (see also #483)
 /^.{18}ar/
 
 490
-500 generate500analytics (773 mode) basic test
+500 generate500analytics (/art/j genuine analytic mode) basic test
 1109
 500
 ‡aBritish Schools Exploring Society. Report. Vol. 1978-79 (1979)
@@ -3181,7 +3181,7 @@ Macro generate300 *v present in *doc having ‡a creates space
 ‡a1 disc :‡bill
 
 527
-FIXME: Pseudo-analytics should get a 500 [Code not yet implemented]
+Pseudo-analytics should get a 500
 1126
 500
 ‡aOffprint: International Review of Applied Psychology
@@ -3247,26 +3247,76 @@ Polarforschung 1882-83 : die deutschen Expeditionen
 *
 
 538
-500 generate500analytics (245 mode) basic test
+500 generate500analytics (/art/in genuine analytic mode) basic test
 5472
 500
 ‡aIn: Die internationale
 
 539
-500 generate500analytics (245 mode) ensure slash has space just before $c
+500 generate500analytics (/art/in scenarios) ensure slash has space just before $c
 2072
 500
 navigation / Anon.
 
 540
-500 generate500analytics goes in $a
+500 generate500analytics (all scenarios) goes in $a
 1109
 500
 ‡aBritish Schools Exploring Society
 
+541
+500 generate500analytics (/art/j pseudo-analytic mode) uses the title in the *j (i.e. second half) section
+214872
+500
+‡aOffprint: Journal of the Meteorological Society of Japan. Vol. 58(5).
+
+542
+500 generate500analytics (/art/j pseudo-analytic mode) gets "Vol. " prefix if analytic volume designation starts with a number (positive case)
+214872
+500
+of Japan. Vol. 58(5).
+
+543
+500 generate500analytics (/art/j pseudo-analytic mode) gets "Vol. " prefix if analytic volume designation starts with a number (negative case)
+215150
+500
+of Natural History. Ser. 7
+
+544
+500 generate500analytics (/art/in pseudo-analytic mode) uses the title in the *in (i.e. second half) section
+1107
+500
+‡aOffprint: CRC handbook of census methods for terrestrial vertebrates.
+
+545
+500 generate500analytics (/art/in pseudo-analytic mode) gets "Vol. " prefix if analytic volume designation starts with a number (positive case) (see also #542)
+1218
+500
+for All. Vol. 5.
+
 546
+500 generate500analytics (/art/in pseudo-analytic mode) creates an emulated statement of responsibility if author group(s) present in *in (i.e. second half) section - simple case
+14136
+500
+‡aOffprint: The story of exploration and adventure. Vol. 4. / Sir Percy Sykes
+
+547
+500 generate500analytics (/art/in pseudo-analytic mode) creates an emulated statement of responsibility if author group(s) present in *in (i.e. second half) section - more complex case: multiple author groups
+1330
+500
+in Einzugsgebieten. / G. Blöschl, D. Gutknecht, R. Kirnbauer, [eds.]
+
+548
+500 generate500analytics (/art/in pseudo-analytic mode) creates an emulated statement of responsibility if author group(s) present in *in (i.e. second half) section - more complex case: corporate author
+4968
+500
+the United States. Vol. 8. / United States. Census Office
+
+549
 245: If there is a / in the title explicitly, use that and discard all people groups (see also #439)
 2683
 245
 ‡aPoezdka v I͡akutsk /‡cizd. N. Shch.
+
+
 

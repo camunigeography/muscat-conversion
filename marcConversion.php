@@ -1838,6 +1838,7 @@ class marcConversion
 	#!# Currently almost all parts of the conversion system assume a single *ts - this will need to be fixed; likely also to need to expand 880 mirrors to be repeatable
 	#!# Repeatability experimentally added to 490 at definition level, but this may not work properly as the field reads in *vno for instance; all derived uses of *ts need to be checked
 	#!# Issue of missing $a needs to be resolved in original data
+	#!# For pseudo-analytic /art/j and possibly /art/in where there the host is a series, everything before a colon in the record's *pt (analytic volume designation) that describes a volume or issue number should possibly end up in 490
 	public function macro_generate490 ($ts, $ignored, &$errorString_ignored = false, &$matchedRegexp = false, $reportGenerationMode = false)
 	{
 		# Obtain the *ts value or end, e.g. no *ts in /records/1253/ (test #444)
@@ -2254,31 +2255,54 @@ class marcConversion
 		# End if not analytic; e.g. /records/1102/ (test #537)
 		if (!in_array ($this->recordType, array ('/art/in', '/art/j'))) {return false;}
 		
-		
-		#!# Currently, pseudo-analytics do not get a 500, because there is no 773 - e.g. /records/1126/ (test #527) - everything before a colon in its *pt that describes a volume or issue number, should end up in 500 and possibly 490
-		
-		
-		# For /art/j, we use the 773 (but do not prefix with "In: ")
+		# /art/j case
 		if ($this->recordType == '/art/j') {
 			
-			# Get the data from the 773, e.g. /records/1109/ (test #490)
-			if (!$result = $this->macro_generate773 ($value, $parameter_unused, $errorString_ignored, $mode500 = true)) {return false;}
+			# If there is a host record, we use the 773 (but do not prefix with "In: ")
+			#!# Note: at present, some pseudo-analytics erroneously have a *kg in - this will either be fixed in the data, or we will change here to use 490 instead of 773 in cases of a controlled serial
+			if ($this->hostRecord) {
+				
+				# Get the data from the 773, e.g. /records/1109/ (test #490)
+				$result = $this->macro_generate773 ($value, $parameter_unused, $errorString_ignored, $mode500 = true);
+				
+			# If no host record (i.e. a pseudo-analytic), we assume it is an offprint, and use the title in the *j (i.e. second half) section
+			} else {
+				
+				# Construct the string, using the title in the *j (i.e. second half) section; e.g. /records/214872/ (test #541)
+				$result = 'Offprint: ' . $this->macro_dotEnd ($this->xPathValue ($this->xml, '/art/j/tg/t')) . ($this->pOrPt['analyticVolumeDesignation'] ? ' ' . $this->macro_dotEnd ($this->prefixVolAnalyticVolumeDesignation ($this->pOrPt['analyticVolumeDesignation'])) : '');
+			}
 			
-		# For /art/in, we use 245 of the host record, but prefix with "In: " ; e.g. /records/5472/ (test #538)
+		# /art/in case
 		} else if ($this->recordType == '/art/in') {
 			
-			# Obtain the 245 of the host record ; e.g. /records/5472/ (test #538)
-			$marc = $this->parseMarcRecord ($this->hostRecord);
-			$result = $marc['245'][0]['line'];
+			# For genuine analytics, use the 245 of the host record, but prefix with "In: " ; e.g. /records/5472/ (test #538)
+			if ($this->hostRecord) {
+				
+				# Obtain the 245 of the host record ; e.g. /records/5472/ (test #538)
+				#!# Ideally need a way to remove role from this, e.g. /records/101441/ has unwanted " ; Presented by True North Strong and Free Inquiry Society."
+				$marc = $this->parseMarcRecord ($this->hostRecord);
+				$result = $marc['245'][0]['line'];
+				
+				# Prefix 'In: ' at the start, e.g. /records/1222/ (test #492)
+				$result = "In: " . $result;
+				
+			# For pseudo-analytics, there will be no host record, so create a title with statement of responsibility
+			} else {
+				
+				# Construct the string, using the title in the *in (i.e. second half) section; e.g. /records/1107/ (test #544)
+				$result = 'Offprint: ' . $this->macro_dotEnd ($this->xPathValue ($this->xml, '/art/in/tg/t')) . ($this->pOrPt['analyticVolumeDesignation'] ? ' ' . $this->macro_dotEnd ($this->prefixVolAnalyticVolumeDesignation ($this->pOrPt['analyticVolumeDesignation'])) : '');
+				
+				# Create the SoR based on 245; e.g. simple case in /records/14136/ (test #546), multiple authors example in /records/1330/ (test #547), corporate authors example in /records/14136/ (test #548); NB role confirmed not present in the data for pseudo-analytic pseudo-hosts
+				require_once ('generate245.php');
+				$generate245 = new generate245 ($this, $this->xml, NULL /*, $languageMode */);
+				$result .= $generate245->statementOfResponsibility ('/art/in', $result);
+			}
 			
 			# Normalise space after colon when just before $b; e.g. /records/5472/ (test #536)
 			$result = str_replace (":{$this->doubleDagger}b", ": {$this->doubleDagger}b", $result);
 			
 			# Ensure slash has space just before $c; e.g. /records/2072/ (test #539)
 			$result = str_replace ("/{$this->doubleDagger}c", "/ {$this->doubleDagger}c", $result);
-			
-			# Prefix 'In: ' at the start, e.g. /records/1222/ (test #492)
-			$result = "In: " . $result;
 		}
 		
 		# Strip subfield indicators, e.g. /records/1129/ (test #491)
@@ -2289,6 +2313,15 @@ class marcConversion
 		
 		# Return the result
 		return $result;
+	}
+	
+	
+	# Function to prefix Vol. to the analyticVolumeDesignation
+	private function prefixVolAnalyticVolumeDesignation ($analyticVolumeDesignation)
+	{
+		# Add a "Vol." prefix when starting with a number; e.g. /art/j records: /records/214872/ (test #542) and negative test /records/215150/ (test #543); /art/in record: /records/1218/ (test #545)
+		$prefix = (preg_match ('/^[0-9]/', $analyticVolumeDesignation) ? 'Vol. ' : '');
+		return $prefix . $analyticVolumeDesignation;
 	}
 	
 	
