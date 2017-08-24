@@ -2308,6 +2308,9 @@ class marcConversion
 			
 			# Ensure slash has space just before $c; e.g. /records/2072/ (test #539)
 			$result = str_replace ("/{$this->doubleDagger}c", "/ {$this->doubleDagger}c", $result);
+			
+			# Ensure space before $h; e.g. /records/64883/ (test #551)
+			$result = str_replace ("{$this->doubleDagger}h", " {$this->doubleDagger}h", $result);
 		}
 		
 		# Strip subfield indicators, e.g. /records/1129/ (test #491)
