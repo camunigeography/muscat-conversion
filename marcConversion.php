@@ -2315,6 +2315,9 @@ class marcConversion
 			$result = str_replace ("{$this->doubleDagger}h", " {$this->doubleDagger}h", $result);
 		}
 		
+		# Strip out any $6 880 linking field; e.g. /records/22095/ (test #554)
+		$result = preg_replace ("/({$this->doubleDagger}6 ?880-[0-9]{2} ?)({$this->doubleDagger}|$)/", '\2', $result);
+		
 		# Strip subfield indicators, e.g. /records/1129/ (test #491)
 		$result = $this->stripSubfields ($result);
 		

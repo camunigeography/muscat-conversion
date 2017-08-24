@@ -3342,4 +3342,8 @@ LDR
 500
 /Tait, A. Renard$/
 
-
+554
+500 generate500analytics strips out any $6 -derived section
+22095
+500
+‡aIn: Pushnye bogatstva
