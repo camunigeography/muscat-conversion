@@ -3329,3 +3329,17 @@ LDR
 64883
 500
 1981 [Microfiche]
+
+552
+500 generate500analytics (/art/in genuine analytic mode) $c role (using semicolon) is stripped
+101441
+500
+/and 23 others$/
+
+553
+500 generate500analytics (/art/in genuine analytic mode) $c role (using semicolon) is stripped; second example involving Edited by
+5029
+500
+/Tait, A. Renard$/
+
+

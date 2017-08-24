@@ -2284,9 +2284,11 @@ class marcConversion
 			if ($this->hostRecord) {
 				
 				# Obtain the 245 of the host record ; e.g. /records/5472/ (test #538)
-				#!# Ideally need a way to remove role from this, e.g. /records/101441/ has unwanted " ; Presented by True North Strong and Free Inquiry Society."
 				$marc = $this->parseMarcRecord ($this->hostRecord);
 				$result = $marc['245'][0]['line'];
+				
+				# If $c contains a section derived from role, which we believe is after ' ; ' (and is the only use of semicolon in $c), remove that trailing section; e.g. /records/101441/ (test #552), /records/5029/ (test #553)
+				$result = preg_replace ("/({$this->doubleDagger}c[^{$this->doubleDagger}]+) ; (.+)({$this->doubleDagger}|$)/", '\1\3', $result);
 				
 				# Prefix 'In: ' at the start, e.g. /records/1222/ (test #492)
 				$result = "In: " . $result;
