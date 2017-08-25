@@ -1896,10 +1896,10 @@ class marcConversion
 			}
 		}
 		
-		# If there is a *vno, add that
+		# If there is a *vno, use it in $v (e.g. /records/10279/ (test #452)
 		if (!$reportGenerationMode) {		// I.e. if running in MARC generation context, rather than for report generation
 			if ($vno = $this->xPathValue ($this->xml, '//vno')) {
-				$volumeNumber = ($volumeNumber ? $volumeNumber . ', ' : '') . $vno;		// If already present, e.g. /records/9031/ (test #452), append to existing, separated by comma; records with no number in the *ts like /records/101358/ will appear as normal (test #453)
+				$volumeNumber = ($volumeNumber ? $volumeNumber . ', ' : '') . $vno;		// If volume number (from *ts) already present, e.g. /records/9031/ (test #453), append the *vno to existing, separated by comma
 			}
 		}
 		

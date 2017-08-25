@@ -2719,16 +2719,16 @@ Macro generate490 simple series title without volume number
 /^‡aT-516$/
 
 452
-Macro generate490 add *vno to existing $v
+490 *vno becomes $v
+10279
+490
+‡vCartes
+
+453
+Macro generate490 add *vno to existing $v (see also #453)
 9031
 490
 ‡vN:r 24, Bd. 1 (Abt. 3, Gletscherkunde)
-
-453
-Macro generate490 $v from *vno
-101358
-490
-‡vVol. 1
 
 454
 Macro generate490 $a with $v trailing dot
