@@ -2130,18 +2130,6 @@ Macro generate300 normalises space between p and . not requiring normalisation
 773
 ‡gVol. 2. ‡w
 
-353
-Macro generate300 *vno with *ts existing does not generate 300
-1896
-!300
-Pt. 1
-
-354
-Macro generate300 *vno with *ts existing generates 490
-1896
-490
-Pt. 1
-
 355
 Macro nfcount: 245 2nd indicator (based on *t) should have 4 for English *t 'The '
 1116
