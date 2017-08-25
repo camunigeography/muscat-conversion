@@ -2732,9 +2732,9 @@ Macro generate490 simple series title without volume number
 
 452
 Macro generate490 add *vno to existing $v
-1896
+9031
 490
-‡vNo.95, Pt. 1
+‡vN:r 24, Bd. 1 (Abt. 3, Gletscherkunde)
 
 453
 Macro generate490 $v from *vno

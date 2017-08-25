@@ -1901,7 +1901,7 @@ class marcConversion
 		# If there is a *vno, add that
 		if (!$reportGenerationMode) {		// I.e. if running in MARC generation context, rather than for report generation
 			if ($vno = $this->xPathValue ($this->xml, '//vno')) {
-				$volumeNumber = ($volumeNumber ? $volumeNumber . ', ' : '') . $vno;		// If already present, e.g. /records/1896/ (test #452), append to existing, separated by comma; records with no number in the *ts like /records/101358/ will appear as normal (test #453)
+				$volumeNumber = ($volumeNumber ? $volumeNumber . ', ' : '') . $vno;		// If already present, e.g. /records/9031/ (test #452), append to existing, separated by comma; records with no number in the *ts like /records/101358/ will appear as normal (test #453)
 			}
 		}
 		
