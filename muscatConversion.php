@@ -1045,10 +1045,20 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Author
-		$table['Author'] = false;
+		$table['Author(s)'] = false;
 		if (isSet ($record['100'])) {
-			$table['Author'] = $record['100'][0]['subfields']['a'][0];
+			$authors[] = $record['100'][0]['subfields']['a'][0];
 		}
+		if (isSet ($record['700'])) {
+			foreach ($record['700'] as $field700) {
+				$authors[] = $field700['subfields']['a'][0];
+			}
+		}
+		if ($authors) {
+			$table['Author(s)'] = implode ('<br />', $authors);
+		}
+		
+		# Corporate author
 		if (isSet ($record['110'])) {
 			$table['Author (corporate)'] = $record['110'][0]['subfields']['a'][0];
 		}
