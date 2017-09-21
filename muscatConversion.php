@@ -1013,14 +1013,18 @@ class muscatConversion extends frontControllerApplication
 		$table['Title'] = false;
 		$table['Title, transliterated'] = false;
 		if (isSet ($record['245'])) {
-			$field245 = $record['245'][0]['subfields']['a'][0] . (isSet ($record['245'][0]['subfields']['b']) ? $record['245'][0]['subfields']['b'][0] : '');
-			$table['Title'] = preg_replace ('| /$|', '', $field245);
+			$field245  = $record['245'][0]['subfields']['a'][0];
+			$field245 .= (isSet ($record['245'][0]['subfields']['b']) ? $record['245'][0]['subfields']['b'][0] : '');
+			$field245 .= (isSet ($record['245'][0]['subfields']['c']) ? ' ' . $record['245'][0]['subfields']['c'][0] : '');
+			$table['Title'] = $field245;
 			
 			# Prefer Cyrillic if present
 			if (isSet ($record['245'][0]['subfields'][6])) {
 				$linkNumber = str_replace ('880-', '', $record['245'][0]['subfields'][6][0]);	// e.g. 02
 				$linkIndex = ((int) $linkNumber) - 1;		// e.g. 1
-				$field880 = $record['880'][$linkIndex]['subfields']['a'][0] . (isSet ($record['880'][$linkIndex]['subfields']['b']) ? $record['880'][$linkIndex]['subfields']['b'][0] : '');
+				$field880  = $record['880'][$linkIndex]['subfields']['a'][0];
+				$field880 .= (isSet ($record['880'][$linkIndex]['subfields']['b']) ? $record['880'][$linkIndex]['subfields']['b'][0] : '');
+				$field880 .= (isSet ($record['880'][0]['subfields']['c']) ? ' ' . $record['880'][0]['subfields']['c'][0] : '');
 				$table['Title, transliterated'] = $table['Title'];
 				$table['Title'] = preg_replace ('| /$|', '', $field880);	// Overwrite
 			}
