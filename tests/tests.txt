@@ -3342,4 +3342,16 @@ LDR
 300
 vii, 347
 
+556
+490 Add support for $x (ISSN), in form of MARC-style syntax added to Muscat record
+148932
+490
+‡x1436-803X
+
+557
+490 Ensure comma before ‡x
+148932
+490
+Circular, ‡x1436-803X
+
 

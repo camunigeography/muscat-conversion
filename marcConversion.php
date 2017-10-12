@@ -1857,7 +1857,9 @@ class marcConversion
 		# Ensure the matched regexp, passed back by reference, is reset
 		$matchedRegexp = false;
 		
-		#!# 490 $x (ISSN) to be added, pending data work; this has a clear regexp as defined at https://en.wikipedia.org/wiki/International_Standard_Serial_Number
+		# Add support for 490 $x (ISSN), which is MARC-style syntax added to some Muscat records; e.g. /records/148932/ (test #556)
+		$ts = preg_replace ('/ \$x(\d{4}-\d{3}[\dxX])$/', " {$this->doubleDagger}x\\1", trim ($ts));	// Regexp in parathesis as at https://en.wikipedia.org/wiki/International_Standard_Serial_Number
+		$ts = preg_replace ("/([^,]) {$this->doubleDagger}x/", "\\1, {$this->doubleDagger}x", $ts);
 		
 		# If the *ts contains a semicolon, this indicates specifically-cleaned data, so handle this explicitly; e.g. /records/2296/ (test #445)
 		if (substr_count ($ts, ';')) {
