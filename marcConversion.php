@@ -1048,6 +1048,9 @@ class marcConversion
 			$pOrPt = trim ($plusMatches[0]);	// Override string to strip out the + section
 		}
 		
+		# Normalise commas to have a space after; e.g. /records/8167/ (test #555)
+		$pOrPt = preg_replace ('/,([^ ])/', ', \1', $pOrPt);
+		
 		# Normalise abbreviations to have a dot; use of \b prevents this adding . in middle of word (e.g. for 'ill'); e.g. /records/1584/ (test #329) , /records/1163/ (test #330); supports multiple replacements, e.g. /records/147891/ (test #533); supports optional plural 's', e.g. /records/34364/ (test #534)
 		# Checked using: `SELECT * FROM catalogue_processed WHERE field IN('p','pt') AND value LIKE '%ill%' AND value NOT LIKE '%ill.%' AND value NOT REGEXP 'ill(-|\.|\'|[a-z]|$)';`
 		$abbreviations = array ('col', 'diag', 'fig', 'ill', 'illus', 'port');
