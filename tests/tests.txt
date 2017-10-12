@@ -3354,4 +3354,10 @@ vii, 347
 490
 Circular, ‡x1436-803X
 
+558
+Dollar in 500 is not an indicator, but wrongly triggers Bibcheck error now whitelisted
+161883
+500
+$220
 
+	
