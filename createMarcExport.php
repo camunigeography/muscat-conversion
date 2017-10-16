@@ -198,14 +198,18 @@ class createMarcExport
 			'008: Check place code xxu - please set code for specific state \(if known\).',	// E.g. /records/1199/ (test #216) which is USA but no further detail
 			'008: 008 date may not match 260 date - please check.',	// E.g. /records/1150/ which has '[196-?]' which is valid (test #217) - Bibcheck isn't taking account of [...] brackets or five-digit values; see example "##$aNew York :$bHaworth,$c[198-]" at https://www.loc.gov/marc/bibliographic/bd008a.html
 			'245: Subfield _[1|2|5] is not allowed.',	// E.g. /records/203691/ has $100 (test #218)
+			'245: Must have a subfield _a.'	// E.g. /records/174312/ has "‡a$50,000 an ounce!"
 			'300: In subfield _a, p should be followed by a full stop.',	// See 8e5f9354da83b6aa7a9e338e0ba7d48e1d1e0b60 - intended "p." is already implemented correctly; see /records/54670/ (test #219)
 			'300: Subfield _4 is not allowed.',	// /records/38727/ has $4.95 (test #222)
 			'500: Subfield _2 is not allowed.',	// E.g. /records/161883/ has $220 (test #558)
+			'500: Subfield _- is not allowed.',	// E.g. /records/138509/ has "24-3, $-24-4"
+			'500: Subfield _1 is not allowed.',	// E.g. /records/142058/ has "price: $195"
 			'520: Subfield _[1m,2t)] is not allowed.',	// E.g. /records/140044/ (test #223)
 			'541: Subfield _[0-9AUNC ] is not allowed.',	// E.g. /records/145475/ which has "AUS$ " (test #224); see example at: https://www.loc.gov/marc/bibliographic/bd541.html which confirms use of unescaped $
 			'541: Subfield _[0-9] is not repeatable.',	// The generate541 code definitely has no horizontal repeatability - this is Bibcheck being unable to distinguish e.g. $5 (money) from double-dagger5 (subfield), e.g. /records/9220/ (test #225)
 			'Record is post 1900 but contains local information \(541 or 561 fields\) - please check.',	// For 541; confirmed fine as we are setting $5, e.g. /records/9220/ (test #226)
 			'6XX: Unless the Literary form in the 008 is set to one of the fiction codes, there must be at least one 6XX field \(ignore if the work is a sacred text.\)',		// This arises because Bibcheck has a litcode check at line 602 but that assumes that the 008 is a "008 - Books" which is not always the case - see position_18_34__33 in generate008; see e-mail dated 30/Mar/2016 investigating this, and e-mail 31/Mar/2016 confirming the error is safe to suppress; e.g. /records/1061/ (test #227)
+			'700: Subfield _1 is not allowed.',	// E.g. /records/194888/ has "proposed $12-billion"
 		);
 		
 		# Split the file into individual reports
