@@ -3360,4 +3360,8 @@ Dollar in 500 is not an indicator, but wrongly triggers Bibcheck error now white
 500
 $220
 
-	
+559
+700: No space before ‡d in special case
+172094
+700
+‡cLord,‡d1920-1999

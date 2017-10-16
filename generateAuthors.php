@@ -751,10 +751,10 @@ class generateAuthors
 		# Is the *nd exactly equal to set of specific strings?
 		$strings = array (
 			'Sr SGM'				=> ",{$this->doubleDagger}cSr, {$this->doubleDagger}uSGM",
-			'Lord, 1920-1999'		=> ",{$this->doubleDagger}cLord, {$this->doubleDagger}d 1920-1999",
+			'Lord, 1920-1999'		=> ",{$this->doubleDagger}cLord,{$this->doubleDagger}d1920-1999",	// Note no space before $d, e.g. /records/172094/ (test #559)
 			'Rev., O.M.I.'			=> ",{$this->doubleDagger}cRev.,{$this->doubleDagger}uO.M.I.",
 			'I, Prince of Monaco'	=> ",{$this->doubleDagger}b I,{$this->doubleDagger}cPrince of Monaco",		// E.g. /records/165177/ (test #99)
-			'Baron, 1880-1957'		=> ",{$this->doubleDagger}cBaron, {$this->doubleDagger}d 1880-1957",
+			'Baron, 1880-1957'		=> ",{$this->doubleDagger}cBaron,{$this->doubleDagger}d1880-1957",
 		);
 		if (array_key_exists ($nd, $strings)) {
 			
