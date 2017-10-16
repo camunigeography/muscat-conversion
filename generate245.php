@@ -311,6 +311,9 @@ class generate245
 			return false;
 		}
 		
+		# Lower-case the first letter, to avoid Bibcheck error, "245: Edited should not be capitalised at start of subfield $c.", e.g. /records/193443/ (test #561)
+		$role = lcfirst ($role);
+		
 		# Loop through each *a (author) in this *e/*ee; e.g. /records/1844/ (test #197)
 		$subValues = array ();
 		$nIndex = 1;	// XPaths are indexed from 1, not 0

@@ -3372,4 +3372,10 @@ $220
 111
 ‡aSymposium on Antarctic Resources‡d(1978)
 
+561
+245 $c "edited by" etc., should have lower-case first letter
+193443
+245
+Tivi Etook /‡cedited by Marybelle Myers.
+
 
