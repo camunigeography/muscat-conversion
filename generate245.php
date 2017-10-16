@@ -325,7 +325,7 @@ class generate245
 		}
 		
 		# Compile the entry; e.g. /records/1639/ (test #199) and /records/3876/ (test #200) which have multiple
-		$result = $role . ' ' . application::commaAndListing ($subValues);
+		$result = $role . ($subValues ? ' ' . application::commaAndListing ($subValues) : '');	// No space if standalone role, e.g. /records/204088/ (test #562)
 		
 		# Return the value
 		return $result;
