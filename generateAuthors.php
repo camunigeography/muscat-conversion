@@ -753,7 +753,7 @@ class generateAuthors
 			'Sr SGM'				=> ",{$this->doubleDagger}cSr, {$this->doubleDagger}uSGM",
 			'Lord, 1920-1999'		=> ",{$this->doubleDagger}cLord, {$this->doubleDagger}d 1920-1999",
 			'Rev., O.M.I.'			=> ",{$this->doubleDagger}cRev.,{$this->doubleDagger}uO.M.I.",
-			'I, Prince of Monaco'	=> ", {$this->doubleDagger}b I,{$this->doubleDagger}cPrince of Monaco",		// E.g. /records/165177/ (test #99)
+			'I, Prince of Monaco'	=> ",{$this->doubleDagger}b I,{$this->doubleDagger}cPrince of Monaco",		// E.g. /records/165177/ (test #99)
 			'Baron, 1880-1957'		=> ",{$this->doubleDagger}cBaron, {$this->doubleDagger}d 1880-1957",
 		);
 		if (array_key_exists ($nd, $strings)) {
