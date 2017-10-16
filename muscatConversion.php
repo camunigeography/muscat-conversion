@@ -1046,6 +1046,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Author
 		$table['Author(s)'] = false;
+		$authors = array ();
 		if (isSet ($record['100'])) {
 			$authors[] = $record['100'][0]['subfields']['a'][0];
 		}
