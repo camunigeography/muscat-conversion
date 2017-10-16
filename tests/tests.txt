@@ -1910,7 +1910,7 @@ Macro generate260: *pl ‡a standard case
 
 316
 No 260 880 generated if record is not Russian (implementation pending)
-1014
+148932
 !880
 260-
 
