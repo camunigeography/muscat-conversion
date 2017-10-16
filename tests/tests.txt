@@ -820,13 +820,13 @@ Conference handling for US Congress (see also previous test)
 111 ‡a: Conference and date
 57564
 111
-‡aSymposium on Antarctic Resources ‡d(1978)
+‡aSymposium on Antarctic Resources‡d(1978)
 
 135
 111 ‡a: Conference, date and location
 32965
 111
-‡aConference on Antarctica ‡d(1959 :‡cWashington, D.C.)
+‡aConference on Antarctica‡d(1959 :‡cWashington, D.C.)
 
 136
 111 ‡a: Conference, number, date and location
@@ -3365,3 +3365,11 @@ $220
 172094
 700
 ‡cLord,‡d1920-1999
+
+560
+{1|7}xx: No space before $d
+57564
+111
+‡aSymposium on Antarctic Resources‡d(1978)
+
+

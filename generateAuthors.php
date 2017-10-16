@@ -653,12 +653,12 @@ class generateAuthors
 				
 			# Conference and date; e.g. 'Symposium on Antarctic Resources, 1978' /records/57564/ (test #134)
 			case 2:
-				$value .= " {$this->doubleDagger}d({$conferenceAttributes[1]})";
+				$value .= "{$this->doubleDagger}d({$conferenceAttributes[1]})";	// Note no space before $d, e.g. /records/57564/ (test #560)
 				break;
 				
 			# Conference, date and location; e.g. 'Conference on Antarctica, Washington, D.C., 1959' /records/32965/ (test #135)
 			case 3:
-				$value .= " {$this->doubleDagger}d({$conferenceAttributes[2]} :{$this->doubleDagger}c{$conferenceAttributes[1]})";
+				$value .= "{$this->doubleDagger}d({$conferenceAttributes[2]} :{$this->doubleDagger}c{$conferenceAttributes[1]})";
 				break;
 				
 			# Conference, number, date and location; e.g. 'International Conference on Permafrost, 2nd, Yakutsk, Siberia, U.S.S.R, 1973' /records/51434/ (test #136)
