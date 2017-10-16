@@ -3352,7 +3352,7 @@ vii, 347
 490 Ensure comma before ‡x
 148932
 490
-Circular, ‡x1436-803X
+Circular,‡x1436-803X
 
 558
 Dollar in 500 is not an indicator, but wrongly triggers Bibcheck error now whitelisted
