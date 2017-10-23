@@ -1861,6 +1861,7 @@ class muscatConversion extends frontControllerApplication
 			'local' => 'Local note',
 			'location' => 'Location (mirror of *loc)',
 			'lpt' => 'Languages of parallel title',
+			'lto' => 'Language of *to',
 			'n' => 'Name field (used in conjunction with *e and *ee fields)',
 			'n1' => 'Name field (used in conjunction with *e and *ee fields)',
 			'n2' => 'Name field (used in conjunction with *e and *ee fields)',
