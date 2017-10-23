@@ -24,7 +24,7 @@
 			<t /><!-- title -->
 			<tt /><!-- translation of title (if *t is not in English) -->
 			<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
-			<to /><!-- title of original (if publication is a translation) -->'
+			<to /><!-- title of original (if publication is a translation) -->
 			<tc /><!-- UNKNOWN -->
 		</tg>
 		<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
@@ -145,7 +145,7 @@
 			<t /><!-- title -->
 			<tt /><!-- translation of title (if *t is not in English) -->
 			<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
-			<to /><!-- title of original (if publication is a translation) -->'
+			<to /><!-- title of original (if publication is a translation) -->
 			<tc /><!-- UNKNOWN -->
 		</tg>
 		<lang /><!-- name of language (e.g. 'French' 'German') -->
@@ -181,7 +181,7 @@
 				<t /><!-- title -->
 				<tt /><!-- translation of title (if *t is not in English) -->
 				<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
-				<to /><!-- title of original (if publication is a translation) -->'
+				<to /><!-- title of original (if publication is a translation) -->
 				<tc /><!-- UNKNOWN -->
 			</tg>
 			<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
@@ -282,7 +282,7 @@
 				<t /><!-- title -->
 				<tt /><!-- translation of title (if *t is not in English) -->
 				<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
-				<to /><!-- title of original (if publication is a translation) -->'
+				<to /><!-- title of original (if publication is a translation) -->
 				<tc /><!-- UNKNOWN -->
 			</tg>
 			<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
@@ -380,7 +380,7 @@
 			<t /><!-- title -->
 			<tt /><!-- translation of title (if *t is not in English) -->
 			<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
-			<to /><!-- title of original (if publication is a translation) -->'
+			<to /><!-- title of original (if publication is a translation) -->
 			<tc /><!-- UNKNOWN -->
 		</tg>
 		<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
