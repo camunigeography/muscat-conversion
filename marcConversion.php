@@ -817,8 +817,8 @@ class marcConversion
 	private function macro_validisbn ($value)
 	{
 		# Determine the subfield, by performing a validation; seems to permit EANs like 5391519681503 in /records/211150/ (test #270)
-		$this->muscatConversion->loadIsbnValidationLibrary ();
-		$isValid = $this->muscatConversion->isbn->validation->isbn ($value);
+		$this->loadIsbnValidationLibrary ();
+		$isValid = $this->isbn->validation->isbn ($value);
 		$subfield = $this->doubleDagger . ($isValid ? 'a' : 'z');	// E.g. /records/211150/ (test #271), /records/49940/ (test #272)
 		
 		# Assemble the return value, adding qualifying information if required
@@ -826,6 +826,24 @@ class marcConversion
 		
 		# Return the value
 		return $string;
+	}
+	
+	
+	# Function to load the ISBN validation library if not already loaded; see: https://github.com/Fale/isbn , and a manual checker at: http://www.isbn-check.com/
+	public function loadIsbnValidationLibrary ()
+	{
+		# Load if not already loaded
+		if (!isSet ($this->isbn)) {
+			
+			# This is a Composer package, so work around the autoloading requirement; see: http://stackoverflow.com/questions/599670/how-to-include-all-php-files-from-a-directory
+			foreach (glob ($this->applicationRoot . '/libraries/isbn/src/Isbn/*.php') as $filename) {
+				include $filename;
+			}
+			
+			# Load and instantiate the library
+			require_once ('libraries/isbn/src/Isbn/Isbn.php');
+			$this->isbn = new Isbn\Isbn();
+		}
 	}
 	
 	

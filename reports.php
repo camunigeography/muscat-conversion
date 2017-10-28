@@ -1312,9 +1312,9 @@ class reports
 		
 		# Find invalid ISBNs at code level by doing a full validation check
 		$recordIds = array ();
-		$this->muscatConversion->loadIsbnValidationLibrary ();
+		$this->marcConversion->loadIsbnValidationLibrary ();
 		foreach ($isbnShards as $isbnShard) {
-			if (!$isValid = $this->muscatConversion->isbn->validation->isbn ($isbnShard['value'])) {
+			if (!$isValid = $this->marcConversion->isbn->validation->isbn ($isbnShard['value'])) {
 				if (in_array ($isbnShard['recordId'], $knownIncorrect)) {continue;}	// Skip whitelisted
 				$recordIds[] = $isbnShard['recordId'];
 			}
