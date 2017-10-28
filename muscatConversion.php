@@ -920,8 +920,9 @@ class muscatConversion extends frontControllerApplication
 			$marcParserDefinition = $this->getMarcParserDefinition ();
 			$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ());
 			//$this->profileMemoryStart ();
-			$record['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $record['suppressReasons'], $marcPreMerge /* passed back by reference */, $sourceRegistry /* passed back by reference */);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
+			$record['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $record['suppressReasons'], $marcPreMerge /* passed back by reference */);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
 			$errorString = $this->marcConversion->getErrorString ();
+			$sourceRegistry = $this->marcConversion->getSourceRegistry ();
 			//unset ($this->marcConversion);
 			//$this->profileMemoryEnd ();
 		}
@@ -4150,7 +4151,6 @@ class muscatConversion extends frontControllerApplication
 					$suppressReasons = (isSet ($suppressReasonsList[$id]) ? $suppressReasonsList[$id] : false);
 					$marcPreMerge = NULL;	// Reset for next iteration
 //$this->marcConversion = new marcConversion ($this, $this->transliteration, $this->supportedReverseTransliterationLanguages, $this->mergeTypes, $this->ksStatusTokens, $this->locationCodes, $this->suppressionStatusKeyword, $this->getSuppressionScenarios ());
-//if (isSet ($errorString)) {unset ($errorString);}
 					$marc = $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $mergeDefinition, $mergeType, $mergeVoyagerId, $suppressReasons, $marcPreMerge);
 					if ($errorString = $this->marcConversion->getErrorString ()) {
 						$html  = "<p class=\"warning\">Record <a href=\"{$this->baseUrl}/records/{$id}/\">{$id}</a> could not be converted to MARC:</p>";

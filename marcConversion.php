@@ -6,6 +6,7 @@ class marcConversion
 	# Class properties
 	private $lookupTablesCache = array ();
 	private $errorString = '';
+	private $sourceRegistry = array ();
 	
 	
 	# Constructor
@@ -43,11 +44,19 @@ class marcConversion
 	}
 	
 	
-	# Main entry point
-	public function convertToMarc ($marcParserDefinition, $recordXml, $mergeDefinition = array (), $mergeType = false, $mergeVoyagerId = false, $suppressReasons = false, &$marcPreMerge = NULL, &$sourceRegistry = array ())
+	# Getter for source registry
+	public function getSourceRegistry ()
 	{
-		# Reset the error string so that it is clean for each iteration
+		return $this->sourceRegistry;
+	}
+	
+	
+	# Main entry point
+	public function convertToMarc ($marcParserDefinition, $recordXml, $mergeDefinition = array (), $mergeType = false, $mergeVoyagerId = false, $suppressReasons = false, &$marcPreMerge = NULL)
+	{
+		# Reset the error string and source registry so that they are clean for each iteration
 		$this->errorString = '';
+		$this->sourceRegistry = array ();
 		
 		# Create fresh containers for 880 reciprocal links for this record
 		$this->field880subfield6ReciprocalLinks = array ();		// This is indexed by the master field, ignoring any mutations within multilines
@@ -107,7 +116,7 @@ class marcConversion
 		# If required, merge with an existing Voyager record, returning by reference the pre-merge record, and below returning the merged record
 		if ($mergeType) {
 			$marcPreMerge = $record;	// Save to argument returned by reference
-			$record = $this->mergeWithExistingVoyager ($record, $mergeDefinition, $mergeType, $mergeVoyagerId, $sourceRegistry);
+			$record = $this->mergeWithExistingVoyager ($record, $mergeDefinition, $mergeType, $mergeVoyagerId);
 		}
 		
 		# Report any UTF-8 problems
@@ -163,7 +172,7 @@ class marcConversion
 	
 	
 	# Function to perform merge of a MARC record with an existing Voyager record
-	private function mergeWithExistingVoyager ($localRecord, $mergeDefinitions, $mergeType, $mergeVoyagerId, &$sourceRegistry = array ())
+	private function mergeWithExistingVoyager ($localRecord, $mergeDefinitions, $mergeType, $mergeVoyagerId)
 	{
 		# Start a source registry, to store which source each line comes from
 		$sourceRegistry = array ();
@@ -295,7 +304,10 @@ class marcConversion
 		# Implode the record lines
 		$record = implode ("\n", $recordLines);
 		
-		# Return the merged record; the source registry is passed back by reference
+		# Register the source registry
+		$this->sourceRegistry = $sourceRegistry;
+		
+		# Return the merged record
 		return $record;
 	}
 	
