@@ -11,6 +11,9 @@ class marcConversion
 	# Caches
 	private $lookupTablesCache = array ();
 	
+	# Resources
+	private $isbn;
+	
 	
 	# Constructor
 	public function __construct ($muscatConversion, $transliteration, $supportedReverseTransliterationLanguages, $mergeTypes, $ksStatusTokens, $locationCodes, $suppressionStatusKeyword, $suppressionScenarios)
@@ -37,6 +40,9 @@ class marcConversion
 		# Get the list of leading articles
 		$this->leadingArticles = $this->leadingArticles ();
 		
+		# Load ISBN support
+		$this->isbn = $this->loadIsbnValidationLibrary ();
+		
 	}
 	
 	
@@ -58,6 +64,13 @@ class marcConversion
 	public function getSourceRegistry ()
 	{
 		return $this->sourceRegistry;
+	}
+	
+	
+	# Getter for ISBN library handle
+	public function getIsbn ()
+	{
+		return $this->isbn;
 	}
 	
 	
@@ -817,7 +830,6 @@ class marcConversion
 	private function macro_validisbn ($value)
 	{
 		# Determine the subfield, by performing a validation; seems to permit EANs like 5391519681503 in /records/211150/ (test #270)
-		$this->loadIsbnValidationLibrary ();
 		$isValid = $this->isbn->validation->isbn ($value);
 		$subfield = $this->doubleDagger . ($isValid ? 'a' : 'z');	// E.g. /records/211150/ (test #271), /records/49940/ (test #272)
 		
@@ -826,24 +838,6 @@ class marcConversion
 		
 		# Return the value
 		return $string;
-	}
-	
-	
-	# Function to load the ISBN validation library if not already loaded; see: https://github.com/Fale/isbn , and a manual checker at: http://www.isbn-check.com/
-	public function loadIsbnValidationLibrary ()
-	{
-		# Load if not already loaded
-		if (!isSet ($this->isbn)) {
-			
-			# This is a Composer package, so work around the autoloading requirement; see: http://stackoverflow.com/questions/599670/how-to-include-all-php-files-from-a-directory
-			foreach (glob ($this->applicationRoot . '/libraries/isbn/src/Isbn/*.php') as $filename) {
-				include $filename;
-			}
-			
-			# Load and instantiate the library
-			require_once ('libraries/isbn/src/Isbn/Isbn.php');
-			$this->isbn = new Isbn\Isbn();
-		}
 	}
 	
 	
@@ -2943,6 +2937,20 @@ class marcConversion
 		
 		# Return the array
 		return $leadingArticlesByLanguage;
+	}
+	
+	
+	# Function to load the ISBN validation library; see: https://github.com/Fale/isbn , and a manual checker at: http://www.isbn-check.com/
+	private function loadIsbnValidationLibrary ()
+	{
+		# This is a Composer package, so work around the autoloading requirement; see: http://stackoverflow.com/questions/599670/how-to-include-all-php-files-from-a-directory
+		foreach (glob ($this->applicationRoot . '/libraries/isbn/src/Isbn/*.php') as $filename) {
+			include $filename;
+		}
+		
+		# Load and instantiate the library
+		require_once ('libraries/isbn/src/Isbn/Isbn.php');
+		return new Isbn\Isbn();
 	}
 }
 

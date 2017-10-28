@@ -1310,11 +1310,13 @@ class reports
 			212641, 214798,
 		);
 		
+		# Obtain the ISBN library handle
+		$isbn = $this->marcConversion->getIsbn ();
+		
 		# Find invalid ISBNs at code level by doing a full validation check
 		$recordIds = array ();
-		$this->marcConversion->loadIsbnValidationLibrary ();
 		foreach ($isbnShards as $isbnShard) {
-			if (!$isValid = $this->marcConversion->isbn->validation->isbn ($isbnShard['value'])) {
+			if (!$isValid = $isbn->validation->isbn ($isbnShard['value'])) {
 				if (in_array ($isbnShard['recordId'], $knownIncorrect)) {continue;}	// Skip whitelisted
 				$recordIds[] = $isbnShard['recordId'];
 			}
