@@ -4463,8 +4463,8 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to unescape Muscat asterisks
-	public function unescapeMuscatAsterisks ($string)
+	# Helper function to unescape Muscat asterisks
+	private function unescapeMuscatAsterisks ($string)
 	{
 		return str_replace ('@*', '*', $string);
 	}
