@@ -5934,6 +5934,21 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Function to return the merge definition
+	private function getMergeDefinition ()
+	{
+		# Get the latest version
+		$query = "SELECT definition FROM {$this->settings['database']}.mergedefinition ORDER BY id DESC LIMIT 1;";
+		if (!$definition = $this->databaseConnection->getOneField ($query, 'definition')) {
+			echo "\n<p class=\"warning\"><strong>Error:</strong> The merge definition could not be retrieved.</p>";
+			return false;
+		}
+		
+		# Return the string
+		return $definition;
+	}
+	
+	
 	# Function to process the merge definition
 	private function parseMergeDefinition ($tsv, &$errorString = '')
 	{
@@ -5953,21 +5968,6 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the definition
 		return $mergeDefinition;
-	}
-	
-	
-	# Function to return the merge definition
-	private function getMergeDefinition ()
-	{
-		# Get the latest version
-		$query = "SELECT definition FROM {$this->settings['database']}.mergedefinition ORDER BY id DESC LIMIT 1;";
-		if (!$definition = $this->databaseConnection->getOneField ($query, 'definition')) {
-			echo "\n<p class=\"warning\"><strong>Error:</strong> The merge definition could not be retrieved.</p>";
-			return false;
-		}
-		
-		# Return the string
-		return $definition;
 	}
 	
 	
