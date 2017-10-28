@@ -149,7 +149,7 @@ class reports
 	
 	
 	# Constructor
-	public function __construct ($muscatConversion, $marcConversion, $locationCodes, $orderStatusKeywords, $suppressionStatusKeyword, $acquisitionDate, $ksStatusTokens, $mergeTypes, $transliterationNameMatchingFields)
+	public function __construct ($muscatConversion, $marcConversion, $locationCodes, $orderStatusKeywords, $suppressionStatusKeyword, $acquisitionDate, $ksStatusTokens, $diacriticsTable, $mergeTypes, $transliterationNameMatchingFields)
 	{
 		# Create main property handles
 		$this->muscatConversion = $muscatConversion;
@@ -164,6 +164,7 @@ class reports
 		$this->suppressionStatusKeyword = $suppressionStatusKeyword;
 		$this->acquisitionDate = $acquisitionDate;
 		$this->ksStatusTokens = $ksStatusTokens;
+		$this->diacriticsTable = $diacriticsTable;
 		$this->mergeTypes = $mergeTypes;
 		$this->transliterationNameMatchingFields = $transliterationNameMatchingFields;
 		
@@ -2870,9 +2871,6 @@ class reports
 		# Regroup by diacritic
 		$data = application::regroup ($data, 'diacritic');
 		
-		# Get the diacritics lookup table
-		$diacritics = $this->muscatConversion->diacriticsTable ();
-		
 		# Show each diacritic modifer, in a large table
 		$html .= "\n" . '<table class="lines diacritics">';
 		$html .= "\n\t" . '<tr>';
@@ -2898,7 +2896,7 @@ class reports
 			$table = array ();
 			foreach ($instances as $instance) {
 				if ($instance['instances'] == 0) {continue;}	// This is done at this level, rather than the getData stage, so that all diacritic modifiers end up being listed
-				$unicodeSymbol = $diacritics["{$instance['letter']}^{$diacritic}"];
+				$unicodeSymbol = $this->diacriticsTable["{$instance['letter']}^{$diacritic}"];
 				$letter = "<a href=\"{$this->baseUrl}/search/?casesensitive=1&anywhere=" . urlencode ($unicodeSymbol) . "\"><strong>{$instance['letter']}</strong>^{$diacritic}</a>";
 				$table[$letter] = array (
 					'muscat'	=> $letter,

@@ -16,7 +16,7 @@ class marcConversion
 	
 	
 	# Constructor
-	public function __construct ($muscatConversion, $transliteration, $supportedReverseTransliterationLanguages, $mergeTypes, $ksStatusTokens, $locationCodes, $suppressionStatusKeyword, $suppressionScenarios)
+	public function __construct ($muscatConversion, $transliteration, $supportedReverseTransliterationLanguages, $mergeTypes, $ksStatusTokens, $locationCodes, $diacriticsTable, $suppressionStatusKeyword, $suppressionScenarios)
 	{
 		# Create class property handles to the parent class
 		$this->muscatConversion = $muscatConversion;
@@ -31,6 +31,7 @@ class marcConversion
 		$this->mergeTypes = $mergeTypes;
 		$this->ksStatusTokens = $ksStatusTokens;
 		$this->locationCodes = $locationCodes;
+		$this->diacriticsTable = $diacriticsTable;
 		$this->suppressionStatusKeyword = $suppressionStatusKeyword;
 		$this->suppressionScenarios = $suppressionScenarios;
 		
@@ -2241,15 +2242,12 @@ class marcConversion
 		}
 		$lookupTableRaw[false]	= $lookupTableRaw[$fallbackKey];	// Boolean false also needs to be defined because no-match value from an xPathValue() lookup will be false, e.g. /records/180289/ (test #487)
 		
-		# Obtain diacritic definitions
-		$diacriticsTable = $this->muscatConversion->diacriticsTable ();
-		
 		# Perform conversions on the key names
 		$lookupTable = array ();
 		foreach ($lookupTableRaw as $key => $values) {
 			
 			# Convert diacritics, e.g. /records/148511/ (test #488)
-			$key = strtr ($key, $diacriticsTable);
+			$key = strtr ($key, $this->diacriticsTable);
 			
 			# Strip surrounding square/round brackets if present, e.g. "[Frankfurt]" => "Frankfurt" or "(Frankfurt)" => "Frankfurt"; no examples found but tested manually
 			if ($stripBrackets) {

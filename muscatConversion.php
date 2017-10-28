@@ -460,13 +460,16 @@ class muscatConversion extends frontControllerApplication
 		$this->transliteration = new transliteration ($this);
 		$this->supportedReverseTransliterationLanguages = $this->transliteration->getSupportedReverseTransliterationLanguages ();
 		
+		# Load tables
+		$this->diacriticsTable = $this->getDiacriticsTable ();
+		
 		# Create a handle to the MARC conversion module
 		require_once ('marcConversion.php');
-		$this->marcConversion = new marcConversion ($this, $this->transliteration, $this->supportedReverseTransliterationLanguages, $this->mergeTypes, $this->ksStatusTokens, $this->locationCodes, $this->suppressionStatusKeyword, $this->getSuppressionScenarios ());
+		$this->marcConversion = new marcConversion ($this, $this->transliteration, $this->supportedReverseTransliterationLanguages, $this->mergeTypes, $this->ksStatusTokens, $this->locationCodes, $this->diacriticsTable, $this->suppressionStatusKeyword, $this->getSuppressionScenarios ());
 		
 		# Create a handle to the reports module
 		require_once ('reports.php');
-		$this->reports = new reports ($this, $this->marcConversion, $this->locationCodes, $this->orderStatusKeywords, $this->suppressionStatusKeyword, $this->acquisitionDate, $this->ksStatusTokens, $this->mergeTypes, $this->transliterationNameMatchingFields);
+		$this->reports = new reports ($this, $this->marcConversion, $this->locationCodes, $this->orderStatusKeywords, $this->suppressionStatusKeyword, $this->acquisitionDate, $this->ksStatusTokens, $this->diacriticsTable, $this->mergeTypes, $this->transliterationNameMatchingFields);
 		$this->reportsList = $this->reports->getReportsList ();
 		$this->listingsList = $this->reports->getListingsList ();
 		
@@ -2948,8 +2951,7 @@ class muscatConversion extends frontControllerApplication
 		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'}o{','{$replaceBackslash}gdeg') WHERE value NOT LIKE '%V}o{%';";	// NB Have manually checked that record with V}o{ has no other use of }/{ characters
 		
 		# Diacritics (query takes 135 seconds)
-		$diacritics = $this->diacriticsTable ();
-		$queries[] = "UPDATE catalogue_processed SET value = " . $this->databaseConnection->replaceSql ($diacritics, 'value', "'") . ';';
+		$queries[] = "UPDATE catalogue_processed SET value = " . $this->databaseConnection->replaceSql ($this->diacriticsTable, 'value', "'") . ';';
 		
 		# Greek characters; see also report_specialcharscase which enables the librarians to normalise \gGamMA to \gGamma
 		# Assumes this catalogue rule has been eliminated: "When '\g' is followed by a word, the case of the first letter is significant. The remaining letters can be in either upper or lower case however. Thus '\gGamma' is a capital gamma, and the forms '\gGAMMA', '\gGAmma' etc. will also represent capital gamma."
@@ -3191,7 +3193,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Lookup table for diacritics
-	public function diacriticsTable ()
+	private function getDiacriticsTable ()
 	{
 		# Diacritics; see also report_diacritics() and report_diacritics_view(); most are defined at http://www.ssec.wisc.edu/~tomw/java/unicode.html and this is useful: http://illegalargumentexception.blogspot.co.uk/2009/09/java-character-inspector-application.html
 		$diacritics = array (
