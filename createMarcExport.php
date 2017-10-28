@@ -198,7 +198,7 @@ class createMarcExport
 			'008: Check place code xxu - please set code for specific state \(if known\).',	// E.g. /records/1199/ (test #216) which is USA but no further detail
 			'008: 008 date may not match 260 date - please check.',	// E.g. /records/1150/ which has '[196-?]' which is valid (test #217) - Bibcheck isn't taking account of [...] brackets or five-digit values; see example "##$aNew York :$bHaworth,$c[198-]" at https://www.loc.gov/marc/bibliographic/bd008a.html
 			'245: Subfield _[1|2|5] is not allowed.',	// E.g. /records/203691/ has $100 (test #218)
-			'245: Must have a subfield _a.'	// E.g. /records/174312/ has "‡a$50,000 an ounce!"
+			'245: Must have a subfield _a.',	// E.g. /records/174312/ has "‡a$50,000 an ounce!"
 			'300: In subfield _a, p should be followed by a full stop.',	// See 8e5f9354da83b6aa7a9e338e0ba7d48e1d1e0b60 - intended "p." is already implemented correctly; see /records/54670/ (test #219)
 			'300: Subfield _4 is not allowed.',	// /records/38727/ has $4.95 (test #222)
 			'500: Subfield _2 is not allowed.',	// E.g. /records/161883/ has $220 (test #558)
