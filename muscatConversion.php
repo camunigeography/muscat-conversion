@@ -199,10 +199,6 @@ class muscatConversion extends frontControllerApplication
 	private $htmlTags = array ('<em>', '</em>', '<sub>', '</sub>', '<sup>', '</sup>');
 	
 	
-	# Caches
-	private $lookupTablesCache = array ();
-	
-	
 	# Function to assign defaults additional to the general application defaults
 	public function defaults ()
 	{
@@ -3640,7 +3636,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Define words to add to the dictionary
 		$langCode = 'ru_RU';
-		$addToDictionary = $this->oneColumnTableToList ("dictionary.{$langCode}.txt");
+		$addToDictionary = application::textareaToList ($this->applicationRoot . '/tables/' . "dictionary.{$langCode}.txt", true, true);
 		
 		# Obtain an HTML string with embedded spellchecking data
 		$dataTransliteratedSpellcheckHtml = application::spellcheck ($cyrillicPreSubstitutions, $langCode, $this->transliteration->getProtectedSubstringsRegexp (), $this->databaseConnection, $this->settings['database'], true, $addToDictionary);
@@ -3702,49 +3698,6 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the transliterated data
 		return $dataTransliterated;
-	}
-	
-	
-	# Helper function to process a list file to an array
-	public function oneColumnTableToList ($filename, $longerFirst = false)
-	{
-		# Process the file
-		$lookupTable = file_get_contents ($this->applicationRoot . '/tables/' . $filename);
-		$lookupTable = trim ($lookupTable);
-		$lookupTable = str_replace ("\r\n", "\n", $lookupTable);
-		$result = explode ("\n", $lookupTable);
-		
-		# Strip empty lines and comments
-		foreach ($result as $index => $line) {
-			if (!strlen (trim ($line)) || preg_match ('/^#/', $line)) {unset ($result[$index]);}
-		}
-		
-		# If required, order the values so that longer (string-length) values come first, making it safe for multiple replacements
-		if ($longerFirst) {
-			usort ($result, array ($this, 'lengthDescValueSort'));
-		}
-		
-		# Reindex to ensure starting from 0, following line stripping and possible longer-first operations
-		$result = array_values ($result);
-		
-		# Return the list
-		return $result;
-	}
-	
-	
-	# Helper function to sort by string length descending then by value, for use in a callback; see: http://stackoverflow.com/a/16311030/180733
-	private function lengthDescValueSort ($a, $b)
-	{
-		$la = mb_strlen ($a);
-		$lb = mb_strlen ($b);
-		
-		# If same length, compare by value; uses case-insensitive searching - not actually necessary, just nicer for debugging
-		if ($la == $lb) {
-			return strcasecmp ($a, $b);		// Is binary-safe
-		}
-		
-		# Otherwise compare by string length descending
-		return $lb - $la;
 	}
 	
 	

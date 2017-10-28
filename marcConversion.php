@@ -1924,7 +1924,7 @@ class marcConversion
 			if (!isSet ($this->regexps490)) {
 				
 				# Load the regexp list; this is sorted longest first to try to avoid ordering bugs; e.g. /records/6264/ (test #449)
-				$this->regexps490Base = $this->muscatConversion->oneColumnTableToList ('volumeRegexps.txt', true);
+				$this->regexps490Base = application::textareaToList ($this->applicationRoot . '/tables/' . 'volumeRegexps.txt', true, true, true);
 				
 				# Add implicit boundaries to each regexp
 				$this->regexps490 = array ();

@@ -363,7 +363,7 @@ class transliteration
 		$replacements = array_merge ($replacements, array_values ($this->getSpeciesOrderNames ()));
 		
 		# Protect a defined list of species names, chemical formulae, latin abbreviations, and other strings
-		$definedList = $this->muscatConversion->oneColumnTableToList ('transliterationProtectedStrings.txt', true);
+		$definedList = application::textareaToList ($this->applicationRoot . '/tables/' . 'transliterationProtectedStrings.txt', true, true, true);
 		$replacements = array_merge ($replacements, $definedList);
 		
 		# Protect Roman numerals, by defining dynamic replacement patterns; note that standard latin characters rather than 'real' Unicode symbols are used, as per the recommendation in the Unicode standard - see: https://en.wikipedia.org/wiki/Numerals_in_Unicode#Roman_numerals_in_Unicode
