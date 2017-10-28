@@ -20,9 +20,10 @@ class transliteration
 		# Create property handles
 		$this->muscatConversion = $muscatConversion;
 		$this->databaseConnection = $muscatConversion->databaseConnection;
+		$this->applicationRoot = $muscatConversion->applicationRoot;
 		
 		# Ensure the transliteration module is present
-		$this->cpanDir = $this->muscatConversion->applicationRoot . '/libraries/transliteration/cpan';
+		$this->cpanDir = $this->applicationRoot . '/libraries/transliteration/cpan';
 		if (!is_dir ($this->cpanDir)) {
 			$html  = "\n<div class=\"graybox\">";
 			$html .= "\n<p class=\"warning\">The transliteration module was not found. The Webmaster needs to ensure that {$this->cpanDir} is present.</p>";
