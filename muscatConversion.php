@@ -920,7 +920,8 @@ class muscatConversion extends frontControllerApplication
 			$marcParserDefinition = $this->getMarcParserDefinition ();
 			$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ());
 			//$this->profileMemoryStart ();
-			$record['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $errorString, $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $record['suppressReasons'], $marcPreMerge /* passed back by reference */, $sourceRegistry /* passed back by reference */);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
+			$record['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $record['suppressReasons'], $marcPreMerge /* passed back by reference */, $sourceRegistry /* passed back by reference */);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
+			$errorString = $this->marcConversion->getErrorString ();
 			//unset ($this->marcConversion);
 			//$this->profileMemoryEnd ();
 		}
@@ -4148,8 +4149,10 @@ class muscatConversion extends frontControllerApplication
 					$mergeVoyagerId	 = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeVoyagerId'] : false);
 					$suppressReasons = (isSet ($suppressReasonsList[$id]) ? $suppressReasonsList[$id] : false);
 					$marcPreMerge = NULL;	// Reset for next iteration
-					$marc = $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $errorString, $mergeDefinition, $mergeType, $mergeVoyagerId, $suppressReasons, $marcPreMerge);
-					if ($errorString) {
+//$this->marcConversion = new marcConversion ($this, $this->transliteration, $this->supportedReverseTransliterationLanguages, $this->mergeTypes, $this->ksStatusTokens, $this->locationCodes, $this->suppressionStatusKeyword, $this->getSuppressionScenarios ());
+//if (isSet ($errorString)) {unset ($errorString);}
+					$marc = $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $mergeDefinition, $mergeType, $mergeVoyagerId, $suppressReasons, $marcPreMerge);
+					if ($errorString = $this->marcConversion->getErrorString ()) {
 						$html  = "<p class=\"warning\">Record <a href=\"{$this->baseUrl}/records/{$id}/\">{$id}</a> could not be converted to MARC:</p>";
 						$html .= "\n<p><img src=\"/images/icons/exclamation.png\" class=\"icon\" /> {$errorString}</p>";
 						$errorsHtml .= $html;
@@ -4735,7 +4738,7 @@ class muscatConversion extends frontControllerApplication
 			$xmlRecords = $this->getRecords ($ids, 'xml', false, false, $searchStable = (!$this->userIsAdministrator));
 			foreach ($xmlRecords as $id => $data) {
 				// if (!in_array ($id, $regenerateIds)) {continue;}	// Skip non-needed IDs
-				$marcRecords[$id]['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $errorString, $mergeDefinition);
+				$marcRecords[$id]['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $mergeDefinition);
 			}
 			$this->databaseConnection->updateMany ($this->settings['database'], 'catalogue_marc', $marcRecords);
 		}
@@ -5276,8 +5279,8 @@ class muscatConversion extends frontControllerApplication
 		if ($unfinalisedData = $form->getUnfinalisedData ()) {
 			if ($unfinalisedData['definition']) {
 				$record = '';	// Bogus record - good enough for checking parsing
-				$this->marcConversion->convertToMarc ($unfinalisedData['definition'], $record, $errorString);
-				if ($errorString) {
+				$this->marcConversion->convertToMarc ($unfinalisedData['definition'], $record);
+				if ($errorString = $this->marcConversion->getErrorString ()) {
 					$form->registerProblem ('compilefailure', $errorString);
 				}
 			}

@@ -5,6 +5,7 @@ class marcConversion
 {
 	# Class properties
 	private $lookupTablesCache = array ();
+	private $errorString = '';
 	
 	
 	# Constructor
@@ -35,12 +36,18 @@ class marcConversion
 	}
 	
 	
-	# Main entry point
-	# NB XPath functions can have PHP modifications in them using php:functionString - may be useful in future http://www.sitepoint.com/php-dom-using-xpath/ http://cowburn.info/2009/10/23/php-funcs-xpath/
-	public function convertToMarc ($marcParserDefinition, $recordXml, &$errorString = '', $mergeDefinition = array (), $mergeType = false, $mergeVoyagerId = false, $suppressReasons = false, &$marcPreMerge = NULL, &$sourceRegistry = array ())
+	# Getter for error string
+	public function getErrorString ()
 	{
-		# Ensure the error string is clean for each iteration
-		$errorString = '';
+		return $this->errorString;
+	}
+	
+	
+	# Main entry point
+	public function convertToMarc ($marcParserDefinition, $recordXml, $mergeDefinition = array (), $mergeType = false, $mergeVoyagerId = false, $suppressReasons = false, &$marcPreMerge = NULL, &$sourceRegistry = array ())
+	{
+		# Reset the error string so that it is clean for each iteration
+		$this->errorString = '';
 		
 		# Create fresh containers for 880 reciprocal links for this record
 		$this->field880subfield6ReciprocalLinks = array ();		// This is indexed by the master field, ignoring any mutations within multilines
@@ -54,10 +61,10 @@ class marcConversion
 		$this->suppressReasons = $suppressReasons;
 		
 		# Ensure the line-by-line syntax is valid, extract macros, and construct a data structure representing the record
-		if (!$datastructure = $this->convertToMarc_InitialiseDatastructure ($recordXml, $marcParserDefinition, $errorString)) {return false;}
+		if (!$datastructure = $this->convertToMarc_InitialiseDatastructure ($recordXml, $marcParserDefinition)) {return false;}
 		
 		# End if not all macros are supported
-		if (!$this->convertToMarc_MacrosAllSupported ($datastructure, $errorString)) {return false;}
+		if (!$this->convertToMarc_MacrosAllSupported ($datastructure)) {return false;}
 		
 		# Load the record as a valid XML object
 		$this->xml = $this->loadXmlRecord ($recordXml);
@@ -75,7 +82,7 @@ class marcConversion
 		$this->authorsFields = $generateAuthors->getValues ();
 		
 		# Up-front, look up the host record, if any
-		$this->hostRecord = $this->lookupHostRecord ($errorString);
+		$this->hostRecord = $this->lookupHostRecord ();
 		
 		# Lookup XPath values from the record which are needed multiple times, for efficiency
 		$this->form = $this->xPathValue ($this->xml, '(//form)[1]', false);
@@ -84,13 +91,13 @@ class marcConversion
 		$this->pOrPt = $this->splitPOrPt ();
 		
 		# Perform XPath replacements
-		if (!$datastructure = $this->convertToMarc_PerformXpathReplacements ($datastructure, $errorString)) {return false;}
+		if (!$datastructure = $this->convertToMarc_PerformXpathReplacements ($datastructure)) {return false;}
 		
 		# Expand vertically-repeatable fields
-		if (!$datastructure = $this->convertToMarc_ExpandVerticallyRepeatableFields ($datastructure, $errorString)) {return false;}
+		if (!$datastructure = $this->convertToMarc_ExpandVerticallyRepeatableFields ($datastructure)) {return false;}
 		
 		# Process the record
-		$record = $this->convertToMarc_ProcessRecord ($datastructure, $errorString);
+		$record = $this->convertToMarc_ProcessRecord ($datastructure);
 		
 		# Determine the length, in bytes, which is the first five characters of the 000 (Leader), padded
 		$bytes = mb_strlen ($record);
@@ -100,18 +107,18 @@ class marcConversion
 		# If required, merge with an existing Voyager record, returning by reference the pre-merge record, and below returning the merged record
 		if ($mergeType) {
 			$marcPreMerge = $record;	// Save to argument returned by reference
-			$record = $this->mergeWithExistingVoyager ($record, $mergeDefinition, $mergeType, $mergeVoyagerId, $sourceRegistry, $errorString);
+			$record = $this->mergeWithExistingVoyager ($record, $mergeDefinition, $mergeType, $mergeVoyagerId, $sourceRegistry);
 		}
 		
 		# Report any UTF-8 problems
 		if (strlen ($record) && !htmlspecialchars ($record)) {	// i.e. htmlspecialchars fails
-			$errorString .= "UTF-8 conversion failed in record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">#{$this->recordId}</a>.";
+			$this->errorString .= "UTF-8 conversion failed in record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">#{$this->recordId}</a>.";
 			return false;
 		}
 		
 		# Do a check to report any case of an invalid subfield indicator
 		if (preg_match_all ("/{$this->doubleDagger}[^a-z0-9]/u", $record, $matches)) {
-			$errorString .= 'Invalid ' . (count ($matches[0]) == 1 ? 'subfield' : 'subfields') . " (" . implode (', ', $matches[0]) . ") detected in record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">#{$this->recordId}</a>.";
+			$this->errorString .= 'Invalid ' . (count ($matches[0]) == 1 ? 'subfield' : 'subfields') . " (" . implode (', ', $matches[0]) . ") detected in record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">#{$this->recordId}</a>.";
 			// Leave the record visible rather than return false
 		}
 		
@@ -120,7 +127,7 @@ class marcConversion
 		$total880fields = count ($matches[0]);
 		$total880dollar6Instances = substr_count ($record, "{$this->doubleDagger}6 880-");
 		if ($total880fields != $total880dollar6Instances) {
-			$errorString .= "Mismatch in 880 field/link counts ({$total880fields} vs {$total880dollar6Instances}) in record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">#{$this->recordId}</a>.";
+			$this->errorString .= "Mismatch in 880 field/link counts ({$total880fields} vs {$total880dollar6Instances}) in record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">#{$this->recordId}</a>.";
 			// Leave the record visible rather than return false
 		}
 		
@@ -156,7 +163,7 @@ class marcConversion
 	
 	
 	# Function to perform merge of a MARC record with an existing Voyager record
-	private function mergeWithExistingVoyager ($localRecord, $mergeDefinitions, $mergeType, $mergeVoyagerId, &$sourceRegistry = array (), &$errorString)
+	private function mergeWithExistingVoyager ($localRecord, $mergeDefinitions, $mergeType, $mergeVoyagerId, &$sourceRegistry = array ())
 	{
 		# Start a source registry, to store which source each line comes from
 		$sourceRegistry = array ();
@@ -164,7 +171,7 @@ class marcConversion
 		# End if merge type is unsupported; this will result in an empty record
 		#!# Need to ensure this is reported during the import also
 		if (!isSet ($this->mergeTypes[$mergeType])) {
-			$errorString .= "WARNING: Merge failed for Muscat record #{$this->recordId}: unsupported merge type {$mergeType}. The local record has been put in, without merging.";
+			$this->errorString .= "WARNING: Merge failed for Muscat record #{$this->recordId}: unsupported merge type {$mergeType}. The local record has been put in, without merging.";
 			return $localRecord;
 		}
 		
@@ -173,7 +180,7 @@ class marcConversion
 		
 		# Get the existing Voyager record
 		if (!$voyagerRecord = $this->getExistingVoyagerRecord ($mergeVoyagerId)) {
-			$errorString .= "WARNING: Merge failed for Muscat record #{$this->recordId}: could not retrieve existing Voyager record. The local record has been put in, without merging.";
+			$this->errorString .= "WARNING: Merge failed for Muscat record #{$this->recordId}: could not retrieve existing Voyager record. The local record has been put in, without merging.";
 			return $localRecord;
 		}
 		
@@ -335,7 +342,7 @@ class marcConversion
 	
 	
 	# Function to ensure the line-by-line syntax is valid, extract macros, and construct a data structure representing the record
-	private function convertToMarc_InitialiseDatastructure ($record, $marcParserDefinition, &$errorString = '')
+	private function convertToMarc_InitialiseDatastructure ($record, $marcParserDefinition)
 	{
 		# Convert the definition into lines
 		$marcParserDefinition = str_replace ("\r\n", "\n", $marcParserDefinition);
@@ -367,7 +374,7 @@ class marcConversion
 			
 			# Validate and extract the syntax
 			if (!preg_match ('/^([AER]*)\s+(([0-9|LDR]{3}) .{3}.+)$/', $line, $matches)) {
-				$errorString .= 'Line ' . ($lineNumber + 1) . ' does not have the right syntax.';
+				$this->errorString .= 'Line ' . ($lineNumber + 1) . ' does not have the right syntax.';
 				return false;
 			}
 			
@@ -428,7 +435,7 @@ class marcConversion
 	
 	
 	# Function to check all macros are supported
-	private function convertToMarc_MacrosAllSupported ($datastructure, &$errorString = '')
+	private function convertToMarc_MacrosAllSupported ($datastructure)
 	{
 		# Get the supported macros
 		$supportedMacros = $this->getSupportedMacros ();
@@ -448,7 +455,7 @@ class marcConversion
 		
 		# Report unrecognised macros
 		if ($unknownMacros) {
-			$errorString .= 'Not all macros were recognised: ' . implode (', ', $unknownMacros);
+			$this->errorString .= 'Not all macros were recognised: ' . implode (', ', $unknownMacros);
 			return false;
 		}
 		
@@ -458,7 +465,8 @@ class marcConversion
 	
 	
 	# Function to perform Xpath replacements
-	private function convertToMarc_PerformXpathReplacements ($datastructure, &$errorString = '')
+	# NB XPath functions can have PHP modifications in them using php:functionString - may be useful in future; see: https://www.sitepoint.com/php-dom-using-xpath/ and https://www.cowburn.info/2009/10/23/php-funcs-xpath/
+	private function convertToMarc_PerformXpathReplacements ($datastructure)
 	{
 		# Perform XPath replacements; e.g. /records/1003/ (test #251)
 		$compileFailures = array ();
@@ -541,10 +549,10 @@ class marcConversion
 						# For a vertically-repeatable field, process each value; otherwise process the compiled string
 						if ($isVerticallyRepeatable || $isHorizontallyRepeatable) {
 							foreach ($value as $index => $subValue) {
-								$value[$index] = $this->processMacros ($subValue, $macros, $errorString);
+								$value[$index] = $this->processMacros ($subValue, $macros);
 							}
 						} else {
-							$value = $this->processMacros ($value, $macros, $errorString);
+							$value = $this->processMacros ($value, $macros);
 						}
 					}
 					
@@ -568,7 +576,7 @@ class marcConversion
 		
 		# If there are compile failures, assemble this into an error message
 		if ($compileFailures) {
-			$errorString .= 'Not all expressions compiled: ' . implode ($compileFailures);
+			$this->errorString .= 'Not all expressions compiled: ' . implode ($compileFailures);
 			return false;
 		}
 		
@@ -578,7 +586,7 @@ class marcConversion
 	
 	
 	# Function to expand vertically-repeatable fields
-	private function convertToMarc_ExpandVerticallyRepeatableFields ($datastructureUnexpanded, &$errorString = '')
+	private function convertToMarc_ExpandVerticallyRepeatableFields ($datastructureUnexpanded)
 	{
 		$datastructure = array ();	// Expanded version, replacing the original
 		foreach ($datastructureUnexpanded as $lineNumber => $line) {
@@ -596,7 +604,7 @@ class marcConversion
 				$counts[$macroBlock] = count ($replacementValues);
 			}
 			if (count (array_count_values ($counts)) != 1) {
-				$errorString .= 'Line ' . ($lineNumber + 1) . ' is a vertically-repeatable field, but the number of generated values in the subfields are not consistent:' . application::dumpData ($counts, false, true);
+				$this->errorString .= 'Line ' . ($lineNumber + 1) . ' is a vertically-repeatable field, but the number of generated values in the subfields are not consistent:' . application::dumpData ($counts, false, true);
 				continue;
 			}
 			
@@ -630,7 +638,7 @@ class marcConversion
 	
 	
 	# Function to process the record
-	private function convertToMarc_ProcessRecord ($datastructure, &$errorString)
+	private function convertToMarc_ProcessRecord ($datastructure)
 	{
 		# Process each line
 		$outputLines = array ();
@@ -710,7 +718,7 @@ class marcConversion
 			
 			# Report data mismatches
 			if (!isSet ($outputLines[$lineOutputKey])) {
-				$errorString .= "<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> line output key {$lineOutputKey} does not exist in the output lines.</p>";
+				$this->errorString .= "<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> line output key {$lineOutputKey} does not exist in the output lines.</p>";
 			}
 			
 			# For multilines, split the line into parts, prepend the link token
@@ -747,7 +755,7 @@ class marcConversion
 	
 	
 	# Function to process strings through macros; macros should return a processed string, or false upon failure
-	private function processMacros ($string, $macros, &$errorString)
+	private function processMacros ($string, $macros)
 	{
 		# Pass the string through each macro in turn
 		foreach ($macros as $macro) {
@@ -765,9 +773,9 @@ class marcConversion
 			# Pass the string through the macro
 			$macroMethod = 'macro_' . $macro;
 			if (is_null ($parameter)) {
-				$string = $this->{$macroMethod} ($string, NULL, $errorString);
+				$string = $this->{$macroMethod} ($string, NULL, $this->errorString);
 			} else {
-				$string = $this->{$macroMethod} ($string, $parameter, $errorString);	// E.g. /records/2176/ (test #268)
+				$string = $this->{$macroMethod} ($string, $parameter, $this->errorString);	// E.g. /records/2176/ (test #268)
 			}
 			
 			// Continue to next macro in chain (if any), using the processed string as it now stands; e.g. /records/2800/ (test #267)
@@ -2350,7 +2358,7 @@ class marcConversion
 	
 	
 	# Function to look up the host record, if any
-	private function lookupHostRecord (&$errorString)
+	private function lookupHostRecord ()
 	{
 		# Up-front, obtain the host ID (if any) from *kg, used in both 773 and 500, e.g. /records/1129/ (test #493)
 		if (!$hostId = $this->xPathValue ($this->xml, '//k2/kg')) {return NULL;}
@@ -2363,7 +2371,7 @@ class marcConversion
 			
 			# Validate as a separate check that the host record exists; if this fails, the record itself is wrong and therefore report this error
 			if (!$hostRecordXmlExists = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_xml', 'id', $conditions = array ('id' => $hostId))) {
-				$errorString .= "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> Cannot match *kg, as there is no host record <a href=\"{$this->baseUrl}/records/{$hostId}/\">#{$hostId}</a>.</p>";
+				$this->errorString .= "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> Cannot match *kg, as there is no host record <a href=\"{$this->baseUrl}/records/{$hostId}/\">#{$hostId}</a>.</p>";
 			}
 			
 			# The host MARC record has not yet been processed, therefore register the child for reprocessing in the second-pass phase
