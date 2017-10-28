@@ -3,10 +3,13 @@
 # Class to handle conversion of the data to MARC format
 class marcConversion
 {
-	# Class properties
-	private $lookupTablesCache = array ();
+	# Getter properties
 	private $errorString = '';
+	private $marcPreMerge = NULL;
 	private $sourceRegistry = array ();
+	
+	# Caches
+	private $lookupTablesCache = array ();
 	
 	
 	# Constructor
@@ -44,6 +47,13 @@ class marcConversion
 	}
 	
 	
+	# Getter for MARC pre-merge
+	public function getMarcPreMerge ()
+	{
+		return $this->marcPreMerge;
+	}
+	
+	
 	# Getter for source registry
 	public function getSourceRegistry ()
 	{
@@ -52,10 +62,11 @@ class marcConversion
 	
 	
 	# Main entry point
-	public function convertToMarc ($marcParserDefinition, $recordXml, $mergeDefinition = array (), $mergeType = false, $mergeVoyagerId = false, $suppressReasons = false, &$marcPreMerge = NULL)
+	public function convertToMarc ($marcParserDefinition, $recordXml, $mergeDefinition = array (), $mergeType = false, $mergeVoyagerId = false, $suppressReasons = false)
 	{
 		# Reset the error string and source registry so that they are clean for each iteration
 		$this->errorString = '';
+		$this->marcPreMerge = NULL;
 		$this->sourceRegistry = array ();
 		
 		# Create fresh containers for 880 reciprocal links for this record
@@ -115,7 +126,7 @@ class marcConversion
 		
 		# If required, merge with an existing Voyager record, returning by reference the pre-merge record, and below returning the merged record
 		if ($mergeType) {
-			$marcPreMerge = $record;	// Save to argument returned by reference
+			$this->marcPreMerge = $record;	// Save original record pre-merge
 			$record = $this->mergeWithExistingVoyager ($record, $mergeDefinition, $mergeType, $mergeVoyagerId);
 		}
 		
