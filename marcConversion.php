@@ -1148,7 +1148,7 @@ class marcConversion
 	# Macro to generate the 300 field (Physical Description); 300 is a Minimum standard field; see: https://www.loc.gov/marc/bibliographic/bd300.html
 	# Note: the original data is not normalised, and the spec does not account for all cases, so the implementation here is based also on observation of various records and on examples in the MARC spec, to aim for something that is 'good enough' and similar enough to the MARC examples
 	# At its most basic level, in "16p., ill.", $a is the 16 pages, $b is things after
-	private function macro_generate300 ($value_ignored)
+	private function macro_generate300 ($value_ignored, $parameter_ignored = false, &$errorString)
 	{
 		# Start a result
 		$result = '';
@@ -1168,8 +1168,12 @@ class marcConversion
 		$isArt = (substr_count ($this->recordType, '/art'));
 		$isMultimedia = (in_array ($this->form, array ('CD', 'CD-ROM', 'DVD', 'DVD-ROM', 'Sound Cassette', 'Sound Disc', 'Videorecording')));
 		if ($isArt && !$isMultimedia) {
-			if (!substr_count ('p.', $a)) {
-				$a = 'p. ' . $a;
+			if (!strlen ($a)) {
+				$errorString .= "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> *p / *pt used to generate {$this->doubleDagger}a is empty; see <a href=\"{$this->baseUrl}/reports/artnopt/\">artnopt report</a>.</p>";
+			} else {
+				if (!substr_count ('p.', $a)) {
+					$a = 'p. ' . $a;
+				}
 			}
 		}
 		
