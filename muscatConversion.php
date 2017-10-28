@@ -470,7 +470,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Create a handle to the reports module
 		require_once ('reports.php');
-		$this->reports = new reports ($this, $this->locationCodes, $this->orderStatusKeywords, $this->suppressionStatusKeyword, $this->acquisitionDate, $this->ksStatusTokens, $this->mergeTypes, $this->transliterationNameMatchingFields);
+		$this->reports = new reports ($this, $this->marcConversion, $this->locationCodes, $this->orderStatusKeywords, $this->suppressionStatusKeyword, $this->acquisitionDate, $this->ksStatusTokens, $this->mergeTypes, $this->transliterationNameMatchingFields);
 		$this->reportsList = $this->reports->getReportsList ();
 		$this->listingsList = $this->reports->getListingsList ();
 		

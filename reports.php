@@ -149,10 +149,11 @@ class reports
 	
 	
 	# Constructor
-	public function __construct ($muscatConversion, $locationCodes, $orderStatusKeywords, $suppressionStatusKeyword, $acquisitionDate, $ksStatusTokens, $mergeTypes, $transliterationNameMatchingFields)
+	public function __construct ($muscatConversion, $marcConversion, $locationCodes, $orderStatusKeywords, $suppressionStatusKeyword, $acquisitionDate, $ksStatusTokens, $mergeTypes, $transliterationNameMatchingFields)
 	{
 		# Create main property handles
 		$this->muscatConversion = $muscatConversion;
+		$this->marcConversion = $marcConversion;
 		$this->settings = $muscatConversion->settings;
 		$this->databaseConnection = $muscatConversion->databaseConnection;
 		$this->baseUrl = $muscatConversion->baseUrl;
