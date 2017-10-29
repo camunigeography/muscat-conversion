@@ -920,7 +920,7 @@ class muscatConversion extends frontControllerApplication
 			$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ());
 			//$this->profileMemoryStart ();
 			$record['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $record['suppressReasons']);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
-			$errorString = $this->marcConversion->getErrorString ();
+			$marcErrorHtml = $this->marcConversion->getErrorHtml ();
 			$marcPreMerge = $this->marcConversion->getMarcPreMerge ();
 			$sourceRegistry = $this->marcConversion->getSourceRegistry ();
 			//unset ($this->marcConversion);
@@ -943,8 +943,8 @@ class muscatConversion extends frontControllerApplication
 					if ($record['bibcheckErrors']) {
 						$output .= "\n<pre>" . "\n<p class=\"warning\">Bibcheck " . (substr_count ($record['bibcheckErrors'], "\n") ? 'errors' : 'error') . ":</p>" . $record['bibcheckErrors'] . "\n</pre>";
 					}
-					if ($errorString) {
-						$output .= "\n<p class=\"warning\">{$errorString}</p>";
+					if ($marcErrorHtml) {
+						$output .= $marcErrorHtml;
 					}
 					$output .= "\n<div class=\"graybox marc\">";
 					$output .= "\n<p id=\"exporttarget\">Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->migrationStatus ($id) . "</strong></p>";
@@ -4110,9 +4110,8 @@ class muscatConversion extends frontControllerApplication
 					$suppressReasons = (isSet ($suppressReasonsList[$id]) ? $suppressReasonsList[$id] : false);
 					$marc = $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $mergeDefinition, $mergeType, $mergeVoyagerId, $suppressReasons);
 					$marcPreMerge = $this->marcConversion->getMarcPreMerge ();
-					if ($errorString = $this->marcConversion->getErrorString ()) {
-						$html  = "<p class=\"warning\">Record <a href=\"{$this->baseUrl}/records/{$id}/\">{$id}</a> could not be converted to MARC:</p>";
-						$html .= "\n<p><img src=\"/images/icons/exclamation.png\" class=\"icon\" /> {$errorString}</p>";
+					if ($marcErrorHtml = $this->marcConversion->getErrorHtml ()) {
+						$html = $marcErrorHtml;
 						$errorsHtml .= $html;
 					}
 					$inserts[$id] = array (
@@ -5220,8 +5219,8 @@ class muscatConversion extends frontControllerApplication
 			if ($unfinalisedData['definition']) {
 				$record = '';	// Bogus record - good enough for checking parsing
 				$this->marcConversion->convertToMarc ($unfinalisedData['definition'], $record);
-				if ($errorString = $this->marcConversion->getErrorString ()) {
-					$form->registerProblem ('compilefailure', $errorString);
+				if ($errorHtml = $this->marcConversion->getErrorHtml ()) {
+					$form->registerProblem ('compilefailure', strip_tags ($errorHtml));
 				}
 			}
 		}

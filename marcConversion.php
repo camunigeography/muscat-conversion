@@ -4,7 +4,7 @@
 class marcConversion
 {
 	# Getter properties
-	private $errorString = '';
+	private $errorHtml = '';
 	private $marcPreMerge = NULL;
 	private $sourceRegistry = array ();
 	
@@ -47,10 +47,11 @@ class marcConversion
 	}
 	
 	
-	# Getter for error string
-	public function getErrorString ()
+	# Getter for error HTML string
+	public function getErrorHtml ()
 	{
-		return $this->errorString;
+		# Assemble and return the HTML
+		return "\n<p class=\"warning\"><img src=\"/images/icons/exclamation.png\" class=\"icon\" /> Record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">{$this->recordId}</a>: MARC conversion error: {$this->errorHtml}</p>";
 	}
 	
 	
@@ -79,7 +80,7 @@ class marcConversion
 	public function convertToMarc ($marcParserDefinition, $recordXml, $mergeDefinition = array (), $mergeType = false, $mergeVoyagerId = false, $suppressReasons = false)
 	{
 		# Reset the error string and source registry so that they are clean for each iteration
-		$this->errorString = '';
+		$this->errorHtml = '';
 		$this->marcPreMerge = NULL;
 		$this->sourceRegistry = array ();
 		
@@ -146,13 +147,13 @@ class marcConversion
 		
 		# Report any UTF-8 problems
 		if (strlen ($record) && !htmlspecialchars ($record)) {	// i.e. htmlspecialchars fails
-			$this->errorString .= "UTF-8 conversion failed in record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">#{$this->recordId}</a>.";
+			$this->errorHtml .= "UTF-8 conversion failed in record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">#{$this->recordId}</a>.";
 			return false;
 		}
 		
 		# Do a check to report any case of an invalid subfield indicator
 		if (preg_match_all ("/{$this->doubleDagger}[^a-z0-9]/u", $record, $matches)) {
-			$this->errorString .= 'Invalid ' . (count ($matches[0]) == 1 ? 'subfield' : 'subfields') . " (" . implode (', ', $matches[0]) . ") detected in record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">#{$this->recordId}</a>.";
+			$this->errorHtml .= 'Invalid ' . (count ($matches[0]) == 1 ? 'subfield' : 'subfields') . " (" . implode (', ', $matches[0]) . ") detected in record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">#{$this->recordId}</a>.";
 			// Leave the record visible rather than return false
 		}
 		
@@ -161,7 +162,7 @@ class marcConversion
 		$total880fields = count ($matches[0]);
 		$total880dollar6Instances = substr_count ($record, "{$this->doubleDagger}6 880-");
 		if ($total880fields != $total880dollar6Instances) {
-			$this->errorString .= "Mismatch in 880 field/link counts ({$total880fields} vs {$total880dollar6Instances}) in record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">#{$this->recordId}</a>.";
+			$this->errorHtml .= "Mismatch in 880 field/link counts ({$total880fields} vs {$total880dollar6Instances}) in record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">#{$this->recordId}</a>.";
 			// Leave the record visible rather than return false
 		}
 		
@@ -205,7 +206,7 @@ class marcConversion
 		# End if merge type is unsupported; this will result in an empty record
 		#!# Need to ensure this is reported during the import also
 		if (!isSet ($this->mergeTypes[$mergeType])) {
-			$this->errorString .= "WARNING: Merge failed for Muscat record #{$this->recordId}: unsupported merge type {$mergeType}. The local record has been put in, without merging.";
+			$this->errorHtml .= "WARNING: Merge failed for Muscat record #{$this->recordId}: unsupported merge type {$mergeType}. The local record has been put in, without merging.";
 			return $localRecord;
 		}
 		
@@ -214,7 +215,7 @@ class marcConversion
 		
 		# Get the existing Voyager record
 		if (!$voyagerRecord = $this->getExistingVoyagerRecord ($mergeVoyagerId)) {
-			$this->errorString .= "WARNING: Merge failed for Muscat record #{$this->recordId}: could not retrieve existing Voyager record. The local record has been put in, without merging.";
+			$this->errorHtml .= "WARNING: Merge failed for Muscat record #{$this->recordId}: could not retrieve existing Voyager record. The local record has been put in, without merging.";
 			return $localRecord;
 		}
 		
@@ -411,7 +412,7 @@ class marcConversion
 			
 			# Validate and extract the syntax
 			if (!preg_match ('/^([AER]*)\s+(([0-9|LDR]{3}) .{3}.+)$/', $line, $matches)) {
-				$this->errorString .= 'Line ' . ($lineNumber + 1) . ' does not have the right syntax.';
+				$this->errorHtml .= 'Line ' . ($lineNumber + 1) . ' does not have the right syntax.';
 				return false;
 			}
 			
@@ -492,7 +493,7 @@ class marcConversion
 		
 		# Report unrecognised macros
 		if ($unknownMacros) {
-			$this->errorString .= 'Not all macros were recognised: ' . implode (', ', $unknownMacros);
+			$this->errorHtml .= 'Not all macros were recognised: ' . implode (', ', $unknownMacros);
 			return false;
 		}
 		
@@ -613,7 +614,7 @@ class marcConversion
 		
 		# If there are compile failures, assemble this into an error message
 		if ($compileFailures) {
-			$this->errorString .= 'Not all expressions compiled: ' . implode ($compileFailures);
+			$this->errorHtml .= 'Not all expressions compiled: ' . implode ($compileFailures);
 			return false;
 		}
 		
@@ -641,7 +642,7 @@ class marcConversion
 				$counts[$macroBlock] = count ($replacementValues);
 			}
 			if (count (array_count_values ($counts)) != 1) {
-				$this->errorString .= 'Line ' . ($lineNumber + 1) . ' is a vertically-repeatable field, but the number of generated values in the subfields are not consistent:' . application::dumpData ($counts, false, true);
+				$this->errorHtml .= 'Line ' . ($lineNumber + 1) . ' is a vertically-repeatable field, but the number of generated values in the subfields are not consistent:' . application::dumpData ($counts, false, true);
 				continue;
 			}
 			
@@ -755,7 +756,7 @@ class marcConversion
 			
 			# Report data mismatches
 			if (!isSet ($outputLines[$lineOutputKey])) {
-				$this->errorString .= "<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> line output key {$lineOutputKey} does not exist in the output lines.</p>";
+				$this->errorHtml .= "Line output key {$lineOutputKey} does not exist in the output lines.";
 			}
 			
 			# For multilines, split the line into parts, prepend the link token
@@ -810,9 +811,9 @@ class marcConversion
 			# Pass the string through the macro
 			$macroMethod = 'macro_' . $macro;
 			if (is_null ($parameter)) {
-				$string = $this->{$macroMethod} ($string, NULL, $this->errorString);
+				$string = $this->{$macroMethod} ($string, NULL, $this->errorHtml);
 			} else {
-				$string = $this->{$macroMethod} ($string, $parameter, $this->errorString);	// E.g. /records/2176/ (test #268)
+				$string = $this->{$macroMethod} ($string, $parameter, $this->errorHtml);	// E.g. /records/2176/ (test #268)
 			}
 			
 			// Continue to next macro in chain (if any), using the processed string as it now stands; e.g. /records/2800/ (test #267)
@@ -1148,7 +1149,7 @@ class marcConversion
 	# Macro to generate the 300 field (Physical Description); 300 is a Minimum standard field; see: https://www.loc.gov/marc/bibliographic/bd300.html
 	# Note: the original data is not normalised, and the spec does not account for all cases, so the implementation here is based also on observation of various records and on examples in the MARC spec, to aim for something that is 'good enough' and similar enough to the MARC examples
 	# At its most basic level, in "16p., ill.", $a is the 16 pages, $b is things after
-	private function macro_generate300 ($value_ignored, $parameter_ignored = false, &$errorString)
+	private function macro_generate300 ($value_ignored, $parameter_ignored = false, &$errorHtml)
 	{
 		# Start a result
 		$result = '';
@@ -1169,7 +1170,7 @@ class marcConversion
 		$isMultimedia = (in_array ($this->form, array ('CD', 'CD-ROM', 'DVD', 'DVD-ROM', 'Sound Cassette', 'Sound Disc', 'Videorecording')));
 		if ($isArt && !$isMultimedia) {
 			if (!strlen ($a)) {
-				$errorString .= "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> *p / *pt used to generate {$this->doubleDagger}a is empty; see <a href=\"{$this->baseUrl}/reports/artnopt/\">artnopt report</a>.</p>";
+				$errorHtml .= "*p / *pt used to generate {$this->doubleDagger}a is empty; see <a href=\"{$this->baseUrl}/reports/artnopt/\">artnopt report</a>.";
 			} else {
 				if (!substr_count ('p.', $a)) {
 					$a = 'p. ' . $a;
@@ -1275,7 +1276,7 @@ class marcConversion
 	
 	
 	# Macro to generate the leading article count; this does not actually modify the string itself - just returns a number; e.g. 245 (based on *t) in /records/1116/ (test #355); 245 for Spanish record in /records/19042/ (test #356); 242 field (based on *tt) in /records/1204/ (test #357)
-	public function macro_nfCount ($value, $language = false, &$errorString_ignored = false, $externalXml = NULL)
+	public function macro_nfCount ($value, $language = false, &$errorHtml_ignored = false, $externalXml = NULL)
 	{
 		# If the the value is surrounded by square brackets, then it can be taken as English, and the record language itself ignored
 		#!# Check on effect of *to or *tc, as per /reports/bracketednfcount/
@@ -1330,7 +1331,7 @@ class marcConversion
 	
 	
 	# Macro to convert language codes and notes for the 041 field; see: http://www.loc.gov/marc/bibliographic/bd041.html
-	private function macro_languages041 ($value_ignored, $indicatorMode = false, &$errorString)
+	private function macro_languages041 ($value_ignored, $indicatorMode = false, &$errorHtml)
 	{
 		# Start the string
 		$string = '';
@@ -1381,7 +1382,7 @@ class marcConversion
 		# $a: Map each language listed in *lang field to 3-digit code in Language Codes worksheet and include in separate ‡a subfield; e.g. /records/168933/ (test #369)
 		$a = array ();
 		foreach ($languages as $language) {
-			$a[] = $this->lookupValue ('languageCodes', $fallbackKey = false, true, false, $language, 'MARC Code', $errorString);
+			$a[] = $this->lookupValue ('languageCodes', $fallbackKey = false, true, false, $language, 'MARC Code', $errorHtml);
 		}
 		$string = implode ("{$this->doubleDagger}a", $a);	// First $a is the parser spec
 		
@@ -1389,11 +1390,11 @@ class marcConversion
 		$h = array ();
 		if ($translationNotes) {
 			foreach ($translationNotes as $note => $language) {
-				$marcCode = $this->lookupValue ('languageCodes', $fallbackKey = false, true, false, $language, 'MARC Code', $errorString);
+				$marcCode = $this->lookupValue ('languageCodes', $fallbackKey = false, true, false, $language, 'MARC Code', $errorHtml);
 				if ($marcCode) {
 					$h[] = $marcCode;
 				} else {
-					$errorString .= "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> the record included a language note but the language '<em>{$language}</em>'.</p>";
+					$errorHtml .= "The record included a language note but the language '<em>{$language}</em>'.";
 				}
 			}
 		}
@@ -1407,7 +1408,7 @@ class marcConversion
 	
 	
 	# Function to perform transliteration on specified subfields present in a full line; this is basically a tokenisation wrapper to macro_transliterate; e.g. /records/35733/ (test #381), /records/1406/ (test #382)
-	public function macro_transliterateSubfields ($value, $applyToSubfields, &$errorString_ignored = NULL, $language = false /* Parameter always supplied by external callers */)
+	public function macro_transliterateSubfields ($value, $applyToSubfields, &$errorHtml_ignored = NULL, $language = false /* Parameter always supplied by external callers */)
 	{
 		# If a forced language is not specified, obtain the language value for the record
 		if (!$language) {
@@ -1675,13 +1676,13 @@ class marcConversion
 	
 	
 	# Macro for generating the 008 field; tests have full coverage as noted in the generate008 class
-	private function macro_generate008 ($value, $parameter_ignored, &$errorString)
+	private function macro_generate008 ($value, $parameter_ignored, &$errorHtml)
 	{
 		# Subclass, due to the complexity of this field
 		require_once ('generate008.php');
 		$generate008 = new generate008 ($this, $this->xml);
 		if (!$value = $generate008->main ($error)) {
-			$errorString .= "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';
+			$errorHtml .= $error . '.';
 		}
 		
 		# Return the value
@@ -1811,7 +1812,7 @@ class marcConversion
 	
 	
 	# Macro for generating the 245 field; tests have full coverage as noted in the generate245 class
-	private function macro_generate245 ($value, $flag, &$errorString)
+	private function macro_generate245 ($value, $flag, &$errorHtml)
 	{
 		# If running in transliteration mode, require a supported language
 		$languageMode = 'default';
@@ -1824,7 +1825,7 @@ class marcConversion
 		$generate245 = new generate245 ($this, $this->xml, $this->authorsFields, $languageMode);
 		$value = $generate245->main ($error);
 		if ($error) {
-			$errorString .= "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> " . htmlspecialchars ($error) . '.</p>';
+			$errorHtml .= $error . '.';
 		}
 		
 		# Return the value, which may be false if transliteration not intended
@@ -1893,7 +1894,7 @@ class marcConversion
 	#!# Repeatability experimentally added to 490 at definition level, but this may not work properly as the field reads in *vno for instance; all derived uses of *ts need to be checked
 	#!# Issue of missing $a needs to be resolved in original data
 	#!# For pseudo-analytic /art/j and possibly /art/in where there the host is a series, everything before a colon in the record's *pt (analytic volume designation) that describes a volume or issue number should possibly end up in 490
-	public function macro_generate490 ($ts, $ignored, &$errorString_ignored = false, &$matchedRegexp = false, $reportGenerationMode = false)
+	public function macro_generate490 ($ts, $ignored, &$errorHtml_ignored = false, &$matchedRegexp = false, $reportGenerationMode = false)
 	{
 		# Obtain the *ts value or end, e.g. no *ts in /records/1253/ (test #444)
 		if (!strlen ($ts)) {return false;}
@@ -2078,7 +2079,7 @@ class marcConversion
 	
 	
 	# Macro to look up a *ks (UDC) value
-	private function macro_addLookedupKsValue ($value, $parameter_ignored, &$errorString)
+	private function macro_addLookedupKsValue ($value, $parameter_ignored, &$errorHtml)
 	{
 		# End if no value
 		if (!strlen ($value)) {return $value;}
@@ -2101,7 +2102,7 @@ class marcConversion
 		# Ensure the value is in the table, e.g. /records/166245/ (test #475)
 		if (!isSet ($this->udcTranslations[$value])) {
 			// NB For the following error, see also /reports/periodicalpam/ which covers scenario of records temporarily tagged as 'MPP'
-			$errorString .= "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> 650 UDC field '<em>{$value}</em>' is not a valid UDC code.</p>";
+			$errorHtml .= "650 UDC field '<em>{$value}</em>' is not a valid UDC code.";
 			return false;
 		}
 		
@@ -2114,7 +2115,7 @@ class marcConversion
 	
 	
 	# Macro to look up a *rpl value
-	private function macro_lookupRplValue ($value, $parameter_ignored, &$errorString)
+	private function macro_lookupRplValue ($value, $parameter_ignored, &$errorHtml)
 	{
 		# Fix up incorrect data, e.g. /records/16098/ (test #477)
 		if ($value == 'E1') {$value = 'E2';}
@@ -2171,7 +2172,7 @@ class marcConversion
 		
 		# Ensure the value is in the table
 		if (!isSet ($mappings[$value])) {
-			$errorString .= "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> 650 PGA field {$value} is not a valid PGA code letter.</p>";
+			$errorHtml .= "650 PGA field {$value} is not a valid PGA code letter.";
 			return false;
 		}
 		
@@ -2184,7 +2185,7 @@ class marcConversion
 	
 	
 	# Generalised lookup table function
-	public function lookupValue ($table, $fallbackKey, $caseSensitiveComparison = true, $stripBrackets = false, $value, $field, &$errorString)
+	public function lookupValue ($table, $fallbackKey, $caseSensitiveComparison = true, $stripBrackets = false, $value, $field, &$errorHtml)
 	{
 		# Load the lookup table
 		$lookupTable = $this->loadLookupTable ($table, $fallbackKey, $caseSensitiveComparison, $stripBrackets);
@@ -2206,7 +2207,7 @@ class marcConversion
 		
 		# Ensure the string is present
 		if (!isSet ($lookupTable[$value])) {
-			$errorString .= "<p class=\"warning\">In the {$table} table, the value '<em>{$valueOriginal}</em>' is not present in the table.</p>";
+			$errorHtml .= "In the {$table} table, the value '<em>{$valueOriginal}</em>' is not present in the table.";
 			return NULL;
 		}
 		
@@ -2263,7 +2264,7 @@ class marcConversion
 				# Sanity-checking test while developing
 				if (isSet ($lookupTable[$key])) {
 					if ($values !== $lookupTable[$key]) {
-						echo "<p class=\"warning\">In the {$table} definition, <em>{$key}</em> for field <em>{$field}</em> has inconsistent value when comapring the bracketed and non-bracketed versions.</p>";
+						$this->errorHtml .= "In the {$table} definition, <em>{$key}</em> for field <em>{$field}</em> has inconsistent value when comapring the bracketed and non-bracketed versions.";
 						return NULL;
 					}
 				}
@@ -2289,7 +2290,7 @@ class marcConversion
 		$expectedLength = 1;	// Manually needs to be changed to 3 for languageCodes -> Marc Code
 		foreach ($lookupTable as $entry => $values) {
 			if (mb_strlen ($values[$field]) != $expectedLength) {
-				echo "<p class=\"warning\">In the {$table} definition, <em>{$entry}</em> for field <em>{$field}</em> has invalid syntax.</p>";
+				$this->errorHtml .= "In the {$table} definition, <em>{$entry}</em> for field <em>{$field}</em> has invalid syntax.";
 				return NULL;
 			}
 		}
@@ -2325,7 +2326,7 @@ class marcConversion
 			if ($this->hostRecord) {
 				
 				# Get the data from the 773, e.g. /records/1109/ (test #490)
-				$result = $this->macro_generate773 ($value, $parameter_unused, $errorString_ignored, $mode500 = true);
+				$result = $this->macro_generate773 ($value, $parameter_unused, $errorHtml_ignored, $mode500 = true);
 				
 			# If no host record (i.e. a pseudo-analytic), we assume it is an offprint, and use the title in the *j (i.e. second half) section
 			} else {
@@ -2416,7 +2417,7 @@ class marcConversion
 			
 			# Validate as a separate check that the host record exists; if this fails, the record itself is wrong and therefore report this error
 			if (!$hostRecordXmlExists = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_xml', 'id', $conditions = array ('id' => $hostId))) {
-				$this->errorString .= "\n<p class=\"warning\"><strong>Error in <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">record #{$this->recordId}</a>:</strong> Cannot match *kg, as there is no host record <a href=\"{$this->baseUrl}/records/{$hostId}/\">#{$hostId}</a>.</p>";
+				$this->errorHtml .= "Cannot match *kg, as there is no host record <a href=\"{$this->baseUrl}/records/{$hostId}/\">#{$hostId}</a>.";
 			}
 			
 			# The host MARC record has not yet been processed, therefore register the child for reprocessing in the second-pass phase
@@ -2429,7 +2430,7 @@ class marcConversion
 	
 	
 	# Macro to generate the 773 (Host Item Entry) field; see: http://www.loc.gov/marc/bibliographic/bd773.html ; e.g. /records/1129/ (test #493)
-	private function macro_generate773 ($value, $parameter_unused, &$errorString_ignored = false, $mode500 = false)
+	private function macro_generate773 ($value, $parameter_unused, &$errorHtml_ignored = false, $mode500 = false)
 	{
 		# Start a result
 		$result = '';
