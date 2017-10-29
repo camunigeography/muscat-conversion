@@ -2196,8 +2196,8 @@ class reports
 			FROM
 				catalogue_xml
 			WHERE
-				    ExtractValue(xml, '/*/lang') = ''
-				AND ExtractValue(xml, '/*/*/lang') != ''
+				    ExtractValue(xml, '/*/tg/lang') = ''
+				AND ExtractValue(xml, '/*/*/tg/lang') != ''
 		";
 		
 		# Return the query
@@ -3433,7 +3433,7 @@ class reports
 		# Start the HTML
 		$html = '';
 		
-		# Define the query
+		# Define the query; NB have checked no results with equivalent /*/*/tg/t together with /*/*/tg/lang
 		$query = "SELECT
 				id,
 				ExtractValue(xml, '/*/tg/t') as topLevelT,
@@ -3447,7 +3447,7 @@ class reports
 			FROM catalogue_xml
 			WHERE
 				    ExtractValue(xml, '/*/tg/t') LIKE '% = %'
-				AND ExtractValue(xml, '//lang') LIKE '%Russian%'
+				AND ExtractValue(xml, '/*/tg/lang') LIKE '%Russian%'
 			ORDER BY
 				lang1 = '', lang1,	/* i.e. empty value '' at end */
 				lang2 = '', lang2,
@@ -3466,7 +3466,7 @@ class reports
 			FROM catalogue_xml
 			WHERE
 				    ExtractValue(xml, '/*/tg/t') LIKE '% = %'
-				AND ExtractValue(xml, '//lang') LIKE '%Russian%'
+				AND ExtractValue(xml, '/*/tg/lang') LIKE '%Russian%'
 		";
 		$knownTotalAvailable = $this->databaseConnection->getOneField ($countingQuery, 'total');
 		

@@ -27,9 +27,9 @@
 			<to /><!-- title of original (if publication is a translation) -->
 			<lto /><!-- Language of *to -->
 			<tc /><!-- UNKNOWN -->
+			<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
 			<lpt /><!-- Languages of parallel title -->
 		</tg>
-		<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
 		<e><!-- editor(s) of whole work, use n for name in indirect order (*e edited by *n Smith/Bob); in practice this has also been used to add non-author contributors - this field in practice contains messy data often -->
 			<role />
 			<n><!-- Name field (used in conjunction with *e and *ee fields) -->
@@ -149,9 +149,9 @@
 			<to /><!-- title of original (if publication is a translation) -->
 			<lto /><!-- Language of *to -->
 			<tc /><!-- UNKNOWN -->
+			<lang /><!-- name of language (e.g. 'French' 'German') -->
 			<lpt /><!-- Languages of parallel title -->
 		</tg>
-		<lpt /><!-- Languages of parallel title -->
 		<e><!-- editor(s) of whole work, use n for name in indirect order (*e edited by *n Smith/Bob); in practice this has also been used to add non-author contributors (sometimes for art/in/ records that relates to the *in level) - this field in practice contains messy data often -->
 			<role />
 			<n><!-- Name field (used in conjunction with *e and *ee fields) -->
@@ -186,9 +186,9 @@
 				<to /><!-- title of original (if publication is a translation) -->
 				<lto /><!-- Language of *to -->
 				<tc /><!-- UNKNOWN -->
+				<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
 				<lpt /><!-- Languages of parallel title -->
 			</tg>
-			<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
 			<edn /><!-- edition -->
 			<ee><!-- editors of this edition, use *n for name in indirect order -->
 				<role />
@@ -288,9 +288,9 @@
 				<to /><!-- title of original (if publication is a translation) -->
 				<lto /><!-- Language of *to -->
 				<tc /><!-- UNKNOWN -->
+				<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
 				<lpt /><!-- Languages of parallel title -->
 			</tg>
-			<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
 			<pg><!-- where two or more publishers, from different places, have collaborated -->
 				<pl /><!-- place of publication -->
 				<pu /><!-- name of publisher -->
@@ -387,9 +387,9 @@
 			<to /><!-- title of original (if publication is a translation) -->
 			<lto /><!-- Language of *to -->
 			<tc /><!-- UNKNOWN -->
+			<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
 			<lpt /><!-- Languages of parallel title -->
 		</tg>
-		<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
 		<ft /><!-- former title -->
 		<st /><!-- subsequent title -->
 		<pg><!-- where two or more publishers, from different places, have collaborated -->

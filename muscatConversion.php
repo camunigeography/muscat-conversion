@@ -3541,7 +3541,7 @@ class muscatConversion extends frontControllerApplication
 		;";
 		$this->databaseConnection->query ($query);
 		
-		# In the case of fields in the second half of the record, delete each shard from the scope of transliteration where it has an associated local (*in / *j) language, e.g. where the shard is a bottom-half title, and it is marked separately as a non-relevant language (e.g. Russian record but /art/j/lang = 'English'); e.g. /records/9820/ , /records/27093/ , /records/57745/
+		# In the case of fields in the second half of the record, delete each shard from the scope of transliteration where it has an associated local (*in / *j) language, e.g. where the shard is a bottom-half title, and it is marked separately as a non-relevant language (e.g. Russian record but /art/j/tg/lang = 'English'); e.g. /records/9820/ , /records/27093/ , /records/57745/
 		$query = "
 			DELETE FROM transliterations
 			WHERE
@@ -3747,7 +3747,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Add the language lookups
 		$this->logger ('In ' . __METHOD__ . ', adding the language lookups');
-		$query = "UPDATE catalogue_xml SET language = ExtractValue(xml, '/*/lang[1]');";
+		$query = "UPDATE catalogue_xml SET language = ExtractValue(xml, '/*/tg/lang[1]');";
 		$this->databaseConnection->execute ($query);
 		
 		# Add the parallel title language lookups
