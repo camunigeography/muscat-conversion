@@ -1131,7 +1131,9 @@ class muscatConversion extends frontControllerApplication
 		if ($this->searchUserIsInternal) {
 			if (isSet ($record['876'])) {
 				foreach ($record['876'] as $line) {
-					$localNotes[] = $line['subfields']['z'][0];
+					if (isSet ($line['subfields']['z'])) {
+						$localNotes[] = $line['subfields']['z'][0];
+					}
 				}
 			}
 		}
