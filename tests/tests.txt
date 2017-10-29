@@ -82,7 +82,7 @@ uuuuuuuuu
 008 position 06-14 "1997/98-"
 145353
 008
-/^.{2}1997uuuu/
+/^.{6}u1997uuuu/
 
 12
 008 position 06-14 "1977?-"
@@ -241,16 +241,16 @@ ar#|ss
 d|
 
 38
-008 positions 30-31 *doc *form=CD gets ##
-167945
+008 positions 30-31 *doc *form=Microfiche gets ||
+1186
 008
-###|
+/^.{30}\|\|/
 
 39
 008 positions 30-31 *art/*in *t contains Festschrift gets 1|
 13607
 008
-1|
+/^.{30}1\|/
 
 40
 008 position 33 *doc *k=82-1 gets p
@@ -393,7 +393,7 @@ Wild, J. J.
 63
 Note handling
 9189
-876
+500
 the bird
 
 64
@@ -586,7 +586,7 @@ J.J.
 Spacing out initials should be tolerant of Cyrillic transliteration
 175507
 700
-M. Kh.
+Kh. M.
 
 96
 Spacing out initials should be tolerant of non-ASCII initials
@@ -3384,3 +3384,8 @@ Tivi Etook /‡cedited by Marybelle Myers.
 245
 /Goering ; klavier-auszug mit Gesang.$/
 
+563
+008 positions 30-31 *doc *form=CD with *k=82-1 gets p
+167945
+008
+/^.{30}p#/
