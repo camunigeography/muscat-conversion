@@ -50,6 +50,9 @@ class marcConversion
 	# Getter for error HTML string
 	public function getErrorHtml ()
 	{
+		# End if none
+		if (!$this->errorHtml) {return $this->errorHtml;}
+		
 		# Assemble and return the HTML
 		return "\n<p class=\"warning\"><img src=\"/images/icons/exclamation.png\" class=\"icon\" /> Record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">{$this->recordId}</a>: MARC conversion error: {$this->errorHtml}</p>";
 	}
