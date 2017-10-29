@@ -272,13 +272,6 @@ class muscatConversion extends frontControllerApplication
 				'icon' => 'magnifier',
 				'usetab' => ($this->userIsAdministrator ? false : 'home'),
 			),
-			'statistics' => array (
-				'description' => 'Statistics',
-				'url' => 'statistics/',
-				'tab' => 'Stats',
-				'icon' => 'chart_pie',
-				'administrator' => true,
-			),
 			'postmigration' => array (
 				'description' => 'Post-migration tasks',
 				'url' => 'postmigration/',
@@ -544,9 +537,15 @@ class muscatConversion extends frontControllerApplication
 		$html  = "\n<h2>Welcome</h2>";
 		$html .= $this->reportsJumplist ();
 		$html .= "\n<p>This administrative system enables Library staff at SPRI to get an overview of problems with Muscat records so that they can be prepared for eventual export to Voyager.</p>";
+		
+		# Reports
 		$html .= "\n<p class=\"right\">Or filter to: <a href=\"{$this->baseUrl}/postmigration/\">post-migration only</a></p>";
 		$html .= "\n<h3>Reports available</h3>";
 		$html .= $this->reportsTable ();
+		
+		# Statistics
+		$html .= "\n<h3>Record summary</h3>";
+		$html .= $this->statisticsTable ();
 		
 		# Show the HTML
 		echo $html;
@@ -647,9 +646,6 @@ class muscatConversion extends frontControllerApplication
 		
 		# Compile the HTML
 		$html  = application::htmlTable ($table, array (), 'reports lines', $keyAsFirstColumn = false, false, $allowHtml = true, false, false, $addRowKeyClasses = true);
-		
-		# Note the data date
-		$html .= "\n<p class=\"comment\"><br />{$this->exportDateDescription}.</p>";
 		
 		# Return the HTML
 		return $html;
@@ -2170,8 +2166,8 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to show stats
-	public function statistics ()
+	# Function to create a table of overall stats
+	private function statisticsTable ()
 	{
 		# Get the data
 		$data = $this->getStats ();
@@ -2187,8 +2183,8 @@ class muscatConversion extends frontControllerApplication
 		$headings = $this->databaseConnection->getHeadings ($this->settings['database'], 'statistics');
 		$html = application::htmlTableKeyed ($data, $headings);
 		
-		# Show the HTML
-		echo $html;
+		# Return the HTML
+		return $html;
 	}
 	
 	
