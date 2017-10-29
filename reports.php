@@ -1196,20 +1196,13 @@ class reports
 		$query = "
 			SELECT
 				'invalidacquisitiondate' AS report,
-				id AS recordId
-				FROM catalogue_xml
+				recordId
+				FROM catalogue_processed
 				WHERE
-					(
-						    EXTRACTVALUE(xml, '//acq[1]/date') REGEXP '.+'
-						AND EXTRACTVALUE(xml, '//acq[1]/date') NOT REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Require YYYY/MM/DD
-						AND EXTRACTVALUE(xml, '//acq[1]/date') NOT REGEXP '^[0-9]{4}$'						-- But also permit year only
-					)
-					OR
-					(
-						    EXTRACTVALUE(xml, '//acq[2]/date') REGEXP '.+'
-						AND EXTRACTVALUE(xml, '//acq[2]/date') NOT REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Require YYYY/MM/DD
-						AND EXTRACTVALUE(xml, '//acq[2]/date') NOT REGEXP '^[0-9]{4}$'						-- But also permit year only
-					)
+					    xPath LIKE '%/acq/date'
+					AND value != ''
+					AND value NOT REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Require YYYY/MM/DD
+					AND value NOT REGEXP '^[0-9]{4}$'					-- But also permit year only
 		";
 		
 		# Return the query
