@@ -247,6 +247,13 @@ class muscatConversion extends frontControllerApplication
 				'export' => true,
 				'administrator' => true,
 			),
+			'tests' => array (
+				'description' => false,
+				'url' => 'reports/tests/',
+				'tab' => 'Tests',
+				'icon' => 'bug',
+				'administrator' => true,
+			),
 			'records' => array (
 				'description' => 'Browse records',
 				'url' => 'records/',
@@ -400,6 +407,14 @@ class muscatConversion extends frontControllerApplication
 		if (!$this->userIsAdministrator) {
 			$this->settings['useFeedback'] = true;
 		}
+		
+		# Force tests virtual page to the tests tab
+		if ($this->action == 'reports') {
+			if ($this->item == 'tests') {
+				$this->tabForced = 'tests';
+			}
+		}
+		
 	}
 	
 	
