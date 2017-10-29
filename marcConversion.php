@@ -1211,7 +1211,7 @@ class marcConversion
 		
 		# If no value, or 'unpaged', set an explicit string; other subfields may continue after, e.g. /records/174009/ (test #344)
 		if (!strlen ($result) || strtolower ($pOrPt) == 'unpaged') {	 // 'unpaged' at /records/1248/ (test #341); 'Unpaged' at /records/174009/ (test #343)
-			$result = ($this->recordType == '/ser' ? 'v.' : '1 volume (unpaged)');	// E.g. *ser with empty $result: /records/1019/ (confirmed to be fine) (test #341); *doc with empty $result: /records/1332/ (test #345); no cases of unpaged (*p or *pt) for *ser so no test; *doc with unpaged: /records/174009/ (test #343)
+			$result = ($this->recordType == '/ser' ? 'v.' : '1 volume (unpaged)');	// E.g. *ser with empty $result: /records/1019/ (confirmed to be fine) (test #341); *doc with empty $result: /records/1334/ (test #345); no cases of unpaged (*p or *pt) for *ser so no test; *doc with unpaged: /records/174009/ (test #343)
 		}
 		
 		# $c (R) (Dimensions): *size (NB which comes before $e) ; e.g. /records/1103/ (test #335), multiple in /records/4329/ (test #336)

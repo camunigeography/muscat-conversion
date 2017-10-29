@@ -4702,7 +4702,7 @@ class muscatConversion extends frontControllerApplication
 			
 			# Warn if record not present
 			if (!isSet ($marcRecords[$recordId])) {
-				$errorHtml .= "<p class=\"warning\"><strong>Error:</strong> Record #{$recordId} does not exist but is defined in test #{$test['id']} to be tested against.</p>";
+				$errorHtml .= "<p class=\"warning\"><strong>Error:</strong> Test #{$test['id']} defines use of record #{$recordId} which does not exist.</p>";
 				continue;	// Next test
 			}
 			

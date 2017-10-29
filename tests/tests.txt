@@ -572,7 +572,7 @@ J.J.
 
 93
 110 separates *a/*n1 portions before and after dot into ‡a and ‡b (see also next test)
-127474
+12195
 110
 ‡aCanada.‡b Royal Commission
 
@@ -704,9 +704,9 @@ In generate other entities phase of authors, ensure second author appears in 700
 
 115
 In generate other entities phase of authors, ensure third author appears in 700
-1333
+132356
 700
-‡aTyaptirgyanov, M.
+‡aPfeffer, W. Tad.
 
 116
 In generate other entities phase of authors, ensure first *al in *ag appears
@@ -2084,7 +2084,7 @@ Macro generate300 unpaged does contain $c
 
 345
 Macro generate300 unpaged for *doc with empty result
-1332
+1334
 300
 /^‡a1 volume \(unpaged\)$/
 
