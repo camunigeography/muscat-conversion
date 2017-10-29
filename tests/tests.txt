@@ -3389,3 +3389,15 @@ Tivi Etook /‡cedited by Marybelle Myers.
 167945
 008
 /^.{30}p#/
+
+564
+245 parallel title section should not have e-dot in English text; see also next test
+41504
+245
+Issue 4
+
+565
+880-245 parallel title section should not have e-dot in English text; see also previous
+41504
+880
+Issue 4
