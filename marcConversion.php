@@ -207,9 +207,8 @@ class marcConversion
 		$sourceRegistry = array ();
 		
 		# End if merge type is unsupported; this will result in an empty record
-		#!# Need to ensure this is reported during the import also
 		if (!isSet ($this->mergeTypes[$mergeType])) {
-			$this->errorHtml .= "WARNING: Merge failed for Muscat record #{$this->recordId}: unsupported merge type {$mergeType}. The local record has been put in, without merging.";
+			$this->errorHtml .= "Merge failed for Muscat record #{$this->recordId}: unsupported merge type {$mergeType}. The local record has been put in, without merging.";
 			return $localRecord;
 		}
 		
@@ -218,7 +217,7 @@ class marcConversion
 		
 		# Get the existing Voyager record
 		if (!$voyagerRecord = $this->getExistingVoyagerRecord ($mergeVoyagerId)) {
-			$this->errorHtml .= "WARNING: Merge failed for Muscat record #{$this->recordId}: could not retrieve existing Voyager record. The local record has been put in, without merging.";
+			$this->errorHtml .= "Merge failed for Muscat record #{$this->recordId}: could not retrieve existing Voyager record. The local record has been put in, without merging.";
 			return $localRecord;
 		}
 		
