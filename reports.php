@@ -2519,7 +2519,7 @@ class reports
 				)
 				AND
 					(LENGTH( ExtractValue(xml, '/*/tg/t') )-LENGTH(REPLACE( ExtractValue(xml, '/*/tg/t') ,' = ','')))/LENGTH(' = ') !=
-					(LENGTH( ExtractValue(xml, '/*/lpt') )-LENGTH(REPLACE( ExtractValue(xml, '/*/lpt') ,' = ','')))/LENGTH(' = ')
+					(LENGTH( ExtractValue(xml, '/*/tg/lpt') )-LENGTH(REPLACE( ExtractValue(xml, '/*/tg/lpt') ,' = ','')))/LENGTH(' = ')
 		";
 		
 		# Return the query
