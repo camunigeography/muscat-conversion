@@ -4691,24 +4691,32 @@ class muscatConversion extends frontControllerApplication
 		foreach ($tests as $id => $test) {
 			$tests[$id]['id'] = $test['id'];
 			
-			# Parse the record
+			# Obtain the record number
 			$recordId = $test['recordId'];
+			
+			# Set default state
+			$tests[$id]['found'] = NULL;
+			$tests[$id]['result'] = 0;	// Assume failure
+			$tests[$id]['negativeTest'] = NULL;
+			$tests[$id]['indicatorTest'] = NULL;
+			
+			# Warn if record not present
+			if (!isSet ($marcRecords[$recordId])) {
+				$errorHtml .= "<p class=\"warning\"><strong>Error:</strong> Record #{$recordId} does not exist but is defined in test #{$test['id']} to be tested against.</p>";
+				continue;	// Next test
+			}
+			
+			# Parse the record
 			$record = $this->marcConversion->parseMarcRecord ($marcRecords[$recordId], false);
 			// application::dumpData ($record);
 			
-			# Assume failure
-			$tests[$id]['found'] = NULL;
-			$tests[$id]['result'] = 0;	// Assume failure
-			
 			# Determine if the test is a negative test (i.e. fails if there is a match), starting with '!'
-			$tests[$id]['negativeTest'] = NULL;
 			if (preg_match ('/^!(.+)$/', $tests[$id]['marcField'], $matches)) {
 				$tests[$id]['negativeTest'] = true;
 				$tests[$id]['marcField'] = $matches[1];	// Overwrite
 			}
 			
 			# Determine if the test is an indicator test, starting with 'i'
-			$tests[$id]['indicatorTest'] = NULL;
 			if (preg_match ('/^i(.+)$/', $tests[$id]['marcField'], $matches)) {
 				$tests[$id]['indicatorTest'] = true;
 				$tests[$id]['marcField'] = $matches[1];	// Overwrite
