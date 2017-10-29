@@ -5304,11 +5304,15 @@ class muscatConversion extends frontControllerApplication
 			$totalErrors = (isSet ($totals[$fileset]) ? $totals[$fileset] : '0');
 			$jumplist[] = "<a href=\"#{$fileset}\" class=\"" . ($totalErrors ? 'warning' : 'success') . "\">{$label} ({$totalErrors})</a>";
 			$errorsHtml .= "\n<h4 id=\"{$fileset}\" class=\"" . ($totalErrors ? 'warning' : 'success') . "\">Errors: {$label} (" . $totalErrors . ')</h4>';
-			$errorsHtml .= "\n<div class=\"graybox\">";
-			$errorsHtml .= "\n<pre>";
-			$errorsHtml .= $errorListingHtml;
-			$errorsHtml .= "\n</pre>";
-			$errorsHtml .= "\n</div>";
+			if ($errorListingHtml) {
+				$errorsHtml .= "\n<div class=\"graybox\">";
+				$errorsHtml .= "\n<pre>";
+				$errorsHtml .= $errorListingHtml;
+				$errorsHtml .= "\n</pre>";
+				$errorsHtml .= "\n</div>";
+			} else {
+				$errorsHtml .= "\n<p><em>No errors for this group.</em></p>";
+			}
 		}
 		
 		# List the error types, grouped with a count for each type
