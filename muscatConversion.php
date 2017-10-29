@@ -2369,7 +2369,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Run (pre-process) the tests
 		if (($importType == 'tests') || ($importType == 'full')) {
-			$this->runTests ();
+			$this->runTests ($errorsHtml /* amended by reference */);
 			$html .= "\n<p>{$this->tick} The <a href=\"{$this->baseUrl}/reports/\">tests</a> have been generated.</p>";
 		}
 		
@@ -4632,7 +4632,7 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to run tests and generate test results
-	public function runTests (&$error = false, $regenerateMarc = false)
+	public function runTests (&$errorHtml = false, $regenerateMarc = false)
 	{
 		# Log start
 		$this->logger ('Starting ' . __METHOD__);
@@ -4660,8 +4660,8 @@ class muscatConversion extends frontControllerApplication
 		
 		# Parse to tests
 		$fields = array ('id', 'description', 'recordId', 'marcField', 'expected');	// In order of appearance in definition
-		if (!$tests = application::parseBlocks ($testsString, $fields, true, $error)) {
-			// $error will now be set to the error
+		if (!$tests = application::parseBlocks ($testsString, $fields, true, $errorHtml)) {
+			// $errorHtml will now be set to the error
 			return false;
 		}
 		

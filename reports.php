@@ -3922,9 +3922,14 @@ class reports
 		$regenerateMarcData = (isSet ($_POST[$regenerateParameter]));
 		
 		# Regenerate the test data, regenerating the underlying MARC records if required
-		if (!$this->muscatConversion->runTests ($error, $regenerateMarcData)) {
-			$html = "\n<p class=\"warning\">The tests are not correctly defined, with the test harness reporting an error: <tt>{$error}</tt></p>";
+		if (!$this->muscatConversion->runTests ($errorHtml, $regenerateMarcData)) {
+			$html = "\n<p class=\"warning\">The tests are not correctly defined, with the test harness reporting an error: <tt>{$errorHtml}</tt></p>";
 			return $html;
+		}
+		
+		# Show test warnings if any; actual errors will have caused runTests to return false, so execution will not have reached this far
+		if ($errorHtml) {
+			$html .= $errorHtml;
 		}
 		
 		# Add a filter form
