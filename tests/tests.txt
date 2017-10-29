@@ -3343,7 +3343,7 @@ LDR
 vii, 347
 
 556
-490 Add support for $x (ISSN), in form of MARC-style syntax added to Muscat record
+490 Add support for $x (ISSN), in form of MARC-style syntax added to Muscat record; see also test 566
 148932
 490
 ‡x1436-803X
@@ -3401,3 +3401,10 @@ Issue 4
 41504
 880
 Issue 4
+
+566
+490 Add support for $x (ISSN), in form of MARC-style syntax added to Muscat record; see also test 556
+70412
+490
+Report,‡x0161-3243 ;‡vNo. 4
+
