@@ -316,13 +316,13 @@ Cyrillic should not contain a ligature in *ag/*n.. (e.g. from transliterating "I
 Cyrillic should not contain a ligature in *e/*n/*n.. (e.g. from transliterating "Zherebt͡sov")
 1844
 880
-Compiled by И.Л. Жеребцов
+compiled by И.Л. Жеребцов
 
 51
 Cyrillic should not contain a ligature in 880-700 (e.g. from transliterating "Zherebt͡sov")
 1844
 880
-700-03 ‡aЖеребцов, И. Л.,‡ecompiler
+700-04 ‡aЖеребцов, И. Л.,‡ecompiler
 
 52
 Ensure 'Anon.' is treated as a transliterated protected string
@@ -1186,31 +1186,31 @@ Cortijo ; and 5 others.
 245 Add each *e role and siblings
 2930
 245
-‡cÉlie Le Guillou ; Edited by J. Arago.
+‡cÉlie Le Guillou ; edited by J. Arago.
 
 196
 245 No semicolon separator if *e without *ag
 145630
 245
-‡cTranslated by Henry Myers.
+‡ctranslated by Henry Myers.
 
 197
 245 Role and siblings construction
 1844
 245
-Compiled by I.L. Zherebt͡sov.
+compiled by I.L. Zherebt͡sov.
 
 198
 245 Role and siblings construction (multiple *e groups)
 2295
 245
-; Additional work by Leclerc de Buffon ; revised order, notes and additions by C.S. Sonnini.
+; additional work by Leclerc de Buffon ; revised order, notes and additions by C.S. Sonnini.
 
 199
 245 Role and siblings construction (two *n groups in *e)
 1639
 245
-; Translated from the Icelandic by Eiríkr Magnússon and William Morris.
+; translated from the Icelandic by Eiríkr Magnússon and William Morris.
 
 200
 245 Role and siblings construction (three *n groups in *e, triggering comma-and)
@@ -3007,10 +3007,10 @@ generate500 prefix for */art/
 0023‡uhttp://dx.doi.org/10.1098
 
 500
-In roleAndSiblings, *role (e.g. 'Compiled by') is not subject to transliteration
+In roleAndSiblings, *role (e.g. 'compiled by') is not subject to transliteration
 1844
 880
-; Compiled by И.Л. Жеребцов.
+; compiled by И.Л. Жеребцов.
 
 501
 {1|7}xx should be created but contents should not be transliterated when *nt = None present for author (implementation pending) (see also #502)
