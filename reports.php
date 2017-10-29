@@ -49,6 +49,7 @@ class reports
 		'onordercancelled_info' => 'items on order or cancelled',
 		'invalidstatus_problem' => 'items with an invalid *status',
 		'invalidacquisitiondate_problem' => 'items with an invalid acquisition date',
+		'emptyacq_problem' => 'items with an empty *acq container',
 		'onorderold_info' => 'Items on order before the threshold acquisition date',
 		'onorderrecent_info' => 'Items on order since the threshold acquisition date',
 		'ordercancelled_info' => 'items where the order is cancelled',
@@ -1210,6 +1211,23 @@ class reports
 	}
 	
 	
+	# Items with an empty *acq container
+	public function report_emptyacq ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'emptyacq' AS report,
+				id AS recordId
+			FROM catalogue_xml
+			WHERE xml REGEXP '<acq>[[:space:]]+</acq>'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
 	# Items on order before the threshold acquisition date
 	public function report_onorderold ()
 	{
@@ -1218,11 +1236,11 @@ class reports
 			SELECT
 				'onorderold' AS report,
 				id AS recordId
-				FROM catalogue_xml
-				WHERE
-					    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
-					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
-					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
+			FROM catalogue_xml
+			WHERE
+				    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
+				AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
+				AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
 		";
 		
 		# Return the query
@@ -1238,11 +1256,11 @@ class reports
 			SELECT
 				'onorderrecent' AS report,
 				id AS recordId
-				FROM catalogue_xml
-				WHERE
-					    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
-					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
-					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) > UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
+			FROM catalogue_xml
+			WHERE
+				    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
+				AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'
+				AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) > UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
 		";
 		
 		# Return the query
