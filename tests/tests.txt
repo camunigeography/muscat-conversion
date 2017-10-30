@@ -3419,3 +3419,22 @@ LDR for /art/j should also be 'a'
 1768
 LDR
 /^.{7}a/
+
+569
+773 ‡7 example with 100 in parent
+215149
+773
+‡7p1am 
+
+570
+773 ‡7 example with 110 in parent
+36315
+773
+‡7c2am 
+
+571
+773 ‡7 example with no 1xx in parent
+1768
+773
+‡7nnas 
+
