@@ -1220,7 +1220,7 @@ class reports
 				'emptyacq' AS report,
 				id AS recordId
 			FROM catalogue_xml
-			WHERE xml REGEXP '<acq>[[:space:]]+</acq>'
+			WHERE xml REGEXP '<acq>[[:space:]]*</acq>'
 		";
 		
 		# Return the query
