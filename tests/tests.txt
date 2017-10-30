@@ -3413,3 +3413,9 @@ Report,‡x0161-3243 ;‡vNo. 4
 3421
 250
 ed. /‡billustrated by
+
+568
+LDR for /art/j should also be 'a'
+1768
+LDR
+/^.{7}a/

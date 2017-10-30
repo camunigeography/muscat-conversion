@@ -1556,7 +1556,7 @@ class marcConversion
 		} else {
 			$position7Values = array (
 				'/art/in'	=> 'a',
-				'/art/j'	=> 'b',
+				'/art/j'	=> 'a',		// E.g. /records/1768/ (test #568)
 				'/doc'		=> 'm',		// E.g. /records/1187/ (test #387)
 				'/ser'		=> 's',
 			);
