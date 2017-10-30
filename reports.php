@@ -117,7 +117,7 @@ class reports
 		'sernonuniquetitle_problem' => '*ser records whose title is not unique',
 		'periodicalpam_problem' => 'records with location= both Periodical and Pam',
 		'russianvolumenumbers_info' => 'Russian records with a volume number',
-		'longtitles_problem' => 'records with long titles (>512 characters)',
+		'longtitles_problem' => 'records with long titles (>512 characters), that are not on the whitelist',
 		'artjwithoutvolume_problem' => 'articles in journals without a volume designation and no useful date',
 		'docpt_problem' => '*doc records with a *pt',
 		'artnopt_problem' => '*art records without a *pt',
@@ -2664,9 +2664,16 @@ class reports
 	}
 	
 	
-	# Records with long titles (>512 characters)
+	# Records with long titles (>512 characters), that are not on the whitelist
 	public function report_longtitles ()
 	{
+		# Define the whitelist
+		$knownCorrect = array (
+			1150, 2060, 2064, 2083, 2125, 2597, 2834, 3349, 4792, 6433,
+			8690, 45836, 52812, 56641, 59671, 59763, 60676, 136479, 148887, 149001,
+			155210, 162508, 192623, 209575
+		);
+		
 		# Define the query
 		$query = "
 			SELECT
@@ -2676,6 +2683,7 @@ class reports
 			WHERE
 				    field = 't'
 				AND LENGTH(value) > 512
+				AND recordId NOT IN (" . implode (', ', $knownCorrect) . ")
 		";
 		
 		# Return the query
