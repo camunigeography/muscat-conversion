@@ -150,13 +150,13 @@ class marcConversion
 		
 		# Report any UTF-8 problems
 		if (strlen ($record) && !htmlspecialchars ($record)) {	// i.e. htmlspecialchars fails
-			$this->errorHtml .= "UTF-8 conversion failed in record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">#{$this->recordId}</a>.";
+			$this->errorHtml .= "UTF-8 conversion failed.";
 			return false;
 		}
 		
 		# Do a check to report any case of an invalid subfield indicator
 		if (preg_match_all ("/{$this->doubleDagger}[^a-z0-9]/u", $record, $matches)) {
-			$this->errorHtml .= 'Invalid ' . (count ($matches[0]) == 1 ? 'subfield' : 'subfields') . " (" . implode (', ', $matches[0]) . ") detected in record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">#{$this->recordId}</a>.";
+			$this->errorHtml .= 'Invalid ' . (count ($matches[0]) == 1 ? 'subfield' : 'subfields') . " (" . implode (', ', $matches[0]) . ") detected.";
 			// Leave the record visible rather than return false
 		}
 		
@@ -165,7 +165,7 @@ class marcConversion
 		$total880fields = count ($matches[0]);
 		$total880dollar6Instances = substr_count ($record, "{$this->doubleDagger}6 880-");
 		if ($total880fields != $total880dollar6Instances) {
-			$this->errorHtml .= "Mismatch in 880 field/link counts ({$total880fields} vs {$total880dollar6Instances}) in record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">#{$this->recordId}</a>.";
+			$this->errorHtml .= "Mismatch in 880 field/link counts ({$total880fields} vs {$total880dollar6Instances}).";
 			// Leave the record visible rather than return false
 		}
 		
@@ -208,7 +208,7 @@ class marcConversion
 		
 		# End if merge type is unsupported; this will result in an empty record
 		if (!isSet ($this->mergeTypes[$mergeType])) {
-			$this->errorHtml .= "Merge failed for Muscat record #{$this->recordId}: unsupported merge type {$mergeType}. The local record has been put in, without merging.";
+			$this->errorHtml .= "Merge failed: unsupported merge type {$mergeType}. The local record has been put in, without merging.";
 			return $localRecord;
 		}
 		
@@ -217,7 +217,7 @@ class marcConversion
 		
 		# Get the existing Voyager record
 		if (!$voyagerRecord = $this->getExistingVoyagerRecord ($mergeVoyagerId)) {
-			$this->errorHtml .= "Merge failed for Muscat record #{$this->recordId}: could not retrieve existing Voyager record. The local record has been put in, without merging.";
+			$this->errorHtml .= "Merge failed: could not retrieve existing Voyager record. The local record has been put in, without merging.";
 			return $localRecord;
 		}
 		
