@@ -2332,7 +2332,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Run option to create XML table only (included in the 'full' option above) if required
 		if ($importType == 'xml') {
-			if (!$this->createXmlTable (false, $errorsHtml)) {
+			if (!$this->createXmlTable (true, $errorsHtml)) {
 				$this->logErrors ($errorsHtml, true);
 				return false;
 			}
