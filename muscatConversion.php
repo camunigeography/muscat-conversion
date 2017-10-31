@@ -2225,7 +2225,7 @@ class muscatConversion extends frontControllerApplication
 		# Define the import types
 		$importTypes = array (
 			'full'					=> 'FULL import (c. 10.8 hours)',
-			'xml'					=> 'Regenerate XML only (c. 6 minutes / 6.75 hours fresh)',
+			'xml'					=> 'Regenerate XML only (c. 21 minutes)',
 			'marc'					=> 'Regenerate MARC only (c. 1.1 hours)',
 			'external'				=> 'Regenerate external Voyager records only (c. 5 seconds)',
 			'outputstatus'			=> 'Regenerate output status only (c. 15 seconds)',
@@ -3818,14 +3818,28 @@ class muscatConversion extends frontControllerApplication
 		$query = 'SET SESSION max_allowed_packet = ' . $maxQueryLength . ';';
 		$this->databaseConnection->execute ($query);
 		
+		# Create a temporary table for updating xPath and xPathWithIndex fields as a single cross-table update, as updateMany is too slow (due to a large CASE statement in SQL requiring an IN() clause)
+		if ($pathSeedingOnly) {
+			$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.catalogue_processed_xpaths_temp;";
+			$this->databaseConnection->execute ($sql);
+			$sql = "CREATE TABLE IF NOT EXISTS `catalogue_processed_xpaths_temp` (
+				id VARCHAR(10) NOT NULL COMMENT 'Shard ID',
+				xPath          VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field (path only)',
+				xPathWithIndex VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field (path with index)',
+				PRIMARY KEY (id)
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Temporary table of xPaths for joining'
+			;";
+			$this->databaseConnection->execute ($sql);
+		}
+		
 		# Process the records in chunks
-		$chunksOf = 500;	// Change max_allowed_packet above if necessary
+		$chunksOf = 500;	// Change max_allowed_packet above if necessary; records are about 1k on average
+		$this->logger ("Dropping serial record into schema, in chunks of {$chunksOf} records");
 		$i = 0;
 		while (true) {	// Until the break
 			$i++;
 			
 			# Get the next chunk of record IDs to update, until all are done
-			$this->logger ('In ' . __METHOD__ . ", processing batch #{$i} of {$chunksOf} records");
 			$query = "SELECT id FROM catalogue_xml WHERE xml IS NULL LIMIT {$chunksOf};";
 			if (!$ids = $this->databaseConnection->getPairs ($query)) {break;}
 			
@@ -3855,12 +3869,14 @@ class muscatConversion extends frontControllerApplication
 				);
 				
 				# Register the XPath arrays, to be added to the processed table
-				foreach ($xPathMatches as $line => $xPath) {
-					$shardId = $recordId . ':' . $line;		// e.g. "1000:0"
-					$processedRecordXPaths[$shardId] = array (
-						'xPath'				=> $xPath,
-						'xPathWithIndex'	=> $xPathMatchesWithIndex[$line],	// $xPathMatchesWithIndex use the same index by line, so safe to do in in the $xPathMatches loop
-					);
+				if ($pathSeedingOnly) {
+					foreach ($xPathMatches as $line => $xPath) {
+						$processedRecordXPaths[] = array (
+							'id'				=> $recordId . ':' . $line,		// I.e. shard ID, e.g. "1000:0",
+							'xPath'				=> $xPath,
+							'xPathWithIndex'	=> $xPathMatchesWithIndex[$line],	// $xPathMatchesWithIndex use the same index by line, so safe to do in in the $xPathMatches loop
+						);
+					}
 				}
 			}
 			
@@ -3872,15 +3888,33 @@ class muscatConversion extends frontControllerApplication
 				return false;
 			}
 			
-			# If seeding the catalogue_processed.xPath values, update the processed table to register the XPath values; takes around 2-15 seconds per batch of 500 sharded records
+			# If seeding the catalogue_processed.xPath values, add to the temporary table to register the XPath values; this far faster than using updateMany (which takes an additional 6 hours in total)
 			if ($pathSeedingOnly) {
-				if (!$this->databaseConnection->updateMany ($this->settings['database'], 'catalogue_processed', $processedRecordXPaths)) {
+				if (!$this->databaseConnection->insertMany ($this->settings['database'], 'catalogue_processed_xpaths_temp', $processedRecordXPaths)) {
 					$html  = "<p class=\"warning\">Error updating processed records to add XPath values, stopping at batch ({$recordId}):</p>";
 					$html .= application::dumpData ($this->databaseConnection->error (), false, true);
 					$errorsHtml .= $html;
 					return false;
 				}
 			}
+		}
+		
+		# If seeding the catalogue_processed.xPath values, update the processed table to register the XPath values
+		if ($pathSeedingOnly) {
+			$this->logger ('Setting the xPath values');
+			$sql = "UPDATE catalogue_processed
+				INNER JOIN catalogue_processed_xpaths_temp on catalogue_processed.id = catalogue_processed_xpaths_temp.id
+				SET
+					catalogue_processed.xPath          = catalogue_processed_xpaths_temp.xPath,
+					catalogue_processed.xPathWithIndex = catalogue_processed_xpaths_temp.xPathWithIndex
+			;";
+			$this->databaseConnection->execute ($sql);	// 4.5 minutes
+		}
+		
+		# Take down the temporary table
+		if ($pathSeedingOnly) {
+			$sql = "DROP TABLE {$this->settings['database']}.catalogue_processed_xpaths_temp;";
+			$this->databaseConnection->execute ($sql);
 		}
 		
 		# Signal success
