@@ -2998,7 +2998,7 @@ class marcConversion
 	{
 		# This is a Composer package, so work around the autoloading requirement; see: http://stackoverflow.com/questions/599670/how-to-include-all-php-files-from-a-directory
 		foreach (glob ($this->applicationRoot . '/libraries/isbn/src/Isbn/*.php') as $filename) {
-			include $filename;
+			require_once $filename;
 		}
 		
 		# Load and instantiate the library
