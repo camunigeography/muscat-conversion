@@ -65,12 +65,12 @@ class generateAuthors
 	
 	
 	# Constructor
-	public function __construct ($muscatConversion, $mainRecordXml, $languageModes)
+	public function __construct ($marcConversion, $mainRecordXml, $languageModes)
 	{
 		# Create class property handles to the parent class
-		$this->muscatConversion = $muscatConversion;
-		$this->databaseConnection = $muscatConversion->databaseConnection;
-		$this->settings = $muscatConversion->settings;
+		$this->marcConversion = $marcConversion;
+		$this->databaseConnection = $marcConversion->databaseConnection;
+		$this->settings = $marcConversion->settings;
 		
 		# Create a handle to the XML
 		$this->mainRecordXml = $mainRecordXml;
@@ -79,7 +79,7 @@ class generateAuthors
 		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
 		
 		# Determine the language of the record
-		$recordLanguages = $this->muscatConversion->xPathValues ($mainRecordXml, '(//lang)[%i]', false);	// e.g. /records/1220/ , /records/8690/ have multiple languages (test #66)
+		$recordLanguages = $this->marcConversion->xPathValues ($mainRecordXml, '(//lang)[%i]', false);	// e.g. /records/1220/ , /records/8690/ have multiple languages (test #66)
 		
 		# Process both normal and transliterated modes
 		foreach ($languageModes as $languageMode) {
@@ -135,7 +135,7 @@ class generateAuthors
 		#   *art/in  like /records/4179/ will match (test #69); its /art/in/ag/a will be ignored (test #70)
 		#   *art/in with /art/in/ag/ but not /art/ag like /records/45318/ will not match (same as test #70)
 		#   *art/j   like /records/1109/ will match (test #71)
-		if (!$a = $this->muscatConversion->xPathValue ($this->mainRecordXml, '//ag[parent::doc|parent::art]/a')) {
+		if (!$a = $this->marcConversion->xPathValue ($this->mainRecordXml, '//ag[parent::doc|parent::art]/a')) {
 			return false;	// The entry in $this->values for this field will be left as when initialised, i.e. false
 		}
 		
@@ -146,10 +146,10 @@ class generateAuthors
 		$line = $this->shiftSubfieldU ($line);
 		
 		# Pass through the transliterator if required; e.g. /records/6653/ (test #107), /records/23186/ (test #108)
-		$line = $this->muscatConversion->macro_transliterateSubfields ($line, $this->transliterableSubfields[$this->field], $errorString_ignored, $languageMode);
+		$line = $this->marcConversion->macro_transliterateSubfields ($line, $this->transliterableSubfields[$this->field], $errorString_ignored, $languageMode);
 		
 		# Ensure the line ends with punctuation; e.g. /records/1218/ (test #72), /records/1221/ (test #73)
-		$line = $this->muscatConversion->macro_dotEnd ($line, $extendedCharacterList = true);
+		$line = $this->marcConversion->macro_dotEnd ($line, $extendedCharacterList = true);
 		
 		# Write the value into the values registry
 		$this->values[$this->languageMode][$this->field] = $line;
@@ -206,12 +206,12 @@ class generateAuthors
 		# Pass each line through the transliterator if required (test #108)
 		foreach ($lines as $index => $line) {
 			$fieldNumber = (preg_match ('/^([0-9]{3}) /', $line, $matches) ? $matches[1] : $this->field);	// Line 1 will use the native field number, but any subsequent lines in a multiline will have a field number added the start (test #109)
-			$lines[$index] = $this->muscatConversion->macro_transliterateSubfields ($line, $this->transliterableSubfields[$fieldNumber], $errorString_ignored, $languageMode);
+			$lines[$index] = $this->marcConversion->macro_transliterateSubfields ($line, $this->transliterableSubfields[$fieldNumber], $errorString_ignored, $languageMode);
 		}
 		
 		# Ensure each line ends with punctuation; e.g. /records/7463/ (tests #81 and #82)
 		foreach ($lines as $index => $line) {
-			$lines[$index] = $this->muscatConversion->macro_dotEnd ($line, $extendedCharacterList = true);
+			$lines[$index] = $this->marcConversion->macro_dotEnd ($line, $extendedCharacterList = true);
 		}
 		
 		# Implode the lines
@@ -245,17 +245,17 @@ class generateAuthors
 		
 		# Check it is *doc/*ag or *art/*ag (i.e. ignore *ser records), e.g. /records/107192/ (test #110)
 		# After this point, the only looping is through top-level *a* fields, e.g. /*/ag but not /*/in/ag
-		if ($ser = $this->muscatConversion->xPathValue ($this->mainRecordXml, '/ser')) {
+		if ($ser = $this->marcConversion->xPathValue ($this->mainRecordXml, '/ser')) {
 			return $lines;
 		}
 		
 		# Loop through each *ag
 		$agIndex = 1;
-		while ($this->muscatConversion->xPathValue ($this->mainRecordXml, "/*/ag[$agIndex]")) {
+		while ($this->marcConversion->xPathValue ($this->mainRecordXml, "/*/ag[$agIndex]")) {
 			
 			# Loop through each *a (author) in this *ag (author group)
 			$aIndex = 1;	// XPaths are indexed from 1, not 0
-			while ($this->muscatConversion->xPathValue ($this->mainRecordXml, "/*/ag[$agIndex]/a[{$aIndex}]")) {
+			while ($this->marcConversion->xPathValue ($this->mainRecordXml, "/*/ag[$agIndex]/a[{$aIndex}]")) {
 				
 				# Skip the first /*ag/*a, e.g. /records/1127/ (tests #112, #113)
 				if ($agIndex == 1 && $aIndex == 1) {
@@ -275,14 +275,14 @@ class generateAuthors
 			
 			# Loop through each *al (author) in this *ag (author group), e.g. /records/1565/ (test #116)
 			$alIndex = 1;	// XPaths are indexed from 1, not 0
-			while ($this->muscatConversion->xPathValue ($this->mainRecordXml, "/*/ag[$agIndex]/al[{$alIndex}]")) {
+			while ($this->marcConversion->xPathValue ($this->mainRecordXml, "/*/ag[$agIndex]/al[{$alIndex}]")) {
 				
 				# Obtain the value
 				$line = $this->main ($this->mainRecordXml, "/*/ag[$agIndex]/al[{$alIndex}]", 700);
 				
 				# The "*al Detail" block (and ", ‡g (alternative name)", once only) is added, e.g. /records/29234/ (test #118)
 				if (!substr_count ($line, "{$this->doubleDagger}g")) {	// No actual cases found, so this block will always be entered
-					$line  = $this->muscatConversion->macro_dotEnd ($line, $extendedCharacterList = '.?!');		// e.g. /records/2787/ ; "700: Subfield g must be preceded by a full stop, question mark or exclamation mark." (test #83)
+					$line  = $this->marcConversion->macro_dotEnd ($line, $extendedCharacterList = '.?!');		// e.g. /records/2787/ ; "700: Subfield g must be preceded by a full stop, question mark or exclamation mark." (test #83)
 					$line .= "{$this->doubleDagger}g" . '(alternative name)';
 				}
 				
@@ -299,16 +299,16 @@ class generateAuthors
 		
 		# Loop through each *e
 		$eIndex = 1;
-		while ($this->muscatConversion->xPathValue ($this->mainRecordXml, "/*/e[$eIndex]")) {
+		while ($this->marcConversion->xPathValue ($this->mainRecordXml, "/*/e[$eIndex]")) {
 			
 			# Within each *e, for each *n add the contributor block, e.g. /records/1247/ (test #119)
 			$nIndex = 1;	// XPaths are indexed from 1, not 0
-			while ($this->muscatConversion->xPathValue ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]")) {
+			while ($this->marcConversion->xPathValue ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]")) {
 				
 				# When considering the *e/*n, there is a guard clause to skip cases of 'the author' as the 100 field would have already pulled in that person (e.g. the 100 field could create "<name> $eIllustrator" indicating the author <name> is also the illustrator); e.g. /records/147053/ (test #84)
 				#!# Move this check into the main processing?
 				#!# Check this is as expected for e.g. /records/147053/
-				$n1 = $this->muscatConversion->xPathValue ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]/n1");
+				$n1 = $this->marcConversion->xPathValue ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]/n1");
 				if ($n1 == 'the author') {
 					$nIndex++;
 					continue;
@@ -332,10 +332,10 @@ class generateAuthors
 		}
 		
 		# Check for a *ke which is a flag indicating that there are analytic (child) records; e.g. /records/7463/
-		if ($this->muscatConversion->xPathValue ($this->mainRecordXml, '//ke')) {		// Is just a flag, not a useful value (test #87); e.g. /records/1221/ contains "\<b> Analytics \<b(l) ~l 1000/"ME1221"/ ~>" which creates a button in the Muscat GUI
+		if ($this->marcConversion->xPathValue ($this->mainRecordXml, '//ke')) {		// Is just a flag, not a useful value (test #87); e.g. /records/1221/ contains "\<b> Analytics \<b(l) ~l 1000/"ME1221"/ ~>" which creates a button in the Muscat GUI
 			
 			# Look up the records whose *kg matches, e.g. /records/9375/ has *kg=7463, so this indicates that 9375 (which will be an *art) is a child of 7463 (tests #76 and #77)
-			$currentRecordId = $this->muscatConversion->xPathValue ($this->mainRecordXml, '/q0');
+			$currentRecordId = $this->marcConversion->xPathValue ($this->mainRecordXml, '/q0');
 			if ($children = $this->getAnalyticChildren ($currentRecordId)) {	// Returns records as array (id=>xmlObject, ...)
 				
 				# Loop through each *kg's *art (i.e. child *art record)
@@ -345,8 +345,8 @@ class generateAuthors
 					$line = $this->main ($childRecordXml, "/*/ag[1]/a[1]", 700, '2');
 					
 					# Add the title (i.e. *art/*tg/*t)
-					$line  = $this->muscatConversion->macro_dotEnd ($line, $extendedCharacterList = '?.-)');		// (test #89) e.g. /records/9843/ , /records/13620/ ; "700: Subfield _t must be preceded by a question mark, full stop, hyphen or closing parenthesis."
-					$line .= "{$this->doubleDagger}t" . $this->muscatConversion->xPathValue ($childRecordXml, '/*/tg/t');
+					$line  = $this->marcConversion->macro_dotEnd ($line, $extendedCharacterList = '?.-)');		// (test #89) e.g. /records/9843/ , /records/13620/ ; "700: Subfield _t must be preceded by a question mark, full stop, hyphen or closing parenthesis."
+					$line .= "{$this->doubleDagger}t" . $this->marcConversion->xPathValue ($childRecordXml, '/*/tg/t');
 					
 					# Register the line, adding the field code, which may have been modified in main()
 					$lines[] = $this->field . ' ' . $line;
@@ -387,7 +387,7 @@ class generateAuthors
 		# Convert each XML record string to an XML object
 		$childrenRecords = array ();
 		foreach ($children as $id => $record) {
-			$childrenRecords[$id] = $this->muscatConversion->loadXmlRecord ($record);
+			$childrenRecords[$id] = $this->marcConversion->loadXmlRecord ($record);
 		}
 		
 		# Return the records
@@ -414,8 +414,8 @@ class generateAuthors
 		$this->secondIndicator = $secondIndicator;
 		
 		# Does the *a contain a *n2?
-		$n2 = $this->muscatConversion->xPathValue ($this->xml, $path . '/n2');
-		$n1 = $this->muscatConversion->xPathValue ($this->xml, $path . '/n1');
+		$n2 = $this->marcConversion->xPathValue ($this->xml, $path . '/n2');
+		$n1 = $this->marcConversion->xPathValue ($this->xml, $path . '/n1');
 		if (strlen ($n2)) {
 			
 			# Add to 100 field: 1, second indicator, ‡a <*a/*n1>,
@@ -567,7 +567,7 @@ class generateAuthors
 		$value = '';
 		
 		# Look at the first or only *doc/*ag/*a OR *art/*ag/*a
-		$n1 = $this->muscatConversion->xPathValue ($this->xml, $path . '/n1');
+		$n1 = $this->marcConversion->xPathValue ($this->xml, $path . '/n1');
 		
 		# Does the *a/*n1 contain '. ' (i.e. full stop followed by a space)?
 		# Is the *n1 exactly equal to one of the names listed in the 'Full Stop Space Exceptions' tab? (test #94)
@@ -601,7 +601,7 @@ class generateAuthors
 		$value = '';
 		
 		# Look at the first or only *doc/*ag/*a OR *art/*ag/*a
-		$n1 = $this->muscatConversion->xPathValue ($this->xml, $path . '/n1');
+		$n1 = $this->marcConversion->xPathValue ($this->xml, $path . '/n1');
 		
 		# Parse the conference name
 		$value = $this->parseConferenceTitle ($n1);
@@ -736,7 +736,7 @@ class generateAuthors
 	private function classifyNdField ($path, $value)
 	{
 		# Does the *a contain a *nd? E.g. /records/1221/ (test #141)
-		$nd = $this->muscatConversion->xPathValue ($this->xml, $path . '/nd');
+		$nd = $this->marcConversion->xPathValue ($this->xml, $path . '/nd');
 		if (!strlen ($nd)) {
 			
 			# If no, GO TO: Classify *ad Field; e.g. /records/1201/ (test #142)
@@ -829,7 +829,7 @@ class generateAuthors
 		# Does the value of the $fieldValue appear on the Misc. list? E.g. /records/1218/ (test #148)
 		$miscList = $this->miscList ();
 		if (in_array ($fieldValue, $miscList)) {
-			$value  = $this->muscatConversion->macro_dotEnd ($value, $extendedCharacterList = '.?!');		// "700: Subfield g must be preceded by a full stop, question mark or exclamation mark." (test #148)
+			$value  = $this->marcConversion->macro_dotEnd ($value, $extendedCharacterList = '.?!');		// "700: Subfield g must be preceded by a full stop, question mark or exclamation mark." (test #148)
 			$value .= "{$this->doubleDagger}g ({$fieldValue})";
 			return $value;
 		}
@@ -878,7 +878,7 @@ class generateAuthors
 							
 						# Requires - the overall record must have the specified XPath entry; e.g. // /records/139689/ (test #156), /records/101462/ (test #157)
 						case 'REQUIRES':
-							$keep = ($this->muscatConversion->xPathValue ($this->xml, $matches[3]));
+							$keep = ($this->marcConversion->xPathValue ($this->xml, $matches[3]));
 							break;
 					}
 					
@@ -929,14 +929,14 @@ class generateAuthors
 		# If running in a 7** context, and going through *e/*n, trigger the "Classify *e Field" subroutine check; e.g. /records/147053/ (test #158)
 		if (!$this->context1xx) {
 			if (preg_match ('|^/\*/e|', $path)) {
-				$role = $this->muscatConversion->xPathValue ($this->xml, $path . '/preceding-sibling::role');
+				$role = $this->marcConversion->xPathValue ($this->xml, $path . '/preceding-sibling::role');
 				$value .= $this->relatorTermsEField ($role);
 				return $value;
 			}
 		}
 		
 		# Look at the first or only *doc/*ag OR *art/*ag; e.g. /records/1165/ (test #102)
-		$ad = $this->muscatConversion->xPathValue ($this->xml, $path . '/following-sibling::ad');
+		$ad = $this->marcConversion->xPathValue ($this->xml, $path . '/following-sibling::ad');
 		if (strlen ($ad)) {
 			$value = $this->_classifySingleValueNdOrAdField ($value, $ad, true);
 		}
@@ -954,16 +954,16 @@ class generateAuthors
 	{
 		# Is there a *aff in *doc/*ag OR *art/*ag?
 		# If so, Add to 100 field; e.g. /records/121449/ (test #103)
-		$aff = $this->muscatConversion->xPathValue ($this->xml, $path . '/following-sibling::aff');
+		$aff = $this->marcConversion->xPathValue ($this->xml, $path . '/following-sibling::aff');
 		if (strlen ($aff)) {
 			$value .= ", {$this->doubleDagger}u{$aff}";
 		}
 		
 		# Does the record contain a *doc/*e/*n/*n1 OR *art/*e/*n/*n1 that is equal to 'the author'?
 		# E.g. *e/*role containing "Illustrated and translated by" and *n1 "the author"; e.g. /records/147053/ (test #159)
-		$n1 = $this->muscatConversion->xPathValue ($this->xml, '//e/n/n1');
+		$n1 = $this->marcConversion->xPathValue ($this->xml, '//e/n/n1');
 		if ($n1 == 'the author') {
-			$role = $this->muscatConversion->xPathValue ($this->xml, '//e/role');	// Obtain the $role, having determined that *n1 matches "the author"
+			$role = $this->marcConversion->xPathValue ($this->xml, '//e/role');	// Obtain the $role, having determined that *n1 matches "the author"
 			$value .= $this->relatorTermsEField ($role);
 		}
 		
