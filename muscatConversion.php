@@ -2221,7 +2221,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Define the import types
 		$importTypes = array (
-			'full'					=> 'FULL import (c. 10.8 hours)',
+			'full'					=> 'FULL import (c. 5.7 hours)',
 			'xml'					=> 'Regenerate XML only (c. 21 minutes)',
 			'marc'					=> 'Regenerate MARC only (c. 1.1 hours)',
 			'external'				=> 'Regenerate external Voyager records only (c. 5 seconds)',
