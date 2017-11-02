@@ -4,10 +4,10 @@
 class generate008
 {
 	# Constructor
-	public function __construct ($muscatConversion, $xml)
+	public function __construct ($marcConversion, $xml)
 	{
 		# Create a class property handle to the parent class
-		$this->muscatConversion = $muscatConversion;
+		$this->marcConversion = $marcConversion;
 		
 		# Create a handle to the XML
 		$this->xml = $xml;
@@ -25,7 +25,7 @@ class generate008
 		}
 		
 		# Determine the *form value
-		$this->form = $this->muscatConversion->xPathValue ($this->xml, '(//form)[1]', false);
+		$this->form = $this->marcConversion->xPathValue ($this->xml, '(//form)[1]', false);
 		
 		# Determine if the record form is roughly digital/multimedia
 		$this->isMultimediaish = $this->isMultimediaish ($this->form);
@@ -76,7 +76,7 @@ class generate008
 	{
 		# Obtain the year string
 		$yearField = ($this->recordType == '/ser' ? 'r' : 'd');
-		$yearString = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . "//{$yearField}");
+		$yearString = $this->marcConversion->xPathValue ($this->xml, $this->recordType . "//{$yearField}");
 		
 		# Determine if the record has a year
 		# Note that decade-wide dates like "199-" are considered a valid year
@@ -140,10 +140,10 @@ class generate008
 	private function position_15_17 (&$errorString)
 	{
 		# Extract the value
-		$pl = $this->muscatConversion->xPathValue ($this->xml, '(//pl)[1]', false);
+		$pl = $this->marcConversion->xPathValue ($this->xml, '(//pl)[1]', false);
 		
 		# Look it up in the country codes table; brackets are stripped, e.g. /records/2027/ (test #482)
-		return $this->muscatConversion->lookupValue ('countryCodes', '', true, $stripBrackets = true, $pl, 'MARC Country Code', $errorString);
+		return $this->marcConversion->lookupValue ('countryCodes', '', true, $stripBrackets = true, $pl, 'MARC Country Code', $errorString);
 	}
 	
 	
@@ -179,7 +179,7 @@ class generate008
 			'/ser',
 		);
 		foreach ($recordTypes as $recordType) {
-			if ($this->muscatConversion->xPathValue ($this->xml, $recordType)) {
+			if ($this->marcConversion->xPathValue ($this->xml, $recordType)) {
 				return $recordType;	// Match found
 			}
 		}
@@ -231,7 +231,7 @@ class generate008
 				case 'DVD':
 				case 'Videorecording':
 					
-					$p = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '//p');
+					$p = $this->marcConversion->xPathValue ($this->xml, $this->recordType . '//p');
 					if ($p == '2 hrs') {	// E.g. /records/96479/ (test #400)
 						$p = '120 min';
 					}
@@ -261,8 +261,8 @@ class generate008
 					'plate'		=> 'f',	# If *p or *pt contains 'plate*' => f in pos. 18 unless full, in which case => f in pos. 19 unless full, in which case => f in pos. 20
 				);
 				$stack = '';
-				$p = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '//p');
-				$pt = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '//pt');
+				$p = $this->marcConversion->xPathValue ($this->xml, $this->recordType . '//p');
+				$pt = $this->marcConversion->xPathValue ($this->xml, $this->recordType . '//pt');
 				foreach ($strings as $searchList => $result) {
 					if (preg_match ('/\b(' . $searchList . ')/', $p) || preg_match ('/\b(' . $searchList . ')/', $pt)) {
 						$stack .= $result;
@@ -273,9 +273,9 @@ class generate008
 			case '/ser':
 			case '/art/j':
 				
-				$freq = $this->muscatConversion->xPathValue ($this->xml, $this->recordType . '//freq');
-				$value  = $this->muscatConversion->lookupValue ('journalFrequencies', 'No *freq', false, false, $freq, 'Frequency' , $errorString);
-				$value .= $this->muscatConversion->lookupValue ('journalFrequencies', 'No *freq', false, false, $freq, 'Regularity', $errorString);
+				$freq = $this->marcConversion->xPathValue ($this->xml, $this->recordType . '//freq');
+				$value  = $this->marcConversion->lookupValue ('journalFrequencies', 'No *freq', false, false, $freq, 'Frequency' , $errorString);
+				$value .= $this->marcConversion->lookupValue ('journalFrequencies', 'No *freq', false, false, $freq, 'Regularity', $errorString);
 				$value .= '#';
 				
 				return $value;	// E.g. /records/1027/ (test #28)
@@ -481,7 +481,7 @@ class generate008
 		}
 		
 		# If record has *kw 'Organizations, government' => o
-		$kwValues = $this->muscatConversion->xPathValues ($this->xml, '//k[%i]/kw');
+		$kwValues = $this->marcConversion->xPathValues ($this->xml, '//k[%i]/kw');
 		foreach ($kwValues as $kw) {
 			if ($kw == 'Organizations, government') {return 'o';}	// E.g. /records/15998/ (test #36)
 		}
@@ -525,7 +525,7 @@ class generate008
 	private function kContains0613 ()
 	{
 		# NB All records have been checked that there are no "061.3[0-9]"
-		$ksValues = $this->muscatConversion->xPathValues ($this->xml, '//k[%i]/ks');
+		$ksValues = $this->marcConversion->xPathValues ($this->xml, '//k[%i]/ks');
 		foreach ($ksValues as $ks) {
 			if (preg_match ('/\b061\.3/', $ks)) {return true;}
 		}
@@ -536,7 +536,7 @@ class generate008
 	# Helper function to check for location having 061.3; e.g. /records/6201/ (test #408)
 	private function locationContains0613 ()
 	{
-		$location = $this->muscatConversion->xPathValue ($this->xml, '//location');
+		$location = $this->marcConversion->xPathValue ($this->xml, '//location');
 		return (preg_match ('/\b061\.3/', $location));
 	}
 	
@@ -581,7 +581,7 @@ class generate008
 				if ($this->kFieldMatches ('ks', '93')) {$stack .= 'h';}
 				
 				# If *t contains 'memoir*' => m
-				$t = $this->muscatConversion->xPathValue ($this->xml, '//t');
+				$t = $this->marcConversion->xPathValue ($this->xml, '//t');
 				if (preg_match ('/\bmemoir/i', $t)) {$stack .= 'm';}	// No examples found in data, so no test
 				
 				# If record contains *k '398' => o
@@ -592,7 +592,7 @@ class generate008
 				if ($this->kFieldMatches ('ks', '82-1')) {$stack .= 'p';}	// E.g. /records/167945/ (test #563)
 				
 				# If *t contains 'interview*' => t
-				$t = $this->muscatConversion->xPathValue ($this->xml, '//t');
+				$t = $this->marcConversion->xPathValue ($this->xml, '//t');
 				if (preg_match ('/\binterview/i', $t)) {$stack .= 't';}
 				
 				# Truncate to 2 characters
@@ -616,8 +616,8 @@ class generate008
 			case '/art/in':
 				
 				# If *t contains Festschrift => 1 then |
-				$t = $this->muscatConversion->xPathValue ($this->xml, '//t');
-				$tt = $this->muscatConversion->xPathValue ($this->xml, '//tt');
+				$t = $this->marcConversion->xPathValue ($this->xml, '//t');
+				$tt = $this->marcConversion->xPathValue ($this->xml, '//tt');
 				if (preg_match ('/Festschrift/i', $t) || preg_match ('/Festschrift/i', $tt)) {	// Simple match to deal with cases of records having two *t like /records/13607/ (test #39)
 					return '1' . '|';
 				}
@@ -681,8 +681,8 @@ class generate008
 			case '/ser':
 			case '/art/j':
 				
-				$lang = $this->muscatConversion->xPathValue ($this->xml, '(//lang)[1]', false);	// E.g. /records/1031/ (test #41)
-				return $this->muscatConversion->lookupValue ('languageCodes', 'English', true, false, $lang, 'Script Code', $errorString);	// Script code is defined for position 33 at https://www.loc.gov/marc/bibliographic/bd008s.html
+				$lang = $this->marcConversion->xPathValue ($this->xml, '(//lang)[1]', false);	// E.g. /records/1031/ (test #41)
+				return $this->marcConversion->lookupValue ('languageCodes', 'English', true, false, $lang, 'Script Code', $errorString);	// Script code is defined for position 33 at https://www.loc.gov/marc/bibliographic/bd008s.html
 		}
 		
 		# Flag error
@@ -693,7 +693,7 @@ class generate008
 	# Helper function to deal with k having 82-1, etc.
 	private function kFieldMatches ($kField, $string, $matchType = '^')
 	{
-		$values = $this->muscatConversion->xPathValues ($this->xml, "//k[%i]/{$kField}");
+		$values = $this->marcConversion->xPathValues ($this->xml, "//k[%i]/{$kField}");
 		foreach ($values as $value) {
 			switch ($matchType) {
 				case '^':	// E.g. /records/1005/ (test #34)
@@ -739,7 +739,7 @@ class generate008
 				if ($this->fieldContainsBoundedStart ('t', 'autobiograph')) {return 'a';}	// E.g. /records/6046/ (test #43)
 				
 				# Else if *location contains '92[*' => b
-				$location = $this->muscatConversion->xPathValue ($this->xml, '//location');	// E.g. /records/1854/ (test #418)
+				$location = $this->marcConversion->xPathValue ($this->xml, '//location');	// E.g. /records/1854/ (test #418)
 				if (preg_match ('/\b92\[/', $location)) {return 'b';}
 				
 				# Else if *location contains '92(08)' => c
@@ -765,7 +765,7 @@ class generate008
 	# Helper function to check for a field containing a string, tied at the start to a word boundary; e.g. /records/3152/ (test #402), /records/21127/ (test #403)
 	private function fieldContainsBoundedStart ($field, $string)
 	{
-		$value = $this->muscatConversion->xPathValue ($this->xml, "//{$field}");
+		$value = $this->marcConversion->xPathValue ($this->xml, "//{$field}");
 		return (preg_match ('/\b' . $string . '/i', $value));
 	}
 	
@@ -773,7 +773,7 @@ class generate008
 	# Helper function to check for a repeatable field containing a string, tied at the start to a word boundary
 	private function fieldRepeatableContainsBoundedStart ($field, $string)
 	{
-		$values = $this->muscatConversion->xPathValues ($this->xml, "(//{$field})[%i]", false);		// e.g. /records/2440/ for *local
+		$values = $this->marcConversion->xPathValues ($this->xml, "(//{$field})[%i]", false);		// e.g. /records/2440/ for *local
 		foreach ($values as $value) {
 			if (preg_match ('/\b' . $string . '/i', $value)) {return true;}
 		}
@@ -784,7 +784,7 @@ class generate008
 	# Helper function to check for *k containing 92[ or 92(08); e.g. /records/2505/ (test #42)
 	private function kContains92Bracket9208 ()
 	{
-		$ksValues = $this->muscatConversion->xPathValues ($this->xml, '//k[%i]/ks');
+		$ksValues = $this->marcConversion->xPathValues ($this->xml, '//k[%i]/ks');
 		foreach ($ksValues as $ks) {
 			if (preg_match ('/\b(92\[|92\(08\))/', $ks)) {return true;}
 		}
@@ -795,8 +795,8 @@ class generate008
 	# 008 pos. 35-37: Language; e.g. /records/29970/ (test #44)
 	private function position_35_37 (&$errorString)
 	{
-		$lang = $this->muscatConversion->xPathValue ($this->xml, '(//lang)[1]', false);
-		return $this->muscatConversion->lookupValue ('languageCodes', 'English', true, false, $lang, 'MARC Code', $errorString);
+		$lang = $this->marcConversion->xPathValue ($this->xml, '(//lang)[1]', false);
+		return $this->marcConversion->lookupValue ('languageCodes', 'English', true, false, $lang, 'MARC Code', $errorString);
 	}
 	
 	
