@@ -3438,3 +3438,8 @@ LDR
 773
 ‡7nnas 
 
+572
+500: 773 ‡7 does not appear in 500
+175904
+500
+/^‡aJournal of Navigation./

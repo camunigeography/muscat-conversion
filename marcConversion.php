@@ -2447,8 +2447,10 @@ class marcConversion
 		# Start a list of subfields
 		$subfields = array ();
 		
-		# Add 773 $7
-		$subfields[] = "{$this->doubleDagger}7" . $this->generate773dollar7 ($marc);
+		# Add 773 $7, except in 500 mode
+		if (!$mode500) {	// E.g. /records/175904/ (test #572)
+			$subfields[] = "{$this->doubleDagger}7" . $this->generate773dollar7 ($marc);
+		}
 		
 		# Add 773 ‡a; *art/*in records only; $a is not used for *art/*j because journals don't have authors - instead $t is relevant
 		if ($this->recordType == '/art/in') {
