@@ -161,7 +161,7 @@ class generate245
 		$delimiter = false;
 		$delimiters = array (
 			':'		=> ' :',	// E.g. /records/1119/ (test #172)
-			' ; '	=> ' ;',	// E.g. /records/139981/ (test #507)
+			' ; '	=> ' ;',	// E.g. /records/139981/ (test #506), /records/1156/ (test #507)
 		);
 		if (substr_count ($t, ':') || substr_count ($t, ' ; ')) {
 			$length = strlen ($t);

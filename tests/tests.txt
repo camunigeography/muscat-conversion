@@ -3050,9 +3050,9 @@ In 245, space-semicolon-space indicates split point for ‡b (if not already spl
 
 507
 In 245, semicolon (without surrounding spaces) does not create ‡b split point
-1154
+1156
 245
-‡aAntarctica; a guide
+‡aThe Center for Northern Studies; general information bulletin
 
 508
 In 245, when both colon and space-semicolon-space both present, choose the first as the delimiter
