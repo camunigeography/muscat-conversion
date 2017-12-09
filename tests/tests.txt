@@ -3478,5 +3478,17 @@ co#|g|||||||||
 245 with multiple *form gets ‡h[first; second]
 181410
 245
-‡h[dvd; cd-rom] :
+‡h[DVD; CD-ROM] :
+
+579
+245 ‡h are normally lower-cased
+12359
+245
+‡h[videorecording]
+
+580
+245 Maintain case for upper-case *form types like DVD
+160682
+245
+‡h[DVD]
 

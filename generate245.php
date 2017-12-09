@@ -175,10 +175,15 @@ class generate245
 			}
 		}
 		
-		# Does the record contain a *form? If so, construct $h
+		# Does the record contain a *form? If so, construct $h, using lower-case, e.g. /records/12359/ (test #579) (except upper-case types like DVD)
 		$h = false;		// No $h if no form, e.g. /records/9542/ (test #577)
 		if ($forms = $this->marcConversion->xPathValues ($this->xml, '//form[%i]', false)) {
-			$h = $this->doubleDagger . 'h[' . strtolower (implode ('; ', $forms)) . ']';		// If multiple *form values, separate using semicolon in same square brackets, e.g. /records/181410/ (test #578)
+			foreach ($forms as $index => $form) {
+				if ($form != mb_strtoupper ($form)) {	// Maintain case for upper-case *form types like DVD; e.g. /records/160682/ (test #580)
+					$forms[$index] = mb_strtolower ($form);
+				}
+			}
+			$h = $this->doubleDagger . 'h[' . implode ('; ', $forms) . ']';		// If multiple *form values, separate using semicolon in same square brackets, e.g. /records/181410/ (test #578)
 		}
 		
 		# Does the *t include the delimiter? E.g. /records/1119/ (test #172)
