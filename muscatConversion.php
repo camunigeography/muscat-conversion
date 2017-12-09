@@ -4726,13 +4726,22 @@ class muscatConversion extends frontControllerApplication
 		
 		# Dynamically regenerate the MARC records
 		if ($regenerateMarc) {
-			$marcRecords = array ();
-			$marcParserDefinition = $this->getMarcParserDefinition ();
+			
+			# Retrieve the merge datasets
 			$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ());
+			$mergeData = $this->marcRecordsSetMergeFields ();
+			$suppressReasonsList = $this->getSuppressReasonsList ($ids);
+			
+			# Convert the records
+			$marcParserDefinition = $this->getMarcParserDefinition ();
 			$xmlRecords = $this->getRecords ($ids, 'xml', false, false, $searchStable = (!$this->userIsAdministrator));
-			foreach ($xmlRecords as $id => $data) {
+			$marcRecords = array ();
+			foreach ($xmlRecords as $id => $record) {
 				// if (!in_array ($id, $regenerateIds)) {continue;}	// Skip non-needed IDs
-				$marcRecords[$id]['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $mergeDefinition);
+				$mergeType       = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeType'] : false);
+				$mergeVoyagerId	 = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeVoyagerId'] : false);
+				$suppressReasons = (isSet ($suppressReasonsList[$id]) ? $suppressReasonsList[$id] : false);
+				$marcRecords[$id]['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $mergeDefinition, $mergeType, $mergeVoyagerId, $suppressReasons);
 			}
 			$this->databaseConnection->updateMany ($this->settings['database'], 'catalogue_marc', $marcRecords);
 		}
@@ -5431,9 +5440,9 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to get the supression reasons list
-	private function getSuppressReasonsList ()
+	private function getSuppressReasonsList ($ids = array ())
 	{
-		$query = 'SELECT id,suppressReasons FROM catalogue_marc WHERE suppressReasons IS NOT NULL;';
+		$query = 'SELECT id,suppressReasons FROM catalogue_marc WHERE suppressReasons IS NOT NULL' . ($ids ? " AND id IN (" . implode (', ', $ids) . ")" : '') . ';';
 		$suppressReasonsList = $this->databaseConnection->getPairs ($query);
 		return $suppressReasonsList;
 	}
