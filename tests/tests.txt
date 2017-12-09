@@ -2360,9 +2360,9 @@ Macro generate007: no *form
 
 395
 008: test of recordType subroutine (copy in 008)
-1210
+1213
 008
-|eng
+/^.{34}\|/
 
 396
 008: resultant value is exactly 40 characters long
