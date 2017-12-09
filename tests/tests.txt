@@ -3443,3 +3443,16 @@ LDR
 175904
 500
 /^‡aJournal of Navigation./
+
+573
+035 gets VoyagerBelievedMatch tag when /ser/kc/k2 present
+1046
+035
+VoyagerBelievedMatch-348234
+
+574
+No 035 VoyagerBelievedMatch when /ser/kc/k2 not present
+1049
+!035
+VoyagerBelievedMatch
+
