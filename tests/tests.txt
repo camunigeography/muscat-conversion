@@ -1420,7 +1420,7 @@ SPRI-1033
 Merging: 'V' strategy, with V present (and M)
 10506
 245
-‡aZapiski po Gidrografii.
+‡aZapiski po gidrografii.
 
 236
 Merging: 'V else M' strategy, with V present
