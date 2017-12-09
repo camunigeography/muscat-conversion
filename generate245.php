@@ -247,7 +247,7 @@ class generate245
 				$aIndex++;
 			}
 			
-			# Skip if no authors
+			# Skip if no authors; this takes place before *ad is added and thus assumes no cases of an *ag containing only an *ad, as cases like "and 8 others" are usually put within the other *ag - see /reports/agwithonlyad/
 			if (!$authorsThisAg) {
 				$agIndex++;
 				continue;

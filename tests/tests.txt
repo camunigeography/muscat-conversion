@@ -1147,7 +1147,7 @@ H. Maitre ; F.
 GBR-UO-SG
 
 190
-245 *art Statement of Responsibility punctuation when 'and 5 others'
+245 *art Statement of Responsibility punctuation when 'and 5 others'; see: /reports/agwithonlyad/
 131672
 245
 Cortijo ; and 5 others.

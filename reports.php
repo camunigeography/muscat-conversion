@@ -122,6 +122,7 @@ class reports
 		'docpt_problem' => '*doc records with a *pt',
 		'artnopt_problem' => '*art records without a *pt',
 		'artform_problem' => '*art records with a *form',
+		'agwithonlyad_problem' => '*ag records containing only an *ad',
 	);
 	
 	# Listing (values) reports
@@ -2763,6 +2764,24 @@ class reports
 			WHERE
 				    xPath LIKE '%/art%'
 				AND field = 'form'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *ag records containing only an *ad, which causes data to be lost in the /ag loop in generate245::statementOfResponsibility (), as tested at /records/131672/ (test #190)
+	public function report_agwithonlyad ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'agwithonlyad' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				fieldslist LIKE '%@ag@ad@%'
 		";
 		
 		# Return the query
