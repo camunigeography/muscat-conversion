@@ -2632,7 +2632,7 @@ Macro generate250 no output if no subfields
 Macro generate250 compile with space between subfields
 45901
 250
-‡a2nd ed. ‡bcontaining
+‡a2nd ed. /‡bcontaining
 
 438
 Macro generate250 dot end
