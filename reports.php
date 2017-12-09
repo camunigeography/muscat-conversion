@@ -3957,15 +3957,15 @@ class reports
 				'title'		=> 'Pass/fail',
 				'values'	=> array (1 => 'Pass', 0 => 'Fail'),
 			),
-			'description' => array (
-				'title'		=> 'Description',
-				'size'		=> 25,
-				'like'		=> true,
-			),
 			'marcField' => array (
 				'title'		=> 'MARC field',
 				'size'		=> 10,
 				'maxlength'	=> 3,
+			),
+			'description' => array (
+				'title'		=> 'Description',
+				'size'		=> 25,
+				'like'		=> true,
 			),
 		);
 		$conditions = $this->muscatConversion->filteringControls ($fields, $this->baseUrl . '/reports/tests/', $html);
