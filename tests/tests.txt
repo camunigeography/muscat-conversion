@@ -3404,7 +3404,7 @@ Issue 4
 
 566
 490 Add support for $x (ISSN), in form of MARC-style syntax added to Muscat record; see also test 556
-70412
+70413
 490
 Report,‡x0161-3243 ;‡vNo. 4
 
