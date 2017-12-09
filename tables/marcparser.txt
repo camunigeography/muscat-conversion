@@ -30,7 +30,7 @@ A  520 3# ‡a{//abs|macro:excludeNoneValue|macro:dotEnd}
 A  541 0# {/*|macro:generate541}
 A  546 ## ‡a{/*|macro:multipleValues(//lang)|macro:commaAnd|macro:prepend(In )|macro:dotEnd}
 A  546 ## ‡a{//lang[1]|macro:isTransliterated}
-A  563 ## ‡a{//acc/con} ‡5{'UkCU-P'}
+AR 563 ## ‡a{//acc/con|macro:addUkcup}
 AR 650 07 ‡2{//k/ks|macro:isNotRoundBracketed|macro:addLookedupKsValue|macro:dotEnd}
 AR 650 07 ‡2{//rpl|macro:lookupRplValue|macro:dotEnd}
 AR 651 #7 ‡2{//k/ks|macro:isRoundBracketed|macro:addLookedupKsValue|macro:dotEnd}

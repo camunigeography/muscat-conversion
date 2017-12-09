@@ -2115,6 +2115,20 @@ class marcConversion
 	}
 	
 	
+	# Macro for adding $5 to 563 - Binding Information, e.g. /records/3056/ (test #583)
+	private function macro_addUkcup ($value)
+	{
+		# End if no value (not actually a necessary check as should not enter the function otherwise)
+		if (!$value) {return false;}
+		
+		# Add $5 to each
+		$value .= " {$this->doubleDagger}5UkCU-P";
+		
+		# Return the value
+		return $value;
+	}
+	
+	
 	# Macro to determine if a value is not surrounded by round brackets, e.g. /records/1003/ (tests #469, #470)
 	private function macro_isNotRoundBracketed ($value)
 	{

@@ -1551,8 +1551,8 @@ MARC parser check of passing in XPath /
 256
 Multiple *con in 563
 3056
-!563
-foxingGeneral comments:
+563
+‡aGeneral comments
 
 257
 MARC parser check of 'A' (all) control character: value present (see also next test)
@@ -3503,4 +3503,11 @@ co#|g|||||||||
 145666
 538
 ‡aMode of access: WWW
+
+583
+563 has ‡5UkCU-P added
+3056
+563
+spine damaged ‡5UkCU-P
+
 
