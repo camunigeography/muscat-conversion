@@ -234,7 +234,7 @@ class generate245
 			$aIndex = 1;	// XPaths are indexed from 1, not 0
 			while ($string = $this->classifyNdField ("{$pathPrefix}/ag[$agIndex]/a[{$aIndex}]")) {
 				
-				# If *n1 = '-' (only), this should (presumably) not generate an entry; this is an addition to the spreadsheet spec; e.g. /records/178946/ (test #193), /records/115773/ (test #194)
+				# If *n1 = '-' (only), this should (presumably) not generate an entry; this is an addition to the spreadsheet spec; e.g. /records/166294/ (test #193), /records/115773/ (test #194)
 				if ($string == '-') {
 					$aIndex++;
 					continue;
@@ -289,7 +289,7 @@ class generate245
 			$peopleGroups = array (trim ($statementOfResponsibility));
 		}
 		
-		# End if no author groups resulting in output; e.g. /records/178946/ (test #193), /records/115773/ (test #194), /records/2930/ (test #195), /records/145630/ (test #196)
+		# End if no author groups resulting in output; e.g. /records/166294/ (test #193), /records/115773/ (test #194), /records/2930/ (test #195), /records/145630/ (test #196)
 		if (!$peopleGroups) {
 			return false;
 		}

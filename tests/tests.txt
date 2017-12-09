@@ -1172,7 +1172,7 @@ Cortijo ; and 5 others.
 
 193
 245 If *ag/*a group is '-' (e.g. due to *n1 = '-' only), skip entry in Statement of Responsibility
-178946
+166294
 !245
 ‡c
 
