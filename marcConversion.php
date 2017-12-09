@@ -2437,7 +2437,7 @@ class marcConversion
 				# Construct the string, using the title in the *in (i.e. second half) section; e.g. /records/1107/ (test #544)
 				$result = 'Offprint: ' . $this->macro_dotEnd ($this->xPathValue ($this->xml, '/art/in/tg/t')) . ($this->pOrPt['analyticVolumeDesignation'] ? ' ' . $this->macro_dotEnd ($this->prefixVolAnalyticVolumeDesignation ($this->pOrPt['analyticVolumeDesignation'])) : '');
 				
-				# Create the SoR based on 245; e.g. simple case in /records/14136/ (test #546), multiple authors example in /records/1330/ (test #547), corporate authors example in /records/14136/ (test #548); NB role confirmed not present in the data for pseudo-analytic pseudo-hosts
+				# Create the SoR based on 245; e.g. simple case in /records/14136/ (test #546), multiple authors example in /records/1330/ (test #547), corporate authors example in /records/1811/ (test #548); NB role confirmed not present in the data for pseudo-analytic pseudo-hosts
 				require_once ('generate245.php');
 				$generate245 = new generate245 ($this, $this->xml, NULL /*, $languageMode */);
 				$result .= $generate245->statementOfResponsibility ('/art/in', $result);
