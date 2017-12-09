@@ -2068,7 +2068,7 @@ Macro generate300 Unpaged capitalised
 Macro generate300 unpaged does contain $c
 174009
 300
-‡a1 volume (unpaged) ;‡c33 cm.
+‡a1 volume (unpaged) ;‡c21x10 cm.
 
 345
 Macro generate300 unpaged for *doc with empty result
