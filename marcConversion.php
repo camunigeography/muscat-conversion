@@ -2003,6 +2003,39 @@ class marcConversion
 	}
 	
 	
+	# Macro for generating 5xx notes
+	private function macro_generate5xxNote ($note, $field)
+	{
+		# Define supported types (other than default 500), specifying the captured text to appear
+		$specialFields = array (
+			505 => '^Contents: (.+)$',			// 505 - Formatted Contents Note; see: https://www.loc.gov/marc/bibliographic/bd505.html , e.g. /records/1488/ (test #581)
+			538 => '^(Mode of access: .+)$',	// 538 - System Details Note; see: https://www.loc.gov/marc/bibliographic/bd538.html , e.g. /records/145666/ (test #582)
+		);
+		
+		# Supported special-case fields
+		if (isSet ($specialFields[$field])) {
+			
+			# Check for a match and return the captured text if so
+			if (preg_match ('/' . $specialFields[$field] . '/', $note, $matches)) {
+				return $matches[1];
+			}
+			
+			# Otherwise no result if no match
+			return false;
+		}
+		
+		# For standard 500 fields, ensure none of the specialist types match, as it will be caught in another invocation
+		foreach ($specialFields as $supportedType => $regexp) {
+			if (preg_match ('/' . $regexp . '/', $note)) {
+				return false;
+			}
+		}
+		
+		# Otherwise, return the confirmed standard 500 note, e.g. /records/1019/ (tests #509, #510)
+		return $note;
+	}
+	
+	
 	# Macro for generating the 541 field, which looks at *acq groups; it may generate a multiline result, e.g. /records/3959/ (test #456); see: https://www.loc.gov/marc/bibliographic/bd541.html
 	#!# Support for *acc, which is currently having things like *acc/*date lost as is it not present elsewhere
 	private function macro_generate541 ($value)

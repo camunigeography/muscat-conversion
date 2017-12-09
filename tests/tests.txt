@@ -3492,3 +3492,15 @@ co#|g|||||||||
 245
 ‡h[DVD]
 
+581
+505 note support for Contents:
+1488
+505
+‡aThe geology of the Nuuk region -- The oldest rocks on Earth
+
+582
+538 note support for Mode of access:
+145666
+538
+‡aMode of access: WWW
+
