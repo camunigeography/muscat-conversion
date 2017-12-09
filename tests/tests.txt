@@ -37,10 +37,10 @@ Ensure *lpt parsing
 ch = Register
 
 4
-FIXME: 500 should not have :,
+500 should not have :,
 5472
 500
-1882-83 :die
+1882-83 : die
 
 5
 Use of " as a pseudo- word boundary character, so that "<em>...</em>" gets protected rather than result in e-dot; see: /reports/transliterateem/
