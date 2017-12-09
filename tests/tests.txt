@@ -3082,7 +3082,7 @@ Multiple *note in 500
 Macro generate300 *v present in *doc having ‡a creates space
 8988
 300
-300 ## ‡a12 vols. Variously paged.
+‡a12 vols. Variously paged.
 
 514
 773 in *art with analytic volume designation present appears as ‡g
