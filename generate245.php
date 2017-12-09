@@ -177,8 +177,8 @@ class generate245
 		
 		# Does the record contain a *form? If so, construct $h
 		$h = false;		// No $h if no form, e.g. /records/9542/ (test #577)
-		if ($form = $this->marcConversion->xPathValue ($this->xml, '(//form)[1]', false)) {
-			$h = $this->doubleDagger . 'h[' . strtolower ($form) . ']';
+		if ($forms = $this->marcConversion->xPathValues ($this->xml, '//form[%i]', false)) {
+			$h = $this->doubleDagger . 'h[' . strtolower (implode ('; ', $forms)) . ']';		// If multiple *form values, separate using semicolon in same square brackets, e.g. /records/181410/ (test #578)
 		}
 		
 		# Does the *t include the delimiter? E.g. /records/1119/ (test #172)
