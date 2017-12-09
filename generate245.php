@@ -157,7 +157,7 @@ class generate245
 			$t = trim ($t);
 		}
 		
-		# For potential splitting into $a and $b, firstly determine whether a colon or space-semicolon-space comes first, e.g. /records/135894/ (test #508)
+		# For potential splitting into $a and $b, firstly determine whether a colon or space-semicolon-space comes first, e.g. /records/1387/ (test #508)
 		$delimiter = false;
 		$delimiters = array (
 			':'		=> ' :',	// E.g. /records/1119/ (test #172)

@@ -3056,9 +3056,9 @@ In 245, semicolon (without surrounding spaces) does not create ‡b split point
 
 508
 In 245, when both colon and space-semicolon-space both present, choose the first as the delimiter
-135894
+1387
 245
-contaminants :‡breport on Akativut ; Ilusivut
+Hatteras :‡bLes anglais au Pôle Nord; Le désert
 
 509
 *note goes in 500
