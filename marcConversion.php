@@ -844,6 +844,21 @@ class marcConversion
 	}
 	
 	
+	# Macro to convert an internationalised domain name to Unicode; see: https://en.wikipedia.org/wiki/Internationalized_domain_name#Top-level_domain_implementation
+	private function macro_idnConversion ($url)
+	{
+		# Convert if required, e.g. /records/197739/ (test #584)
+		$hostname = parse_url ($url, PHP_URL_HOST);
+		if (preg_match ('/^xn--/', $hostname)) {
+			$utf8DomainName = idn_to_utf8 ($hostname);
+			$url = str_replace ($hostname, $utf8DomainName, $url);	// Substitute the domain within the overall URL
+		}
+		
+		# Return the possibly-modified URL
+		return $url;
+	}
+	
+	
 	# Macro to prepend a string if there is a value; e.g. /records/49940/ (test #273)
 	private function macro_prepend ($value, $text)
 	{
