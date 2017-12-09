@@ -906,12 +906,6 @@ Basic relator term handling with entities
 100
 ‡g (Campsterianus)
 
-149
-*ad affiliation list handling in 1xx (partial string)
-165077
-100
-‡uZoological Museum at Berlin
-
 150
 *ad affiliation list handling in 1xx (complete string match)
 19171

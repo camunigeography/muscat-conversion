@@ -834,9 +834,8 @@ class generateAuthors
 			return $value;
 		}
 		
-		# Does the value of the $fieldValue appear on the Affiliation list? E.g. /records/165077/ (test #149), /records/19171/ (test #150), /records/18045/ (test #151)
+		# Does the value of the $fieldValue appear on the Affiliation list? E.g. /records/19171/ (test #150), /records/18045/ (test #151)
 		$affiliationList = $this->affiliationList ();
-		#!# Failing for "Zoological Museum at Berlin" (see test #149) as due to partial match
 		if (in_array ($fieldValue, $affiliationList)) {
 			$value .= ", {$this->doubleDagger}u{$fieldValue}";
 			return $value;
@@ -1896,7 +1895,6 @@ class generateAuthors
 			'OMI',
 			'O.M.I.',						// /records/19171/ (test #150), /records/18045/ (test #151)
 			'SGM',
-			'Zoological Museum at Berlin',	// /records/165077/ (test #149)
 		);
 	}
 	
