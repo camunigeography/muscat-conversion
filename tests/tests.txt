@@ -1872,14 +1872,8 @@ Macro generate260: *pl preserve square brackets
 260
 ‡a[Philadelphia, PA] :
 
-311
-Macro generate260: *d added unmodified
-1787
-260
-‡c-.
-
 312
-Macro generate260: *d added unmodified (another example)
+Macro generate260: *d added unmodified for value representing empty ([n.d.])
 1102
 260
 ‡c[n.d.]

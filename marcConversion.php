@@ -1022,7 +1022,7 @@ class marcConversion
 		# Add $c if present; confirmed these should be treated as a single $c, comma-separated, as we have no grouping information; e.g. /records/76740/ (test #307)
 		if ($dateValues = $this->xPathValues ($this->xml, '(//d)[%i]', false)) {
 			if ($result) {$result .= ',';}
-			$result .= "{$this->doubleDagger}c" . implode (', ', $dateValues);	// Nothing in spec suggests modification if empty, e.g. /records/1787/ has '-' (test #311), or /records/1102/ has [n.d.] (test #312), both of which remain as-is
+			$result .= "{$this->doubleDagger}c" . implode (', ', $dateValues);	// Nothing in spec suggests modification if empty, /records/1102/ has [n.d.] (test #312), which remains as-is
 		}
 		
 		# Ensure dot at end; e.g. /records/76740/ (test #308), /records/1105/ (test #283)
