@@ -7,7 +7,6 @@ class createMarcExport
 	public function __construct ($muscatConversion, $applicationRoot, $recordProcessingOrder)
 	{
 		# Create class property handles to the parent class
-		$this->muscatConversion = $muscatConversion;
 		$this->databaseConnection = $muscatConversion->databaseConnection;
 		$this->settings = $muscatConversion->settings;
 		$this->baseUrl = $muscatConversion->baseUrl;

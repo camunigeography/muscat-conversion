@@ -19,7 +19,6 @@ class marcConversion
 	public function __construct ($muscatConversion, $transliteration, $supportedReverseTransliterationLanguages, $mergeTypes, $ksStatusTokens, $locationCodes, $diacriticsTable, $suppressionStatusKeyword, $suppressionScenarios)
 	{
 		# Create class property handles to the parent class
-		$this->muscatConversion = $muscatConversion;
 		$this->databaseConnection = $muscatConversion->databaseConnection;
 		$this->settings = $muscatConversion->settings;
 		$this->applicationRoot = $muscatConversion->applicationRoot;

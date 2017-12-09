@@ -18,7 +18,6 @@ class transliteration
 	public function __construct ($muscatConversion)
 	{
 		# Create property handles
-		$this->muscatConversion = $muscatConversion;
 		$this->databaseConnection = $muscatConversion->databaseConnection;
 		$this->applicationRoot = $muscatConversion->applicationRoot;
 		
