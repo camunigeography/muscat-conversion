@@ -1066,13 +1066,13 @@ North‡h[videorecording] :‡ba story
 245 *t without colon but having *form results in ‡h after ‡a
 1186
 245
-microorganisms‡h[Microfiche]
+microorganisms‡h[microfiche]
 
 176
-245 ‡h appears in 880 for Russian records
+245 ‡h for *form appears in 880 for Russian records
 9543
 880
-Известия‡h[Microfiche].
+Известия‡h[microfiche].
 
 177
 245 *ser with *t already having dot ends with single dot
@@ -3467,3 +3467,9 @@ Multiple *form results in multiple 007 (test 2 of 2 - see also previous test)
 181410
 007
 co#|g|||||||||
+
+577
+245 without *form has no ‡h
+9542
+!245
+‡h

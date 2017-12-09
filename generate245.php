@@ -18,9 +18,6 @@ class generate245
 		# Create a handle to the language mode; transliteration has to be done at a per-subfield level, because within a subfield there can be e.g. 'Name, editor' where only the 'Name' part would be transliterated
 		$this->languageMode = $languageMode;
 		
-		# Determine the *form value
-		$this->form = $this->marcConversion->xPathValue ($this->xml, '(//form)[1]', false);
-		
 		# Define the Statement of Responsibility delimiter
 		$this->muscatSorDelimiter = ' / ';	// Decided not to tolerate any cases with space not present after
 		
@@ -149,9 +146,6 @@ class generate245
 		# Start a title
 		$title = '';
 		
-		# Does the record contain a *form? If multiple *form values, separate using semicolon in same square brackets
-		$form = $this->marcConversion->xPathValue ($this->xml, '(//form)[1]', false);	// The data is known to have max one form per record
-		
 		# Ensure the title is not empty
 		$t = $this->t;
 		if (!strlen ($t)) {$t = '[No title]';}	// No actual cases left so cannot test (found using "SELECT id, EXTRACTVALUE(xml,'//tg/t') AS tValue FROM catalogue_xml HAVING LENGTH(tValue) = 0;") but logic left in as catch
@@ -181,6 +175,12 @@ class generate245
 			}
 		}
 		
+		# Does the record contain a *form? If so, construct $h
+		$h = false;		// No $h if no form, e.g. /records/9542/ (test #577)
+		if ($form = $this->marcConversion->xPathValue ($this->xml, '(//form)[1]', false)) {
+			$h = $this->doubleDagger . 'h[' . strtolower ($form) . ']';
+		}
+		
 		# Does the *t include the delimiter? E.g. /records/1119/ (test #172)
 		if ($delimiter) {
 			
@@ -191,9 +191,7 @@ class generate245
 			$title .= $this->doubleDagger . 'a' . trim ($titleComponents[0]);
 			
 			# If there is a *form, Add to 245 field'; "It follows the title proper ... and precedes the remainder of the title" as per spec at http://www.loc.gov/marc/bibliographic/bd245.html ; e.g. /records/12359/ (test #173)
-			if ($form) {
-				$title .= $this->doubleDagger . 'h[' . strtolower ($form) . ']';
-			}
+			$title .= $h;
 			
 			# Add all text after delimiter; e.g. /records/1119/ (test #172), /records/139981/ (test #507)
 			$title .= $delimiters[$delimiter] . $this->doubleDagger . 'b' . trim ($titleComponents[1]);
@@ -204,9 +202,7 @@ class generate245
 			$title .= $this->doubleDagger . 'a' . $t;
 			
 			# If there is a *form, Add to 245 field; e.g. /records/9543/, /records/1186/ (test #175); also transliterated record example: /records/9543/ (test #176)
-			if ($form) {
-				$title .= $this->doubleDagger . 'h[' . $form . ']';
-			}
+			$title .= $h;
 		}
 		
 		# Return the title
