@@ -1621,10 +1621,10 @@ MARC parser parameter parsing
 urn:doi:
 
 269
-916 multiple *ref spacing (pending decision on correct formatting)
+916 multiple component parts present in a group are first combined using comma-space (see also test #585)
 56613
-!916
-(v.1)63025 (v.2)
+916
+‡a63024 (v.1), 63025 (v.2), 70369 (v.3)
 
 270
 Macro validisbn validates correct ISBN
@@ -3503,3 +3503,16 @@ spine damaged ‡5UkCU-P
 197739
 856
 ‡uhttps://северноеиздательство.рф/issues/2/
+
+585
+916 combinations of components within *acc groups have double-dash between them
+3959
+916
+‡a8363 -- 1951/07/31
+
+586
+916 *acc groups are separated by semicolon
+3959
+916
+‡a8363 -- 1951/07/31; 22399 -- 1958/09/03
+

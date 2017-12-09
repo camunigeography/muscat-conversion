@@ -2908,7 +2908,7 @@ class marcConversion
 		#!# Not sure if con, recr, status should be present; ref and date are confirmed fine
 		$supportedFields = array ('ref', 'date', 'con', 'recr');
 		
-		# Loop through each *acq in the record; e.g. multiple in /records/3959/
+		# Loop through each *acc in the record; e.g. multiple in /records/3959/ (test #585)
 		$acc = array ();
 		$accIndex = 1;
 		while ($this->xPathValue ($this->xml, "//acc[$accIndex]")) {
@@ -2916,14 +2916,17 @@ class marcConversion
 			# Capture *acc/*ref and *acc/*date in this grouping
 			$components = array ();
 			foreach ($supportedFields as $field) {
-				if ($component = $this->xPathValue ($this->xml, "//acc[$accIndex]/{$field}")) {
+				
+				# Obtain the component; if there are multiple of the same type in this group, then first combine them using comma-space, e.g. /records/56613/ (test #269)
+				if ($componentParts = $this->xPathValues ($this->xml, "//acc[$accIndex]/{$field}[%i]")) {
+					$component = implode (', ', $componentParts);
 					$components[] = $component;
 				}
 			}
 			
-			# Register this *acc group if components have been generated
+			# Register this *acc group if components have been generated, combining with dash
 			if ($components) {
-				$acc[] = implode (' ', $components);
+				$acc[] = implode (' -- ', $components);	// E.g. /records/3959/ (test #585)
 			}
 			
 			# Next *acc
@@ -2933,7 +2936,7 @@ class marcConversion
 		# End if none
 		if (!$acc) {return false;}
 		
-		# Compile the components
+		# Compile the components, separated by semicolon, e.g. /records/3959/ (test #586)
 		$result = implode ('; ', $acc);
 		
 		# Return the result
