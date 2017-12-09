@@ -1358,9 +1358,9 @@ index (θ .\$t/h²\$).
 
 224
 Dollar in 541 is not an indicator, but wrongly triggers Bibcheck error now whitelisted
-145475
+148863
 541
-‡h34.95 AUS$ ‡5
+‡h50 AUS$ 
 
 225
 Money value string $5 in 541 is not an indicator, but wrongly triggers Bibcheck error about repeatable field now whitelisted
