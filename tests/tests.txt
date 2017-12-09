@@ -3456,3 +3456,14 @@ No 035 VoyagerBelievedMatch when /ser/kc/k2 not present
 !035
 VoyagerBelievedMatch
 
+575
+Multiple *form results in multiple 007 (test 1 of 2 - see also next test)
+181410
+007
+vd#|v||z|
+
+576
+Multiple *form results in multiple 007 (test 2 of 2 - see also previous test)
+181410
+007
+co#|g|||||||||

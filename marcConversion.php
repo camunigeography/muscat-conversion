@@ -1652,27 +1652,44 @@ class marcConversion
 		# No form value
 		if (!$this->form) {return 'ta';}	// E.g. /records/1187/ (test #394)
 		
-		# Define the values
-		$field007values = array (
-			'Map'					=> 'aj#|||||',
-			'3.5 floppy disk'		=> 'cj#|a|||||||||',	// E.g. /records/179694/ (test #007)
-			'CD-ROM'				=> 'co#|g|||||||||',
-			'DVD-ROM'				=> 'co#|g|||||||||',
-			'Internet resource'		=> 'cr#|n|||||||||',
-			'Online publication'	=> 'cr#|n|||||||||',
-			'PDF'					=> 'cu#|n||||a||||',
-			'Microfiche'			=> 'h|#||||||||||',
-			'Microfilm'				=> 'h|#||||||||||',
-			'Poster'				=> 'kk#|||',
-			'CD'					=> 'sd#|||gnn|||||',
-			'Sound cassette'		=> 'ss#|||||||||||',
-			'Sound disc'			=> 'sd#||||nn|||||',
-			'DVD'					=> 'vd#|v||z|',
-			'Videorecording'		=> 'vf#|u||u|',			// E.g. /records/9992/ (test #392)
-		);
+		# Start a list of return values
+		$field007s = array ();
 		
-		# Look up the value and return it
-		return $field007values[$this->form];
+		# Get the list of *form values
+		$forms = $this->xPathValues ($this->xml, '//form[%i]', false);
+		
+		# Loop through each *form
+		foreach ($forms as $form) {
+			
+			# Define the values
+			$field007values = array (
+				'Map'					=> 'aj#|||||',
+				'3.5 floppy disk'		=> 'cj#|a|||||||||',	// E.g. /records/179694/ (test #007)
+				'CD-ROM'				=> 'co#|g|||||||||',
+				'DVD-ROM'				=> 'co#|g|||||||||',
+				'Internet resource'		=> 'cr#|n|||||||||',
+				'Online publication'	=> 'cr#|n|||||||||',
+				'PDF'					=> 'cu#|n||||a||||',
+				'Microfiche'			=> 'h|#||||||||||',
+				'Microfilm'				=> 'h|#||||||||||',
+				'Poster'				=> 'kk#|||',
+				'CD'					=> 'sd#|||gnn|||||',
+				'Sound cassette'		=> 'ss#|||||||||||',
+				'Sound disc'			=> 'sd#||||nn|||||',
+				'DVD'					=> 'vd#|v||z|',
+				'Videorecording'		=> 'vf#|u||u|',			// E.g. /records/9992/ (test #392)
+				'Text'					=> 'ta',				// #!# No test available yet as no records
+			);
+			
+			# Look up the value and return it
+			$field007s[] = $field007values[$form];
+		}
+		
+		# Compile these into a multiline string, e.g. /records/181410/ (paired test #575 and #576)
+		$string = implode ("\n007 ", $field007s);
+		
+		# Return the string
+		return $string;
 	}
 	
 	
