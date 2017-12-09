@@ -2402,7 +2402,7 @@ uuuuuuuuu
 
 401
 008: positions 24-27: *art/*j position 24 always |
-1210
+1213
 008
 /^.{24}\|/
 
