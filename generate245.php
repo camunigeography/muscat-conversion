@@ -198,7 +198,7 @@ class generate245
 			# If there is a *form, Add to 245 field'; "It follows the title proper ... and precedes the remainder of the title" as per spec at http://www.loc.gov/marc/bibliographic/bd245.html ; e.g. /records/12359/ (test #173)
 			$title .= $h;
 			
-			# Add all text after delimiter; e.g. /records/1119/ (test #172), /records/139981/ (test #507)
+			# Add all text after delimiter; e.g. /records/1119/ (test #172), /records/139981/ (test #506)
 			$title .= $delimiters[$delimiter] . $this->doubleDagger . 'b' . trim ($titleComponents[1]);
 			
 		} else {

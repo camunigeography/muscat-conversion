@@ -3046,7 +3046,7 @@ Gorman, Michael R.
 In 245, space-semicolon-space indicates split point for ‡b (if not already split because of : or / )
 139981
 245
-‡aAdventure at the top of the world ;‡b Adventure at the bottom of the world /‡c
+‡aAdventure at the top of the world ;‡bAdventure at the bottom of the world /‡c
 
 507
 In 245, semicolon (without surrounding spaces) does not create ‡b split point
