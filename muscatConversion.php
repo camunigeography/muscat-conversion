@@ -4087,14 +4087,13 @@ class muscatConversion extends frontControllerApplication
 		# Get the merge definition
 		if (!$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ())) {return false;}
 		
+		# Get the suppress reasons list for this chunk
+		$suppressReasonsList = $this->getSuppressReasonsList ();
+		
 		# Allow large queries for the chunking operation
 		$maxQueryLength = (1024 * 1024 * 32);	// i.e. this many MB
 		$query = 'SET SESSION max_allowed_packet = ' . $maxQueryLength . ';';
 		$this->databaseConnection->execute ($query);
-		
-		# Get the suppress reasons list for this chunk
-		$query = "SELECT id,suppressReasons FROM catalogue_marc WHERE suppressReasons IS NOT NULL;";
-		$suppressReasonsList = $this->databaseConnection->getPairs ($query);
 		
 		# Start a list of records which require a second-pass arising from 773 processing where the host does not exist at time of processing
 		$marcSecondPass = array ();
@@ -5428,6 +5427,15 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the string
 		return $definition;
+	}
+	
+	
+	# Function to get the supression reasons list
+	private function getSuppressReasonsList ()
+	{
+		$query = 'SELECT id,suppressReasons FROM catalogue_marc WHERE suppressReasons IS NOT NULL;';
+		$suppressReasonsList = $this->databaseConnection->getPairs ($query);
+		return $suppressReasonsList;
 	}
 	
 	
