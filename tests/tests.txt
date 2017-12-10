@@ -14,7 +14,7 @@
 # generate245: 100%
 # generateAuthors: 100%
 # marcConversion (controller section): 100%
-# marcConversion (macros section): 50%
+# marcConversion (macros section): 75%
 # muscatConversion: 0%
 
 
