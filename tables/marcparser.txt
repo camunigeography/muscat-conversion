@@ -24,7 +24,7 @@ A  310 ## ‡a{//freq|macro:ucfirst}
 AR 490 0# {//ts|macro:generate490}
 A  500 ## {/|macro:generate500analytics}
 AR 500 ## ‡a{//notes/note|macro:generate5xxNote(500)}
-AR 505 0# ‡a{//notes/note|macro:generate5xxNote(505)}
+AR 505 {//notes/note|macro:generate505Note}
 AR 538 ## ‡a{//notes/note|macro:generate5xxNote(538)}
 A  520 3# ‡a{//abs|macro:excludeNoneValue|macro:dotEnd}
 A  541 0# {/*|macro:generate541}

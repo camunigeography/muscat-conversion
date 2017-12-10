@@ -3481,9 +3481,9 @@ co#|g|||||||||
 ‡h[DVD]
 
 581
-505 note support for Contents:
+505 Contents note does not appear as 500
 1488
-505
+!500
 ‡aThe geology of the Nuuk region -- The oldest rocks on Earth
 
 582
@@ -3516,3 +3516,32 @@ spine damaged ‡5UkCU-P
 916
 ‡a8363 -- 1951/07/31; 22399 -- 1958/09/03
 
+587
+505 Contents note - Basic format
+1488
+505
+‡aThe geology of the Nuuk region -- The oldest rocks on Earth -- The
+
+588
+505 Contents note - Enhanced format
+4660
+505
+‡tPars prima = 1ste Afdeling. Fanerogamer og Karsporeplanter /‡rJohan Lange --‡tPars secunda
+
+589
+505 Contents note - Basic format: second indicator
+1488
+i505
+0#
+
+590
+505 Contents note - Enhanced format: second indicator
+4660
+i505
+00
+
+591
+505 Contents note does not start with "Contents: "
+1488
+!505
+Contents: 

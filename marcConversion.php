@@ -2023,7 +2023,7 @@ class marcConversion
 	{
 		# Define supported types (other than default 500), specifying the captured text to appear
 		$specialFields = array (
-			505 => '^Contents: (.+)$',			// 505 - Formatted Contents Note; see: https://www.loc.gov/marc/bibliographic/bd505.html , e.g. /records/1488/ (test #581)
+			505 => '^Contents: (.+)$',			// Actually implemented below, but has to be defined here to avoid it also becoming a standard 500, e.g. /records/1488/ (test #581)
 			538 => '^(Mode of access: .+)$',	// 538 - System Details Note; see: https://www.loc.gov/marc/bibliographic/bd538.html , e.g. /records/145666/ (test #582)
 		);
 		
@@ -2048,6 +2048,43 @@ class marcConversion
 		
 		# Otherwise, return the confirmed standard 500 note, e.g. /records/1019/ (tests #509, #510)
 		return $note;
+	}
+	
+	
+	# Helper function for 505 - Formatted Contents Note; see: https://www.loc.gov/marc/bibliographic/bd505.html , e.g. /records/1488/ (test #581)
+	private function macro_generate505Note ($note)
+	{
+		# End if the note is not a content note
+		if (!preg_match ('/^Contents: (.+)$/', $note, $matches)) {
+			return false;
+		}
+		
+		# Use only the extracted section, removing "Contents: " which is assumed to be added by the library catalogue GUI; e.g. /records/1488/ (test #591)
+		$note = $matches[1];
+		
+		# In enhanced format perform substitutions e.g. /records/4660/ (test #588); in simple format, retain as simple $a, e.g. /records/1488/ (test #587)
+		if ($enhancedFormat = substr_count ($note, ' / ')) {
+			
+			# Define replacements
+			$replacements = array (
+				' / '	=> " /{$this->doubleDagger}r",
+				' -- '	=> " --{$this->doubleDagger}t",
+			);
+			$note = strtr ($note, $replacements);
+		}
+		
+		# Determine the indicators
+		$firstIndicator = '0';
+		$secondIndicator = ($enhancedFormat ? '0' : '#');	// E.g. /records/1488/ (test #589), /records/4660/ (test #590)
+		
+		# Determine the starting subfield type
+		$openingSubfield = $this->doubleDagger . ($enhancedFormat ? 't' : 'a');	// E.g. /records/1488/ (test #587), /records/4660/ (test #588)
+		
+		# Compile the string
+		$string = $firstIndicator . $secondIndicator . ' ' . $openingSubfield . $note;
+		
+		# Return the string
+		return $string;
 	}
 	
 	
