@@ -1482,7 +1482,7 @@ class marcConversion
 	}
 	
 	
-	# Function to tokenise a string into subfields; e.g. /records/35733/ (test #
+	# Function to tokenise a string into subfields; e.g. /records/35733/ (test #384)
 	private function tokeniseToSubfields ($line)
 	{
 		# Tokenise, e.g. array ([0] => "1# ", [1] => "‡a", [2] => "Chalyshev, Aleksandr Vasil'yevich.", [3] => "‡b", [4] => "Something else." ...
