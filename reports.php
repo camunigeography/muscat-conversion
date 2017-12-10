@@ -1314,6 +1314,13 @@ class reports
 		# Obtain a list of every ISBN present; note that some records have more than one *isbn, so cannot index by recordId
 		$isbnShards = $this->databaseConnection->select ($this->settings['database'], 'catalogue_processed', array ('field' => 'isbn'), array ('id', 'recordId', 'value'));
 		
+		# Remove qualifying information, as per macro_validisbn
+		foreach ($isbnShards as $index => $isbnShard) {
+			if (preg_match ('/^([0-9]+) \(([^)]+)\)$/', $isbnShard['value'], $matches)) {
+				$isbnShards[$index]['value'] = $matches[1];
+			}
+		}
+		
 		# Define a list of ISBNs known to be wrong in the original publication and which should be whitelisted from the report
 		$knownIncorrect = array (
 			49940, 67995, 77910, 90135, 96094, 102258, 109306, 115464, 115623, 115654, 122077, 127183, 127766, 127792, 128133, 131355, 131811, 131859, 131938, 132789, 132795, 132803, 132811, 133375, 134537, 136691, 138588, 140472, 140640, 142702, 142916, 142959,

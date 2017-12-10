@@ -832,12 +832,19 @@ class marcConversion
 	# Permits multimedia value EANs, which are probably valid to include as the MARC spec mentions 'EAN': https://www.loc.gov/marc/bibliographic/bd020.html ; see also http://www.activebarcode.com/codes/ean13_laenderpraefixe.html
 	private function macro_validisbn ($value)
 	{
+		# Extract qualifying information, e.g. /records/73935/, /records/177698/, /records/215088/ (test #592)
+		$q = false;
+		if (preg_match ('/^([0-9]+) \(([^)]+)\)$/', $value, $matches)) {
+			$value = $matches[1];
+			$q = "{$this->doubleDagger}q{$matches[2]}";
+		}
+		
 		# Determine the subfield, by performing a validation; seems to permit EANs like 5391519681503 in /records/211150/ (test #270)
 		$isValid = $this->isbn->validation->isbn ($value);
 		$subfield = $this->doubleDagger . ($isValid ? 'a' : 'z');	// E.g. /records/211150/ (test #271), /records/49940/ (test #272)
 		
-		# Assemble the return value, adding qualifying information if required
-		$string = $subfield . $value;
+		# Assemble the return value, adding qualifying information if present
+		$string = $subfield . $value . $q;
 		
 		# Return the value
 		return $string;

@@ -3545,3 +3545,10 @@ i505
 1488
 !505
 Contents: 
+
+592
+020 ISBN support for qualifying information
+215088
+020
+‡a5744206663‡qbk. 1
+
