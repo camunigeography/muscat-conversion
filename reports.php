@@ -121,6 +121,7 @@ class reports
 		'artjwithoutvolume_problem' => 'articles in journals without a volume designation and no useful date',
 		'docpt_problem' => '*doc records with a *pt',
 		'artnopt_problem' => '*art records without a *pt',
+		'docnop_problem' => '*doc records without a *p',
 		'artform_problem' => '*art records with a *form',
 		'agwithonlyad_problem' => '*ag records containing only an *ad',
 	);
@@ -2752,6 +2753,27 @@ class reports
 			WHERE
 				    fieldslist LIKE '%@art@%'
 				AND fieldslist NOT LIKE '%@pt@%'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *doc records without a *p
+	public function report_docnop ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'docnop' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				    fieldslist LIKE '%@doc@%'
+				AND fieldslist NOT LIKE '%@p@%'
+				AND fieldslist NOT LIKE '%@status@%'
+				AND location NOT LIKE '%Not in SPRI%'
 		";
 		
 		# Return the query
