@@ -1183,7 +1183,7 @@ class marcConversion
 		$b = $this->pOrPt['b'];
 		$e = $this->pOrPt['e'];
 		
-		# $a (R) (Extent, pagination): If record is *doc with any or no *form (e.g. /records/20704/ (test #331)), or *art with *form CD, CD-ROM (e.g. /records/203063/ (test #332)), DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording: "(*v), (*p or *pt)" [all text up to and including ':']
+		# $a (R) (Extent, pagination): If record is *doc with any or no *form (e.g. /records/20704/ (test #331)), or *art with multimediaish *form CD, CD-ROM (e.g. /records/203063/ (test #332) - NB no longer exists, and confirmed no records to test), DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording: "(*v), (*p or *pt)" [all text up to and including ':']
 		
 		# If a non-multimediaish article, then add p. at start if not already present: 'p. '*pt [number range after ':' and before ',']; e.g. /records/1107/ (test #524), and negative case /records/1654/ (test #525)
 		#!# Need to handle cases of "unpaged" or "variously paged"
