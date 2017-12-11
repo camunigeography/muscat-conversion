@@ -1928,9 +1928,9 @@ Macro generate300 single *p
 
 321
 Macro generate300 no *p
-1104
+1107
 300
-‡a:[1-4] :‡bill.
+‡ap. 341-343.
 
 322
 Macro generate300 multiple *pt
@@ -1942,7 +1942,7 @@ Macro generate300 multiple *pt
 Macro generate300 single *pt
 1129
 300
-/‡a2\.$/
+‡ap. 1-21.
 
 324
 Macro generate300 no *pt
@@ -1960,7 +1960,7 @@ Macro generate300 *p rather than *pt
 Macro generate300 *pt rather than *p
 25179
 300
-‡a42(12) :681-685; 43(1) :12-15;
+‡ap. 681-685
 
 327
 Macro generate300 split off +

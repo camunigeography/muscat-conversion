@@ -1098,7 +1098,7 @@ class marcConversion
 		$pOrPt = array ();
 		
 		# Obtain *p
-		$pValues = $this->xPathValues ($this->xml, '(//p)[%i]', false);	// E.g. multiple *p: /records/15711/ , /records/6002/ (test #319); single *p: /records/1175/ (test #320); no *p: /records/1104/ (test #321)
+		$pValues = $this->xPathValues ($this->xml, '(//p)[%i]', false);	// E.g. multiple *p: /records/15711/ , /records/6002/ (test #319); single *p: /records/1175/ (test #320); no *p (as expected for an *art record): /records/1107/ (test #321) - should not be any cases of no *p in *doc (see: /reports/docnop/)
 		$p = ($pValues ? implode ('; ', $pValues) : '');
 		
 		# Obtain *pt
