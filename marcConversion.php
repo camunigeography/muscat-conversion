@@ -1195,7 +1195,7 @@ class marcConversion
 			if (!strlen ($a)) {
 				$errorHtml .= "*p / *pt used to generate {$this->doubleDagger}a is empty; see <a href=\"{$this->baseUrl}/reports/artnopt/\">artnopt report</a>.";
 			} else {
-				if (!substr_count ('p.', $a)) {
+				if (!substr_count ($a, 'p.')) {
 					$a = 'p. ' . $a;
 				}
 			}
@@ -1215,7 +1215,7 @@ class marcConversion
 		
 		# Normalise comma/colon at end of $a; e.g. /records/9529/ , /records/152326/
 		$a = trim ($a);
-		$a = preg_replace ('/(.+)[,;:]$/', '\1', $a);
+		$a = preg_replace ('/^(.+)[,;:]$/', '\1', $a);
 		$a = trim ($a);
 		
 		# Register the $a
