@@ -73,7 +73,7 @@ class reports
 		'invaliddaterangestring_problem' => 'records with an invalid date range string',
 		'ndsyntax_problem' => 'records with invalid syntax for a non-numeric date',
 		'multipledate_info' => 'records with more than one *d',
-		'multiplept_postmigration' => 'records with more than one *pt',
+		'multiplept_problem' => 'records with more than one *pt',
 		'serlocloc_problem' => '*ser records with two or more locations (though some are valid)',
 		'artinperiodical_info' => '*art/*in records with location=Periodical',
 		'multipleal_info' => 'records with multiple *al values',
