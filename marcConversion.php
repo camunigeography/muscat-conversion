@@ -1205,6 +1205,45 @@ class marcConversion
 	}
 	
 	
+	# Helper function to create a page count from a pagination string, e.g. /records/54657/ (test #597)
+	private function pageCount ($paginationString)
+	{
+		# Start a counter
+		$pages = 0;
+		
+		# Convert the pagination string into a list of tokens (which may be only one item), e.g. multiple in /records/54657/ (test #605), single in /records/3656/ (test #606)
+		$paginationSegments = explode (', ', $paginationString);
+		foreach ($paginationSegments as $pagination) {
+			
+			# Single page number, e.g. "27" is 1, e.g. /records/2237/ (test #598)
+			if (ctype_digit ($pagination)) {
+				$pages += 1;	// I.e. single page (not the page number itself)
+				
+			# Range, e.g. "26-28" is 3, e.g. /records/54657/ (test #599)
+			} else if (preg_match ('/^([0-9]+)-([0-9]+)$/', $pagination, $matches)) {
+				$pages += (($matches[2] - $matches[1]) + 1);	// +1 because it has to match itself
+				
+			# Roman numeral single page number, e.g. "V" is 5
+			#!# Needs test
+			} else if (preg_match ('/^([IVXCLDM]+)$/', $pagination, $matches)) {
+				$pages += 1;	// I.e. single page (not the page number itself)
+				
+			# Roman numeral range, e.g. "V-VIII" is 4
+			#!# Needs test
+			} else if (preg_match ('/^([IVXCLDM]+)-([IVXCLDM]+)$/', $pagination, $matches)) {
+				$pages += ((application::romanNumeralToInt ($matches[2]) - application::romanNumeralToInt ($matches[1])) + 1);	// +1 because it has to match itself
+				
+			# Unsupported value
+			} else {
+				$this->errorHtml .= "Unrecognised pagination format: {$pagination}";
+			}
+		}
+		
+		# Return the count for this pagination string
+		return $pages;
+	}
+	
+	
 	# Macro to generate the 300 field (Physical Description); 300 is a Minimum standard field; see: https://www.loc.gov/marc/bibliographic/bd300.html
 	# Note: the original data is not normalised, and the spec does not account for all cases, so the implementation here is based also on observation of various records and on examples in the MARC spec, to aim for something that is 'good enough' and similar enough to the MARC examples
 	# At its most basic level, in "16p., ill.", $a is the 16 pages, $b is things after

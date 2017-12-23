@@ -3576,6 +3576,24 @@ Contents:
 500
 Society of Japan. Vol
 
+597
+300 page count compiled
+54657
+300
+‡a17 p. :‡b
+
+598
+300 page count: single page number
+2237
+300
+‡a2 p.
+
+599
+300 page count: page range
+54657
+300
+‡a17 p.
+
 600
 300 Do not add p. prefix if contains square bracket, like '[42] pages'
 169753
@@ -3605,4 +3623,16 @@ Society of Japan. Vol
 3981
 300
 /^‡ap.$/
+
+605
+300 page count: test of tokenisation, which enables addition to work (multiple page ranges in group)
+54657
+300
+‡a17 p.
+
+606
+300 page count: test of tokenisation, which enables addition to work (single page range in group)
+3656
+300
+‡a93 p.
 
