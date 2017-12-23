@@ -1124,18 +1124,21 @@ class marcConversion
 		$abbreviations = array ('col', 'diag', 'fig', 'ill', 'illus', 'port');
 		$pOrPt = preg_replace ('/' . "\b" . '(' . implode ('|', $abbreviations) . ')(s?)' . "\b" . '([^\.]|$)' . '/', '\1\2.\3', $pOrPt);
 		
-		# Next split by the keyword which acts as separating point between $a and an optional $b (i.e. is the start of an optional $b); e.g. /records/51787/ (test #328); first comma cannot be used reliably because the pagination list could be e.g. "3,5,97-100"; split is done for the first instance of a split word, e.g. /records/12780/ (test #535)
+		# Next split by the keyword which acts as separating point between citation and an optional $b (i.e. is the start of an optional $b); e.g. /records/51787/ (test #328); first comma cannot be used reliably because the pagination list could be e.g. "3,5,97-100"; split is done for the first instance of a split word, e.g. /records/12780/ (test #535)
 		$splitWords = array ('col', 'diag', 'fig', 'figures', 'graph', 'ill', 'illus', 'map', 'port', 'table', );	// These may be pluralised, using the s? below; e.g. /records/1684/ (test #512)
-		$a = trim ($pOrPt);
+		$pOrPt = trim ($pOrPt);
 		$physicalDescription = false;
 		$matches = preg_split ('/' . "\b" . '((?:' . implode ('|', $splitWords) . ')s?' . "\b.+$)" . '/', $pOrPt, 2, PREG_SPLIT_DELIM_CAPTURE|PREG_SPLIT_NO_EMPTY);		// Use of \b word boundary ensures not splitting bibliography at 'graph' (test #220)
 		if (count ($matches) == 2) {
-			$a = trim ($matches[0]);
+			$pOrPt = trim ($matches[0]);
 			$physicalDescription = trim ($matches[1]);
 		}
 		
-		# Normalise 'p' to have a dot after; safe to make this change after checking: `SELECT * FROM catalogue_processed WHERE field IN('p','pt','vno','v','ts') AND value LIKE '%p%' AND value NOT LIKE '%p.%' AND value REGEXP '[0-9]p' AND value NOT REGEXP '[0-9]p( |,|\\)|\\]|$)';`
-		$a = preg_replace ('/([0-9])p([^.]|$)/', '\1p.\2', $a);	// E.g. /records/6002/ , /records/1654/ (test #346) , multiple in single string: /records/2031/ (test #347)
+		# At this point, $pOrPt represents the citation
+		$citation = $pOrPt;
+		
+		# Branch legacy $a from $citation
+		$a = $citation;
 		
 		# Split off the analytic volume designation, which is only present in a *pt; this appears as a space-colon in $a; the meaning of this is "<Volume designator> :<Physical extent>"; e.g. /records/1668/ creates $g (test #514)
 		$analyticVolumeDesignation = false;
@@ -1150,6 +1153,12 @@ class marcConversion
 			$a = mb_substr ($a, 1);
 		}
 		
+		# Normalise 'p' to have a dot after; safe to make this change after checking: `SELECT * FROM catalogue_processed WHERE field IN('p','pt','vno','v','ts') AND value LIKE '%p%' AND value NOT LIKE '%p.%' AND value REGEXP '[0-9]p' AND value NOT REGEXP '[0-9]p( |,|\\)|\\]|$)';`
+		$citation = preg_replace ('/([0-9])p([^.]|$)/', '\1p.\2', $citation);	// E.g. /records/6002/ , /records/1654/ (test #346) , multiple in single string: /records/2031/ (test #347)
+		
+		# Remove comma/colon/semicolon at end; e.g. /records/215835/
+		$citation = trim (preg_replace ('/^(.+)[,;:]$/', '\1', trim ($citation)));
+		
 		# If there is a *vno, add this at the start of the analytic volume designation, before any pagination (extent) data from *pt; e.g. /records/6787/ (test #352) and negative test for 300 in same record /records/6787/ (test #351)
 		if ($vno = $this->xPathValue ($this->xml, '//vno')) {
 			$analyticVolumeDesignation = $this->macro_dotEnd ($vno) . (strlen ($analyticVolumeDesignation) ? ' ' : '') . $analyticVolumeDesignation;		// E.g. dot added before other $a substring in /records/7865/ (test #519); no existing $a so no comma in /records/6787/ (test #352)
@@ -1159,6 +1168,7 @@ class marcConversion
 		$result = array (
 			'_pOrPt'					=> $pOrPt,
 			'a'							=> $a,
+			'citation' => $citation,						// e.g. "41(11) :14-18; 41(12) :22-25; 42(1) :26-28, 68-72" (analytic/pseudo-analyic from several volumes), or ":14-18" (single-volume monograph)
 			'physicalDescription' => $physicalDescription,	// e.g. ill., maps
 			'additionalMaterial' => $additionalMaterial,	// e.g. CD-ROM
 			'analyticVolumeDesignation'	=> $analyticVolumeDesignation,
