@@ -1176,7 +1176,6 @@ class marcConversion
 		
 		# Assemble the datastructure
 		$result = array (
-			'_pOrPt'					=> $pOrPt,
 			'a'							=> $a,
 			'citation' => $citation,						// e.g. "41(11) :14-18; 41(12) :22-25; 42(1) :26-28, 68-72" (analytic/pseudo-analyic from several volumes), or ":14-18" (single-volume monograph)
 			'volumeList' => $volumeList,					// e.g. "41(11), 41(12), 42(1)" (analytic/pseudo-analyic from several volumes), or nothing (single-volume monograph)
@@ -1334,7 +1333,6 @@ class marcConversion
 		$result = '';
 		
 		# Extract as local variables the componentised values
-		$pOrPt = $this->pOrPt['_pOrPt'];
 		$a = $this->pOrPt['a'];
 		
 		# $a (R) (Extent, pagination): If record is *doc with any or no *form (e.g. /records/20704/ (test #331)), or *art with multimediaish *form CD, CD-ROM (e.g. /records/203063/ (test #332) - NB no longer exists, and confirmed no records to test), DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording: "(*v), (*p or *pt)" [all text up to and including ':']
@@ -1385,7 +1383,7 @@ class marcConversion
 		}
 		
 		# If no value, or 'unpaged', set an explicit string; other subfields may continue after, e.g. /records/174009/ (test #344)
-		if (!strlen ($result) || strtolower ($pOrPt) == 'unpaged') {	 // 'unpaged' at /records/1248/ (test #341); 'Unpaged' at /records/174009/ (test #343)
+		if (!strlen ($result) || strtolower ($this->pOrPt['citation']) == 'unpaged') {	 // 'unpaged' at /records/1248/ (test #341); 'Unpaged' at /records/174009/ (test #343)
 			$result = ($this->recordType == '/ser' ? 'v.' : '1 volume (unpaged)');	// E.g. *ser with empty $result: /records/1019/ (confirmed to be fine) (test #341); *doc with empty $result: /records/1334/ (test #345); no cases of unpaged (*p or *pt) for *ser so no test; *doc with unpaged: /records/174009/ (test #343)
 		}
 		
