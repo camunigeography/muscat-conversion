@@ -124,6 +124,7 @@ class reports
 		'docnop_problem' => '*doc records without a *p',
 		'artform_problem' => '*art records with a *form',
 		'agwithonlyad_problem' => '*ag records containing only an *ad',
+		'tdot_problem' => '*t values ending with a dot',
 	);
 	
 	# Listing (values) reports
@@ -2811,6 +2812,29 @@ class reports
 			FROM fieldsindex
 			WHERE
 				fieldslist LIKE '%@ag@ad@%'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *t values ending with a dot
+	public function report_tdot ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'tdot' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+					field LIKE 't'
+				AND value LIKE '%.'
+				AND value NOT LIKE '%...'
+				AND value NOT LIKE '%&c.'
+				AND value NOT LIKE '%etc.'
+				AND value NOT REGEXP '[A-Z]\.$'
 		";
 		
 		# Return the query
