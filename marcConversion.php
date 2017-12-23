@@ -1127,11 +1127,11 @@ class marcConversion
 		# Next split by the keyword which acts as separating point between $a and an optional $b (i.e. is the start of an optional $b); e.g. /records/51787/ (test #328); first comma cannot be used reliably because the pagination list could be e.g. "3,5,97-100"; split is done for the first instance of a split word, e.g. /records/12780/ (test #535)
 		$splitWords = array ('col', 'diag', 'fig', 'figures', 'graph', 'ill', 'illus', 'map', 'port', 'table', );	// These may be pluralised, using the s? below; e.g. /records/1684/ (test #512)
 		$a = trim ($pOrPt);
-		$b = false;
+		$physicalDescription = false;
 		$matches = preg_split ('/' . "\b" . '((?:' . implode ('|', $splitWords) . ')s?' . "\b.+$)" . '/', $pOrPt, 2, PREG_SPLIT_DELIM_CAPTURE|PREG_SPLIT_NO_EMPTY);		// Use of \b word boundary ensures not splitting bibliography at 'graph' (test #220)
 		if (count ($matches) == 2) {
 			$a = trim ($matches[0]);
-			$b = trim ($matches[1]);
+			$physicalDescription = trim ($matches[1]);
 		}
 		
 		# Normalise 'p' to have a dot after; safe to make this change after checking: `SELECT * FROM catalogue_processed WHERE field IN('p','pt','vno','v','ts') AND value LIKE '%p%' AND value NOT LIKE '%p.%' AND value REGEXP '[0-9]p' AND value NOT REGEXP '[0-9]p( |,|\\)|\\]|$)';`
@@ -1159,7 +1159,7 @@ class marcConversion
 		$result = array (
 			'_pOrPt'					=> $pOrPt,
 			'a'							=> $a,
-			'b'							=> $b,
+			'physicalDescription' => $physicalDescription,	// e.g. ill., maps
 			'additionalMaterial' => $additionalMaterial,	// e.g. CD-ROM
 			'analyticVolumeDesignation'	=> $analyticVolumeDesignation,
 		);
@@ -1311,10 +1311,9 @@ class marcConversion
 		# Start a result
 		$result = '';
 		
-		# Extract as local variables the componentised a,b,c values
+		# Extract as local variables the componentised values
 		$pOrPt = $this->pOrPt['_pOrPt'];
 		$a = $this->pOrPt['a'];
-		$b = $this->pOrPt['b'];
 		
 		# $a (R) (Extent, pagination): If record is *doc with any or no *form (e.g. /records/20704/ (test #331)), or *art with multimediaish *form CD, CD-ROM (e.g. /records/203063/ (test #332) - NB no longer exists, and confirmed no records to test), DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording: "(*v), (*p or *pt)" [all text up to and including ':']
 		
@@ -1336,6 +1335,7 @@ class marcConversion
 		
 		# If a doc with a *v, begin with *v; e.g. /records/20704/ (test #331), /records/37420/ , /records/8988/ (test #513)
 		$isDoc = ($this->recordType == '/doc');
+		$b = $this->pOrPt['physicalDescription'];
 		if ($isDoc) {
 			$vMuscat = $this->xPathValue ($this->xml, '//v');
 			if (strlen ($vMuscat)) {
