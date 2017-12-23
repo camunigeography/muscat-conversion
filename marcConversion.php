@@ -1169,6 +1169,36 @@ class marcConversion
 	}
 	
 	
+	# Helper function to tokenise the citation list to volume => pagination pairs
+	private function tokeniseCitationList ($citation)
+	{
+		# Split by semicolon-space, e.g. /records/54657/ (test #608)
+		$citationParts = explode ('; ', $citation);
+		
+		# Create a list of volume => pagination pairs; decision taken that volume should be unique, and if not, this represents an error in the original data
+		$citationListValues = array ();
+		foreach ($citationParts as $citationPart) {
+			
+			# If in the format of "<volume>: <pagination-string>", split out, trimming both sides, e.g. /records/54657/ (test #609); otherwise no volume but pagination, e.g. /records/6787/ (test #610)
+			if (substr_count ($citationPart, ':')) {
+				list ($volume, $paginationString) = explode (':', $citationPart, 2);
+				$volume = trim ($volume);
+				$paginationString = trim ($paginationString);
+			} else {
+				$volume = false;
+				$paginationString = $citationPart;
+			}
+			
+			# Register the tokenised pair
+			$citationListValues[$volume] = $paginationString;
+		}
+		
+		# Return the tokenised pairs
+		return $citationListValues;
+	}
+	
+	
+	
 	# Helper function to create the page string or count; if one than one item, a count is used; many tests present as shown
 	#!# /records/152332/ contains "xi, 1-175" which is contradictory information - record to be fixed
 	private function pagesString ($citationListValues)

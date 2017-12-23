@@ -3642,3 +3642,20 @@ Society of Japan. Vol
 300
 ‡ap. 438-442
 
+608
+300/500/773 tokenisation routine splits into groups by semicolon
+54657
+773
+‡gVols. 41(11); 41(12); 42(1)
+
+609
+300/500/773 tokenisation routine splits out "<volume>: <pagination-string>" into pairs
+54657
+773
+‡gVols. 41(11); 41(12); 42(1)
+
+610
+300/500/773 tokenisation routine puts simple pagiation in as empty volume => <pagination-string>
+6787
+300
+‡ap. 397-412.
