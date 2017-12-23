@@ -1169,6 +1169,42 @@ class marcConversion
 	}
 	
 	
+	# Helper function to determine if pages should have p. prefixed, e.g. /records/1107/ (test #524)
+	private function pDotPrefixRequired ($pages)
+	{
+		# Do not add p. if already present: 'p. '*pt [number range after ':' and before ',']; e.g. /records/1654/ (test #525)
+		if (substr_count ($pages, 'p.')) {
+			return false;
+		}
+		
+		# Do not add p. prefix if contains square bracket, like '[42] pages', e.g. /records/169753/ (test #600)
+		if (preg_match ('/^\[/', $pages)) {
+			return false;
+		}
+		
+		#!# /records/2047/ ends up with "‡a3 parts Variously paged"
+		# Do not add p. prefix if unpaged (and variants), e.g. /records/1147/ (test #602)
+		$unpagedTypes = array ('unpaged', 'variously paged', 'various pagings');	// Use lower-case in comparison, e.g. upper-case in /records/209663/ (test #603)
+		foreach ($unpagedTypes as $unpagedType) {
+			if (substr_count (mb_strtolower ($pages), $unpagedType)) {
+				return false;
+			}
+		}
+		
+		# Do not add p. prefix if multimediaish article, e.g. /records/2023/ (test #601)
+		$isMultimedia = (in_array ($this->form, array ('CD', 'CD-ROM', 'DVD', 'DVD-ROM', 'Sound Cassette', 'Sound Disc', 'Videorecording')));
+		if ($isMultimedia) {
+			return false;
+		}
+		
+		# Note that there are items like "Not in SPRI" which may have no p. and will not be fixed; they should end up with "‡ap." - see /reports/artnopt/, e.g. /records/3981/ (test #604)
+		// No logic required
+		
+		# 'p. ' dot is required, e.g. /records/1107/ (test #524)
+		return true;
+	}
+	
+	
 	# Macro to generate the 300 field (Physical Description); 300 is a Minimum standard field; see: https://www.loc.gov/marc/bibliographic/bd300.html
 	# Note: the original data is not normalised, and the spec does not account for all cases, so the implementation here is based also on observation of various records and on examples in the MARC spec, to aim for something that is 'good enough' and similar enough to the MARC examples
 	# At its most basic level, in "16p., ill.", $a is the 16 pages, $b is things after
