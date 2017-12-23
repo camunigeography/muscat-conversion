@@ -2571,8 +2571,8 @@ class marcConversion
 				
 				# Construct the string, using the title in the *j (i.e. second half) section; e.g. /records/214872/ (test #541)
 				$result = 'Offprint: ' . $this->xPathValue ($this->xml, '/art/j/tg/t');
-				if ($this->pOrPt['analyticVolumeDesignation']) {
-					$result = $this->macro_dotEnd ($result) . ' ' . $this->prefixVolAnalyticVolumeDesignation ($this->pOrPt['analyticVolumeDesignation']);	// Dot end when volume designation present, e.g. /records/214872/ (test #596)
+				if ($this->pOrPt['citation']) {
+					$result = $this->macro_dotEnd ($result) . ' ' . $this->prefixVolAnalyticVolumeDesignation ($this->pOrPt['citation']);	// Dot end when citation present, e.g. /records/214872/ (test #596)
 				}
 				
 				# Add dot at end, e.g. /records/214872/ (test #595); see also equivalent tests for /art/in
@@ -2612,8 +2612,8 @@ class marcConversion
 				
 				# Construct the string, using the title in the *in (i.e. second half) section; e.g. /records/1107/ (test #544)
 				$result = 'Offprint: ' . $this->xPathValue ($this->xml, '/art/in/tg/t');
-				if ($this->pOrPt['analyticVolumeDesignation']) {
-					$result .= ' ' . $this->prefixVolAnalyticVolumeDesignation ($this->pOrPt['analyticVolumeDesignation']);
+				if ($this->pOrPt['volumeList']) {
+					$result = $this->macro_dotEnd ($result) . ' ' . $this->prefixVolAnalyticVolumeDesignation ($this->pOrPt['volumeList']);
 				}
 				
 				# Create the SoR based on 245; e.g. simple case in /records/14136/ (test #546), multiple authors example in /records/1330/ (test #547), corporate authors example in /records/1811/ (test #548); NB role confirmed not present in the data for pseudo-analytic pseudo-hosts
