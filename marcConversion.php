@@ -1137,22 +1137,6 @@ class marcConversion
 		# At this point, $pOrPt represents the citation
 		$citation = $pOrPt;
 		
-		# Branch legacy $a from $citation
-		$a = $citation;
-		
-		# Split off the analytic volume designation, which is only present in a *pt; this appears as a space-colon in $a; the meaning of this is "<Volume designator> :<Physical extent>"; e.g. /records/1668/ creates $g (test #514)
-		$analyticVolumeDesignation = false;
-		if ($pt) {	// I.e. does not apply to *p, e.g. /records/189056/ (test #526)
-			if (substr_count ($a, ' :')) {
-				list ($analyticVolumeDesignation, $a) = explode (' :', $a, 2);
-			}
-		}
-		
-		# If the $a starts with colon, strip out; e.g. /records/1107/ (test #523)
-		if (preg_match ('/^:/', $a)) {
-			$a = mb_substr ($a, 1);
-		}
-		
 		# Normalise 'p' to have a dot after; safe to make this change after checking: `SELECT * FROM catalogue_processed WHERE field IN('p','pt','vno','v','ts') AND value LIKE '%p%' AND value NOT LIKE '%p.%' AND value REGEXP '[0-9]p' AND value NOT REGEXP '[0-9]p( |,|\\)|\\]|$)';`
 		$citation = preg_replace ('/([0-9])p([^.]|$)/', '\1p.\2', $citation);	// E.g. /records/6002/ , /records/1654/ (test #346) , multiple in single string: /records/2031/ (test #347)
 		
@@ -1176,7 +1160,6 @@ class marcConversion
 		
 		# Assemble the datastructure
 		$result = array (
-			'a'							=> $a,
 			'citation' => $citation,						// e.g. "41(11) :14-18; 41(12) :22-25; 42(1) :26-28, 68-72" (analytic/pseudo-analyic from several volumes), or ":14-18" (single-volume monograph)
 			'volumeList' => $volumeList,					// e.g. "41(11), 41(12), 42(1)" (analytic/pseudo-analyic from several volumes), or nothing (single-volume monograph)
 			'pages' => $pages,								// e.g. 17, being a count (analytic/pseudo-analyic from several volumes), or a range "p. 14-18" (single-volume monograph)
@@ -1332,29 +1315,11 @@ class marcConversion
 		# Start a result
 		$result = '';
 		
-		# Extract as local variables the componentised values
-		$a = $this->pOrPt['a'];
-		
 		# $a (R) (Extent, pagination): If record is *doc with any or no *form (e.g. /records/20704/ (test #331)), or *art with multimediaish *form CD, CD-ROM (e.g. /records/203063/ (test #332) - NB no longer exists, and confirmed no records to test), DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording: "(*v), (*p or *pt)" [all text up to and including ':']
-		
-		# If a non-multimediaish article, then add p. at start if not already present: 'p. '*pt [number range after ':' and before ',']; e.g. /records/1107/ (test #524), and negative case /records/1654/ (test #525)
-		#!# Need to handle cases of "unpaged" or "variously paged"
-		#!# /records/152332/ contains a spurious 'p' before the Roman numeral in the $a - probably not a big problem
-		#!# Empty substring error happening in records like 1171 which has no *pt - see the artnopt report
-		$isArt = (substr_count ($this->recordType, '/art'));
-		$isMultimedia = (in_array ($this->form, array ('CD', 'CD-ROM', 'DVD', 'DVD-ROM', 'Sound Cassette', 'Sound Disc', 'Videorecording')));
-		if ($isArt && !$isMultimedia) {
-			if (!strlen ($a)) {
-				$errorHtml .= "*p / *pt used to generate {$this->doubleDagger}a is empty; see <a href=\"{$this->baseUrl}/reports/artnopt/\">artnopt report</a>.";
-			} else {
-				if (!substr_count ($a, 'p.')) {
-					$a = 'p. ' . $a;
-				}
-			}
-		}
 		
 		# If a doc with a *v, begin with *v; e.g. /records/20704/ (test #331), /records/37420/ , /records/8988/ (test #513)
 		$isDoc = ($this->recordType == '/doc');
+		$a = $this->pOrPt['pages'];
 		$b = $this->pOrPt['physicalDescription'];
 		if ($isDoc) {
 			$vMuscat = $this->xPathValue ($this->xml, '//v');
@@ -1365,11 +1330,6 @@ class marcConversion
 		
 		# Add space between the number and the 'p.' or 'v.' ; e.g. /records/49133/ for p. (test #349); normalisation not required: /records/13745/ (test #350) ; multiple instances of page number in /records/2031/ ; NB No actual cases for v. in the data; avoids dot after 'vols': /records/20704/ (test #348)
 		$a = preg_replace ('/([0-9]+)([pv]\.)/', '\1 \2', $a);
-		
-		# Normalise comma/colon at end of $a; e.g. /records/9529/ , /records/152326/
-		$a = trim ($a);
-		$a = preg_replace ('/^(.+)[,;:]$/', '\1', $a);
-		$a = trim ($a);
 		
 		# Register the $a
 		$result .= $a;
