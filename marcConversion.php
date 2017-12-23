@@ -1162,9 +1162,13 @@ class marcConversion
 		# Tokenise the citation list to volume => pagination pairs
 		$citationListValues = $this->tokeniseCitationList ($citation);
 		
+		# Construct the volume list
+		$volumeList = implode ('; ', array_keys ($citationListValues));	// Semicolon rather than comma is chosen because there could be '73(1,5)' which would cause 'Vols. ' to appear rather than 'Vol. '
+		
 		# If there is a *vno, add this at the start of the analytic volume designation, before any pagination (extent) data from *pt; e.g. /records/6787/ (test #352) and negative test for 300 in same record /records/6787/ (test #351)
 		if ($vno = $this->xPathValue ($this->xml, '//vno')) {
 			$analyticVolumeDesignation = $this->macro_dotEnd ($vno) . (strlen ($analyticVolumeDesignation) ? ' ' : '') . $analyticVolumeDesignation;		// E.g. dot added before other $a substring in /records/7865/ (test #519); no existing $a so no comma in /records/6787/ (test #352)
+			$volumeList = $this->macro_dotEnd ($vno) . (strlen ($volumeList) ? ' ' : '') . $volumeList;		// E.g. dot added before other citation substring in /records/7865/ (test #519); no existing $a so no comma in /records/6787/ (test #352)
 		}
 		
 		# Assemble the datastructure
@@ -1172,6 +1176,7 @@ class marcConversion
 			'_pOrPt'					=> $pOrPt,
 			'a'							=> $a,
 			'citation' => $citation,						// e.g. "41(11) :14-18; 41(12) :22-25; 42(1) :26-28, 68-72" (analytic/pseudo-analyic from several volumes), or ":14-18" (single-volume monograph)
+			'volumeList' => $volumeList,					// e.g. "41(11), 41(12), 42(1)" (analytic/pseudo-analyic from several volumes), or nothing (single-volume monograph)
 			'physicalDescription' => $physicalDescription,	// e.g. ill., maps
 			'additionalMaterial' => $additionalMaterial,	// e.g. CD-ROM
 			'analyticVolumeDesignation'	=> $analyticVolumeDesignation,
