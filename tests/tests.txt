@@ -3552,3 +3552,27 @@ Contents:
 020
 ‡a5744206663‡qbk. 1
 
+593
+500 Ensure whole string in /art/in psudo-analytic ends with dot (not previously present)
+1244
+500
+/O.F. Snelling.$/
+
+594
+500 Ensure whole string in /art/in psudo-analytic ends with dot (previously present)
+1107
+500
+/D.E. Davis, ed.$/
+
+595
+500 Ensure whole string in /art/j psudo-analytic ends with dot (not previously present)
+214872
+500
+/Society of Japan. Vol. 58(5).$/
+
+596
+500 Dot-end when volume designation present
+214872
+500
+Society of Japan. Vol
+

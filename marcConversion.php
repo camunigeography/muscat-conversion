@@ -2456,7 +2456,13 @@ class marcConversion
 			} else {
 				
 				# Construct the string, using the title in the *j (i.e. second half) section; e.g. /records/214872/ (test #541)
-				$result = 'Offprint: ' . $this->macro_dotEnd ($this->xPathValue ($this->xml, '/art/j/tg/t')) . ($this->pOrPt['analyticVolumeDesignation'] ? ' ' . $this->macro_dotEnd ($this->prefixVolAnalyticVolumeDesignation ($this->pOrPt['analyticVolumeDesignation'])) : '');
+				$result = 'Offprint: ' . $this->xPathValue ($this->xml, '/art/j/tg/t');
+				if ($this->pOrPt['analyticVolumeDesignation']) {
+					$result = $this->macro_dotEnd ($result) . ' ' . $this->prefixVolAnalyticVolumeDesignation ($this->pOrPt['analyticVolumeDesignation']);	// Dot end when volume designation present, e.g. /records/214872/ (test #596)
+				}
+				
+				# Add dot at end, e.g. /records/214872/ (test #595); see also equivalent tests for /art/in
+				$result = $this->macro_dotEnd ($result);
 			}
 			
 		# /art/in case
@@ -2473,18 +2479,24 @@ class marcConversion
 				$result = preg_replace ("/({$this->doubleDagger}c[^{$this->doubleDagger}]+) ; (.+)({$this->doubleDagger}|$)/", '\1\3', $result);
 				
 				# Prefix 'In: ' at the start, e.g. /records/1222/ (test #492)
-				$result = "In: " . $result;
+				$result = 'In: ' . $result;
 				
 			# For pseudo-analytics, there will be no host record, so create a title with statement of responsibility
 			} else {
 				
 				# Construct the string, using the title in the *in (i.e. second half) section; e.g. /records/1107/ (test #544)
-				$result = 'Offprint: ' . $this->macro_dotEnd ($this->xPathValue ($this->xml, '/art/in/tg/t')) . ($this->pOrPt['analyticVolumeDesignation'] ? ' ' . $this->macro_dotEnd ($this->prefixVolAnalyticVolumeDesignation ($this->pOrPt['analyticVolumeDesignation'])) : '');
+				$result = 'Offprint: ' . $this->xPathValue ($this->xml, '/art/in/tg/t');
+				if ($this->pOrPt['analyticVolumeDesignation']) {
+					$result .= ' ' . $this->prefixVolAnalyticVolumeDesignation ($this->pOrPt['analyticVolumeDesignation']);
+				}
 				
 				# Create the SoR based on 245; e.g. simple case in /records/14136/ (test #546), multiple authors example in /records/1330/ (test #547), corporate authors example in /records/1811/ (test #548); NB role confirmed not present in the data for pseudo-analytic pseudo-hosts
 				require_once ('generate245.php');
 				$generate245 = new generate245 ($this, $this->xml, NULL /*, $languageMode */);
 				$result .= $generate245->statementOfResponsibility ('/art/in', $result);
+				
+				# Ensure whole string ends with a dot, e.g. /records/1244/ added (test #593), /records/1107/ already present (test #594); see: https://www.oclc.org/bibformats/en/specialcataloging.html#CHDEBCCB
+				$result = $this->macro_dotEnd ($result);
 			}
 			
 			# Normalise space after colon when just before $b; e.g. /records/5472/ (test #536)
