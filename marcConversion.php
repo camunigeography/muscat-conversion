@@ -1152,7 +1152,7 @@ class marcConversion
 		
 		# If there is a *vno, add this at the start of the analytic volume designation, before any pagination (extent) data from *pt; e.g. /records/6787/ (test #352) and negative test for 300 in same record /records/6787/ (test #351)
 		if ($vno = $this->xPathValue ($this->xml, '//vno')) {
-			$analyticVolumeDesignation = $this->macro_dotEnd ($vno) . (strlen ($analyticVolumeDesignation) ? ' ' : '') . $analyticVolumeDesignation;		// E.g. dot added before other $a substring in /records/7865/ (test #519); no existing $a so no comma in /records/5174/ (test #352)
+			$analyticVolumeDesignation = $this->macro_dotEnd ($vno) . (strlen ($analyticVolumeDesignation) ? ' ' : '') . $analyticVolumeDesignation;		// E.g. dot added before other $a substring in /records/7865/ (test #519); no existing $a so no comma in /records/6787/ (test #352)
 		}
 		
 		# Assemble the datastructure
