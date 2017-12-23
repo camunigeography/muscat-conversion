@@ -1108,11 +1108,11 @@ class marcConversion
 		# Determine *p or *pt; e.g. *p /records/6002/ (test #325), /records/25179/ (test #326)
 		$pOrPt = (strlen ($p) ? $p : $pt);		// Confirmed there are no records with both *p and *pt
 		
-		# Firstly, break off any final + section, for use in $e (Accompanying material) below; e.g. /records/67235/ (test #327)
-		$e = false;
+		# Firstly, break off any final + section (removing the + itself), for use in $e (Accompanying material) below; e.g. /records/67235/ (test #327)
+		$additionalMaterial = false;
 		if (substr_count ($pOrPt, '+')) {
 			$plusMatches = explode ('+', $pOrPt, 2);
-			$e = trim ($plusMatches[1]);
+			$additionalMaterial = trim ($plusMatches[1]);
 			$pOrPt = trim ($plusMatches[0]);	// Override string to strip out the + section
 		}
 		
@@ -1160,7 +1160,7 @@ class marcConversion
 			'_pOrPt'					=> $pOrPt,
 			'a'							=> $a,
 			'b'							=> $b,
-			'e'							=> $e,
+			'additionalMaterial' => $additionalMaterial,	// e.g. CD-ROM
 			'analyticVolumeDesignation'	=> $analyticVolumeDesignation,
 		);
 		
@@ -1315,7 +1315,6 @@ class marcConversion
 		$pOrPt = $this->pOrPt['_pOrPt'];
 		$a = $this->pOrPt['a'];
 		$b = $this->pOrPt['b'];
-		$e = $this->pOrPt['e'];
 		
 		# $a (R) (Extent, pagination): If record is *doc with any or no *form (e.g. /records/20704/ (test #331)), or *art with multimediaish *form CD, CD-ROM (e.g. /records/203063/ (test #332) - NB no longer exists, and confirmed no records to test), DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording: "(*v), (*p or *pt)" [all text up to and including ':']
 		
@@ -1384,6 +1383,7 @@ class marcConversion
 		}
 		
 		# $e (NR) (Accompanying material): If included, '+' appears before ‡e; ‡e is then followed by *p [all text after '+']; e.g. /records/67235/ , /records/152326/ (test #333)
+		$e = $this->pOrPt['additionalMaterial'];
 		if ($e) {
 			$result .= " +{$this->doubleDagger}e" . trim ($e);
 		}
