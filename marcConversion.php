@@ -1154,7 +1154,6 @@ class marcConversion
 		
 		# If there is a *vno, add this at the start of the analytic volume designation, before any pagination (extent) data from *pt; e.g. /records/6787/ (test #352) and negative test for 300 in same record /records/6787/ (test #351)
 		if ($vno = $this->xPathValue ($this->xml, '//vno')) {
-			$analyticVolumeDesignation = $this->macro_dotEnd ($vno) . (strlen ($analyticVolumeDesignation) ? ' ' : '') . $analyticVolumeDesignation;		// E.g. dot added before other $a substring in /records/7865/ (test #519); no existing $a so no comma in /records/6787/ (test #352)
 			$volumeList = $this->macro_dotEnd ($vno) . (strlen ($volumeList) ? ' ' : '') . $volumeList;		// E.g. dot added before other citation substring in /records/7865/ (test #519); no existing $a so no comma in /records/6787/ (test #352)
 		}
 		
@@ -1165,7 +1164,6 @@ class marcConversion
 			'pages' => $pages,								// e.g. 17, being a count (analytic/pseudo-analyic from several volumes), or a range "p. 14-18" (single-volume monograph)
 			'physicalDescription' => $physicalDescription,	// e.g. ill., maps
 			'additionalMaterial' => $additionalMaterial,	// e.g. CD-ROM
-			'analyticVolumeDesignation'	=> $analyticVolumeDesignation,
 		);
 		
 		# Return the assembled data
@@ -2754,9 +2752,12 @@ class marcConversion
 		# Add 773 ‡g: *pt (Related parts) [of child record, i.e. not host record]: analytic volume designation (if present), followed - if *art/*j - by (meaningful) date (if present)
 		if (in_array ($this->recordType, array ('/art/in', '/art/j'))) {
 			$gComponents = array ();
-			if ($this->pOrPt['analyticVolumeDesignation']) {	// E.g. /records/1668/ creates $g (test #514), but /records/54886/ has no $g (test #515)
-				$prefix = (preg_match ('/^[0-9]/', $this->pOrPt['analyticVolumeDesignation']) ? 'Vol. ' : '');	// E.g. /records/1668/ (test #521), /records/1300/ (test #522)
-				$gComponents[] = $prefix . $this->pOrPt['analyticVolumeDesignation'];
+			#!# Tests needed
+			$volumeListOrCitation = ($mode500 ? $this->pOrPt['citation'] : $this->pOrPt['volumeList']);
+			if ($volumeListOrCitation) {	// E.g. /records/1668/ creates $g (test #514), but /records/54886/ has no $g (test #515)
+				$separator = '; ';	// Semicolon is necessary for 500 mode; in 773 mode, semicolon rather than comma is chosen because there could be '73(1,5)' which would cause 'Vols. ' to appear rather than 'Vol. '
+				$prefix = (preg_match ('/^[0-9]/', $volumeListOrCitation) ? (substr_count ($volumeListOrCitation, $separator) ? 'Vols. ' : 'Vol. ') : '');	// E.g. /records/1668/ (test #521), /records/1300/ (test #522)
+				$gComponents[] = $prefix . $volumeListOrCitation;
 			}
 			if ($this->recordType == '/art/j') {	// E.g. /records/4844/ (test #519), /records/54886/ has no $g (test #515) as it is an *art/*in
 				if ($d = $this->xPathValue ($this->xml, '/art/j/d')) {
