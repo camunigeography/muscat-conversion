@@ -2592,6 +2592,18 @@ class marcConversion
 				# If $c contains a section derived from role, which we believe is after ' ; ' (and is the only use of semicolon in $c), remove that trailing section; e.g. /records/101441/ (test #552), /records/5029/ (test #553)
 				$result = preg_replace ("/({$this->doubleDagger}c[^{$this->doubleDagger}]+) ; (.+)({$this->doubleDagger}|$)/", '\1\3', $result);
 				
+				# Add volume list if present
+				#!# Tests needed
+				if ($this->pOrPt['volumeList']) {
+					$splitPoint = " /{$this->doubleDagger}";
+					if (substr_count ($result, $splitPoint)) {
+						$possibleDot = (substr_count ($result, '.' . $splitPoint) ? '' : '.');
+						$result = str_replace ($splitPoint, $possibleDot . ' ' . $this->pOrPt['volumeList'] . $splitPoint, $result);	// Dot is added; this is safe because, in Muscat, the *t
+					} else {
+						$result .= ' ' . $this->pOrPt['volumeList'];
+					}
+				}
+				
 				# Prefix 'In: ' at the start, e.g. /records/1222/ (test #492)
 				$result = 'In: ' . $result;
 				
