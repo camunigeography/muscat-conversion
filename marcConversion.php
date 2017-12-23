@@ -1159,6 +1159,9 @@ class marcConversion
 		# Remove comma/colon/semicolon at end; e.g. /records/215835/
 		$citation = trim (preg_replace ('/^(.+)[,;:]$/', '\1', trim ($citation)));
 		
+		# Tokenise the citation list to volume => pagination pairs
+		$citationListValues = $this->tokeniseCitationList ($citation);
+		
 		# If there is a *vno, add this at the start of the analytic volume designation, before any pagination (extent) data from *pt; e.g. /records/6787/ (test #352) and negative test for 300 in same record /records/6787/ (test #351)
 		if ($vno = $this->xPathValue ($this->xml, '//vno')) {
 			$analyticVolumeDesignation = $this->macro_dotEnd ($vno) . (strlen ($analyticVolumeDesignation) ? ' ' : '') . $analyticVolumeDesignation;		// E.g. dot added before other $a substring in /records/7865/ (test #519); no existing $a so no comma in /records/6787/ (test #352)
