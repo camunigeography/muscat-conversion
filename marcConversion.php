@@ -1169,6 +1169,37 @@ class marcConversion
 	}
 	
 	
+	# Helper function to create the page string or count; if one than one item, a count is used; many tests present as shown
+	#!# /records/152332/ contains "xi, 1-175" which is contradictory information - record to be fixed
+	private function pagesString ($citationListValues)
+	{
+		# If only one item in the citation list, list out the page details, e.g. "p. 438-442" in /records/214872/ (test #607)
+		if (count ($citationListValues) == 1) {
+			
+			# Obtain the pages string, e.g. /records/214872/ (test #607)
+			$pagesString = application::array_first_value ($citationListValues);	// We use this as this has split out the volume (key) from page (value)
+			
+			# Add "p. " prefix if required, e.g. /records/1107/ (test #524)
+			if ($this->pDotPrefixRequired ($pagesString)) {
+				$pagesString = 'p. ' . $pagesString;
+			}
+			
+		# Otherwise, for a complex citation, create a count, e.g. /records/54657/ (test #597)
+		} else {
+			
+			# Count for each pagination string, including p. suffix, e.g. /records/54657/ (test #597)
+			$pageCount = 0;
+			foreach ($citationListValues as $volume => $paginationString) {
+				$pageCount += $this->pageCount ($paginationString);
+			}
+			$pagesString = $pageCount . ' p.';
+		}
+		
+		# Return the assembled pages string
+		return $pagesString;
+	}
+	
+	
 	# Helper function to determine if pages should have p. prefixed, e.g. /records/1107/ (test #524)
 	private function pDotPrefixRequired ($pages)
 	{

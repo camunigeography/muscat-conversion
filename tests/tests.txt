@@ -3636,3 +3636,9 @@ Society of Japan. Vol
 300
 ‡a93 p.
 
+607
+300 page: If only one item in the citation list, list out the page details
+214872
+300
+‡ap. 438-442
+
