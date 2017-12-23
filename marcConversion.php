@@ -1284,12 +1284,12 @@ class marcConversion
 			} else if (preg_match ('/^([0-9]+)-([0-9]+)$/', $pagination, $matches)) {
 				$pages += (($matches[2] - $matches[1]) + 1);	// +1 because it has to match itself
 				
-			# Roman numeral single page number, e.g. "V" is 5; no examples available (so code is not actually used, but mocked data shows confirmed working)
-			} else if (preg_match ('/^([IVXCLDM]+)$/', $pagination, $matches)) {
+			# Roman numeral single page number, e.g. "v" is 5; no examples available (so code is not actually used, but mocked data shows confirmed working)
+			} else if (preg_match ('/^([ivxcldmIVXCLDM]+)$/', $pagination, $matches)) {	// Expected to be lower-case but upper-case support kept in
 				$pages += 1;	// I.e. single page (not the page number itself)
 				
-			# Roman numeral range, e.g. "V-VIII" is 4; no examples available (so code is not actually used, but mocked data shows confirmed working)
-			} else if (preg_match ('/^([IVXCLDM]+)-([IVXCLDM]+)$/', $pagination, $matches)) {
+			# Roman numeral range, e.g. "v-viii" is 4; no examples available (so code is not actually used, but mocked data shows confirmed working)
+			} else if (preg_match ('/^([ivxcldmIVXCLDM]+)-([ivxcldmIVXCLDM]+)$/i', $pagination, $matches)) {	// Expected to be lower-case but upper-case support kept in
 				$pages += ((application::romanNumeralToInt ($matches[2]) - application::romanNumeralToInt ($matches[1])) + 1);	// +1 because it has to match itself
 				
 			# Unsupported value
