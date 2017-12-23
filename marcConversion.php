@@ -1156,7 +1156,7 @@ class marcConversion
 		}
 		
 		# Assemble the datastructure
-		$pOrPt = array (
+		$result = array (
 			'_pOrPt'					=> $pOrPt,
 			'a'							=> $a,
 			'b'							=> $b,
@@ -1165,7 +1165,7 @@ class marcConversion
 		);
 		
 		# Return the assembled data
-		return $pOrPt;
+		return $result;
 	}
 	
 	
