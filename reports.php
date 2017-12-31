@@ -2831,9 +2831,20 @@ class reports
 			WHERE
 					field LIKE 't'
 				AND value LIKE '%.'
-				AND value NOT LIKE '%...'
-				AND value NOT LIKE '%&c.'
-				AND value NOT LIKE '%etc.'
+				AND value NOT LIKE '% ...'
+				AND value NOT LIKE '% &c.'
+				AND value NOT LIKE '% etc.'
+				AND value NOT LIKE '% Ltd.'
+				AND value NOT LIKE '% g.'	-- Russian abbreviations for year
+				AND value NOT LIKE '% gg.'	-- Russian abbreviations for years
+				AND value NOT LIKE '% v.'	-- Russian abbreviations for century
+				AND value NOT LIKE '% vv.'	-- Russian abbreviations for centuries
+				AND value NOT LIKE '% sp.'	-- Species
+				AND value NOT LIKE '% Jr.'	-- In obituaries, etc.
+				AND value NOT LIKE '% esq.'	--   ditto
+				AND value NOT LIKE '% Esq.'	--   ditto
+				AND value NOT LIKE '% al.'	-- Item is referring to another, e.g. for a review
+				AND value NOT LIKE '% eds.'	--   ditto
 				AND value NOT REGEXP '[A-Z]\.$'
 		";
 		
