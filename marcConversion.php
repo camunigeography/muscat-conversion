@@ -3177,11 +3177,13 @@ class marcConversion
 	public function leadingArticles ($groupByLanguage = true)
 	{
 		# Define the leading articles
+		# This is based on a list sent from pjg on 14/Jul/2014, which provided codes shown at https://www.loc.gov/marc/languages/language_name.html
+		# Can verify presence of languages using: `SELECT value, COUNT(*) FROM catalogue_processed WHERE field = 'lang' GROUP BY value LIMIT 9999;`
 		$leadingArticles = array (
-			'a ' => 'English glg Hungarian Portuguese',
-			'al-' => 'ara',			// #!# Check what should happen for 245 field in /records/62926/ which is an English record but with Al- name at start of title
+			'a ' => 'English Galician Hungarian Portuguese',
+			'al-' => 'Arabic',			// #!# Check what should happen for 245 field in /records/62926/ which is an English record but with Al- name at start of title
 			'an ' => 'English',
-			'ane ' => 'enm',
+			'ane ' => 'Middle-English',
 			'das ' => 'German',
 			'de ' => 'Danish Swedish',
 			'dem ' => 'German',
@@ -3207,9 +3209,9 @@ class marcConversion
 			'gli ' => 'Italian',
 			'ha ' => 'Hebrew',
 			'het ' => 'Dutch',
-			'ho ' => 'grc',
-			'il ' => 'Italian mlt',
-			"l'" => 'Catalan French Italian mlt',		// e.g. /records/4571/ ; Catalan checked in https://en.wikipedia.org/wiki/Catalan_grammar#Articles
+			'ho ' => 'Aeolic-Greek',
+			'il ' => 'Italian Maltese',
+			"l'" => 'Catalan French Italian Maltese',		// e.g. /records/4571/ ; Catalan checked in https://en.wikipedia.org/wiki/Catalan_grammar#Articles
 			'la ' => 'Catalan French Italian Spanish',
 			'las ' => 'Spanish',
 			'le ' => 'French Italian',
@@ -3217,9 +3219,8 @@ class marcConversion
 			'lo ' => 'Italian Spanish',
 			'los ' => 'Spanish',
 			'os ' => 'Portuguese',
-			#!# Codes still present
-			'ta ' => 'grc',
-			'ton ' => 'grc',
+			'ta ' => 'Aeolic-Greek',
+			'ton ' => 'Aeolic-Greek',
 			'the ' => 'English',
 			'um ' => 'Portuguese',
 			'uma ' => 'Portuguese',
@@ -3227,7 +3228,7 @@ class marcConversion
 			'una ' => 'Catalan Spanish Italian',
 			'une ' => 'French',
 			'uno ' => 'Italian',
-			'y ' => 'wel',
+			'y ' => 'Welsh',
 		);
 		
 		# End if not required to group by language
