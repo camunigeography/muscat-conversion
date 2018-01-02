@@ -3127,25 +3127,25 @@ class marcConversion
 	}
 	
 	
-	# Macro to generate a 917 record for the supression reason
+	# Macro to generate a 917 record for the supression reason, e.g. /records/1026/ (test #611)
 	private function macro_showSuppressionReason ($value)
 	{
-		# End if no suppress reason(s)
+		# End if no suppress reason(s), e.g. /records/1027/ (test #612)
 		if (!$this->suppressReasons) {return false;}
 		
-		# Explode by comma
+		# Explode by comma, e.g. /records/1122/ (tests #613 and #614)
 		$suppressReasons = explode (', ', $this->suppressReasons);
 		
-		# Create a list of results
+		# Create a list of results, adding an explanation for each, e.g. /records/1026/ (test #615)
 		$resultLines = array ();
 		foreach ($suppressReasons as $suppressReason) {
 			$resultLines[] = 'Suppression reason: ' . $suppressReason . ' (' . $this->suppressionScenarios[$suppressReason][0] . ')';
 		}
 		
-		# Implode the list
+		# Implode the list, e.g. /records/1122/ (tests #613 and #614)
 		$result = implode ("\n" . "917 ## {$this->doubleDagger}a", $resultLines);
 		
-		# Return the result line/multiline
+		# Return the result line/multiline, e.g. /records/1026/ (test #611)
 		return $result;
 	}
 	

@@ -3659,3 +3659,35 @@ Society of Japan. Vol
 6787
 300
 ‡ap. 397-412.
+
+611
+917 Supression status appears
+1026
+917
+‡aSuppression reason: EXTERNAL-LOCATION (Item of bibliographic interest, but not held at SPRI, so no holdings record can be created)
+
+612
+917 No suppression reason expected
+1027
+!917
+Suppression reason
+
+613
+917 Multiple supression reasons generates multiple 917 fields (test part 1)
+1122
+917
+‡aSuppression reason: EXPLICIT-SUPPRESS (
+
+614
+917 Multiple supression reasons generates multiple 917 fields (test part 2)
+1122
+917
+‡aSuppression reason: OFFPRINT-OR-PHOTOCOPY (
+
+615
+917 Supression explanation present
+1026
+917
+‡aSuppression reason: EXTERNAL-LOCATION (Item of bibliographic interest, but not held at SPRI, so no holdings record can be created)
+
+
