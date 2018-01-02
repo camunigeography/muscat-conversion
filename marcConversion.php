@@ -124,8 +124,8 @@ class marcConversion
 		# Lookup XPath values from the record which are needed multiple times, for efficiency
 		$this->form = $this->xPathValue ($this->xml, '(//form)[1]', false);
 		
-		# Up-front, process *p/*pt to split into its component parts
-		$this->pOrPt = $this->splitPOrPt ();
+		# Up-front, process *p/*pt to parse into its component parts
+		$this->pOrPt = $this->parsePOrPt ();
 		
 		# Perform XPath replacements
 		if (!$datastructure = $this->convertToMarc_PerformXpathReplacements ($datastructure)) {return false;}
@@ -1091,8 +1091,8 @@ class marcConversion
 	}
 	
 	
-	# Up-front, process *p/*pt to split into its component parts
-	private function splitPOrPt ()
+	# Up-front, process *p/*pt to parse into its component parts
+	private function parsePOrPt ()
 	{
 		# Start an array to hold the components
 		$pOrPt = array ();
@@ -1147,15 +1147,15 @@ class marcConversion
 		$citationListValues = $this->tokeniseCitationList ($citation);
 		
 		# Construct the volume list
-		$volumeList = implode ('; ', array_keys ($citationListValues));	// Semicolon rather than comma is chosen because there could be '73(1,5)' which would cause 'Vols. ' to appear rather than 'Vol. '
-		
-		# Create the page string or count; if one than one item, a count is used; tests present in function
-		$pages = $this->pagesString ($citationListValues);
+		$volumeList = implode ('; ', array_keys ($citationListValues));	// As per same comment below in macro_generate773, semicolon rather than comma is chosen because there could be '73(1,5)' which would cause 'Vols. ' to appear rather than 'Vol. '
 		
 		# If there is a *vno, add this at the start of the analytic volume designation, before any pagination (extent) data from *pt; e.g. /records/6787/ (test #352) and negative test for 300 in same record /records/6787/ (test #351)
 		if ($vno = $this->xPathValue ($this->xml, '//vno')) {
 			$volumeList = $this->macro_dotEnd ($vno) . (strlen ($volumeList) ? ' ' : '') . $volumeList;		// E.g. dot added before other citation substring in /records/7865/ (test #519); no existing $a so no comma in /records/6787/ (test #352)
 		}
+		
+		# Create the page string or count; if one than one item, a count is used; tests present in function
+		$pages = $this->pagesString ($citationListValues);
 		
 		# Assemble the datastructure
 		$result = array (
