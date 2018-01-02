@@ -2794,24 +2794,24 @@ class marcConversion
 		
 		# Position 0 - Type of main entry heading; value corresponds to the 1XX tag of the related record
 		switch (true) {
-			case (isSet ($hostRecord[100])): $dollar7[0] = 'p'; break;
-			case (isSet ($hostRecord[110])): $dollar7[0] = 'c'; break;
+			case (isSet ($hostRecord[100])): $dollar7[0] = 'p'; break;	// E.g. /records/215149/ (test #569)
+			case (isSet ($hostRecord[110])): $dollar7[0] = 'c'; break;	// E.g. /records/36315/ (test #570)
 			case (isSet ($hostRecord[111])): $dollar7[0] = 'm'; break;
 			default:                         $dollar7[0] = 'n'; break;
 		}
 		
 		# Position 1 - Form of name; value of the first indicator in the 1XX of the related record
 		switch (true) {
-			case (isSet ($hostRecord[100])): $dollar7[1] = substr ($hostRecord[100][0]['indicators'], 0, 1); break;
-			case (isSet ($hostRecord[110])): $dollar7[1] = substr ($hostRecord[110][0]['indicators'], 0, 1); break;
+			case (isSet ($hostRecord[100])): $dollar7[1] = substr ($hostRecord[100][0]['indicators'], 0, 1); break;	// E.g. /records/215149/ (test #569)
+			case (isSet ($hostRecord[110])): $dollar7[1] = substr ($hostRecord[110][0]['indicators'], 0, 1); break;	// E.g. /records/36315/ (test #570)
 			case (isSet ($hostRecord[111])): $dollar7[1] = substr ($hostRecord[111][0]['indicators'], 0, 1); break;
 			default:                         $dollar7[1] = 'n'; break;
 		}
 		
-		# Position 2 - Type of record; is the value of Leader/06 (i.e. 7th character) of the related record
+		# Position 2 - Type of record; is the value of Leader/06 (i.e. 7th character) of the related record, e.g. /records/1768/ (test #571)
 		$dollar7[2] = substr ($hostRecord['LDR'][0]['line'], 6, 1);
 		
-		# Position 3 - Bibliographic level; is the value of Leader/07 (i.e. 8th character) of the related record
+		# Position 3 - Bibliographic level; is the value of Leader/07 (i.e. 8th character) of the related record, e.g. /records/1768/ (test #571)
 		$dollar7[3] = substr ($hostRecord['LDR'][0]['line'], 7, 1);
 		
 		# Compile the value
