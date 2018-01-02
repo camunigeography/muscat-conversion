@@ -3151,24 +3151,27 @@ class marcConversion
 	
 	
 	# Macro to determine cataloguing status; this uses values from both *ks OR *status, but the coexistingksstatus report is marked clean, ensuring that no data is lost
+	#!# /reports/coexistingksstatus/ is not clean as of 2/Jan/2018
 	private function macro_cataloguingStatus ($value)
 	{
-		# Return *ks if on the list; separate multiple values with semicolon, e.g. /records/205603/
+		# Return *ks if on the list of *ks status tokens, e.g. /records/56056/ (test #616)
 		$ksValues = $this->xPathValues ($this->xml, '//k[%i]/ks');
 		$results = array ();
 		foreach ($ksValues as $ks) {
-			$ksBracketsStrippedForComparison = (substr_count ($ks, '[') ? strstr ($ks, '[', true) : $ks);	// So that "MISSING[2007]" matches against MISSING, e.g. /records/2823/ , /records/3549/
+			$ksBracketsStrippedForComparison = (substr_count ($ks, '[') ? strstr ($ks, '[', true) : $ks);	// Strip brackets, so that e.g. "MISSING[2007]" matches against MISSING, e.g. /records/3549/ , /records/2823/ (test #618)
 			if (in_array ($ksBracketsStrippedForComparison, $this->ksStatusTokens)) {
 				$results[] = $ks;	// Actual *ks in the data, not the comparator version without brackets
 			}
 		}
 		if ($results) {
+			
+			# Return the value, separating multiple values with semicolon, e.g. /records/60776/ (test #617)
 			return implode ('; ', $results);
 		}
 		
-		# Otherwise return *status (e.g. /records/1373/ ), except for records marked explicitly to be suppressed (e.g. /records/10001/ ), which is a special keyword not intended to appear in the record output
-		$status = $this->xPathValue ($this->xml, '//status');
-		if ($status == $this->suppressionStatusKeyword) {return false;}
+		# Otherwise return *status, e.g. /records/1373/ (test #619), except for records marked explicitly to be suppressed, e.g. /records/10001/ (test #620), which is a special keyword not intended to appear in the record output
+		$status = $this->xPathValue ($this->xml, '//status');	// E.g. /records/1373/ (test #619)
+		if ($status == $this->suppressionStatusKeyword) {return false;}	// E.g. /records/10001/ (test #620)
 		return $status;
 	}
 	

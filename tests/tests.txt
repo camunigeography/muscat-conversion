@@ -3690,4 +3690,33 @@ Suppression reason
 917
 ‡aSuppression reason: EXTERNAL-LOCATION (Item of bibliographic interest, but not held at SPRI, so no holdings record can be created)
 
+616
+948 ‡d status from *ks is present
+56056
+948
+‡dMISSING
+
+617
+948 ‡d multiple status from *ks separated by semicolon
+60776
+948
+‡dMISSING; D
+
+618
+948 ‡d status with square brackets matched and used in the data
+2823
+948
+‡dMISSING[2002.02.13]
+
+619
+948 ‡d status from *status
+1373
+948
+‡dRECEIVED
+
+620
+948 ‡d status from *status excludes special keyword SUPPRESS
+10001
+!948
+SUPPRESS
 
