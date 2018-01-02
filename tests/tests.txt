@@ -906,6 +906,12 @@ Basic relator term handling with entities
 100
 ‡g (Campsterianus)
 
+149
+916 no value if no *acc
+1102
+!916
+*
+
 150
 *ad affiliation list handling in 1xx (complete string match)
 19171
@@ -3719,4 +3725,5 @@ Suppression reason
 10001
 !948
 SUPPRESS
+
 

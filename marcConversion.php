@@ -3116,7 +3116,7 @@ class marcConversion
 			$accIndex++;
 		}
 		
-		# End if none
+		# End if none, e.g. /records/1102/ (test #149) which has no *acc group
 		if (!$acc) {return false;}
 		
 		# Compile the components, separated by semicolon, e.g. /records/3959/ (test #586)
