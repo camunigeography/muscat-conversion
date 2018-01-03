@@ -159,7 +159,7 @@ class marcConversion
 		
 		# Report any UTF-8 problems
 		if (strlen ($record) && !htmlspecialchars ($record)) {	// i.e. htmlspecialchars fails
-			$this->errorHtml .= "UTF-8 conversion failed.";
+			$this->errorHtml .= 'UTF-8 conversion failed.';
 			return false;
 		}
 		

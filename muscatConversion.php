@@ -4154,18 +4154,6 @@ class muscatConversion extends frontControllerApplication
 					$mergeVoyagerId	 = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeVoyagerId'] : false);
 					$suppressReasons = (isSet ($suppressReasonsList[$id]) ? $suppressReasonsList[$id] : false);
 					$marc = $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $mergeDefinition, $mergeType, $mergeVoyagerId, $suppressReasons);
-					
-					# Add debugging to identify memory leak crash
-					$i++;
-					if ($i <= 3) {
-						$marcConversion =& $this->marcConversion;
-						ob_start ();
-						xdebug_debug_zval ('marcConversion');
-						$this->logger ("Creating memory trace for iteration {$i}:");
-						$this->logger (ob_get_contents());
-						ob_end_clean();
-					}
-					
 					$marcPreMerge = $this->marcConversion->getMarcPreMerge ();
 					if ($marcErrorHtml = $this->marcConversion->getErrorHtml ()) {
 						$html = $marcErrorHtml;
