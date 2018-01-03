@@ -50,9 +50,6 @@
 
 class generateAuthors
 {
-	# Class properties
-	private $values = array ();
-	
 	# Define subfields that are capable of being transliterated
 	private $transliterableSubfields = array (
 		100 => 'aqc',
@@ -65,24 +62,47 @@ class generateAuthors
 	
 	
 	# Constructor
-	public function __construct ($marcConversion, $mainRecordXml, $languageModes)
+	public function __construct ($marcConversion, $languageModes)
 	{
 		# Create class property handles to the parent class
 		$this->marcConversion = $marcConversion;
 		$this->databaseConnection = $marcConversion->databaseConnection;
 		$this->settings = $marcConversion->settings;
+		$this->languageModes = $languageModes;
 		
-		# Create a handle to the XML
-		$this->mainRecordXml = $mainRecordXml;
+		# Load lookups
+		$this->lookups = array (
+			'namesInDirectOrder'		=> $this->namesInDirectOrder (),
+			'surnameOnly'				=> $this->surnameOnly (),
+			'prefixes'					=> $this->prefixes (),
+			'suffixes'					=> $this->suffixes (),
+			'betweenN1AndN2'			=> $this->betweenN1AndN2 (),
+			'relatorTerms'				=> $this->relatorTerms (),
+			'miscList'					=> $this->miscList (),
+			'affiliationList'			=> $this->affiliationList (),
+			'dateList'					=> $this->dateList (),
+			'fullStopExceptionsList'	=> $this->fullStopExceptionsList (),
+		);
 		
 		# Define unicode symbols
 		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
+	}
+	
+	
+	# Main entry point
+	public function createAuthorsFields ($mainRecordXml)
+	{
+		# Initalise a values list
+		$this->values = array ();
+		
+		# Create a handle to the XML
+		$this->mainRecordXml = $mainRecordXml;
 		
 		# Determine the language of the record
 		$recordLanguages = $this->marcConversion->xPathValues ($mainRecordXml, '(//lang)[%i]', false);	// e.g. /records/1220/ , /records/8690/ have multiple languages (test #66)
 		
 		# Process both normal and transliterated modes
-		foreach ($languageModes as $languageMode) {
+		foreach ($this->languageModes as $languageMode) {
 			
 			# Initialise all fields
 			$fields = array (100, 110, 111, 700, 710, 711);
@@ -103,12 +123,6 @@ class generateAuthors
 			$this->generateOtherEntities ($languageMode);	// Round two: all other entities
 		}
 		
-	}
-	
-	
-	# Getter to return the values
-	public function getValues ()
-	{
 		# Return the values
 		return $this->values;
 	}
@@ -474,7 +488,7 @@ class generateAuthors
 		}
 		
 		# Is the *n1 exactly equal to any of the names in the 'Name in direct order' tab? E.g. /records/181460/ (test #124)
-		$strings = $this->entitiesToUtf8List ($this->namesInDirectOrder ());
+		$strings = $this->entitiesToUtf8List ($this->lookups['namesInDirectOrder']);
 		if (in_array ($n1, $strings)) {
 			
 			# Add to 100 field
@@ -488,7 +502,7 @@ class generateAuthors
 		}
 		
 		# Is the *n1 exactly equal to any of the names in the 'Surname only' tab? E.g. /records/111558/ (test #126), /records/3904/ (test #127) which has HTML entities
-		$surnameOnly = $this->entitiesToUtf8List ($this->surnameOnly ());
+		$surnameOnly = $this->entitiesToUtf8List ($this->lookups['surnameOnly']);
 		if (in_array ($n1, $surnameOnly)) {
 			
 			# Add to 100 field
@@ -571,7 +585,7 @@ class generateAuthors
 		
 		# Does the *a/*n1 contain '. ' (i.e. full stop followed by a space)?
 		# Is the *n1 exactly equal to one of the names listed in the 'Full Stop Space Exceptions' tab? (test #94)
-		if (substr_count ($n1, '. ') && !in_array ($n1, $this->fullStopExceptionsList ())) {
+		if (substr_count ($n1, '. ') && !in_array ($n1, $this->lookups['fullStopExceptionsList'])) {
 			
 			# Add to 110 field: 2# ‡a <*a/*n1 [portion up to and including first full stop]> ‡b <*a/*n1 [everything after first full stop]>; e.g. /records/12195/ (test #93); e.g. /records/127474/ (test #94), /records/1261/
 			$n1Components = explode ('.', $n1, 2);
@@ -801,9 +815,9 @@ class generateAuthors
 		# Does the value of the $fieldValue appear on the Prefix list?
 		# Does the value of the $fieldValue appear on the Suffix list?
 		# Does the value of the $fieldValue appear on the Between *n1 and *n2 list?
-		$prefixes = $this->entitiesToUtf8List ($this->prefixes ());		// E.g. /records/1201/ (test #142), /records/53959/ (test #143)
-		$suffixes = $this->entitiesToUtf8List ($this->suffixes ());		// E.g. /records/23362/ (test #144)
-		$betweenN1AndN2 = $this->entitiesToUtf8List ($this->betweenN1AndN2 ());		// E.g. /records/3180/ (test #145)
+		$prefixes = $this->entitiesToUtf8List ($this->lookups['prefixes']);		// E.g. /records/1201/ (test #142), /records/53959/ (test #143)
+		$suffixes = $this->entitiesToUtf8List ($this->lookups['suffixes']);		// E.g. /records/23362/ (test #144)
+		$betweenN1AndN2 = $this->entitiesToUtf8List ($this->lookups['betweenN1AndN2']);		// E.g. /records/3180/ (test #145)
 		if (in_array ($fieldValue, $prefixes) || in_array ($fieldValue, $suffixes) || in_array ($fieldValue, $betweenN1AndN2)) {
 			$value .= ",{$this->doubleDagger}c{$fieldValue}";
 			return $value;
@@ -813,8 +827,7 @@ class generateAuthors
 		if ($checkDateList) {
 			
 			# Does the value of the $fieldValue appear on the Date list? E.g. /records/6575/ (test #100)
-			$dateList = $this->dateList ();
-			if (in_array ($fieldValue, $dateList)) {
+			if (in_array ($fieldValue, $this->lookups['dateList'])) {
 				$value .= ",{$this->doubleDagger}d {$fieldValue}";		// Avoid space after comma to avoid Bibcheck error "100: Subfield d must be preceded by a comma" in /records/6575/ (test #101)
 				return $value;
 			}
@@ -827,16 +840,14 @@ class generateAuthors
 		}
 		
 		# Does the value of the $fieldValue appear on the Misc. list? E.g. /records/1218/ (test #148)
-		$miscList = $this->miscList ();
-		if (in_array ($fieldValue, $miscList)) {
+		if (in_array ($fieldValue, $this->lookups['miscList'])) {
 			$value  = $this->marcConversion->macro_dotEnd ($value, $extendedCharacterList = '.?!');		// "700: Subfield g must be preceded by a full stop, question mark or exclamation mark." (test #148)
 			$value .= "{$this->doubleDagger}g ({$fieldValue})";
 			return $value;
 		}
 		
 		# Does the value of the $fieldValue appear on the Affiliation list? E.g. /records/19171/ (test #150), /records/18045/ (test #151)
-		$affiliationList = $this->affiliationList ();
-		if (in_array ($fieldValue, $affiliationList)) {
+		if (in_array ($fieldValue, $this->lookups['affiliationList'])) {
 			$value .= ", {$this->doubleDagger}u{$fieldValue}";
 			return $value;
 		}
@@ -849,12 +860,9 @@ class generateAuthors
 	# Function to get the relator terms
 	private function getRelatorTerms ($valueForPrefiltering)
 	{
-		# Get the raw list
-		$relatorTermsRaw = $this->relatorTerms ();
-		
-		# Process into value => replacement; these have already been checked for uniqueness when replaced
+		# Process the raw relator terms list into value => replacement; these have already been checked for uniqueness when replaced
 		$relatorTerms = array ();
-		foreach ($relatorTermsRaw as $parent => $children) {
+		foreach ($this->lookups['relatorTerms'] as $parent => $children) {
 			foreach ($children as $child) {
 				
 				# Deal with pre-filters, which contain // in the terms list
