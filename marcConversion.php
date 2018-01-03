@@ -2634,7 +2634,7 @@ class marcConversion
 				
 				# Create the SoR based on 245; e.g. simple case in /records/14136/ (test #546), multiple authors example in /records/1330/ (test #547), corporate authors example in /records/1811/ (test #548); NB role confirmed not present in the data for pseudo-analytic pseudo-hosts
 				require_once ('generate245.php');
-				$generate245 = new generate245 ($this, $this->xml, NULL /*, $languageMode */);
+				$generate245 = new generate245 ($this, $this->xml, $this->authorsFields);
 				$result .= $generate245->statementOfResponsibility ('/art/in', $result);
 				
 				# Ensure whole string ends with a dot, e.g. /records/1244/ added (test #593), /records/1107/ already present (test #594); see: https://www.oclc.org/bibformats/en/specialcataloging.html#CHDEBCCB
