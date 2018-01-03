@@ -43,7 +43,7 @@ class marcConversion
 		# Load ISBN support
 		$this->isbn = $this->loadIsbnValidationLibrary ();
 		
-		# Load authors
+		# Load authors support
 		$languageModes = array_merge (array ('default'), array_keys ($this->supportedReverseTransliterationLanguages));		// Feed in the languages list, with 'default' as the first
 		require_once ('generateAuthors.php');
 		$this->generateAuthors = new generateAuthors ($this, $languageModes);
@@ -117,7 +117,10 @@ class marcConversion
 		$this->recordType = $this->recordType ();
 		
 		# Up-front, process author fields
+		//$initialMemoryUsage = memory_get_usage ();
+		//var_dump ('|- Before creating authors fields, memory usage is: ' . $this->memoryUsage () . 'MB');
 		$this->authorsFields = $this->generateAuthors->createAuthorsFields ($this->xml);
+		//var_dump ('|- After running generateAuthors, memory usage is: ' . $this->memoryUsage () . 'MB; memory loss was: ' . (memory_get_usage () - $initialMemoryUsage) . ' bytes'); echo '<br />';	// ~4624 bytes used first time; ~144 bytes each iteration
 		
 		# Up-front, look up the host record, if any
 		$this->hostRecord = $this->lookupHostRecord ();
