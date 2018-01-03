@@ -4,20 +4,20 @@
 class generate008
 {
 	# Constructor
-	public function __construct ($marcConversion, $xml)
+	public function __construct ($marcConversion)
 	{
 		# Create a class property handle to the parent class
 		$this->marcConversion = $marcConversion;
-		
-		# Create a handle to the XML
-		$this->xml = $xml;
 		
 	}
 	
 	
 	# Main
-	public function main (&$errorString = false)
+	public function main ($xml, &$errorString = false)
 	{
+		# Create a handle to the XML
+		$this->xml = $xml;
+		
 		# Determine the record type or end
 		if (!$this->recordType = $this->recordType ()) {
 			$errorString .= '008 field: Could not determine record type';

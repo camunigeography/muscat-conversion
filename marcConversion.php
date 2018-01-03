@@ -47,6 +47,12 @@ class marcConversion
 		$languageModes = array_merge (array ('default'), array_keys ($this->supportedReverseTransliterationLanguages));		// Feed in the languages list, with 'default' as the first
 		require_once ('generateAuthors.php');
 		$this->generateAuthors = new generateAuthors ($this, $languageModes);
+		
+		# Load generate008 support
+		#!# Use of marcConversion::lookupValue in generate008 may be creating a circular reference
+		require_once ('generate008.php');
+		$this->generate008 = new generate008 ($this);
+		
 	}
 	
 	
@@ -1842,11 +1848,12 @@ class marcConversion
 	private function macro_generate008 ($value, $parameter_ignored, &$errorHtml)
 	{
 		# Subclass, due to the complexity of this field
-		require_once ('generate008.php');
-		$generate008 = new generate008 ($this, $this->xml);
-		if (!$value = $generate008->main ($error)) {
+		//$initialMemoryUsage = memory_get_usage ();
+		//var_dump ('|- Before running generate008, memory usage is: ' . $this->memoryUsage () . 'MB');
+		if (!$value = $this->generate008->main ($this->xml, $error)) {
 			$errorHtml .= $error . '.';
 		}
+		//var_dump ('|- After running generateAuthors, memory usage is: ' . $this->memoryUsage () . 'MB; memory loss was: ' . (memory_get_usage () - $initialMemoryUsage) . ' bytes'); echo '<br />';	// ~2630592 bytes used first time; ~880 bytes each iteration
 		
 		# Return the value
 		return $value;
