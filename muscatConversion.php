@@ -2344,9 +2344,11 @@ class muscatConversion extends frontControllerApplication
 		
 		# Create the MARC records
 		if (($importType == 'full') || ($importType == 'marc')) {
-			if ($this->createMarcRecords ($errorsHtml /* amended by reference */)) {
-				$html .= "\n<p>{$this->tick} The MARC versions of the records have been generated.</p>";
+			if (!$this->createMarcRecords ($errorsHtml /* amended by reference */)) {
+				$this->logErrors ($errorsHtml, true);
+				return false;
 			}
+			$html .= "\n<p>{$this->tick} The MARC versions of the records have been generated.</p>";
 		}
 		
 		# Run option to set the MARC record status (included within the 'marc' (and therefore 'full') option above) if required
@@ -4185,11 +4187,20 @@ class muscatConversion extends frontControllerApplication
 				
 				# Insert the records (or update for the second pass); ON DUPLICATE KEY UPDATE is a dirty but useful method of getting a multiple update at once (as this doesn't require a WHERE clause, which can't be used as there is more than one record to be inserted)
 				$insertSize = round (mb_strlen (serialize ($inserts)) / 1024, 2);
-				$this->logger ('In ' . __METHOD__ . ", in {$recordType} record type group, adding " . count ($inserts) . ' records (having insert size ' . $insertSize . 'KB); marcSecondPass is currently ' . count ($marcSecondPass) . ' record(s); memory usage is currently ' . round (memory_get_usage () / 1048576, 2) . 'MB');
+				$memoryUsageMb = round (memory_get_usage () / 1048576, 2);
+				$this->logger ('In ' . __METHOD__ . ", in {$recordType} record type group, adding " . count ($inserts) . ' records (having insert size ' . $insertSize . 'KB); marcSecondPass is currently ' . count ($marcSecondPass) . ' record(s); memory usage is currently ' . $memoryUsageMb . 'MB');
 				if (!$this->databaseConnection->insertMany ($this->settings['database'], 'catalogue_marc', $inserts, false, $onDuplicateKeyUpdate = true)) {
 					$html  = "<p class=\"warning\">Error generating MARC, stopping at batched ({$id}):</p>";
 					$html .= application::dumpData ($this->databaseConnection->error (), false, true);
 					$errorsHtml .= $html;
+					return false;
+				}
+				
+				# Detect memory leaks, enabling the import to shut down cleanly but report the problem
+				if ($memoryUsageMb > 80) {
+					$memoryErrorMessage = '*** Memory leak detected; import system has been stopped. ***';
+					$this->logger ($memoryErrorMessage);
+					$errorsHtml .= "<p class=\"warning\">{$memoryErrorMessage}</p>";
 					return false;
 				}
 			}
