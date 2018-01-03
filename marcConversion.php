@@ -53,6 +53,10 @@ class marcConversion
 		require_once ('generate008.php');
 		$this->generate008 = new generate008 ($this);
 		
+		# Load generate245 support
+		require_once ('generate245.php');
+		$this->generate245 = new generate245 ($this);
+		
 	}
 	
 	
@@ -1990,10 +1994,9 @@ class marcConversion
 			if (!$languageMode = $this->getTransliterationLanguage ($this->xml)) {return false;}
 		}
 		
-		# Subclass, due to the complexity of this field
-		require_once ('generate245.php');
-		$generate245 = new generate245 ($this, $this->xml, $this->authorsFields, $languageMode);
-		$value = $generate245->main ($error);
+		# Generate the value from the subclass
+		$this->generate245->setRecord ($this->xml, $languageMode);
+		$value = $this->generate245->main ($this->authorsFields, $error);
 		if ($error) {
 			$errorHtml .= $error . '.';
 		}
@@ -2037,14 +2040,13 @@ class marcConversion
 	private function generate250b ($value, $ignored)
 	{
 		# Use the role-and-siblings part of the 245 processor
-		require_once ('generate245.php');
-		$generate245 = new generate245 ($this, $this->xml, $this->authorsFields);
+		$this->generate245->setRecord ($this->xml);
 		
 		# Create the list of subvalues if there is *ee?; e.g. /records/3887/ (test #434), /records/7017/ (has multiple *ee and multiple *n within this) (records #435) , /records/45901/ , /records/168490/
 		$subValues = array ();
 		$eeIndex = 1;
 		while ($this->xPathValue ($this->xml, "//ee[$eeIndex]")) {	// Check if *ee container exists
-			$subValues[] = $generate245->roleAndSiblings ("//ee[$eeIndex]");
+			$subValues[] = $this->generate245->roleAndSiblings ("//ee[$eeIndex]");
 			$eeIndex++;
 		}
 		
@@ -2633,9 +2635,8 @@ class marcConversion
 				}
 				
 				# Create the SoR based on 245; e.g. simple case in /records/14136/ (test #546), multiple authors example in /records/1330/ (test #547), corporate authors example in /records/1811/ (test #548); NB role confirmed not present in the data for pseudo-analytic pseudo-hosts
-				require_once ('generate245.php');
-				$generate245 = new generate245 ($this, $this->xml, $this->authorsFields);
-				$result .= $generate245->statementOfResponsibility ('/art/in', $result);
+				$this->generate245->setRecord ($this->xml);
+				$result .= $this->generate245->statementOfResponsibility ('/art/in', $result);
 				
 				# Ensure whole string ends with a dot, e.g. /records/1244/ added (test #593), /records/1107/ already present (test #594); see: https://www.oclc.org/bibformats/en/specialcataloging.html#CHDEBCCB
 				$result = $this->macro_dotEnd ($result);

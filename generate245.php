@@ -4,31 +4,33 @@
 class generate245
 {
 	# Constructor
-	public function __construct ($marcConversion, $xml, $authorsFields, $languageMode = 'default')
+	public function __construct ($marcConversion)
 	{
 		# Create a class property handle to the parent class
 		$this->marcConversion = $marcConversion;
 		
-		# Create a handle to the XML
-		$this->xml = $xml;
-		
-		# Create a handle to the authors fields
-		$this->authorsFields = $authorsFields;
-		
-		# Create a handle to the language mode; transliteration has to be done at a per-subfield level, because within a subfield there can be e.g. 'Name, editor' where only the 'Name' part would be transliterated
-		$this->languageMode = $languageMode;
+		# Define unicode symbols
+		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
 		
 		# Define the Statement of Responsibility delimiter
 		$this->muscatSorDelimiter = ' / ';	// Decided not to tolerate any cases with space not present after
 		
-		# Define unicode symbols
-		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
+	}
+	
+	
+	# Setter to provide the record details
+	public function setRecord ($xml, $languageMode = 'default')
+	{
+		# Create a handle to the XML
+		$this->xml = $xml;
 		
+		# Create a handle to the language mode; transliteration has to be done at a per-subfield level, because within a subfield there can be e.g. 'Name, editor' where only the 'Name' part would be transliterated
+		$this->languageMode = $languageMode;
 	}
 	
 	
 	# Main
-	public function main (&$error = false)
+	public function main ($authorsFields, &$error = false)
 	{
 		# Determine the record type
 		$this->recordType = $this->recordType ();
@@ -57,7 +59,7 @@ class generate245
 		}
 		
 		# Determine first and second indicator
-		$firstIndicator = $this->firstIndicator ();
+		$firstIndicator = $this->firstIndicator ($authorsFields);
 		$secondIndicator = $this->secondIndicator ();
 		
 		# Determine the title
@@ -82,10 +84,10 @@ class generate245
 	
 	
 	# First indicator
-	private function firstIndicator ()
+	private function firstIndicator ($authorsFields)
 	{
 		# Does this MARC record contain a 1XX field?; e.g. /records/210651/ (test #166), /records/1102/ (test #167), /records/1134/ (test #168)
-		return ($this->recordHas1xxField ($this->authorsFields) ? '1' : '0');
+		return ($this->recordHas1xxField ($authorsFields) ? '1' : '0');
 	}
 	
 	
