@@ -4062,17 +4062,17 @@ class muscatConversion extends frontControllerApplication
 		
 		# Cross insert the IDs
 		$this->logger ('Cross-inserting IDs to catalogue_marc table');
-		$query = "INSERT INTO catalogue_marc (id) (SELECT DISTINCT(recordId) FROM catalogue_rawdata);";
+		$query = 'INSERT INTO catalogue_marc (id) (SELECT DISTINCT(recordId) FROM catalogue_rawdata);';
 		$this->databaseConnection->execute ($query);
 		
 		# Determine and set the record type
 		$query = "UPDATE catalogue_marc
 			JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
 			SET type = CASE
-				WHEN LENGTH( EXTRACTVALUE(xml, '//art/in')) > 0 THEN '/art/in'
-				WHEN LENGTH( EXTRACTVALUE(xml, '//art/j' )) > 0 THEN '/art/j'
-				WHEN LENGTH( EXTRACTVALUE(xml, '//doc'   )) > 0 THEN '/doc'
-				WHEN LENGTH( EXTRACTVALUE(xml, '//ser'   )) > 0 THEN '/ser'
+				WHEN LENGTH( EXTRACTVALUE(xml, '/art/in')) > 0 THEN '/art/in'
+				WHEN LENGTH( EXTRACTVALUE(xml, '/art/j' )) > 0 THEN '/art/j'
+				WHEN LENGTH( EXTRACTVALUE(xml, '/doc'   )) > 0 THEN '/doc'
+				WHEN LENGTH( EXTRACTVALUE(xml, '/ser'   )) > 0 THEN '/ser'
 			END
 		;";
 		$this->databaseConnection->execute ($query);
