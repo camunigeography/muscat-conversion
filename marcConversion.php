@@ -1347,7 +1347,7 @@ class marcConversion
 		if ($isDoc) {
 			$vMuscat = $this->xPathValue ($this->xml, '//v');
 			if (strlen ($vMuscat)) {
-				$a = $vMuscat . ($a ? ' ' : ($b ? ',' : '')) . $a;
+				$a = $vMuscat . ($a ? ' ' : '') . $a;
 			}
 		}
 		
