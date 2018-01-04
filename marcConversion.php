@@ -1154,6 +1154,19 @@ class marcConversion
 			$physicalDescription = trim ($matches[1]);
 		} else {
 			
+			# Protect specific phrases to bypass the keyword splitter; e.g. /records/13890/ (test #632)
+			$phrases = array (
+				'leaves of map',
+				'leaf of map',
+			);
+			$protectedSubstringsPattern = '<||%i||>';
+			$protectedParts = array ();
+			foreach ($phrases as $i => $phrase) {
+				$key = str_replace ('%i', $i, $protectedSubstringsPattern);
+				$protectedParts[$phrase] = $key;
+			}
+			$pOrPt = strtr ($pOrPt, $protectedParts);
+			
 			# Next split by the keyword which acts as separating point between citation and an optional $b (i.e. is the start of an optional $b); e.g. /records/51787/ (test #328); first comma cannot be used reliably because the pagination list could be e.g. "3,5,97-100"; split is done for the first instance of a split word, e.g. /records/12780/ (test #535)
 			$splitWords = array ('col', 'diag', 'fig', 'figures', 'graph', 'ill', 'illus', 'map', 'port', 'table', );	// These may be pluralised, using the s? below; e.g. /records/1684/ (test #512)
 			$matches = preg_split ('/' . "\b" . '((?:' . implode ('|', $splitWords) . ')s?' . "\b.*$)" . '/', $pOrPt, 2, PREG_SPLIT_DELIM_CAPTURE|PREG_SPLIT_NO_EMPTY);		// Use of \b word boundary ensures not splitting at substrings, e.g. bibliography at 'graph': /records/54670/ (test #220); .* is used so that both appreviated types ("ill.", "diag.") and non-abbreviated types ("tables", "map") - see test for latter: /records/24489/ (test #630)
@@ -1161,6 +1174,10 @@ class marcConversion
 				$pOrPt = trim ($matches[0]);
 				$physicalDescription = trim ($matches[1]);
 			}
+			
+			# Revert specific phrases
+			$pOrPt = strtr ($pOrPt, array_flip ($protectedParts));
+			$physicalDescription = strtr ($physicalDescription, array_flip ($protectedParts));
 		}
 		
 		# At this point, $pOrPt represents the citation

@@ -3750,3 +3750,9 @@ xliv, 564 p.; xii, 612 p.; xv, 694 p. :‡b
 300
 ‡a2 computer disks (45.5 min.; 54.5 min.) :‡bsd.
 
+632
+300 protect "leaves of map" which forms part of the physical extent, to bypass the keyword splitter
+13890
+300
+‡ap. 203-306, [4] leaves of maps :‡bill.,
+
