@@ -2377,10 +2377,10 @@ Macro generate007: no *form
 /^.{40}$/
 
 397
-008: positions 00-05; migration is in 2017 :)
+008: positions 00-05; migration is in 2018 :)
 1210
 008
-/^17[0-9]{4}[a-z]/
+/^18[0-9]{4}[a-z]/
 
 398
 008: positions 06-14 *ser with unknown start and end dates
