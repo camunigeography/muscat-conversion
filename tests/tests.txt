@@ -3718,7 +3718,7 @@ SUPPRESS
 300 ‡a for *doc uses citation (see also next test)
 2281
 300
-xliv, 564 p.; xii, 612 p.; xv, 694 p. :‡b
+(xliv, 564 p.; xii, 612 p.; xv, 694 p.) :
 
 627
 300 ‡a for non- *doc uses pages (see also previous test)
