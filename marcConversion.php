@@ -1118,13 +1118,11 @@ class marcConversion
 		# Start an array to hold the components
 		$pOrPt = array ();
 		
-		# Obtain *p
-		$pValues = $this->xPathValues ($this->xml, '(//p)[%i]', false);	// E.g. multiple *p: /records/15711/ , /records/6002/ (test #319); single *p: /records/1175/ (test #320); no *p (as expected for an *art record): /records/1107/ (test #321) - should not be any cases of no *p in *doc (see: /reports/docnop/)
-		$p = ($pValues ? implode ('; ', $pValues) : '');
+		# Obtain *p; there should be only one; see: /reports/multipleppt/ ; e.g. /records/1175/ (test #320); no *p (as expected for an *art record): /records/1107/ (test #321) - should not be any cases of no *p in *doc (see: /reports/docnop/)
+		$p = $this->xPathValue ($this->xml, '//p[1]', false);
 		
-		# Obtain *pt
-		$ptValues = $this->xPathValues ($this->xml, '(//pt)[%i]', false);	// E.g. multiple *pt: /records/25179/ (test #322); single *pt: /records/1129/ (test #323); no *pt: /records/1106/ (test #324)
-		$pt = ($ptValues ? implode ('; ', $ptValues) : '');		// Decided in internal meeting to use semicolon, as comma is likely to be present within a component
+		# Obtain *pt; e.g. /records/1129/ (test #323); no *pt: /records/1106/ (test #324)
+		$pt = $this->xPathValue ($this->xml, '//pt[1]', false);
 		
 		# Determine *p or *pt; e.g. *p /records/6002/ (test #325), /records/25179/ (test #326)
 		$pOrPt = (strlen ($p) ? $p : $pt);		// Confirmed there are no records with both *p and *pt

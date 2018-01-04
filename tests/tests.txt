@@ -1920,14 +1920,8 @@ i260
 i260
 /#$/
 
-319
-Macro generate300 multiple *p
-6002
-300
-‡a2 vols. Vol. 1 (14), 409 p.; Vol. 2 (7), 393 p. :‡b
-
 320
-Macro generate300 single *p
+Macro generate300 *p
 1175
 300
 /‡a12 p\.$/
@@ -1938,14 +1932,8 @@ Macro generate300 no *p
 300
 ‡ap. 341-343.
 
-322
-Macro generate300 multiple *pt
-25179
-300
-‡a42(12) :681-685; 43(1) :12-15;
-
 323
-Macro generate300 single *pt
+Macro generate300 *pt
 1129
 300
 ‡ap. 1-21.
