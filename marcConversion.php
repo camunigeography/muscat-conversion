@@ -1361,7 +1361,7 @@ class marcConversion
 		# Register the $a
 		$result .= $a;
 		
-		# $b (NR) (Other physical details): *p [all text after ':' and before, but not including, '+'] or *pt [all text after the ',' - i.e. after the number range following the ':']
+		# $b (NR) (Other physical details): *p [all text after ':' and before, but not including, '+'] or *pt [all text after the ',' - i.e. after the number range following the ':'], e.g. /records/9529/ (test #629)
 		if (strlen ($b)) {
 			$b = trim ($b);
 			$b = preg_replace ('/(.+)[,;:]$/', '\1', $b);	// E.g. /records/9529/ (test #528)
