@@ -4697,10 +4697,12 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to run tests and generate test results
-	public function runTests (&$errorHtml = false, $regenerateMarc = false)
+	public function runTests (&$errorHtml = false, $regenerateMarc = false, $importMode = true)
 	{
-		# Log start
-		$this->logger ('Starting ' . __METHOD__);
+		# Log start (except in runtime mode)
+		if ($importMode) {
+			$this->logger ('Starting ' . __METHOD__);
+		}
 		
 		# Now create the statistics table; this is pre-compiled for performance
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.tests;";
