@@ -2111,7 +2111,7 @@ class marcConversion
 		# Ensure the matched regexp, passed back by reference, is reset
 		$matchedRegexp = false;
 		
-		# Add support for 490 $x (ISSN), which is MARC-style syntax added to some Muscat records; e.g. /records/148932/ (test #556), and /records/70412/ (test #566) which is not at the end
+		# Add support for 490 $x (ISSN), which is MARC-style syntax added to some Muscat records; e.g. /records/148932/ (test #556), and /records/70414/ (test #566) which is not at the end
 		$ts = preg_replace ('/ \$x(\d{4}-\d{3}[\dxX])/', " {$this->doubleDagger}x\\1", trim ($ts));	// Regexp in parenthesis as at https://en.wikipedia.org/wiki/International_Standard_Serial_Number
 		$ts = preg_replace ("/([^,]) {$this->doubleDagger}x/", "\\1, {$this->doubleDagger}x", $ts);
 		$ts = preg_replace ("/\s+{$this->doubleDagger}x/", "{$this->doubleDagger}x", $ts);
