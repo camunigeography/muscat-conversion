@@ -125,6 +125,8 @@ class reports
 		'artform_problem' => '*art records with a *form',
 		'agwithonlyad_problem' => '*ag records containing only an *ad',
 		'tdot_problem' => '*t values ending with a dot',
+		'ptspacecolonspace_problem' => '*pt values containing space-colon-space',
+		'pcolonspace_problem' => '*p values containing colon-space rather than space-colon-space',
 	);
 	
 	# Listing (values) reports
@@ -2846,6 +2848,45 @@ class reports
 				AND value NOT LIKE '% al.'	-- Item is referring to another, e.g. for a review
 				AND value NOT LIKE '% eds.'	--   ditto
 				AND value NOT REGEXP '[A-Z]\.$'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *pt values containing space-colon-space; only *p should have this string
+	public function report_ptspacecolonspace ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'ptspacecolonspace' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field LIKE 'pt'
+				AND value LIKE '% : %'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *p values containing colon-space rather than space-colon-space
+	public function report_pcolonspace ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'pcolonspace' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field LIKE 'p'
+				AND value LIKE '%: %'
+				AND value not like '% : %'
 		";
 		
 		# Return the query
