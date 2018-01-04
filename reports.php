@@ -73,7 +73,7 @@ class reports
 		'invaliddaterangestring_problem' => 'records with an invalid date range string',
 		'ndsyntax_problem' => 'records with invalid syntax for a non-numeric date',
 		'multipledate_info' => 'records with more than one *d',
-		'multiplept_problem' => 'records with more than one *pt',
+		'multipleppt_problem' => 'records with more than one *p or *pt',
 		'serlocloc_problem' => '*ser records with two or more locations (though some are valid)',
 		'artinperiodical_info' => '*art/*in records with location=Periodical',
 		'multipleal_info' => 'records with multiple *al values',
@@ -1751,17 +1751,19 @@ class reports
 	}
 	
 	
-	# Records with more than one *pt
-	public function report_multiplept ()
+	# Records with more than one *p or *pt
+	public function report_multipleppt ()
 	{
 		# Define the query
 		$query = "
 			SELECT
-				'multiplept' AS report,
+				'multipleppt' AS report,
 				id AS recordId
 			FROM fieldsindex
 			WHERE
-				   fieldslist REGEXP '@pt@pt@'
+				   fieldslist REGEXP '@p@p@'
+				OR fieldslist REGEXP '@p@.+@p@'
+				OR fieldslist REGEXP '@pt@pt@'
 				OR fieldslist REGEXP '@pt@.+@pt@'
 		";
 		
