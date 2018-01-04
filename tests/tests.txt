@@ -1946,15 +1946,15 @@ Macro generate300 no *pt
 
 325
 Macro generate300 *p rather than *pt
-15711
+15716
 300
-‡a67-108; 133-137 :
+‡a288 p. ;
 
 326
 Macro generate300 *pt rather than *p
-25179
+25180
 300
-‡ap. 681-685
+‡ap. 429-441 :
 
 327
 Macro generate300 split off +
