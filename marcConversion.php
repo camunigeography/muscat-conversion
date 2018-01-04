@@ -1124,7 +1124,7 @@ class marcConversion
 		# Obtain *pt; e.g. /records/1129/ (test #323); no *pt: /records/1106/ (test #324)
 		$pt = $this->xPathValue ($this->xml, '//pt[1]', false);
 		
-		# Determine *p or *pt; e.g. *p /records/6002/ (test #325), /records/25179/ (test #326)
+		# Determine *p or *pt; e.g. *p in /records/15716/ (test #325), *pt in /records/25180/ (test #326)
 		$pOrPt = (strlen ($p) ? $p : $pt);		// Confirmed there are no records with both *p and *pt
 		
 		# Firstly, break off any final + section (removing the + itself), for use in $e (Accompanying material) below; e.g. /records/67235/ (test #327)

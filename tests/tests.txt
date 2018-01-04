@@ -2932,13 +2932,13 @@ loadLookupTable case-insensitive comparison (definition side) (see also #483)
 500 generate500analytics (/art/j genuine analytic mode) basic test
 1109
 500
-‡aBritish Schools Exploring Society. Report. Vol. 1978-79 (1979)
+‡aBritish Schools Exploring Society. Report. Vol. 1978-79 :1-38 (1979)
 
 491
 generate500 strips subfield indicators
 1129
 500
-‡aBiomass Handbook. Vol. 2 ([1978])
+‡aBiomass Handbook. Vol. 2 :1-21 ([1978])
 
 492
 generate500 prefix for */art/
@@ -3226,7 +3226,7 @@ Polarforschung 1882-83 : die deutschen Expeditionen
 500 generate500analytics (/art/in scenarios) ensure slash has space just before $c
 2072
 500
-navigation / Anon.
+navigation. 2 / Anon.
 
 540
 500 generate500analytics (all scenarios) goes in $a
@@ -3238,13 +3238,13 @@ navigation / Anon.
 500 generate500analytics (/art/j pseudo-analytic mode) uses the title in the *j (i.e. second half) section
 214872
 500
-‡aOffprint: Journal of the Meteorological Society of Japan. Vol. 58(5).
+‡aOffprint: Journal of the Meteorological Society of Japan.
 
 542
 500 generate500analytics (/art/j pseudo-analytic mode) gets "Vol. " prefix if analytic volume designation starts with a number (positive case)
 214872
 500
-of Japan. Vol. 58(5).
+of Japan. Vol. 58(5)
 
 543
 500 generate500analytics (/art/j pseudo-analytic mode) gets "Vol. " prefix if analytic volume designation starts with a number (negative case)
@@ -3256,31 +3256,31 @@ of Natural History. Ser. 7
 500 generate500analytics (/art/in pseudo-analytic mode) uses the title in the *in (i.e. second half) section
 1107
 500
-‡aOffprint: CRC handbook of census methods for terrestrial vertebrates.
+‡aOffprint: CRC handbook of census methods for terrestrial vertebrates / D.E. Davis, ed.
 
 545
 500 generate500analytics (/art/in pseudo-analytic mode) gets "Vol. " prefix if analytic volume designation starts with a number (positive case) (see also #542)
 1218
 500
-for All. Vol. 5.
+for All. Vol. 5 /
 
 546
 500 generate500analytics (/art/in pseudo-analytic mode) creates an emulated statement of responsibility if author group(s) present in *in (i.e. second half) section - simple case
 14136
 500
-‡aOffprint: The story of exploration and adventure. Vol. 4. / Sir Percy Sykes
+‡aOffprint: The story of exploration and adventure. Vol. 4 / Sir Percy Sykes
 
 547
 500 generate500analytics (/art/in pseudo-analytic mode) creates an emulated statement of responsibility if author group(s) present in *in (i.e. second half) section - more complex case: multiple author groups
 1330
 500
-in Einzugsgebieten. / G. Blöschl, D. Gutknecht, R. Kirnbauer, [eds.]
+in Einzugsgebieten / G. Blöschl, D. Gutknecht, R. Kirnbauer, [eds.]
 
 548
 500 generate500analytics (/art/in pseudo-analytic mode) creates an emulated statement of responsibility if author group(s) present in *in (i.e. second half) section - more complex case: corporate author
 1811
 500
-Antarctica. Scientific Report. / Geological Survey of India. Department of Ocean Development
+Antarctica. Scientific Report / Geological Survey of India. Department of Ocean Development
 
 549
 245: If there is a / in the title explicitly, use that and discard all people groups (see also #439)
@@ -3298,7 +3298,7 @@ LDR
 500 generate500analytics: Section from 245 $h has space before (unlike original 245 $h from which it is derived)
 64883
 500
-1981 [Microfiche]
+1981 [microfiche]
 
 552
 500 generate500analytics (/art/in genuine analytic mode) $c role (using semicolon) is stripped
@@ -3562,7 +3562,7 @@ Contents:
 500 Ensure whole string in /art/j psudo-analytic ends with dot (not previously present)
 214872
 500
-/Society of Japan. Vol. 58(5).$/
+/Society of Japan. Vol. 58\(5\) :438-442.$/
 
 596
 500 Dot-end when volume designation present
