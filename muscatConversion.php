@@ -3507,6 +3507,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Populate the transliterations table
 		#!# Shouldn't we be transliterating (or at least upgrading from BGN to LoC) cases of e.g. "English = Russian" but where the record is marked as *lang=English, e.g. /records/135449/ ? If so, it may be that checking for recordLanguage is not enough - we should check for *lpt containing 'Russian' also
+		$this->logger ('|-- In ' . __METHOD__ . ', populating the transliterations table');
 		$literalBackslash = '\\';
 		$query = "
 			INSERT INTO transliterations (id, recordId, field, topLevel, xPath, title_latin)
@@ -3527,6 +3528,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->query ($query);
 		
 		# In the special case of the *t field, add to the shard the parallel title (*lpt) property associated with the top-level *t; this gives 210 updates, which exactly matches 210 results for `SELECT * FROM `catalogue_processed` WHERE `field` LIKE 'lpt' and recordLanguage = 'Russian';`
+		$this->logger ('|-- In ' . __METHOD__ . ', adding parallel title properties (top-half title)');
 		$query = "
 			UPDATE transliterations
 			LEFT JOIN catalogue_processed ON transliterations.recordId = catalogue_processed.recordId
@@ -3539,6 +3541,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->query ($query);
 		
 		# In the special case of the *t field, where the shard is a bottom-half title, use the bottom-half *lpt when present
+		$this->logger ('|-- In ' . __METHOD__ . ', adding parallel title properties (bottom-half title)');
 		$query = "
 			UPDATE transliterations
 			INNER JOIN catalogue_processed ON
@@ -3552,6 +3555,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->query ($query);
 		
 		# In the case of fields in the second half of the record, delete each shard from the scope of transliteration where it has an associated local (*in / *j) language, e.g. where the shard is a bottom-half title, and it is marked separately as a non-relevant language (e.g. Russian record but /art/j/tg/lang = 'English'); e.g. /records/9820/ , /records/27093/ , /records/57745/
+		$this->logger ('|-- In ' . __METHOD__ . ', deleting bottom-half shards with an associated non-relevant local language');
 		$query = "
 			DELETE FROM transliterations
 			WHERE
@@ -3569,6 +3573,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->query ($query);
 		
 		# In the special case of the *t field, add in *tt (translated title) where that exists
+		$this->logger ('|-- In ' . __METHOD__ . ', adding translated titles');
 		$query = "
 			UPDATE transliterations
 			LEFT JOIN catalogue_processed ON transliterations.recordId = catalogue_processed.recordId
@@ -3581,6 +3586,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->query ($query);
 		
 		# In the special case of the *pu field, clear out special tokens
+		$this->logger ('|-- In ' . __METHOD__ . ', clearing out special tokens in publisher entry');
 		$query = "
 			DELETE FROM transliterations
 			WHERE
@@ -3590,6 +3596,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->query ($query);
 		
 		# For the *n1 field, clear out cases consisting of special tokens (e.g. 'Anon.') because no attempt has been made to add protected string support for name authority checking; the records themselves (e.g. /records/6451/ ) are fine as these tokens are defined in the protected strings table so will be protected from transliteration
+		$this->logger ('|-- In ' . __METHOD__ . ', clearing out special tokens in name1 entry');
 		$query = "
 			DELETE FROM transliterations
 			WHERE
@@ -3599,15 +3606,19 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->query ($query);
 		
 		# Trigger a transliteration run
+		$this->logger ('|-- In ' . __METHOD__ . ', running transliteration of entries in the transliterations table');
 		$this->transliterateTransliterationsTable ();
 		
 		# Populate the Library of Congress name authority list and mark the matches (with inNameAuthorityList = -1)
+		$this->logger ('|-- In ' . __METHOD__ . ', populating the Library of Congress name authority list');
 		$this->populateLocNameAuthorities ();
 		
 		# Populate the other names data and mark the matches (with inNameAuthorityList = count)
+		$this->logger ('|-- In ' . __METHOD__ . ', populating the other names data');
 		$this->populateOtherNames ();
 		
 		# Mark items not matching a name authority as 0 (rather than leaving as NULL)
+		$this->logger ('|-- In ' . __METHOD__ . ', marking items not matching a name authority');
 		$query = "
 			UPDATE transliterations
 			SET inNameAuthorityList = -9999
@@ -3618,6 +3629,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->query ($query);
 		
 		# Create the ticked names table if it does not yet exist; this is persistent data between imports and should not be cleared
+		$this->logger ('|-- In ' . __METHOD__ . ', creating the ticked names table');
 		$sql = "
 			CREATE TABLE IF NOT EXISTS tickednames (
 				id VARCHAR(10) NOT NULL COMMENT 'Processed shard ID (catalogue_processed.id)',
@@ -3630,6 +3642,7 @@ class muscatConversion extends frontControllerApplication
 		$this->databaseConnection->execute ($sql);
 		
 		# Mark in the manually-reviewed ('ticked') names data and mark the matches (with inNameAuthorityList = -1000)
+		$this->logger ('|-- In ' . __METHOD__ . ', marking the ticked names data');
 		$this->markTickedNames ();
 	}
 	
