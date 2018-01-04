@@ -246,7 +246,7 @@ class muscatConversion extends frontControllerApplication
 			),
 			'tests' => array (
 				'description' => false,
-				'url' => 'reports/tests/',
+				'url' => 'tests/',
 				'tab' => 'Tests',
 				'icon' => 'bug',
 				'administrator' => true,
@@ -723,9 +723,9 @@ class muscatConversion extends frontControllerApplication
 	
 	
 	# Function to link a report
-	private function reportLink ($record = false)
+	private function reportLink ($report = false)
 	{
-		return $this->baseUrl . '/reports/' . ($record ? htmlspecialchars ($record) . '/' : '');
+		return $this->baseUrl . ($report != 'tests' ? '/reports/' : '/') . ($report ? htmlspecialchars ($report) . '/' : '');
 	}
 	
 	

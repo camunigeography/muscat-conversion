@@ -4051,7 +4051,7 @@ class reports
 				'like'		=> true,
 			),
 		);
-		$conditions = $this->muscatConversion->filteringControls ($fields, $this->baseUrl . '/reports/tests/', $html);
+		$conditions = $this->muscatConversion->filteringControls ($fields, $this->baseUrl . '/tests/', $html);
 		
 		# Obtain the data
 		$data = $this->databaseConnection->select ($this->settings['database'], 'tests', $conditions, array (), true, false, false, true, array ('description'));
