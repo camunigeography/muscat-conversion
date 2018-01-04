@@ -1222,7 +1222,7 @@ class marcConversion
 	
 	
 	
-	# Helper function to create the page string or count; if one than one item, a count is used; many tests present as shown
+	# Helper function to create (used only for non- *doc records) the page string or count; if one than one item, a count is used; many tests present as shown
 	#!# /records/152332/ contains "xi, 1-175" which is contradictory information - record to be fixed
 	private function pagesString ($citationListValues)
 	{
@@ -1336,10 +1336,14 @@ class marcConversion
 		
 		# $a (R) (Extent, pagination): If record is *doc with any or no *form (e.g. /records/20704/ (test #331)), or *art with multimediaish *form CD, CD-ROM (e.g. /records/203063/ (test #332) - NB no longer exists, and confirmed no records to test), DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording: "(*v), (*p or *pt)" [all text up to and including ':']
 		
-		# If a doc with a *v, begin with *v; e.g. /records/20704/ (test #331), /records/37420/ , /records/8988/ (test #513)
+		# $a is a description of the page extent, simplified in the case of analytics across several volumes, e.g. /records/2281/ (test #626 - which uses a multi-volume *doc, as single volume would be the same as pages and therefore would be a poor test); /records/54657/ (test #627)
 		$isDoc = ($this->recordType == '/doc');
-		$a = $this->pOrPt['pages'];
+		$a = ($isDoc ? $this->pOrPt['citation'] : $this->pOrPt['pages']);
+		
+		# Create local handle to the physical description
 		$b = $this->pOrPt['physicalDescription'];
+		
+		# If a doc with a *v, begin with *v; e.g. /records/20704/ (test #331), /records/37420/ , /records/8988/ (test #513)
 		if ($isDoc) {
 			$vMuscat = $this->xPathValue ($this->xml, '//v');
 			if (strlen ($vMuscat)) {
