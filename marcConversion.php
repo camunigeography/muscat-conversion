@@ -3013,33 +3013,33 @@ class marcConversion
 	}
 	
 	
-	# Macro to lookup periodical locations, which may generate a multiline result; see: https://www.loc.gov/marc/holdings/hd852.html
+	# Macro to lookup periodical locations, which may generate a multiline result, e.g. /records/1102/ (test #621); see: https://www.loc.gov/marc/holdings/hd852.html
 	private function macro_generate852 ($value)
 	{
 		# Start a list of results
 		$resultLines = array ();
 		
-		# Get the locations
+		# Get the locations, e.g. single location in /records/1102/ (test #621), multiple locations in /records/3959/ (test #622)
 		$locations = $this->xPathValues ($this->xml, '//loc[%i]/location');
 		
 		# Loop through each location
 		foreach ($locations as $index => $location) {
 			
-			# Start record with 852 7#  ‡2camdept
-			$result = 'camdept';	// NB The initial "852 7#  ‡2" is stated within the parser definition and line splitter
+			# Start record with 852 7# ‡2camdept (which is the source indicator), e.g. /records/3959/ (test #623)
+			$result = 'camdept';	// NB The initial "852 7# ‡2" is stated within the parser definition and line splitter
 			
-			# Is *location 'Not in SPRI' OR does *location start with 'Shelved with'?
+			# Is *location 'Not in SPRI' (e.g. /records/1302/ (test #624)), OR does *location start with 'Shelved with' (e.g. /records/1027/ (test #625))?
 			if ($location == 'Not in SPRI' || preg_match ('/^Shelved with/', $location)) {
 				
 				# Does the record contain another *location field?
 				if (count ($locations) > 1) {
 					
-					# Does the record contain any  other *location fields that have not already been mapped to 852 fields?; If not, skip to next, or end
+					# Does the record contain any other *location fields that have not already been mapped to 852 fields?; If not, skip to next, or end
 					continue;
 					
 				} else {
 					
-					# Is *location 'Not in SPRI'?; if yes, add to record: ‡z Not in SPRI; if no, Add to record: ‡c <*location>
+					# Is *location 'Not in SPRI'?; if yes, add to record: ‡z Not in SPRI, e.g. /records/1302/ (test #624); if no, Add to record: ‡c <*location>, e.g. /records/1027/ (test #625)
 					if ($location == 'Not in SPRI') {
 						#!# $bSPRI-NIS logic needs checking
 						$result .= " {$this->doubleDagger}bSPRI-NIS";
@@ -3128,7 +3128,7 @@ class marcConversion
 			$resultLines[] = trim ($result);
 		}
 		
-		# Implode the list
+		# Implode the list as a multiline if multiple, e.g. /records/3959/ (test #622)
 		$result = implode ("\n" . "852 7# {$this->doubleDagger}2", $resultLines);
 		
 		# Return the result

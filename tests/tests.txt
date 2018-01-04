@@ -3714,6 +3714,36 @@ Suppression reason
 !948
 SUPPRESS
 
+621
+852 with single location
+1102
+852
+‡2camdept ‡bSPRI-SHF ‡h(*60) : 656.61.052
+
+622
+852 with multiple locations
+3959
+852
+‡2camdept ‡bSPRI-PAM ‡h91(08) : (*3)[1871 Weyprecht and Payer]
+
+623
+852 has camdept as source
+3959
+852
+‡2camdept
+
+624
+852 Not in SPRI
+1302
+852
+‡zNot in SPRI
+
+625
+852 Shelved with
+1027
+852
+‡cShelved with pamphlets
+
 626
 300 ‡a for *doc uses citation (see also next test)
 2281
