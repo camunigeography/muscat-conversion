@@ -1993,10 +1993,10 @@ Macro generate300 adds dot after abbreviated term illus if not present
 ‡billus.
 
 331
-Macro generate300 *v present in *doc having ‡b
-20704
+Macro generate300 *v present in *doc
+37420
 300
-‡a2 vols :‡b
+‡a5 vols.
 
 332
 Macro generate300 *v present in *art with a multimedia-type *form
@@ -3079,10 +3079,10 @@ Multiple *note in 500
 1-23 :‡bmaps, tables.
 
 513
-Macro generate300 *v present in *doc having ‡a creates space
-8988
+300 ‡a *doc with volume information and citation creates space with brackets (see also #628)
+2281
 300
-‡a12 vols. Variously paged.
+‡a3 vols. (xliv, 564 p.; xii, 612 p.; xv, 694 p.) :‡b
 
 514
 773 in *art with analytic volume designation present appears as ‡g
@@ -3727,15 +3727,20 @@ Suppression reason
 SUPPRESS
 
 626
-300 ‡a for *doc uses citation
+300 ‡a for *doc uses citation (see also next test)
 2281
 300
 xliv, 564 p.; xii, 612 p.; xv, 694 p. :‡b
 
 627
-300 ‡a for non- *doc uses pages
+300 ‡a for non- *doc uses pages (see also previous test)
 54657
 300
 ‡a17 p. :
 
+628
+300 ‡a *doc with volume information only - no citation created and thus no brackets (see also #513)
+37420
+300
+‡a5 vols. ;‡c
 

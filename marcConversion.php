@@ -1343,11 +1343,15 @@ class marcConversion
 		# Create local handle to the physical description
 		$b = $this->pOrPt['physicalDescription'];
 		
-		# If a doc with a *v, begin with *v; e.g. /records/20704/ (test #331), /records/37420/ , /records/8988/ (test #513)
+		# If a doc with a *v, begin with *v and surround the a part with brackets; e.g. /records/37420/ (test #331)
 		if ($isDoc) {
 			$vMuscat = $this->xPathValue ($this->xml, '//v');
 			if (strlen ($vMuscat)) {
-				$a = $vMuscat . ($a ? ' ' : '') . $a;
+				if ($a) {
+					$a = $vMuscat . ' (' . $a . ')';	// I.e. "Volume (pages)", e.g. /records/2281/ (test #513)
+				} else {
+					$a = $vMuscat;	// I.e. no citation - just has number of volumes, e.g. /records/37420/ (test #628)
+				}
 			}
 		}
 		
