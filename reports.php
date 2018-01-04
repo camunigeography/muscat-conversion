@@ -1751,8 +1751,7 @@ class reports
 	}
 	
 	
-	# Records with more than one *pt; this report is for helping determine how to represent 300 repeatable $a ; see: https://www.loc.gov/marc/bibliographic/bd300.html
-	# Post-migration fix-up will be required
+	# Records with more than one *pt
 	public function report_multiplept ()
 	{
 		# Define the query
@@ -1762,7 +1761,8 @@ class reports
 				id AS recordId
 			FROM fieldsindex
 			WHERE
-				fieldslist REGEXP '@pt@.+@pt@' OR fieldslist REGEXP '@pt@pt@'
+				   fieldslist REGEXP '@pt@pt@'
+				OR fieldslist REGEXP '@pt@.+@pt@'
 		";
 		
 		# Return the query
