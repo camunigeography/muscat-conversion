@@ -1149,7 +1149,7 @@ class marcConversion
 		$splitWords = array ('col', 'diag', 'fig', 'figures', 'graph', 'ill', 'illus', 'map', 'port', 'table', );	// These may be pluralised, using the s? below; e.g. /records/1684/ (test #512)
 		$pOrPt = trim ($pOrPt);
 		$physicalDescription = false;
-		$matches = preg_split ('/' . "\b" . '((?:' . implode ('|', $splitWords) . ')s?' . "\b.+$)" . '/', $pOrPt, 2, PREG_SPLIT_DELIM_CAPTURE|PREG_SPLIT_NO_EMPTY);		// Use of \b word boundary ensures not splitting bibliography at 'graph' (test #220)
+		$matches = preg_split ('/' . "\b" . '((?:' . implode ('|', $splitWords) . ')s?' . "\b.*$)" . '/', $pOrPt, 2, PREG_SPLIT_DELIM_CAPTURE|PREG_SPLIT_NO_EMPTY);		// Use of \b word boundary ensures not splitting at substrings, e.g. bibliography at 'graph': /records/54670/ (test #220); .* is used so that both appreviated types ("ill.", "diag.") and non-abbreviated types ("tables", "map") - see test for latter: /records/24489/ (test #630)
 		if (count ($matches) == 2) {
 			$pOrPt = trim ($matches[0]);
 			$physicalDescription = trim ($matches[1]);

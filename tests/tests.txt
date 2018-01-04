@@ -3750,3 +3750,8 @@ xliv, 564 p.; xii, 612 p.; xv, 694 p. :‡b
 300
  :‡bill. ;‡c
 
+630
+300 ‡b non-abbreviated split point (e.g. map/tables/table)
+24489
+300
+ :‡btables.
