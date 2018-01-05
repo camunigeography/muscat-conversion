@@ -3803,3 +3803,16 @@ SUPPRESS
 1029
 260
 ‡c1991.
+
+646
+852 ‡h Extract classmark (for standard SPRI locations) when it exists (see also next test)
+1111
+852
+‡bSPRI-SHF ‡h(*7) : 341.24
+
+647
+852 ‡h is not created when no classmark (for standard SPRI locations) (see also previous test)
+31500
+852
+/‡bSPRI-BIB$/
+

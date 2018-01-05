@@ -3087,15 +3087,17 @@ class marcConversion
 			} else {
 				
 				# This *location will be referred to as *location_original; does *location_original appear in the location codes list?
-				$locationStartsWith = false;
+				$locationEndsWith = false;
 				$locationCode = false;
 				foreach ($this->locationCodes as $startsWith => $code) {
-					if (preg_match ("|^{$startsWith}|", $location)) {
-						$locationStartsWith = $startsWith;
+					#!# Consider space matches
+					if (preg_match ("|^({$startsWith})(.*)|", $location, $matches)) {
+						$locationEndsWith = trim ($matches[2]);		# "Cupboard 223" would have "223"; this is doing: "Remove the portion of *location that maps to a Voyager location code (i.e. the portion that appears in the location codes list) - the remainder will be referred to as *location_trimmed"
 						$locationCode = $code;
 						break;
 					}
 				}
+				
 				if ($locationCode) {
 					
 					# Add corresponding Voyager location code to record: ‡b SPRI-XXX
@@ -3116,13 +3118,9 @@ class marcConversion
 						
 					} else {
 						
-						# Remove the portion of *location that maps to a Voyager location code (i.e. the portion that appears in the location codes list) - the remainder will be referred to as *location_trimmed
-						$locationTrimmed = preg_replace ("|^{$locationStartsWith}|", '', $location);
-						$locationTrimmed = trim ($locationTrimmed);
-						
-						# Is *location_trimmed empty?; If no, Add to record: ‡h <*location_trimmed> ; e.g. /records/37181/
-						if (strlen ($locationTrimmed)) {
-							$result .= " {$this->doubleDagger}h" . $locationTrimmed;
+						# "Is *location_trimmed empty?; If no, Add to record: ‡h <*location_trimmed>"; e.g. /records/1111/ (test #646) (which has "(*7) : 341.24" which comes from "Shelf (*7) : 341.24") ; Empty example at: /records/31500/ (test #647) which has "Bibliographers' Office"
+						if (strlen ($locationEndsWith)) {
+							$result .= " {$this->doubleDagger}h" . $locationEndsWith;
 						}
 					}
 					
