@@ -1071,7 +1071,7 @@ class marcConversion
 				}
 			}
 			
-			# Assemble the result
+			# Assemble the result; NB If there is no $a and $b value, but there is a date, "260 ## ‡a[S.l.] :‡b[s.n.],‡c1985." is indeed correct to have $a and $b both created as shown, e.g. /records/76740/ (test #652)
 			$results[$pgIndex]  = "{$this->doubleDagger}a" . implode (" ;{$this->doubleDagger}a", $plValues);
 			$results[$pgIndex] .= " :{$this->doubleDagger}b" . implode (" :{$this->doubleDagger}b", $puValues);	// "a colon (:) when subfield $b is followed by another subfield $b" at https://www.loc.gov/marc/bibliographic/bd260.html , e.g. /records/1223/ (test #304)
 		}
