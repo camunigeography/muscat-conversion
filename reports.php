@@ -127,6 +127,7 @@ class reports
 		'tdot_problem' => '*t values ending with a dot',
 		'ptspacecolonspace_problem' => '*pt values containing space-colon-space',
 		'pcolonspace_problem' => '*p values containing colon-space rather than space-colon-space',
+		'sermultipler_problem' => '*ser records with multiple *r',
 	);
 	
 	# Listing (values) reports
@@ -2889,6 +2890,25 @@ class reports
 				    field LIKE 'p'
 				AND value LIKE '%: %'
 				AND value not like '% : %'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *ser records with multiple *r
+	public function report_sermultipler ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'sermultipler' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    xPath LIKE '/ser%'
+				AND xPathWithIndex LIKE '%/r[2]'
 		";
 		
 		# Return the query
