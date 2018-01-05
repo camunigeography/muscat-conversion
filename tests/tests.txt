@@ -3821,3 +3821,23 @@ SUPPRESS
 1331
 !852
 *
+
+649
+852 Not in SPRI - with another location
+7976
+852
+‡2camdept ‡bSPRI-NIS ‡xRoyal Geographical Society ‡zNot in SPRI
+
+650
+852 Not in SPRI - with no other locations
+1302
+852
+‡2camdept ‡bSPRI-NIS ‡zNot in SPRI
+
+651
+852 Not in SPRI - with multiple other locations
+31021
+852
+‡2camdept ‡bSPRI-NIS ‡xCambridge University Library ‡xLibrary of Congress ‡zNot in SPRI
+
+

@@ -3042,18 +3042,29 @@ class marcConversion
 	}
 	
 	
-	# Macro to lookup periodical locations, which may generate a multiline result, e.g. /records/1102/ (test #621); see: https://www.loc.gov/marc/holdings/hd852.html
+	# Macro to lookup periodical locations, which may generate a multiline result, e.g. /records/1102/ (test #621); see: https://www.loc.gov/marc/bibliographic/bd852.html
 	private function macro_generate852 ($value_ignored)
 	{
-		# Start a list of results
-		$resultLines = array ();
-		
 		# Get the locations (if any), e.g. single location in /records/1102/ (test #621), multiple locations in /records/3959/ (test #622)
 		$locations = $this->xPathValues ($this->xml, '//loc[%i]/location');
 		
 		# End if no locations, i.e. no result and therefore no 852 field, e.g. /records/1331/ (test #648) - this is the normal scenario for *status = RECEIVED, ON ORDER, etc.
 		if (!$locations) {return false;}
 		
+		# For the special of "Not in SPRI" being present (in any *location), then create a single 852 value, with the other location(s) noted if any, e.g. /records/7976/ (test #649); /reports/notinspriinspri/ confirms there are now no cases of items "Not in SPRI" also having a SPRI location
+		if (in_array ('Not in SPRI', $locations)) {	// NB Manually validated in the database that this is always present as the full string, not a match
+			$otherLocations = array_diff ($locations, array ('Not in SPRI'));	// I.e. unset the entry containing this value
+			$result  = "{$this->doubleDagger}2camdept";
+			$result .= " {$this->doubleDagger}bSPRI-NIS";
+			if ($otherLocations) {		// $x notes other location(s) if any; e.g. /records/7976/ (test #649); none in e.g. /records/1302/ (test #650)
+				$result .= " {$this->doubleDagger}x" . implode (" {$this->doubleDagger}x", $otherLocations);		// Multiple in e.g. /records/31021/ (test #651)
+			}
+			$result .= " {$this->doubleDagger}zNot in SPRI";
+			return $result;
+		}
+		
+		# Start a list of results
+		$resultLines = array ();
 		
 		# Loop through each location
 		foreach ($locations as $index => $location) {
