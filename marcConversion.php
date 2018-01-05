@@ -93,6 +93,7 @@ class marcConversion
 	
 	
 	# Main entry point
+	# Local documentation at: http://www.lib.cam.ac.uk/libraries/login/bibstandard/bibstandards.htm
 	public function convertToMarc ($marcParserDefinition, $recordXml, $mergeDefinition = array (), $mergeType = false, $mergeVoyagerId = false, $suppressReasons = false)
 	{
 		# Reset the error string and source registry so that they are clean for each iteration
