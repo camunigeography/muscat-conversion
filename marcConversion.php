@@ -3043,6 +3043,7 @@ class marcConversion
 	
 	
 	# Macro to lookup periodical locations, which may generate a multiline result, e.g. /records/1102/ (test #621); see: https://www.loc.gov/marc/bibliographic/bd852.html
+	# Note that the algorithm here is a simplified version of doc/852 locations flowchart.xlsx (which was created before work to clean up 'Not in SPRI' records)
 	private function macro_generate852 ($value_ignored)
 	{
 		# Get the locations (if any), e.g. single location in /records/1102/ (test #621), multiple locations in /records/3959/ (test #622)
