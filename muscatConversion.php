@@ -1771,7 +1771,7 @@ class muscatConversion extends frontControllerApplication
 		# Compile the HTML
 		$html = '';
 		if ($enableSortability) {
-			$html .= "\n" . '<!-- Enable table sortability: --><script language="javascript" type="text/javascript" src="http://www.geog.cam.ac.uk/sitetech/sorttable.js"></script>';
+			$html .= "\n" . '<!-- Enable table sortability: --><script language="javascript" type="text/javascript" src="/sitetech/sorttable.js"></script>';
 		}
 		$html .= application::htmlTable ($data, $tableHeadingSubstitutions, $class = 'reportlisting lines compressed sortable" id="sortable', $keyAsFirstColumn = false, $uppercaseHeadings = true, $allowHtml = true);
 		
