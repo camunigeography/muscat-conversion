@@ -3072,8 +3072,8 @@ class marcConversion
 			# Start record with 852 7# ‡2camdept (which is the source indicator), e.g. /records/3959/ (test #623)
 			$result = "{$this->doubleDagger}2camdept";
 			
-			# Is *location 'Not in SPRI' (e.g. /records/1302/ (test #624)), OR does *location start with 'Shelved with' (e.g. /records/1027/ (test #625))?
-			if ($location == 'Not in SPRI' || preg_match ('/^Shelved with/', $location)) {
+			# Does *location start with 'Shelved with' (e.g. /records/1027/ (test #625))?
+			if (preg_match ('/^Shelved with/', $location)) {
 				
 				# Does the record contain another *location field?
 				if (count ($locations) > 1) {
@@ -3081,16 +3081,10 @@ class marcConversion
 					# Does the record contain any other *location fields that have not already been mapped to 852 fields?; If not, skip to next, or end
 					continue;
 					
-				} else {
+				} else {	// i.e. if there is only one *location
 					
-					# Is *location 'Not in SPRI'?; if yes, add to record: ‡z Not in SPRI, e.g. /records/1302/ (test #624); if no, Add to record: ‡c <*location>, e.g. /records/1027/ (test #625)
-					if ($location == 'Not in SPRI') {
-						#!# $bSPRI-NIS logic needs checking
-						$result .= " {$this->doubleDagger}bSPRI-NIS";
-						$result .= " {$this->doubleDagger}zNot in SPRI";
-					} else {
-						$result .= " {$this->doubleDagger}c" . $location;
-					}
+					# Add to record: ‡c <*location>, e.g. /records/1027/ (test #625)
+					$result .= " {$this->doubleDagger}c" . $location;
 					
 					# Register this result
 					$resultLines[] = $result;
@@ -3141,17 +3135,9 @@ class marcConversion
 					
 				} else {
 					
-					# Add to record: ‡x <*location_original>
-					$result .= " {$this->doubleDagger}x" . $location;
-				}
-				
-				# Does the record contain another *location field that is equal to 'Not in SPRI'?
-				if ($notInSpriLocationIndex = application::preg_match_array ('^Not in SPRI$', $locations, true)) {
-					
-					# Add to record: ‡z Not in SPRI
-					#!# $bSPRI-NIS logic needs checking
+					# Add to record: ‡b SPRI-NIS ‡x <*location_original>
 					$result .= " {$this->doubleDagger}bSPRI-NIS";
-					$result .= " {$this->doubleDagger}zNot in SPRI";
+					$result .= " {$this->doubleDagger}x" . $location;
 				}
 			}
 			
