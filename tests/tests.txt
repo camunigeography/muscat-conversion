@@ -1390,7 +1390,7 @@ SPRI-1061
 Leader byte count
 1003
 LDR
-00984
+01012
 
 230
 880 link reciprocality (see also next test)
