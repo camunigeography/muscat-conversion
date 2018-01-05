@@ -1909,16 +1909,16 @@ No 260 880 generated if record is not Russian (implementation pending)
 260-
 
 317
-260 second indicator: if *loc starts with 'Theses' second indicator should be '0' (implementation pending)
+260 second indicator: if *loc starts with 'Theses' second indicator should be '0' (see also next test)
 3152
 i260
-/0$/
+#0
 
 318
-260 second indicator: normal case
+260 second indicator: normal case (see also previous test)
 1117
 i260
-/#$/
+##
 
 320
 Macro generate300 *p
