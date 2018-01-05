@@ -1082,8 +1082,11 @@ class marcConversion
 		# Add $c if present; confirmed these should be treated as a single $c, comma-separated, as we have no grouping information; e.g. /records/76740/ (test #307)
 		# "If the record is a *ser, populate $c with *r instead of putting '[n.d.]' (*ser records do not include a *d); if a *ser record does not include a *r, do not include a $c."
 		$cField = ($this->recordType == '/ser' ? 'r' : 'd');	// E.g. *ser record /records/1009/ (test #634), other record types /records/5943/ (test #635)
-		#!# Presumably need to filter out /ser/r values which aren't dates: "SELECT * FROM catalogue_processed WHERE xPath like '/ser%' AND field = 'r' AND value not regexp '^[-/\?;, 0-9]+$' limit 9999;"
-		if ($dateValues = $this->xPathValues ($this->xml, "(//{$cField})[%i]", false)) {
+		$dateValues = $this->xPathValues ($this->xml, "(//{$cField})[%i]", false);
+		if ($this->recordType == '/ser' && preg_match ('/[a-zA-Z]/', $dateValues[1] /* i.e. the first in xPath terms */ )) {	// For *ser records, if the value has any a-z text present, e.g. "unknown", "current only", etc., then treat this as an invalid date range, and therefore do not create a $c, e.g. /records/1024/ (tests #644) and normal year test case /records/1029/ (test #645); assumes single *r - see /reports/sermultipler/
+			$dateValues = NULL;
+		}
+		if ($dateValues) {
 			if ($result) {$result .= ',';}
 			$result .= "{$this->doubleDagger}c" . implode (', ', $dateValues);	// Nothing in spec suggests modification if empty, /records/1102/ has [n.d.] (test #312), which remains as-is
 		}

@@ -3792,3 +3792,14 @@ SUPPRESS
 260
 ‡c1894.
 
+644
+260 *ser records with textual *r have no ‡c (see also next record)
+1024
+260
+/‡b\[s.n.\]$/
+
+645
+260 *ser records with textual *r have no ‡c (normal year case; see also previous record)
+1029
+260
+‡c1991.
