@@ -3059,7 +3059,7 @@ class marcConversion
 		foreach ($locations as $index => $location) {
 			
 			# Start record with 852 7# ‡2camdept (which is the source indicator), e.g. /records/3959/ (test #623)
-			$result = 'camdept';	// NB The initial "852 7# ‡2" is stated within the parser definition and line splitter
+			$result = "{$this->doubleDagger}2camdept";
 			
 			# Is *location 'Not in SPRI' (e.g. /records/1302/ (test #624)), OR does *location start with 'Shelved with' (e.g. /records/1027/ (test #625))?
 			if ($location == 'Not in SPRI' || preg_match ('/^Shelved with/', $location)) {
@@ -3160,7 +3160,7 @@ class marcConversion
 		}
 		
 		# Implode the list as a multiline if multiple, e.g. /records/3959/ (test #622)
-		$result = implode ("\n" . "852 7# {$this->doubleDagger}2", $resultLines);
+		$result = implode ("\n" . '852 7# ', $resultLines);
 		
 		# Return the result
 		return $result;
