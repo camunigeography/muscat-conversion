@@ -3043,13 +3043,16 @@ class marcConversion
 	
 	
 	# Macro to lookup periodical locations, which may generate a multiline result, e.g. /records/1102/ (test #621); see: https://www.loc.gov/marc/holdings/hd852.html
-	private function macro_generate852 ($value)
+	private function macro_generate852 ($value_ignored)
 	{
 		# Start a list of results
 		$resultLines = array ();
 		
-		# Get the locations, e.g. single location in /records/1102/ (test #621), multiple locations in /records/3959/ (test #622)
+		# Get the locations (if any), e.g. single location in /records/1102/ (test #621), multiple locations in /records/3959/ (test #622)
 		$locations = $this->xPathValues ($this->xml, '//loc[%i]/location');
+		
+		# End if no locations, i.e. no result and therefore no 852 field, e.g. /records/1331/ (test #648) - this is the normal scenario for *status = RECEIVED, ON ORDER, etc.
+		if (!$locations) {return false;}
 		
 		# Loop through each location
 		foreach ($locations as $index => $location) {
