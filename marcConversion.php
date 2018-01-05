@@ -1378,9 +1378,15 @@ class marcConversion
 		
 		# $a (R) (Extent, pagination): If record is *doc with any or no *form (e.g. /records/20704/ (test #331)), or *art with multimediaish *form CD, CD-ROM (e.g. /records/203063/ (test #332) - NB no longer exists, and confirmed no records to test), DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording: "(*v), (*p or *pt)" [all text up to and including ':']
 		
-		# $a is a description of the page extent, simplified in the case of analytics across several volumes, e.g. /records/2281/ (test #626 - which uses a multi-volume *doc, as single volume would be the same as pages and therefore would be a poor test); /records/54657/ (test #627)
+		# $a is a description of the physical extent, simplified in the case of analytics across several volumes, e.g. /records/2281/ (test #626 - which uses a multi-volume *doc, as single volume would be the same as pages and therefore would be a poor test); /records/54657/ (test #627)
 		$isDoc = ($this->recordType == '/doc');
-		$a = ($isDoc ? $this->pOrPt['citation'] : $this->pOrPt['pages']);
+		if ($isDoc) {
+			$a = $this->pOrPt['citation'];
+		} else if ($this->recordType == '/ser') {
+			$a = NULL;	// For *ser, number of volumes is unknown to Muscat; code lower then converts this to 'v.' (as there will be no $b also), e.g. /records/1019/ (test #341)
+		} else {
+			$a = $this->pOrPt['pages'];
+		}
 		
 		# Create local handle to the physical description
 		$b = $this->pOrPt['physicalDescription'];
