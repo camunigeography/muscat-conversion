@@ -3780,3 +3780,15 @@ SUPPRESS
 300
 ‡ap. 203-306, [4] leaves of maps :‡bill.,
 
+633
+260 ‡c uses *r for *ser records
+1009
+260
+‡c1975-78.
+
+634
+260 ‡c uses *d for non- *ser records
+5943
+260
+‡c1894.
+

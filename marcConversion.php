@@ -1080,7 +1080,10 @@ class marcConversion
 		$result = implode (' ;', $results);
 		
 		# Add $c if present; confirmed these should be treated as a single $c, comma-separated, as we have no grouping information; e.g. /records/76740/ (test #307)
-		if ($dateValues = $this->xPathValues ($this->xml, '(//d)[%i]', false)) {
+		# "If the record is a *ser, populate $c with *r instead of putting '[n.d.]' (*ser records do not include a *d); if a *ser record does not include a *r, do not include a $c."
+		$cField = ($this->recordType == '/ser' ? 'r' : 'd');	// E.g. *ser record /records/1009/ (test #634), other record types /records/5943/ (test #635)
+		#!# Presumably need to filter out /ser/r values which aren't dates: "SELECT * FROM catalogue_processed WHERE xPath like '/ser%' AND field = 'r' AND value not regexp '^[-/\?;, 0-9]+$' limit 9999;"
+		if ($dateValues = $this->xPathValues ($this->xml, "(//{$cField})[%i]", false)) {
 			if ($result) {$result .= ',';}
 			$result .= "{$this->doubleDagger}c" . implode (', ', $dateValues);	// Nothing in spec suggests modification if empty, /records/1102/ has [n.d.] (test #312), which remains as-is
 		}
@@ -1261,7 +1264,6 @@ class marcConversion
 		# Return the tokenised pairs
 		return $citationListValues;
 	}
-	
 	
 	
 	# Helper function to create (used only for non- *doc records) the page string or count; if one than one item, a count is used; many tests present as shown
