@@ -1376,7 +1376,8 @@ class marcConversion
 		# Start a result
 		$result = '';
 		
-		# $a (R) (Extent, pagination): If record is *doc with any or no *form (e.g. /records/20704/ (test #331)), or *art with multimediaish *form CD, CD-ROM (e.g. /records/203063/ (test #332) - NB no longer exists, and confirmed no records to test), DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording: "(*v), (*p or *pt)" [all text up to and including ':']
+		# $a (R) (Extent, pagination): If record is *doc with any or no *form (e.g. /records/20704/ (test #331)): "(*v), (*p or *pt)" [all text up to and including ':']
+		# NB Spec also stated the following to provide the same result, but no cases exist: "or *art with multimediaish *form CD, CD-ROM, DVD, DVD-ROM, Sound Cassette, Sound Disc or Videorecording"
 		
 		# $a is a description of the physical extent, simplified in the case of analytics across several volumes, e.g. /records/2281/ (test #626 - which uses a multi-volume *doc, as single volume would be the same as pages and therefore would be a poor test); /records/54657/ (test #627)
 		$isDoc = ($this->recordType == '/doc');

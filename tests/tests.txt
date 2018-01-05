@@ -1986,12 +1986,6 @@ Macro generate300 *v present in *doc
 300
 ‡a5 vols.
 
-332
-Macro generate300 *v present in *art with a multimedia-type *form
-203063
-300
-‡aWinter.
-
 333
 Macro generate300 ‡e accompanying material
 152326
