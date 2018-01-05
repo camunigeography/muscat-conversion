@@ -44,6 +44,7 @@ class reports
 		'singleexternallocation_problem' => 'records with only one location, which is not on the whitelist',
 		'arttitlenoser' => 'articles without a matching serial title, that are not pamphlets or in the special collection',
 		'notinspri_info' => 'items not in SPRI',
+		'notinspriinspri_problem' => 'items not in SPRI also having a SPRI location',
 		'loccamuninotinspri_info' => 'records with location matching Cambridge University, not in SPRI',
 		'loccamuniinspri_info' => 'records with location matching Cambridge University, in SPRI',
 		'onordercancelled_info' => 'items on order or cancelled',
@@ -1113,6 +1114,32 @@ class reports
 			WHERE
 				    field = 'location'
 				AND value LIKE 'Not in SPRI'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Items not in SPRI also having a SPRI location (which should not happen, i.e. no results)
+	public function report_notinspriinspri ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'notinspriinspri' AS report,
+				root.recordId
+			FROM catalogue_processed AS root
+			JOIN fieldsindex ON root.recordId = fieldsindex.id
+			JOIN catalogue_processed AS others
+				ON root.recordId = others.recordId
+				AND others.field = 'location'
+				AND others.value != 'Not in SPRI'
+			WHERE
+				    root.field = 'location'
+				AND root.value = 'Not in SPRI'
+				AND others.value REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
+			AND fieldslist REGEXP '@location@.+@location@'
 		";
 		
 		# Return the query

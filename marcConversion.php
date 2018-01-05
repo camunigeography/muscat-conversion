@@ -3054,6 +3054,7 @@ class marcConversion
 		# End if no locations, i.e. no result and therefore no 852 field, e.g. /records/1331/ (test #648) - this is the normal scenario for *status = RECEIVED, ON ORDER, etc.
 		if (!$locations) {return false;}
 		
+		
 		# Loop through each location
 		foreach ($locations as $index => $location) {
 			
