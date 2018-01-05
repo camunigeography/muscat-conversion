@@ -1156,7 +1156,7 @@ GBR-UO-SG
 245 *art Statement of Responsibility punctuation when 'and 5 others'; see: /reports/agwithonlyad/
 131672
 245
-Cortijo ; and 5 others.
+Cortijo, and 5 others.
 
 191
 245 Statement of Responsibility handling of *ad
