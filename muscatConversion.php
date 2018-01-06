@@ -115,7 +115,7 @@ class muscatConversion extends frontControllerApplication
 		'C'		=> 'probable match, Confirmed',
 	);
 	
-	# Define the location codes
+	# Define the location codes, as regexps
 	private $locationCodes = array (
 		'[0-9]{1,3} ?[A-Z]'							=> 'SPRI-SER',	// Serial
 		'Periodical'								=> 'SPRI-SER',	// Analytics (has parent serial, or has a reference in square brackets to a serial with which it is shelved)

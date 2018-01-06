@@ -3078,11 +3078,12 @@ class marcConversion
 			
 			# Split the value out into values for ‡b (location code) ‡h (classification, which may or may not exist)
 			$locationCode = false;
+			$locationName = false;
 			$classification = false;
 			foreach ($this->locationCodes as $startsWith => $code) {
 				if (preg_match ("|^({$startsWith})(.*)|", $location, $matches)) {
 					$locationCode = $code;
-					// $startsWith will now be set
+					$locationName = $matches[1];	// I.e. non-regexp version of locationCode, e.g. "Electronic Resource (online)"
 					$classification = trim ($matches[2]);		# "Cupboard 223" would have "223"; this is doing: "Remove the portion of *location that maps to a Voyager location code (i.e. the portion that appears in the location codes list) - the remainder will be referred to as *location_trimmed"
 					break;
 				}
@@ -3103,7 +3104,7 @@ class marcConversion
 			if (!in_array ($locationCode, array ('SPRI-SER', 'SPRI-SHF', 'SPRI-PAM'))) {	// E.g. /records/211109/ (test #657)
 				$locationCodeCounts = array_count_values ($this->locationCodes);
 				if ($locationCodeCounts[$locationCode] > 1) {
-					$result .= " {$this->doubleDagger}c" . $startsWith;
+					$result .= " {$this->doubleDagger}c" . $locationName;
 				}
 			}
 			
