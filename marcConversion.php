@@ -3100,11 +3100,17 @@ class marcConversion
 				$result .= " {$this->doubleDagger}c" . 'Issues shelved individually with ' . $matches[1];
 			}
 			
-			# In the case of location codes where there is a many-to-one relationship (e.g. "Library Office" and "Librarian's Office" both map to SPRI-LIO), except for SPRI-SER, then add the original location verbatim, so that it can be disambiguated; e.g. /records/2023/ (test #656); negative case (i.e. non-ambigous) in /records/1711/ (test #658)
-			if (!in_array ($locationCode, array ('SPRI-SER', 'SPRI-SHF', 'SPRI-PAM'))) {	// E.g. /records/211109/ (test #657)
-				$locationCodeCounts = array_count_values ($this->locationCodes);
-				if ($locationCodeCounts[$locationCode] > 1) {
-					$result .= " {$this->doubleDagger}c" . $locationName;
+			# Online items get $h (and does not get $c disambiguation check), e.g. /records/1473/ (test #659)
+			if ($locationName == 'Electronic Resource (online)') {
+				$result .= " {$this->doubleDagger}h" . $locationName;
+			} else {
+				
+				# In the case of location codes where there is a many-to-one relationship (e.g. "Library Office" and "Librarian's Office" both map to SPRI-LIO), except for SPRI-SER, then add the original location verbatim, so that it can be disambiguated; e.g. /records/2023/ (test #656); negative case (i.e. non-ambigous) in /records/1711/ (test #658)
+				if (!in_array ($locationCode, array ('SPRI-SER', 'SPRI-SHF', 'SPRI-PAM'))) {	// E.g. /records/211109/ (test #657)
+					$locationCodeCounts = array_count_values ($this->locationCodes);
+					if ($locationCodeCounts[$locationCode] > 1) {
+						$result .= " {$this->doubleDagger}c" . $locationName;	// E.g. SPRI-LIO in /records/2023/ (test #656)
+					}
 				}
 			}
 			

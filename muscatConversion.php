@@ -140,6 +140,7 @@ class muscatConversion extends frontControllerApplication
 		'Digital Repository'						=> 'SPRI-ELE',
 		'F:/public/session'							=> 'SPRI-ELE',
 		'F:/public/session/electronic publications'	=> 'SPRI-ELE',
+		'Electronic Resource \(online\)'			=> 'SPRI-ELE',
 		'Online'									=> 'SPRI-ELE',
 		'World Wide Web'							=> 'SPRI-ELE',
 		'WWW'										=> 'SPRI-ELE',
