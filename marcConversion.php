@@ -1270,7 +1270,6 @@ class marcConversion
 	
 	
 	# Helper function to create (used only for non- *doc records) the page string or count; if one than one item, a count is used; many tests present as shown
-	#!# /records/152332/ contains "xi, 1-175" which is contradictory information - record to be fixed
 	private function pagesString ($citationListValues)
 	{
 		# If only one item in the citation list, list out the page details, e.g. "p. 438-442" in /records/214872/ (test #607)
