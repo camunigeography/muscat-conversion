@@ -2330,6 +2330,7 @@ class reports
 			WHERE
 				    ExtractValue(xml, '//k/ks') LIKE '%MISSING%'
 				AND fieldslist REGEXP '@location@.*location@'
+				AND ExtractValue(xml, '//notes/local') NOT LIKE '%missing%'
 		";
 		
 		# Return the query
