@@ -3064,6 +3064,12 @@ class marcConversion
 			return $result;
 		}
 		
+		# Report any that do not have a matching location
+		if (!application::preg_match_array ('^(' . implode ('|', array_keys ($this->locationCodes)) . ')', $locations)) {
+			$this->errorHtml .= 'The record contains an invalid *location value.';
+			return false;
+		}
+		
 		# Start a list of results
 		$resultLines = array ();
 		
@@ -3134,11 +3140,6 @@ class marcConversion
 						}
 					}
 					
-				} else {
-					
-					# Add to record: ‡b SPRI-NIS ‡x <*location_original>
-					$result .= " {$this->doubleDagger}bSPRI-NIS";
-					$result .= " {$this->doubleDagger}x" . $location;
 				}
 			}
 			
