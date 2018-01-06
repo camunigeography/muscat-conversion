@@ -3082,6 +3082,7 @@ class marcConversion
 			foreach ($this->locationCodes as $startsWith => $code) {
 				if (preg_match ("|^({$startsWith})(.*)|", $location, $matches)) {
 					$locationCode = $code;
+					// $startsWith will now be set
 					$classification = trim ($matches[2]);		# "Cupboard 223" would have "223"; this is doing: "Remove the portion of *location that maps to a Voyager location code (i.e. the portion that appears in the location codes list) - the remainder will be referred to as *location_trimmed"
 					break;
 				}
@@ -3096,6 +3097,14 @@ class marcConversion
 			# In the case of Shelved with ..., add clear description for use in $c, and do not use a classification, e.g. /records/1032/ (test #625)
 			if ($isShelvedWith = preg_match ('/^Shelved with (pamphlets|monographs)$/', $location, $matches)) {
 				$result .= " {$this->doubleDagger}c" . 'Issues shelved individually with ' . $matches[1];
+			}
+			
+			# In the case of location codes where there is a many-to-one relationship (e.g. "Library Office" and "Librarian's Office" both map to SPRI-LIO), except for SPRI-SER, then add the original location verbatim, so that it can be disambiguated; e.g. /records/2023/ (test #656); negative case (i.e. non-ambigous) in /records/1711/ (test #658)
+			if (!in_array ($locationCode, array ('SPRI-SER', 'SPRI-SHF', 'SPRI-PAM'))) {	// E.g. /records/211109/ (test #657)
+				$locationCodeCounts = array_count_values ($this->locationCodes);
+				if ($locationCodeCounts[$locationCode] > 1) {
+					$result .= " {$this->doubleDagger}c" . $startsWith;
+				}
 			}
 			
 			# Does *location_original start with a number? This is to deal with cases like "141 C", in which the creation of "SPRI-SER" in the MARC record is implicit
