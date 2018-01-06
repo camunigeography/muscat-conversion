@@ -117,8 +117,8 @@ class muscatConversion extends frontControllerApplication
 	
 	# Define the location codes
 	private $locationCodes = array (
-		'[0-9]{1,3} ?[A-Z]'							=> 'SPRI-SER',
-		'Periodical'								=> 'SPRI-SER',
+		'[0-9]{1,3} ?[A-Z]'							=> 'SPRI-SER',	// Serial
+		'Periodical'								=> 'SPRI-SER',	// Analytics (has parent serial, or has a reference in square brackets to a serial with which it is shelved)
 		'Archives'									=> 'SPRI-ARC',
 		'Atlas'										=> 'SPRI-ATL',
 		'Basement'									=> 'SPRI-BMT',
@@ -145,6 +145,8 @@ class muscatConversion extends frontControllerApplication
 		'WWW'										=> 'SPRI-ELE',
 		"Friends' Room"								=> 'SPRI-FRI',
 		'Museum Working Collection'					=> 'SPRI-MUS',
+		'Shelved with pamphlets'					=> 'SPRI-PAM',
+		'Shelved with monographs'					=> 'SPRI-SHF',
 		// SPRI-NIS defined in marcConversion code
 	);
 	

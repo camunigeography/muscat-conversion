@@ -3065,92 +3065,63 @@ class marcConversion
 		}
 		
 		# Report any that do not have a matching location
-		if (!application::preg_match_array ('^(' . implode ('|', array_keys ($this->locationCodes)) . ')', $locations)) {
-			$this->errorHtml .= 'The record contains an invalid *location value.';
-			return false;
+		foreach ($locations as $location) {
+			if (!preg_match ('@^(' . implode ('|', array_keys ($this->locationCodes)) . ')( |$)@', $location)) {	// Location codes must have either space after or end at that point, for authority control
+				$this->errorHtml .= 'The record contains an invalid *location value.';
+				return false;
+			}
 		}
 		
-		# Start a list of results
+		# Loop through each location to create a result line
 		$resultLines = array ();
-		
-		# Loop through each location
 		foreach ($locations as $index => $location) {
 			
-			# Start record with 852 7# ‡2camdept (which is the source indicator), e.g. /records/3959/ (test #623)
-			$result = "{$this->doubleDagger}2camdept";
-			
-			# Does *location start with 'Shelved with' (e.g. /records/1027/ (test #625))?
-			if (preg_match ('/^Shelved with/', $location)) {
-				
-				# Does the record contain another *location field?
-				if (count ($locations) > 1) {
-					
-					# Does the record contain any other *location fields that have not already been mapped to 852 fields?; If not, skip to next, or end
-					continue;
-					
-				} else {	// i.e. if there is only one *location
-					
-					# Add to record: ‡c <*location>, e.g. /records/1027/ (test #625)
-					$result .= " {$this->doubleDagger}c" . $location;
-					
-					# Register this result
-					$resultLines[] = $result;
-					
-					# End 852 field; No more 852 fields required
-					break;	// Break main foreach loop
-				}
-				
-			} else {
-				
-				# This *location will be referred to as *location_original; does *location_original appear in the location codes list?
-				$locationEndsWith = false;
-				$locationCode = false;
-				foreach ($this->locationCodes as $startsWith => $code) {
-					#!# Consider space matches
-					if (preg_match ("|^({$startsWith})(.*)|", $location, $matches)) {
-						$locationEndsWith = trim ($matches[2]);		# "Cupboard 223" would have "223"; this is doing: "Remove the portion of *location that maps to a Voyager location code (i.e. the portion that appears in the location codes list) - the remainder will be referred to as *location_trimmed"
-						$locationCode = $code;
-						break;
-					}
-				}
-				
-				if ($locationCode) {
-					
-					# Add corresponding Voyager location code to record: ‡b SPRI-XXX
-					$result .= " {$this->doubleDagger}b" . $locationCode;
-					
-					# Does the record contain another *location field that starts with 'Shelved with'?; See: /records/204332/
-					if ($shelvedWithIndex = application::preg_match_array ('^Shelved with', $locations, true)) {
-						
-						# This *location will be referred to as *location_shelved; Add to record: ‡c <*location_shelved>
-						$result .= " {$this->doubleDagger}c" . $locations[$shelvedWithIndex];
-					}
-					
-					# Does *location_original start with a number?
-					if (preg_match ('/^[0-9]/', $location)) {
-						
-						# Add to record: ‡h <*location_original>
-						$result .= " {$this->doubleDagger}h" . $location;
-						
-					} else {
-						
-						# "Is *location_trimmed empty?; If no, Add to record: ‡h <*location_trimmed>"; e.g. /records/1111/ (test #646) (which has "(*7) : 341.24" which comes from "Shelf (*7) : 341.24") ; Empty example at: /records/31500/ (test #647) which has "Bibliographers' Office"
-						if (strlen ($locationEndsWith)) {
-							$result .= " {$this->doubleDagger}h" . $locationEndsWith;
-						}
-					}
-					
+			# Split the value out into values for ‡b (location code) ‡h (classification, which may or may not exist)
+			$locationCode = false;
+			$classification = false;
+			foreach ($this->locationCodes as $startsWith => $code) {
+				if (preg_match ("|^({$startsWith})(.*)|", $location, $matches)) {
+					$locationCode = $code;
+					$classification = trim ($matches[2]);		# "Cupboard 223" would have "223"; this is doing: "Remove the portion of *location that maps to a Voyager location code (i.e. the portion that appears in the location codes list) - the remainder will be referred to as *location_trimmed"
+					break;
 				}
 			}
 			
-			# If records are missing, add public note; e.g. /records/1014/ , and /records/25728/
+			# Start the record with 852 7# ‡2camdept (which is the source indicator), e.g. /records/3959/ (test #623)
+			$result  = "{$this->doubleDagger}2camdept";
+			
+			# Add corresponding Voyager location code to record: ‡b SPRI-XXX, e.g. /records/31500/ (test #654)
+			$result .= " {$this->doubleDagger}b" . $locationCode;
+			
+			# In the case of Shelved with ..., add clear description for use in $c, and do not use a classification, e.g. /records/1032/ (test #625)
+			if ($isShelvedWith = preg_match ('/^Shelved with (pamphlets|monographs)$/', $location, $matches)) {
+				$result .= " {$this->doubleDagger}c" . 'Issues shelved individually with ' . $matches[1];
+			}
+			
+			# Does *location_original start with a number? This is to deal with cases like "141 C", in which the creation of "SPRI-SER" in the MARC record is implicit
+			if (!$isShelvedWith) {		// "Shelved with ..." items do not get $h, e.g. /records/1032/ (test #653)
+				if (preg_match ('/^[0-9]/', $location)) {
+					
+					# Add to record: ‡h <*location_original> (i.e. the full string), e.g. /records/62816/ gets "‡h141 C"
+					$result .= " {$this->doubleDagger}h" . $location;
+					
+				} else {
+					
+					# "Is *location_trimmed empty?; If no, Add to record: ‡h <*location_trimmed>"; e.g. /records/1111/ (test #646) (which has "(*7) : 341.24" which comes from "Shelf (*7) : 341.24") ; Empty example at: /records/31500/ (test #647) which has "Bibliographers' Office"
+					if (strlen ($classification)) {
+						$result .= " {$this->doubleDagger}h" . $classification;
+					}
+				}
+			}
+			
+			# If records are missing, add public note; e.g. /records/1014/ , and /records/25728/ (test #655)
 			# /reports/notinsprimissing/ confirms that no record has BOTH "Not in SPRI" (which would result in $z already existing above) and "MISSING"
 			# Note that this will set a marker for each *location; the report /reports/multiplelocationsmissing/ lists these cases, which will need to be fixed up post-migration - we are unable to work out from the Muscat record which *location the "MISSING" refers to
 			#!# Ideally also need to trigger this in cases where the record has note to this effect; or check that MISSING exists in all such cases by checking and amending records in /reports/notemissing/
 			$ksValues = $this->xPathValues ($this->xml, '//k[%i]/ks');
 			foreach ($ksValues as $ksValue) {
 				if (substr_count ($ksValue, 'MISSING')) {		// Covers 'MISSING' and e.g. 'MISSING[2004]' etc.; e.g. /records/1323/ ; data checked to ensure that the string always appears as upper-case "MISSING" ; all records checked that MISSING* is always in the format ^MISSING\[.+\]$, using "SELECT * FROM catalogue_processed WHERE field = 'ks' AND value like  'MISSING%' AND value !=  'MISSING' AND value NOT REGEXP '^MISSING\\[.+\\]$'"
-					$result .= " {$this->doubleDagger}z" . 'Missing';
+					$result .= " {$this->doubleDagger}z" . 'Item(s) missing';
 					break;
 				}
 			}

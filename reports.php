@@ -1002,7 +1002,7 @@ class reports
 				WHERE
 					    field = 'location'
 					AND value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
-					AND value NOT REGEXP '^(IGS|International Glaciological Society|Shelved with)'
+					AND value NOT REGEXP '^(IGS|International Glaciological Society)'
 					AND value != '??'	/* Not done in the regexp to avoid possible backlash-related errors */
 				GROUP BY recordId
 			) AS rawdata_combined
@@ -1030,7 +1030,7 @@ class reports
 				    fieldslist NOT REGEXP '@location.*@location@'
 				AND field = 'location'
 				AND value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
-				AND value NOT REGEXP '^(IGS|International Glaciological Society|Shelved with)'
+				AND value NOT REGEXP '^(IGS|International Glaciological Society)'
 				AND value != 'Not in SPRI'
 				AND value != '??'	/* Not done in the regexp to avoid possible backlash-related errors */
 		";
@@ -3914,7 +3914,7 @@ class reports
 			WHERE
 				    field = 'location'
 				AND value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
-				AND value NOT REGEXP '^(IGS|International Glaciological Society|Shelved with|Not in SPRI)'
+				AND value NOT REGEXP '^(IGS|International Glaciological Society|Not in SPRI)'
 			GROUP BY value
 			ORDER BY title
 		";

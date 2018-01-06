@@ -3727,10 +3727,10 @@ SUPPRESS
 ‡2camdept
 
 625
-852 Shelved with
-1027
+852 "Shelved with" has modified string as ‡c
+1032
 852
-‡cShelved with pamphlets
+‡cIssues shelved individually with monographs
 
 626
 300 ‡a for *doc uses citation (see also next test)
@@ -3839,3 +3839,22 @@ SUPPRESS
 76740
 260
 ‡a[S.l.] :‡b[s.n.],‡c1985.
+
+653
+852 "Shelved with" does not get $h
+1032
+852
+/‡cIssues shelved individually with monographs$/
+
+654
+852 ‡b is created
+31500
+852
+‡bSPRI-BIB
+
+655
+852 MISSING gets ‡z
+25728
+852
+‡zItem(s) missing
+
