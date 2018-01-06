@@ -3143,7 +3143,8 @@ class marcConversion
 				}
 			}
 			
-			# If records are missing, add public note; e.g. /records/1014/ , and /records/25728/ ; a manual query has been done that no record has BOTH "Not in SPRI" (which would result in $z already existing above) and "MISSING" using "SELECT * FROM catalogue_xml WHERE xml like BINARY '%MISSING%' and xml LIKE '%Not in SPRI%';"
+			# If records are missing, add public note; e.g. /records/1014/ , and /records/25728/
+			# /reports/notinsprimissing/ confirms that no record has BOTH "Not in SPRI" (which would result in $z already existing above) and "MISSING"
 			# Note that this will set a marker for each *location; the report /reports/multiplelocationsmissing/ lists these cases, which will need to be fixed up post-migration - we are unable to work out from the Muscat record which *location the "MISSING" refers to
 			#!# Ideally also need to trigger this in cases where the record has note to this effect; or check that MISSING exists in all such cases by checking and amending records in /reports/notemissing/
 			$ksValues = $this->xPathValues ($this->xml, '//k[%i]/ks');

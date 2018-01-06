@@ -45,6 +45,7 @@ class reports
 		'arttitlenoser' => 'articles without a matching serial title, that are not pamphlets or in the special collection',
 		'notinspri_info' => 'items not in SPRI',
 		'notinspriinspri_problem' => 'items not in SPRI also having a SPRI location',
+		'notinsprimissing_problem' => 'items not in SPRI also with MISSING',
 		'loccamuninotinspri_info' => 'records with location matching Cambridge University, not in SPRI',
 		'loccamuniinspri_info' => 'records with location matching Cambridge University, in SPRI',
 		'onordercancelled_info' => 'items on order or cancelled',
@@ -1140,6 +1141,25 @@ class reports
 				AND root.value = 'Not in SPRI'
 				AND others.value REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
 			AND fieldslist REGEXP '@location@.+@location@'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Items not in SPRI also with MISSING
+	public function report_notinsprimissing ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'notinsprimissing' AS report,
+				id AS recordId
+			FROM catalogue_xml
+			WHERE
+				    xml LIKE BINARY '%MISSING%'
+				AND xml LIKE '%Not in SPRI%'
 		";
 		
 		# Return the query
