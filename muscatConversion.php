@@ -117,6 +117,7 @@ class muscatConversion extends frontControllerApplication
 	
 	# Define the location codes, as regexps
 	private $locationCodes = array (
+		# NB First in this list must be the numeric type for the reports to work correctly
 		'[0-9]{1,3} ?[A-Z]'							=> 'SPRI-SER',	// Serial
 		'Periodical'								=> 'SPRI-SER',	// Analytics (has parent serial, or has a reference in square brackets to a serial with which it is shelved)
 		'Archives'									=> 'SPRI-ARC',

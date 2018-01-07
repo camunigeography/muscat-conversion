@@ -3063,9 +3063,9 @@ class marcConversion
 			return $result;
 		}
 		
-		# Report any that do not have a matching location
+		# Report any that do not have a matching location; NB /reports/locationauthoritycontrol/ ensures authority control in terms of always havig a space after or end-of-string
 		foreach ($locations as $location) {
-			if (!preg_match ('@^(' . implode ('|', array_keys ($this->locationCodes)) . ')( |$)@', $location)) {	// Location codes must have either space after or end at that point, for authority control
+			if (!preg_match ('@^(' . implode ('|', array_keys ($this->locationCodes)) . ')@', $location)) {
 				$this->errorHtml .= 'The record contains an invalid *location value.';
 				return false;
 			}
@@ -3075,7 +3075,7 @@ class marcConversion
 		$resultLines = array ();
 		foreach ($locations as $index => $location) {
 			
-			# Split the value out into values for ‡b (location code) ‡h (classification, which may or may not exist)
+			# Split the value out into values for ‡b (location code) and ‡h (classification, which may or may not exist)
 			$locationCode = false;
 			$locationName = false;
 			$classification = false;

@@ -43,6 +43,7 @@ class reports
 		'loclocloc_info' => 'records with three or more locations',
 		'singleexternallocation_problem' => 'records with only one location, which is not on the whitelist',
 		'arttitlenoser' => 'articles without a matching serial title, that are not pamphlets or in the special collection',
+		'locationauthoritycontrol_problem' => 'locations not passing authority control',
 		'notinspri_info' => 'items not in SPRI',
 		'notinspriinspri_problem' => 'items not in SPRI also having a SPRI location',
 		'notinsprimissing_problem' => 'items not in SPRI also with MISSING',
@@ -1103,6 +1104,30 @@ class reports
 	}
 	
 	
+	# Locations not passing authority control, e.g. that each has a space after (or ends), so that "Reference 1" and "Reference" are correct, but not "References"
+	public function report_locationauthoritycontrol ()
+	{
+		# Remove the numeric type from the location codes list for the purposes of this test
+		$locationNamesRegexps = array_keys ($this->locationCodes);
+		unset ($locationNamesRegexps[0]);	// Numeric one is the first, as noted in the comments
+		
+		# Define the query
+		$query = "
+			SELECT
+				'locationauthoritycontrol' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field = 'location'
+				AND value     REGEXP \"^(" . implode ('|', $locationNamesRegexps) . ")\"
+				AND value NOT REGEXP \"^(" . implode ('|', $locationNamesRegexps) . ")( |$)\"
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
 	# Items not in SPRI
 	public function report_notinspri ()
 	{
@@ -1110,8 +1135,8 @@ class reports
 		$query = "
 			SELECT
 				'notinspri' AS report,
-				catalogue_rawdata.recordId
-			FROM catalogue_rawdata
+				recordId
+			FROM catalogue_processed
 			WHERE
 				    field = 'location'
 				AND value LIKE 'Not in SPRI'
