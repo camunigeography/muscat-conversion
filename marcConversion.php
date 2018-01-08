@@ -2825,6 +2825,13 @@ class marcConversion
 		if ($this->recordType == '/art/in') {
 			if (isSet ($marc['260'])) {
 				
+				#!# Need to add support for an 880(773) - e.g. /records/59148/ should get lines for both the LoC transliteration and the Cyrillic
+				
+				# Remove $6 880 field if present, e.g. /records/59148/ (test #668)
+				if (isSet ($marc['260'][0]['subfields']['6'])) {
+					unset ($marc['260'][0]['subfields']['6']);
+				}
+				
 				# If publisher and year are present, use (no-space)-comma-space for the splitter between those two, combining them before colon splitting of other fields; e.g. /records/2614/ ; confirmed that, if reaching this point, $marc['260'][0]['subfields'] always contains 3 subfields
 				if (isSet ($marc['260'][0]['subfields']['b']) && isSet ($marc['260'][0]['subfields']['c'])) {
 					$subfieldBValue = rtrim ($marc['260'][0]['subfields']['b'][0]);	// Extract to avoid double-comma in next line, e.g. /records/103259/
