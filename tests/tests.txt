@@ -3229,7 +3229,7 @@ navigation. 2 / Anon.
 ‡aBritish Schools Exploring Society
 
 541
-500 generate500analytics (/art/j pseudo-analytic mode) uses the title in the *j (i.e. second half) section
+500 generate500analytics (/art/j pseudo-analytic mode) starts with Offprint and uses the title in the *j (i.e. second half) section
 214872
 500
 ‡aOffprint: Journal of the Meteorological Society of Japan.
@@ -3247,7 +3247,7 @@ of Japan. Vol. 58(5)
 of Natural History. Ser. 7
 
 544
-500 generate500analytics (/art/in pseudo-analytic mode) uses the title in the *in (i.e. second half) section
+500 generate500analytics (/art/in pseudo-analytic mode) starts with Offprint uses the title in the *in (i.e. second half) section
 1107
 500
 ‡aOffprint: CRC handbook of census methods for terrestrial vertebrates / D.E. Davis, ed.
@@ -3882,3 +3882,38 @@ SUPPRESS
 852
 ‡bSPRI-ELE ‡hElectronic Resource (online)
 
+660
+500 generate500analytics (/art/j pseudo-analytic mode) gets citation
+2237
+500
+Nachrichten. Vol. 14 :260; 15 :45.
+
+661
+500 generate500analytics (/art/in genuine analytic mode) gets volume list
+4268
+500
+and annexe. 1(2) / Institut de France
+
+662
+500 generate500analytics (/art/in genuine analytic mode) volume list is just before split point
+4268
+500
+and annexe. 1(2) / Institut de France
+
+663
+500 generate500analytics (/art/in genuine analytic mode) gets dot before the inserted volume list that is being added just before the split point (see also next test)
+2905
+500
+Majesté. Vols
+
+664
+500 generate500analytics (/art/in genuine analytic mode) dot before the inserted volume list not added when already has dot (see also previous test)
+2995
+500
+1843 ... Vol
+
+665
+500 generate500analytics (/art/in pseudo-analytic mode) gets volume list
+11526
+500
+‡aOffprint: Scottish National Antarctic Expedition. Vol. 1.

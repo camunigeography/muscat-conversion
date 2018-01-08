@@ -2648,10 +2648,12 @@ class marcConversion
 			# If no host record (i.e. a pseudo-analytic), we assume it is an offprint, and use the title in the *j (i.e. second half) section
 			} else {
 				
-				# Construct the string, using the title in the *j (i.e. second half) section; e.g. /records/214872/ (test #541)
+				# Construct the string, starting with Offprint, and using the title in the *j (i.e. second half) section; e.g. /records/214872/ (test #541)
 				$result = 'Offprint: ' . $this->xPathValue ($this->xml, '/art/j/tg/t');
+				
+				# Add the citation, starting with a dot (e.g. /records/214872/ (test #596)), followed by the pre-assembled citation value, e.g. /records/2237/ (test #660)
 				if ($this->pOrPt['citation']) {
-					$result = $this->macro_dotEnd ($result) . ' ' . $this->prefixVolAnalyticVolumeDesignation ($this->pOrPt['citation']);	// Dot end when citation present, e.g. /records/214872/ (test #596)
+					$result = $this->macro_dotEnd ($result) . ' ' . $this->prefixVolAnalyticVolumeDesignation ($this->pOrPt['citation']);
 				}
 				
 				# Add dot at end, e.g. /records/214872/ (test #595); see also equivalent tests for /art/in
@@ -2671,13 +2673,18 @@ class marcConversion
 				# If $c contains a section derived from role, which we believe is after ' ; ' (and is the only use of semicolon in $c), remove that trailing section; e.g. /records/101441/ (test #552), /records/5029/ (test #553)
 				$result = preg_replace ("/({$this->doubleDagger}c[^{$this->doubleDagger}]+) ; (.+)({$this->doubleDagger}|$)/", '\1\3', $result);
 				
-				# Add volume list if present
-				#!# Tests needed
+				# Add volume list if present, e.g. /records/4268/ (test #661)
 				if ($this->pOrPt['volumeList']) {
+					
+					# If there is a " /" split (e.g. "and annexe /‡cInstitut de France"), put the Volume list just before the split point, e.g. /records/4268/ (test #662)
 					$splitPoint = " /{$this->doubleDagger}";
 					if (substr_count ($result, $splitPoint)) {
+						
+						# Add a dot before the inserted volume list that is being added just before the split point (e.g. /records/2905/ (test #663)), unless there is already one present (e.g. "1843 ... /‡cSir John" in /records/2995/ (test #664))
 						$possibleDot = (substr_count ($result, '.' . $splitPoint) ? '' : '.');
-						$result = str_replace ($splitPoint, $possibleDot . ' ' . $this->pOrPt['volumeList'] . $splitPoint, $result);	// Dot is added; this is safe because, in Muscat, the *t
+						$result = str_replace ($splitPoint, $possibleDot . ' ' . $this->pOrPt['volumeList'] . $splitPoint, $result);	// Dot is added; this is safe because, in Muscat, the *t does not normally end with a dot, except for specific cases - see /reports/tdot/
+						
+					# Otherwise (i.e. if no split point), simply append; no instances found so no test
 					} else {
 						$result .= ' ' . $this->pOrPt['volumeList'];
 					}
@@ -2689,8 +2696,10 @@ class marcConversion
 			# For pseudo-analytics, there will be no host record, so create a title with statement of responsibility
 			} else {
 				
-				# Construct the string, using the title in the *in (i.e. second half) section; e.g. /records/1107/ (test #544)
+				# Construct the string, starting with Offprint, and using the title in the *in (i.e. second half) section; e.g. /records/1107/ (test #544)
 				$result = 'Offprint: ' . $this->xPathValue ($this->xml, '/art/in/tg/t');
+				
+				# Add volume list if present, e.g. /records/11526/ (test #665)
 				if ($this->pOrPt['volumeList']) {
 					$result = $this->macro_dotEnd ($result) . ' ' . $this->prefixVolAnalyticVolumeDesignation ($this->pOrPt['volumeList']);
 				}
