@@ -1216,7 +1216,7 @@ class marcConversion
 		$citationListValues = $this->tokeniseCitationList ($citation);
 		
 		# Construct the volume list
-		$volumeList = implode ('; ', array_keys ($citationListValues));	// As per same comment below in macro_generate773, semicolon rather than comma is chosen because there could be '73(1,5)' which would cause 'Vols. ' to appear rather than 'Vol. '
+		$volumeList = implode ('; ', array_keys ($citationListValues));	// As per same comment below in macro_generate773, semicolon rather than comma is chosen because there could be e.g. '73(1,5)' which would cause 'Vols. ' to appear rather than 'Vol. '
 		
 		# If there is a *vno, add this at the start of the analytic volume designation, before any pagination (extent) data from *pt; e.g. /records/6787/ (test #352) and negative test for 300 in same record /records/6787/ (test #351)
 		if ($vno = $this->xPathValue ($this->xml, '//vno')) {
@@ -2653,7 +2653,7 @@ class marcConversion
 				
 				# Add the citation, starting with a dot (e.g. /records/214872/ (test #596)), followed by the pre-assembled citation value, e.g. /records/2237/ (test #660)
 				if ($this->pOrPt['citation']) {
-					$result = $this->macro_dotEnd ($result) . ' ' . $this->prefixVolAnalyticVolumeDesignation ($this->pOrPt['citation']);
+					$result = $this->macro_dotEnd ($result) . ' ' . $this->volPrefix ($this->pOrPt['citation']);
 				}
 				
 				# Add dot at end, e.g. /records/214872/ (test #595); see also equivalent tests for /art/in
@@ -2701,7 +2701,7 @@ class marcConversion
 				
 				# Add volume list if present, e.g. /records/11526/ (test #665)
 				if ($this->pOrPt['volumeList']) {
-					$result = $this->macro_dotEnd ($result) . ' ' . $this->prefixVolAnalyticVolumeDesignation ($this->pOrPt['volumeList']);
+					$result = $this->macro_dotEnd ($result) . ' ' . $this->volPrefix ($this->pOrPt['volumeList']);
 				}
 				
 				# Create the SoR based on 245; e.g. simple case in /records/14136/ (test #546), multiple authors example in /records/1330/ (test #547), corporate authors example in /records/1811/ (test #548); NB role confirmed not present in the data for pseudo-analytic pseudo-hosts
@@ -2736,12 +2736,13 @@ class marcConversion
 	}
 	
 	
-	# Function to prefix Vol. to the analyticVolumeDesignation
-	private function prefixVolAnalyticVolumeDesignation ($analyticVolumeDesignation)
+	# Function to prefix Vol. to the volume list / citation
+	private function volPrefix ($volumeListOrCitation)
 	{
-		# Add a "Vol." prefix when starting with a number; e.g. /art/j records: /records/214872/ (test #542) and negative test /records/215150/ (test #543); /art/in record: /records/1218/ (test #545)
-		$prefix = (preg_match ('/^[0-9]/', $analyticVolumeDesignation) ? 'Vol. ' : '');
-		return $prefix . $analyticVolumeDesignation;
+		# Add a "Vol." / "Vols. " prefix when starting with a number; e.g. /art/j records: /records/214872/ (test #542) and negative test /records/215150/ (test #543); /art/in record: /records/1218/ (test #545)
+		$separator = '; ';	// Semicolon is necessary for 500 mode; in 773 mode, semicolon rather than comma is chosen because there could be e.g. '73(1,5)' which would cause 'Vols. ' to appear rather than 'Vol. ', e.g. /records/6100/ (test #675)
+		$prefix = (preg_match ('/^[0-9]/', $volumeListOrCitation) ? (substr_count ($volumeListOrCitation, $separator) ? 'Vols. ' : 'Vol. ') : '');	// E.g. /records/1668/ (test #521); multiple in /records/6100/ (test #675, for 773) (test #676, for 500) ; negative case /records/1300/ (test #522)
+		return $prefix . $volumeListOrCitation;
 	}
 	
 	
@@ -2852,9 +2853,7 @@ class marcConversion
 			# When generating a 500, use citation (e.g. /records/1109/ (test #673)), otherwise use volume list (e.g. /records/1668/ (test #674))
 			$volumeListOrCitation = ($mode500 ? $this->pOrPt['citation'] : $this->pOrPt['volumeList']);
 			if ($volumeListOrCitation) {	// E.g. /records/1668/ creates $g (test #514), but /records/54886/ has no $g (test #515)
-				$separator = '; ';	// Semicolon is necessary for 500 mode; in 773 mode, semicolon rather than comma is chosen because there could be e.g. '73(1,5)' which would cause 'Vols. ' to appear rather than 'Vol. ', e.g. /records/6100/ (test #675)
-				$prefix = (preg_match ('/^[0-9]/', $volumeListOrCitation) ? (substr_count ($volumeListOrCitation, $separator) ? 'Vols. ' : 'Vol. ') : '');	// E.g. /records/1668/ (test #521); multiple in /records/6100/ (test #675); negative case /records/1300/ (test #522)
-				$gComponents[] = $prefix . $volumeListOrCitation;
+				$gComponents[] = $this->volPrefix ($volumeListOrCitation);	// Tests in volPrefix function
 			}
 			
 			# /art/j has date, e.g. /records/4844/ (test #519), /records/54886/ has no $g (test #515) as it is an *art/*in

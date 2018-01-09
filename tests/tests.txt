@@ -3886,7 +3886,7 @@ SUPPRESS
 500 generate500analytics (/art/j pseudo-analytic mode) gets citation
 2237
 500
-Nachrichten. Vol. 14 :260; 15 :45.
+Nachrichten. Vols. 14 :260; 15 :45.
 
 661
 500 generate500analytics (/art/in genuine analytic mode) gets volume list
@@ -3973,7 +3973,14 @@ Majesté. Vols
 ‡gVol. 7(3) ‡w
 
 675
-773 ‡g analytic volume designation uses 'Vols. ' for multiple
+773 ‡g analytic volume designation uses 'Vols. ' for multiple (see also next test)
 6100
 773
 ‡gVols. 17; 18; 19 (1895-96) ‡w
+
+676
+500 gets 'Vols. ' for multiple in this 500 also (see also previous test)
+6100
+500
+Vols. 17 :1-358; 18 :1-476; 19 :1-247, 3 (1895-96)
+
