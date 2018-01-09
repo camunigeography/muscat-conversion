@@ -2794,7 +2794,7 @@ class marcConversion
 		# Start a list of subfields
 		$subfields = array ();
 		
-		# Add 773 $7, except in 500 mode
+		# Add 773 $7 (e.g. /records/215149/ (test #569)), except in 500 mode
 		if (!$mode500) {	// E.g. /records/175904/ (test #572)
 			$subfields[] = "{$this->doubleDagger}7" . $this->generate773dollar7 ($marc);
 		}
@@ -2813,15 +2813,15 @@ class marcConversion
 			$subfields[] = $this->macro_dotEnd ($aSubfieldValue, $extendedCharacterList = '.])>-');	// See: https://www.oclc.org/bibformats/en/7xx/773.html which has more examples than the main MARC site
 		}
 		
-		# Add 773 ‡t: Copy in the 245 (Title) ‡a and ‡b from the host record, omitting subfield codes, stripping leading articles
+		# Add 773 ‡t: Copy in the 245 (Title) ‡a and ‡b from the host record, omitting subfield codes, stripping leading articles, e.g. /records/67559/ (test #666)
 		if (isSet ($marc['245'])) {
 			$xPath = '//lang[1]';	// Choose first only
 			$language = $this->xPathValue ($this->xml, $xPath);
 			if (!$language) {$language = 'English';}
-			$subfields['x'] = $this->combineSubfieldValues ('t', $marc['245'], array ('a', 'b'), ' ', $language);	// Space separator only, as already has : in master 245; e.g. /records/67559/ (test #529), /records/59148/ (test #530). Will automatically have a . (which replaces /) e.g. /records/59148/ (test #531)
+			$subfields[] = $this->combineSubfieldValues ('t', $marc['245'], array ('a', 'b'), ' ', $language);	// Space separator only, as already has : in master 245; e.g. /records/67559/ (test #529), /records/59148/ (test #530). Will automatically have a . (which replaces /) e.g. /records/59148/ (test #531)
 		}
 		
-		# Add 773 ‡d: Copy in the 260 (Place, publisher, and date of publication) from the host record, omitting subfield codes; *art/*in records only
+		# Add 773 ‡d: Copy in the 260 (Place, publisher, and date of publication) from the host record, omitting subfield codes; *art/*in records only; e.g. /records/59148/ (test #667)
 		if ($this->recordType == '/art/in') {
 			if (isSet ($marc['260'])) {
 				
@@ -2848,32 +2848,37 @@ class marcConversion
 		# Add 773 ‡g: *pt (Related parts) [of child record, i.e. not host record]: analytic volume designation (if present), followed - if *art/*j - by (meaningful) date (if present)
 		if (in_array ($this->recordType, array ('/art/in', '/art/j'))) {
 			$gComponents = array ();
-			#!# Tests needed
+			
+			# When generating a 500, use citation (e.g. /records/1109/ (test #673)), otherwise use volume list (e.g. /records/1668/ (test #674))
 			$volumeListOrCitation = ($mode500 ? $this->pOrPt['citation'] : $this->pOrPt['volumeList']);
 			if ($volumeListOrCitation) {	// E.g. /records/1668/ creates $g (test #514), but /records/54886/ has no $g (test #515)
-				$separator = '; ';	// Semicolon is necessary for 500 mode; in 773 mode, semicolon rather than comma is chosen because there could be '73(1,5)' which would cause 'Vols. ' to appear rather than 'Vol. '
-				$prefix = (preg_match ('/^[0-9]/', $volumeListOrCitation) ? (substr_count ($volumeListOrCitation, $separator) ? 'Vols. ' : 'Vol. ') : '');	// E.g. /records/1668/ (test #521), /records/1300/ (test #522)
+				$separator = '; ';	// Semicolon is necessary for 500 mode; in 773 mode, semicolon rather than comma is chosen because there could be e.g. '73(1,5)' which would cause 'Vols. ' to appear rather than 'Vol. ', e.g. /records/6100/ (test #675)
+				$prefix = (preg_match ('/^[0-9]/', $volumeListOrCitation) ? (substr_count ($volumeListOrCitation, $separator) ? 'Vols. ' : 'Vol. ') : '');	// E.g. /records/1668/ (test #521); multiple in /records/6100/ (test #675); negative case /records/1300/ (test #522)
 				$gComponents[] = $prefix . $volumeListOrCitation;
 			}
-			if ($this->recordType == '/art/j') {	// E.g. /records/4844/ (test #519), /records/54886/ has no $g (test #515) as it is an *art/*in
+			
+			# /art/j has date, e.g. /records/4844/ (test #519), /records/54886/ has no $g (test #515) as it is an *art/*in
+			if ($this->recordType == '/art/j') {
 				if ($d = $this->xPathValue ($this->xml, '/art/j/d')) {
 					if (!in_array ($d, array ('[n.d.]', '-'))) {	// E.g. /records/1166/ (test #520)
 						$gComponents[] = '(' . $this->xPathValue ($this->xml, '/art/j/d') . ')';
 					}
 				}
 			}
+			
+			# Add $g if there are components, e.g. /records/1283/ (test #671)
 			if ($gComponents) {
-				$subfields[] = "{$this->doubleDagger}g" . implode (' ', $gComponents);
+				$subfields[] = "{$this->doubleDagger}g" . implode (' ', $gComponents);	// Joined by space, e.g. /records/1200/ (test #672)
 			}
 		}
 		
-		# Except in 500 mode, add 773 ‡w: Copy in the 001 (Record control number) from the host record; this will need to be modified in the target Voyager system post-import
-		#!# For one of the merge strategies, this number will be known
+		# Except in 500 mode, add 773 ‡w: Copy in the 001 (Record control number) from the host record; this will need to be modified in the target Voyager system post-import, e.g. /records/6787/ (test #670)
+		#!# For one of the merge strategies, the Voyager number will already be known
 		if (!$mode500) {
 			$subfields[] = "{$this->doubleDagger}w" . $marc['001'][0]['line'];
 		}
 		
-		# Compile the result
+		# Compile the result, separating by space, e.g. /records/6787/ (test #669)
 		$result = implode (' ', $subfields);
 		
 		# Return the result

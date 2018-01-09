@@ -3918,10 +3918,62 @@ Majesté. Vols
 500
 ‡aOffprint: Scottish National Antarctic Expedition. Vol. 1.
 
+666
+773 ‡t uses 245 ‡a and ‡b from the host record
+67559
+773
+‡tField investigations performed during the glaciological Spitsbergen expedition in 1983 : interim report.
+
+667
+773 ‡d uses 260 from the host record
+6787
+773
+‡dLondon and New York : Harper and Brothers, 1899. ‡g
+
 668
 773 ‡d use of 260 does not include ‡6 transliteration 880 marker
 59148
 773
 ‡dYakutsk : I͡akutskiĭ Gosudarstvennyĭ Universitet, 1979. ‡w
 
+669
+773 subfields separated by space
+6787
+773
+‡7p1am ‡aJackson, Frederick George. ‡tThousand days in the Arctic. ‡dLondon and New York : Harper and Brothers, 1899. ‡gVol. 2. ‡wSPRI-6786
 
+670
+773 ‡w has 001 (Record control number) from host record
+6787
+773
+‡wSPRI-6786
+
+671
+773 ‡g created if g components
+1283
+773
+‡gVol. 1990-91
+
+672
+773 ‡g values are joined by space
+1200
+773
+‡gVol. 10 (1931)
+
+673
+500/773: generate773 analytic volume designation component of ‡g, in 500 mode for 500 generate500analytics (/art/j genuine analytic mode) uses citation (see also next test)
+1109
+500
+1978-79 :1-38
+
+674
+773 ‡g analytic volume designation component uses volume list rather than citation (see also previous test)
+1668
+773
+‡gVol. 7(3) ‡w
+
+675
+773 ‡g analytic volume designation uses 'Vols. ' for multiple
+6100
+773
+‡gVols. 17; 18; 19 (1895-96) ‡w
