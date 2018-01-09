@@ -2682,11 +2682,11 @@ class marcConversion
 						
 						# Add a dot before the inserted volume list that is being added just before the split point (e.g. /records/2905/ (test #663)), unless there is already one present (e.g. "1843 ... /‡cSir John" in /records/2995/ (test #664))
 						$possibleDot = (substr_count ($result, '.' . $splitPoint) ? '' : '.');
-						$result = str_replace ($splitPoint, $possibleDot . ' ' . $this->pOrPt['volumeList'] . $splitPoint, $result);	// Dot is added; this is safe because, in Muscat, the *t does not normally end with a dot, except for specific cases - see /reports/tdot/
+						$result = str_replace ($splitPoint, $possibleDot . ' ' . $this->volPrefix ($this->pOrPt['volumeList']) . $splitPoint, $result);	// Dot is added; this is safe because, in Muscat, the *t does not normally end with a dot, except for specific cases - see /reports/tdot/; "Vol. " / "Vols. " added, e.g. /records/5472/ (test #677)
 						
 					# Otherwise (i.e. if no split point), simply append; no instances found so no test
 					} else {
-						$result .= ' ' . $this->pOrPt['volumeList'];
+						$result .= ' ' . $this->volPrefix ($this->pOrPt['volumeList']);
 					}
 				}
 				

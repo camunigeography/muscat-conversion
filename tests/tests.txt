@@ -3220,7 +3220,7 @@ Polarforschung 1882-83 : die deutschen Expeditionen
 500 generate500analytics (/art/in scenarios) ensure slash has space just before $c
 2072
 500
-navigation. 2 / Anon.
+navigation. Vol. 2 / Anon.
 
 540
 500 generate500analytics (all scenarios) goes in $a
@@ -3892,13 +3892,13 @@ Nachrichten. Vols. 14 :260; 15 :45.
 500 generate500analytics (/art/in genuine analytic mode) gets volume list
 4268
 500
-and annexe. 1(2) / Institut de France
+and annexe. Vol. 1(2) / Institut de France
 
 662
 500 generate500analytics (/art/in genuine analytic mode) volume list is just before split point
 4268
 500
-and annexe. 1(2) / Institut de France
+and annexe. Vol. 1(2) / Institut de France
 
 663
 500 generate500analytics (/art/in genuine analytic mode) gets dot before the inserted volume list that is being added just before the split point (see also next test)
@@ -3984,3 +3984,8 @@ Majesté. Vols
 500
 Vols. 17 :1-358; 18 :1-476; 19 :1-247, 3 (1895-96)
 
+677
+500 generate500analytics /art/in gets 'Vol. ' / 'Vols. ' for consistency
+5472
+500
+Abhandlungen. Vol. 2 / Georg
