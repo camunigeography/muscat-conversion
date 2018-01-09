@@ -14,7 +14,7 @@
 # generate245: 100%
 # generateAuthors: 100%
 # marcConversion (controller section): 100%
-# marcConversion (macros section): 75%
+# marcConversion (macros section): 99% (needs check)
 # muscatConversion: 0%
 
 
@@ -2953,7 +2953,7 @@ generate500 prefix for */art/
 *
 
 495
-773 ‡a: pull in 100 ‡a
+773 ‡a: pull in 100
 2073
 773
 ‡aAnonymous. ‡
@@ -4019,3 +4019,83 @@ Vols. 14 :260; 15 :45.
 54657
 500
 Vols. 41(11) :14-18; 41(12) :22-25; 42(1) :26-28, 68-72 (1975-1976)
+
+683
+combineSubfieldValues test of normalise trailing implode (doesn't have two colons)
+103259
+773
+London : Graham
+
+684
+combineSubfieldValues test of onlySubfields
+1222
+773
+‡aRebecca Aird, ed. ‡
+
+685
+combineSubfieldValues basic allocation of field values
+2494
+773
+‡aFranklin, John,
+
+686
+combineSubfieldValues implodes multiple field values of subfield by comma-space
+7008
+773
+‡dChristiania, London, Leipzig
+
+687
+combineSubfieldValues avoid multiple commas after joining
+2614
+773
+John, Sir.
+
+688
+combineSubfieldValues avoid ending a field with " /"
+2616
+773
+naturalist to the expedition. ‡d
+
+689
+combineSubfieldValues combines with the specified string
+2614
+773
+London : John
+
+690
+combineSubfieldValues strip leading article if required (English example; see also next test)
+3075
+773
+‡tVoyage of discovery
+
+691
+combineSubfieldValues strip leading article if required (German example; see also previous test)
+5472
+773
+‡tInternationale Polarforschung
+
+692
+combineSubfieldValues strip leading article if required - example of no stripping
+5476
+773
+‡tRecueil de
+
+693
+combineSubfieldValues prepends the parent subfield letter
+5487
+773
+‡aGeorg von
+
+694
+combineSubfieldValues upper-case first letter of string after stripping leading article
+3075
+773
+‡tVoyage of
+
+695
+combineSubfieldValues basic test of splitting in parseMarcRecord/parseSubfieldsToPairs basic test of splitting (tested by resulting data being used in a record using combineSubfieldValues)
+5472
+773
+‡tInternationale Polarforschung 1882-83 : die deutschen Expeditionen
+
+

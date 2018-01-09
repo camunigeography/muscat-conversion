@@ -2667,7 +2667,7 @@ class marcConversion
 			# For genuine analytics, use the 245 of the host record, but prefix with "In: " ; e.g. /records/5472/ (test #538)
 			if ($this->hostRecord) {
 				
-				# Obtain the 245 of the host record ; e.g. /records/5472/ (test #538)
+				# Obtain the 245 of the host record, e.g. /records/5472/ (test #538)
 				$marc = $this->parseMarcRecord ($this->hostRecord);
 				$result = $marc['245'][0]['line'];
 				
@@ -2842,7 +2842,7 @@ class marcConversion
 					unset ($marc['260'][0]['subfields']['c']);
 				}
 				
-				# Split by space-colon-space; e.g. /records/59148/ (test #532)
+				# Split by space-colon-space; e.g. /records/59148/ (test #532); normalise trailing implode " : " used to avoid " : : " appearing, e.g. /records/103259/ (test #683)
 				$subfields[] = $this->combineSubfieldValues ('d', $marc['260'], array (), ' : ', false, $normaliseTrailingImplode = true);
 			}
 		}
@@ -2926,7 +2926,7 @@ class marcConversion
 	# Function to combine subfield values in a line to a single string
 	private function combineSubfieldValues ($parentSubfield, $field, $onlySubfields = array (), $implodeSubfields = ', ', $stripLeadingArticleLanguage = false, $normaliseTrailingImplode = false)
 	{
-		# If normalising the implode so that an existing trailing string (e.g. ':') is present, remove it to avoid duplicates, e.g. /records/103259/
+		# If normalising the implode so that an existing trailing string (e.g. ':') is present, remove it to avoid duplication, e.g. /records/103259/ (test #683) which has "London :" gets "London : Graham and Trotman" not "London : : Graham and Trotman"
 		if ($normaliseTrailingImplode) {
 			$token = trim ($implodeSubfields);
 			foreach ($field[0]['subfields'] as $subfield => $subfieldValues) {
@@ -2939,29 +2939,29 @@ class marcConversion
 			}
 		}
 		
-		# Create the result
+		# Assign the field values, e.g. /records/2494/ (test #685)
 		$fieldValues = array ();
 		foreach ($field[0]['subfields'] as $subfield => $subfieldValues) {	// Only [0] used, as it is known that all fields using this function are non-repeatable fields
 			
-			# Skip if required
+			# Skip if required, e.g. /records/1222/ (test #684) uses only $c of source 245
 			if ($onlySubfields && !in_array ($subfield, $onlySubfields)) {continue;}
 			
-			# Add the field values for this subfield
+			# Add the field value(s) for this subfield, e.g. /records/2494/ (test #685); combine multiple values within the subfield itself (i.e. repeatable subfields - (R)) by comma-space, e.g. /records/7008/ (test #686)
 			$fieldValues[] = implode (', ', $subfieldValues);
 		}
 		
-		# Fix up punctuation
+		# Fix up punctuation (tests in each clause)
 		$totalFieldValues = count ($fieldValues);
 		foreach ($fieldValues as $index => $fieldValue) {
 			
-			# Avoid double commas after joining; e.g. /records/2614/
+			# Avoid double commas after joining; e.g. /records/2614/ (test #687)
 			if (($index + 1) != $totalFieldValues) {	// Do not consider last in loop
 				if (mb_substr ($fieldValue, -1) == ',') {
 					$fieldValue = mb_substr ($fieldValue, 0, -1);
 				}
 			}
 			
-			# Avoid ending a field with " /"
+			# Avoid ending a field with " /", e.g. /records/2616/ (test #688)
 			if (mb_substr ($fieldValue, -1) == '/') {
 				$fieldValue = trim (mb_substr ($fieldValue, 0, -1)) . '.';
 			}
@@ -2972,15 +2972,15 @@ class marcConversion
 		
 		#!# Need to handle cases like /records/191969/ having a field value ending with :
 		
-		# Compile the value
+		# Compile the value, combining with the specified string, e.g. /records/2614/ (test #689)
 		$value = implode ($implodeSubfields, $fieldValues);
 		
-		# Strip leading article if required; e.g. /records/3075/ , /records/3324/ , /records/5472/ (German)
+		# Strip leading article if required; e.g. English: /records/3075/ (test #690), /records/3324/ , German: /records/5472/ (test #691), French but no stripping required: /records/5476/ (test #692)
 		if ($stripLeadingArticleLanguage) {
 			$value = $this->stripLeadingArticle ($value, $stripLeadingArticleLanguage);
 		}
 		
-		# Compile the result
+		# Compile the result, prepending with the parent subfield, e.g. /records/5487/ (test #693)
 		$result = "{$this->doubleDagger}{$parentSubfield}" . $value;
 		
 		# Return the result
@@ -2988,23 +2988,23 @@ class marcConversion
 	}
 	
 	
-	# Function to strip a leading article
+	# Function to strip a leading article; e.g. English: /records/3075/ (test #690), German: /records/5472/ (test #691)
 	private function stripLeadingArticle ($string, $language)
 	{
-		# End if language not supported
+		# End if language not supported, e.g. /records/15131/ - though can't really test as this is a negative
 		if (!isSet ($this->leadingArticles[$language])) {return $string;}
 		
 		# Strip from start if present
 		$list = implode ('|', $this->leadingArticles[$language]);
-		$string = preg_replace ("/^({$list})(.+)$/i", '\2', $string);	// e.g. /records/3075/ , /records/3324/
-		$string = mb_ucfirst ($string);
+		$string = preg_replace ("/^({$list})(.+)$/i", '\2', $string);	// E.g. English: /records/3075/ (test #690), German: /records/5472/ (test #691)
+		$string = mb_ucfirst ($string);	// E.g. /records/3075/ (test #
 		
 		# Return the amended string
 		return $string;
 	}
 	
 	
-	# Macro to parse out a MARC record into subfields
+	# Macro to parse out a MARC record into subfields, e.g. /records/5472/ (test #695) and many tests make use of the processed subfields
 	public function parseMarcRecord ($marc, $parseSubfieldsToPairs = true)
 	{
 		# Parse the record
@@ -3022,17 +3022,15 @@ class marcConversion
 			);
 		}
 		
-		// application::dumpData ($record);
-		
 		# Return the record
 		return $record;
 	}
 	
 	
-	# Function to parse subfields into key-value pairs
+	# Function to parse subfields into key-value pairs, e.g. /records/5472/ (test #695) and many tests make use of the processed subfields
 	public function parseSubfieldsToPairs ($line, $knownSingular = false)
 	{
-		# Tokenise
+		# Tokenise, e.g. /records/35733/ (test #384)
 		$tokens = $this->tokeniseToSubfields ($line);
 		
 		# Convert to key-value pairs
@@ -3040,7 +3038,7 @@ class marcConversion
 		$subfield = false;
 		foreach ($tokens as $index => $string) {
 			
-			# Register then skip subfield indictors
+			# Register then skip subfield indicators
 			if (preg_match ("/^{$this->doubleDagger}([a-z0-9])$/", $string, $matches)) {
 				$subfield = $matches[1];
 				continue;
