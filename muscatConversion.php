@@ -139,8 +139,6 @@ class muscatConversion extends frontControllerApplication
 		'Special Collection'						=> 'SPRI-SPC',
 		'Theses'									=> 'SPRI-THE',
 		'Digital Repository'						=> 'SPRI-ELE',
-		'F:/public/session'							=> 'SPRI-ELE',
-		'F:/public/session/electronic publications'	=> 'SPRI-ELE',
 		'Electronic Resource \(online\)'			=> 'SPRI-ELE',
 		"Friends' Room"								=> 'SPRI-FRI',
 		'Museum Working Collection'					=> 'SPRI-MUS',
