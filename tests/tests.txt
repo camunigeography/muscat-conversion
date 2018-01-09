@@ -3139,7 +3139,7 @@ Multiple *note in 500
 ‡a20 p. 
 
 526
-300 ‡a where *p (i.e. not *pt) has a colon should not create an analytic volume designation
+300 ‡a general example, with ‡b having been split off
 189056
 300
 ‡a1 disc :‡bill
@@ -3989,3 +3989,33 @@ Vols. 17 :1-358; 18 :1-476; 19 :1-247, 3 (1895-96)
 5472
 500
 Abhandlungen. Vol. 2 / Georg
+
+678
+Volume list part of pOrPt registry uses the keys from the citation list
+4268
+773
+Vol. 1(2)
+
+679
+Volume list part of pOrPt registry has multiple values separated by semicolon-space
+6100
+773
+Vols. 17; 18; 19
+
+680
+Citation part of pOrPt registry has comma/colon/semicolon at end trimmed before tokeniseCitationList
+9529
+300
+iv, 127 p. :‡b
+
+681
+Citation carried-through value example
+2237
+500
+Vols. 14 :260; 15 :45.
+
+682
+500 citation list and date example
+54657
+500
+Vols. 41(11) :14-18; 41(12) :22-25; 42(1) :26-28, 68-72 (1975-1976)

@@ -1198,25 +1198,25 @@ class marcConversion
 				$physicalDescription = trim ($matches[1]);
 			}
 			
-			# Revert specific phrases
+			# Revert specific phrases (test as per forward part of algorithm, above)
 			$pOrPt = strtr ($pOrPt, array_flip ($protectedParts));
 			$physicalDescription = strtr ($physicalDescription, array_flip ($protectedParts));
 		}
 		
-		# At this point, $pOrPt represents the citation
+		# At this point, $pOrPt represents the citation, e.g. /records/2237/ (test #681), general example with $b having been split off: /records/189056/ (test #526)
 		$citation = $pOrPt;
 		
 		# Normalise 'p' to have a dot after; safe to make this change after checking: `SELECT * FROM catalogue_processed WHERE field IN('p','pt','vno','v','ts') AND value LIKE '%p%' AND value NOT LIKE '%p.%' AND value REGEXP '[0-9]p' AND value NOT REGEXP '[0-9]p( |,|\\)|\\]|$)';`
 		$citation = preg_replace ('/([0-9])p([^.]|$)/', '\1p.\2', $citation);	// E.g. /records/6002/ , /records/1654/ (test #346) , multiple in single string: /records/2031/ (test #347)
 		
-		# Remove comma/colon/semicolon at end; e.g. /records/215835/
+		# Remove comma/colon/semicolon at end; e.g. /records/9529/ (test #680)
 		$citation = trim (preg_replace ('/^(.+)[,;:]$/', '\1', trim ($citation)));
 		
-		# Tokenise the citation list to volume => pagination pairs
+		# Tokenise the citation list to volume => pagination pairs; tests present in function
 		$citationListValues = $this->tokeniseCitationList ($citation);
 		
-		# Construct the volume list
-		$volumeList = implode ('; ', array_keys ($citationListValues));	// As per same comment below in macro_generate773, semicolon rather than comma is chosen because there could be e.g. '73(1,5)' which would cause 'Vols. ' to appear rather than 'Vol. '
+		# Construct the volume list using the keys from the citation list, e.g. /records/4268/ (test #678); multiple separated by semicolon-space, e.g. /records/6100/ (test #679)
+		$volumeList = implode ('; ', array_keys ($citationListValues));		// As per same comment below in macro_generate773, semicolon rather than comma is chosen because there could be e.g. '73(1,5)' which would cause 'Vols. ' to appear rather than 'Vol. '
 		
 		# If there is a *vno, add this at the start of the analytic volume designation, before any pagination (extent) data from *pt; e.g. /records/6787/ (test #352) and negative test for 300 in same record /records/6787/ (test #351)
 		if ($vno = $this->xPathValue ($this->xml, '//vno')) {
@@ -1226,7 +1226,7 @@ class marcConversion
 		# Create the page string or count; if one than one item, a count is used; tests present in function
 		$pages = $this->pagesString ($citationListValues);
 		
-		# Assemble the datastructure
+		# Assemble the registry
 		$result = array (
 			'citation' => $citation,						// e.g. "41(11) :14-18; 41(12) :22-25; 42(1) :26-28, 68-72" (analytic/pseudo-analyic from several volumes), or ":14-18" (single-volume monograph)
 			'volumeList' => $volumeList,					// e.g. "41(11), 41(12), 42(1)" (analytic/pseudo-analyic from several volumes), or nothing (single-volume monograph)
@@ -1251,12 +1251,13 @@ class marcConversion
 		foreach ($citationParts as $citationPart) {
 			
 			# If in the format of "<volume>: <pagination-string>", split out, trimming both sides, e.g. /records/54657/ (test #609); otherwise no volume but pagination, e.g. /records/6787/ (test #610)
+			# Thus, if the citation starts with colon, it will be stripped out; e.g. /records/1107/ (test #523)
 			if (substr_count ($citationPart, ':')) {
 				list ($volume, $paginationString) = explode (':', $citationPart, 2);
 				$volume = trim ($volume);
 				$paginationString = trim ($paginationString);
 			} else {
-				$volume = false;
+				$volume = '';	// Use this rather than (bool) false, as otherwise becomes key zero: $citationListValues[0]: ...
 				$paginationString = $citationPart;
 			}
 			
@@ -2856,7 +2857,7 @@ class marcConversion
 				$gComponents[] = $this->volPrefix ($volumeListOrCitation);	// Tests in volPrefix function
 			}
 			
-			# /art/j has date, e.g. /records/4844/ (test #519), /records/54886/ has no $g (test #515) as it is an *art/*in
+			# /art/j has date, e.g. /records/4844/ (test #519), /records/54886/ has no $g (test #515) as it is an *art/*in, /records/54657/ (test #682) has citation list and date
 			if ($this->recordType == '/art/j') {
 				if ($d = $this->xPathValue ($this->xml, '/art/j/d')) {
 					if (!in_array ($d, array ('[n.d.]', '-'))) {	// E.g. /records/1166/ (test #520)
