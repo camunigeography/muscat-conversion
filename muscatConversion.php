@@ -924,15 +924,20 @@ class muscatConversion extends frontControllerApplication
 			return false;
 		}
 		
-		# Obtain a MARC parsed version for the marc and presented output types
-		if (in_array ($type, array ('presented', 'marc'))) {
-			$data = $this->getRecords ($id, 'xml', false, false, $searchStable = (!$this->userIsAdministrator));
-			$marcParserDefinition = $this->getMarcParserDefinition ();
-			$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ());
-			$record['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $record['suppressReasons']);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
-			$marcErrorHtml = $this->marcConversion->getErrorHtml ();
-			$marcPreMerge = $this->marcConversion->getMarcPreMerge ();
-			$sourceRegistry = $this->marcConversion->getSourceRegistry ();
+		# Regenerate MARC data on the fly (for MARC and presented versions), so that changes in code can be immediately viewed
+		if (in_array ($type, array ('marc', 'presented'))) {
+			if (!isSet ($this->marcRecordDynamic)) {	// Cache for next type that uses it, to save running convertToMarc twice
+				$data = $this->getRecords ($id, 'xml', false, false, $searchStable = (!$this->userIsAdministrator));
+				$marcParserDefinition = $this->getMarcParserDefinition ();
+				$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ());
+				$marcRecord = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $record['suppressReasons']);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
+				$this->marcRecordDynamic = array (
+					'record'			=> $marcRecord,
+					'marcErrorHtml'		=> $this->marcConversion->getErrorHtml (),
+					'marcPreMerge'		=> $this->marcConversion->getMarcPreMerge (),
+					'sourceRegistry'	=> $this->marcConversion->getSourceRegistry (),
+				);
+			}
 		}
 		
 		# Render the result
@@ -940,7 +945,7 @@ class muscatConversion extends frontControllerApplication
 			
 			# Presentation record
 			case 'presented':
-				$output = $this->presentedRecord ($record['marc']);
+				$output = $this->presentedRecord ($this->marcRecordDynamic['record']);
 				break;
 				
 			# Text records
@@ -951,8 +956,8 @@ class muscatConversion extends frontControllerApplication
 					if ($record['bibcheckErrors']) {
 						$output .= "\n<pre>" . "\n<p class=\"warning\">Bibcheck " . (substr_count ($record['bibcheckErrors'], "\n") ? 'errors' : 'error') . ":</p>" . $record['bibcheckErrors'] . "\n</pre>";
 					}
-					if ($marcErrorHtml) {
-						$output .= $marcErrorHtml;
+					if ($this->marcRecordDynamic['marcErrorHtml']) {
+						$output .= $this->marcRecordDynamic['marcErrorHtml'];
 					}
 					$output .= "\n<div class=\"graybox marc\">";
 					$output .= "\n<p id=\"exporttarget\">Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->migrationStatus ($id) . "</strong></p>";
@@ -963,13 +968,13 @@ class muscatConversion extends frontControllerApplication
 						$output .= "\n" . '<p class="colourkey">Color key: <span class="sourcem">Muscat</span> / <span class="sourcev">Voyager</span></p>';
 					}
 				}
-				$output .= "\n<pre>" . $this->showSourceRegistry ($this->highlightSubfields (htmlspecialchars ($record[$type])), $sourceRegistry) . "\n</pre>";
+				$output .= "\n<pre>" . $this->showSourceRegistry ($this->highlightSubfields (htmlspecialchars ($this->marcRecordDynamic['record'])), $this->marcRecordDynamic['sourceRegistry']) . "\n</pre>";
 				if ($this->userIsAdministrator) {
 					if ($record['mergeType']) {
 						$output .= "\n<h3>Merge data</h3>";
 						$output .= "\n<p>Merge type: {$record['mergeType']}" . (isSet ($this->mergeTypes[$record['mergeType']]) ? " ({$this->mergeTypes[$record['mergeType']]})" : '') . "\n<br />Voyager ID: #{$record['mergeVoyagerId']}.</p>";
 						$output .= "\n<h4>Pre-merge record from Muscat:</h4>";
-						$output .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($marcPreMerge)) . "\n</pre>";
+						$output .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($this->marcRecordDynamic['marcPreMerge'])) . "\n</pre>";
 						$output .= "\n<h4>Existing Voyager record:</h4>";
 						$voyagerRecord = $this->marcConversion->getExistingVoyagerRecord ($record['mergeVoyagerId'], $voyagerRecordErrorText);	// Although it is wasteful to regenerate this, the alternative is messily passing back the record and error text as references through convertToMarc()
 						$output .= "\n<pre>" . ($voyagerRecord ? $this->highlightSubfields (htmlspecialchars ($voyagerRecord)) : $voyagerRecordErrorText) . "\n</pre>";
