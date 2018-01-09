@@ -1508,7 +1508,7 @@ i300
 
 249
 MARC parser optional block indicator (e.g. ‡?u) check
-2176
+188509
 856
 ‡uurn
 
@@ -1622,7 +1622,7 @@ MARC parser macro chaining
 
 268
 MARC parser parameter parsing
-2176
+188509
 856
 urn:doi:
 
@@ -1682,7 +1682,7 @@ i856
 
 278
 Macro ifElse: value not present
-2176
+188509
 i856
 /^#/
 
@@ -2972,9 +2972,9 @@ generate500 prefix for */art/
 
 498
 856 DOI appears as ‡uurn:doi:
-8353
+188509
 856
-‡uurn:doi:10.1038/071221c0
+‡uurn:doi:10.1002/aqc.709
 
 499
 856 DOI appears also as URL

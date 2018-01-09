@@ -473,7 +473,7 @@ class marcConversion
 				# Register the subfield indicator (test #248)
 				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['subfieldIndicator'] = $subfieldIndicator;
 				
-				# Register whether the block is an optional block; e.g. /records/2176/ (test #249)
+				# Register whether the block is an optional block; e.g. /records/188509/ (test #249)
 				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['isOptionalBlock'] = (bool) $optionalBlockIndicator;
 				
 				# Register whether this xPath replacement is in the indicator block; e.g. /records/1108/ (test #250)
@@ -836,7 +836,7 @@ class marcConversion
 			if (is_null ($parameter)) {
 				$string = $this->{$macroMethod} ($string, NULL, $this->errorHtml);
 			} else {
-				$string = $this->{$macroMethod} ($string, $parameter, $this->errorHtml);	// E.g. /records/2176/ (test #268)
+				$string = $this->{$macroMethod} ($string, $parameter, $this->errorHtml);	// E.g. /records/188509/ (test #268)
 			}
 			
 			// Continue to next macro in chain (if any), using the processed string as it now stands; e.g. /records/2800/ (test #267)
@@ -913,7 +913,7 @@ class marcConversion
 	}
 	
 	
-	# Macro to implement a ternary check; e.g. /records/1010/ (test #277), /records/2176/ (test #278)
+	# Macro to implement a ternary check; e.g. /records/1010/ (test #277), /records/188509/ (test #278)
 	private function macro_ifElse ($value_ignored /* If empty, the macro will not even be called, so the value has to be passed in by parameter */, $parameters)
 	{
 		# Parse the parameters
