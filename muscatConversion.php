@@ -481,14 +481,14 @@ class muscatConversion extends frontControllerApplication
 		
 		# Merge the listings array into the main reports list
 		$this->reportsList += $this->listingsList;
+		
 	}
 	
 	
 	# Function to get the export date
 	private function getExportDate ()
 	{
-		$tableStatus = $this->databaseConnection->getTableStatus ($this->settings['database'], 'catalogue_rawdata');
-		return $tableStatus['Comment'];
+		return $this->databaseConnection->getTableComment ($this->settings['database'], 'catalogue_rawdata');
 	}
 	
 	
