@@ -15,6 +15,25 @@ class generate245
 		# Define the Statement of Responsibility delimiter
 		$this->muscatSorDelimiter = ' / ';	// Decided not to tolerate any cases with space not present after
 		
+		# Define the values for mapping *form to $h[medium]; see: https://www.loc.gov/marc/bibliographic/bd245.html
+		$this->mediums = array (
+			'3.5 floppy disk'		=> 'electronic resource',
+			'CD'					=> 'sound recording',
+			'CD-ROM'				=> 'electronic resource',
+			'DVD'					=> 'videorecording',
+			'DVD-ROM'				=> 'electronic resource',
+			'Internet resource'		=> 'electronic resource',
+			'Map'					=> 'cartographic material',
+			'Microfiche'			=> 'microform',
+			'Microfilm'				=> 'microform',
+			'Online publication'	=> 'electronic resource',
+			'PDF'					=> 'electronic resource',
+			'Poster'				=> 'object',
+			'Sound cassette'		=> 'sound recording',
+			'Sound disc'			=> 'sound recording',
+			'Videorecording'		=> 'videorecording',
+		);
+		
 	}
 	
 	
@@ -180,12 +199,14 @@ class generate245
 		# Does the record contain a *form? If so, construct $h, using lower-case, e.g. /records/12359/ (test #579) (except upper-case types like DVD)
 		$h = false;		// No $h if no form, e.g. /records/9542/ (test #577)
 		if ($forms = $this->marcConversion->xPathValues ($this->xml, '//form[%i]', false)) {
+			$formValues = array ();
 			foreach ($forms as $index => $form) {
-				if ($form != mb_strtoupper ($form)) {	// Maintain case for upper-case *form types like DVD; e.g. /records/160682/ (test #580)
-					$forms[$index] = mb_strtolower ($form);
+				if (isSet ($this->mediums[$form])) {
+					$formValues[] = $this->mediums[$form];	// Look up from list, rather than using *form directly, e.g. /records/160682/ (test #580)
 				}
 			}
-			$h = $this->doubleDagger . 'h[' . implode ('; ', $forms) . ']';		// If multiple *form values, separate using semicolon in same square brackets, e.g. /records/181410/ (test #578)
+			$formValues = array_unique ($formValues);	// No examples so no tests available, but checked manually with injected data
+			$h = $this->doubleDagger . 'h[' . implode ('; ', $formValues) . ']';		// If multiple *form values, separate using semicolon in same square brackets, e.g. /records/181410/ (test #578) is only record with multiple *form values
 		}
 		
 		# Does the *t include the delimiter? E.g. /records/1119/ (test #172)

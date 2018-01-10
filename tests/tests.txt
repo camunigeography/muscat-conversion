@@ -1066,13 +1066,13 @@ North‡h[videorecording] :‡ba story
 245 *t without colon but having *form results in ‡h after ‡a
 1186
 245
-microorganisms‡h[microfiche]
+microorganisms‡h[microform]
 
 176
 245 ‡h for *form appears in 880 for Russian records
 9543
 880
-Известия‡h[microfiche].
+Известия‡h[microform].
 
 177
 245 *ser with *t already having dot ends with single dot
@@ -3454,7 +3454,7 @@ co#|g|||||||||
 245 with multiple *form gets ‡h[first; second]
 181410
 245
-‡h[DVD; CD-ROM] :
+‡h[videorecording; electronic resource] :
 
 579
 245 ‡h are normally lower-cased
@@ -3463,10 +3463,10 @@ co#|g|||||||||
 ‡h[videorecording]
 
 580
-245 Maintain case for upper-case *form types like DVD
+245 Look up from list, rather than using *form directly
 160682
 245
-‡h[DVD]
+‡h[videorecording]
 
 581
 505 Contents note does not appear as 500
