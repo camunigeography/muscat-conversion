@@ -14,8 +14,9 @@
 # generate245: 100%
 # generateAuthors: 100%
 # marcConversion (controller section): 100%
-# marcConversion (macros section): 99% (needs check)
+# marcConversion (macros section): 100%
 # muscatConversion: 0%
+# NB: These values do not include cases of bugs, marked with a bug marker: #!#
 
 
 1
@@ -4098,4 +4099,57 @@ combineSubfieldValues basic test of splitting in parseMarcRecord/parseSubfieldsT
 773
 ‡tInternationale Polarforschung 1882-83 : die deutschen Expeditionen
 
+696
+Macro dotEnd checks against a strip-tagged version
+7463
+710
+/la Commission de la Belgica\.$/
+
+697
+xPathValues does not terminate early after reaching a not-found path as the index may be part of a hierarchy
+60776
+948
+‡dMISSING; D
+
+698
+xPathValue basic test
+1000
+001
+1000
+
+699
+xPathValues basic test
+1003
+651
+Southern Ocean
+
+700
+xPathValues returns values indexed from 1, not 0 (as per test #112)
+1127
+!700
+‡aEvers, Dietrich
+
+701
+nfCount macro returns 0 for language is not in the list of leading articles
+211109
+i245
+/0$/
+
+702
+nfCount is done case-insensitively
+1127
+i245
+/4$/
+
+703
+transliterateSubfields returns unmodified if the language mode is default
+211150
+700
+‡aMacKenna, John,‡enarrator.
+
+704
+490 gets volume number, preceeded by a space-semicolon
+31402
+490
+SSSR ;‡vTom 27
 

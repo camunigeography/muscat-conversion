@@ -952,7 +952,7 @@ class marcConversion
 		# Determine characters to check at the end
 		$characterList = ($extendedCharacterList ? (is_string ($extendedCharacterList) ? $extendedCharacterList : '.])>') : '.');	// e.g. 260 $c shown at https://www.loc.gov/marc/bibliographic/bd260.html
 		
-		# Return unmodified if character already present; for comparison purposes only, this is checked against a strip-tagged version in case there are tags at the end of the string, e.g. the 710 line at /records/7463/
+		# Return unmodified if character already present; for comparison purposes only, this is checked against a strip-tagged version in case there are tags at the end of the string, e.g. the 710 line at /records/7463/ (test #696)
 		if (preg_match ('/^(.+)[' . preg_quote ($characterList) . ']$/', strip_tags ($value), $matches)) {
 			return $value;
 		}
@@ -1066,7 +1066,7 @@ class marcConversion
 					foreach ($puValues as $index => $puValue) {
 						$xPath = '//lang[1]';	// Choose first only
 						$language = $this->xPathValue ($this->xml, $xPath);
-						$puValues[$index] = $this->macro_transliterate ($puValue, NULL, $language);	// [S.l.] and [s.n.] will not get transliterated as they are in brackets, e.g. /records/76740/ (test #306)
+						$puValues[$index] = $this->macro_transliterate ($puValue, NULL, $language);	// [S.l.] and [s.n.] will not get transliterated as they are in square brackets, e.g. /records/76740/ (test #306)
 					}
 				}
 			}
@@ -1135,7 +1135,7 @@ class marcConversion
 	}
 	
 	
-	# Up-front, process *p/*pt to parse into its component parts
+	# Up-front, process *p/*pt to parse into its component parts, for use in 300/500/773
 	private function parsePOrPt ()
 	{
 		# Start an array to hold the components
@@ -1457,7 +1457,7 @@ class marcConversion
 	}
 	
 	
-	# Function to get an XPath value
+	# Function to get an XPath value, e.g. /records/1000/ (test #698)
 	public function xPathValue ($xml, $xPath, $autoPrependRoot = true)
 	{
 		if ($autoPrependRoot) {
@@ -1474,7 +1474,7 @@ class marcConversion
 	}
 	
 	
-	# Function to get a set of XPath values for a field known to have multiple entries; these are indexed from 1, mirroring the XPath spec, not 0
+	# Function to get a set of XPath values for a field known to have multiple entries, e.g. /records/1003/ (test #699); these are indexed from 1, mirroring the XPath spec, not 0, e.g. /records/1127/ (test #700)
 	public function xPathValues ($xml, $xPath, $autoPrependRoot = true)
 	{
 		# Get each value
@@ -1486,6 +1486,7 @@ class marcConversion
 			if (strlen ($value)) {
 				$values[$i] = $value;
 			}
+			// Note: it is important to complete a full run, and not break the loop at this point if not found, because e.g. //k[6]/ks might exist even if //k[5]/ks is not present; e.g. /records/60776/ (test #697)
 		}
 		
 		# Return the values
@@ -1517,7 +1518,7 @@ class marcConversion
 		# If no language specified, choose 'English'
 		if (!strlen ($language)) {$language = 'English';}
 		
-		# End if the language is not in the list of leading articles
+		# End if the language is not in the list of leading articles, e.g. /records/211109/ (test #701)
 		if (!isSet ($this->leadingArticles[$language])) {return '0';}
 		
 		# Work through each leading article, and if a match is found, return the string length, e.g. /records/1116/ (test #355); /records/19042/ (test #356)
@@ -1525,7 +1526,7 @@ class marcConversion
 		# Therefore incorporate starting brackets in the consideration and the count if there is a leading article; see: https://www.loc.gov/marc/bibliographic/bd245.html , e.g. /records/27894/ (test #359), /records/56786/ (test #360), /records/4993/ (test #361)
 		# Include known starting/trailing punctuation within the count, e.g. /records/11329/ (test #362) , /records/1325/ (test #363) like example '15$aThe "winter mind"' in MARC documentation , /records/10366/ , as per http://www.library.yale.edu/cataloging/music/filing.htm#ignore
 		foreach ($this->leadingArticles[$language] as $leadingArticle) {
-			if (preg_match ("/^(['\"\[]*{$leadingArticle}['\"]*)/i", $value, $matches)) {	// Case-insensitive match
+			if (preg_match ("/^(['\"\[]*{$leadingArticle}['\"]*)/i", $value, $matches)) {	// Case-insensitive match, e.g. /records/1127/ (test #702)
 				return (string) mb_strlen ($matches[1]); // The space, if present, is part of the leading article definition itself
 			}
 		}
@@ -1634,7 +1635,7 @@ class marcConversion
 			$language = $this->xPathValue ($this->xml, $xPath);
 		}
 		
-		# Return unmodified if the language mode is default
+		# Return unmodified if the language mode is default, e.g. /records/211150/ (test #700)
 		if ($language == 'default') {return $value;}
 		
 		# Ensure language is supported
@@ -1659,7 +1660,7 @@ class marcConversion
 		$subfield = false;
 		foreach ($tokens as $index => $string) {
 			
-			# Register then skip subfield indictors
+			# Register then skip subfield indicators
 			if (preg_match ("/^({$this->doubleDagger}[a-z0-9])$/", $string)) {
 				$subfield = $string;
 				continue;
@@ -1671,12 +1672,11 @@ class marcConversion
 			# Skip conversion if the subfield is not required to be converted
 			if (!in_array ($subfield, $applyToSubfields)) {continue;}
 			
-			# Convert subfield contents
+			# Convert subfield contents, e.g. /records/35733/ (test #381)
 			$tokens[$index] = $this->macro_transliterate ($string, NULL, $language);
 		}
 		
-		# Re-glue the string
-		// application::dumpData ($tokens);
+		# Re-glue the string, e.g. /records/35733/ (test #381)
 		$value = implode ($tokens);
 		
 		# Return the value
@@ -1704,7 +1704,7 @@ class marcConversion
 		# End without output if no language, i.e. if default
 		if (!$language) {return false;}		// No known code paths identified, as callers already appear to guard against this, so no tests
 		
-		# Ensure language is supported
+		# Ensure language is supported; e.g. /records/6692/, but cannot add test as transliteration would pass through the value anyway
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return false;}	// Return false to ensure no result, unlike the main transliterate() routine
 		
 		# Pass the value into the transliterator
@@ -1779,7 +1779,7 @@ class marcConversion
 			$string .= $position7Values[$this->recordType];
 		}
 		
-		# Position 08: Type of control
+		# Position 08: Type of control; e.g. /records/1188/ (test #388)
 		$string .= '#';
 		
 		# Position 09: Character coding scheme
@@ -2195,7 +2195,7 @@ class marcConversion
 		# Start with the $a subfield
 		$string = $this->doubleDagger . 'a' . $seriesTitle;
 		
-		# Deal with optional volume number
+		# Deal with optional volume number, e.g. /records/31402/ (test #704)
 		if (strlen ($volumeNumber)) {
 			
 			# Strip any trailing ,. character in $a, and re-trim, e.g. /records/3748/ (test #454)
@@ -2210,7 +2210,7 @@ class marcConversion
 				$string = preg_replace ('/;$/', ' ;', $string);
 			}
 			
-			# Add the volume number; Bibcheck requires: "490: Subfield v must be preceeded by a space-semicolon"
+			# Add the volume number; Bibcheck requires: "490: Subfield v must be preceeded by a space-semicolon", e.g. /records/31402/ (test #704)
 			$string .= $this->doubleDagger . 'v' . $volumeNumber;
 		}
 		
@@ -2957,7 +2957,7 @@ class marcConversion
 		foreach ($fieldValues as $index => $fieldValue) {
 			
 			# Avoid double commas after joining; e.g. /records/2614/ (test #687)
-			if (($index + 1) != $totalFieldValues) {	// Do not consider last in loop
+			if (($index + 1) != $totalFieldValues) {	// Do not consider last in loop; no test for last in loop as no examples exist
 				if (mb_substr ($fieldValue, -1) == ',') {
 					$fieldValue = mb_substr ($fieldValue, 0, -1);
 				}
@@ -3063,7 +3063,7 @@ class marcConversion
 	
 	
 	# Macro to lookup periodical locations, which may generate a multiline result, e.g. /records/1102/ (test #621); see: https://www.loc.gov/marc/bibliographic/bd852.html
-	# Note that the algorithm here is a simplified version of doc/852 locations flowchart.xlsx (which was created before work to clean up 'Not in SPRI' records)
+	# Note that the algorithm here is a simplified replacement of doc/852 locations flowchart.xlsx (which was created before work to clean up 'Not in SPRI' records)
 	private function macro_generate852 ($value_ignored)
 	{
 		# Get the locations (if any), e.g. single location in /records/1102/ (test #621), multiple locations in /records/3959/ (test #622)
