@@ -3293,7 +3293,7 @@ LDR
 500 generate500analytics: Section from 245 $h has space before (unlike original 245 $h from which it is derived)
 64883
 500
-1981 [microfiche]
+1981 [microform]
 
 552
 500 generate500analytics (/art/in genuine analytic mode) $c role (using semicolon) is stripped
