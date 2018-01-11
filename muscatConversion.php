@@ -2676,7 +2676,7 @@ class muscatConversion extends frontControllerApplication
 		# Now create the fields index table, based on the results of a query that combines them
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.fieldsindex;";
 		$this->databaseConnection->execute ($sql);
-		# CREATE TABLE AS ... wrongly results in a VARCHAR(344) column, resulting in record #195245 and others being truncated; length of at least VARCHAR(565) (as of 20/11/2012) is needed
+		# CREATE TABLE AS ... wrongly results in a VARCHAR(344) column, resulting in record #195245 and others being truncated; length of at least VARCHAR(579) (as of Jan/2018) is needed
 		# $sql = "CREATE TABLE fieldsindex (PRIMARY KEY (id))
 		# 	ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci	/* MyISAM forced, so that FULLTEXT search can be used */
 		# 	AS
@@ -2945,14 +2945,14 @@ class muscatConversion extends frontControllerApplication
 		$likeBackslash		= $mysqlBacklash /* . $mysqlBacklash # seems to work only with one */;			// http://lists.mysql.com/mysql/193376 shows that LIKE expects a single MySQL backslash
 		$regexpBackslash	= $mysqlBacklash . $mysqlBacklash;			// http://lists.mysql.com/mysql/193376
 		
-		# Undo Muscat escaped asterisks @*, e.g. /records/19682/ and many *ks / *location values; this is basically an SQL version of unescapeMuscatAsterisks ()
+		# Undo Muscat escaped asterisks @*, e.g. /records/19682/ (test #705) and many *ks / *location values; this is basically an SQL version of unescapeMuscatAsterisks ()
 		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'@*','*');";
 		
-		# Italics, e.g. /records/205430/
+		# Italics, e.g. /records/205430/ (test #706)
 		# "In order to italicise a Latin name in the middle of a line of Roman text, prefix the words to be italicised by '\v' and end the words with '\n'"
 		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBackslash}v','<em>');";
 		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBackslash}n','</em>');";	// \n does not mean anything special in REPLACE()
-		# Also convert \V and \N similarly
+		# Also convert \V and \N similarly, e.g. /records/131259/ (test #707)
 		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBackslash}V','<em>');";
 		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBackslash}N','</em>');";	// \n does not mean anything special in REPLACE()
 		

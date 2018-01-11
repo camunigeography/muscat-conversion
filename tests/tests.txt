@@ -4153,3 +4153,21 @@ transliterateSubfields returns unmodified if the language mode is default
 490
 SSSR ;‡vTom 27
 
+705
+Undo Muscat escaped asterisks
+19682
+520
+filed at (*495)
+
+706
+Italic conversion consumes \v and \n
+205430
+520
+octopus species Bathypolypus arcticus and Haliphron
+
+707
+Italic conversion consumes \V and \N
+131259
+245
+Atlantic walruses (Odobenus rosmarus rosmarus) from
+
