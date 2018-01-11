@@ -14,9 +14,87 @@ class marcConversion
 	# Resources
 	private $isbn;
 	
+	# Define the merge types
+	private $mergeTypes = array (
+		'TIP'	=> 'exact Title match and ISSN match, and top answer in Probablistic search',
+		'TP'	=> 'exact Title, but not ISSN, and top answer in Probablistic search',
+		'IP'	=> 'ISSN match, but not exact title, and top answer in Probablistic search',
+		'P'		=> 'Probable match, unconfirmed, and top answer in Probablistic search',
+		'C'		=> 'probable match, Confirmed',
+	);
+	
+	# Define the location codes, as regexps
+	private $locationCodes = array (
+		# NB First in this list must be the numeric type for the reports to work correctly
+		'[0-9]{1,3} ?[A-Z]'							=> 'SPRI-SER',	// Serial
+		'Periodical'								=> 'SPRI-SER',	// Analytics (has parent serial, or has a reference in square brackets to a serial with which it is shelved)
+		'Archives'									=> 'SPRI-ARC',
+		'Atlas'										=> 'SPRI-ATL',
+		'Basement'									=> 'SPRI-BMT',
+		"Bibliographers' Office"					=> 'SPRI-BIB',
+		'Cupboard'									=> 'SPRI-CBD',
+		'Folio'										=> 'SPRI-FOL',
+		'Large Atlas'								=> 'SPRI-LAT',
+		"Librarian's Office"						=> 'SPRI-LIO',
+		'Library Office'							=> 'SPRI-LIO',
+		'Map Room'									=> 'SPRI-MAP',
+		'Pam'										=> 'SPRI-PAM',
+		'Picture Library'							=> 'SPRI-PIC',
+		'Reference'									=> 'SPRI-REF',
+		'Russian Gallery'							=> 'SPRI-RUS',
+		'Russian'									=> 'SPRI-RUS',
+		'Shelf'										=> 'SPRI-SHF',
+		'Special Collection'						=> 'SPRI-SPC',
+		'Theses'									=> 'SPRI-THE',
+		'Digital Repository'						=> 'SPRI-ELE',
+		'Electronic Resource \(online\)'			=> 'SPRI-ELE',
+		"Friends' Room"								=> 'SPRI-FRI',
+		'Museum Working Collection'					=> 'SPRI-MUS',
+		'Shelved with pamphlets'					=> 'SPRI-PAM',
+		'Shelved with monographs'					=> 'SPRI-SHF',
+		// SPRI-NIS defined in marcConversion code
+	);
+	
+	# Define known *ks values that represent status values rather than classifications
+	private $ksStatusTokens = array (
+		'MISSING',
+		'PGA',		// Record intended for inclusion in next issue of PGA
+		'X',		// Serial (issue(s)) not yet abstracted)
+		'Y',		// Host item with analytics on card catalogue)
+		'Z',		// Host item not yet analyzed)
+		'C',		// Current serial
+		'D',		// Dead serial
+	);
+	
+	# Suppression keyword in *status
+	private $suppressionStatusKeyword = 'SUPPRESS';
+	
+	# Acquisition date cut-off for on-order -type items; these range from 22/04/1992 to 30/10/2015; the intention of this date is that 'recent' on-order items (intended to be 1 year ago) would be migrated but suppressed, and the rest deleted - however, this needs review
+	private $acquisitionDate = '2015-01-01';
+	
+	# Supported transliteration upgrade (BGN/PCGN -> Library of Congress) fields, at either (top/bottom) level of a record
+	private $transliterationUpgradeFields = array (
+		't',
+		'pu',
+		'n1', 'n2', 'nd',	// NB Keep these three together as generate245::classifyNdField() (as called from generate245::statementOfResponsibility() ), and generate245::roleAndSiblings() assumes they will be in sync in terms of transliteration
+		'pu',
+		'ts',
+		'ft',
+		'st',
+		'ta',
+	);
+	
+	# Define fields for transliteration name matching
+	private $transliterationNameMatchingFields = array (
+		'n1',
+	);
+	
+	# HTML tags potentially present in output, which will then be stripped
+	private $htmlTags = array ('<em>', '</em>', '<sub>', '</sub>', '<sup>', '</sup>');
+	
 	
 	# Constructor
-	public function __construct ($muscatConversion, $transliteration, $supportedReverseTransliterationLanguages, $mergeTypes, $ksStatusTokens, $locationCodes, $diacriticsTable, $suppressionStatusKeyword, $suppressionScenarios)
+	public function __construct ($muscatConversion, $transliteration)
 	{
 		# Create class property handles to the parent class
 		$this->databaseConnection = $muscatConversion->databaseConnection;
@@ -24,21 +102,21 @@ class marcConversion
 		$this->applicationRoot = $muscatConversion->applicationRoot;
 		$this->baseUrl = $muscatConversion->baseUrl;
 		
-		# Create other handles
+		# Transliteration handles
 		$this->transliteration = $transliteration;
-		$this->supportedReverseTransliterationLanguages = $supportedReverseTransliterationLanguages;
-		$this->mergeTypes = $mergeTypes;
-		$this->ksStatusTokens = $ksStatusTokens;
-		$this->locationCodes = $locationCodes;
-		$this->diacriticsTable = $diacriticsTable;
-		$this->suppressionStatusKeyword = $suppressionStatusKeyword;
-		$this->suppressionScenarios = $suppressionScenarios;
+		$this->supportedReverseTransliterationLanguages = $transliteration->getSupportedReverseTransliterationLanguages ();
 		
 		# Define unicode symbols
 		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
 		
 		# Get the list of leading articles
 		$this->leadingArticles = $this->leadingArticles ();
+		
+		# Load the diacritics table
+		$this->diacriticsTable = $this->diacriticsTable ();
+		
+		# Load the suppression scenarios
+		$this->suppressionScenarios = $this->suppressionScenarios ();
 		
 		# Load ISBN support
 		$this->isbn = $this->loadIsbnValidationLibrary ();
@@ -82,6 +160,59 @@ class marcConversion
 	public function getSourceRegistry ()
 	{
 		return $this->sourceRegistry;
+	}
+	
+	
+	# Getter for definitions
+	
+	public function getMergeTypes ()
+	{
+		return $this->mergeTypes;
+	}
+	
+	public function getLocationCodes ()
+	{
+		return $this->locationCodes;
+	}
+	
+	public function getKsStatusTokens ()
+	{
+		return $this->ksStatusTokens;
+	}
+	
+	public function getSuppressionStatusKeyword ()
+	{
+		return $this->suppressionStatusKeyword;
+	}
+	
+	public function getDiacriticsTable ()
+	{
+		return $this->diacriticsTable;
+	}
+	
+	public function getSuppressionScenarios ()
+	{
+		return $this->suppressionScenarios;
+	}
+	
+	public function getAcquisitionDate ()
+	{
+		return $this->acquisitionDate;
+	}
+	
+	public function getTransliterationUpgradeFields ()
+	{
+		return $this->transliterationUpgradeFields;
+	}
+	
+	public function getTransliterationNameMatchingFields ()
+	{
+		return $this->transliterationNameMatchingFields;
+	}
+	
+	public function getHtmlTags ()
+	{
+		return $this->htmlTags;
 	}
 	
 	
@@ -800,8 +931,7 @@ class marcConversion
 		$record = implode ("\n", $outputLines);
 		
 		# Strip tags (introduced in specialCharacterParsing) across the record: "in MARC there isn't a way to represent text in italics in a MARC record and get it to display in italics in the OPAC/discovery layer, so the HTML tags will need to be stripped."
-		$tags = array ('<em>', '</em>', '<sub>', '</sub>', '<sup>', '</sup>');	// E.g. /records/1131/ (test #264), /records/2800/ (test #265), /records/61528/ (test #266)
-		$record = str_replace ($tags, '', $record);
+		$record = str_replace ($this->htmlTags, '', $record);	// E.g. /records/1131/ (test #264), /records/2800/ (test #265), /records/61528/ (test #266)
 		
 		# Return the record
 		return $record;
@@ -3350,6 +3480,257 @@ class marcConversion
 		
 		# Return the array
 		return $leadingArticlesByLanguage;
+	}
+	
+	
+	# Lookup table for diacritics
+	private function diacriticsTable ()
+	{
+		# Diacritics; see also report_diacritics() and report_diacritics_view(); most are defined at http://www.ssec.wisc.edu/~tomw/java/unicode.html and this is useful: http://illegalargumentexception.blogspot.co.uk/2009/09/java-character-inspector-application.html
+		$diacritics = array (
+			
+			// ^a acute
+			'a^a' => chr(0xc3).chr(0xa1),			//  0x00E1
+			'c^a' => chr(0xc4).chr(0x87),			//  0x0107
+			'e^a' => chr(0xc3).chr(0xa9),			//  0x00E9
+			'g^a' => chr(0xc7).chr(0xb5),			//  0x01F5
+			'i^a' => chr(0xc3).chr(0xad),			//  0x00ED
+			'n^a' => chr(0xc5).chr(0x84),			//  0x0144
+			'o^a' => chr(0xc3).chr(0xb3),			//  0x00F3
+			'r^a' => chr(0xc5).chr(0x95),			//  0x0155
+			's^a' => chr(0xc5).chr(0x9b),			//  0x015B
+			'u^a' => chr(0xc3).chr(0xba),			//  0x00FA
+			'y^a' => chr(0xc3).chr(0xbd),			//  0x00FD
+			'z^a' => chr(0xc5).chr(0xba),			//  0x017A
+			'A^a' => chr(0xc3).chr(0x81),			//  0x00C1
+			'C^a' => chr(0xc4).chr(0x86),			//  0x0106
+			'E^a' => chr(0xc3).chr(0x89),			//  0x00C9
+			'I^a' => chr(0xc3).chr(0x8d),			//  0x00CD
+			'O^a' => chr(0xc3).chr(0x93),			//  0x00D3
+			'S^a' => chr(0xc5).chr(0x9a),			//  0x015A
+			'U^a' => chr(0xc3).chr(0x9a),			//  0x00DA
+			'Z^a' => chr(0xc5).chr(0xb9),			//  0x0179
+			
+			// ^g grave
+			'a^g' => chr(0xc3).chr(0xa0),			//  0x00E0
+			'e^g' => chr(0xc3).chr(0xa8),			//  0x00E8
+			'i^g' => chr(0xc3).chr(0xac),			//  0x00EC
+			'o^g' => chr(0xc3).chr(0xb2),			//  0x00F2
+			'u^g' => chr(0xc3).chr(0xb9),			//  0x00F9
+			'A^g' => chr(0xc3).chr(0x80),			//  0x00C0
+			'E^g' => chr(0xc3).chr(0x88),			//  0x00C8
+			
+			// ^c for Polish/Lithuanian Ogonek; see: http://www.twardoch.com/download/polishhowto/ogonek.html ]
+			'a^c' => chr(0xc4).chr(0x85),			//  0x0105,	// http://www.fileformat.info/info/unicode/char/0105/index.htm ; see also http://scriptsource.org/cms/scripts/page.php?item_id=character_detail&key=SEQ0061_0327
+			'i^c' => chr(0xc4).chr(0xaf),			//  0x012f,	// http://www.fileformat.info/info/unicode/char/12f/index.htm
+			
+			// ^c for Dene but treated as Ogonek
+			'u^c' => chr(0xc5).chr(0xb3),			//  0x0173,	// http://www.fileformat.info/info/unicode/char/0173/index.htm ; see also http://scriptsource.org/cms/scripts/page.php?item_id=character_detail&key=SEQ0075_0327
+			
+			// ^c cedilla
+			'c^c' => chr(0xc3).chr(0xa7),			//  0x00E7
+			'e^c' => chr(0xc8).chr(0xa9),			//  0x0229
+			'k^c' => chr(0xc4).chr(0xb7),			//  0x0137
+			'l^c' => chr(0xc4).chr(0xbc),			//  0x013C
+			's^c' => chr(0xc5).chr(0x9f),			//  0x015F
+			't^c' => chr(0xc5).chr(0xa3),			//  0x0163
+			'C^c' => chr(0xc3).chr(0x87),			//  0x00C7
+			
+			// ^u umlaut
+			'a^u' => chr(0xc3).chr(0xa4),			//  0x00E4
+			'e^u' => chr(0xc3).chr(0xab),			//  0x00EB
+			'h^u' => chr(0xE1).chr(0xb8).chr(0xa7),	//  0x1E27
+			'i^u' => chr(0xc3).chr(0xaf),			//  0x00EF
+			'o^u' => chr(0xc3).chr(0xb6),			//  0x00F6
+			'u^u' => chr(0xc3).chr(0xbc),			//  0x00FC
+			'y^u' => chr(0xc3).chr(0xbf),			//  0x00FF
+			'A^u' => chr(0xc3).chr(0x84),			//  0x00C4
+			'O^u' => chr(0xc3).chr(0x96),			//  0x00D6
+			'U^u' => chr(0xc3).chr(0x9c),			//  0x00DC
+			
+			// ^m macron (i.e. horizontal line over letter/number)
+			'a^m' => chr(0xc4).chr(0x81),			//  0x0101
+			'e^m' => chr(0xc4).chr(0x93),			//  0x0113
+			'i^m' => chr(0xc4).chr(0xab),			//  0x012B
+			'o^m' => chr(0xc5).chr(0x8d),			//  0x014D
+			'u^m' => chr(0xc5).chr(0xab),			//  0x016B
+			'y^m' => chr(0xc8).chr(0xb3),			//  0x0233
+			'A^m' => chr(0xc4).chr(0x80),			//  0x0100
+			'O^m' => chr(0xc5).chr(0x8c),			//  0x014C
+			'U^m' => chr(0xc5).chr(0xaa),			//  0x016A
+			'2^m' => '2' . chr(0xCC).chr(0x85),		//  0x0305; records 119571 and 125394, which have e.g. 112^m1 which should be 1121 where there is a line over the 2; see http://en.wikipedia.org/wiki/Overline#Unicode for Unicode handling
+			
+			// Standalone overline character used in a formula; only appears in record 149163
+			'V^m' => 'V' . chr(0xe2).chr(0x80).chr(0xbe),		//	0x203E, // http://www.fileformat.info/info/unicode/char/203e/index.htm
+			
+			// ^z '/' (stroke) through letter
+			'a^z' => chr(0xe2).chr(0xb1).chr(0xa5),	//  0x2C65,	// http://www.fileformat.info/info/unicode/char/2c65/index.htm
+			'd^z' => chr(0xc4).chr(0x91),			//  0x0111,	// http://www.fileformat.info/info/unicode/char/0111/index.htm which does indeed have the stroke not across the middle
+			'j^z' => chr(0xc9).chr(0x89),			//  0x0249,	// http://www.fileformat.info/info/unicode/char/0249/index.htm
+			'l^z' => chr(0xc5).chr(0x82),			//  0x0142
+			'o^z' => chr(0xc3).chr(0xb8),			//  0x00F8
+			'L^z' => chr(0xc5).chr(0x81),			//  0x0141
+			'O^z' => chr(0xc3).chr(0x98),			//  0x00D8
+			
+			// ^h for circumflex ('h' stands for 'hat')
+			'a^h' => chr(0xc3).chr(0xa2),			//  0x00E2
+			'e^h' => chr(0xc3).chr(0xaa),			//  0x00EA
+			'g^h' => chr(0xc4).chr(0x9d),			//  0x011D
+			'i^h' => chr(0xc3).chr(0xae),			//  0x00EE
+			'o^h' => chr(0xc3).chr(0xb4),			//  0x00F4
+			'u^h' => chr(0xc3).chr(0xbb),			//  0x00FB
+			'y^h' => chr(0xc5).chr(0xb7),			//  0x0177
+			'A^h' => chr(0xc3).chr(0x82),			//  0x00C2
+			'E^h' => chr(0xc3).chr(0x8a),			//  0x00CA
+			'I^h' => chr(0xc3).chr(0x8e),			//  0x00CE
+			'U^h' => chr(0xc3).chr(0x9b),			//  0x00DB
+			
+			// ^v for 'v' (caron) over a letter
+			'a^v' => chr(0xc7).chr(0x8e),			//  0x01CE
+			'c^v' => chr(0xc4).chr(0x8d),			//  0x010D
+			'e^v' => chr(0xc4).chr(0x9b),			//  0x011B
+			'g^v' => chr(0xc7).chr(0xa7),			//  0x01E7
+			'i^v' => chr(0xc7).chr(0x90),			//  0x01D0
+			'n^v' => chr(0xc5).chr(0x88),			//  0x0148
+			'o^v' => chr(0xc7).chr(0x92),			//  0x01D2
+			'r^v' => chr(0xc5).chr(0x99),			//  0x0159
+			's^v' => chr(0xc5).chr(0xa1),			//  0x0161
+			'u^v' => chr(0xc7).chr(0x94),			//  0x01D4
+			'z^v' => chr(0xc5).chr(0xbe),			//  0x017E
+			'C^v' => chr(0xc4).chr(0x8c),			//  0x010C
+			'D^v' => chr(0xc4).chr(0x8e),			//  0x010E
+			'R^v' => chr(0xc5).chr(0x98),			//  0x0158
+			'S^v' => chr(0xc5).chr(0xa0),			//  0x0160
+			'Z^v' => chr(0xc5).chr(0xbd),			//  0x017D
+			
+			// ^o for 'o' (ring) over a letter
+			'a^o' => chr(0xc3).chr(0xa5),			//  0x00E5
+			'u^o' => chr(0xc5).chr(0xaf),			//  0x016F
+			'A^o' => chr(0xc3).chr(0x85),			//  0x00C5
+			
+			// ^t tilde
+			'a^t' => chr(0xc3).chr(0xa3),			//  0x00E3
+			'e^t' => chr(0xe1).chr(0xba).chr(0xbd),	//  0x1EBD
+			'i^t' => chr(0xc4).chr(0xa9),			//  0x0129
+			'n^t' => chr(0xc3).chr(0xb1),			//  0x00F1
+			'o^t' => chr(0xc3).chr(0xb5),			//  0x00F5
+			'u^t' => chr(0xc5).chr(0xa9),			//  0x0169
+			'O^t' => chr(0xc3).chr(0x95),			//  0x00D5
+			'U^t' => chr(0xc5).chr(0xa8),			//  0x0168
+			' ^t' => ' ~',
+		);
+		
+		# Capitals (have same meaning - data is too extensive to fix up manually)
+		$diacritics += array (
+			
+			// ^A acute (upper-case)
+			'A^A' => $diacritics['A^a'],
+			'E^A' => $diacritics['E^a'],
+			'I^A' => $diacritics['I^a'],
+			'O^A' => $diacritics['O^a'],
+			'S^A' => $diacritics['S^a'],
+			
+			// ^G grave (upper-case)
+			'A^G' => $diacritics['A^g'],
+			
+			// ^U umlaut (upper-case)
+			'A^U' => $diacritics['A^u'],
+			'O^U' => $diacritics['O^u'],
+			'U^U' => $diacritics['U^u'],
+			
+			// ^M macron (i.e. horizontal line over letter) (upper-case)
+			'O^M' => $diacritics['O^m'],
+			
+			// ^Z '/' through letter (upper-case)
+			'L^Z' => $diacritics['L^z'],
+			'O^Z' => $diacritics['O^z'],
+			
+			// ^H for circumflex ('h' stands for 'hat') (upper-case)
+			'I^H' => $diacritics['I^h'],
+			
+			// ^V for 'v' over a letter (upper-case)
+			'C^V' => $diacritics['C^v'],
+			'S^V' => $diacritics['S^v'],
+			
+			// ^O for 'o' over a letter (upper-case)
+			'A^O' => $diacritics['A^o'],
+		);
+		
+		# Return the array
+		return $diacritics;
+	}
+	
+	
+	# Function to define suppression scenarios
+	private function suppressionScenarios ()
+	{
+		# Records to suppress, defined as a set of scenarios represented by a token
+		#!# Check whether locationCode locations with 'Periodical' are correct to suppress
+		#!# Major issue: problem with e.g. /records/3929/ where two records need to be created, but not both should be suppressed; there are around 1,000 of these
+		return $suppressionScenarios = array (
+			
+			'STATUS-RECEIVED' => array (
+				# 5,376 records
+				'Item is being processed, i.e. has been accessioned and is with a bibliographer for classifying and cataloguing',
+				"   field = 'status' AND value = 'RECEIVED'
+				"),
+				
+			'ORDER-CANCELLED' => array (
+				# 232 records
+				'Order cancelled by SPRI, but record retained for accounting/audit purposes in the event that the item arrives',
+				"   field = 'status' AND value = 'ORDER CANCELLED'
+				"),
+				
+			'EXPLICIT-SUPPRESS' => array (
+				# 24,658 records
+				'Record marked specifically to suppress, e.g. pamphlets needing review, etc.',
+				# NB This has been achieved using a BCPL routine to mark the records as such
+				"   field = 'status' AND value = '{$this->suppressionStatusKeyword}'
+				"),
+				
+			'ON-ORDER-RECENT' => array (
+				# 15 records
+				'Item on order recently with expectation of being fulfilled',
+				"	    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
+					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
+					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
+				"),
+				
+			'ON-ORDER-OLD' => array (
+				# 654 records; see also: /reports/onorderold/ which matches
+				'Item on order recently unlikely to be fulfilled, but item remains desirable and of bibliographic interest',
+				"	    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
+					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
+					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
+				"),
+				
+			#!# Needs review - concern that this means that items with more than one location could get in the suppression bucket; see e-mail 19/12/2016
+			'EXTERNAL-LOCATION' => array (
+				# 8,325 records
+				'Item of bibliographic interest, but not held at SPRI, so no holdings record can be created',
+				"	    field = 'location'
+					AND value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
+					AND (
+						   value IN('', '-', '??', 'Not in SPRI', 'Periodical')
+						OR value LIKE '%?%'
+						OR value LIKE '%Cambridge University%'
+						OR value LIKE 'Picture Library Store : Video%'
+						)
+				"),
+				
+			#!# Needs review - 'offprint' is too restrictive, and various categories have been physically reviewed in person
+			'OFFPRINT-OR-PHOTOCOPY' => array (
+				# 1,553 records
+				'Item needing review to determine provenance with respect to copyright',
+				"	    field IN('note', 'local', 'priv')
+					AND (
+						   value LIKE '%offprint%'
+						OR value LIKE '%photocopy%'
+						)
+					AND value NOT LIKE '%out of copyright%'
+				"),
+				
+		);
 	}
 	
 	

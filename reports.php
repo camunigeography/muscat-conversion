@@ -159,24 +159,20 @@ class reports
 	
 	
 	# Constructor
-	public function __construct ($muscatConversion, $marcConversion, $locationCodes, $orderStatusKeywords, $suppressionStatusKeyword, $acquisitionDate, $ksStatusTokens, $diacriticsTable, $mergeTypes, $transliterationNameMatchingFields)
+	public function __construct ($muscatConversion, $marcConversion)
 	{
 		# Create main property handles
 		$this->muscatConversion = $muscatConversion;
-		$this->marcConversion = $marcConversion;
 		$this->settings = $muscatConversion->settings;
 		$this->databaseConnection = $muscatConversion->databaseConnection;
 		$this->baseUrl = $muscatConversion->baseUrl;
 		
-		# Create other property handles
-		$this->locationCodes = $locationCodes;
-		$this->orderStatusKeywords = $orderStatusKeywords;
-		$this->suppressionStatusKeyword = $suppressionStatusKeyword;
-		$this->acquisitionDate = $acquisitionDate;
-		$this->ksStatusTokens = $ksStatusTokens;
-		$this->diacriticsTable = $diacriticsTable;
-		$this->mergeTypes = $mergeTypes;
-		$this->transliterationNameMatchingFields = $transliterationNameMatchingFields;
+		# MARC conversion property handles for properties used in multiple reports
+		$this->marcConversion = $marcConversion;
+		$this->locationCodes = $marcConversion->getLocationCodes ();
+		$this->ksStatusTokens = $marcConversion->getKsStatusTokens ();
+		$this->acquisitionDate = $marcConversion->getAcquisitionDate ();
+		$this->transliterationNameMatchingFields = $marcConversion->getTransliterationNameMatchingFields ();
 		
 	}
 	
@@ -1252,7 +1248,17 @@ class reports
 	# Items with an invalid *status
 	public function report_invalidstatus ()
 	{
+		# Define the order *status keywords
+		$orderStatusKeywords = array (
+			'ON ORDER'			=> 'Item is in the acquisition process',
+			'ON ORDER (O/P)'	=> 'On order, but out of print',
+			'ON ORDER (O/S)'	=> 'On order, but out of stock',
+			'ORDER CANCELLED'	=> 'Order has been cancelled for whatever reason',
+			'RECEIVED'			=> 'Item has arrived at the library but is awaiting further processing before becoming available to users',
+		);
+		
 		# Define the query
+		$suppressionStatusKeyword = $this->marcConversion->getSuppressionStatusKeyword ();
 		$query = "
 			SELECT
 				'invalidstatus' AS report,
@@ -1260,7 +1266,7 @@ class reports
 			FROM catalogue_processed
 			WHERE
 				    field = 'status'
-				AND value NOT IN ('" . implode ("', '", array_keys ($this->orderStatusKeywords)) . "', '{$this->suppressionStatusKeyword}')
+				AND value NOT IN ('" . implode ("', '", array_keys ($orderStatusKeywords)) . "', '{$suppressionStatusKeyword}')
 		";
 		
 		# Return the query
@@ -1549,7 +1555,7 @@ class reports
 		
 		# Create the SQL clauses for each greek letter; each clause for that letter does a case insensitive match (which will find \galpha or \gAlpha or \galPHa), then excludes the perfect cases of \galpha \gAlpha
 		$sqlWhere = array ();
-		$greekLetters = $this->muscatConversion->greekLetters ();
+		$greekLetters = $this->muscatConversion->import->greekLetters ();
 		foreach ($greekLetters as $letterCaseSensitive => $unicodeCharacter) {
 			$letterLcfirst = lcfirst ($letterCaseSensitive);
 			$letterUcfirst = ucfirst ($letterCaseSensitive);
@@ -3109,6 +3115,9 @@ class reports
 		# Regroup by diacritic
 		$data = application::regroup ($data, 'diacritic');
 		
+		# Load the diacritics table
+		$diacriticsTable = $this->marcConversion->getDiacriticsTable ();
+		
 		# Show each diacritic modifer, in a large table
 		$html .= "\n" . '<table class="lines diacritics">';
 		$html .= "\n\t" . '<tr>';
@@ -3134,7 +3143,7 @@ class reports
 			$table = array ();
 			foreach ($instances as $instance) {
 				if ($instance['instances'] == 0) {continue;}	// This is done at this level, rather than the getData stage, so that all diacritic modifiers end up being listed
-				$unicodeSymbol = $this->diacriticsTable["{$instance['letter']}^{$diacritic}"];
+				$unicodeSymbol = $diacriticsTable["{$instance['letter']}^{$diacritic}"];
 				$letter = "<a href=\"{$this->baseUrl}/search/?casesensitive=1&anywhere=" . urlencode ($unicodeSymbol) . "\"><strong>{$instance['letter']}</strong>^{$diacritic}</a>";
 				$table[$letter] = array (
 					'muscat'	=> $letter,
@@ -4001,7 +4010,7 @@ class reports
 		$html = '';
 		
 		# Regenerate on demand during testing
-		// $this->muscatConversion->createVolumeNumbersTable ();
+		// $this->muscatConversion->import->createVolumeNumbersTable ();
 		
 		# Determine totals
 		$table = 'volumenumbers';
@@ -4123,8 +4132,9 @@ class reports
 		}
 		
 		# Add labels
+		$mergeTypes = $this->marcConversion->getMergeTypes ();
 		foreach ($data as $id => $record) {
-			$data[$id]['mergeType'] .= ' &nbsp; <span class="comment">(' . (isSet ($this->mergeTypes[$record['mergeType']]) ? "{$this->mergeTypes[$record['mergeType']]}" : '?') . ')</span>';
+			$data[$id]['mergeType'] .= ' &nbsp; <span class="comment">(' . (isSet ($mergeTypes[$record['mergeType']]) ? "{$this->mergeTypes[$record['mergeType']]}" : '?') . ')</span>';
 		}
 		
 		# Render as HTML
@@ -4160,7 +4170,7 @@ class reports
 		$regenerateMarcData = (isSet ($_POST[$regenerateParameter]));
 		
 		# Regenerate the test data, regenerating the underlying MARC records if required
-		if (!$this->muscatConversion->runTests ($errorHtml, $regenerateMarcData, $importMode = false)) {
+		if (!$this->muscatConversion->import->runTests ($errorHtml, $regenerateMarcData, $importMode = false)) {
 			$html = "\n<p class=\"warning\">The tests are not correctly defined, with the test harness reporting an error: <tt>{$errorHtml}</tt></p>";
 			return $html;
 		}

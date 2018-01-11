@@ -13,6 +13,7 @@
 # generate008: 100%
 # generate245: 100%
 # generateAuthors: 100%
+# import: 0%
 # marcConversion (controller section): 100%
 # marcConversion (macros section): 100%
 # muscatConversion: 0%
