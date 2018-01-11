@@ -2626,15 +2626,6 @@ class muscatConversion extends frontControllerApplication
 		# Compile the table structure
 		require_once ('csv.php');
 		
-		/*
-		# Compile the SQL
-		$sql = csv::filesToSql (dirname ($csvFilename), "catalogue_{$type}.csv", $fieldLabels = array (), $tableComment, $prefix = '', $names = array (), $errorsHtml, $highMemory = false);
-		if ($errorsHtml) {
-			echo "\n" . application::dumpData ($errorsHtml, false, true);
-			return false;
-		}
-		*/
-		
 		# Compile the SQL; this is done manually rather than using csv::filesToSql as that is slow (it has to compute the structure) and doesn't cope well with having two CSVs in the same directory with one for each table
 		$sql = "
 			-- {$tableComment}
