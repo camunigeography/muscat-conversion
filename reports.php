@@ -129,6 +129,7 @@ class reports
 		'agwithonlyad_problem' => '*ag records containing only an *ad',
 		'tdot_problem' => '*t values ending with a dot',
 		'ptspacecolonspace_problem' => '*pt values containing space-colon-space',
+		'multiplepdot_problem' => 'multiple p dot',
 		'pcolonspace_problem' => '*p values containing colon-space rather than space-colon-space',
 		'sermultipler_problem' => '*ser records with multiple *r',
 	);
@@ -2949,6 +2950,27 @@ class reports
 			WHERE
 				    field LIKE 'pt'
 				AND value LIKE '% : %'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *p values containing multiple cases of p.dot; this does contain some which will need to be whitelisted
+	#!# Need to tighten up constraints or whitelist record numbers after data work
+	public function report_multiplepdot ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'multiplepdot' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field IN ('p', 'pt')
+				AND value LIKE '%p.%'
+				AND (LENGTH(value)-LENGTH(REPLACE(value,'p.','')))/LENGTH('p.') > 1
 		";
 		
 		# Return the query
