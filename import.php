@@ -273,7 +273,7 @@ class import
 	}
 	
 	
-	# Function to get the export date as a string
+	# Function to create the export date as a string
 	private function dateString ($exportFile)
 	{
 		# Determine the filename
@@ -791,7 +791,7 @@ class import
 		# Correct the use of }o{ which has mistakenly been used to mean \gdeg, except for V}o{ (e.g. /records/163845/ (test #708) and N}o{ (e.g. /records/29493/ (test #709) which are a Ordinal indicator: https://en.wikipedia.org/wiki/Ordinal_indicator
 		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'}o{','{$replaceBackslash}gdeg') WHERE value NOT LIKE '%V}o{%' AND value NOT LIKE '%n}o{%';";	// NB Have manually checked that record with V}o{ / N}o{ has no other use of }/{ characters
 		
-		# Diacritics (query takes 135 seconds)
+		# Diacritics (query takes 135 seconds), e.g. /records/148511/ (test #711), tidle in /records/207146/ (test #712), upper-case in /records/4932/ (test #713)
 		$diacriticsTable = $this->marcConversion->getDiacriticsTable ();
 		$queries[] = "UPDATE catalogue_processed SET value = " . $this->databaseConnection->replaceSql ($diacriticsTable, 'value', "'") . ';';
 		

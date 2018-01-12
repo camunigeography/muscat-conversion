@@ -3496,7 +3496,7 @@ class marcConversion
 			// ^a acute
 			'a^a' => chr(0xc3).chr(0xa1),			//  0x00E1
 			'c^a' => chr(0xc4).chr(0x87),			//  0x0107
-			'e^a' => chr(0xc3).chr(0xa9),			//  0x00E9
+			'e^a' => chr(0xc3).chr(0xa9),			//  0x00E9, e.g. /records/148511/ (test #711)
 			'g^a' => chr(0xc7).chr(0xb5),			//  0x01F5
 			'i^a' => chr(0xc3).chr(0xad),			//  0x00ED
 			'n^a' => chr(0xc5).chr(0x84),			//  0x0144
@@ -3621,7 +3621,7 @@ class marcConversion
 			'u^t' => chr(0xc5).chr(0xa9),			//  0x0169
 			'O^t' => chr(0xc3).chr(0x95),			//  0x00D5
 			'U^t' => chr(0xc5).chr(0xa8),			//  0x0168
-			' ^t' => ' ~',
+			' ^t' => ' ~',	// E.g. /records/207146/ (test #712)
 		);
 		
 		# Capitals (have same meaning - data is too extensive to fix up manually)
@@ -3647,7 +3647,7 @@ class marcConversion
 			
 			// ^Z '/' through letter (upper-case)
 			'L^Z' => $diacritics['L^z'],
-			'O^Z' => $diacritics['O^z'],
+			'O^Z' => $diacritics['O^z'],	// E.g. /records/4932/ (test #713)
 			
 			// ^H for circumflex ('h' stands for 'hat') (upper-case)
 			'I^H' => $diacritics['I^h'],

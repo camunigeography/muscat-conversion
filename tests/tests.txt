@@ -13,7 +13,7 @@
 # generate008: 100%
 # generate245: 100%
 # generateAuthors: 100%
-# import: 0%
+# import: 10%
 # marcConversion (controller section): 100%
 # marcConversion (macros section): 100%
 # muscatConversion: 100% (is exclusively a controller, so no tests)
@@ -4192,7 +4192,26 @@ north of 75°.
 
 711
 300 gets space between square-bracketed [number] and p.
-300
 13270
+300
 ‡a[4] p.
+
+711
+Diacritics: basic example e^a
+148511
+500
+Géographies
+
+712
+Diacritics: tilde
+207146
+245
+VI ~12 kbar
+
+713
+Diacritics: upper-case
+4932
+245
+Østkyst
+
 
