@@ -130,6 +130,7 @@ class reports
 		'tdot_problem' => '*t values ending with a dot',
 		'ptspacecolonspace_problem' => '*pt values containing space-colon-space',
 		'multiplepdot_problem' => 'multiple p dot',
+		'problematicpdot_problem' => 'problematic p. cases, assuming that multiplepdot report is cleared',
 		'pcolonspace_problem' => '*p values containing colon-space rather than space-colon-space',
 		'sermultipler_problem' => '*ser records with multiple *r',
 	);
@@ -2971,6 +2972,36 @@ class reports
 				    field IN ('p', 'pt')
 				AND value LIKE '%p.%'
 				AND (LENGTH(value)-LENGTH(REPLACE(value,'p.','')))/LENGTH('p.') > 1
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Problematic p. cases, assuming that multiplepdot report is cleared
+	public function report_problematicpdot ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'problematicpdot' AS report,
+				recordId
+			FROM
+				(
+					SELECT
+					    recordId,
+					REPLACE(REPLACE(REPLACE(REPLACE(value, ' p.', 'xxx'), '[n.p.]', 'xxx'), 'Supp.', 'xxx'), 'supp.', 'xxx') AS value
+					FROM catalogue_processed
+					WHERE field IN ('p', 'pt')
+					AND value LIKE '%p.%'
+					HAVING value LIKE '%p.%'
+				)
+				AS modified
+			WHERE
+			    value NOT REGEXP '[0-9]p\.'
+			AND value NOT REGEXP '\[[0-9]\]p\.'
+			AND value NOT REGEXP '^p\.'
 		";
 		
 		# Return the query
