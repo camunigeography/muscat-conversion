@@ -123,7 +123,7 @@ class reports
 		'longtitles_problem' => 'records with long titles (>512 characters), that are not on the whitelist',
 		'artjwithoutvolume_problem' => 'articles in journals without a volume designation and no useful date',
 		'docpt_problem' => '*doc records with a *pt',
-		'artnopt_problem' => '*art records without a *pt',
+		'artnopt_problem' => '*art records without a *pt, whitelisting cases where the record has a SPRI location',
 		'docnop_problem' => '*doc records without a *p',
 		'artform_problem' => '*art records with a *form',
 		'agwithonlyad_problem' => '*ag records containing only an *ad',
@@ -2829,18 +2829,20 @@ class reports
 	}
 	
 	
-	# *art records without a *pt
+	# *art records without a *pt, whitelisting cases where the record has a SPRI location
 	public function report_artnopt ()
 	{
-		# Define the query
+		# Define the query; NB the query is a bit slow (1-2 minutes)
 		$query = "
 			SELECT
 				'artnopt' AS report,
-				id AS recordId
+				fieldsindex.id AS recordId
 			FROM fieldsindex
+			LEFT JOIN catalogue_processed ON fieldsindex.id = catalogue_processed.id AND field = 'location'
 			WHERE
 				    fieldslist LIKE '%@art@%'
 				AND fieldslist NOT LIKE '%@pt@%'
+				AND (value IS NULL OR value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\")
 		";
 		
 		# Return the query
