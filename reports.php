@@ -131,6 +131,7 @@ class reports
 		'ptspacecolonspace_problem' => '*pt values containing space-colon-space',
 		'multiplepdot_problem' => 'multiple p dot',
 		'problematicpdot_problem' => 'problematic p. cases, assuming that multiplepdot report is cleared',
+		'pnodot_problem' => 'report for p not followed by a dot in *p / *pt',
 		'pcolonspace_problem' => '*p values containing colon-space rather than space-colon-space',
 		'sermultipler_problem' => '*ser records with multiple *r',
 	);
@@ -3002,6 +3003,25 @@ class reports
 			    value NOT REGEXP '[0-9]p\.'
 			AND value NOT REGEXP '\[[0-9]\]p\.'
 			AND value NOT REGEXP '^p\.'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Report for p not followed by a dot in *p / *pt
+	public function report_pnodot ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'pnodot' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field IN ('p','pt')
+				AND value REGEXP '[0-9]p[^.]'
 		";
 		
 		# Return the query
