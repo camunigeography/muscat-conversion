@@ -2125,7 +2125,11 @@ class muscatConversion extends frontControllerApplication
 	# Search
 	public function search ()
 	{
+		#!# Move fieldsindex code into search index and reduce fields
+		#!# Work out why search also seems to check transliterated version
+		#!# htmlspecialchars on each part of result
 		
+		/*
 		Main fields that people want to search within are:
 		
 		- Author (original=a/ee, compiled as: n1 for surname and n2 for forename)
