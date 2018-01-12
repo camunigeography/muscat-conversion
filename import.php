@@ -1308,6 +1308,7 @@ class import
 		# Transliterate the strings (takes around 20 minutes); this has to be done string-by-string because the batcher is not safe for protected strings
 		#!# This may now be safely batchable following introduction of word-boundary protection algorithm in b5265809a8dca2a1a161be2fcc26c13c926a0cda
 		#!# The same issue about crosstalk in unsafe batching presumably applies to line-by-line conversions, i.e. C (etc.) will get translated later in the same line; need to check on this
+		$this->logger ('  |-- In ' . __METHOD__ . ', running transliterateBgnLatinToCyrillic');
 		$language = 'Russian';
 		$dataTransliterated = array ();
 		$cyrillicPreSubstitutions = array ();
@@ -1315,6 +1316,9 @@ class import
 		foreach ($data as $id => $entry) {
 			$dataTransliterated[$id] = $this->transliteration->transliterateBgnLatinToCyrillic ($entry['title_latin'], $entry['lpt'], $language, $cyrillicPreSubstitutions[$id] /* passed back by reference */, $protectedPartsPreSubstitutions[$id] /* passed back by reference */);
 		}
+		
+		# Start spellchecking data phase
+		$this->logger ('  |-- In ' . __METHOD__ . ', running spellchecking data phase');
 		
 		# Define words to add to the dictionary
 		$langCode = 'ru_RU';
@@ -1327,9 +1331,11 @@ class import
 		}
 		
 		# Do a comparison check by forward-transliterating the generated Cyrillic (takes around 15 seconds)
+		$this->logger ('  |-- In ' . __METHOD__ . ', running transliterateCyrillicToBgnLatin');
 		$forwardBgnTransliterations = $this->batchTransliterateStrings ($dataTransliterated, 'transliterateCyrillicToBgnLatin');
 		
 		# Add new Library of Congress (LoC) transliteration from the generated Cyrillic (takes around 1 second)
+		$this->logger ('  |-- In ' . __METHOD__ . ', running transliterateCyrillicToLocLatin');
 		$forwardLocTransliterations = $this->batchTransliterateStrings ($dataTransliterated, 'transliterateCyrillicToLocLatin');
 		
 		# Compile the conversions
@@ -1345,6 +1351,7 @@ class import
 		}
 		
 		# Insert the data (takes around 15 seconds)
+		$this->logger ('  |-- In ' . __METHOD__ . ', batch-inserting the compiled transliterations data');
 		$this->databaseConnection->updateMany ($this->settings['database'], 'transliterations', $conversions, $chunking = 5000);
 		
 		# Signal success
