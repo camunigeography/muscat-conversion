@@ -2615,7 +2615,7 @@ class import
 	
 	
 	# Function to run a report
-	private function runReport ($reportId, $clearFirst = false)
+	public function runReport ($reportId, $clearFirst = false)
 	{
 		# If required, clear the results from any previous instantiation
 		if ($clearFirst) {
