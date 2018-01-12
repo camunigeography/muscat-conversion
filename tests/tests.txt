@@ -16,7 +16,7 @@
 # import: 0%
 # marcConversion (controller section): 100%
 # marcConversion (macros section): 100%
-# muscatConversion: 0%
+# muscatConversion: 100% (is exclusively a controller, so no tests)
 # NB: These values do not include cases of bugs, marked with a bug marker: #!#
 
 
