@@ -788,8 +788,8 @@ class import
 		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBackslash}V','<em>');";
 		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'{$replaceBackslash}N','</em>');";	// \n does not mean anything special in REPLACE()
 		
-		# Correct the use of }o{ which has mistakenly been used to mean \gdeg, except for V}o{ which is a Ordinal indicator: https://en.wikipedia.org/wiki/Ordinal_indicator
-		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'}o{','{$replaceBackslash}gdeg') WHERE value NOT LIKE '%V}o{%';";	// NB Have manually checked that record with V}o{ has no other use of }/{ characters
+		# Correct the use of }o{ which has mistakenly been used to mean \gdeg, except for V}o{ (e.g. /records/163845/ (test #708) and N}o{ (e.g. /records/29493/ (test #709) which are a Ordinal indicator: https://en.wikipedia.org/wiki/Ordinal_indicator
+		$queries[] = "UPDATE catalogue_processed SET value = REPLACE(value,'}o{','{$replaceBackslash}gdeg') WHERE value NOT LIKE '%V}o{%' AND value NOT LIKE '%n}o{%';";	// NB Have manually checked that record with V}o{ / N}o{ has no other use of }/{ characters
 		
 		# Diacritics (query takes 135 seconds)
 		$diacriticsTable = $this->marcConversion->getDiacriticsTable ();

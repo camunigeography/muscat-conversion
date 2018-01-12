@@ -4172,3 +4172,21 @@ Italic conversion consumes \V and \N
 245
 Atlantic walruses (Odobenus rosmarus rosmarus) from
 
+708
+Volume ordinal indicator from V}o{ does not use degree symbol
+163845
+245
+el Vº centenario
+
+709
+Number ordinal indicator from n}o{ does not use degree symbol
+29493
+490
+nº 45-46
+
+710
+Degree symbol used not ordinal indicator for other cases (see previous two tests)
+49506
+520
+north of 75°.
+
