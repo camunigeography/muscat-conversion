@@ -4190,3 +4190,9 @@ Degree symbol used not ordinal indicator for other cases (see previous two tests
 520
 north of 75°.
 
+711
+300 gets space between square-bracketed [number] and p.
+300
+13270
+‡a[4] p.
+

@@ -1288,6 +1288,10 @@ class marcConversion
 			$pOrPt = trim ($plusMatches[0]);	// Override string to strip out the + section
 		}
 		
+		# Add space between the number and the 'p.'; e.g. /records/49133/ for p. (test #349); normalisation not required: /records/13745/ (test #350); multiple instances of page number in /records/2031/ though this is wrong data as per /reports/pnodot/
+		$pOrPt = preg_replace ('/([0-9])(p\.)/', '\1 \2', $pOrPt);
+		$pOrPt = preg_replace ('/(\[[0-9]\])(p\.)/', '\1 \2', $pOrPt);	// E.g. /records/13270/ (test #711)
+		
 		# Normalise commas to have a space after; e.g. /records/8167/ (test #555)
 		$pOrPt = preg_replace ('/,([^ ])/', ', \1', $pOrPt);
 		
@@ -1539,8 +1543,8 @@ class marcConversion
 			}
 		}
 		
-		# Add space between the number and the 'p.' or 'v.' ; e.g. /records/49133/ for p. (test #349); normalisation not required: /records/13745/ (test #350) ; multiple instances of page number in /records/2031/ ; NB No actual cases for v. in the data; avoids dot after 'vols': /records/20704/ (test #348)
-		$a = preg_replace ('/([0-9]+)([pv]\.)/', '\1 \2', $a);
+		# Add space between the number and the 'v.'; NB No actual cases for v. in the data; avoids dot after 'vols': /records/20704/ (test #348)
+		$a = preg_replace ('/([0-9]+)([v]\.)/', '\1 \2', $a);
 		
 		# Register the $a
 		$result .= $a;
