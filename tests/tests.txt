@@ -3048,7 +3048,7 @@ Hatteras :‡bLes anglais au Pôle Nord; Le désert
 Multiple *note in 500
 1019
 500
-‡aPublisher varies as govt. dept. changes
+‡aPublisher and agency responsible varies as govt. dept. changes
 
 511
 *local goes in 876
