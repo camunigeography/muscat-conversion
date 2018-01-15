@@ -1513,7 +1513,7 @@ class import
 		if (!$this->buildOtherNamesTable ($file, $error)) {return false;}
 		
 		# Add any new values to the data file
-		$this->obtainSaveOtherNamesData ($file);
+		$this->obtainSaveOtherNamesData ($file, $transliterationNameMatchingFields);
 		
 		# Re-initialise the other names data table with existing data
 		if (!$this->buildOtherNamesTable ($file, $error)) {return false;}
@@ -1575,14 +1575,14 @@ class import
 	
 	
 	# Function to obtain and save other names data
-	private function obtainSaveOtherNamesData ($file)
+	private function obtainSaveOtherNamesData ($file, $transliterationNameMatchingFields)
 	{
 		# Get list of names needing population
 		$query = "SELECT
 			DISTINCT title
 			FROM transliterations
 			WHERE
-				    field IN('" . implode ("', '", $this->transliterationNameMatchingFields) . "')
+				    field IN('" . implode ("', '", $transliterationNameMatchingFields) . "')
 				AND inNameAuthorityList IS NULL							-- i.e. hasn't yet been allocated any value
 				AND title NOT IN(
 					SELECT DISTINCT surname AS title FROM othernames	-- 5965 values, so IN() performance will not be completely terrible
@@ -1771,12 +1771,13 @@ class import
 		
 		# Add the parallel title language lookups
 		$this->logger ('In ' . __METHOD__ . ', adding the parallel title language lookups');
+		$supportedReverseTransliterationLanguages = $this->transliteration->getSupportedReverseTransliterationLanguages ();
 		$query = "UPDATE catalogue_xml
 			LEFT JOIN catalogue_processed ON
 				    catalogue_xml.id = catalogue_processed.recordId
 				AND field = 'lang'
 				AND value LIKE '% = %'
-				AND value REGEXP '(" . implode ('|', array_keys ($this->supportedReverseTransliterationLanguages)) . ")'
+				AND value REGEXP '(" . implode ('|', array_keys ($supportedReverseTransliterationLanguages)) . ")'
 			SET parallelTitleLanguages = value
 		;";
 		$this->databaseConnection->execute ($query);
@@ -2647,7 +2648,8 @@ class import
 		$this->logger ('Starting ' . __METHOD__);
 		
 		# Run each listing report
-		foreach ($this->listingsList as $report => $description) {
+		$listingsList = $this->reports->getListingsList ();
+		foreach ($listingsList as $report => $description) {
 			$reportFunction = 'report_' . $report;
 			$this->reports->$reportFunction ();
 		}
