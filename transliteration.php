@@ -55,6 +55,23 @@ class transliteration
 	 */
 	
 	
+	
+	# Function to transliterate a batch of strings; this has to be done string-by-string because the batcher is not safe for protected strings
+	#!# This may now be safely batchable following introduction of word-boundary protection algorithm in b5265809a8dca2a1a161be2fcc26c13c926a0cda
+	#!# The same issue about crosstalk in unsafe batching presumably applies to line-by-line conversions, i.e. C (etc.) will get translated later in the same line; need to check on this
+	public function transliterateBgnLatinToCyrillicBatch ($data /* pairs of id,title_latin,lpt */, $language, &$cyrillicPreSubstitutions = array (), &$protectedPartsPreSubstitutions = array ())
+	{
+		# Transliterate each entry
+		$dataTransliterated = array ();
+		foreach ($data as $id => $entry) {
+			$dataTransliterated[$id] = $this->transliterateBgnLatinToCyrillic ($entry['title_latin'], $entry['lpt'], $language, $cyrillicPreSubstitutions[$id] /* passed back by reference */, $protectedPartsPreSubstitutions[$id] /* passed back by reference */);
+		}
+		
+		# Return the transliterated dataset
+		return $dataTransliterated;
+	}
+	
+	
 	# Function to reverse-transliterate a string from BGN/PCGN latin to Cyrillic
 	# This function is not batch-safe, and is designed to accept only a single string at a time
 	/*
@@ -78,7 +95,7 @@ class transliteration
 		# Example use:
 		echo "hello" | translit -r -t "BGN PCGN 1947"
 	*/
-	public function transliterateBgnLatinToCyrillic ($stringLatin, $lpt, $language, &$cyrillicPreSubstitution = false, &$protectedPartsPreSubstitution = false, &$nonTransliterable = false)
+	private function transliterateBgnLatinToCyrillic ($stringLatin, $lpt, $language, &$cyrillicPreSubstitution = false, &$protectedPartsPreSubstitution = false, &$nonTransliterable = false)
 	{
 		# Ensure language is supported
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return $stringLatin;}
