@@ -134,6 +134,7 @@ class reports
 		'pnodot_problem' => 'report for p not followed by a dot in *p / *pt',
 		'pcolonspace_problem' => '*p values containing colon-space rather than space-colon-space',
 		'sermultipler_problem' => '*ser records with multiple *r',
+		'artjnokg_postmigration' => '/art/j records with no *kg in the Pamphlets',
 	);
 	
 	# Listing (values) reports
@@ -198,12 +199,17 @@ class reports
 	# Post-migration task descriptions
 	public function postmigrationDescriptions ()
 	{
+		# Define unicode symbols
+		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
+		
 		# Return text for each post-migration task
 		return array (
 			
 			'missingrplstatus' =>
 				'todo',
 			
+			'artjnokg' =>
+				"In case of a 773 without a SPRI host, could subsequently be linked to a UL host by adding a {$this->doubleDagger}w.",
 			
 			
 			
@@ -3063,6 +3069,27 @@ class reports
 			WHERE
 				    xPath LIKE '/ser%'
 				AND xPathWithIndex LIKE '%/r[2]'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# /art/j records with no *kg in the Pamphlets
+	public function report_artjnokg ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'artjnokg' AS report,
+				id AS recordId
+			FROM `fieldsindex`
+			WHERE
+				    fieldslist LIKE '%@art@%'
+				AND fieldslist LIKE '%@j@%'
+				AND fieldslist NOT LIKE '%@kg@%'
+				AND location LIKE '%@Pam %'
 		";
 		
 		# Return the query

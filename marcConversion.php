@@ -2922,7 +2922,7 @@ class marcConversion
 		$result = '';
 		
 		# Only relevant if there is a host record (i.e. has a *kg which exists); records will usually be /art/in or /art/j only, but there are some /doc records, e.g. /records/1129/ (test #493), or negative case /records/2075/ (test #494)
-		#!# At present this leaves tens of thousands of journal analytics without links (because they don't have explicit *kg fields) - these are pseudo-analytics
+		#!# At present this leaves tens of thousands of journal analytics without links (because they don't have explicit *kg fields) - these are pseudo-analytics, i.e. generate everything except the $w, so that the $w could be manually added post-migration, e.g. /records/116085/ - see /reports/artjnokg/ and its postmigrationDescriptions commentary
 		if (!$this->hostRecord) {return false;}
 		
 		# Parse out the host record
