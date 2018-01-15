@@ -1851,7 +1851,8 @@ class marcConversion
 			MORE TODO
 		*/
 		#!# Need to determine whether the $lpt argument should ever be looked up, i.e. whether the $value represents a title and the record is in Russian
-		$output = $this->transliteration->transliterateBgnLatinToCyrillic ($value, $lpt = false, $language);
+//		$output = $this->transliteration->transliterateBgnLatinToCyrillic ($value, $lpt = false, $language);
+		$output = $this->transliteration->transliterateLocLatinToCyrillic ($value, $lpt = false);
 		
 		# Return the string
 		return $output;
