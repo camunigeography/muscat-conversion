@@ -2360,6 +2360,7 @@ class marcConversion
 		# Define supported types (other than default 500), specifying the captured text to appear
 		$specialFields = array (
 			505 => '^Contents: (.+)$',			// Actually implemented below, but has to be defined here to avoid it also becoming a standard 500, e.g. /records/1488/ (test #581)
+			533 => "^Printout\.(.+)$",			// Actually implemented below, but has to be defined here to avoid it also becoming a standard 500, e.g. /records/142020/ (test #716)
 			538 => '^(Mode of access: .+)$',	// 538 - System Details Note; see: https://www.loc.gov/marc/bibliographic/bd538.html , e.g. /records/145666/ (test #582)
 		);
 		
@@ -2420,6 +2421,22 @@ class marcConversion
 		$string = $firstIndicator . $secondIndicator . ' ' . $openingSubfield . $note;
 		
 		# Return the string
+		return $string;
+	}
+	
+	
+	# Helper function for 533 - Reproduction Note; see: http://www.loc.gov/marc/bibliographic/bd533.html , e.g. /records/142020/ (test #715)
+	private function macro_generate533Note ($note)
+	{
+		# End if the note is not a reproduction note, e.g. /records/1150/ (test #718)
+		if (!preg_match ('/^Printout\.(.+)$/', $note, $matches)) {
+			return false;
+		}
+		
+		# Replace | with double-dagger, e.g. /records/142020/ (test #717)
+		$string = str_replace ('|', $this->doubleDagger, $note);
+		
+		# Return the string, e.g. /records/142020/ (test #715)
 		return $string;
 	}
 	

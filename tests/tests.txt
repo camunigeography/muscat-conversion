@@ -4219,3 +4219,27 @@ Diacritics: upper-case
 58214
 245
 /1914 g. \/‡cV.I. Alʹbanov ; predislovie i kommentarii Mikhaila Chvanova.$/
+
+715
+533 Printout
+142020
+533
+‡aPrintout.‡bCambridge, UK :‡c
+
+716
+533 Printout does not get a 500
+142020
+!500
+Printout
+
+717
+533 Printout has preformatted | converted to double-dagger
+142020
+533
+‡aPrintout.‡bCambridge, UK :‡c
+
+718
+533 End if not a reproduction note
+1150
+!533
+*
