@@ -136,6 +136,7 @@ class reports
 		'figuresportraits_problem' => 'inappropriate splitting for figures and portraits',
 		'sermultipler_problem' => '*ser records with multiple *r',
 		'artjnokg_postmigration' => '/art/j records with no *kg in the Pamphlets',
+		'tslasheditors_problem' => '*t with explicit slash also having *e',
 	);
 	
 	# Listing (values) reports
@@ -3111,6 +3112,26 @@ class reports
 				AND fieldslist LIKE '%@j@%'
 				AND fieldslist NOT LIKE '%@kg@%'
 				AND location LIKE '%@Pam %'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *t with explicit slash also having *e
+	public function report_tslasheditors ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'tslasheditors' AS report,
+				catalogue_processed.recordId AS recordId
+			FROM catalogue_processed
+			JOIN catalogue_processed AS second ON catalogue_processed.recordId = second.recordId AND second.field = 'e'
+			WHERE
+				    catalogue_processed.field LIKE 't'
+				AND catalogue_processed.value LIKE '% / %'
 		";
 		
 		# Return the query

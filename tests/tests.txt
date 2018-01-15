@@ -3279,7 +3279,7 @@ in Einzugsgebieten / G. Blöschl, D. Gutknecht, R. Kirnbauer, [eds.]
 Antarctica. Scientific Report / Geological Survey of India. Department of Ocean Development
 
 549
-245: If there is a / in the title explicitly, use that and discard all people groups (see also #439)
+245: If there is a / in the title explicitly, use that and discard all people groups (see also #439 and #714)
 2683
 245
 ‡aPoezdka v I͡akutsk /‡cizd. N. Shch.
@@ -4214,4 +4214,8 @@ Diacritics: upper-case
 245
 Østkyst
 
-
+714
+*t having explicit slash with role and siblings only uses / part (see also #549)
+58214
+245
+/1914 g. \/‡cV.I. Alʹbanov ; predislovie i kommentarii Mikhaila Chvanova.$/

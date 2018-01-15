@@ -306,7 +306,7 @@ class generate245
 			$eIndex++;
 		}
 		
-		# If there is a / in the title explicitly, use that (e.g. /records/10503/ (test #439)), and discard all people groups (e.g. /records/2683/ (test #549)); not triggered by </em> /records/1131/ (test #440)
+		# If there is a / in the title explicitly, use that (e.g. /records/10503/ (test #439)), and discard all people groups (e.g. /records/2683/ (test #549)), including cases of role and siblings (e.g. /records/58214/ (test #714); not triggered by </em> /records/1131/ (test #440)
 		if (substr_count ($title, $this->muscatSorDelimiter)) {
 			list ($t, $statementOfResponsibility) = explode ($this->muscatSorDelimiter, $title, 2);
 			$peopleGroups = array (trim ($statementOfResponsibility));
