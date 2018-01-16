@@ -56,24 +56,9 @@ class transliteration
 	
 	
 	
-	# Function to transliterate a batch of strings; this has to be done string-by-string because the batcher is not safe for protected strings
-	#!# This may now be safely batchable following introduction of word-boundary protection algorithm in b5265809a8dca2a1a161be2fcc26c13c926a0cda
-	#!# The same issue about crosstalk in unsafe batching presumably applies to line-by-line conversions, i.e. C (etc.) will get translated later in the same line; need to check on this
-	public function transliterateBgnLatinToCyrillicBatch ($data /* pairs of id,title_latin,lpt */, $language, &$cyrillicPreSubstitutions = array (), &$protectedPartsPreSubstitutions = array ())
-	{
-		# Transliterate each entry
-		$dataTransliterated = array ();
-		foreach ($data as $id => $entry) {
-			$dataTransliterated[$id] = $this->transliterateBgnLatinToCyrillic ($entry['title_latin'], $entry['lpt'], $language, $cyrillicPreSubstitutions[$id] /* passed back by reference */, $protectedPartsPreSubstitutions[$id] /* passed back by reference */);
-		}
-		
-		# Return the transliterated dataset
-		return $dataTransliterated;
-	}
-	
-	
 	# Function to reverse-transliterate a string from BGN/PCGN latin to Cyrillic
-	# This function is not batch-safe, and is designed to accept only a single string at a time
+	# This is batch-safe following introduction of word-boundary protection algorithm in b5265809a8dca2a1a161be2fcc26c13c926a0cda
+	#!# The same issue about previous crosstalk in unsafe batching presumably applies to line-by-line conversions, i.e. C (etc.) will get translated later in the same line; need to check on this
 	/*
 		Files are at
 		/root/.cpan/build/Lingua-Translit-0.22-th0SPW/xml/
@@ -95,14 +80,26 @@ class transliteration
 		# Example use:
 		echo "hello" | translit -r -t "BGN PCGN 1947"
 	*/
-	private function transliterateBgnLatinToCyrillic ($stringLatin, $lpt, $language, &$cyrillicPreSubstitution = false, &$protectedPartsPreSubstitution = false, &$nonTransliterable = false)
+	public function transliterateBgnLatinToCyrillicBatch ($data /* triads of id,title_latin,lpt */, $language, &$cyrillicPreSubstitutions = array (), &$protectedPartsPreSubstitutions = array ())
 	{
 		# Ensure language is supported
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return $stringLatin;}
 		
 		# Protect string portions (e.g. English language, HTML portions, parallel title portions, [Titles fully in brackets like this]) prior to transliteration
-		$stringLatin = $this->protectSubstrings ($stringLatin, $lpt, $protectedParts, $error /* passed back by reference */, $nonTransliterable /* passed back by reference */);
-		if ($error) {return false;}
+		$latinStrings = array ();
+		$protectedParts = array ();
+		$errors = array ();
+		$nonTransliterable = array ();
+		foreach ($data as $id => $entry) {
+			$latinStrings[$id] = $this->protectSubstrings ($entry['title_latin'], $entry['lpt'], $protectedParts[$id], $error /* passed back by reference */, $nonTransliterable[$id] /* passed back by reference */);
+			if ($error) {
+				$errors[$id] = $error;
+			}
+		}
+		
+		# End if error
+		#!# Currently no error handling by client code
+		//if ($errors) {return false;}
 		
 		/* Note:
 		 * Ideally we would use:
@@ -117,19 +114,33 @@ class transliteration
 		 * Ticket raised at: http://unicode.org/cldr/trac/ticket/9086
 		 */
 		
-		# Perform transliteration
+		# Compile the strings to a single text string block
+		$separator = "\n\n";
+		$latinStringBlock = implode ($separator, $latinStrings);
+		
+		# Perform transliteration of the block
 		$command = "{$this->cpanDir}/bin/translit -trans '{$this->supportedReverseTransliterationLanguages[$language]}'";	//  --reverse
-		$cyrillic = application::createProcess ($command, $stringLatin);
+		$cyrillicBlock = application::createProcess ($command, $latinStringBlock);
+		
+		# Extract the strings back to an array, restoring the index
+		$cyrillicStringsZeroIndexed = explode ($separator, $cyrillicBlock);
+		$i = 0;
+		foreach ($data as $id => $entry) {
+			$cyrillicStrings[$id] = $cyrillicStringsZeroIndexed[$i];
+			$i++;
+		}
 		
 		# Cache the pre-substitution cyrillic and protected parts, so that these can be batch-spellchecked; these are returned back by reference
-		$cyrillicPreSubstitution = $cyrillic;
-		$protectedPartsPreSubstitution = $protectedParts;
+		$cyrillicPreSubstitutions = $cyrillicStrings;
+		$protectedPartsPreSubstitutions = $protectedParts;
 		
 		# Reinstate protected substrings
-		$cyrillic = $this->reinstateProtectedSubstrings ($cyrillic, $protectedParts);
+		foreach ($cyrillicStrings as $id => $cyrillicString) {
+			$cyrillicStrings[$id] = $this->reinstateProtectedSubstrings ($cyrillicString, $protectedParts[$id]);
+		}
 		
-		# Return the transliteration
-		return $cyrillic;
+		# Return the transliterations
+		return $cyrillicStrings;
 	}
 	
 	
