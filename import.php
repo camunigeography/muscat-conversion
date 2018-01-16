@@ -2641,10 +2641,12 @@ class import
 		$this->logger ('Starting ' . __METHOD__);
 		
 		# Run each listing report
-		$listingsList = $this->reports->getListingsList ();
-		foreach ($listingsList as $report => $description) {
-			$reportFunction = 'report_' . $report;
-			$this->reports->$reportFunction ();
+		$reports = $this->muscatConversion->getReports ();
+		foreach ($reports as $reportId => $description) {
+			if ($this->muscatConversion->isListing ($reportId)) {
+				$reportFunction = 'report_' . $reportId;
+				$this->reports->$reportFunction ();
+			}
 		}
 	}
 	
