@@ -1341,7 +1341,7 @@ class marcConversion
 		$citation = $pOrPt;
 		
 		# Normalise 'p' to have a dot after; safe to make this change after checking: `SELECT * FROM catalogue_processed WHERE field IN('p','pt','vno','v','ts') AND value LIKE '%p%' AND value NOT LIKE '%p.%' AND value REGEXP '[0-9]p' AND value NOT REGEXP '[0-9]p( |,|\\)|\\]|$)';`
-		$citation = preg_replace ('/([0-9])p([^.]|$)/', '\1p.\2', $citation);	// E.g. /records/6002/ , /records/1654/ (test #346); should not be multiple in single string, but previous pre-fixed data showed this worked correctly
+		$citation = preg_replace ('/([0-9])p([^.]|$)/', '\1p.\2', $citation);	// E.g. /records/6002/ , /records/6448/ (test #346); should not be multiple in single string, but previous pre-fixed data showed this worked correctly
 		
 		# Remove comma/colon/semicolon at end; e.g. /records/9529/ (test #680)
 		$citation = trim (preg_replace ('/^(.+)[,;:]$/', '\1', trim ($citation)));
@@ -1437,7 +1437,7 @@ class marcConversion
 	# Helper function to determine if pages should have p. prefixed, e.g. /records/1107/ (test #524)
 	private function pDotPrefixRequired ($pages)
 	{
-		# Do not add p. if already present: 'p. '*pt [number range after ':' and before ',']; e.g. /records/1654/ (test #525)
+		# Do not add p. if already present: 'p. '*pt [number range after ':' and before ',']; e.g. /records/6448/ (test #525)
 		if (substr_count ($pages, 'p.')) {
 			return false;
 		}

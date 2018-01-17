@@ -2069,9 +2069,9 @@ Macro generate300 unpaged for *doc with empty result
 
 346
 Macro generate300 normalise dot after p
-1654
+6448
 300
-‡a20 p. ;
+‡a24 p. ;
 
 348
 Macro generate300 does not add dot after v in vols
@@ -3131,9 +3131,9 @@ Multiple *note in 500
 
 525
 300 ‡a should not have extra "p. " added when already present
-1654
+6448
 300
-‡a20 p. 
+‡a24 p.
 
 526
 300 ‡a general example, with ‡b having been split off
