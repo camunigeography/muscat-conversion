@@ -1347,12 +1347,6 @@ bibliography
 !300
 ‡a:‡bmap
 
-222
-Dollar in 300 is not an indicator, but wrongly triggers Bibcheck error now whitelisted
-38727
-300
-, $4.95
-
 223
 Dollar in 520 is not an indicator, but wrongly triggers Bibcheck error now whitelisted
 140044
