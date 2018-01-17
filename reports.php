@@ -3031,7 +3031,7 @@ class reports
 			FROM catalogue_processed
 			WHERE
 				    field IN ('p','pt')
-				AND value REGEXP '[0-9]p[^.]'
+				AND BINARY value REGEXP '[0-9]p[^.]'
 		";
 		
 		# Return the query
