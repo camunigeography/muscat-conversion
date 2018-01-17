@@ -437,8 +437,6 @@ class transliteration
 	{
 		return $cyrillic = strtr ($cyrillic, $protectedParts);
 	}
-	
-	
 }
 
 ?>

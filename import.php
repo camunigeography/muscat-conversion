@@ -1305,7 +1305,7 @@ class import
 		# Obtain the raw values, indexed by shard ID
 		$data = $this->databaseConnection->select ($this->settings['database'], 'transliterations', array (), array ('id', 'title_latin', 'lpt'));
 		
-		# Transliterate the strings (takes around 2 hours)
+		# Transliterate the strings (takes around 4 minutes)
 		$this->logger ('  |-- In ' . __METHOD__ . ', running transliterateBgnLatinToCyrillic');
 		$language = 'Russian';
 		$dataTransliterated = $this->transliteration->transliterateBgnLatinToCyrillicBatch ($data, $language, $cyrillicPreSubstitutions /* passed back by reference */, $protectedPartsPreSubstitutions /* passed back by reference */);
