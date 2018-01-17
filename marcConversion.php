@@ -1341,7 +1341,7 @@ class marcConversion
 		$citation = $pOrPt;
 		
 		# Normalise 'p' to have a dot after; safe to make this change after checking: `SELECT * FROM catalogue_processed WHERE field IN('p','pt','vno','v','ts') AND value LIKE '%p%' AND value NOT LIKE '%p.%' AND value REGEXP '[0-9]p' AND value NOT REGEXP '[0-9]p( |,|\\)|\\]|$)';`
-		$citation = preg_replace ('/([0-9])p([^.]|$)/', '\1p.\2', $citation);	// E.g. /records/6002/ , /records/1654/ (test #346) , multiple in single string: /records/2031/ (test #347)
+		$citation = preg_replace ('/([0-9])p([^.]|$)/', '\1p.\2', $citation);	// E.g. /records/6002/ , /records/1654/ (test #346); should not be multiple in single string, but previous pre-fixed data showed this worked correctly
 		
 		# Remove comma/colon/semicolon at end; e.g. /records/9529/ (test #680)
 		$citation = trim (preg_replace ('/^(.+)[,;:]$/', '\1', trim ($citation)));

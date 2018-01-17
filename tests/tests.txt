@@ -2068,16 +2068,10 @@ Macro generate300 unpaged for *doc with empty result
 /^‡a1 volume \(unpaged\)$/
 
 346
-Macro generate300 normalise dot after p (see also next test)
+Macro generate300 normalise dot after p
 1654
 300
 ‡a20 p. ;
-
-347
-Macro generate300 normalise dot after p (multiple in single string) (see also previous test)
-2031
-300
-‡a362 p., 56 p., 100 p. :
 
 348
 Macro generate300 does not add dot after v in vols
