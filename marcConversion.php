@@ -1288,10 +1288,6 @@ class marcConversion
 			$pOrPt = trim ($plusMatches[0]);	// Override string to strip out the + section
 		}
 		
-		# Add space between the number and the 'p.'; e.g. /records/49133/ for p. (test #349); normalisation not required: /records/13745/ (test #350); multiple instances of page number in /records/2031/ though this is wrong data as per /reports/pnodot/
-		$pOrPt = preg_replace ('/([0-9])(p\.)/', '\1 \2', $pOrPt);
-		$pOrPt = preg_replace ('/(\[[0-9]\])(p\.)/', '\1 \2', $pOrPt);	// E.g. /records/13270/ (test #711)
-		
 		# Normalise commas to have a space after; e.g. /records/8167/ (test #555)
 		$pOrPt = preg_replace ('/,([^ ])/', ', \1', $pOrPt);
 		
@@ -1342,6 +1338,10 @@ class marcConversion
 		
 		# Normalise 'p' to have a dot after; safe to make this change after checking: `SELECT * FROM catalogue_processed WHERE field IN('p','pt','vno','v','ts') AND value LIKE '%p%' AND value NOT LIKE '%p.%' AND value REGEXP '[0-9]p' AND value NOT REGEXP '[0-9]p( |,|\\)|\\]|$)';`
 		$citation = preg_replace ('/([0-9])p([^.]|$)/', '\1p.\2', $citation);	// E.g. /records/6002/ , /records/6448/ (test #346); should not be multiple in single string, but previous pre-fixed data showed this worked correctly
+		
+		# Add space between the number and the 'p.'; e.g. /records/49133/ for p. (test #349); normalisation not required: /records/13745/ (test #350); multiple instances of page number in /records/2031/ though this is wrong data as per /reports/pnodot/
+		$citation = preg_replace ('/([0-9])(p\.)/', '\1 \2', $citation);
+		$citation = preg_replace ('/(\[[0-9]\])(p\.)/', '\1 \2', $citation);	// E.g. /records/13270/ (test #711)
 		
 		# Remove comma/colon/semicolon at end; e.g. /records/9529/ (test #680)
 		$citation = trim (preg_replace ('/^(.+)[,;:]$/', '\1', trim ($citation)));

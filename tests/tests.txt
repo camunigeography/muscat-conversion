@@ -2071,7 +2071,7 @@ Macro generate300 unpaged for *doc with empty result
 Macro generate300 normalise dot after p
 6448
 300
-‡a24 p. ;
+‡a24 p.
 
 348
 Macro generate300 does not add dot after v in vols
