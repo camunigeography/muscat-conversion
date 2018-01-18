@@ -137,7 +137,7 @@ class reports
 		'sermultipler_problem' => '*ser records with multiple *r',
 		'artjnokg_postmigration' => '/art/j records with no *kg in the Pamphlets',
 		'tslasheditors_problem' => '*t with explicit slash also having *e',
-		'emptydash_problem' => 'records containing a field with an empty dash (except *pu, *pl)',
+		'emptydashwithspri_problem' => 'records containing a field with an empty dash, with a SPRI location',
 	);
 	
 	# Listing (values) reports
@@ -3140,18 +3140,22 @@ class reports
 	}
 	
 	
-	# Records containing a field with an empty dash (except *pu, *pl)
-	public function report_emptydash ()
+	# Records containing a field with an empty dash, with a SPRI location
+	public function report_emptydashwithspri ()
 	{
 		# Define the query
 		$query = "
 			SELECT
-				'emptydash' AS report,
-				recordId AS recordId
-			FROM catalogue_processed
+				'emptydashwithspri' AS report,
+				root.recordId AS recordId
+			FROM catalogue_processed AS root
+			JOIN catalogue_processed AS others
+				ON root.recordId = others.recordId
+				AND others.field = 'location'
 			WHERE
-				    value LIKE '-'
-				AND field NOT IN ('pu', 'pl')
+				    root.value LIKE '-'
+				AND others.field = 'location'
+				AND others.value REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
 		";
 		
 		# Return the query
