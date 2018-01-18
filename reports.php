@@ -138,6 +138,7 @@ class reports
 		'artjnokg_postmigration' => '/art/j records with no *kg in the Pamphlets',
 		'tslasheditors_problem' => '*t with explicit slash also having *e',
 		'emptydashwithspri_problem' => 'records containing a field with an empty dash, with a SPRI location',
+		'emptydashwithoutspri_problem' => 'records containing a field with an empty dash, without a SPRI location',
 	);
 	
 	# Listing (values) reports
@@ -3156,6 +3157,35 @@ class reports
 				    root.value LIKE '-'
 				AND others.field = 'location'
 				AND others.value REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records containing a field with an empty dash, without a SPRI location
+	public function report_emptydashwithoutspri ()
+	{
+		# Define the query
+		$query = "
+				SELECT
+					'emptydashwithoutspri' AS report,
+					root.recordId AS recordId
+				FROM catalogue_processed AS root
+				JOIN catalogue_processed AS others ON root.recordId = others.recordId AND others.field = 'location'
+				WHERE
+					    root.value = '-'
+					AND others.value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
+			UNION
+				SELECT
+					'emptydashwithoutspri' AS report,
+					recordId
+				FROM catalogue_processed
+				JOIN fieldsindex ON recordId = fieldsindex.id
+				WHERE
+					    value = '-'
+					AND fieldslist NOT LIKE '%@location@%'
 		";
 		
 		# Return the query
