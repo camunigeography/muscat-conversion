@@ -3757,7 +3757,7 @@ SUPPRESS
 300 ‡b explicit " : " split point
 199582
 300
-‡a2 computer disks (45.5 min.; 54.5 min.) :‡bsd.
+‡a2 sound discs (45.5 min.; 54.5 min.) :‡bdigital
 
 632
 300 protect "leaves of map" which forms part of the physical extent, to bypass the keyword splitter
