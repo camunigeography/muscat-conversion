@@ -137,6 +137,7 @@ class reports
 		'sermultipler_problem' => '*ser records with multiple *r',
 		'artjnokg_postmigration' => '/art/j records with no *kg in the Pamphlets',
 		'tslasheditors_problem' => '*t with explicit slash also having *e',
+		'emptydash_problem' => 'records containing a field with an empty dash (except *pu, *pl)',
 	);
 	
 	# Listing (values) reports
@@ -3132,6 +3133,25 @@ class reports
 			WHERE
 				    catalogue_processed.field LIKE 't'
 				AND catalogue_processed.value LIKE '% / %'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records containing a field with an empty dash (except *pu, *pl)
+	public function report_emptydash ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'emptydash' AS report,
+				recordId AS recordId
+			FROM catalogue_processed
+			WHERE
+				    value LIKE '-'
+				AND field NOT IN ('pu', 'pl')
 		";
 		
 		# Return the query
