@@ -4232,3 +4232,10 @@ Printout
 1150
 !533
 *
+
+719
+Anonymous is protected string in transliteration
+186227
+880
+‡aAnonymous.
+
