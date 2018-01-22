@@ -318,7 +318,7 @@ class generate245
 		}
 		
 		# Start the Statement of Responsibility with /$c ; e.g. /records/1159/ has a SoR (test #180)
-		# Separate multiple author groups with a semicolon-space; e.g. /records/134805/ (test #187), /records/131672/ (test #190)
+		# Separate multiple author groups with a semicolon-space; e.g. /records/134805/ (test #187); comma is present for ", and X others" which is not on its own as in /records/agwithonlyad/, e.g. /records/1681/ (test #190)
 		$statementOfResponsibility = ' /' . "{$this->doubleDagger}c" . implode (' ; ', $peopleGroups);
 		
 		# Return the Statement of Responsibility

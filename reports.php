@@ -2901,7 +2901,7 @@ class reports
 	}
 	
 	
-	# *ag records containing only an *ad, which causes data to be lost in the /ag loop in generate245::statementOfResponsibility (), as tested at /records/131672/ (test #190)
+	# *ag records containing only an *ad, which causes data to be lost in the /ag loop in generate245::statementOfResponsibility (), as tested at /records/1681/ (test #190)
 	public function report_agwithonlyad ()
 	{
 		# Define the query

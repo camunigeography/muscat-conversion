@@ -1156,10 +1156,10 @@ H. Maitre ; F.
 GBR-UO-SG
 
 190
-245 *art Statement of Responsibility punctuation when 'and 5 others'; see: /reports/agwithonlyad/
-131672
+245 *art Statement of Responsibility punctuation when 'and [0-9] others'; see: /reports/agwithonlyad/
+1681
 245
-Cortijo, and 5 others.
+Fritz Müller, and 8 others.
 
 191
 245 Statement of Responsibility handling of *ad
