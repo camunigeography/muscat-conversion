@@ -2205,7 +2205,7 @@ class import
 				# Insert the records (or update for the second pass); ON DUPLICATE KEY UPDATE is a dirty but useful method of getting a multiple update at once (as this doesn't require a WHERE clause, which can't be used as there is more than one record to be inserted)
 				$insertSize = round (mb_strlen (serialize ($inserts)) / 1024, 2);
 				$memoryUsageMb = round (memory_get_usage () / 1048576, 2);
-				$this->logger ('|- In ' . __METHOD__ . ": {$recordType}, adding " . count ($inserts) . ' records; second pass @' . count ($marcSecondPass) . ' records; memory: ' . $memoryUsageMb . 'MB');
+				$this->logger ('|- In ' . __METHOD__ . ": {$recordType}, adding " . count ($inserts) . 'r; second pass: @' . count ($marcSecondPass) . 'r; memory: ' . $memoryUsageMb . 'MB');
 				if (!$this->databaseConnection->insertMany ($this->settings['database'], 'catalogue_marc', $inserts, false, $onDuplicateKeyUpdate = true)) {
 					$html  = "<p class=\"warning\">Error generating MARC, stopping at batched ({$id}):</p>";
 					$html .= application::dumpData ($this->databaseConnection->error (), false, true);
