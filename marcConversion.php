@@ -3369,7 +3369,7 @@ class marcConversion
 	{
 		# Define the supported *acc/... fields that can be included
 		#!# Not sure if con, recr, status should be present; ref and date are confirmed fine
-		$supportedFields = array ('ref', 'date', 'con', 'recr');
+		$supportedFields = array ('ref', 'date', 'recr');
 		
 		# Loop through each *acc in the record; e.g. multiple in /records/3959/ (test #585)
 		$acc = array ();
