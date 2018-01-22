@@ -139,6 +139,7 @@ class reports
 		'tslasheditors_problem' => '*t with explicit slash also having *e',
 		'emptydashwithspri_problem' => 'records containing a field with an empty dash, with a SPRI location',
 		'emptydashwithoutspri_problem' => 'records containing a field with an empty dash, without a SPRI location',
+		'invalidcon_problem' => 'records with an invalid *con syntax',
 	);
 	
 	# Listing (values) reports
@@ -3157,6 +3158,25 @@ class reports
 				    root.value LIKE '-'
 				AND others.field = 'location'
 				AND others.value REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with an invalid *con syntax
+	public function report_invalidcon ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'invalidcon' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field LIKE 'con'
+				AND value NOT LIKE '% : %'
 		";
 		
 		# Return the query

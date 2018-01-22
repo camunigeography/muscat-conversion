@@ -31,7 +31,7 @@ AR 538 ## ‡a{//notes/note|macro:generate5xxNote(538)}
 A  541 0# {/*|macro:generate541}
 A  546 ## ‡a{/*|macro:multipleValues(//lang)|macro:commaAnd|macro:prepend(In )|macro:dotEnd}
 A  546 ## ‡a{//lang[1]|macro:isTransliterated}
-AR 563 ## ‡a{//acc/con|macro:addUkcup}
+AR 583 ## {/|macro:generate583}
 AR 650 07 ‡2{//k/ks|macro:isNotRoundBracketed|macro:addLookedupKsValue|macro:dotEnd}
 AR 650 07 ‡2{//rpl|macro:lookupRplValue|macro:dotEnd}
 AR 651 #7 ‡2{//k/ks|macro:isRoundBracketed|macro:addLookedupKsValue|macro:dotEnd}

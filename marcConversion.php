@@ -2520,17 +2520,55 @@ class marcConversion
 	}
 	
 	
-	# Macro for adding $5 to 563 - Binding Information, e.g. /records/3056/ (test #583)
-	private function macro_addUkcup ($value)
+	# Macro for generating 583: Action Note, e.g. /records/171183/ (test #720); see: https://www.loc.gov/marc/bibliographic/bd583.html
+	private function macro_generate583 ($value)
 	{
-		# End if no value (not actually a necessary check as should not enter the function otherwise)
-		if (!$value) {return false;}
+		# Start a list of results
+		$resultLines = array ();
 		
-		# Add $5 to each
-		$value .= " {$this->doubleDagger}5UkCU-P";
+		# Loop through each *acc then each *acc/*con in the record; e.g. multiple *acc in /records/10519/ (test #724); multiple *con in an *acc block in /records/12376/ (test #725)
+		$accIndex = 1;
+		while ($this->xPathValue ($this->xml, "//acc[$accIndex]")) {
+			$conIndex = 1;
+			while ($con = $this->xPathValue ($this->xml, "//acc[$accIndex]/con[$conIndex]")) {
+				
+				# Split off any $z section
+				#!# Test needed when data available
+				$z = false;
+				if (substr_count ($con, '$z')) {
+					list ($con, $z) = explode ('$z', $con, 2);
+				}
+				
+				# Split by first space-colon-space; this assumes that /reports/invalidcon/ is clear; e.g. /records/171183/ (test #721)
+				list ($a, $l) = explode (' : ', $con, 2);
+				
+				# Compile the value
+				$line  = "{$this->doubleDagger}a" . trim ($a);
+				$line .= "{$this->doubleDagger}l" . trim ($l);
+				if ($z) {
+					$line .= "{$this->doubleDagger}z" . trim ($z);
+				}
+				$line .= "{$this->doubleDagger}5UkCU-P";	// E.g. /records/171183/ (test #722)
+				
+				# Register the line
+				$resultLines[] = $line;
+				
+				# Next *con
+				$conIndex++;
+			}
+			
+			# Next *acc
+			$accIndex++;
+		}
 		
-		# Return the value
-		return $value;
+		# End if no lines (i.e. no *con), e.g. /records/171184/ (test #723)
+		if (!$resultLines) {return false;}
+		
+		# Implode the list, e.g. multiple in /records/12376/ (test #256)
+		$result = implode ("\n" . '583 ## ', $resultLines);
+		
+		# Return the result
+		return $result;
 	}
 	
 	

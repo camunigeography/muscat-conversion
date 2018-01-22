@@ -1546,10 +1546,10 @@ MARC parser check of passing in XPath /
 ‡aBarrow, John,‡cSir.
 
 256
-Multiple *con in 563
-3056
-563
-‡aGeneral comments
+Multiple *con in 583
+12376
+583
+‡aText block
 
 257
 MARC parser check of 'A' (all) control character: value present (see also next test)
@@ -4239,3 +4239,38 @@ Anonymous is protected string in transliteration
 880
 ‡aAnonymous.
 
+720
+583 basic presence
+171183
+583
+‡aBinding‡lsignificant: physical damage‡5UkCU-P
+
+721
+583 splits on (first) space-colon-space
+171183
+583
+‡aBinding‡lsignificant: physical damage
+
+722
+583 ends with ‡5
+171183
+583
+/‡5UkCU-P$/
+
+723
+583 not generated if no *con
+171184
+!583
+*
+
+724
+583 multiple *acc blocks
+10519
+583
+‡aCopy B‡lText block
+
+725
+583 multiple *con in an *acc block
+12376
+583
+‡aText block‡lsignificant
