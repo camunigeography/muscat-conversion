@@ -4281,3 +4281,9 @@ Anonymous is protected string in transliteration
 !916
 Binding : slight
 
+727
+260 second indicator still generated if no *location present
+11154
+i260
+/^##$/
+
