@@ -3471,12 +3471,6 @@ co#|g|||||||||
 538
 ‡aMode of access: WWW
 
-583
-563 has ‡5UkCU-P added
-3056
-563
-spine damaged ‡5UkCU-P
-
 584
 856 support for conversion to internationalized domain name (IDN)
 197739
@@ -4252,7 +4246,7 @@ Anonymous is protected string in transliteration
 ‡aBinding‡lsignificant: physical damage
 
 722
-583 ends with ‡5
+583 ends with ‡5 institution
 171183
 583
 /‡5UkCU-P$/
