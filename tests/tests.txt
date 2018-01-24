@@ -4281,3 +4281,22 @@ Binding : slight
 i260
 /^##$/
 
+728
+*nt = BGNRus (in a non-Russian record) results gets upgraded to LoC cyrillic and thence a mirror field created
+102036
+880
+Ermolaev, Rafaėlʹ Dmitrievich
+
+729
+*nt = None (in a Russian record) should not result in transliteration of the associated tokens (see also next test)
+178377
+!880
+Реес, W. Гаретh.
+
+730
+*nt = None (in a Russian record) should not result in an associated 880 at all (see also previous test)
+178377
+!880
+*
+
+

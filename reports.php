@@ -140,6 +140,7 @@ class reports
 		'emptydashwithspri_problem' => 'records containing a field with an empty dash, with a SPRI location',
 		'emptydashwithoutspri_problem' => 'records containing a field with an empty dash, without a SPRI location',
 		'invalidcon_problem' => 'records with an invalid *con syntax',
+		'othertransliterations_postmigration' => 'records with names for transliteration in other languages (e.g. Yakut, Chinese, etc.) for upgrading',
 	);
 	
 	# Listing (values) reports
@@ -3177,6 +3178,24 @@ class reports
 			WHERE
 				    field LIKE 'con'
 				AND value NOT LIKE '% : %'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with names for transliteration in other languages (e.g. Yakut, Chinese, etc.) for upgrading
+	public function report_othertransliterations ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'othertransliterations' AS report,
+				recordId FROM catalogue_processed
+			WHERE
+				    field LIKE 'nt'
+				AND value NOT IN('None', 'BGNRus')
 		";
 		
 		# Return the query

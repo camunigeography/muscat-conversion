@@ -1244,6 +1244,8 @@ class import
 		;";
 		$this->databaseConnection->query ($query);
 		
+		#!# Add support for *nt (within *a, *al and *n), e.g. /records/150203/ which has cases of *nt = 'None' (meaning do not transliterate fields at the same level of the hierarchy), e.g. /records/178377/ (test #729) and *nt = 'BGNRus' (which is an explicit override to whatever the language is, enabling Russian people in an English record to be handled properly), e.g. /records/102036/ (test #728); other values such as "BGNYak" should be ignored
+		
 		# Get the transliteration name matching fields
 		$transliterationNameMatchingFields = $this->marcConversion->getTransliterationNameMatchingFields ();
 		

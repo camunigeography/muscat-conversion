@@ -60,7 +60,8 @@ This involves the following steps:
 	* [This list is expected to be expanded]
 	
  c. Records that have one of the fields, e.g. `*t` at top level (marked `topLevel = 1`) have each such shard copied from the processed table to the transliterations table, into the `title_latin` field.
-	* Note that [Titles fully in brackets like this] are excluded from this process
+
+    * Note that [Titles fully in brackets like this] are excluded from this process
 	
  d. The parallel title (`*lpt`) property associated with the top-level `*t` is added. This is done by looking up the `*lpt` field in the processed table with a matching `recordId`, and adding it where the `title_latin` contains the lpt delimeter, ` = `.
 	
@@ -69,8 +70,12 @@ This involves the following steps:
  f. In the special case of the `*t` field, where the shard is a bottom-half title, if there is a bottom-half `*lpt` present, the `lpt` value is substituted for this.
 	
  g. In the special case of the `*t` field, if there is a local (`*in` or `*j`) language, if this does not match a language in the scope of transliteration, this shard is deleted.
-	
- h. Thus we now have a table containing shards with field `title_latin` containing the BGN/PCGN string that needs to be upgraded (and `title_latin_tt` for records having `*tt`).
+
+ h. When an `*nt` field is present, this is an explicit override to `*lang` processing. `*nt` = 'None' means not to perform transliteration (e.g. an English name in a Russian record); `*nt` = 'BGNRus' means to perform transliteration (as would be the default in a Russian record). Transliteration support is not enabled for other languages, e,g. `*nt` = 'BGNYak' for Yakut, so a post-migration report at `/reports/othertransliterations/` is created in the event that future resource is allocated.
+
+    * Historical note: The majority of the non-BGN transliterations of Russian Cyrillic are not ALA-LC, but the French system, because this appears to be what the Russian/Soviet Academy of Sciences used on their Romanized contents pages (and is what was used on Russian/Soviet passports until recently). It makes sense now, given the strong links between Russian and French elites, with French being spoken in the Imperial court and so much early Russian science published in French, or at least with parallel French titles.
+
+ i. Thus we now have a table containing shards with field `title_latin` containing the BGN/PCGN string that needs to be upgraded (and `title_latin_tt` for records having `*tt`).
 	
 2. The routine `transliterateTransliterationsTable` is entered. For each shard:
 
