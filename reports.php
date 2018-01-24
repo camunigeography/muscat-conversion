@@ -3196,6 +3196,7 @@ class reports
 				JOIN catalogue_processed AS others ON root.recordId = others.recordId AND others.field = 'location'
 				WHERE
 					    root.value = '-'
+					AND root.field NOT IN ('pu', 'pl')
 					AND others.value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
 			UNION
 				SELECT
@@ -3205,6 +3206,7 @@ class reports
 				JOIN fieldsindex ON recordId = fieldsindex.id
 				WHERE
 					    value = '-'
+					AND field NOT IN ('pu', 'pl')
 					AND fieldslist NOT LIKE '%@location@%'
 		";
 		
