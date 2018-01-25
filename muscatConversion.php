@@ -1,6 +1,7 @@
 <?php
 
 # Class to manage Muscat data conversion
+#!# Need to mint a DOI as per: https://github.com/blog/1840-improving-github-for-science
 require_once ('frontControllerApplication.php');
 class muscatConversion extends frontControllerApplication
 {
