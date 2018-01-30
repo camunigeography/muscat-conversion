@@ -984,9 +984,9 @@ class marcConversion
 	# Permits multimedia value EANs, which are probably valid to include as the MARC spec mentions 'EAN': https://www.loc.gov/marc/bibliographic/bd020.html ; see also http://www.activebarcode.com/codes/ean13_laenderpraefixe.html
 	private function macro_validisbn ($value)
 	{
-		# Extract qualifying information, e.g. /records/73935/, /records/177698/, /records/215088/ (test #592)
+		# Extract qualifying information, e.g. /records/73935/, /records/177698/, /records/215088/ (test #592), X check digit in /records/165286/ (test #741)
 		$q = false;
-		if (preg_match ('/^([0-9]+) \(([^)]+)\)$/', $value, $matches)) {
+		if (preg_match ('/^([0-9X]+) \(([^)]+)\)$/', $value, $matches)) {
 			$value = $matches[1];
 			$q = "{$this->doubleDagger}q{$matches[2]}";
 		}

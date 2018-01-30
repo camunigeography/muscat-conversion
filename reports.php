@@ -1414,7 +1414,7 @@ class reports
 		
 		# Remove qualifying information, as per macro_validisbn
 		foreach ($isbnShards as $index => $isbnShard) {
-			if (preg_match ('/^([0-9]+) \(([^)]+)\)$/', $isbnShard['value'], $matches)) {
+			if (preg_match ('/^([0-9X]+) \(([^)]+)\)$/', $isbnShard['value'], $matches)) {
 				$isbnShards[$index]['value'] = $matches[1];
 			}
 		}

@@ -4359,4 +4359,9 @@ The geology of the Nuuk region
 700
 ‡aJanet Sprintall, et al.‡tHigh resolution XBT/XCTD
 
+741
+ISBN support for X check digit
+165286
+020
+‡a951012480X‡qv. 2
 
