@@ -2393,7 +2393,7 @@ class marcConversion
 	# Helper function for 505 - Formatted Contents Note; see: https://www.loc.gov/marc/bibliographic/bd505.html , e.g. /records/1488/ (test #581)
 	private function macro_generate505Note ($note)
 	{
-		# End if the note is not a content note
+		# End if the note is not a content note, e.g. other notes in /records/2652/ (test #731)
 		if (!preg_match ('/^Contents: (.+)$/', $note, $matches)) {
 			return false;
 		}
