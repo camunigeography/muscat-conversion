@@ -16,8 +16,8 @@ class marcConversion
 	
 	# Define the merge types
 	private $mergeTypes = array (
-		'TIP'	=> 'exact Title match and ISSN match, and top answer in Probablistic search',
-		'TP'	=> 'exact Title, but not ISSN, and top answer in Probablistic search',
+		'TIP'	=> 'Exact Title match and ISSN match, and top answer in Probablistic search',
+		'TP'	=> 'Exact Title, but not ISSN, and top answer in Probablistic search',
 		'IP'	=> 'ISSN match, but not exact title, and top answer in Probablistic search',
 		'P'		=> 'Probable match, unconfirmed, and top answer in Probablistic search',
 		'C'		=> 'probable match, Confirmed',
