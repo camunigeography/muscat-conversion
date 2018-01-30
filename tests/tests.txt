@@ -4305,3 +4305,58 @@ Contents note not created for notes not starting with "Contents: "
 !505
 Part 3. The fish
 
+732
+700 from contents note not created for notes not starting with "Contents: "
+2652
+!700
+Part 3. The fish
+
+733
+700 from contents note does not start with "Contents: "
+1488
+!700
+Contents: 
+
+734
+700 from contents note only processes enhanced format notes
+1488
+!700
+The geology of the Nuuk region
+
+735
+700 from contents note includes first block
+4660
+700
+‡tPars prima
+
+736
+700 from contents note results in a successful line
+4660
+700
+‡aJohan Lange‡tPars prima
+
+737
+700 from contents note with two authors in one section is split out
+2652
+700
+‡aJ. Richardson‡tpt. 2. The birds
+
+738
+700 from contents note with multiple sections results in multiline
+4660
+700
+‡aJohan Lange‡tPars secunda
+
+739
+700 from contents note with two authors split out for non-English
+4660
+700
+‡aChristian Jensen‡tGrønlands Mosser
+
+740
+700 from contents note does not split on "et" as can be used in "et al"
+145748
+700
+‡aJanet Sprintall, et al.‡tHigh resolution XBT/XCTD
+
+

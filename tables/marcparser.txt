@@ -36,6 +36,7 @@ AR 650 07 ‡2{//k/ks|macro:isNotRoundBracketed|macro:addLookedupKsValue|macro:d
 AR 650 07 ‡2{//rpl|macro:lookupRplValue|macro:dotEnd}
 AR 651 #7 ‡2{//k/ks|macro:isRoundBracketed|macro:addLookedupKsValue|macro:dotEnd}
 A  700 {/*|macro:generateAuthors(700)}
+AR 700 {//notes/note|macro:contentNote700}
 A  710 {/*|macro:generateAuthors(710)}
 A  711 {/*|macro:generateAuthors(711)}
 A  773 0# {/|macro:generate773}

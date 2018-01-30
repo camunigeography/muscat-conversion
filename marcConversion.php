@@ -2427,6 +2427,64 @@ class marcConversion
 	}
 	
 	
+	# Macro to create 700 fields from Enhanced mode content notes (see also generate505Note), e.g. /records/4660/ (test #736)
+	private function macro_contentNote700 ($note, $parameter_ignored, &$errorHtml)
+	{
+		# End if the note is not a content note, e.g. other notes in /records/2652/ (test #732, though there are two further catches below, so hard to test properly)
+		if (!preg_match ('/^Contents: (.+)$/', $note, $matches)) {
+			return false;
+		}
+		
+		# Use only the extracted section, removing "Contents: " which is assumed to be added by the library catalogue GUI, e.g. /records/1488/ (test #733)
+		$note = $matches[1];
+		
+		# End if not enhanced format, e.g. /records/1488/ (test #734)
+		if (!$enhancedFormat = substr_count ($note, ' / ')) {return false;}
+		
+		# Prefix the first block, as it will not have the separator, e.g. /records/4660/ (test #735)
+		$note = "{$this->doubleDagger}t" . $note;
+		
+		# Define replacements
+		$replacements = array (
+			' / '	=> "{$this->doubleDagger}r",
+			' -- '	=> "{$this->doubleDagger}t",
+		);
+		$note = strtr ($note, $replacements);
+		
+		# Pass into the subfield parser
+		$subfields = $this->parseSubfieldsToPairs ($note);
+		
+		# Throw error if there is not an identical number of r and t blocks
+		if (count ($subfields['r']) != count ($subfields['t'])) {
+			$errorHtml .= 'Content note does not have matching number of r and t blocks';
+			return false;
+		}
+		
+		# Compile each line, e.g. /records/4660/ (test #736)
+		# Note: no attempt has been made to convert author names into "Surname, Forename" from "Forename Surname" / "Initials. Surname" / etc., as this is too complex to do reliably
+		$lines = array ();
+		for ($i = 0; $i < count ($subfields['r']); $i++) {
+			
+			# If there are multiple authors (separated by ' and ' and variants in other languages), split and create separate lines, e.g. /records/2652/ (test #737)
+			$splitRegexp = '/ (and|og) /';	// E.g. Danish in /records/4660/ (test #739), but not "et" as can be used in "et al", e.g. /records/145748/ (test #740)
+			if (preg_match ($splitRegexp, $subfields['r'][$i])) {
+				$authors = preg_split ($splitRegexp, $subfields['r'][$i]);
+				foreach ($authors as $author) {
+					$lines[] = "1# {$this->doubleDagger}a{$author}{$this->doubleDagger}t{$subfields['t'][$i]}";
+				}
+			} else {
+				$lines[] = "1# {$this->doubleDagger}a{$subfields['r'][$i]}{$this->doubleDagger}t{$subfields['t'][$i]}";
+			}
+		}
+		
+		# Compile to multiline, e.g. /records/4660/ (test #738)
+		$string = implode ("\n700 ", $lines);
+		
+		# Return the string
+		return $string;
+	}
+	
+	
 	# Helper function for 533 - Reproduction Note; see: http://www.loc.gov/marc/bibliographic/bd533.html , e.g. /records/142020/ (test #715)
 	private function macro_generate533Note ($note)
 	{
