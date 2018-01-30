@@ -340,7 +340,7 @@ English-name author should not result in an 880 transliteration (implementation 
 Доwдесwелл, J. А.
 
 54
-English-name author should not be transliterated (880-245)
+English-name author should not be transliterated (880-245) when *nt = None
 151048
 880
 J.A. Dowdeswell,
@@ -4294,9 +4294,7 @@ Ermolaev, Rafaėlʹ Dmitrievich
 Реес, W. Гаретh.
 
 730
-*nt = None (in a Russian record) should not result in an associated 880 at all (see also previous test)
+*nt = None (in a Russian record) should not result in an associated 880 at all (see also previous test and #54)
 178377
 !880
 *
-
-
