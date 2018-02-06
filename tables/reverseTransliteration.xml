@@ -35,7 +35,34 @@
 <!-- https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/320274/Russian_Romanisation.pdf -->
 
 
-
+	<rule>
+		<from>Myaemets</from>
+		<to>Мяэметс</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Anu-Reet</from>
+		<to>Ану-Реэт</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Beer</from>
+		<to>Бээр</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
+	<rule>
+		<from>Feenker</from>
+		<to>Фeэнкер</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
 	<rule>
 		<from>IEA</from>
 		<to>ИЭА</to>
