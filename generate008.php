@@ -253,6 +253,7 @@ class generate008
 		switch ($this->recordType) {
 			case '/doc':
 			case '/art/in':
+			case '/art/j':		// E.g. /records/73537/ (test #742)
 				
 				# Add codes to stack of maximum three characters based on either *p or *pt, padding missing characters to the right with #
 				$strings = array (
@@ -271,7 +272,6 @@ class generate008
 				return str_pad ($stack, 3, '#', STR_PAD_RIGHT);	// e.g. 'abf', 'ab#', 'a##', '###'; e.g. /records/1144/ (test #27)
 				
 			case '/ser':
-			case '/art/j':
 				
 				$freq = $this->marcConversion->xPathValue ($this->xml, $this->recordType . '//freq');
 				$value  = $this->marcConversion->lookupValue ('journalFrequencies', 'No *freq', false, false, $freq, 'Frequency' , $errorString);

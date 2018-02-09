@@ -4365,3 +4365,8 @@ ISBN support for X check digit
 020
 ‡a951012480X‡qv. 2
 
+742
+008 18-20 for non-multimediaish /art/j like non-multimediaish /art/in
+73537
+008
+/^.{18}a##/
