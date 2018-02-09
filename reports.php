@@ -3854,7 +3854,7 @@ class reports
 		}
 		
 		# Start the HTML with the dynamic clickability
-		$html  = "\n" . '<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>';
+		$html  = "\n" . '<script src="//code.jquery.com/jquery-3.1.1.min.js"></script>';
 		$html .= "
 		<script type=\"text/javascript\">
 			$(function() {

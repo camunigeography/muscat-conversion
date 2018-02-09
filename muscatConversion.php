@@ -2369,8 +2369,8 @@ class muscatConversion extends frontControllerApplication
 		# If there is a result, show the hiding system first
 		if ($result) {
 			$html .= '
-				<!-- http://docs.jquery.com/Effects/toggle -->
-				<script src="http://code.jquery.com/jquery-latest.js"></script>
+				<!-- http://api.jquery.com/toggle/ -->
+				<script src="//code.jquery.com/jquery-latest.js"></script>
 				<script>
 					$(document).ready(function(){
 						$("a#showform").click(function () {
