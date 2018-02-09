@@ -205,7 +205,8 @@ xx#####|
 008 position 22 form=Microfiche *art/*j gets b
 11291
 008
-xx##u#|b
+/^.{22}b/
+
 
 32
 008 position 23 form=PDF gets s
