@@ -1387,7 +1387,7 @@ SPRI-1061
 Leader byte count
 1003
 LDR
-01012
+01020
 
 230
 880 link reciprocality (see also next test)
@@ -3697,13 +3697,13 @@ SUPPRESS
 852 with single location
 1102
 852
-‡2camdept ‡bSPRI-SHF ‡h(*60) : 656.61.052
+‡2camdept ‡bSCO ‡cSPRI-SHF ‡h(*60) : 656.61.052
 
 622
 852 with multiple locations
 3959
 852
-‡2camdept ‡bSPRI-PAM ‡h91(08) : (*3)[1871 Weyprecht and Payer]
+‡2camdept ‡bSCO ‡cSPRI-PAM ‡h91(08) : (*3)[1871 Weyprecht and Payer]
 
 623
 852 has camdept as source
@@ -3787,13 +3787,13 @@ SUPPRESS
 852 ‡h Extract classmark (for standard SPRI locations) when it exists (see also next test)
 1111
 852
-‡bSPRI-SHF ‡h(*7) : 341.24
+‡cSPRI-SHF ‡h(*7) : 341.24
 
 647
 852 ‡h is not created when no classmark (for standard SPRI locations) (see also previous test)
 31500
 852
-/‡bSPRI-BIB$/
+/‡cSPRI-BIB$/
 
 648
 852 with no location gets ‡cSPRIACQ
@@ -3832,10 +3832,10 @@ SUPPRESS
 /‡cIssues shelved individually with monographs$/
 
 654
-852 ‡b is created
+852 ‡c is created
 31500
 852
-‡bSPRI-BIB
+‡cSPRI-BIB
 
 655
 852 MISSING gets ‡z
@@ -3853,19 +3853,19 @@ SUPPRESS
 852 ambiguous location codes get a ‡c qualifier except SPRI-SER/SPRI-SHF/SPRI-PAM
 211109
 852
-‡bSPRI-SER ‡h144 B
+‡cSPRI-SER ‡h144 B
 
 658
 852 non-ambiguous location codes do not get ‡c qualifier
 1711
 852
-‡bSPRI-CBD ‡h202
+‡cSPRI-CBD ‡h202
 
 659
-852 'Electronic Resource (online)' gets ‡h and no ‡c
+852 'Electronic Resource (online)' gets ‡h and no ‡c qualifier
 6056
 852
-‡bSPRI-ELE ‡hElectronic Resource (online)
+‡cSPRI-ELE ‡hElectronic Resource (online)
 
 660
 500 generate500analytics (/art/j pseudo-analytic mode) gets citation
@@ -4370,3 +4370,9 @@ ISBN support for X check digit
 73537
 008
 /^.{18}a##/
+
+743
+852 gets SCO institution indicator as ‡b
+31500
+852
+‡bSCO

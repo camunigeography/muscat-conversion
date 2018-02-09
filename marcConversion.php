@@ -3351,7 +3351,7 @@ class marcConversion
 		$resultLines = array ();
 		foreach ($locations as $index => $location) {
 			
-			# Split the value out into values for ‡b (location code) and ‡h (classification, which may or may not exist)
+			# Split the value out into values for ‡c (location code) and ‡h (classification, which may or may not exist)
 			$locationCode = false;
 			$locationName = false;
 			$classification = false;
@@ -3367,8 +3367,11 @@ class marcConversion
 			# Start the record with 852 7# ‡2camdept (which is the source indicator), e.g. /records/3959/ (test #623)
 			$result  = "{$this->doubleDagger}2camdept";
 			
-			# Add corresponding Voyager location code to record: ‡b SPRI-XXX, e.g. /records/31500/ (test #654)
-			$result .= " {$this->doubleDagger}b" . $locationCode;
+			# Add institution as $b, e.g. /records/31500/ (test #743)
+			$result .= " {$this->doubleDagger}b" . 'SCO';
+			
+			# Add corresponding Voyager location code to record: ‡c SPRI-XXX, e.g. /records/31500/ (test #654)
+			$result .= " {$this->doubleDagger}c" . $locationCode;
 			
 			# In the case of Shelved with ..., add clear description for use in $c, and do not use a classification, e.g. /records/1032/ (test #625)
 			if ($isShelvedWith = preg_match ('/^Shelved with (pamphlets|monographs)$/', $location, $matches)) {
