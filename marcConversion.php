@@ -3319,10 +3319,15 @@ class marcConversion
 		# Get the locations (if any), e.g. single location in /records/1102/ (test #621), multiple locations in /records/3959/ (test #622)
 		$locations = $this->xPathValues ($this->xml, '//loc[%i]/location');
 		
-		# End if no locations, i.e. no result and therefore no 852 field, e.g. /records/1331/ (test #648) - this is the normal scenario for *status = RECEIVED, ON ORDER, etc.
-		if (!$locations) {return false;}
+		# If no locations, allocate $cSPRIACQ and end at this point, e.g. /records/1331/ (test #648) - this is the normal scenario for *status = RECEIVED, ON ORDER, etc.
+		if (!$locations) {
+			$result  = "{$this->doubleDagger}2camdept";
+			$result .= " {$this->doubleDagger}b" . 'SCO';
+			$result .= " {$this->doubleDagger}c" . 'SPRIACQ';	// NB No hyphen
+			return $result;
+		}
 		
-		# For the special of "Not in SPRI" being present (in any *location), then create a single 852 value, with the other location(s) noted if any, e.g. /records/7976/ (test #649); /reports/notinspriinspri/ confirms there are now no cases of items "Not in SPRI" also having a SPRI location
+		# For the special case of "Not in SPRI" being present (in any *location), then create a single 852 value, with the other location(s) noted if any, e.g. /records/7976/ (test #649); /reports/notinspriinspri/ confirms there are now no cases of items "Not in SPRI" also having a SPRI location
 		if (in_array ('Not in SPRI', $locations)) {	// NB Manually validated in the database that this is always present as the full string, not a match
 			$otherLocations = array_diff ($locations, array ('Not in SPRI'));	// I.e. unset the entry containing this value
 			$result  = "{$this->doubleDagger}2camdept";
@@ -3334,7 +3339,7 @@ class marcConversion
 			return $result;
 		}
 		
-		# Report any that do not have a matching location; NB /reports/locationauthoritycontrol/ ensures authority control in terms of always havig a space after or end-of-string
+		# Report any that do not have a matching location; NB /reports/locationauthoritycontrol/ ensures authority control in terms of always having a space after or end-of-string
 		foreach ($locations as $location) {
 			if (!preg_match ('@^(' . implode ('|', array_keys ($this->locationCodes)) . ')@', $location)) {
 				$this->errorHtml .= 'The record contains an invalid *location value.';

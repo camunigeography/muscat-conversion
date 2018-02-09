@@ -3796,10 +3796,10 @@ SUPPRESS
 /‡bSPRI-BIB$/
 
 648
-852 not present if no locations
+852 with no location gets ‡cSPRIACQ
 1331
-!852
-*
+852
+/^‡2camdept ‡bSCO ‡cSPRIACQ$/
 
 649
 852 Not in SPRI - with another location
