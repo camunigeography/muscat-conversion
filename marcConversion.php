@@ -3335,7 +3335,7 @@ class marcConversion
 			return $result;
 		}
 		
-		# If the location is '??', treat it as 'UNASSIGNED', e.g. /records/34671/ (test #745)
+		# If the location is '??', treat it as 'UNASSIGNED', e.g. /records/34671/ (test #745); see also post-migration report at /reports/locationunassigned/
 		$locationCodes = $this->locationCodes;	// Make a local copy, in case ?? => UNASSIGNED needs to be added
 		$locationCodes['\?\?'] = 'UNASSIGNED';
 		

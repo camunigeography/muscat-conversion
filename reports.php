@@ -141,6 +141,7 @@ class reports
 		'emptydashwithoutspri_problem' => 'records containing a field with an empty dash, without a SPRI location',
 		'invalidcon_problem' => 'records with an invalid *con syntax',
 		'othertransliterations_postmigration' => 'records with names for transliteration in other languages (e.g. Yakut, Chinese, etc.) for upgrading',
+		'locationunassigned_postmigration' => 'Records with location = ??',
 	);
 	
 	# Listing (values) reports
@@ -217,6 +218,8 @@ class reports
 			'artjnokg' =>
 				"In case of a 773 without a SPRI host, could subsequently be linked to a UL host by adding a {$this->doubleDagger}w.",
 			
+			'locationunassigned' =>
+				'Valid records but the item needs to be found.',
 			
 			
 			
@@ -3196,6 +3199,25 @@ class reports
 			WHERE
 				    field LIKE 'nt'
 				AND value NOT IN('None', 'BGNRus')
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with location = ??
+	public function report_locationunassigned ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'locationunassigned' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field = 'location'
+				AND value = '??'
 		";
 		
 		# Return the query
