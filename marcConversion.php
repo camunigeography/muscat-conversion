@@ -3335,9 +3335,13 @@ class marcConversion
 			return $result;
 		}
 		
+		# If the location is '??', treat it as 'UNASSIGNED', e.g. /records/34671/ (test #745)
+		$locationCodes = $this->locationCodes;	// Make a local copy, in case ?? => UNASSIGNED needs to be added
+		$locationCodes['\?\?'] = 'UNASSIGNED';
+		
 		# Report any that do not have a matching location; NB /reports/locationauthoritycontrol/ ensures authority control in terms of always having a space after or end-of-string
 		foreach ($locations as $location) {
-			if (!preg_match ('@^(' . implode ('|', array_keys ($this->locationCodes)) . ')@', $location)) {
+			if (!preg_match ('@^(' . implode ('|', array_keys ($locationCodes)) . ')@', $location)) {
 				$this->errorHtml .= 'The record contains an invalid *location value.';
 				return false;
 			}
@@ -3351,7 +3355,7 @@ class marcConversion
 			$locationCode = false;
 			$locationName = false;
 			$classification = false;
-			foreach ($this->locationCodes as $startsWith => $code) {
+			foreach ($locationCodes as $startsWith => $code) {
 				if (preg_match ("|^({$startsWith})(.*)|", $location, $matches)) {
 					$locationCode = $code;
 					$locationName = $matches[1];	// I.e. non-regexp version of locationCode, e.g. "Electronic Resource (online)"
@@ -3381,7 +3385,7 @@ class marcConversion
 				
 				# In the case of location codes where there is a many-to-one relationship (e.g. "Library Office" and "Librarian's Office" both map to SPRI-LIO), except for SPRI-SER, then add the original location verbatim, so that it can be disambiguated; e.g. /records/2023/ (test #656); negative case (i.e. non-ambigous) in /records/1711/ (test #658)
 				if (!in_array ($locationCode, array ('SPRI-SER', 'SPRI-SHF', 'SPRI-PAM'))) {	// E.g. /records/211109/ (test #657)
-					$locationCodeCounts = array_count_values ($this->locationCodes);
+					$locationCodeCounts = array_count_values ($locationCodes);
 					if ($locationCodeCounts[$locationCode] > 1) {
 						$result .= " {$this->doubleDagger}c" . $locationName;	// E.g. SPRI-LIO in /records/2023/ (test #656)
 					}

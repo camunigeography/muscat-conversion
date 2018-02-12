@@ -4383,3 +4383,10 @@ ISBN support for X check digit
 4960
 583
 ‡lsignificant ‡2pda ‡5UkCU-P ‡zphysical damage
+
+745
+852 created with ‡cUNASSIGNED if location is '??'
+34671
+852
+‡cUNASSIGNED
+
