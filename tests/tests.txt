@@ -1550,7 +1550,7 @@ MARC parser check of passing in XPath /
 Multiple *con in 583
 12376
 583
-‡aText block
+‡3Text block
 
 257
 MARC parser check of 'A' (all) control character: value present (see also next test)
@@ -4238,13 +4238,13 @@ Anonymous is protected string in transliteration
 583 basic presence
 171183
 583
-‡aBinding‡lsignificant: physical damage‡5UkCU-P
+‡3Binding ‡acondition reviewed ‡c20150101
 
 721
 583 splits on (first) space-colon-space
 171183
 583
-‡aBinding‡lsignificant: physical damage
+‡3Binding ‡acondition reviewed ‡c20150101 ‡lsignificant: physical damage
 
 722
 583 ends with ‡5 institution
@@ -4262,13 +4262,13 @@ Anonymous is protected string in transliteration
 583 multiple *acc blocks
 10519
 583
-‡aCopy B‡lText block
+‡3Copy B ‡acondition reviewed ‡c20150101 ‡lText block
 
 725
 583 multiple *con in an *acc block
 12376
 583
-‡aText block‡lsignificant
+‡3Text block ‡acondition reviewed ‡c20150101 ‡lsignificant: physical damage to maps (Copy A)
 
 726
 916 does not include *con
@@ -4377,3 +4377,9 @@ ISBN support for X check digit
 31500
 852
 ‡bSCO
+
+744
+583 gets ‡z if third part
+4960
+583
+‡lsignificant ‡2pda ‡5UkCU-P ‡zphysical damage

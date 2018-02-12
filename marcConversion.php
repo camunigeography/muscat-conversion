@@ -2592,23 +2592,19 @@ class marcConversion
 			$conIndex = 1;
 			while ($con = $this->xPathValue ($this->xml, "//acc[$accIndex]/con[$conIndex]")) {
 				
-				# Split off any $z section
-				#!# Test needed when data available
-				$z = false;
-				if (substr_count ($con, '$z')) {
-					list ($con, $z) = explode ('$z', $con, 2);
-				}
+				# Split the string by space-colon-space; this assumes that /reports/invalidcon/ is clear; e.g. /records/171183/ (test #721)
+				$parts = explode (' : ', $con, 3);
 				
-				# Split by first space-colon-space; this assumes that /reports/invalidcon/ is clear; e.g. /records/171183/ (test #721)
-				list ($a, $l) = explode (' : ', $con, 2);
-				
-				# Compile the value
-				$line  = "{$this->doubleDagger}a" . trim ($a);
-				$line .= "{$this->doubleDagger}l" . trim ($l);
-				if ($z) {
-					$line .= "{$this->doubleDagger}z" . trim ($z);
+				# Construct the line; see: https://www.loc.gov/marc/bibliographic/pda-part2.pdf
+				$line  = "{$this->doubleDagger}3" . trim ($parts[0]);	// E.g. /records/171183/ (test #721)
+				$line .= " {$this->doubleDagger}a" . 'condition reviewed';
+				$line .= " {$this->doubleDagger}c" . '20150101';	// Date chosen as reasonable
+				$line .= " {$this->doubleDagger}l" . trim ($parts[1]);	// E.g. /records/171183/ (test #721)
+				$line .= " {$this->doubleDagger}2" . 'pda';
+				$line .= " {$this->doubleDagger}5" . 'UkCU-P';	// E.g. /records/171183/ (test #722)
+				if (isSet ($parts[2])) {
+					$line .= " {$this->doubleDagger}z" . trim ($parts[2]);	// E.g. /records/4960/ (test #744)
 				}
-				$line .= "{$this->doubleDagger}5UkCU-P";	// E.g. /records/171183/ (test #722)
 				
 				# Register the line
 				$resultLines[] = $line;
