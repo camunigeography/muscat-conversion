@@ -1203,6 +1203,8 @@ class import
 		;";
 		$this->databaseConnection->query ($query);
 		
+		#!# Add support for *lto, e.g. /records/52557/
+		
 		# In the case of fields in the second half of the record, delete each shard from the scope of transliteration where it has an associated local (*in / *j) language, e.g. where the shard is a bottom-half title, and it is marked separately as a non-relevant language (e.g. Russian record but /art/j/tg/lang = 'English'); e.g. /records/9820/ , /records/27093/ , /records/57745/
 		$this->logger ('|-- In ' . __METHOD__ . ', deleting bottom-half shards with an associated non-relevant local language');
 		$query = "

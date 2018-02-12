@@ -73,9 +73,9 @@ class marcConversion
 	private $acquisitionDate = '2015-01-01';
 	
 	# Supported transliteration upgrade (BGN/PCGN -> Library of Congress) fields, at either (top/bottom) level of a record
+	# Confirmed other fields not likely, using: `SELECT field, count(*)  FROM `catalogue_processed` WHERE field NOT IN ('kw', 'ks', 'abs', 'doslink', 'winlink', 'lang', 'tc', 'tt', 'location') AND recordLanguage = 'Russian' AND `value` LIKE '%ya%' GROUP BY field;`
 	private $transliterationUpgradeFields = array (
 		't',
-		'pu',
 		'n1', 'n2', 'nd',	// NB Keep these three together as generate245::classifyNdField() (as called from generate245::statementOfResponsibility() ), and generate245::roleAndSiblings() assumes they will be in sync in terms of transliteration
 		'pu',
 		'ts',
