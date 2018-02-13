@@ -2600,7 +2600,7 @@ class marcConversion
 				$line .= " {$this->doubleDagger}a" . 'condition reviewed';
 				$line .= " {$this->doubleDagger}c" . '20150101';	// Date chosen as reasonable
 				$line .= " {$this->doubleDagger}l" . trim ($parts[1]);	// E.g. /records/171183/ (test #721)
-				$line .= " {$this->doubleDagger}2" . 'pda';
+				$line .= " {$this->doubleDagger}2" . 'pda';		// E.g. /records/171183/ (test #722)
 				$line .= " {$this->doubleDagger}5" . 'UkCU-P';	// E.g. /records/171183/ (test #722)
 				if (isSet ($parts[2])) {
 					$line .= " {$this->doubleDagger}z" . trim ($parts[2]);	// E.g. /records/4960/ (test #744)
