@@ -2807,7 +2807,7 @@ class marcConversion
 		
 		# Define the fallback value in case that is needed
 		if (!isSet ($lookupTableRaw[''])) {
-			$lookupTableRaw[''] = $lookupTableRaw[$fallbackKey];	// E.g. /records/180290/ (test #486)
+			$lookupTableRaw[''] = $lookupTableRaw[$fallbackKey];	// E.g. *ser with no *freq falls back to "No *freq" in /records/1003/ (test #486)
 		}
 		$lookupTableRaw[false]	= $lookupTableRaw[$fallbackKey];	// Boolean false also needs to be defined because no-match value from an xPathValue() lookup will be false, e.g. /records/180289/ (test #487)
 		

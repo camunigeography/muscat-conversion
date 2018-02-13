@@ -2892,7 +2892,7 @@ Undo Muscat escaped asterisks @*
 
 486
 loadLookupTable needs definition of empty value fallback value
-180290
+1003
 008
 /^.{18}#u/
 
