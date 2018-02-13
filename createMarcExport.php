@@ -151,6 +151,10 @@ class createMarcExport
 		# Define and execute the command for converting the text version to binary; see: http://marcedit.reeset.net/ and http://marcedit.reeset.net/cmarcedit-exe-using-the-command-line and http://blog.reeset.net/?s=cmarcedit
 		$command = "mono /usr/local/bin/marcedit/cmarcedit.exe -s {$directory}/spri-marc-{$fileset}.mrk -d {$filename} -pd -make";
 		exec ($command, $output, $unixReturnValue);
+		if ($unixReturnValue == 2) {
+			echo "<p class=\"warning\">Execution of <tt>/usr/local/bin/marcedit/cmarcedit.exe</tt> failed with Permission denied - ensure the webserver user can read <tt>/usr/local/bin/marcedit/</tt>.</p>";
+			break;
+		}
 		foreach ($output as $line) {
 			if (preg_match ('/^0 records have been processed/', $line)) {
 				echo "<p class=\"warning\">Error in creation of MARC binary file (spri-marc-{$fileset}.mrc): <tt>" . htmlspecialchars ($line) . "</tt></p>";
