@@ -4332,27 +4332,27 @@ The geology of the Nuuk region
 
 736
 700 from contents note results in a successful line
-4660
+2652
 700
-‡aJohan Lange‡tPars prima
+‡aJ. Richardson.‡tPt. 1. The quadrupeds.
 
 737
 700 from contents note with two authors in one section is split out
 2652
 700
-‡aJ. Richardson‡tpt. 2. The birds
+‡aJ. Richardson.‡tpt. 2. The birds.
 
 738
 700 from contents note with multiple sections results in multiline
 4660
 700
-‡aJohan Lange‡tPars secunda
+‡aJohan Lange.‡tPars secunda
 
 739
 700 from contents note with two authors split out for non-English
 4660
 700
-‡aChristian Jensen‡tGrønlands Mosser
+‡aChristian Jensen.‡tGrønlands Mosser
 
 740
 700 from contents note does not split on "et" as can be used in "et al"

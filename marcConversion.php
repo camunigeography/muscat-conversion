@@ -2470,10 +2470,10 @@ class marcConversion
 			if (preg_match ($splitRegexp, $subfields['r'][$i])) {
 				$authors = preg_split ($splitRegexp, $subfields['r'][$i]);
 				foreach ($authors as $author) {
-					$lines[] = "1# {$this->doubleDagger}a{$author}{$this->doubleDagger}t{$subfields['t'][$i]}";
+					$lines[] = '1# ' . $this->macro_dotEnd ("{$this->doubleDagger}a{$author}", true) . $this->macro_dotEnd ("{$this->doubleDagger}t{$subfields['t'][$i]}", true);
 				}
 			} else {
-				$lines[] = "1# {$this->doubleDagger}a{$subfields['r'][$i]}{$this->doubleDagger}t{$subfields['t'][$i]}";
+				$lines[] = '1# ' . $this->macro_dotEnd ("{$this->doubleDagger}a{$subfields['r'][$i]}", true) . $this->macro_dotEnd ("{$this->doubleDagger}t{$subfields['t'][$i]}", true);
 			}
 		}
 		
