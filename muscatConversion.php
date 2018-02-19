@@ -142,6 +142,12 @@ class muscatConversion extends frontControllerApplication
 				'url' => 'records/%id/',
 				'usetab' => ($this->userIsAdministrator ? 'records' : 'home' /* i.e. search */),
 			),
+			'marcxml' => array (
+				'description' => 'Export a record as MARCXML',
+				'url' => 'records/%id/muscat%id.marcxml.xml',
+				'export' => true,
+				'administrator' => true,
+			),
 			'fields' => array (
 				'description' => false,
 				'url' => 'fields/',
@@ -680,8 +686,16 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Function to export a record as MARCXML
+	public function marcxml ($id)
+	{
+		# Run the record page in MARCXML mode
+		return $this->record ($id, true);
+	}
+	
+	
 	# Function to show a record
-	public function record ($id)
+	public function record ($id, $marcXmlMode = false)
 	{
 		# Start the HTML
 		$html = '';
@@ -711,6 +725,11 @@ class muscatConversion extends frontControllerApplication
 			$i++;
 		}
 		
+		# In export mode, export the data as now assembled, and end
+		if ($marcXmlMode) {
+			return $this->exportMarcXML ($id, $this->marcRecordDynamic['record']);
+		}
+		
 		# In public view, rename the presented record tab label
 		if (!$this->userIsAdministrator) {
 			$this->types['presented']['label'] = 'Main publication details';
@@ -736,6 +755,59 @@ class muscatConversion extends frontControllerApplication
 		# Show the HTML
 		echo $html;
 	}
+	
+	
+	# Function to export MARC as MARCXML
+	private function exportMarcXML ($id, $marc)
+	{
+		# Save the record to a temp file
+		$mrkFile = "/tmp/muscat{$id}.mrk";
+		file_put_contents ($mrkFile, $marc);
+		
+		# Convert to .mrk
+		require_once ('createMarcExport.php');
+		$createMarcExport = new createMarcExport ($this, $applicationRoot = NULL, $recordProcessingOrder = NULL);
+		$createMarcExport->reformatMarcToVoyagerStyle ($mrkFile);
+		
+		# Convert to MARCXML
+		$marcEditPath = '/usr/local/bin/marcedit/cmarcedit.exe';
+		$mrcFile = "/tmp/muscat{$id}.mrc";
+		$marcXmlFile = "/tmp/muscat{$id}.marcxml.xml";
+		$command = "mono {$marcEditPath} -s {$mrkFile} -d {$mrcFile} -make && mono {$marcEditPath} -s {$mrcFile} -d {$marcXmlFile} -marcxml";
+		exec ($command, $output, $unixReturnValue);
+		if ($unixReturnValue == 2) {
+			echo "<p class=\"warning\">Execution of <tt>/usr/local/bin/marcedit/cmarcedit.exe</tt> failed with Permission denied - ensure the webserver user can read <tt>/usr/local/bin/marcedit/</tt>.</p>";
+			break;
+		}
+		
+		# Read the MARCXML file
+		$marcXml = file_get_contents ($marcXmlFile);
+		
+		# Remove the mrk, mrc, and MARCXML files
+		unlink ($mrkFile);
+		unlink ($mrcFile);
+		unlink ($marcXmlFile);
+		
+		# Reformat the XML to be easier to read
+		$dom = new DOMDocument ();
+		$dom->preserveWhiteSpace = false;
+		$dom->formatOutput = true;
+		$dom->loadXML ($marcXml);
+		$marcXml = $dom->saveXML ();
+		
+		# Send XML headers
+		header ('Content-type: text/xml; charset=utf8');
+		
+		# Force download rather than view
+		$filenameBase  = "muscat{$id}.marcxml";
+		$filenameBase .= '._savedAt' . date ('Ymd-His');
+		$filename = $filenameBase . '.xml';
+		header ('Content-disposition: attachment; filename=' . $filename);
+		
+		# Transmit the XML
+		echo $marcXml;
+	}
+	
 	
 	
 	# Function to create previous/next record links
@@ -837,7 +909,7 @@ class muscatConversion extends frontControllerApplication
 						$output .= $this->marcRecordDynamic['marcErrorHtml'];
 					}
 					$output .= "\n<div class=\"graybox marc\">";
-					$output .= "\n<p id=\"exporttarget\">Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->migrationStatus ($id) . "</strong></p>";
+					$output .= "\n<p id=\"exporttarget\">Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->migrationStatus ($id) . "</strong> &nbsp;&nbsp; <a href=\"{$this->baseUrl}/records/{$id}/muscat{$id}.marcxml.xml\">MARCXML</a></p>";
 					if ($record['mergeType']) {
 						$output .= "\n<p>Note: this record has <strong>merge data</strong> (managed according to the <a href=\"{$this->baseUrl}/merge.html\" target=\"_blank\">merge specification</a>), shown underneath.</p>";
 					}

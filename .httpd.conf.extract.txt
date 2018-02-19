@@ -35,6 +35,7 @@
 	RewriteRule ^$baseUrl/fields/([a-z0-9]+)$ $baseUrl/fields/$1/ [R]
 	RewriteRule ^$baseUrl/records/([0-9]+)/$ $baseUrl/index.html?action=record&item=$1 [L]
 	RewriteRule ^$baseUrl/records/([0-9]+)$ $baseUrl/records/$1/ [R]
+	RewriteRule ^$baseUrl/records/([0-9]+)/muscat\1.marcxml.xml$ $baseUrl/index.html?action=marcxml&item=$1 [L]
 	RewriteRule ^$baseUrl/records/([0-9]+)k/$ $baseUrl/index.html?action=records&thousand=$1 [L]
 	RewriteRule ^$baseUrl/records/([0-9]+)k$ $baseUrl/records/$1k/ [R]
 	RewriteRule ^$baseUrl/(reports)/([a-z0-9]+)/$ $baseUrl/index.html?action=$1&item=$2 [L,QSA]
@@ -45,6 +46,12 @@
 	# NB \1 is a backreference in the test
 	RewriteRule ^$baseUrl/reports/([a-z0-9]+)/\1.csv$ $baseUrl/index.html?action=reportdownload&item=$1 [L,QSA]
 	<LocationMatch ^$baseUrl/reports/([a-z0-9]+)/\1.csv$>
+		php_value auto_prepend_file none
+		php_value auto_append_file none
+	</LocationMatch>
+	
+	# MARCXML output
+	<LocationMatch ^$baseUrl/records/([0-9]+)/muscat\1.marcxml.xml$>
 		php_value auto_prepend_file none
 		php_value auto_append_file none
 	</LocationMatch>

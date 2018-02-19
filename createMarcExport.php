@@ -125,7 +125,7 @@ class createMarcExport
 	
 	
 	# Function to reformat a MARC records file to Voyager input style
-	private function reformatMarcToVoyagerStyle ($filenameMrk)
+	public function reformatMarcToVoyagerStyle ($filenameMrk)
 	{
 		# Reformat to Voyager input style; this process is done using shelled-out inline sed/perl, rather than preg_replace, to avoid an out-of-memory crash
 		exec ("sed -i 's" . "/{$this->doubleDagger}\([a-z0-9]\)/" . '\$\1' . "/g' {$filenameMrk}");		// Replace double-dagger(s) with $
