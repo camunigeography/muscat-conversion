@@ -2566,7 +2566,7 @@ class import
 		
 		# Generate the output files and attach errors to the database records
 		require_once ('createMarcExport.php');
-		$createMarcExport = new createMarcExport ($this, $this->applicationRoot, $this->recordProcessingOrder);
+		$createMarcExport = new createMarcExport ($this->muscatConversion, $this->applicationRoot, $this->recordProcessingOrder);
 		foreach ($this->filesets as $fileset => $label) {
 			$createMarcExport->createExport ($fileset);
 		}
