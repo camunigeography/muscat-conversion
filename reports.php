@@ -84,6 +84,7 @@ class reports
 		'541ccombinations2_info' => 'records with combinations of multiple *fund/*kb/*sref values (for 541c), excluding sref+fund',
 		'unrecognisedks_problem' => 'records with unrecognised *ks values',
 		'malformedks_problem' => 'records with malformed *ks values',
+		'multipleadjacentks_problem' => 'records with multiple adjacent *ks values',
 		'malformedn2_problem' => 'records with a malformed *n2 value',
 		'coexistingksstatus_problem' => 'records with both a *ks status and a *status',
 		'statuscodeksderived_info' => 'records with a cataloguing status code coming from *ks',
@@ -2017,6 +2018,24 @@ class reports
 					   (value LIKE '%[%' AND value NOT REGEXP '^(.+)\\\\[(.+)\\\\]$')
 					OR value = ''
 				)
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with multiple adjacent *ks values
+	public function report_multipleadjacentks ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'multipleadjacentks' AS report,
+				id
+			FROM fieldsindex
+			WHERE
+				fieldslist LIKE '%@ks@ks@%'
 		";
 		
 		# Return the query
