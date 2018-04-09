@@ -146,7 +146,6 @@ class muscatConversion extends frontControllerApplication
 				'description' => 'Export a record as MARCXML',
 				'url' => 'records/%id/muscat%id.marcxml.xml',
 				'export' => true,
-				'administrator' => true,
 			),
 			'fields' => array (
 				'description' => false,
@@ -900,6 +899,7 @@ class muscatConversion extends frontControllerApplication
 			# Text records
 			case 'marc':
 				$output  = '';
+				$marcXmlLink = "<a href=\"{$this->baseUrl}/records/{$id}/muscat{$id}.marcxml.xml\">MARCXML</a>";
 				if ($this->userIsAdministrator) {
 					$output  = "\n<p>The MARC output uses the <a target=\"_blank\" href=\"{$this->baseUrl}/marcparser.html\">parser definition</a> to do the mapping from the XML representation.</p>";
 					if ($record['bibcheckErrors']) {
@@ -909,13 +909,20 @@ class muscatConversion extends frontControllerApplication
 						$output .= $this->marcRecordDynamic['marcErrorHtml'];
 					}
 					$output .= "\n<div class=\"graybox marc\">";
-					$output .= "\n<p id=\"exporttarget\">Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->migrationStatus ($id) . "</strong> &nbsp;&nbsp; <a href=\"{$this->baseUrl}/records/{$id}/muscat{$id}.marcxml.xml\">MARCXML</a></p>";
+					$output .= "\n<p id=\"exporttarget\">";
+					$output .= "Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->migrationStatus ($id) . "</strong> &nbsp;&nbsp;";
+					$output .= $marcXmlLink;
+					$output .= '</p>';
 					if ($record['mergeType']) {
 						$output .= "\n<p>Note: this record has <strong>merge data</strong> (managed according to the <a href=\"{$this->baseUrl}/merge.html\" target=\"_blank\">merge specification</a>), shown underneath.</p>";
 					}
 					if ($record['mergeType']) {
 						$output .= "\n" . '<p class="colourkey">Color key: <span class="sourcem">Muscat</span> / <span class="sourcev">Voyager</span></p>';
 					}
+				} else {
+					$output .= "\n<p id=\"exporttarget\">";
+					$output .= $marcXmlLink;
+					$output .= '</p>';
 				}
 				$output .= "\n<pre>" . $this->showSourceRegistry ($this->highlightSubfields (htmlspecialchars ($this->marcRecordDynamic['record'])), $this->marcRecordDynamic['sourceRegistry']) . "\n</pre>";
 				if ($this->userIsAdministrator) {
