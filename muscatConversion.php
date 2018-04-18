@@ -226,6 +226,15 @@ class muscatConversion extends frontControllerApplication
 				'parent' => 'admin',
 				'administrator' => true,
 			),
+			'selection' => array (
+				'description' => 'List for selected import',
+				'subtab' => 'Selected import',
+				'url' => 'selection.html',
+				'icon' => 'database_refresh',
+				'parent' => 'admin',
+				'allowDuringImport' => true,
+				'administrator' => true,
+			),
 			'export' => array (
 				'description' => 'Export MARC21 output',
 				'tab' => 'Export',
@@ -2162,8 +2171,10 @@ class muscatConversion extends frontControllerApplication
 		# Define the import types
 		$importTypes = array (
 			'full'					=> 'FULL import (c. 3.95 hours)',
+			'full-selection'		=> 'FULL import, filtered to selection list',
 			'xml'					=> 'Regenerate XML only (c. 21 minutes)',
 			'marc'					=> 'Regenerate MARC only (c. 1.1 hours)',
+			'marc-selection'		=> 'Regenerate MARC only, filtered to selection list',
 			'external'				=> 'Regenerate external Voyager records only (c. 5 seconds)',
 			'outputstatus'			=> 'Regenerate output status only (c. 15 seconds)',
 			'exports'				=> 'Regenerate MARC export files and Bibcheck report (c. 15 minutes)',
@@ -2856,6 +2867,21 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
+	# Function to return the selected record set definition
+	private function getSelectionDefinition ()
+	{
+		# Get the latest version
+		$query = "SELECT definition FROM {$this->settings['database']}.selectiondefinition ORDER BY id DESC LIMIT 1;";
+		if (!$definition = $this->databaseConnection->getOneField ($query, 'definition')) {
+			echo "\n<p class=\"warning\"><strong>Error:</strong> The selected record set definition could not be retrieved.</p>";
+			return false;
+		}
+		
+		# Return the string
+		return $definition;
+	}
+	
+	
 	# Merge definition
 	public function merge ()
 	{
@@ -2973,6 +2999,65 @@ class muscatConversion extends frontControllerApplication
 			} else {
 				$html = "\n<p>{$this->tick} The other names data was processed.</p>";
 			}
+		}
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# Page to provide the list for selected import
+	public function selection ()
+	{
+		# Start the HTML
+		$html = '';
+		
+		# Add introductory text
+		$html .= '<p>Here you can define the list of records for a selected import.</p>';
+		$html .= "<p>To use this, define the list below, then run an <a href=\"{$this->baseUrl}/import/\" class=\"actions\"><img src=\"/images/icons/database_refresh.png\" class=\"icon\" /> import</a>, selecting an option that is filtered to this selection list.</p>";
+		$html .= '<p>An import using this filter list will <strong>overwrite</strong> any existing import data and MARC output files, but will <strong>leave</strong> reports and tests in place from the previous import.</p>';
+		$html .= '<p>Any invalid record numbers will be ignored.</p>';
+		
+		# Create a form
+		$form = new form (array (
+			'formCompleteText' => false,
+			'reappear'	=> true,
+			'div' => 'graybox',
+			'autofocus' => true,
+			'unsavedDataProtection' => true,
+			'whiteSpaceTrimSurrounding' => false,
+		));
+		$form->checkboxes (array (
+			'name'		=> 'tests',
+			'title'		=> 'Include records used by the test system?',
+			'values'	=> array ('Yes'),
+			'default'	=> array ('Yes'),
+			'output'	=> array ('processing' => 'special-setdatatype'),
+		));
+		$form->textarea (array (
+			'name'		=> 'definition',
+			'title'		=> 'Selected record set definition, one per line',
+			'required'	=> true,
+			'rows'		=> 10,
+			'cols'		=> 30,
+			'default'	=> $this->getSelectionDefinition (),
+		));
+		
+		# Process the form
+		if ($result = $form->process ($html)) {
+			
+			# Arrange the insert
+			$insert = array (
+				'tests' => ($result['tests'] ? 1 : NULL),
+				'definition' => $result['definition'],
+				'createdBy' => $this->user,
+			);
+			
+			# Save the latest version
+			$this->databaseConnection->insert ($this->settings['database'], 'selectiondefinition', $insert);
+			
+			# Confirm success, resetting the HTML, and show the submission
+			$html = "<p>{$this->tick} The list has been saved.</p>";
 		}
 		
 		# Show the HTML

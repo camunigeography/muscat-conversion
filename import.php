@@ -94,6 +94,10 @@ class import
 		$sql = "SET SESSION group_concat_max_len := @@max_allowed_packet;";		// Otherwise GROUP_CONCAT truncates the combined strings
 		$this->databaseConnection->execute ($sql);
 		
+		# Treat selection import as if it were full, but set a flag to filter during the MARC phase
+		$isSelection = (substr_count ($importType, '-selection'));
+		$importType = str_replace ('-selection', '', $importType);
+		
 		# Skip the main import if required
 		if ($importType == 'full') {
 			
@@ -171,7 +175,7 @@ class import
 		
 		# Create the MARC records
 		if (($importType == 'full') || ($importType == 'marc')) {
-			if (!$this->createMarcRecords ($errorsHtml /* amended by reference */)) {
+			if (!$this->createMarcRecords ($isSelection, $errorsHtml /* amended by reference */)) {
 				$this->logErrors ($errorsHtml, true);
 				return false;
 			}
@@ -187,6 +191,11 @@ class import
 		if ($importType == 'exports') {
 			$this->createMarcExports (true);
 			$html .= "\n<p>{$tick} The <a href=\"{$this->baseUrl}/export/\">export files and Bibcheck report</a> have been generated.</p>";
+		}
+		
+		# End at this point if doing a partial selection, to avoid overwriting reports, listings and test unnecessarily
+		if ($isSelection) {
+			return true;
 		}
 		
 		# Run (pre-process) the reports
@@ -2063,7 +2072,7 @@ class import
 	
 	# Function to create MARC records
 	# See: doc/createMarcRecords.md
-	private function createMarcRecords (&$errorsHtml)
+	private function createMarcRecords ($isSelection, &$errorsHtml)
 	{
 		# Log start
 		$this->logger ('Starting ' . __METHOD__);
@@ -2097,6 +2106,19 @@ class import
 		$this->logger ('Cross-inserting IDs to catalogue_marc table');
 		$query = 'INSERT INTO catalogue_marc (id) (SELECT DISTINCT(recordId) FROM catalogue_rawdata);';
 		$this->databaseConnection->execute ($query);
+		
+		# Add support for selection list
+		$selectionList = array ();
+		if ($isSelection) {
+			
+			# Obtain the list
+			$selectionList = $this->getSelectionList ();
+			$this->logger ('In ' . __METHOD__ . ', using filter list, of ' . number_format (count ($selectionList)) . ' records');
+			
+			# Delete unwanted rows
+			$sql = 'DELETE FROM catalogue_marc WHERE id NOT IN(' . implode (',', $selectionList) . ');';
+			$this->databaseConnection->execute ($sql);
+		}
 		
 		# Determine and set the record type
 		$query = "UPDATE catalogue_marc
@@ -2218,7 +2240,7 @@ class import
 				}
 				
 				# Detect memory leaks, enabling the import to shut down cleanly but report the problem
-				if ($memoryUsageMb > 80) {
+				if (!$selectionList && $memoryUsageMb > 80) {	// Selection list mode allows memory leak to continue
 					$memoryErrorMessage = '*** Memory leak detected; import system has been stopped. ***';
 					$this->logger ($memoryErrorMessage);
 					$errorsHtml .= "<p class=\"warning\">{$memoryErrorMessage}</p>";
@@ -2241,6 +2263,29 @@ class import
 		$query = 'SELECT id,suppressReasons FROM catalogue_marc WHERE suppressReasons IS NOT NULL' . ($ids ? " AND id IN (" . implode (', ', $ids) . ")" : '') . ';';
 		$suppressReasonsList = $this->databaseConnection->getPairs ($query);
 		return $suppressReasonsList;
+	}
+	
+	
+	# Function to get the selection list, essentially a parsed version of muscatConversion::getSelectionDefinition ()
+	private function getSelectionList ()
+	{
+		# Get the latest version and whether tests are required
+		$query = "SELECT * FROM {$this->settings['database']}.selectiondefinition ORDER BY id DESC LIMIT 1;";
+		$definition = $this->databaseConnection->getOne ($query, 'definition');
+		
+		# Convert to list
+		$selection = application::textareaToList ($definition['definition']);
+		
+		# Add in records from the test system if required
+		if ($definition['tests']) {
+			$query = "SELECT DISTINCT recordId FROM tests ORDER BY recordId;";
+			$recordIdsInTests = $this->databaseConnection->getPairs ($query);
+			$selection = array_merge ($selection, $recordIdsInTests);
+			$selection = array_unique ($selection);
+		}
+		
+		# Return the list
+		return $selection;
 	}
 	
 	
