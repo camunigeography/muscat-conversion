@@ -3833,6 +3833,7 @@ class marcConversion
 				"),
 				
 			#!# Needs review - concern that this means that items with more than one location could get in the suppression bucket; see e-mail 19/12/2016
+			#!# Policy on ?? should be decided before final migration
 			'EXTERNAL-LOCATION' => array (
 				# 8,325 records
 				'Item of bibliographic interest, but not held at SPRI, so no holdings record can be created',
