@@ -239,10 +239,10 @@ ar#|ss
 #o0
 
 37
-008 position 29 *ks=061.3 gets d
+008 position 29 *ks=061.3 gets 1
 4263
 008
-d|
+/^.{29}1/
 
 38
 008 positions 30-31 *doc *form=Microfiche gets ||
@@ -2426,7 +2426,7 @@ uuuuuuuuu
 008: test locationContains0613 subroutine
 6201
 008
-/^.{29}d/
+/^.{29}1/
 
 409
 008: positions 30-31: Multimedia
@@ -4391,9 +4391,15 @@ ISBN support for X check digit
 ‡cUNASSIGNED
 
 746
-008 position 30-31 *art/*j is not a continuing resource, but an article therefore should be treated as 'Book' type of 008, thus gets || (see also #742)
+008 position 30-31 *art/*j is not a continuing resource, but an article therefore should be treated as 'Book' type of 008, thus gets || (see also #742, #747)
 20557
 008
 /^.{30}\|\|/
+
+747
+008 position 33 *art/*j is not a continuing resource, but an article therefore should be treated as 'Book' type of 008, thus gets 0 (see also #742, #746)
+20557
+008
+/^.{33}\|\|/
 
 

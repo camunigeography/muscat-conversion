@@ -514,7 +514,7 @@ class generate008
 		}
 		
 		# If *k contains '061.3' OR *location contains '061.3' => 1
-		if ($this->kContains0613 () || $this->locationContains0613 ()) {return 'd';}	// E.g. /records/4263/ (test #37), /records/6201/ (test #408)
+		if ($this->kContains0613 () || $this->locationContains0613 ()) {return '1';}	// E.g. /records/4263/ (test #37), /records/6201/ (test #408)
 		
 		# Else => 0
 		return '0';		// E.g. /records/9999/ (test #407)
@@ -664,6 +664,7 @@ class generate008
 		switch ($this->recordType) {
 			case '/doc':
 			case '/art/in':
+			case '/art/j':		// E.g. /records/20557/ (test #747)
 				
 				# Check for specific *k values
 				$strings = array (
@@ -679,7 +680,6 @@ class generate008
 				return 0;
 				
 			case '/ser':
-			case '/art/j':
 				
 				$lang = $this->marcConversion->xPathValue ($this->xml, '(//lang)[1]', false);	// E.g. /records/1031/ (test #41)
 				return $this->marcConversion->lookupValue ('languageCodes', 'English', true, false, $lang, 'Script Code', $errorString);	// Script code is defined for position 33 at https://www.loc.gov/marc/bibliographic/bd008s.html
