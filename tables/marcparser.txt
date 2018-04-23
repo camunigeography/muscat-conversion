@@ -58,8 +58,8 @@ A  880 {/*|macro:generateAuthors(700,transliterated)|macro:880subfield6(700)}
 A  880 {/*|macro:generateAuthors(710,transliterated)|macro:880subfield6(710)}
 A  880 {/*|macro:generateAuthors(711,transliterated)|macro:880subfield6(711)}
 A  916 ## ‡a{/*|macro:generate916}
-A  917 ## ‡aUnenhanced record from Muscat, imported 2015
+A  917 ## ‡aUnenhanced record from Muscat, imported 2018
 AR 917 ## ‡a{/|macro:showSuppressionReason}
 E  948 3# ‡a{/*|macro:migrationDate} ‡b{/|macro:multipleValues(//recr)|macro:implode(, )} ‡d{/*|macro:cataloguingStatus}
 # Notes:
-# 666 is for UDC - will need both number and text 
+# 666 is for UDC - will need both number and text
