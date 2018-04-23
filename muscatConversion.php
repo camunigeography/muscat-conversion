@@ -277,6 +277,14 @@ class muscatConversion extends frontControllerApplication
 			  `definition` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Parser definition',
 			  `savedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Automatic timestamp'
 			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC parser definition';
+			
+			CREATE TABLE `selectiondefinition` (
+			  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Automatic key' PRIMARY KEY,
+			  `tests` int(1) NOT NULL DEFAULT '1' COMMENT 'Include records used by the test system?',
+			  `definition` mediumtext COLLATE utf8_unicode_ci NOT NULL COMMENT 'Parser definition',
+			  `createdBy` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Created by user',
+			  `savedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Automatic timestamp'
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC parser definition';
 		";
 	}
 	
@@ -3049,7 +3057,7 @@ class muscatConversion extends frontControllerApplication
 			# Arrange the insert
 			$insert = array (
 				'tests' => ($result['tests'] ? 1 : NULL),
-				'definition' => $result['definition'],
+				'definition' => $result['definition'],		// This needs to be at least MEDIUMTEXT
 				'createdBy' => $this->user,
 			);
 			
