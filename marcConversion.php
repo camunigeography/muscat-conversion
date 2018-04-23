@@ -3846,18 +3846,6 @@ class marcConversion
 						)
 				"),
 				
-			#!# Needs review - 'offprint' is too restrictive, and various categories have been physically reviewed in person
-			'OFFPRINT-OR-PHOTOCOPY' => array (
-				# 1,553 records
-				'Item needing review to determine provenance with respect to copyright',
-				"	    field IN('note', 'local', 'priv')
-					AND (
-						   value LIKE '%offprint%'
-						OR value LIKE '%photocopy%'
-						)
-					AND value NOT LIKE '%out of copyright%'
-				"),
-				
 		);
 	}
 	
