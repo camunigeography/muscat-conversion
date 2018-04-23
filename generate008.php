@@ -614,6 +614,7 @@ class generate008
 			
 			case '/doc':
 			case '/art/in':
+			case '/art/j':		// E.g. /records/20557/ (test #746)
 				
 				# If *t contains Festschrift => 1 then |
 				$t = $this->marcConversion->xPathValue ($this->xml, '//t');
@@ -626,7 +627,6 @@ class generate008
 				return '|' . '|';	// E.g. /records/167945/ (test #38)
 			
 			case '/ser':
-			case '/art/j':
 				return '##';	// E.g. /records/1031/ (test #412)
 		}
 	}

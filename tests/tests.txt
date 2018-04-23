@@ -4367,7 +4367,7 @@ ISBN support for X check digit
 ‡a951012480X‡qv. 2
 
 742
-008 18-20 for non-multimediaish /art/j like non-multimediaish /art/in
+008 18-20 for non-multimediaish /art/j like non-multimediaish /art/in (see also #746)
 73537
 008
 /^.{18}a##/
@@ -4389,4 +4389,11 @@ ISBN support for X check digit
 34671
 852
 ‡cUNASSIGNED
+
+746
+008 position 30-31 *art/*j is not a continuing resource, but an article therefore should be treated as 'Book' type of 008, thus gets || (see also #742)
+20557
+008
+/^.{30}\|\|/
+
 
