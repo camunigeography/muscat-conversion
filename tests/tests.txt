@@ -1388,7 +1388,7 @@ SPRI-1061
 Leader byte count
 1003
 LDR
-01020
+01067
 
 230
 880 link reciprocality (see also next test)
@@ -2924,7 +2924,7 @@ loadLookupTable case-insensitive comparison (definition side) (see also #483)
 generate500 strips subfield indicators
 1129
 500
-‡aBiomass Handbook. Vol. 2 :1-21 ([1978])
+‡aBIOMASS Handbook. Vol. 2 :1-21 ([1978])
 
 492
 generate500 prefix for */art/
