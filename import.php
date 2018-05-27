@@ -1179,11 +1179,19 @@ class import
 				FROM catalogue_processed
 				WHERE
 					    field IN('" . implode ("', '", $this->marcConversion->getTransliterationUpgradeFields ()) . "')
-					AND value NOT REGEXP '^{$literalBackslash}{$literalBackslash}[([^{$literalBackslash}]]+){$literalBackslash}{$literalBackslash}]$'		/* Exclude [Titles fully in brackets like this] */
 					AND recordLanguage = '{$language}'
 				ORDER BY recordId,id
-		;";	// 54,715 rows inserted
-		$this->databaseConnection->query ($query);
+		;";
+		$this->databaseConnection->query ($query);	// 141,594 inserted
+		
+		# Exclude [Titles fully in brackets like this]
+		$query = "
+			DELETE FROM transliterations
+			WHERE
+				    LEFT (title_latin, 1) = '['
+				AND RIGHT(title_latin, 1) = ']'
+		;";
+		$this->databaseConnection->query ($query);	// 198 rows deleted
 		
 		# In the special case of the *t field, add to the shard the parallel title (*lpt) property associated with the top-level *t; this gives 210 updates, which exactly matches 210 results for `SELECT * FROM `catalogue_processed` WHERE `field` LIKE 'lpt' and recordLanguage = 'Russian';`
 		$this->logger ('|-- In ' . __METHOD__ . ', adding parallel title properties (top-half title)');
