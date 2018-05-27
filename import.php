@@ -1199,7 +1199,7 @@ class import
 		$this->logger ('|-- In ' . __METHOD__ . ', adding parallel title properties');
 		$query = "
 			UPDATE transliterations
-			LEFT JOIN catalogue_processed ON transliterations.recordId = catalogue_processed.recordId
+			JOIN catalogue_processed ON transliterations.recordId = catalogue_processed.recordId
 			SET lpt = value
 			WHERE
 				    catalogue_processed.field = 'lpt'
