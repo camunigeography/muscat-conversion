@@ -1181,11 +1181,12 @@ class import
 					    field IN('" . implode ("', '", $this->marcConversion->getTransliterationUpgradeFields ()) . "')
 					AND (
 						   recordLanguage = '{$language}'
+						OR (topLevel = 0 AND recordId IN (SELECT recordId FROM `catalogue_processed` WHERE `field` = 'lang' AND `value` LIKE '{$language}' AND `topLevel` = 0 AND recordLanguage != '{$language}'))		-- Top half non-Russian, but *in in Russian; 319 records
 						OR field = 'to'		-- *to can be any language, then stripped below where not an associated relevant *lto
 					)
 				ORDER BY recordId,id
 		;";
-		$this->databaseConnection->query ($query);	// 143,775 inserted
+		$this->databaseConnection->query ($query);	// 144,094 inserted
 		
 		# Exclude [Titles fully in brackets like this]
 		$this->logger ('|-- In ' . __METHOD__ . ', excluding titles fully in square brackets');
