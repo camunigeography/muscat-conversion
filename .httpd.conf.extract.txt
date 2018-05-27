@@ -3,7 +3,7 @@
 # Load using:
 #	# Muscat conversion project
 #	Include /path/to/muscat-conversion/.httpd.conf.extract
-#	Use MacroMuscatConversion /library/catalogue "spqr1 abc123" "/path/to/site/:/path/to/muscat-conversion/:/path/to/php/libraries/"
+#	Use MacroMuscatConversion /library/catalogue "/path/to/site/:/path/to/muscat-conversion/:/path/to/php/libraries/"
 
 
 <Macro MacroMuscatConversion $baseUrl $includePath>
