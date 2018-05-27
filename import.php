@@ -1185,6 +1185,7 @@ class import
 		$this->databaseConnection->query ($query);	// 141,594 inserted
 		
 		# Exclude [Titles fully in brackets like this]
+		$this->logger ('|-- In ' . __METHOD__ . ', excluding titles fully in square brackets');
 		$query = "
 			DELETE FROM transliterations
 			WHERE
@@ -1193,32 +1194,19 @@ class import
 		;";
 		$this->databaseConnection->query ($query);	// 198 rows deleted
 		
-		# In the special case of the *t field, add to the shard the parallel title (*lpt) property associated with the top-level *t; this gives 210 updates, which exactly matches 210 results for `SELECT * FROM `catalogue_processed` WHERE `field` LIKE 'lpt' and recordLanguage = 'Russian';`
-		$this->logger ('|-- In ' . __METHOD__ . ', adding parallel title properties (top-half title)');
+		# In the special case of the *t field, add to the shard the parallel title (*lpt) property associated with the top-level *t
+		# This gives 519 updates, which exactly matches 519 results for `SELECT * FROM `catalogue_processed` WHERE `field` LIKE 'lpt' and recordLanguage = 'Russian';`
+		$this->logger ('|-- In ' . __METHOD__ . ', adding parallel title properties');
 		$query = "
 			UPDATE transliterations
 			LEFT JOIN catalogue_processed ON transliterations.recordId = catalogue_processed.recordId
 			SET lpt = value
 			WHERE
 				    catalogue_processed.field = 'lpt'
-				AND field = 't'
-				AND title_latin LIKE '% = %'		-- This clause avoids e.g. both 198010:10, 198010:17 (lines 10 and 17) matching in /records/198010/
-		;";
-		$this->databaseConnection->query ($query);
-		
-		# In the special case of the *t field, where the shard is a bottom-half title, use the bottom-half *lpt when present
-		$this->logger ('|-- In ' . __METHOD__ . ', adding parallel title properties (bottom-half title)');
-		$query = "
-			UPDATE transliterations
-			INNER JOIN catalogue_processed ON
-				    transliterations.recordId = catalogue_processed.recordId
 				AND transliterations.field = 't'
-				AND catalogue_processed.field = 'lpt'
-				AND transliterations.topLevel = 0
-				AND catalogue_processed.topLevel = 0
-			SET transliterations.lpt = catalogue_processed.value
+				AND catalogue_processed.topLevel = transliterations.topLevel
 		;";
-		$this->databaseConnection->query ($query);
+		$this->databaseConnection->query ($query);	// 519 rows updated
 		
 		#!# Add support for *lto, e.g. /records/52557/
 		
