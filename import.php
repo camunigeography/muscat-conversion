@@ -1179,10 +1179,13 @@ class import
 				FROM catalogue_processed
 				WHERE
 					    field IN('" . implode ("', '", $this->marcConversion->getTransliterationUpgradeFields ()) . "')
-					AND recordLanguage = '{$language}'
+					AND (
+						   recordLanguage = '{$language}'
+						OR field = 'to'		-- *to can be any language, then stripped below where not an associated relevant *lto
+					)
 				ORDER BY recordId,id
 		;";
-		$this->databaseConnection->query ($query);	// 141,594 inserted
+		$this->databaseConnection->query ($query);	// 143,775 inserted
 		
 		# Exclude [Titles fully in brackets like this]
 		$this->logger ('|-- In ' . __METHOD__ . ', excluding titles fully in square brackets');
@@ -1196,7 +1199,7 @@ class import
 		
 		# In the special case of the *t field, add to the shard the parallel title (*lpt) property associated with the top-level *t
 		# This gives 519 updates, which exactly matches 519 results for `SELECT * FROM `catalogue_processed` WHERE `field` LIKE 'lpt' and recordLanguage = 'Russian';`
-		$this->logger ('|-- In ' . __METHOD__ . ', adding parallel title properties');
+		$this->logger ('|-- In ' . __METHOD__ . ', adding parallel title properties for *t');
 		$query = "
 			UPDATE transliterations
 			JOIN catalogue_processed ON transliterations.recordId = catalogue_processed.recordId
@@ -1208,7 +1211,25 @@ class import
 		;";
 		$this->databaseConnection->query ($query);	// 519 rows updated
 		
-		#!# Add support for *lto, e.g. /records/52557/
+		# Add support for *to with *lto, by retaining only those *to rows which have an *lto=Russian e.g. /records/52557/
+		#!# Not yet used in MARC conversion
+		$this->logger ('|-- In ' . __METHOD__ . ', retaining *to with relevant *lto');
+		$query = "
+		DELETE FROM transliterations
+			WHERE field = 'to'
+			AND id NOT IN
+			    (SELECT id FROM 	/* Double wrapping to work around MySQL error '#1093 - You can't specify target table ... for update in FROM clause'; see: https://stackoverflow.com/a/45498/180733 */
+			        (
+			            SELECT transliterations.id
+			            FROM transliterations
+			            JOIN catalogue_processed ON transliterations.recordId = catalogue_processed.recordId
+			            WHERE transliterations.field = 'to'
+			            AND catalogue_processed.field = 'lto'
+			            AND catalogue_processed.value IN('Russian')
+			        ) AS relevantLtos
+			    )
+		;";
+		$this->databaseConnection->query ($query);	// 632 rows updated
 		
 		# In the case of fields in the second half of the record, delete each shard from the scope of transliteration where it has an associated local (*in / *j) language, e.g. where the shard is a bottom-half title, and it is marked separately as a non-relevant language (e.g. Russian record but /art/j/tg/lang = 'English'); e.g. /records/9820/ , /records/27093/ , /records/57745/
 		$this->logger ('|-- In ' . __METHOD__ . ', deleting bottom-half shards with an associated non-relevant local language');
@@ -1216,6 +1237,7 @@ class import
 			DELETE FROM transliterations
 			WHERE
 				    topLevel = 0
+				AND field != 'to'
 				AND recordId IN(
 					SELECT recordId
 					FROM `catalogue_processed`
@@ -1226,7 +1248,7 @@ class import
 						AND `value` != '{$language}'
 				)
 		;";
-		$this->databaseConnection->query ($query);
+		$this->databaseConnection->query ($query);	// 80 rows affected
 		
 		# In the special case of the *t field, add in *tt (translated title) where that exists
 		$this->logger ('|-- In ' . __METHOD__ . ', adding translated titles');
