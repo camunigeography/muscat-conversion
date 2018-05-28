@@ -1140,6 +1140,7 @@ class import
 			`field` VARCHAR(255) NULL COMMENT 'Field',
 			`topLevel` INT(1) NULL COMMENT 'Whether the shard is within the top level part of the record',
 			`xPath` VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field (path only)',
+			`language` VARCHAR(255) NOT NULL COMMENT 'Language of shard',
 			`lpt` VARCHAR(255) NULL COMMENT 'Parallel title languages (*lpt, adjacent in hierarchy)',
 			`title_latin` TEXT COLLATE utf8_unicode_ci COMMENT 'Title (latin characters), unmodified from original data',
 			`title_latin_tt` TEXT COLLATE utf8_unicode_ci COMMENT '*tt if present',
@@ -1154,139 +1155,15 @@ class import
 		;";
 		$this->databaseConnection->execute ($sql);
 		
-		# Define supported language
-		#!# Need to remove explicit dependency
-		$language = 'Russian';
-		
-		# Populate the transliterations table
-		#!# Shouldn't we be transliterating (or at least upgrading from BGN to LoC) cases of e.g. "English = Russian" but where the record is marked as *lang=English, e.g. /records/135449/ ? If so, it may be that checking for recordLanguage is not enough - we should check for *lpt containing 'Russian' also
-		$this->logger ('|-- In ' . __METHOD__ . ', populating the transliterations table');
-		$literalBackslash = '\\';
-		$query = "
-			INSERT INTO transliterations (id, recordId, field, topLevel, xPath, title_latin)
-				SELECT
-					id,
-					recordId,
-					field,
-					topLevel,
-					xPath,
-					value AS title_latin
-				FROM catalogue_processed
-				WHERE
-					    field IN('" . implode ("', '", $this->marcConversion->getTransliterationUpgradeFields ()) . "')
-					AND (
-						   recordLanguage = '{$language}'
-						OR (topLevel = 0 AND recordId IN (SELECT recordId FROM `catalogue_processed` WHERE `field` = 'lang' AND `value` LIKE '{$language}' AND `topLevel` = 0 AND recordLanguage != '{$language}'))		-- Top half non-Russian, but *in in Russian; 319 records
-						OR field = 'to'		-- *to can be any language, then stripped below where not an associated relevant *lto
-					)
-				ORDER BY recordId,id
-		;";
-		$this->databaseConnection->query ($query);	// 144,094 inserted
-		
-		# Exclude [Titles fully in brackets like this]
-		$this->logger ('|-- In ' . __METHOD__ . ', excluding titles fully in square brackets');
-		$query = "
-			DELETE FROM transliterations
-			WHERE
-				    LEFT (title_latin, 1) = '['
-				AND RIGHT(title_latin, 1) = ']'
-		;";
-		$this->databaseConnection->query ($query);	// 198 rows deleted
-		
-		# In the special case of the *t field, add to the shard the parallel title (*lpt) property associated with the top-level *t
-		# This gives 519 updates, which exactly matches 519 results for `SELECT * FROM `catalogue_processed` WHERE `field` LIKE 'lpt' and recordLanguage = 'Russian';`
-		$this->logger ('|-- In ' . __METHOD__ . ', adding parallel title properties for *t');
-		$query = "
-			UPDATE transliterations
-			JOIN catalogue_processed ON transliterations.recordId = catalogue_processed.recordId
-			SET lpt = value
-			WHERE
-				    catalogue_processed.field = 'lpt'
-				AND transliterations.field = 't'
-				AND catalogue_processed.topLevel = transliterations.topLevel
-		;";
-		$this->databaseConnection->query ($query);	// 519 rows updated
-		
-		# Add support for *to with *lto, by retaining only those *to rows which have an *lto=Russian e.g. /records/52557/
-		#!# Not yet used in MARC conversion
-		$this->logger ('|-- In ' . __METHOD__ . ', retaining *to with relevant *lto');
-		$query = "
-		DELETE FROM transliterations
-			WHERE field = 'to'
-			AND id NOT IN
-			    (SELECT id FROM 	/* Double wrapping to work around MySQL error '#1093 - You can't specify target table ... for update in FROM clause'; see: https://stackoverflow.com/a/45498/180733 */
-			        (
-			            SELECT transliterations.id
-			            FROM transliterations
-			            JOIN catalogue_processed ON transliterations.recordId = catalogue_processed.recordId
-			            WHERE transliterations.field = 'to'
-			            AND catalogue_processed.field = 'lto'
-			            AND catalogue_processed.value IN('Russian')
-			        ) AS relevantLtos
-			    )
-		;";
-		$this->databaseConnection->query ($query);	// 632 rows updated
-		
-		# In the case of fields in the second half of the record, delete each shard from the scope of transliteration where it has an associated local (*in / *j) language, e.g. where the shard is a bottom-half title, and it is marked separately as a non-relevant language (e.g. Russian record but /art/j/tg/lang = 'English'); e.g. /records/9820/ , /records/27093/ , /records/57745/
-		$this->logger ('|-- In ' . __METHOD__ . ', deleting bottom-half shards with an associated non-relevant local language');
-		$query = "
-			DELETE FROM transliterations
-			WHERE
-				    topLevel = 0
-				AND field != 'to'
-				AND recordId IN(
-					SELECT recordId
-					FROM `catalogue_processed`
-					WHERE
-						    `field` LIKE 'lang'
-						AND topLevel = 0
-						AND recordLanguage = '{$language}'
-						AND `value` != '{$language}'
-				)
-		;";
-		$this->databaseConnection->query ($query);	// 80 rows affected
-		
-		# In the special case of the *t field, add in *tt (translated title) where that exists
-		$this->logger ('|-- In ' . __METHOD__ . ', adding translated titles');
-		$query = "
-			UPDATE transliterations
-			LEFT JOIN catalogue_processed ON transliterations.recordId = catalogue_processed.recordId
-			SET title_latin_tt = value
-			WHERE
-				    catalogue_processed.field = 'tt'
-				AND transliterations.field = 't'
-				AND topLevel = 1
-		;";
-		$this->databaseConnection->query ($query);
-		
-		# In the special case of the *pu field, clear out special tokens
-		$this->logger ('|-- In ' . __METHOD__ . ', clearing out special tokens in publisher entry');
-		$query = "
-			DELETE FROM transliterations
-			WHERE
-				    field = 'pu'
-				AND title_latin IN('[n.pub.]', 'n.pub.', '[n.p.]')
-		;";
-		$this->databaseConnection->query ($query);
-		
-		#!# Add support for *nt (within *a, *al and *n), e.g. /records/150203/ which has cases of *nt = 'None' (meaning do not transliterate fields at the same level of the hierarchy), e.g. /records/178377/ (test #729) and *nt = 'BGNRus' (which is an explicit override to whatever the language is, enabling Russian people in an English record to be handled properly), e.g. /records/102036/ (test #728); other values such as "BGNYak" should be ignored
-		
-		# Get the transliteration name matching fields
-		$transliterationNameMatchingFields = $this->marcConversion->getTransliterationNameMatchingFields ();
-		
-		# For the *n1 field, clear out cases consisting of special tokens (e.g. 'Anon.') because no attempt has been made to add protected string support for name authority checking; the records themselves (e.g. /records/6451/ ) are fine as these tokens are defined in the protected strings table so will be protected from transliteration
-		$this->logger ('|-- In ' . __METHOD__ . ', clearing out special tokens in name1 entry');
-		$query = "
-			DELETE FROM transliterations
-			WHERE
-				    field IN('" . implode ("', '", $transliterationNameMatchingFields) . "')
-				AND title_latin IN('Anon.')
-		;";
-		$this->databaseConnection->query ($query);
+		# Populate the transliterations table with transliterable shards
+		$this->populateTransliterableShards ();
 		
 		# Trigger a transliteration run
 		$this->logger ('|-- In ' . __METHOD__ . ', running transliteration of entries in the transliterations table');
 		$this->transliterateTransliterationsTable ();
+		
+		# Get the transliteration name matching fields
+		$transliterationNameMatchingFields = $this->marcConversion->getTransliterationNameMatchingFields ();
 		
 		# Populate the Library of Congress name authority list and mark the matches (with inNameAuthorityList = -1)
 		$this->logger ('|-- In ' . __METHOD__ . ', populating the Library of Congress name authority list');
@@ -1326,11 +1203,229 @@ class import
 	}
 	
 	
+	# Function to populate the transliterations table with transliterable shards, determining which are transliterable
+	private function populateTransliterableShards ()
+	{
+		/* The algorithm, implemented below, for correctly determining which shards are transliterable, is:
+			
+			- Copy all shards in from the processed records table
+			- Delete all shards whose field type is not in the fields in scope of transliteration list (e.g. *note)
+			- Set the language of all shards to the first language (the record language, though this could be done freshly)
+			
+			- If the second half has a language (thus overriding the main language), set the language of all second-half to the second-half language
+			- Handle the special case of *lpt for *t - if there is an *lpt in the same half of the record, update the language of that *t shared to the *lpt string
+			- Handle the special case of *lto for *to - if there is an *lto in the same half of the record, update the language of that *to shared to the *lto value
+			- Handle the special case of *nt=BGNRus: if there is an *nt=BNGRus, adjust the language of the n1/n2/nd values to Russian
+			- Handle the special case of *nt=None: if there is an *nt=None, adjust the language of the n1/n2/nd values to None (or anything really, as it will be deleted), e.g. /records/151048/
+			- Handle the special case of *nt=LOCRus: if there is an *nt=None, adjust the language of the n1/n2/nd values to LOCRus
+			
+			- Delete all shards with [Titles fully in brackets like this]
+			- Delete all *pu shards whose value is a token: '[n.pub.]', 'n.pub.', '[n.p.]'
+			- Delete all *n1 shards whose value is token: 'Anon.'
+			
+			- Finally, delete anything that doesn't contain 'Russian' (e.g. equals Russian or contains in 'A = B' style format) or LOCRus as the language
+			- We now only have shards with either (a) Russian, or (b) LOCRus, or (c) Parallel title list
+			
+			- Set the title_latin_tt value as before (needs checking)
+			- Run all through the transliterator as before
+		*/
+		
+		# Populate the transliterations table, firstly copying all rows in
+		# Exclude shards whose field type is not in the scope of transliteration
+		# Set the language of all shards to the record (top-level) language
+		$this->logger ('|-- In ' . __METHOD__ . ', populating the transliterations table');
+		$query = "
+			INSERT INTO transliterations (id, recordId, field, topLevel, xPath, language, title_latin)
+				SELECT
+					id,
+					recordId,
+					field,
+					topLevel,
+					xPath,
+					recordLanguage AS language,
+					value AS title_latin
+				FROM catalogue_processed
+				WHERE field IN('" . implode ("', '", $this->marcConversion->getTransliterationUpgradeFields ()) . "')
+				ORDER BY recordId, LENGTH(id), id
+		;";
+		$this->databaseConnection->query ($query);	// 1,198,204 rows inserted
+		
+		# If the second half has a language (thus overriding the main language), set the language of all second-half to the second-half language (e.g. Russian record but /art/j/tg/lang = 'English'); e.g. /records/9820/ , /records/27093/ , /records/57745/
+		$this->logger ('|-- In ' . __METHOD__ . ', setting bottom-half shards with an associated local language to that language');
+		$query = "
+			UPDATE transliterations
+			LEFT JOIN (
+				SELECT
+					recordId,
+					value AS lowerLanguage
+				FROM catalogue_processed
+				WHERE
+					    topLevel = 0
+					AND field = 'lang'
+					AND value != recordLanguage
+			) AS lowerLanguages		-- 365 records
+			ON lowerLanguages.recordId = transliterations.recordId
+			SET transliterations.language = lowerLanguage
+			WHERE
+				    lowerLanguage IS NOT NULL		/* I.e. don't overwrite the default where not in the list */
+				AND transliterations.topLevel = 0
+		;";
+		$this->databaseConnection->query ($query);	// 413 rows affected
+		
+		# Handle the special case of *lpt for *t - if there is an *lpt in the same half of the record, update the language of that *t shared to the *lpt string, e.g. /records/6498/
+		#!# Check now working for "English = Russian" but where the record is marked as *lang=English, e.g. /records/135449/
+		# This gives 724 updates, which exactly matches 724 results for `SELECT * FROM `catalogue_processed` WHERE `field` = 'lpt';`
+		$this->logger ('|-- In ' . __METHOD__ . ', setting the *lpt parallel title language for *t');
+		$query = "
+			UPDATE transliterations
+			JOIN catalogue_processed ON transliterations.recordId = catalogue_processed.recordId
+			SET
+				language = value,
+				lpt = value
+			WHERE
+				    catalogue_processed.field = 'lpt'
+				AND transliterations.field = 't'
+				AND catalogue_processed.topLevel = transliterations.topLevel
+		;";
+		$this->databaseConnection->query ($query);	// 724 rows updated
+		
+		# Handle the special case of *lto for *to - if there is an *lto in the same half of the record, update the language of that *to shared to the *lto value, e.g. /records/52557/
+		# 1549 shards; matches 1546 results for `SELECT recordId FROM catalogue_processed where field = 'lto';` plus three records (51402, 88661, 188949) which have multiple *to
+		#!# Not yet used in MARC conversion
+		$this->logger ('|-- In ' . __METHOD__ . ', retaining *to with relevant *lto');
+		$query = "
+			UPDATE transliterations
+			JOIN catalogue_processed ON transliterations.recordId = catalogue_processed.recordId
+			SET
+				language = value
+			WHERE
+				    catalogue_processed.field = 'lto'
+				AND transliterations.field = 'to'
+				AND catalogue_processed.topLevel = transliterations.topLevel
+		;";
+		$this->databaseConnection->query ($query);	// 1540 rows affected
+		$query = "UPDATE transliterations SET language = 'French' WHERE id = 88661 AND field = 'to' AND title_latin LIKE 'Voyage autour%';";	// Three records have multiple *to; 88661 is the only one of these three where the *to language varies
+		$this->databaseConnection->query ($query);
+		
+		#!# Add support for *nt (within *a, *al and *n), e.g. None/BGNRus/LOCRus/BGNYak
+		# E.g. /records/150203/ which has cases of *nt = 'None' (meaning do not transliterate fields at the same level of the hierarchy)
+		# E.g. /records/178377/ (test #729) and *nt = 'BGNRus' (which is an explicit override to whatever the language is, enabling Russian people in an English record to be handled properly)
+		# E.g. /records/102036/ (test #728); other values such as "BGNYak" should be ignored
+		$this->logger ('|-- In ' . __METHOD__ . ', applying *nt language values');
+		$this->applyNtLanguageValues ();
+		
+		# Delete non-Russian records
+		$query = "
+			DELETE FROM transliterations
+			WHERE language NOT LIKE BINARY '%Russian%' AND language NOT LIKE '%LOCRus%'
+		;";
+		$this->databaseConnection->query ($query);	// 1,054,823 rows affected, leaving 143,381
+		
+		# Exclude [Titles fully in brackets like this]
+		$this->logger ('|-- In ' . __METHOD__ . ', excluding titles fully in square brackets');
+		$query = "
+			DELETE FROM transliterations
+			WHERE
+				    LEFT (title_latin, 1) = '['
+				AND RIGHT(title_latin, 1) = ']'
+		;";
+		$this->databaseConnection->query ($query);	// 198 rows deleted
+		
+		# In the special case of the *pu field, clear out special tokens
+		$this->logger ('|-- In ' . __METHOD__ . ', clearing out special tokens in publisher entry');
+		$query = "
+			DELETE FROM transliterations
+			WHERE
+				    field = 'pu'
+				AND title_latin IN('[n.pub.]', 'n.pub.', '[n.p.]')
+		;";
+		$this->databaseConnection->query ($query);
+		
+		# For the *n1 field, clear out cases consisting of special tokens (e.g. 'Anon.') because no attempt has been made to add protected string support for name authority checking
+		# The records themselves (e.g. /records/6451/ ) are fine as these tokens are defined in the protected strings table so will be protected from transliteration
+		$this->logger ('|-- In ' . __METHOD__ . ', clearing out special tokens in *n1 entry');
+		$query = "
+			DELETE FROM transliterations
+			WHERE
+				    field IN('" . implode ("', '", $this->marcConversion->getTransliterationNameMatchingFields ()) . "')
+				AND title_latin IN('Anon.')
+		;";
+		$this->databaseConnection->query ($query);
+		
+		# In the special case of the *t field, add in *tt (translated title) where that exists
+		$this->logger ('|-- In ' . __METHOD__ . ', adding translated titles');
+		$query = "
+			UPDATE transliterations
+			LEFT JOIN catalogue_processed ON transliterations.recordId = catalogue_processed.recordId
+			SET title_latin_tt = value
+			WHERE
+				    catalogue_processed.field = 'tt'
+				AND transliterations.field = 't'
+				AND topLevel = 1
+		;";
+		$this->databaseConnection->query ($query);
+	}
+	
+	
+	# Subroutine to apply *nt values to their adjacent *n1/*n2/*nd values, done outside SQL as the xPathWithIndex is not yet available
+	private function applyNtLanguageValues ()
+	{
+		# Get all shards of all ~300 records which contain *nt, sorted backwards for easier subsequent looping (*nt is always after *n1/*n2/*nd)
+		$query = "
+			SELECT
+				catalogue_processed.id,
+				catalogue_processed.recordId,
+				catalogue_processed.field,
+				catalogue_processed.value
+			FROM catalogue_processed
+			LEFT JOIN fieldsindex ON catalogue_processed.recordId = fieldsindex.id
+			WHERE fieldslist LIKE '%@nt@%'
+			ORDER BY recordId DESC, line DESC
+		;";
+		$shards = $this->databaseConnection->getData ($query);
+		
+		# Regroup by record ID to make looping easier
+		$records = application::regroup ($shards, 'recordId', false);
+		
+		# For each record, loop through the shards (backwards) to find each *nt, and mark the immediate subsequent shards (before a space) as acquiring that *nt value for its language
+		$updates = array ();
+		foreach ($records as $shards) {
+			$language = NULL;
+			foreach ($shards as $shard) {
+				
+				# Switch on the language when found, and skip to next
+				if ($shard['field'] == 'nt') {
+					$language = $shard['value'];
+					continue;
+				}
+				
+				# Switch off the language when a container is reached, and skip to next
+				if (!strlen ($shard['value'])) {
+					$language = NULL;
+					continue;
+				}
+				
+				# If the language is on, assign it to the present shard
+				if ($language) {
+					$id = $shard['id'];
+					if ($language == 'BGNRus') {$language = 'Russian';}		// Rewrite token name
+					$updates[$id] = array ('language' => $language);
+				}
+			}
+		}
+		
+		# Apply the updates to the transliterations table
+		$this->databaseConnection->updateMany ($this->settings['database'], 'transliterations', $updates);
+	}
+	
+	
 	# Function to run the transliterations in the transliteration table; this never alters title_latin which should be set only in createTransliterationsTable, read from the post- second-pass XML records
 	private function transliterateTransliterationsTable ()
 	{
 		# Obtain the raw values, indexed by shard ID
-		$data = $this->databaseConnection->select ($this->settings['database'], 'transliterations', array (), array ('id', 'title_latin', 'lpt'));
+		#!# Need to see effect of removing LOCRus
+		$query = "SELECT id,title_latin,lpt FROM transliterations WHERE language != 'LOCRus';";
+		$data = $this->databaseConnection->getData ($query, "{$this->settings['database']}.transliterations");
 		
 		# Transliterate the strings (takes around 4 minutes)
 		$this->logger ('  |-- In ' . __METHOD__ . ', running transliterateBgnLatinToCyrillic');

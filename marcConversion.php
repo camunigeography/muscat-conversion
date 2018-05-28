@@ -82,6 +82,7 @@ class marcConversion
 		'ft',
 		'st',
 		'ta',
+		'to',	// Then stripped, except records with *lto
 	);
 	
 	# Define fields for transliteration name matching
