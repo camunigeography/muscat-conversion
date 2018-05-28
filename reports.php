@@ -116,6 +116,7 @@ class reports
 		'russianbracketedtitle_postmigration' => 'records marked *lang=Russian with a fully-bracketed title',
 		'russianldottitles_problem' => 'records (Russian) with L. in title to be checked individually, possibly resolving post-migration',
 		'paralleltitlemismatch_problem' => 'records (Russian) whose parallel title component count does not match that of the title',
+		'paralleltitlesync_problem' => 'records where parallel titles and *lpt presence are not in sync',
 		'emptyvalue_problem' => 'records with empty scalar values',
 		'sernotitle_problem' => '*ser records with no title',
 		'sernonuniquetitle_problem' => '*ser records whose title is not unique',
@@ -2662,6 +2663,28 @@ class reports
 				AND
 					(LENGTH( ExtractValue(xml, '/*/tg/t') )-LENGTH(REPLACE( ExtractValue(xml, '/*/tg/t') ,' = ','')))/LENGTH(' = ') !=
 					(LENGTH( ExtractValue(xml, '/*/tg/lpt') )-LENGTH(REPLACE( ExtractValue(xml, '/*/tg/lpt') ,' = ','')))/LENGTH(' = ')
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records where parallel titles and *lpt presence are not in sync
+	public function report_paralleltitlesync ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'paralleltitlesync' AS report,
+				recordId
+			FROM transliterations
+			WHERE
+				field = 't'
+				AND
+					(lpt IS NULL and title_latin LIKE '% = %')
+					OR
+					(lpt IS NOT NULL AND title_latin NOT LIKE '% = %')
 		";
 		
 		# Return the query
