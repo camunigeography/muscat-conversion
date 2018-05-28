@@ -706,28 +706,23 @@ class import
 		$sql = "ALTER TABLE catalogue_processed ADD preTransliterationUpgradeValue TEXT NULL DEFAULT NULL COMMENT 'Value before transliteration changes' AFTER xPathWithIndex;";
 		$this->databaseConnection->execute ($sql);
 		
-		# Add a field to contain the record language (first language); note that an *in or *j may also contain a *lang
-		$sql = "ALTER TABLE catalogue_processed ADD recordLanguage VARCHAR(255) NULL DEFAULT 'English' COMMENT 'Record language (first language)' AFTER preTransliterationUpgradeValue;";
+		# Add a field to contain the record language (first language); note that an *in or *j may also contain a *lang, so the top half should be used
+		$sql = "ALTER TABLE catalogue_processed ADD recordLanguage VARCHAR(255) NOT NULL DEFAULT 'English' COMMENT 'Record language (first language)' AFTER preTransliterationUpgradeValue;";
 		$this->databaseConnection->execute ($sql);
 		
-		# Set the record language (first language) for each shard
+		# Set the main (top-level) record language for each shard
 		$sql = "UPDATE catalogue_processed
 			LEFT JOIN (
-			    SELECT
-			        recordId,
-			        SUBSTRING_INDEX(languages, ',', 1) AS firstLanguage
-			    FROM (
-			        SELECT
-			            recordId,
-			            GROUP_CONCAT(value) AS languages
-			        FROM catalogue_rawdata
-			        WHERE field = 'lang'
-			        GROUP BY recordId
-					) AS recordLanguages
-				) AS firstLanguages
-				ON firstLanguages.recordId = catalogue_processed.recordId
-			SET catalogue_processed.recordLanguage = firstLanguage
-			WHERE firstLanguage IS NOT NULL		/* I.e. don't overwrite the default English where no *lang specified */
+				SELECT
+					recordId,
+					value AS mainLanguage
+				FROM catalogue_processed
+				WHERE field = 'lang'
+				AND topLevel = 1
+			) AS mainLanguages
+			ON mainLanguages.recordId = catalogue_processed.recordId
+			SET catalogue_processed.recordLanguage = mainLanguage
+			WHERE mainLanguage IS NOT NULL		/* I.e. don't overwrite the default English where no *lang specified */
 		;";
 		$this->databaseConnection->execute ($sql);
 		$this->databaseConnection->execute ("UPDATE catalogue_processed SET recordLanguage = REPLACE(recordLanguage, 'n^t', '" . chr(0xc3).chr(0xb1) . "');");	// Fix up special characters coming from catalogue_rawdata: In^tupiaq, In^tupiat
