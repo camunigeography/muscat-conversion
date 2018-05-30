@@ -2972,7 +2972,7 @@ generate500 prefix for */art/
 856 DOI appears also as URL
 2175
 856
-0023‡uhttp://dx.doi.org/10.1098
+0023‡uhttps://dx.doi.org/10.1098
 
 500
 In roleAndSiblings, *role (e.g. 'compiled by') is not subject to transliteration
