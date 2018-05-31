@@ -47,9 +47,9 @@ moreĭ = Register der
 
 5
 Use of " as a pseudo- word boundary character, so that "<em>...</em>" gets protected rather than result in e-dot; see: /reports/transliterateem/
-8690
+174305
 245
-parokhoda "Andrey Pervozvannyy" v
+v "Cantus Arcticus" Ė. Rautavaary
 
 6
 FIXME: Roman numerals followed by hyphen should not be transliterated
