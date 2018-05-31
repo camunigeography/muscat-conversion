@@ -37,7 +37,7 @@ SPRI-215073
 Ensure *lpt parsing
 8690
 245
-ch = Register
+moreĭ = Register der
 
 4
 500 should not have :,
