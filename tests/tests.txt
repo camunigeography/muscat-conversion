@@ -3647,16 +3647,16 @@ Society of Japan. Vol
 Suppression reason
 
 613
-917 Multiple supression reasons generates multiple 917 fields (test part 1)
+917 Multiple supression reasons generates multiple 917 fields
 1122
 917
 ‡aSuppression reason: EXPLICIT-SUPPRESS (
 
 614
-917 Multiple supression reasons generates multiple 917 fields (test part 2)
-1122
+917 not repeatable, so multiple subfields on one line
+1331
 917
-‡aSuppression reason: OFFPRINT-OR-PHOTOCOPY (
+‡aUnenhanced record from Muscat, imported 2018 ‡aSuppression reason
 
 615
 917 Supression explanation present

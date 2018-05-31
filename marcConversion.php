@@ -3491,10 +3491,10 @@ class marcConversion
 			$resultLines[] = 'Suppression reason: ' . $suppressReason . ' (' . $this->suppressionScenarios[$suppressReason][0] . ')';
 		}
 		
-		# Implode the list, e.g. /records/1122/ (tests #613 and #614)
-		$result = implode ("\n" . "917 ## {$this->doubleDagger}a", $resultLines);
+		# Implode the list, e.g. /records/1122/ (tests #613; no test for multiple, as no data, but verified manually that this works)
+		$result = implode (" {$this->doubleDagger}a", $resultLines);
 		
-		# Return the result line/multiline, e.g. /records/1026/ (test #611)
+		# Return the result line, e.g. /records/1026/ (test #611)
 		return $result;
 	}
 	
