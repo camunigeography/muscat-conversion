@@ -4230,7 +4230,7 @@ Printout
 
 719
 Anonymous is protected string in transliteration
-186227
+1571
 880
 ‡aAnonymous.
 
