@@ -4400,7 +4400,7 @@ ISBN support for X check digit
 008 position 33 *art/*j is not a continuing resource, but an article therefore should be treated as 'Book' type of 008, thus gets 0 (see also #742, #746)
 20557
 008
-/^.{33}\|\|/
+/^.{33}0/
 
 752
 Horizontal repeatability gets space between tokens
