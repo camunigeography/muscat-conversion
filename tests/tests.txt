@@ -52,13 +52,13 @@ Use of " as a pseudo- word boundary character, so that "<em>...</em>" gets prote
 v "Cantus Arcticus" Ė. Rautavaary
 
 6
-FIXME: Roman numerals followed by hyphen should not be transliterated
+Roman numerals followed by hyphen should not be transliterated (implementation pending)
 206607
 880
 XVII-
 
 7
-FIXME: Roman numerals followed by hyphen should not be transliterated
+Roman numerals followed by hyphen should not be transliterated (implementation pending)
 143341
 880
 XXI-
