@@ -2700,9 +2700,9 @@ Macro generate490 add *vno to existing $v (see also #453)
 
 454
 Macro generate490 $a with $v trailing dot
-3748
+20040
 490
-Otdel ;‡vTom 1.
+Pub ;‡vNo
 
 455
 Macro generate490 $a normalise space before semicolon

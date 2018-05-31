@@ -2336,11 +2336,11 @@ class marcConversion
 		# Deal with optional volume number, e.g. /records/31402/ (test #704)
 		if (strlen ($volumeNumber)) {
 			
-			# Strip any trailing ,. character in $a, and re-trim, e.g. /records/3748/ (test #454)
+			# Strip any trailing ,. character in $a, and re-trim, e.g. /records/20040/ (test #454)
 			$string = preg_replace ('/^(.+)[.,]$/', '\1', $string);
 			$string = trim ($string);
 			
-			# Add space-semicolon before $v if not already present, e.g. /records/3748/ (test #454)
+			# Add space-semicolon before $v if not already present, e.g. /records/20040/ (test #454)
 			if (mb_substr ($string, -1) != ';') {	// Normalise to end ";"
 				$string .= ' ;';
 			}
