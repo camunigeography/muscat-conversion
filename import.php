@@ -2494,7 +2494,7 @@ class import
 		# NB Unfortunately CASE does not seem to support compound statements, so these three statements are basically a CASE in reverse; see: http://stackoverflow.com/a/18170014/180733
 		
 		# Default to migrate
-		$query = "UPDATE catalogue_marc SET status = 'migrate';";
+		$query = "UPDATE catalogue_marc SET status = 'migrate', suppressReasons = NULL;";
 		$this->databaseConnection->execute ($query);
 		
 		# Records to suppress
