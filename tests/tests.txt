@@ -2984,7 +2984,7 @@ In roleAndSiblings, *role (e.g. 'compiled by') is not subject to transliteration
 {1|7}xx should be created but contents should not be transliterated when *nt = None present for author (implementation pending) (see also #502)
 151048
 700
-Gorman, Michael R.
+/^Gorman, Michael R.$/
 
 502
 880-{1|7}xx not generated when *nt = None present for author (implementation pending), because the {1|7}xx is Latin characters (see also #501)
