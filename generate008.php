@@ -87,8 +87,8 @@ class generate008
 		# 11-14: if 06 is 'u', 11-14 contain second year in *r (if *r contains no year or no second year in a "1990-" -style range, 11-14 contain 'uuuu');
 		if ($this->recordType == '/ser') {
 			
-			# For continuing serials, e.g. ends with "1990-", there is no end date
-			# E.g. /records/1036/ (test #9)
+			# For continuing serials, e.g. ends with "1976-", there is no end date
+			# E.g. /records/1008/ (test #9)
 			if ($hasYear && preg_match ('/-$/', $yearString)) {		// $hasYear check to catch /records/177897/ which has "undated-" (test #10); will not cause problems for e.g. /records/145353/ which has "1997/98-" (test #11), /records/57312/ which has "1977?-" (test #12), or /records/19832/ which has "1945-73, 89-" (test #13) - they will get the first four-digit year as intended
 				return 'u' . $yearMatches[1] . 'uuuu';
 			}

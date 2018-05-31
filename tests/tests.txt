@@ -70,10 +70,10 @@ Unescape Muscat escaped asterisks @*
 (*495)
 
 9
-008 position 06-14 continuing serials e.g. 1990-
-1036
+008 position 06-14 continuing serials e.g. 1976-
+1008
 008
-u1964uuuu
+u1976uuuu
 
 10
 008 position 06-14 "Undated-"
