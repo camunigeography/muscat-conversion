@@ -3854,7 +3854,7 @@ SUPPRESS
 852 ambiguous location codes get a ‡c qualifier except SPRI-SER/SPRI-SHF/SPRI-PAM
 211109
 852
-‡cSPRI-SER ‡h144 B
+‡cSPRI-SER ‡zSee related
 
 658
 852 non-ambiguous location codes do not get ‡c qualifier
