@@ -1526,7 +1526,7 @@ MARC parser XPath check
 MARC parser horizontal repeatability check
 1010
 876
-‡zAvailable online‡zLibrary holds
+‡zAvailable online ‡zLibrary holds
 
 253
 MARC parser vertical repeatability check
@@ -4402,4 +4402,8 @@ ISBN support for X check digit
 008
 /^.{33}\|\|/
 
-
+752
+Horizontal repeatability gets space between tokens
+1010
+876
+articles only ‡zSome items

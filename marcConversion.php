@@ -754,9 +754,9 @@ class marcConversion
 						$value = array_unique ($value);		// Key numbering may now have holes, but the next operation is imploding anyway
 					}
 					
-					# If horizontally-repeatable, compile with the subfield indicator as the implode string
+					# If horizontally-repeatable, compile with the subfield indicator as the implode string, including a space for clarity, e.g. /records/1010/ (test #752)
 					if ($isHorizontallyRepeatable) {
-						$value = implode ($xpathReplacementSpec['horizontalRepeatability'], $value);
+						$value = implode (' ' . $xpathReplacementSpec['horizontalRepeatability'], $value);
 					}
 					
 					# Register the processed value
