@@ -63,6 +63,11 @@
 		php_value memory_limit 1000M
 	</Location>
 	
+	# Cookie setting
+	<Location $baseUrl/marcparser.html>
+		php_value output_buffering 65536
+	</Location>
+	
 	# Output files
 	AddType text/plain .mrk
 	RewriteRule $baseUrl/export/spri-marc-(migrate|suppress|ignore)\.(txt|mrk|mrc|mrc.zip|errors.txt)$ $baseUrl/spri-marc-$1.$2
