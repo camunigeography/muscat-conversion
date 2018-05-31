@@ -4407,3 +4407,17 @@ Horizontal repeatability gets space between tokens
 1010
 876
 articles only ‡zSome items
+
+753
+866 multiple ‡x
+3339
+866
+22(1-6) ‡x(New series)
+
+754
+866 both ‡a and ‡x
+3339
+866
+‡a1855-92 ‡x1(1-11)
+
+

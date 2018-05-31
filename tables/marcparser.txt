@@ -44,8 +44,7 @@ AR 780 10 ‡t{//ft}
 AR 785 10 ‡t{//st}
 A  852 7# {/*|macro:generate852}
 E  856 i{/*|macro:ifElse(//url/urlgen,4,#)}0 ‡u?R{//doi/doifld|macro:prepend(urn:doi:)}‡u?R{//doi/doifld|macro:prepend(https://dx.doi.org/)}‡u?R{//url/urlgen|macro:idnConversion}
-AR 866 #0 ‡x{//hold}
-AR 866 #0 ‡a{//r}
+E  866 #0 ‡aR{//r} ‡xR{//hold}
 E  876 ## ‡xR{//notes/priv} ‡zR{//notes/local}
 A  880 {/*|macro:generateAuthors(100,transliterated)|macro:880subfield6(100)}
 A  880 {/*|macro:generateAuthors(110,transliterated)|macro:880subfield6(110)}
