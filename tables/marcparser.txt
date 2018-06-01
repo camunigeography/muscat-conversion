@@ -10,9 +10,9 @@ A  035 ## ‡aSPRI-{/q0}
 A  035 ## ‡aVoyagerBelievedMatch-{/ser/k2/kc}
 A  040 ## ‡aUkCU-P‡beng‡eaacr
 A  041 i{'0'|macro:languages041(true)}# ‡a{/.|macro:languages041}
-A  100 {/*|macro:generateAuthors(100)}
-A  110 {/*|macro:generateAuthors(110)}
-A  111 {/*|macro:generateAuthors(111)}
+A  100 {/*|macro:authorsField(100)}
+A  110 {/*|macro:authorsField(110)}
+A  111 {/*|macro:authorsField(111)}
 A  240 1i{//tg/to[1]|macro:nfCount} ‡a{//tg/to[1]}
 A  242 i{'0'|macro:indicator1xxPresent(1)}i{/*/tg/tt|macro:nfCount(English)} ‡a{/*/tg/tt|macro:colonSplit(b)} ‡y{'eng'|macro:ifValue(/*/tg/tt)}
 A  245 {/|macro:generate245}
@@ -35,10 +35,10 @@ AR 583 ## {/|macro:generate583}
 AR 650 07 ‡2{//k/ks|macro:isNotRoundBracketed|macro:addLookedupKsValue|macro:dotEnd}
 AR 650 07 ‡2{//rpl|macro:lookupRplValue|macro:dotEnd}
 AR 651 #7 ‡2{//k/ks|macro:isRoundBracketed|macro:addLookedupKsValue|macro:dotEnd}
-A  700 {/*|macro:generateAuthors(700)}
+A  700 {/*|macro:authorsField(700)}
 AR 700 {//notes/note|macro:contentNote700}
-A  710 {/*|macro:generateAuthors(710)}
-A  711 {/*|macro:generateAuthors(711)}
+A  710 {/*|macro:authorsField(710)}
+A  711 {/*|macro:authorsField(711)}
 A  773 0# {/|macro:generate773}
 AR 780 10 ‡t{//ft}
 AR 785 10 ‡t{//st}
@@ -46,16 +46,16 @@ A  852 7# {/*|macro:generate852}
 E  856 i{/*|macro:ifElse(//url/urlgen,4,#)}0 ‡u?R{//doi/doifld|macro:prepend(urn:doi:)}‡u?R{//doi/doifld|macro:prepend(https://dx.doi.org/)}‡u?R{//url/urlgen|macro:idnConversion}
 E  866 #0 ‡aR{//r} ‡xR{//hold}
 E  876 ## ‡xR{//notes/priv} ‡zR{//notes/local}
-A  880 {/*|macro:generateAuthors(100,transliterated)|macro:880subfield6(100)}
-A  880 {/*|macro:generateAuthors(110,transliterated)|macro:880subfield6(110)}
-A  880 {/*|macro:generateAuthors(111,transliterated)|macro:880subfield6(111)}
+A  880 {/*|macro:authorsField(100,transliterated)|macro:880subfield6(100)}
+A  880 {/*|macro:authorsField(110,transliterated)|macro:880subfield6(110)}
+A  880 {/*|macro:authorsField(111,transliterated)|macro:880subfield6(111)}
 A  880 {/*|macro:generate245(transliterated)|macro:880subfield6(245)}
 A  880 ## {/*|macro:generate260(transliterated)|macro:880subfield6(260)}
 #AR 880 3# ‡a{//tg/ta|macro:colonSplit(b)|macro:transliterate|macro:880subfield6(246)}
 A  880 0# {//ts|macro:generate490|macro:transliterateSubfields(a)|macro:880subfield6(490)}
-A  880 {/*|macro:generateAuthors(700,transliterated)|macro:880subfield6(700)}
-A  880 {/*|macro:generateAuthors(710,transliterated)|macro:880subfield6(710)}
-A  880 {/*|macro:generateAuthors(711,transliterated)|macro:880subfield6(711)}
+A  880 {/*|macro:authorsField(700,transliterated)|macro:880subfield6(700)}
+A  880 {/*|macro:authorsField(710,transliterated)|macro:880subfield6(710)}
+A  880 {/*|macro:authorsField(711,transliterated)|macro:880subfield6(711)}
 A  916 ## ‡a{/*|macro:generate916}
 E  917 ## ‡a{'TEST RECORD FROM MUSCAT ITERATION 1'} ‡a{'Unenhanced record from Muscat, imported 2018'} ‡aR{/|macro:showSuppressionReason}
 E  948 3# ‡a{/*|macro:migrationDate} ‡b{/|macro:multipleValues(//recr)|macro:implode(, )} ‡d{/*|macro:cataloguingStatus}

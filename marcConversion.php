@@ -2080,7 +2080,7 @@ class marcConversion
 	
 	
 	# Macro for generating an authors field, e.g. 100; tests have full coverage as noted in the generateAuthors class
-	private function macro_generateAuthors ($value, $arg)
+	private function macro_authorsField ($value, $arg)
 	{
 		# Parse the arguments
 		$fieldNumber = $arg;	// Default single argument representing the field number
