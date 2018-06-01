@@ -683,7 +683,7 @@ In generate other entities phase of authors, ensure second author in a *ser does
 *
 
 111
-Ensure field code does not appear twice in generate other entities phase of authors
+Ensure field code does not appear again (in the line itself) in generate other entities phase of authors
 1127
 !700
  700
@@ -2525,13 +2525,13 @@ Macro 880subfield6 incoming multiline results in multiple 880 entries
 ‡6 700-07 ‡aВтюрин, Борис.‡t
 
 425
-Macro 880subfield6 mutated 71x amongst other 7xx remains in order: 710 field (see also next test)
+Macro 880subfield6 mutated 71x amongst other 7xx is reordered: 710 field (see also next test)
 68500
 880
-‡6 710-06 ‡aАыталын.
+‡6 710-08 ‡aАыталын.
 
 426
-Macro 880subfield6 mutated 71x amongst other 7xx remains in order: field following 710 (see also previous test)
+Macro 880subfield6 mutated 71x amongst other 7xx is reordered: field before 710 (see also previous test)
 68500
 880
 ‡6 700-07 ‡a
@@ -4419,5 +4419,23 @@ articles only ‡zSome items
 3339
 866
 ‡a1855-92 ‡x1(1-11)
+
+755
+710 in middle of block of 700s is properly mutated into 710
+16272
+710
+‡aGrey Owl.
+
+756
+{1|7}xx basic multiline test
+2295
+700
+/^‡aSonnini, C. S.,/
+
+757
+{1|7}xx basic test that no lines for field in generateAuthors registry generates no result line for that field
+178377
+!711
+*
 
 

@@ -114,9 +114,9 @@ class generate245
 	private function recordHas1xxField ($authorsFields)
 	{
 		# Determine if any 1XX field has a value
-		foreach ($authorsFields['default'] as $marcCode => $value) {
+		foreach ($authorsFields['default'] as $marcCode => $lines) {
 			if (preg_match ('/^1/', $marcCode)) {	// Consider only 1XX fields
-				if (strlen ($value)) {
+				if ($lines) {
 					return true;
 				}
 			}

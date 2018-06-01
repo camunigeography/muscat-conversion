@@ -1674,7 +1674,7 @@ class marcConversion
 	private function macro_indicator1xxPresent ($defaultValue, $setValueIfAuthorsPresent)
 	{
 		# If authors field present, return the new value; e.g. /records/1257/ (test #366)
-		if (strlen ($this->authorsFields['default'][100]) || strlen ($this->authorsFields['default'][110]) || strlen ($this->authorsFields['default'][111])) {
+		if ($this->authorsFields['default'][100] || $this->authorsFields['default'][110] || $this->authorsFields['default'][111]) {
 			return $setValueIfAuthorsPresent;
 		}
 		
@@ -2092,8 +2092,11 @@ class marcConversion
 			if (!$languageMode = $this->getTransliterationLanguage ($this->xml)) {return false;}
 		}
 		
-		# Return the value (which may be false, meaning no field should be created)
-		return $this->authorsFields[$languageMode][$fieldNumber];
+		# Compile the value, to a multiline if required, e.g. /records/2295/ (test #756), or false for no lines (e.g. /records/178377/ (test #757))
+		$string = ($this->authorsFields[$languageMode][$fieldNumber] ? implode ("\n{$fieldNumber} ", $this->authorsFields[$languageMode][$fieldNumber]) : false);
+		
+		# Return the value, which may be a multiline, e.g. /records/2295/ (test #756), or may be false (meaning no field should be created) (e.g. /records/178377/ (test #757))
+		return $string;
 	}
 	
 	

@@ -104,10 +104,10 @@ class generateAuthors
 		# Process both normal and transliterated modes
 		foreach ($this->languageModes as $languageMode) {
 			
-			# Initialise all fields
+			# Initialise all fields, creating an empty array for each, into which lines can be registered
 			$fields = array (100, 110, 111, 700, 710, 711);
 			foreach ($fields as $field) {
-				$this->values[$languageMode][$field] = false;
+				$this->values[$languageMode][$field] = array ();
 			}
 			
 			# For the non-default language mode, if the current language mode does not match a language of the record, skip processing
@@ -150,7 +150,7 @@ class generateAuthors
 		#   *art/in with /art/in/ag/ but not /art/ag like /records/45318/ will not match (same as test #70)
 		#   *art/j   like /records/1109/ will match (test #71)
 		if (!$a = $this->marcConversion->xPathValue ($this->mainRecordXml, '//ag[parent::doc|parent::art]/a')) {
-			return false;	// The entry in $this->values for this field will be left as when initialised, i.e. false
+			return false;	// The entry in $this->values for this field will be left as when initialised, i.e. an empty array
 		}
 		
 		# Do the classification
@@ -166,7 +166,7 @@ class generateAuthors
 		$line = $this->marcConversion->macro_dotEnd ($line, $extendedCharacterList = true);
 		
 		# Write the value into the values registry
-		$this->values[$this->languageMode][$this->field] = $line;
+		$this->values[$this->languageMode][$this->field][] = $line;
 	}
 	
 	
@@ -191,10 +191,9 @@ class generateAuthors
 	 * - Every 700 has a fixed string ", ‡5 UkCU-P." at the end (representing the Institution to which field applies)
 	 * 
 	 * Handling of multiple entries:
-	 * - If there are multiple entries, e.g. 700 [...], 700 [...], 710 [...], 700 [...], etc., these are then exploded as new lines
+	 * - However many entries there are, each line is registered against the field number; the client code can then implode these into a multiline
 	 * - After each line is registered, the field number is reset to 700 to ensure that a switch to say 710 is not leaky into the next entry
-	 * - The resulting multiline string is 'hooked onto' the first one in the list; e.g. 710 [...], 700 [...], 700 [...] results in this attached to $this->values[$this->languageMode][710] as that is the first
-	 * - The ordering of 7xx fields does correctly reflect the record order; it is not problematic that a MARC record can have ordering such as 710,700,700,710,711,700 for instance
+	 * - The ordering of 7xx fields ends up in numerical order, e.g. authorA then authorB may become 700 authorB then 710 authorA
 	 */
 	private function generateOtherEntities ($languageMode)
 	{
@@ -209,36 +208,30 @@ class generateAuthors
 		
 		# End if no lines
 		if (!$lines) {
-			return false;		// The entry in $this->values[$this->languageMode] for this field will be left as when initialised, i.e. false
+			return false;		// The entry in $this->values[$this->languageMode] for this field will be left as when initialised, i.e. an empty array
 		}
 		
 		# Subfield ‡u, if present, needs to go before subfield ‡e (test #90)
 		foreach ($lines as $index => $line) {
-			$lines[$index] = $this->shiftSubfieldU ($line);
+			$lines[$index]['line'] = $this->shiftSubfieldU ($line['line']);
 		}
 		
-		# Pass each line through the transliterator if required (test #108)
+		# Pass each line through the transliterator if required (test #108, #109)
 		foreach ($lines as $index => $line) {
-			$fieldNumber = (preg_match ('/^([0-9]{3}) /', $line, $matches) ? $matches[1] : $this->field);	// Line 1 will use the native field number, but any subsequent lines in a multiline will have a field number added the start (test #109)
-			$lines[$index] = $this->marcConversion->macro_transliterateSubfields ($line, $this->transliterableSubfields[$fieldNumber], $errorString_ignored, $languageMode);
+			$fieldNumber = $line['field'];
+			$lines[$index]['line'] = $this->marcConversion->macro_transliterateSubfields ($line['line'], $this->transliterableSubfields[$fieldNumber], $errorString_ignored, $languageMode);
 		}
 		
 		# Ensure each line ends with punctuation; e.g. /records/7463/ (tests #81 and #82)
 		foreach ($lines as $index => $line) {
-			$lines[$index] = $this->marcConversion->macro_dotEnd ($line, $extendedCharacterList = true);
+			$lines[$index]['line'] = $this->marcConversion->macro_dotEnd ($line['line'], $extendedCharacterList = true);
 		}
 		
-		# Implode the lines
-		$value = implode ("\n", $lines);
-		
-		# As a special-case, remove the field code from the first line, as the $this->field number will be already present in the MARC parser definition, e.g. /records/1127/ (test #111)
-		#!# This can corrupt the field number - e.g. /records/16272/ generates a 710 for Grey Owl (which may itself be wrong) but that gets chopped back to a 700
-		if (preg_match ('/^([0-9]{3} )/', $value)) {
-			$value = mb_substr ($value, 4);	// I.e. chop first four characters, e.g. "700 "
+		# Write the values, into the values registry; the field number is not part of the line itself, e.g. /records/1127/ (test #111)
+		foreach ($lines as $line) {
+			$fieldNumber = $line['field'];
+			$this->values[$this->languageMode][$fieldNumber][] = $line['line'];
 		}
-		
-		# Write the value, which may be a special multiline string, into the values registry
-		$this->values[$this->languageMode][$this->field] = $value;
 	}
 	
 	
@@ -248,13 +241,17 @@ class generateAuthors
 		# Assume 700 by default
 		$this->field = 700;
 		
-		# Start a list of 700 line values
+		# Start a list of 700 line values; these are tuples as array(field,line); these are indexed numerically, rather than associatively as field=>line, as there may be more than one field instance
+		# NB The client code (not this registry) then handles multiline, so that e.g. a 710 doesn't get stuck amongst 700s, e.g. /records/16272/ (test #755)
+		# It is considered acceptable that the order therefore does not necessary stay the same, i.e. authorA then authorB may become 700 authorB then 710 authorA; this is probably more logical anyway in that the MARC field order then remains correct rather than e.g. 700 710 700; this is not defined at https://www.loc.gov/marc/specifications/specrecstruc.html#varifields
 		$lines = array ();
 		
 		# If there is already a 700 field arising from generateFirstEntity, which will be a standard scalar string, register this first by transfering it into the lines format and resetting the 700 registry (test #109)
 		if ($this->values[$this->languageMode][700]) {
-			$lines[] = $this->values[$this->languageMode][700];
-			$this->values[$this->languageMode][700] = false;		// Reset
+			foreach ($this->values[$this->languageMode][700] as $line) {
+				$lines[] = array ('field' => 700, 'line' => $line);
+			}
+			$this->values[$this->languageMode][700] = array ();		// Reset
 		}
 		
 		# Check it is *doc/*ag or *art/*ag (i.e. ignore *ser records), e.g. /records/107192/ (test #110)
@@ -280,8 +277,8 @@ class generateAuthors
 				# Obtain the value
 				$line = $this->main ($this->mainRecordXml, "/*/ag[$agIndex]/a[{$aIndex}]", 700);
 				
-				# Register the line, adding the field code, which may have been modified in main(), e.g. /records/1127/ (test #114)
-				$lines[] = $this->field . ' ' . $line;
+				# Register the line, setting the field code, which may have been modified in main(), e.g. /records/1127/ (test #114)
+				$lines[] = array ('field' => $this->field, 'line' => $line);
 				
 				# Next *a, e.g. /records/132356/ (test #115)
 				$aIndex++;
@@ -300,8 +297,8 @@ class generateAuthors
 					$line .= "{$this->doubleDagger}g" . '(alternative name)';
 				}
 				
-				# Register the line, adding the field code, which may have been modified in main()
-				$lines[] = $this->field . ' ' . $line;
+				# Register the line, setting the field code, which may have been modified in main()
+				$lines[] = array ('field' => $this->field, 'line' => $line);
 				
 				# Next *al, e.g. /records/29234/ (test #117)
 				$alIndex++;
@@ -332,9 +329,9 @@ class generateAuthors
 				# In the case of each *e/*n, *role, with Relator Term lookup substitution, is incorporated; e.g. /records/47079/ (test #85) ; this is done inside classifyAdField ()
 				$line = $this->main ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]", 700);
 				
-				# Register the line, if it has resulted in a line, adding the field code, which may have been modified in main()
+				# Register the line, if it has resulted in a line, setting the field code, which may have been modified in main()
 				if ($line) {	// E.g. /records/8988/ which has "others" should not result in a line for /*/e[1]/n[2] due to classifyN1Field having "return false" (test #86)
-					$lines[] = $this->field . ' ' . $line;
+					$lines[] = array ('field' => $this->field, 'line' => $line);
 				}
 				
 				# Next *n, e.g. /records/2295/ (test #120)
@@ -362,8 +359,8 @@ class generateAuthors
 					$line  = $this->marcConversion->macro_dotEnd ($line, $extendedCharacterList = '?.-)');		// (test #89) e.g. /records/9843/ , /records/13620/ ; "700: Subfield _t must be preceded by a question mark, full stop, hyphen or closing parenthesis."
 					$line .= "{$this->doubleDagger}t" . $this->marcConversion->xPathValue ($childRecordXml, '/*/tg/t');
 					
-					# Register the line, adding the field code, which may have been modified in main()
-					$lines[] = $this->field . ' ' . $line;
+					# Register the line, setting the field code, which may have been modified in main()
+					$lines[] = array ('field' => $this->field, 'line' => $line);
 				}
 			}
 		}
