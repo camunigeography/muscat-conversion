@@ -2218,7 +2218,7 @@ class marcConversion
 		}
 		
 		# Implement subfield $b; examples given in the function; e.g. /records/3887/ (test #434), /records/7017/ (has multiple *ee and multiple *n within this) (test #435)
-		if ($b = $this->generate250b ($value, $this->xml, $ignored, $this->authorsFields)) {
+		if ($b = $this->generate250b ($value, $this->xml)) {
 			$subfields[] = "/{$this->doubleDagger}b" . $b;	# Bibcheck notes that space-slash ( /) is required (as shown in the MARC spec), e.g. /records/3421/ (test #567)
 		}
 		
