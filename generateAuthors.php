@@ -259,7 +259,7 @@ class generateAuthors
 		
 		# Check it is *doc/*ag or *art/*ag (i.e. ignore *ser records), e.g. /records/107192/ (test #110)
 		# After this point, the only looping is through top-level *a* fields, e.g. /*/ag but not /*/in/ag
-		if ($ser = $this->marcConversion->xPathValue ($this->mainRecordXml, '/ser')) {
+		if ($this->marcConversion->xPathValue ($this->mainRecordXml, '/ser')) {
 			return $lines;
 		}
 		
