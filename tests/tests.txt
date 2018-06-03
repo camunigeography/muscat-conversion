@@ -4298,7 +4298,7 @@ Ermolaev, Rafaėlʹ Dmitrievich
 *nt = None (in a Russian record) should not result in an associated 880 at all (see also previous test and #54)
 178377
 !880
-*
+‡6 100-03
 
 731
 Contents note not created for notes not starting with "Contents: "
