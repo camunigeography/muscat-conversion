@@ -3704,7 +3704,7 @@ SUPPRESS
 852 with multiple locations
 3959
 852
-‡2camdept ‡bSCO ‡cSPRI-PAM ‡h91(08) : (*3)[1871 Weyprecht and Payer]
+‡2camdept ‡bSCO ‡cSPRI-SPC ‡hPamphlet Boxes Breitfuss 91(08) : (*3)[1871 Weyprecht and Payer]
 
 623
 852 has camdept as source
