@@ -3486,9 +3486,9 @@ co#|g|||||||||
 
 586
 916 *acc groups are separated by semicolon
-3959
+3776
 916
-‡a8363 -- 1951/07/31; 22399 -- 1958/09/03
+‡a201 -- 1947/04/14; 30409 -- 1962/12/19
 
 587
 505 Contents note - Basic format
