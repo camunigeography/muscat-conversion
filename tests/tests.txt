@@ -341,7 +341,7 @@ English-name author should not result in an 880 transliteration (implementation 
 Доwдесwелл, J. А.
 
 54
-English-name author should not be transliterated (880-245) when *nt = None
+English-name author should not be transliterated in 880-245 when *nt = None
 151048
 880
 J.A. Dowdeswell,
@@ -2984,7 +2984,7 @@ In roleAndSiblings, *role (e.g. 'compiled by') is not subject to transliteration
 {1|7}xx should be created but contents should not be transliterated when *nt = None present for author (implementation pending) (see also #502)
 151048
 700
-/^Gorman, Michael R.$/
+/^‡aGorman, Michael R.$/
 
 502
 880-{1|7}xx not generated when *nt = None present for author (implementation pending), because the {1|7}xx is Latin characters (see also #501)
