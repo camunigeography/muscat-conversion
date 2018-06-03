@@ -2540,12 +2540,12 @@ Macro 880subfield6 mutated 71x amongst other 7xx is reordered: field before 710 
 Macro 880subfield6 multiline can go into double-digits: target (see also next test)
 150141
 880
-‡6 710-11 ‡a
+‡6 700-11 ‡a
 
 428
 Macro 880subfield6 multiline can go into double-digits: source (see also previous test)
 150141
-710
+700
 ‡6 880-11 ‡a
 
 429
