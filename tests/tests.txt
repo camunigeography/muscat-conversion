@@ -326,7 +326,7 @@ compiled by И.Л. Жеребцов
 Cyrillic should not contain a ligature in 880-700 (e.g. from transliterating "Zherebt͡sov")
 1844
 880
-700-04 ‡aЖеребцов, И. Л.,‡ecompiler
+‡6700-04‡aЖеребцов, И. Л.,‡ecompiler
 
 52
 Ensure 'Anon.' is treated as a transliterated protected string
@@ -662,7 +662,7 @@ In author handling, support substring match (e.g. 'Translated from the Icelandic
 100 ‡a transliteration results in 880
 6653
 880
-100-01 ‡aБогданович, К. И.
+‡6100-01‡aБогданович, К. И.
 
 108
 700 ‡a transliteration in Russian record results in 880
@@ -1388,19 +1388,19 @@ SPRI-1061
 Leader byte count
 1003
 LDR
-01053
+01049
 
 230
 880 link reciprocality (see also next test)
 1062
 245
-‡6 880-01
+‡6880-01
 
 231
 880 link reciprocality (see also previous test)
 1062
 880
-‡6 245-01
+‡6245-01
 
 232
 Merging with a field not present in either
@@ -1586,13 +1586,13 @@ MARC parser check that trailing space is trimmed
 MARC parser check of records with insertion of reciprocal 880 marker at start of source lines: multiline reassembly
 1697
 700
-/^‡6 880-0[1-9] ‡aUrsov/
+/^‡6880-0[1-9]‡aUrsov/
 
 263
 MARC parser check of records with insertion of reciprocal 880 marker at start of source line: standard line
 2800
 260
-/^‡6 880-0[1-9] ‡aParis/
+/^‡6880-0[1-9]‡aParis/
 
 264
 Italic stripping in final MARC record
@@ -2258,13 +2258,13 @@ i041
 Macro transliterateSubfields basic functionality sees subfield transliterated
 35733
 880
-‡6 490-04 ‡aЖизнь замечательных людей ;‡vVypusk 19
+‡6490-04‡aЖизнь замечательных людей ;‡vVypusk 19
 
 382
 Macro transliterateSubfields single subfield only present and in scope
 1406
 880
-/‡6 490-04 ‡aШкольная Библиотека$/
+/‡6490-04‡aШкольная Библиотека$/
 
 383
 Macro transliterateSubfields ends without result if language not supported
@@ -2276,7 +2276,7 @@ Macro transliterateSubfields ends without result if language not supported
 Test of tokeniseToSubfields subroutine
 35733
 880
-‡6 490-04 ‡aЖизнь замечательных людей ;‡vVypusk 19
+‡6490-04‡aЖизнь замечательных людей ;‡vVypusk 19
 
 385
 Leader position 06: with *form (Videorecording)
@@ -2522,31 +2522,31 @@ Macro 880subfield6 ends if no value
 Macro 880subfield6 incoming multiline results in multiple 880 entries
 162152
 880
-‡6 700-07 ‡aВтюрин, Борис.‡t
+‡6700-07‡aВтюрин, Борис.‡t
 
 425
 Macro 880subfield6 mutated 71x amongst other 7xx is reordered: 710 field (see also next test)
 68500
 880
-‡6 710-08 ‡aАыталын.
+‡6710-08‡aАыталын.
 
 426
 Macro 880subfield6 mutated 71x amongst other 7xx is reordered: field before 710 (see also previous test)
 68500
 880
-‡6 700-07 ‡a
+‡6700-07‡a
 
 427
 Macro 880subfield6 multiline can go into double-digits: target (see also next test)
 150141
 880
-‡6 700-11 ‡a
+‡6700-11‡a
 
 428
 Macro 880subfield6 multiline can go into double-digits: source (see also previous test)
 150141
 700
-‡6 880-11 ‡a
+‡6880-11‡a
 
 429
 Macro 880subfield6 multiline retains correct indicators in middle (here testing 710-11, though not a very robust test)
@@ -2558,19 +2558,19 @@ i880
 Macro 880subfield6 single line
 150141
 880
-‡6 490-03 ‡
+‡6490-03‡
 
 431
 Macro 880subfield6 has zero padding when single digit
 150141
 880
-‡6 700-04 ‡
+‡6700-04‡
 
 432
-Macro 880subfield6 adds space for clarity after ‡6
+Macro 880subfield6 does not add space after ‡6 marker
 150141
 880
-‡6 700-04
+‡6700-04
 
 433
 Macro generate250 ‡a
@@ -4298,7 +4298,7 @@ Ermolaev, Rafaėlʹ Dmitrievich
 *nt = None (in a Russian record) should not result in an associated 880 at all (see also previous test and #54)
 178377
 !880
-‡6 100-03
+‡6100-03
 
 731
 Contents note not created for notes not starting with "Contents: "
@@ -4438,4 +4438,8 @@ articles only ‡zSome items
 !711
 *
 
-
+758
+‡6880-xx‡.. should not have space after the ‡6 or before the following subfield
+22095
+880
+‡6100-01‡

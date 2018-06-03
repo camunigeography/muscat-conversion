@@ -303,10 +303,10 @@ class marcConversion
 			// Leave the record visible rather than return false
 		}
 		
-		# Do a check to report any case where a where 880 fields do not have both a field (starting validly with a $6) and a link back; e.g. /records/1062/ has "245 ## ‡6 880-01" and "880 ## ‡6 245-01" (test #230)
-		preg_match_all ("/^880 [0-9#]{2} {$this->doubleDagger}6 /m", $record, $matches);
+		# Do a check to report any case where a where 880 fields do not have both a field (starting validly with a $6) and a link back; e.g. /records/1062/ has "245 ## ‡6880-01" and "880 ## ‡6245-01" (test #230)
+		preg_match_all ("/^880 [0-9#]{2} {$this->doubleDagger}6/m", $record, $matches);
 		$total880fields = count ($matches[0]);
-		$total880dollar6Instances = substr_count ($record, "{$this->doubleDagger}6 880-");
+		$total880dollar6Instances = substr_count ($record, "{$this->doubleDagger}6880-");
 		if ($total880fields != $total880dollar6Instances) {
 			$this->errorHtml .= "Mismatch in 880 field/link counts ({$total880fields} vs {$total880dollar6Instances}).";
 			// Leave the record visible rather than return false
@@ -903,7 +903,7 @@ class marcConversion
 			$outputLines[$lineOutputKey] = $line;
 		}
 		
-		# Insert 880 reciprocal links; see: http://www.lib.cam.ac.uk/libraries/login/documentation/Unicode_non_roman_cataloguing_handout.pdf ; e.g. /records/1062/ has "245 ## ‡6 880-01" and "880 ## ‡6 245-01" (test #230)
+		# Insert 880 reciprocal links; see: http://www.lib.cam.ac.uk/libraries/login/documentation/Unicode_non_roman_cataloguing_handout.pdf ; e.g. /records/1062/ has "245 ## ‡6880-01" and "880 ## ‡6245-01" (test #230)
 		foreach ($this->field880subfield6ReciprocalLinks as $lineOutputKey => $linkToken) {		// $lineOutputKey is e.g. 700_0
 			
 			# Report data mismatches
@@ -941,7 +941,7 @@ class marcConversion
 	# Function to modify a line to insert a subfield after the opening MARC field and indicators; for a multiline value, this must be one of the sublines; e.g. /records/1697/ (test #262), /records/2800/ (test #263)
 	private function insertSubfieldAfterMarcFieldThenIndicators ($line, $insert)
 	{
-		return preg_replace ('/^([0-9]{3}) ([0-9#]{2}) (.+)$/', "\\1 \\2 {$insert} \\3", $line);
+		return preg_replace ('/^([0-9]{3}) ([0-9#]{2}) (.+)$/', "\\1 \\2 {$insert}\\3", $line);
 	}
 	
 	
@@ -2172,18 +2172,19 @@ class marcConversion
 		
 		# Assemble the subfield for use in the 880 line
 		$indexFormatted = str_pad ($this->field880subfield6Index, 2, '0', STR_PAD_LEFT);	// E.g. /records/150141/ (tests #427, #431)
-		$subfield6 = $this->doubleDagger . '6 ' . $masterField . '-' . $indexFormatted;		// Decided to add space after $6 for clarity, to avoid e.g. '$6880-02' which is less clear than '$6 880-02', e.g. /records/150141/ (test #432)
+		$subfield6 = $this->doubleDagger . '6' . $masterField . '-' . $indexFormatted;		// Space after $6 not permitted, e.g. /records/150141/ (test #432)
 		
 		# Insert the subfield after the indicators; this is similar to insertSubfieldAfterMarcFieldThenIndicators but without the initial MARC field number; e.g. /records/150141/ (test #429)
+		# ‡6880-xx‡.. should not have space after the ‡6 or before the following subfield, e.g. /records/150141/ (test #432) /records/22095/ (test #758)
 		if (preg_match ('/^([0-9#]{2}) (.+)$/', $line)) {	// Can't get a single regexp that makes the indicator block optional
-			$line = preg_replace ('/^([0-9#]{2}) (.+)$/', "\\1 {$subfield6} \\2", $line);	// I.e. a macro block result line that includes the two indicators at the start (e.g. a 100), e.g. '1# $afoo'
+			$line = preg_replace ('/^([0-9#]{2}) (.+)$/', "\\1 {$subfield6}\\2", $line);	// I.e. a macro block result line that includes the two indicators at the start (e.g. a 100), e.g. '1# $afoo'
 		} else {
-			$line = preg_replace ('/^(.+)$/', "{$subfield6} \\1", $line);	// I.e. a macro block result line that does NOT include the two indicators at the start (e.g. a 490), e.g. '$afoo'
+			$line = preg_replace ('/^(.+)$/', "{$subfield6}\\1", $line);	// I.e. a macro block result line that does NOT include the two indicators at the start (e.g. a 490), e.g. '$afoo'
 		}
 		
 		# Register the link so that the reciprocal link can be added within the master field; this is registered either as an array (representing parts of a multiline string) or a string (for a standard field)
 		$fieldKey = $masterFieldIgnoringMutation . '_' . $fieldInstance;	// e.g. 700_0; this uses the master field, ignoring the mutation, so that $this->field880subfield6ReciprocalLinks is indexed by the master field; this ensures reliable lookup in records such as /records/68500/ where a mutation exists in the middle of a master field (i.e. 700, 700, 710, 700, 700)
-		$linkToken = $this->doubleDagger . '6 ' . '880' . '-' . $indexFormatted;
+		$linkToken = $this->doubleDagger . '6' . '880' . '-' . $indexFormatted;
 		if ($multilineSubfieldIndex !== false) {		// i.e. has supplied value
 			$this->field880subfield6ReciprocalLinks[$fieldKey][$multilineSubfieldIndex] = $linkToken;
 		} else {
@@ -2980,8 +2981,8 @@ class marcConversion
 			$result = str_replace ("{$this->doubleDagger}h", " {$this->doubleDagger}h", $result);
 		}
 		
-		# Strip out any $6 880 linking field; e.g. /records/22095/ (test #554)
-		$result = preg_replace ("/({$this->doubleDagger}6 ?880-[0-9]{2} ?)({$this->doubleDagger}|$)/", '\2', $result);
+		# Strip out any $6880 linking field; e.g. /records/22095/ (test #554)
+		$result = preg_replace ("/({$this->doubleDagger}6880-[0-9]{2})({$this->doubleDagger}|$)/", '\2', $result);
 		
 		# Strip subfield indicators, e.g. /records/1129/ (test #491)
 		$result = $this->stripSubfields ($result);
@@ -3086,9 +3087,9 @@ class marcConversion
 		if ($this->recordType == '/art/in') {
 			if (isSet ($marc['260'])) {
 				
-				#!# Need to add support for an 880(773) - e.g. /records/59148/ should get lines for both the LoC transliteration and the Cyrillic
+				#!# Need to add support for an 880 (773) - e.g. /records/59148/ should get lines for both the LoC transliteration and the Cyrillic
 				
-				# Remove $6 880 field if present, e.g. /records/59148/ (test #668)
+				# Remove $6880 field if present, e.g. /records/59148/ (test #668)
 				if (isSet ($marc['260'][0]['subfields']['6'])) {
 					unset ($marc['260'][0]['subfields']['6']);
 				}
