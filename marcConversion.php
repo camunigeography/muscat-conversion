@@ -3478,7 +3478,7 @@ class marcConversion
 		# End if none, e.g. /records/1102/ (test #149) which has no *acc group
 		if (!$acc) {return false;}
 		
-		# Compile the components, separated by semicolon, e.g. /records/3959/ (test #586)
+		# Compile the components, separated by semicolon, e.g. /records/3776/ (test #586)
 		$result = implode ('; ', $acc);
 		
 		# Return the result
