@@ -326,7 +326,7 @@ compiled by И.Л. Жеребцов
 Cyrillic should not contain a ligature in 880-700 (e.g. from transliterating "Zherebt͡sov")
 1844
 880
-‡6700-04‡aЖеребцов, И. Л.,‡ecompiler
+‡6700-04/(N‡aЖеребцов, И. Л.,‡ecompiler
 
 52
 Ensure 'Anon.' is treated as a transliterated protected string
@@ -362,7 +362,7 @@ editor.
 880 490 ‡v for Russian records having *ts with a *vno should not be transliterated (pending further discussion)
 136356
 880
-/490-03 .+‡vChast 2/
+/‡6490-04\/\(N.+‡vChast 2/
 
 58
 880 260 for Russian records now has ‡b transliteration enabled
@@ -662,7 +662,7 @@ In author handling, support substring match (e.g. 'Translated from the Icelandic
 100 ‡a transliteration results in 880
 6653
 880
-‡6100-01‡aБогданович, К. И.
+‡6100-01/(N‡aБогданович, К. И.
 
 108
 700 ‡a transliteration in Russian record results in 880
@@ -2258,13 +2258,13 @@ i041
 Macro transliterateSubfields basic functionality sees subfield transliterated
 35733
 880
-‡6490-04‡aЖизнь замечательных людей ;‡vVypusk 19
+‡6490-04/(N‡aЖизнь замечательных людей ;‡vVypusk 19
 
 382
 Macro transliterateSubfields single subfield only present and in scope
 1406
 880
-/‡6490-04‡aШкольная Библиотека$/
+/‡6490-04\/\(N‡aШкольная Библиотека$/
 
 383
 Macro transliterateSubfields ends without result if language not supported
@@ -2276,7 +2276,7 @@ Macro transliterateSubfields ends without result if language not supported
 Test of tokeniseToSubfields subroutine
 35733
 880
-‡6490-04‡aЖизнь замечательных людей ;‡vVypusk 19
+‡6490-04/(N‡aЖизнь замечательных людей ;‡vVypusk 19
 
 385
 Leader position 06: with *form (Videorecording)
@@ -2522,25 +2522,25 @@ Macro 880subfield6 ends if no value
 Macro 880subfield6 incoming multiline results in multiple 880 entries
 162152
 880
-‡6700-07‡aВтюрин, Борис.‡t
+‡6700-07/(N‡aВтюрин, Борис.‡t
 
 425
 Macro 880subfield6 mutated 71x amongst other 7xx is reordered: 710 field (see also next test)
 68500
 880
-‡6710-08‡aАыталын.
+‡6710-08/(N‡aАыталын.
 
 426
 Macro 880subfield6 mutated 71x amongst other 7xx is reordered: field before 710 (see also previous test)
 68500
 880
-‡6700-07‡a
+‡6700-07/(N‡a
 
 427
 Macro 880subfield6 multiline can go into double-digits: target (see also next test)
 150141
 880
-‡6700-11‡a
+‡6700-11/(N‡a
 
 428
 Macro 880subfield6 multiline can go into double-digits: source (see also previous test)
@@ -2558,13 +2558,13 @@ i880
 Macro 880subfield6 single line
 150141
 880
-‡6490-03‡
+‡6490-03/(N‡
 
 431
 Macro 880subfield6 has zero padding when single digit
 150141
 880
-‡6700-04‡
+‡6700-04/(N‡
 
 432
 Macro 880subfield6 does not add space after ‡6 marker
@@ -4442,4 +4442,16 @@ articles only ‡zSome items
 ‡6880-xx‡.. should not have space after the ‡6 or before the following subfield
 22095
 880
-‡6100-01‡
+‡6100-01/(N‡
+
+759
+880 Script identification code /(N appears, but only on the 880 side, not the source field - 880 side (see also next test)
+1062
+245
+‡6880-01‡a
+
+760
+880 Script identification code /(N appears only on the 880 side, not the source field - source side (see also previous test)
+1062
+880
+‡6245-01/(N‡a

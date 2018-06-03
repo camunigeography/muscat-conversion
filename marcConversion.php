@@ -303,7 +303,7 @@ class marcConversion
 			// Leave the record visible rather than return false
 		}
 		
-		# Do a check to report any case where a where 880 fields do not have both a field (starting validly with a $6) and a link back; e.g. /records/1062/ has "245 ## ‡6880-01" and "880 ## ‡6245-01" (test #230)
+		# Do a check to report any case where a where 880 fields do not have both a field (starting validly with a $6) and a link back; e.g. /records/1062/ has "245 ## ‡6880-01" and "880 ## ‡6245-01/(N" (tests #230, #231)
 		preg_match_all ("/^880 [0-9#]{2} {$this->doubleDagger}6/m", $record, $matches);
 		$total880fields = count ($matches[0]);
 		$total880dollar6Instances = substr_count ($record, "{$this->doubleDagger}6880-");
@@ -903,7 +903,7 @@ class marcConversion
 			$outputLines[$lineOutputKey] = $line;
 		}
 		
-		# Insert 880 reciprocal links; see: http://www.lib.cam.ac.uk/libraries/login/documentation/Unicode_non_roman_cataloguing_handout.pdf ; e.g. /records/1062/ has "245 ## ‡6880-01" and "880 ## ‡6245-01" (test #230)
+		# Insert 880 reciprocal links; see: http://www.lib.cam.ac.uk/libraries/login/documentation/Unicode_non_roman_cataloguing_handout.pdf ; e.g. /records/1062/ has "245 ## ‡6880-01" and "880 ## ‡6245-01" (tests #230, #231)
 		foreach ($this->field880subfield6ReciprocalLinks as $lineOutputKey => $linkToken) {		// $lineOutputKey is e.g. 700_0
 			
 			# Report data mismatches
@@ -2172,7 +2172,7 @@ class marcConversion
 		
 		# Assemble the subfield for use in the 880 line
 		$indexFormatted = str_pad ($this->field880subfield6Index, 2, '0', STR_PAD_LEFT);	// E.g. /records/150141/ (tests #427, #431)
-		$subfield6 = $this->doubleDagger . '6' . $masterField . '-' . $indexFormatted;		// Space after $6 not permitted, e.g. /records/150141/ (test #432)
+		$subfield6 = $this->doubleDagger . '6' . $masterField . '-' . $indexFormatted . '/(N';		// Space after $6 not permitted, e.g. /records/150141/ (test #432); Needs /(N ('Script identification code' for Cyrillic) as per: https://www.loc.gov/marc/bibliographic/ecbdcntf.html , e.g. /records/1062/ (tests #759, #760)
 		
 		# Insert the subfield after the indicators; this is similar to insertSubfieldAfterMarcFieldThenIndicators but without the initial MARC field number; e.g. /records/150141/ (test #429)
 		# ‡6880-xx‡.. should not have space after the ‡6 or before the following subfield, e.g. /records/150141/ (test #432) /records/22095/ (test #758)
