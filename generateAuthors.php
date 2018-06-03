@@ -154,7 +154,9 @@ class generateAuthors
 		}
 		
 		# Do the classification
-		$line = $this->main ($this->mainRecordXml, '//ag[parent::doc|parent::art][1]/a[1]', 100);
+		if (!$line = $this->main ($this->mainRecordXml, '//ag[parent::doc|parent::art][1]/a[1]', 100, $languageMode)) {
+			return false;
+		}
 		
 		# Subfield ‡u, if present, needs to go before subfield ‡e (test #90)
 		$line = $this->shiftSubfieldU ($line);
@@ -204,7 +206,7 @@ class generateAuthors
 		$this->languageMode = $languageMode;
 		
 		# Generate the 700 line values
-		$lines = $this->generateOtherEntitiesLines ();
+		$lines = $this->generateOtherEntitiesLines ($languageMode);
 		
 		# End if no lines
 		if (!$lines) {
@@ -236,7 +238,7 @@ class generateAuthors
 	
 	
 	# Inner function for generateOtherEntities, covering everything except the final compilation of lines into a single string
-	private function generateOtherEntitiesLines ()
+	private function generateOtherEntitiesLines ($languageMode)
 	{
 		# Assume 700 by default
 		$this->field = 700;
@@ -275,7 +277,7 @@ class generateAuthors
 				}
 				
 				# Obtain the value
-				$line = $this->main ($this->mainRecordXml, "/*/ag[$agIndex]/a[{$aIndex}]", 700);
+				$line = $this->main ($this->mainRecordXml, "/*/ag[$agIndex]/a[{$aIndex}]", 700, $languageMode);
 				
 				# Register the line, setting the field code, which may have been modified in main(), e.g. /records/1127/ (test #114)
 				$lines[] = array ('field' => $this->field, 'line' => $line);
@@ -289,12 +291,14 @@ class generateAuthors
 			while ($this->marcConversion->xPathValue ($this->mainRecordXml, "/*/ag[$agIndex]/al[{$alIndex}]")) {
 				
 				# Obtain the value
-				$line = $this->main ($this->mainRecordXml, "/*/ag[$agIndex]/al[{$alIndex}]", 700);
+				$line = $this->main ($this->mainRecordXml, "/*/ag[$agIndex]/al[{$alIndex}]", 700, $languageMode);
 				
 				# The "*al Detail" block (and ", ‡g (alternative name)", once only) is added, e.g. /records/29234/ (test #118)
-				if (!substr_count ($line, "{$this->doubleDagger}g")) {	// No actual cases found, so this block will always be entered
-					$line  = $this->marcConversion->macro_dotEnd ($line, $extendedCharacterList = '.?!');		// e.g. /records/2787/ ; "700: Subfield g must be preceded by a full stop, question mark or exclamation mark." (test #83)
-					$line .= "{$this->doubleDagger}g" . '(alternative name)';
+				if ($line) {
+					if (!substr_count ($line, "{$this->doubleDagger}g")) {	// No actual cases found, so this block will always be entered
+						$line  = $this->marcConversion->macro_dotEnd ($line, $extendedCharacterList = '.?!');		// e.g. /records/2787/ ; "700: Subfield g must be preceded by a full stop, question mark or exclamation mark." (test #83)
+						$line .= "{$this->doubleDagger}g" . '(alternative name)';
+					}
 				}
 				
 				# Register the line, setting the field code, which may have been modified in main()
@@ -327,7 +331,7 @@ class generateAuthors
 				
 				# Obtain the value
 				# In the case of each *e/*n, *role, with Relator Term lookup substitution, is incorporated; e.g. /records/47079/ (test #85) ; this is done inside classifyAdField ()
-				$line = $this->main ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]", 700);
+				$line = $this->main ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]", 700, $languageMode);
 				
 				# Register the line, if it has resulted in a line, setting the field code, which may have been modified in main()
 				if ($line) {	// E.g. /records/8988/ which has "others" should not result in a line for /*/e[1]/n[2] due to classifyN1Field having "return false" (test #86)
@@ -353,11 +357,13 @@ class generateAuthors
 				foreach ($children as $id => $childRecordXml) {
 					
 					# Take the first *art/*ag/*a/ (only the first (test #88)) in that record within the *ag block, i.e. /records/9375/ /art/ag/a "contributor block" (test #76); the second indicator is set to '2' to indicate that this 700 line is an 'Analytical entry' (test #78)
-					$line = $this->main ($childRecordXml, "/*/ag[1]/a[1]", 700, '2');
+					$line = $this->main ($childRecordXml, "/*/ag[1]/a[1]", 700, $languageMode, '2');
 					
 					# Add the title (i.e. *art/*tg/*t)
-					$line  = $this->marcConversion->macro_dotEnd ($line, $extendedCharacterList = '?.-)');		// (test #89) e.g. /records/9843/ , /records/13620/ ; "700: Subfield _t must be preceded by a question mark, full stop, hyphen or closing parenthesis."
-					$line .= "{$this->doubleDagger}t" . $this->marcConversion->xPathValue ($childRecordXml, '/*/tg/t');
+					if ($line) {
+						$line  = $this->marcConversion->macro_dotEnd ($line, $extendedCharacterList = '?.-)');		// (test #89) e.g. /records/9843/ , /records/13620/ ; "700: Subfield _t must be preceded by a question mark, full stop, hyphen or closing parenthesis."
+						$line .= "{$this->doubleDagger}t" . $this->marcConversion->xPathValue ($childRecordXml, '/*/tg/t');
+					}
 					
 					# Register the line, setting the field code, which may have been modified in main()
 					$lines[] = array ('field' => $this->field, 'line' => $line);
@@ -407,7 +413,7 @@ class generateAuthors
 	
 	
 	# Function providing an entry point into the main classification block, which switches between the name format
-	private function main ($xml, $path, $defaultFieldCode, $secondIndicator = '#')
+	private function main ($xml, $path, $defaultFieldCode, $languageMode, $secondIndicator = '#')
 	{
 		# Start the value
 		$value = '';
@@ -423,6 +429,11 @@ class generateAuthors
 		
 		# Create a handle to the second indicator
 		$this->secondIndicator = $secondIndicator;
+		
+		# Handle *nt = None, which disables transliteration
+		if ($this->transliterationDisabledNt ($path, $languageMode)) {
+			return false;
+		}
 		
 		# Does the *a contain a *n2?
 		$n2 = $this->marcConversion->xPathValue ($this->xml, $path . '/n2');
@@ -443,6 +454,23 @@ class generateAuthors
 		
 		# Return the value
 		return $value;
+	}
+	
+	
+	# Function to determine any *nt modifier; values available are None, BGNRus, LOCRus
+	private function transliterationDisabledNt ($path, $languageMode)
+	{
+		# In default mode, *nt is not relevant
+		if ($languageMode == 'default') {
+			return NULL;
+		}
+		
+		# Get the *nt value, if present
+		$nt = $this->marcConversion->xPathValue ($this->mainRecordXml, $path . '/nt');
+		
+		# Return whether transliteration is disabled, i.e. by the presence of *nt=None
+		$isTransliterationDisabled = ($nt == 'None');
+		return $isTransliterationDisabled;
 	}
 	
 	

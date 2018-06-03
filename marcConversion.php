@@ -915,7 +915,9 @@ class marcConversion
 			if (is_array ($linkToken)) {
 				$lines = explode ("\n", $outputLines[$lineOutputKey]);	// Split out
 				foreach ($lines as $i => $line) {
-					$lines[$i] = $this->insertSubfieldAfterMarcFieldThenIndicators ($line, $linkToken[$i]);
+					if (isSet ($linkToken[$i])) {
+						$lines[$i] = $this->insertSubfieldAfterMarcFieldThenIndicators ($line, $linkToken[$i]);
+					}
 				}
 				$outputLines[$lineOutputKey] = implode ("\n", $lines);	// Reassemble; e.g. /records/1697/ (test #262)
 				
@@ -2132,12 +2134,15 @@ class marcConversion
 			}
 			
 			# Convert to field, indicators, and line
-			preg_match_all ('/^([0-9]{3}) (.+)$/m', $value, $lines, PREG_SET_ORDER);
+			preg_match_all ('/^([0-9]{3}) (.*)$/m', $value, $lines, PREG_SET_ORDER);	// .* rather than .+ used, as generateOtherEntitiesLines may have resulted in empty line due to *nt=None
 			
 			# Construct each line; link field may go into double digits, e.g. /records/150141/ (test #427, #428); indicators should match, e.g. /records/150141/ (test #429)
 			$values = array ();
 			foreach ($lines as $multilineSubfieldIndex => $line) {	// $line[1] will be the actual subfield code (e.g. 710), not the master field (e.g. 700), i.e. it may be a mutated value (e.g. 700 -> 710) as in e.g. /records/68500/ (tests #425, #426) and similar in /records/150141/ , /records/183507/ , /records/196199/
-				$values[] = $this->construct880Subfield6Line ($line[2], $line[1], $masterField, $this->field880subfield6FieldInstanceIndex[$masterField], $multilineSubfieldIndex);
+				$value = $this->construct880Subfield6Line ($line[2], $line[1], $masterField, $this->field880subfield6FieldInstanceIndex[$masterField], $multilineSubfieldIndex);
+				if (strlen ($value)) {
+					$values[] = $value;
+				}
 			}
 			
 			# Compile the result back to a multiline string
@@ -2157,6 +2162,11 @@ class marcConversion
 	# Helper function to render a 880 subfield 6 line
 	private function construct880Subfield6Line ($line, $masterField, $masterFieldIgnoringMutation, $fieldInstance, $multilineSubfieldIndex = false)
 	{
+		# If empty line supplied, return empty string, and avoid advancing the index
+		if (!strlen ($line)) {
+			return false;
+		}
+		
 		# Advance the index, which is incremented globally across the record; starting from 1
 		$this->field880subfield6Index++;
 		
