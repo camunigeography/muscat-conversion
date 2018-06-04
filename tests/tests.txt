@@ -2610,9 +2610,9 @@ Macro generate250 dot end
 
 439
 245: If there is a / in the title explicitly, use that (see also #546)
-10503
+178029
 245
-/^‡aMuseum Bulletin \/‡c\[Victoria Memorial Museum\]\.$/
+/^‡aA description of Siberian peoples by Gerhard Friedrich Mueller \/‡cAlexander Elert.$/
 
 440
 245: / title handling not triggered by </em>
