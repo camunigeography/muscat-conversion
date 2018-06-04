@@ -340,12 +340,6 @@ English-name author should not result in an 880 transliteration (implementation 
 !880
 Доwдесwелл, J. А.
 
-54
-English-name author should not be transliterated in 880-245 when *nt = None
-151048
-880
-J.A. Dowdeswell,
-
 55
 Dot-e transliteration failure should not occur in 245
 58374
@@ -2994,9 +2988,9 @@ In roleAndSiblings, *role (e.g. 'compiled by') is not subject to transliteration
 
 503
 880-245 in scope of transliteration retains Latin characters when *nt = None present for author; this is for non-upgraded records where explicit / + authors in Cyrillic has not been defined (implementation pending)
-151048
+166652
 880
-‡cЮ.Я. Мачерет, А.Ф. Глазовский, J.A. Dowdeswell, Michael R. Gorman
+‡cА.П. Капица, W. Gareth Rees, eds.
 
 504
 245 in scope of transliteration, with explicit / , Russian names end up transliterated as LoC
