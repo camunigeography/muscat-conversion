@@ -144,6 +144,7 @@ class reports
 		'invalidcon_problem' => 'records with an invalid *con syntax',
 		'othertransliterations_postmigration' => 'records with names for transliteration in other languages (e.g. Yakut, Chinese, etc.) for upgrading',
 		'locationunassigned_postmigration' => 'Records with location = ??',
+		'towithoutlto_problem' => 'Records with *to without *lto defined',
 	);
 	
 	# Listing (values) reports
@@ -3260,6 +3261,31 @@ class reports
 			WHERE
 				    field = 'location'
 				AND value = '??'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with *to without *lto defined
+	public function report_towithoutlto ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'towithoutlto' AS report,
+				fieldsindex.id AS recordId
+				-- catalogueT.value as '*t value',
+				-- catalogueTo.value as '*to value',
+				-- catalogueLto.value as '*lto value',
+				-- language AS 'Record language'
+			FROM `fieldsindex`
+			-- LEFT JOIN catalogue_processed AS catalogueT on fieldsindex.id = catalogueT.recordId AND catalogueT.field = 't'
+			-- LEFT JOIN catalogue_processed AS catalogueTo on fieldsindex.id = catalogueTo.recordId AND catalogueTo.field = 'to'
+			LEFT JOIN catalogue_processed AS catalogueLto on fieldsindex.id = catalogueLto.recordId AND catalogueLto.field = 'lto'
+			WHERE fieldslist LIKE '%@to@%'
+			AND catalogueLto.value IS NULL
 		";
 		
 		# Return the query
