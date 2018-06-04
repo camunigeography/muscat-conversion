@@ -23,10 +23,10 @@
 #muscatconversion #marc {overflow-x: scroll;}
 #muscatconversion #marc pre strong, #muscatconversion table.reportlisting strong {color: #603; font-weight: normal; background-color: #ddd; opacity: 0.7;}
 #muscatconversion table.reports tr td {background-color: white;}
-#muscatconversion table.reports tr.info td {background-color: #f7f7f7;}
-#muscatconversion table.reports tr.problem td {background-color: #fcc7c8;}
-#muscatconversion table.reports tr.ok td {background-color: #e3f9d9;}
-#muscatconversion table.reports tr.postmigration td {background-color: #cdd0fe;}
+#muscatconversion table.reports tr.info td {background-color: #f7f7f7 !important; /* !important necessary for printing background colour */}
+#muscatconversion table.reports tr.problem td {background-color: #fcc7c8 !important; /* !important necessary for printing background colour */}
+#muscatconversion table.reports tr.ok td {background-color: #e3f9d9 !important; /* !important necessary for printing background colour */}
+#muscatconversion table.reports tr.postmigration td {background-color: #cdd0fe !important; /* !important necessary for printing background colour */}
 #muscatconversion #semanticmatcheslinks a, #muscatconversion #semanticmatcheslinks strong {border: 1px solid #ddd; padding: 1px 4px; margin-right: 2px;}
 #muscatconversion #semanticmatcheslinks strong {background-color: #eee;}
 #muscatconversion #form_definition {font-family: Lucida Console, courier, monospace; line-height: 1.5em; padding: 10px;}
