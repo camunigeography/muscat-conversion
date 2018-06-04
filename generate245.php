@@ -263,8 +263,15 @@ class generate245
 					continue;
 				}
 				
+				# Set the language mode; based on generateAuthors::transliterationDisabledNt(); if *nt=None is present, disable transliteration, e.g. /records/166652/ (test #503)
+				$languageMode = $this->languageMode;
+				$nt = $this->marcConversion->xPathValue ($this->xml, "{$pathPrefix}/ag[$agIndex]/a[{$aIndex}]" . '/nt');
+				if ($nt == 'None') {
+					$languageMode = 'default';
+				}
+				
 				# Register this author value
-				$authorsThisAg[] = ($this->languageMode == 'default' ? $string : $this->marcConversion->transliteration->transliterateLocLatinToCyrillic ($string, false));
+				$authorsThisAg[] = ($languageMode == 'default' ? $string : $this->marcConversion->transliteration->transliterateLocLatinToCyrillic ($string, false));
 				
 				# Next *a
 				$aIndex++;
