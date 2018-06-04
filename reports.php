@@ -146,6 +146,9 @@ class reports
 		'locationunassigned_postmigration' => 'records with location = ??',
 		'towithoutlto_problem' => 'records with *to without *lto defined',
 		'ntnoneslashupgrade_problem' => 'records with *nt=None which have not had / upgrading for 245',
+		'ntcyrillicinscope_postmigration' => 'non-Russian records with Cyrillic *nt = BGNRus/LOCRus',
+		'ntcyrillicunsupported_postmigration' => 'non-Russian records with all Cyrillic *nt for types never supported',
+		'locrusnodiacritics_postmigration' => 'records with *nt=LOCRus that need diacritics adding',
 	);
 	
 	# Listing (values) reports
@@ -225,7 +228,14 @@ class reports
 			'locationunassigned' =>
 				'Valid records but the item needs to be found.',
 			
+			'ntcyrillicinscope' =>
+				'Some records with *nt = BGNRus or LOCRus are in records whose language is not marked as Russian, e.g. German. These records were unable to enter the transliteration module in the code, so the BGN or LoC remains untouched, and no 880 has been produced. These two changes need to be manually.',
 			
+			'ntcyrillicunsupported' =>
+				'Some records have *nt other than none/BGNRus/LOCRus, e.g. FRRus. These were considered out of scope for coding, so no attempt was made even to consider upgrading them. The name authority (1xx/7xx) needs to be upgraded and the 880 added.',
+			
+			'locrusnodiacritics' =>
+				'All records using *nt = LOCRus have this string entered without diacritics. These items need to be checked and where relevant, the diacritics added.',
 			
 			
 		);
@@ -3309,6 +3319,66 @@ class reports
 				AND catalogue_processed.value = 'None'
 				AND catalogue_processed.xPath LIKE '%/a/%'
 				AND processedT.value NOT LIKE '% / %'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Post-migration report for non-Russian records with Cyrillic *nt = BGNRus/LOCRus (essentially workaround for test #728, as that will be almost impossible to code)
+	public function report_ntcyrillicinscope ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'ntcyrillicinscope' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field = 'nt'
+				AND value IS NOT NULL
+				AND recordLanguage != 'Russian'
+				AND value IN ('BGNRus', 'LOCRus')
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Post-migration report for non-Russian records with all Cyrillic *nt for types never supported
+	public function report_ntcyrillicunsupported ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'ntcyrillicunsupported' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field = 'nt'
+				AND value IS NOT NULL
+				AND value NOT IN ('None', 'BGNRus', 'LOCRus')
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Post-migration report for records with *nt=LOCRus that need diacritics adding
+	public function report_locrusnodiacritics ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'locrusnodiacritics' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field = 'nt'
+				AND value = 'LOCRus'
 		";
 		
 		# Return the query

@@ -4277,7 +4277,7 @@ i260
 /^##$/
 
 728
-*nt = BGNRus in a non-Russian record gets upgraded to LoC cyrillic and thence a mirror field created
+*nt = BGNRus in a non-Russian record gets upgraded to LoC cyrillic and thence a mirror field created (implementation pending; not likely to be implemented; see /reports/ntcyrillicinscope/ )
 102036
 880
 Ermolaev, Rafaėlʹ Dmitrievich
