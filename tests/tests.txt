@@ -4455,3 +4455,16 @@ articles only ‡zSome items
 1062
 880
 ‡6245-01/(N‡a
+
+761
+240 Leading article count is 4 for English record without *lto for "The"
+6897
+i240
+/4$/
+
+762
+240 Leading article count is 0 for non-English record without a leading article
+1165
+i240
+/0$/
+

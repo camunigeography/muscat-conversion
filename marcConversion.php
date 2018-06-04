@@ -2196,6 +2196,26 @@ class marcConversion
 	}
 	
 	
+	# Macro for the indicator for 240 (*to), which takes account of (*lto), e.g. /records/1572/ (test #358)
+	private function macro_indicator240 ($value, $ignored)
+	{
+		# Obtain the *to
+		$to = $this->xPathValue ($this->xml, '/*/tg/to[1]');
+		
+		# Obtain the *lto language, if any
+		$lto = $this->xPathValue ($this->xml, '/*/tg/lto[1]');
+		
+		# Set the language; this should explicitly *not* fall back on the record language, because *to will generally not match the record language, e.g. /records/6897/ (test #761)
+		$language = ($lto ? $lto : 'English');
+		
+		# Obtain the non-filing character (leading article) count, e.g. /records/1572/ (test #358), /records/1165/ (test #762)
+		$nfCount = $this->macro_nfCount ($to, $language);
+		
+		# Return the nfCount
+		return $nfCount;
+	}
+	
+	
 	# Macro for generating the 245 field; tests have full coverage as noted in the generate245 class
 	private function macro_generate245 ($value, $flag, &$errorHtml)
 	{
