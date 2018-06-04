@@ -143,8 +143,9 @@ class reports
 		'emptydashwithoutspri_problem' => 'records containing a field with an empty dash, without a SPRI location',
 		'invalidcon_problem' => 'records with an invalid *con syntax',
 		'othertransliterations_postmigration' => 'records with names for transliteration in other languages (e.g. Yakut, Chinese, etc.) for upgrading',
-		'locationunassigned_postmigration' => 'Records with location = ??',
-		'towithoutlto_problem' => 'Records with *to without *lto defined',
+		'locationunassigned_postmigration' => 'records with location = ??',
+		'towithoutlto_problem' => 'records with *to without *lto defined',
+		'ntnoneslashupgrade_problem' => 'records with *nt=None which have not had / upgrading for 245',
 	);
 	
 	# Listing (values) reports
@@ -3286,6 +3287,28 @@ class reports
 			LEFT JOIN catalogue_processed AS catalogueLto on fieldsindex.id = catalogueLto.recordId AND catalogueLto.field = 'lto'
 			WHERE fieldslist LIKE '%@to@%'
 			AND catalogueLto.value IS NULL
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with *nt=None which have not had / upgrading for 245
+	public function report_ntnoneslashupgrade ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'ntnoneslashupgrade' AS report,
+				catalogue_processed.recordId
+			FROM catalogue_processed
+			JOIN catalogue_processed AS processedT ON catalogue_processed.recordId = processedT.recordId AND processedT.xPath REGEXP '^/([^/]+)/tg/t$'
+			WHERE
+				    catalogue_processed.field = 'nt'
+				AND catalogue_processed.value = 'None'
+				AND catalogue_processed.xPath LIKE '%/a/%'
+				AND processedT.value NOT LIKE '% / %'
 		";
 		
 		# Return the query
