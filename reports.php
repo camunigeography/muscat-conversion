@@ -3396,7 +3396,7 @@ class reports
 				'article245' AS report,
 				id AS recordId
 			FROM catalogue_marc
-			WHERE bibcheckErrors LIKE '%245: First word%'
+			WHERE bibcheckErrors REGEXP '245: First word, [a-z]+, may be an article, check 2nd indicator'
 		";
 		
 		# Return the query
