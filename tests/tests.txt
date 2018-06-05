@@ -2918,7 +2918,7 @@ loadLookupTable case-insensitive comparison (definition side) (see also #483)
 generate500 strips subfield indicators
 1129
 500
-‡aBiomass Handbook. Vol. 2 :1-21 ([1978])
+‡aBIOMASS Handbook. Vol. 2 :1-21 ([1978])
 
 492
 generate500 prefix for */art/
@@ -4277,7 +4277,7 @@ i260
 /^##$/
 
 728
-*nt = BGNRus in a non-Russian record gets upgraded to LoC cyrillic and thence a mirror field created (implementation pending; not likely to be implemented; see /reports/ntcyrillicinscope/ )
+*nt = BGNRus in a non-Russian record gets upgraded to LoC cyrillic and thence a mirror field created (implementation pending; not likely to be implemented; see /reports/ntcyrillicinscope/)
 102036
 880
 Ermolaev, Rafaėlʹ Dmitrievich
