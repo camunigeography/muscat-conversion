@@ -1644,7 +1644,6 @@ class marcConversion
 		
 		# If a forced language is not specified, obtain the language value for the record
 		#!# //lang may no longer be reliable following introduction of *lang data within *in or *j
-		#!# For the 240 field, this needs to take the language whose index number is the same as t/tt/to... - see /records/1572/ (test #358)
 		if (!$language) {
 			$xPath = '//lang[1]';	// Choose first only
 			$xml = ($externalXml ? $externalXml : $this->xml);	// Use external XML if supplied
@@ -2196,7 +2195,7 @@ class marcConversion
 	}
 	
 	
-	# Macro for the indicator for 240 (*to), which takes account of (*lto), e.g. /records/1572/ (test #358)
+	# Macro for the indicator for 240 (*to), which takes account of (*lto), e.g. /records/13989/ (test #358)
 	private function macro_indicator240 ($value, $ignored)
 	{
 		# Obtain the *to
@@ -2208,7 +2207,7 @@ class marcConversion
 		# Set the language; this should explicitly *not* fall back on the record language, because *to will generally not match the record language, e.g. /records/6897/ (test #761)
 		$language = ($lto ? $lto : 'English');
 		
-		# Obtain the non-filing character (leading article) count, e.g. /records/1572/ (test #358), /records/1165/ (test #762)
+		# Obtain the non-filing character (leading article) count, e.g. /records/13989/ (test #358), /records/1165/ (test #762)
 		$nfCount = $this->macro_nfCount ($to, $language);
 		
 		# Return the nfCount

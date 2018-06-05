@@ -2111,10 +2111,10 @@ i242
 /4$/
 
 358
-Macro nfcount: 240 2nd indicator (based on *to) should have 4 for French record starting 'Les ' (pending implementation)
-1572
+Macro nfcount: 240 2nd indicator (based on *to) should have 3 for French record starting 'La '
+13989
 i240
-/4$/
+/3$/
 
 359
 Macro nfcount: Special characters with initial article are counted as nonfiling characters (with: "[La ")
