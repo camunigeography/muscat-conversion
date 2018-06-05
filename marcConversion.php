@@ -2501,10 +2501,10 @@ class marcConversion
 			if (preg_match ($splitRegexp, $subfields['r'][$i])) {
 				$authors = preg_split ($splitRegexp, $subfields['r'][$i]);
 				foreach ($authors as $author) {
-					$lines[] = '1# ' . $this->macro_dotEnd ("{$this->doubleDagger}a{$author}", true) . $this->macro_dotEnd ("{$this->doubleDagger}t{$subfields['t'][$i]}", true);
+					$lines[] = '1# ' . $this->macro_dotEnd ("{$this->doubleDagger}a" . $this->generateAuthors->spaceOutInitials ($author), true) . $this->macro_dotEnd ("{$this->doubleDagger}t{$subfields['t'][$i]}", true);	// spaceOutInitials applied, e.g. /records/145748/ (test #765)
 				}
 			} else {
-				$lines[] = '1# ' . $this->macro_dotEnd ("{$this->doubleDagger}a{$subfields['r'][$i]}", true) . $this->macro_dotEnd ("{$this->doubleDagger}t{$subfields['t'][$i]}", true);
+				$lines[] = '1# ' . $this->macro_dotEnd ("{$this->doubleDagger}a" . $this->generateAuthors->spaceOutInitials ($subfields['r'][$i]), true) . $this->macro_dotEnd ("{$this->doubleDagger}t{$subfields['t'][$i]}", true);	// spaceOutInitials applied, e.g. /records/12059/ (test #764)
 			}
 		}
 		

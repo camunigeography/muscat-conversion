@@ -757,7 +757,7 @@ class generateAuthors
 	
 	
 	# Function to expand initials to add spaces (test #91); note that 245 $c requires the opposite - see spaceOutInitials() in generate245 (test #92)
-	private function spaceOutInitials ($string)
+	public function spaceOutInitials ($string)
 	{
 		# Any initials should be separated by a space; e.g. /records/1296/
 		# This is tolerant of transliterated Cyrillic values (test #95), e.g. /records/175507/ or (old example) /records/194996/ which has "Ye.V." to become "E.V."

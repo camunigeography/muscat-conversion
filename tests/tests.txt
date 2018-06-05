@@ -4468,3 +4468,15 @@ Multiple *kg present uses first as linkage
 773
 ‡wSPRI-11625
 
+764
+700 from contents note has authors spaced out (single author implementation; see also next test)
+12059
+700
+‡aJ. W. Gregory.‡t
+
+765
+700 from contents note has authors spaced out (multiple authors implementation; see also previous test)
+145748
+700
+‡aJ. F. Read.‡t
+
