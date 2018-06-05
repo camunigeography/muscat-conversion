@@ -4993,6 +4993,7 @@ sub _check_article {
         'eines' => 'ger',
         'el' => 'spa',
         'els' => 'cat',
+        'ett' => 'swe',
         'gl' => 'ita',
         'gli' => 'ita',
 	'ha' => 'heb',
