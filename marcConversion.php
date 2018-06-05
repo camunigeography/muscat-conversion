@@ -1701,7 +1701,7 @@ class marcConversion
 		$translationNotes = array ();
 		foreach ($notes as $note) {
 			# Perform a match, e.g. /records/175067/ (test #376); this is not using a starting at (^) match e.g. /records/190904/ which starts "English translation from Russian" (test #377)
-			if (preg_match ('/[Tt]ranslat(?:ion|ed) (?:from|reprint of)(?: original| the|) ([a-zA-Z]+)/i', $note, $matches)) {	// Deliberately not using strip_tags, as that would pick up Translation from <em>publicationname</em> which would not be wanted anyway, e.g. /records/8814/ (test #378)
+			if (preg_match ('/[Tt]ranslat(?:ion|ed) (?:from|reprint of)(?: original| the original| the|) ([a-zA-Z]+)/i', $note, $matches)) {	// Deliberately not using strip_tags, as that would pick up Translation from <em>publicationname</em> which would not be wanted anyway, e.g. /records/8814/ (test #378)
 				// application::dumpData ($matches);
 				$language = $matches[1];	// e.g. 'Russian', 'English'
 				
