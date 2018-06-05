@@ -3034,8 +3034,9 @@ class marcConversion
 	# Function to look up the host record, if any
 	private function lookupHostRecord ()
 	{
-		# Up-front, obtain the host ID (if any) from *kg, used in both 773 and 500, e.g. /records/1129/ (test #493)
-		if (!$hostId = $this->xPathValue ($this->xml, '//k2/kg')) {return NULL;}
+		# Up-front, obtain the host ID (if any) from *kg, used in both 773 and 500, e.g. /records/1129/ (test #493); if more than one, the first is chosen, e.g. /records/1896/ (test #763)
+		#!# Need to determine what happens when *k2[2]/kg is present, e.g. /records/1896/
+		if (!$hostId = $this->xPathValue ($this->xml, '//k2[1]/kg')) {return NULL;}
 		
 		# Obtain the processed MARC record; note that createMarcRecords processes the /doc records before /art/in records
 		$hostRecord = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'marc', $conditions = array ('id' => $hostId));
