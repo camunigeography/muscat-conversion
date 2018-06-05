@@ -149,6 +149,7 @@ class reports
 		'ntcyrillicinscope_postmigration' => 'non-Russian records with Cyrillic *nt = BGNRus/LOCRus',
 		'ntcyrillicunsupported_postmigration' => 'non-Russian records with all Cyrillic *nt for types never supported',
 		'locrusnodiacritics_postmigration' => 'records with *nt=LOCRus that need diacritics adding',
+		'article245_problem' => 'records with a suspected wrong language due to leading article mismatch in 245',
 	);
 	
 	# Listing (values) reports
@@ -3379,6 +3380,23 @@ class reports
 			WHERE
 				    field = 'nt'
 				AND value = 'LOCRus'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with a suspected wrong language due to leading article mismatch in 245
+	public function report_article245 ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'article245' AS report,
+				id AS recordId
+			FROM catalogue_marc
+			WHERE bibcheckErrors LIKE '%245: First word%'
 		";
 		
 		# Return the query
