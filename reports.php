@@ -2562,25 +2562,6 @@ class reports
 	}
 	
 	
-	# Records with a 245 starting with a possible article
-	public function report_possiblearticle ()
-	{
-		# Define the query
-		$query = "
-			SELECT
-				'possiblearticle' AS report,
-				id AS recordId
-			FROM
-				catalogue_marc
-			WHERE
-				bibcheckErrors LIKE '%may be an article%'
-		";
-		
-		# Return the query
-		return $query;
-	}
-	
-	
 	# Records with a bracketed title starting with a leading article, for checking the nfcount; this is to try to deal with the issue that titles starting [ but the language of the record is not in English
 	#!# Check for *to and *tc too?
 	public function report_bracketednfcount ()
