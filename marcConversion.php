@@ -3845,10 +3845,13 @@ class marcConversion
 	# Function to define suppression scenarios
 	private function suppressionScenarios ()
 	{
+		# Compile an SQL REGEXP clause for the location codes
+		$singleBackslash = '\\';
+		$locationCodesRegexpSql = '^(' . str_replace ($singleBackslash, str_repeat ($singleBackslash, 2), implode ('|', array_keys ($this->locationCodes))) . ')';
+		
 		# Records to suppress, defined as a set of scenarios represented by a token
 		#!# Check whether locationCode locations with 'Periodical' are correct to suppress
 		#!# Major issue: problem with e.g. /records/3929/ where two records need to be created, but not both should be suppressed; there are around 1,000 of these
-		$locationCodesRegexpSql = '^(' . implode ('|', array_keys ($this->locationCodes)) . ')';
 		return $suppressionScenarios = array (
 			
 			'STATUS-RECEIVED' => array (

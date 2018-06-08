@@ -194,7 +194,8 @@ class reports
 		$this->transliterationNameMatchingFields = $marcConversion->getTransliterationNameMatchingFields ();
 		
 		# Compile an SQL REGEXP clause for the location codes
-		$this->locationCodesRegexpSql = '^(' . implode ('|', array_keys ($this->locationCodes)) . ')';
+		$singleBackslash = '\\';
+		$this->locationCodesRegexpSql = '^(' . str_replace ($singleBackslash, str_repeat ($singleBackslash, 2), implode ('|', array_keys ($this->locationCodes))) . ')';
 		
 	}
 	
@@ -1142,7 +1143,8 @@ class reports
 		# Remove the numeric type from the location codes list for the purposes of this test
 		$locationNamesRegexps = array_keys ($this->locationCodes);
 		unset ($locationNamesRegexps[0]);	// Numeric one is the first, as noted in the comments
-		$locationCodesRegexpSql = '^(' . implode ('|', $locationNamesRegexps) . ')';
+		$singleBackslash = '\\';
+		$locationCodesRegexpSql = '^(' . str_replace ($singleBackslash, str_repeat ($singleBackslash, 2), implode ('|', $locationNamesRegexps)) . ')';
 		
 		# Define the query
 		$query = "
