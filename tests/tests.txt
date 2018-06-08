@@ -3778,14 +3778,8 @@ SUPPRESS
 260
 ‡c1991.
 
-646
-852 ‡h Extract classmark (for standard SPRI locations) when it exists (see also next test)
-1111
-852
-‡cSPRI-SHF ‡h(*7) : 341.24
-
 647
-852 ‡h is not created when no classmark (for standard SPRI locations) (see also previous test)
+852 ‡h is not created when no classmark (for standard SPRI locations) (see also previous test, and #647)
 31500
 852
 /‡cSPRI-BIB$/
@@ -4396,6 +4390,30 @@ ISBN support for X check digit
 008
 /^.{33}0/
 
+748
+852 Test whether shelved with periodicals
+20534
+852
+‡h82 A-B
+
+749
+852 Switch for real serial analytics
+20557
+852
+‡zSee related holdings for SPRI location
+
+750
+852 Real serial analytics /art/j with host record gets ‡z fixed text
+20557
+852
+‡zSee related holdings for SPRI location
+
+751
+852 Serial gets ‡h with location
+20534
+852
+‡h82 A-B
+
 752
 Horizontal repeatability gets space between tokens
 1010
@@ -4479,4 +4497,28 @@ Multiple *kg present uses first as linkage
 145748
 700
 ‡aJ. F. Read.‡t
+
+766
+852 not starting with a number, e.g. Shelf
+100567
+852
+‡h(*7) : 551.7
+
+767
+852 trimmed location present creates ‡h (see also #647 for empty location)
+100567
+852
+‡h(*7) : 551.7
+
+768
+852 real serial analytics (/art/in with host record) provides human-readable text to look up (see also next test)
+100568
+852
+‡zSee related holdings for SPRI location
+
+769
+852 non- real serial analytics creates ‡h with trimmed location (see also previous test)
+100567
+852
+‡cSPRI-SHF ‡h(*7) : 551.7
 
