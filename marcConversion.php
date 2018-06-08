@@ -136,6 +136,9 @@ class marcConversion
 		require_once ('generate245.php');
 		$this->generate245 = new generate245 ($this);
 		
+		# Create a registry of *pu shard language values
+		$this->puLanguages = $this->getPuLanguages ();
+		
 	}
 	
 	
@@ -923,7 +926,7 @@ class marcConversion
 				
 			# For standard lines, do a simple insertion
 			} else {
-				$outputLines[$lineOutputKey] = $this->insertSubfieldAfterMarcFieldThenIndicators ($outputLines[$lineOutputKey], $linkToken);	// E.g. /records/2800/ (test #263)
+				$outputLines[$lineOutputKey] = $this->insertSubfieldAfterMarcFieldThenIndicators ($outputLines[$lineOutputKey], $linkToken);	// E.g. /records/1062/ (test #263)
 			}
 		}
 		
@@ -938,7 +941,7 @@ class marcConversion
 	}
 	
 	
-	# Function to modify a line to insert a subfield after the opening MARC field and indicators; for a multiline value, this must be one of the sublines; e.g. /records/1697/ (test #262), /records/2800/ (test #263)
+	# Function to modify a line to insert a subfield after the opening MARC field and indicators; for a multiline value, this must be one of the sublines; e.g. /records/1697/ (test #262), /records/1062/ (test #263)
 	private function insertSubfieldAfterMarcFieldThenIndicators ($line, $insert)
 	{
 		return preg_replace ('/^([0-9]{3}) ([0-9#]{2}) (.+)$/', "\\1 \\2 {$insert}\\3", $line);
@@ -1160,8 +1163,13 @@ class marcConversion
 	# Macro to create 260; $a and $b are grouped as there may be more than one publisher, e.g. /records/76743/ (#test 297); see: https://www.loc.gov/marc/bibliographic/bd260.html
 	private function macro_generate260 ($value_ignored, $transliterate = false)
 	{
-		# In transliteration mode, end if not Russian; e.g. /records/1014/ (test #316)
-		#!# Not yet implemented
+		# If transliterating, ensure this is transliterable, by determining if this record is in the transliteration table; end if not Russian; e.g. /records/148932/ (test #316)
+		# This correctly deals with main/bottom-half issues, e.g. English record with bottom-half Russian: /records/189648/ (test #770); no examples of the opposite way round, but transliterations table from which this feature logic depends on, is considered robust
+		if ($transliterate) {
+			if (!isSet ($this->puLanguages[$this->recordId])) {
+				return false;
+			}
+		}
 		
 		# Start a list of values; the macro definition has already defined $a
 		$results = array ();
@@ -1192,13 +1200,13 @@ class marcConversion
 				$puValues[] = $this->formatPu ($puValue);	// Will always return a string
 			}
 			
-			# Transliterate if required; e.g. /records/6996/ (test #58)
+			# Transliterate *pu if required; e.g. /records/6996/ (test #58)
+			# NB No attempt is made to transliterate *pl; e.g. /records/6996/ (test #306)
 			if ($transliterate) {
 				if ($puValues) {
 					foreach ($puValues as $index => $puValue) {
-						$xPath = '//lang[1]';	// Choose first only
-						$language = $this->xPathValue ($this->xml, $xPath);
-						$puValues[$index] = $this->macro_transliterate ($puValue, NULL, $language);	// [S.l.] and [s.n.] will not get transliterated as they are in square brackets, e.g. /records/76740/ (test #306)
+						# NB The language is force-set to Russian, as the top guard clause would prevent getting this far; also this avoids auto-use in macro_transliterate() of //lang[1] which will not be section-half compliant
+						$puValues[$index] = $this->macro_transliterate ($puValue, 'Russian');	// NB: [s.n.] does not exist within any Russian record, but should not get transliterated anyway, being in square brackets (not possible to test)
 					}
 				}
 			}
@@ -1228,6 +1236,14 @@ class marcConversion
 		
 		# Return the result
 		return $result;
+	}
+	
+	
+	# Function to create a registry of *pu shard language values
+	private function getPuLanguages ()
+	{
+		# Return the lookup; selectPairs will smash recordId values together, which is fine, as even if there is more than one *pu per record, the values will all be the same
+		return $puLanguages = $this->databaseConnection->selectPairs ($this->settings['database'], 'transliterations', array ('field' => 'pu'), array ('recordId', 'language'));
 	}
 	
 	
