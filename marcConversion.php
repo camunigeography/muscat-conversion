@@ -3848,6 +3848,7 @@ class marcConversion
 		# Records to suppress, defined as a set of scenarios represented by a token
 		#!# Check whether locationCode locations with 'Periodical' are correct to suppress
 		#!# Major issue: problem with e.g. /records/3929/ where two records need to be created, but not both should be suppressed; there are around 1,000 of these
+		$locationCodesRegexpSql = '^(' . implode ('|', array_keys ($this->locationCodes)) . ')';
 		return $suppressionScenarios = array (
 			
 			'STATUS-RECEIVED' => array (
@@ -3891,7 +3892,7 @@ class marcConversion
 				# 8,325 records
 				'Item of bibliographic interest, but not held at SPRI, so no holdings record can be created',
 				"	    field = 'location'
-					AND value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
+					AND value NOT REGEXP \"" . $locationCodesRegexpSql . "\"
 					AND (
 						   value IN('', '-', '??', 'Not in SPRI', 'Periodical')
 						OR value LIKE '%?%'

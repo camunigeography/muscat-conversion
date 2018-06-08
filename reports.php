@@ -193,6 +193,9 @@ class reports
 		$this->acquisitionDate = $marcConversion->getAcquisitionDate ();
 		$this->transliterationNameMatchingFields = $marcConversion->getTransliterationNameMatchingFields ();
 		
+		# Compile an SQL REGEXP clause for the location codes
+		$this->locationCodesRegexpSql = '^(' . implode ('|', array_keys ($this->locationCodes)) . ')';
+		
 	}
 	
 	
@@ -1019,27 +1022,27 @@ class reports
 	{
 		# Define the query
 		$query = "
-		SELECT
-			'externallocations' AS report,
-			recordId
-		FROM
-			(
-				/* Obtain list of records with all locations grouped into one value, but filter out known fine records */
-				SELECT
-					recordId,
-					CONCAT('|', GROUP_CONCAT(value SEPARATOR '||'), '|') AS all_locations
-				FROM catalogue_processed
+			SELECT
+				'externallocations' AS report,
+				recordId
+			FROM
+				(
+					/* Obtain list of records with all locations grouped into one value, but filter out known fine records */
+					SELECT
+						recordId,
+						CONCAT('|', GROUP_CONCAT(value SEPARATOR '||'), '|') AS all_locations
+					FROM catalogue_processed
+					WHERE
+						    field = 'location'
+						AND value NOT REGEXP \"" . $this->locationCodesRegexpSql . "\"
+						AND value NOT REGEXP '^(IGS|International Glaciological Society)'
+						AND value != '??'	/* Not done in the regexp to avoid possible backlash-related errors */
+					GROUP BY recordId
+				) AS rawdata_combined
 				WHERE
-					    field = 'location'
-					AND value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
-					AND value NOT REGEXP '^(IGS|International Glaciological Society)'
-					AND value != '??'	/* Not done in the regexp to avoid possible backlash-related errors */
-				GROUP BY recordId
-			) AS rawdata_combined
-			WHERE
-				/* If 'Not in SPRI' is present anywhere, then any other location values are irrelevant */
-				    all_locations NOT LIKE '%|Not in SPRI|%'
-			";
+					/* If 'Not in SPRI' is present anywhere, then any other location values are irrelevant */
+					    all_locations NOT LIKE '%|Not in SPRI|%'
+		";
 		
 		# Return the query
 		return $query;
@@ -1059,7 +1062,7 @@ class reports
 			WHERE
 				    fieldslist NOT REGEXP '@location.*@location@'
 				AND field = 'location'
-				AND value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
+				AND value NOT REGEXP \"" . $this->locationCodesRegexpSql . "\"
 				AND value NOT REGEXP '^(IGS|International Glaciological Society)'
 				AND value != 'Not in SPRI'
 				AND value != '??'	/* Not done in the regexp to avoid possible backlash-related errors */
@@ -1139,6 +1142,7 @@ class reports
 		# Remove the numeric type from the location codes list for the purposes of this test
 		$locationNamesRegexps = array_keys ($this->locationCodes);
 		unset ($locationNamesRegexps[0]);	// Numeric one is the first, as noted in the comments
+		$locationCodesRegexpSql = '^(' . implode ('|', $locationNamesRegexps) . ')';
 		
 		# Define the query
 		$query = "
@@ -1148,8 +1152,8 @@ class reports
 			FROM catalogue_processed
 			WHERE
 				    field = 'location'
-				AND value     REGEXP \"^(" . implode ('|', $locationNamesRegexps) . ")\"
-				AND value NOT REGEXP \"^(" . implode ('|', $locationNamesRegexps) . ")( |$)\"
+				AND value     REGEXP \"" . $locationCodesRegexpSql . "\"
+				AND value NOT REGEXP \"" . $locationCodesRegexpSql . "( |$)\"
 		";
 		
 		# Return the query
@@ -1193,7 +1197,7 @@ class reports
 			WHERE
 				    root.field = 'location'
 				AND root.value = 'Not in SPRI'
-				AND others.value REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
+				AND others.value REGEXP \"" . $this->locationCodesRegexpSql . "\"
 			AND fieldslist REGEXP '@location@.+@location@'
 		";
 		
@@ -2893,7 +2897,7 @@ class reports
 			WHERE
 				    fieldslist LIKE '%@art@%'
 				AND fieldslist NOT LIKE '%@pt@%'
-				AND value REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
+				AND value REGEXP \"" . $this->locationCodesRegexpSql . "\"
 		";
 		
 		# Return the query
@@ -3197,7 +3201,7 @@ class reports
 			WHERE
 				    root.value LIKE '-'
 				AND others.field = 'location'
-				AND others.value REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
+				AND others.value REGEXP \"" . $this->locationCodesRegexpSql . "\"
 		";
 		
 		# Return the query
@@ -3398,7 +3402,7 @@ class reports
 				WHERE
 					    root.value = '-'
 					AND root.field NOT IN ('pu', 'pl')
-					AND others.value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
+					AND others.value NOT REGEXP \"" . $this->locationCodesRegexpSql . "\"
 			UNION
 				SELECT
 					'emptydashwithoutspri' AS report,
@@ -4368,7 +4372,7 @@ class reports
 			FROM catalogue_processed
 			WHERE
 				    field = 'location'
-				AND value NOT REGEXP \"^(" . implode ('|', array_keys ($this->locationCodes)) . ")\"
+				AND value NOT REGEXP \"" . $this->locationCodesRegexpSql . "\"
 				AND value NOT REGEXP '^(IGS|International Glaciological Society|Not in SPRI)'
 			GROUP BY value
 			ORDER BY title
