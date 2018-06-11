@@ -112,7 +112,7 @@ class reports
 		'emptyauthorcontainers_problem' => "records with empty author containers",
 		'backslashg_problem' => 'records with \g remaining',
 		'possiblearticle_problem' => 'records with a 245 starting with a possible article',
-		'bracketednfcount_problem' => 'records with a bracketed title starting with a leading article, for checking the nfcount',
+		'bracketednfcount_info' => 'records with a bracketed title starting with a leading article, for checking the nfcount',
 		'russianbracketedtitle_postmigration' => 'records marked *lang=Russian with a fully-bracketed title',
 		'russianldottitles_problem' => 'records (Russian) with L. in title to be checked individually, possibly resolving post-migration',
 		'paralleltitlemismatch_problem' => 'records (Russian) whose parallel title component count does not match that of the title',
@@ -2566,7 +2566,7 @@ class reports
 	}
 	
 	
-	# Records with a bracketed title starting with a leading article, for checking the nfcount; this is to try to deal with the issue that titles starting [ but the language of the record is not in English
+	# Records with a bracketed title starting with a leading article, for checking the nfcount; this is to try to deal with the issue that titles starting [ , e.g. /records/9196/ (test #359)
 	#!# Check for *to and *tc too?
 	public function report_bracketednfcount ()
 	{
