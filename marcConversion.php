@@ -3016,7 +3016,7 @@ class marcConversion
 		# Strip out any $6880 linking field; e.g. /records/22095/ (test #554)
 		$result = preg_replace ("/({$this->doubleDagger}6880-[0-9]{2})({$this->doubleDagger}|$)/", '\2', $result);
 		
-		# Strip subfield indicators, e.g. /records/1129/ (test #491)
+		# Strip subfield indicators, e.g. /records/22095/ (test #491)
 		$result = $this->stripSubfields ($result);
 		
 		# Assign as $a, e.g. /records/1109/ (test #540)
@@ -3037,7 +3037,7 @@ class marcConversion
 	}
 	
 	
-	# Function to provide subfield stripping, e.g. /records/1129/ (test #491)
+	# Function to provide subfield stripping, e.g. /records/22095/ (test #491)
 	public function stripSubfields ($string)
 	{
 		return preg_replace ("/({$this->doubleDagger}[a-z0-9])/", '', $string);

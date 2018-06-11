@@ -2916,9 +2916,9 @@ loadLookupTable case-insensitive comparison (definition side) (see also #483)
 
 491
 generate500 strips subfield indicators
-1129
+22095
 500
-‡aBIOMASS Handbook. Vol. 2 :1-21 ([1978])
+‡aIn: Pushnye bogatstva SSSR. Vypusk pervyĭ / M.S. Kuznet͡sov,
 
 492
 generate500 prefix for */art/
