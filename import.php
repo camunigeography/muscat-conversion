@@ -2538,7 +2538,7 @@ class import
 	# Function to add in the Voyager merge data fields
 	private function marcRecordsSetMergeFields ()
 	{
-		# Records to suppress
+		# Records to suppress; this deliberately uses //ka rather than //k2[1]/ka (and ditto kc), so that the multiple types are picked up as "unsupported merge type" errors
 		$query = "UPDATE catalogue_marc
 			LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
 			SET
