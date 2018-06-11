@@ -225,7 +225,7 @@ class reports
 		return array (
 			
 			'missingrplstatus' =>
-				'todo',
+				'Records that have a broad subject heading.',
 			
 			'artjnokg' =>
 				"In case of a 773 without a SPRI host, could subsequently be linked to a UL host by adding a {$this->doubleDagger}w.",
@@ -471,9 +471,7 @@ class reports
 	}
 	
 	
-	# Records in SPRI without a *rpl and without a *status, that are not *ser
-	# This was aiming to identify records that a broad subject heading
-	# This is basically now a non-priority post-migration task
+	# Records in SPRI without a *rpl and without a *status, that are not *ser; this aims to identify records that a broad subject heading, now a non-priority post-migration task
 	public function report_missingrplstatus ()
 	{
 		# Define the query
