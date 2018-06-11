@@ -2271,7 +2271,6 @@ class import
 			
 			# Process the records in chunks
 			$chunksOf = 500;	// Change max_allowed_packet above if necessary
-			$i = 0;
 			while (true) {	// Until the break
 				
 				# For the standard processing groups phase, look up from the database as usual
@@ -2864,7 +2863,6 @@ class import
 			$xmlRecords = $this->muscatConversion->getRecords ($ids, 'xml', false, false, $searchStable = (!$this->userIsAdministrator));
 			$marcRecords = array ();
 			foreach ($xmlRecords as $id => $record) {
-				// if (!in_array ($id, $regenerateIds)) {continue;}	// Skip non-needed IDs
 				$mergeType       = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeType'] : false);
 				$mergeVoyagerId	 = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeVoyagerId'] : false);
 				$suppressReasons = (isSet ($suppressReasonsList[$id]) ? $suppressReasonsList[$id] : false);
