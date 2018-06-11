@@ -399,7 +399,7 @@ class reports
 	}
 	
 	
-	# *art records where there is no *loc and no *status
+	# *art records where there is no *loc and no real (i.e. not 'SUPRESS') *status
 	public function report_artwithoutlocstatus ()
 	{
 		# Define the query
@@ -410,7 +410,7 @@ class reports
 			FROM fieldsindex
 			WHERE fieldslist LIKE '%@art@%'
 			  AND fieldslist NOT LIKE '%@loc@%'
-			  AND fieldslist NOT LIKE '%@status@%'
+			  AND status IS NULL	-- Not using `fieldslist NOT LIKE '%@status@%'` as that includes status=SUPPRESS, though results do not actually change in this report
 			";
 		
 		# Return the query
@@ -471,20 +471,20 @@ class reports
 	}
 	
 	
-	# Records in SPRI without a *rpl and without a *status, that are not *ser; this aims to identify records that a broad subject heading, now a non-priority post-migration task
+	# Records in SPRI without a *rpl and without a real (i.e. not 'SUPRESS') *status, that are not *ser; this aims to identify records that a broad subject heading, now a non-priority post-migration task
 	public function report_missingrplstatus ()
 	{
 		# Define the query
 		$query = "
 			SELECT
 				'missingrplstatus' AS report,
-				catalogue_rawdata.recordId
+				recordId
 			FROM catalogue_rawdata
 			LEFT JOIN fieldsindex ON recordId = fieldsindex.id
 			WHERE
 				    fieldslist NOT LIKE '%@ser@%'
 				AND fieldslist NOT LIKE '%@rpl@%'
-				AND fieldslist NOT LIKE '%@status@%'
+				AND status IS NULL	-- Not using `fieldslist NOT LIKE '%@status@%'` as that includes status=SUPPRESS
 				AND field = 'location'
 				AND value != 'Not in SPRI'
 			";
@@ -2433,7 +2433,7 @@ class reports
 				'coexistingksstatus' AS report,
 				catalogue_processed.recordId AS recordId
 			FROM catalogue_processed
-			LEFT JOIN catalogue_processed AS cp_missing ON catalogue_processed.recordId = cp_missing.recordId AND cp_missing.field = 'status'
+			LEFT JOIN catalogue_processed AS cp_missing ON catalogue_processed.recordId = cp_missing.recordId AND cp_missing.field = 'status' AND cp_missing.value != 'SUPPRESS'
 			WHERE
 				    catalogue_processed.field = 'ks'
 				AND IF (INSTR(catalogue_processed.value,'[') > 0, LEFT(catalogue_processed.value,LOCATE('[',catalogue_processed.value) - 1), catalogue_processed.value) IN ('" . implode ("', '", $this->ksStatusTokens) . "')

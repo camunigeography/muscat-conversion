@@ -3565,7 +3565,6 @@ class marcConversion
 	
 	
 	# Macro to determine cataloguing status; this uses values from both *ks OR *status, but the coexistingksstatus report is marked clean, ensuring that no data is lost
-	#!# /reports/coexistingksstatus/ is not clean as of 2/Jan/2018
 	private function macro_cataloguingStatus ($value)
 	{
 		# Return *ks if on the list of *ks status tokens, e.g. /records/56056/ (test #616)

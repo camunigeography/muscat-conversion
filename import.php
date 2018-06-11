@@ -557,6 +557,7 @@ class import
 			ADD keyword TEXT NULL COMMENT 'Keyword (UDC)',
 			ADD isbn TEXT NULL COMMENT 'ISBN',
 			ADD location TEXT NULL COMMENT 'Location',
+			ADD status VARCHAR(255) NULL COMMENT 'Status',
 			ADD anywhere TEXT NULL COMMENT 'Text anywhere within record',
 			ADD INDEX(title)
 		;";
@@ -597,8 +598,18 @@ class import
 		}
 		
 		# Add the sortfield index, which discards quotes, HTML tags, etc.; this only needs the initial part of the string, so is limited to 200 characters, which is confirmed as fitting inside a VARCHAR(255)
-		$sql = "UPDATE fieldsindex SET titleSortfield = LEFT(" . $this->databaseConnection->trimSql ('title', $this->marcConversion->getHtmlTags ()) . ', 200);';
-		$this->databaseConnection->execute ($sql);
+		$query = "UPDATE fieldsindex SET titleSortfield = LEFT(" . $this->databaseConnection->trimSql ('title', $this->marcConversion->getHtmlTags ()) . ', 200);';
+		$this->databaseConnection->execute ($query);
+		
+		# Add the status value, excluding the overloaded 'SUPPRESS' status
+		$query = "UPDATE fieldsindex
+			LEFT JOIN catalogue_processed ON fieldsindex.id = catalogue_processed.recordId AND field = 'status'
+			SET fieldsindex.status = catalogue_processed.value
+			WHERE
+				    fieldslist LIKE '%@status@%'	-- Filter for efficiency (30s -> 5s)
+				AND value != 'SUPPRESS'	-- Exclude overloaded *status value
+		;";
+		$this->databaseConnection->execute ($query);
 	}
 	
 	
@@ -2241,7 +2252,7 @@ class import
 		;";
 		$this->databaseConnection->execute ($query);
 		
-		# Add in the supress/migrate/ignore status for each record; also available as a standalone option in the import
+		# Add in the suppress/migrate/ignore status for each record; also available as a standalone option in the import
 		$this->marcRecordsSetStatus ();
 		
 		# Add in the Voyager merge data fields, retrieving the resulting data
