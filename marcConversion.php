@@ -3439,17 +3439,17 @@ class marcConversion
 			# Does *location_original start with a number? This is to deal with cases like "141 C", in which the creation of "SPRI-SER" in the MARC record is implicit
 			if (!$isShelvedWith) {		// "Shelved with ..." items do not get $h, e.g. /records/1032/ (test #653)
 				
-				# If starts with a number (rather than e.g. Shelf / Pam / etc.), it is shelved with periodicals, e.g. /records/20534/ (test #748)
-				if (preg_match ('/^[0-9]/', $location)) {
+				# If starts with a number (rather than e.g. Shelf / Pam / etc.), it is shelved with periodicals, e.g. /records/20534/ (test #748); Basement example at /records/165908/ (test #771) and its child /records/180007/ (test #772)
+				if (preg_match ('/^([0-9]|Basement)/', $location)) {
 					
 					# For real serial analytics, provide human-readable text to look up; otherwise (i.e. /ser) put the real value
 					if ($this->recordType == '/art/j' && $this->hostRecord) {	// E.g. /records/20557/ (test #749)
 						
 						# Add to record a helpful string ‡z, rather than ‡h with a hard-coded location (which would then become problematic to maintain)
-						$result .= " {$this->doubleDagger}z" . 'See related holdings for SPRI location';	// E.g. /records/20557/ (test #750)
+						$result .= " {$this->doubleDagger}z" . 'See related holdings for SPRI location';	// E.g. /records/20557/ (test #750); Basement example at /records/180007/ (test #772)
 					} else {
 						
-						# Add to record: ‡h <*location_original> (i.e. the full string), e.g. /records/20534/ gets "‡h82 A-B"
+						# Add to record: ‡h <*location_original> (i.e. the full string), e.g. /records/20534/ gets "‡h82 A-B"; Basement example at /records/165908/ (test #771)
 						$result .= " {$this->doubleDagger}h" . $location;
 					}
 					

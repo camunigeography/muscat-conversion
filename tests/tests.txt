@@ -4527,3 +4527,16 @@ Multiple *kg present uses first as linkage
 189648
 880
 ‡bСахалинское Книжное Издательство
+
+771
+852 Serial held entirely in basement gets $h (see also next test for child)
+165908
+852
+‡cSPRI-BMT ‡hBasement 53 E - 54 A
+
+772
+852 Analytic from serial held entirely in basement gets $z (see also previous test for parent)
+180007
+852
+‡cSPRI-BMT ‡zSee related holdings for SPRI location
+
