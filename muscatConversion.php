@@ -1215,7 +1215,7 @@ class muscatConversion extends frontControllerApplication
 	private function itemRecordsStatus ($id)
 	{
 		# Obtain the number
-		$itemRecords = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'itemRecord', $conditions = array ('id' => $id));
+		$itemRecords = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'itemRecords', $conditions = array ('id' => $id));
 		
 		# If none, format as dash
 		if (!$itemRecords) {$itemRecords = '-';}

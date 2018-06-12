@@ -2211,7 +2211,7 @@ class import
 				id int(11) NOT NULL COMMENT 'Record number',
 				type ENUM('/art/in','/art/j','/doc','/ser') DEFAULT NULL COMMENT 'Type of record',
 				status ENUM('migrate','suppress','ignore') NULL DEFAULT NULL COMMENT 'Status',
-				itemRecord INT(1) NULL COMMENT 'Create item record?',
+				itemRecords INT(1) NULL COMMENT 'Create item record?',
 				mergeType VARCHAR(255) NULL DEFAULT NULL COMMENT 'Merge type',
 				mergeVoyagerId VARCHAR(255) NULL DEFAULT NULL COMMENT 'Voyager ID for merging',
 				marcPreMerge TEXT NULL COLLATE utf8_unicode_ci COMMENT 'Pre-merged MARC representation of local Muscat record',
@@ -2370,7 +2370,17 @@ class import
 		}
 		
 		# Mark whether item records should be created; this looks at Leader position 7, which indicates Monograph; see marcConversion::macro_generateLeader ()
-		$query = "UPDATE catalogue_marc SET itemRecord = 1 WHERE marc REGEXP '^LDR .{7}m';";
+		$query = "UPDATE catalogue_marc SET itemRecords = 1 WHERE marc REGEXP '^LDR .{7}m';";
+		$this->databaseConnection->execute ($query);
+		
+		# Update the item records count for multiple locations; the problem of Periodical being present will not arise, as 'm' will have excluded those
+		$query = "
+			UPDATE fieldsindex
+			JOIN catalogue_marc ON fieldsindex.id = catalogue_marc.id
+			SET itemRecords = (LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@location','')))/LENGTH('@location') + 0	/* i.e. substr_count('@location') */
+			WHERE fieldslist REGEXP '@location@.*location@'
+			AND itemRecords = 1
+		;";
 		$this->databaseConnection->execute ($query);
 		
 		# Generate the output files
