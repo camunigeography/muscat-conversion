@@ -4540,3 +4540,15 @@ Multiple *kg present uses first as linkage
 852
 ‡cSPRI-BMT ‡zSee related holdings for SPRI location
 
+773
+852 Serial held entirely in Russian collection gets $h (see also next test for child)
+33585
+852
+‡cSPRI-RUS ‡hRussian MAT.GLYA.
+
+774
+852 Analytic from serial held entirely in Russian collection gets $z (see also previous test for parent)
+137033
+852
+‡cSPRI-RUS ‡zSee related holdings for SPRI location
+
