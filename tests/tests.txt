@@ -4557,3 +4557,9 @@ Multiple *kg present uses first as linkage
 19822
 852
 ‡cSPRI-SER ‡h132 C ; Basement 60 B-C
+
+776
+300 support for "[1] leaf of plates" gets appended to pagination count as physical extent
+10957
+300
+‡a53 p., [1] leaf of plates :‡b

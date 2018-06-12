@@ -1328,6 +1328,7 @@ class marcConversion
 			$phrases = array (
 				'leaves of map',
 				'leaf of map',
+				'leaf of plate',
 			);
 			$protectedSubstringsPattern = '<||%i||>';
 			$protectedParts = array ();
@@ -1439,11 +1440,15 @@ class marcConversion
 		} else {
 			
 			# Count for each pagination string, including p. suffix, e.g. /records/54657/ (test #597)
-			$pageCount = 0;
+			$pageCount = false;
+			$suffix = false;
 			foreach ($citationListValues as $volume => $paginationString) {
-				$pageCount += $this->pageCount ($paginationString);
+				$pageCount += $this->pageCount ($paginationString, $suffix);
 			}
 			$pagesString = $pageCount . ' p.';
+			if ($suffix) {
+				$pagesString .= ', ' . $suffix;	// E.g. /records/10957/ (test #776)
+			}
 		}
 		
 		# Return the assembled pages string
@@ -1488,7 +1493,7 @@ class marcConversion
 	
 	
 	# Helper function to create a page count from a pagination string, e.g. /records/54657/ (test #597)
-	private function pageCount ($paginationString)
+	private function pageCount ($paginationString, &$suffix)
 	{
 		# Start a counter
 		$pages = 0;
@@ -1512,6 +1517,11 @@ class marcConversion
 			# Roman numeral range, e.g. "v-viii" is 4; no examples available (so code is not actually used, but mocked data shows confirmed working)
 			} else if (preg_match ('/^([ivxcldmIVXCLDM]+)-([ivxcldmIVXCLDM]+)$/i', $pagination, $matches)) {	// Expected to be lower-case but upper-case support kept in
 				$pages += ((application::romanNumeralToInt ($matches[2]) - application::romanNumeralToInt ($matches[1])) + 1);	// +1 because it has to match itself
+				
+			# "[1] leaf of plates" should be ignored in the page count, but added as a suffix; e.g. /records/10957/ (test #776)
+			} else if (preg_match ('/\[[0-9]\] leaf of plates/', $pagination, $matches)) {
+				$pages += 0;
+				$suffix = $pagination;
 				
 			# Unsupported value
 			} else {
