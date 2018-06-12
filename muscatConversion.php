@@ -927,7 +927,8 @@ class muscatConversion extends frontControllerApplication
 					}
 					$output .= "\n<div class=\"graybox marc\">";
 					$output .= "\n<p id=\"exporttarget\">";
-					$output .= "Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->migrationStatus ($id) . "</strong> &nbsp;&nbsp;";
+					$output .= "Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->migrationStatus ($id) . '</strong> &nbsp;&nbsp;';
+					$output .= "Item records: <strong>" . $this->itemRecordsStatus ($id) . '</strong> &nbsp;&nbsp;';
 					$output .= $marcXmlLink;
 					$output .= '</p>';
 					if ($record['mergeType']) {
@@ -1207,6 +1208,20 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the label for the status
 		return $label;
+	}
+	
+	
+	# Function to obtain the item records status for a MARC record
+	private function itemRecordsStatus ($id)
+	{
+		# Obtain the number
+		$itemRecords = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'itemRecord', $conditions = array ('id' => $id));
+		
+		# If none, format as dash
+		if (!$itemRecords) {$itemRecords = '-';}
+		
+		# Return the label for the status
+		return $itemRecords;
 	}
 	
 	
