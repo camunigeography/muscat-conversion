@@ -41,7 +41,6 @@ class marcConversion
 		'Pam'										=> 'SPRI-PAM',
 		'Picture Library'							=> 'SPRI-PIC',
 		'Reference'									=> 'SPRI-REF',
-		'Russian Gallery'							=> 'SPRI-RUS',
 		'Russian'									=> 'SPRI-RUS',
 		'Shelf'										=> 'SPRI-SHF',
 		'Special Collection'						=> 'SPRI-SPC',
