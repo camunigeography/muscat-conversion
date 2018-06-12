@@ -1049,7 +1049,6 @@ class reports
 	
 	
 	# Records with only one external location, which is not on the whitelist
-	#!# This also needs to check for *location where there is a semicolon-space
 	public function report_singleexternallocation ()
 	{
 		# Define the query
@@ -1062,7 +1061,17 @@ class reports
 			WHERE
 				    fieldslist NOT REGEXP '@location.*@location@'
 				AND field = 'location'
-				AND value NOT REGEXP \"" . $this->locationCodesRegexpSql . "\"
+				AND (
+					-- Single location
+						value NOT REGEXP \"" . $this->locationCodesRegexpSql . "\"
+					OR
+					-- Two locations: A; B
+						(
+						    value LIKE '%; %'
+						AND value NOT REGEXP \"" . preg_replace ('/^\^/', '; ?', $this->locationCodesRegexpSql) . "\"
+						)
+				)
+				-- These have been tested manually that there are no semicolon-containing records also matching these, to keep the query simpler
 				AND value NOT REGEXP '^(IGS|International Glaciological Society)'
 				AND value != 'Not in SPRI'
 				AND value != '??'	/* Not done in the regexp to avoid possible backlash-related errors */
