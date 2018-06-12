@@ -1733,7 +1733,8 @@ class reports
 			FROM catalogue_rawdata
 			WHERE
 				    field IN('note', 'local')
-				AND value LIKE 'SPRI has%'
+				AND value LIKE '%opies%'
+				AND value NOT LIKE '%SPRI also has%'
 			";
 		
 		# Return the query
