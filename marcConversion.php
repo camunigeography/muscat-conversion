@@ -3439,7 +3439,7 @@ class marcConversion
 			# Does *location_original start with a number? This is to deal with cases like "141 C", in which the creation of "SPRI-SER" in the MARC record is implicit
 			if (!$isShelvedWith) {		// "Shelved with ..." items do not get $h, e.g. /records/1032/ (test #653)
 				
-				# If starts with a number (rather than e.g. Shelf / Pam / etc.), it is shelved with periodicals, e.g. /records/20534/ (test #748); Basement example at /records/165908/ (test #771) and its child /records/180007/ (test #772); Russian example at /records/33585/ (test #773) and its child /records/137033/ (test #774)
+				# If starts with a number (rather than e.g. Shelf / Pam / etc.), it is shelved with periodicals, e.g. /records/20534/ (test #748); example with location split across parts of the library at /records/19822/ (test #775); Basement example at /records/165908/ (test #771) and its child /records/180007/ (test #772); Russian example at /records/33585/ (test #773) and its child /records/137033/ (test #774)
 				if (preg_match ('/^([0-9]|Basement|Russian)/', $location)) {
 					
 					# For real serial analytics, provide human-readable text to look up; otherwise (i.e. /ser) put the real value
