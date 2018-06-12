@@ -41,7 +41,7 @@ class reports
 		'loclocfiltered2_info' => "records with two or more locations, having first filtered out any locations whose location is 'Not in SPRI'/'Periodical'/'Basement IGS Collection'/'Basement Seligman *'",
 		'externallocations_info' => "records where no location is 'Not in SPRI', having first filtered out any matching a whitelist of internal locations",
 		'loclocloc_info' => 'records with three or more locations',
-		'singleexternallocation_problem' => 'records with only one location, which is not on the whitelist',
+		'singleexternallocation_problem' => 'records with only one external location, which is not on the whitelist',
 		'arttitlenoser' => 'articles without a matching serial title, that are not pamphlets or in the special collection',
 		'locationauthoritycontrol_problem' => 'locations not passing authority control',
 		'notinspri_info' => 'items not in SPRI',
@@ -1048,7 +1048,8 @@ class reports
 	}
 	
 	
-	# Records with only one location, which is not on the whitelist
+	# Records with only one external location, which is not on the whitelist
+	#!# This also needs to check for *location where there is a semicolon-space
 	public function report_singleexternallocation ()
 	{
 		# Define the query
