@@ -3459,7 +3459,7 @@ class marcConversion
 					# "Is *location_trimmed empty?; If no, add location to record, e.g. /records/100567/ (test #767), empty example at: /records/31500/ (test #647)
 					if (strlen ($classification)) {
 						
-						# For real serial analytics, provide human-readable text to look up, e.g. /records/100568/ (test #768); otherwise put the real value, e.g. /records/100567/ (test #769)
+						# For analytics from a monograph (book), provide human-readable text to look up, e.g. /records/100568/ (test #768); otherwise put the real value, e.g. /records/100567/ (test #769)
 						if ($this->recordType == '/art/in' && $this->hostRecord) {
 							
 							# Add to record a helpful string ‡z, rather than ‡h with a hard-coded location (which would then become problematic to maintain), e.g. /records/100568/ (test #768)
