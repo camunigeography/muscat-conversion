@@ -1200,7 +1200,9 @@ class muscatConversion extends frontControllerApplication
 	private function migrationStatus ($id)
 	{
 		# Obtain the status
-		$status = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'status', $conditions = array ('id' => $id));
+		if (!$status = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'status', $conditions = array ('id' => $id))) {
+			return '?';
+		}
 		
 		# Assign label
 		$filesets = $this->import->getFilesets ();
