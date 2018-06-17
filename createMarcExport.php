@@ -202,6 +202,7 @@ class createMarcExport
 			'008: 008 date may not match 260 date - please check.',	// E.g. /records/1150/ which has '[196-?]' which is valid (test #217) - Bibcheck isn't taking account of [...] brackets or five-digit values; see example "##$aNew York :$bHaworth,$c[198-]" at https://www.loc.gov/marc/bibliographic/bd008a.html
 			'008: Check place code xxk - please set code for specific UK member country eg England, Wales (if known)', // E.g. /records/163302/
 			'020: Subfield _q is not allowed.',		// E.g. /records/165286/
+			'111: Subfield _j is not allowed.',		// E.g. /records/151282/
 			'245: Subfield _[1|2|4|5] is not allowed.',	// E.g. /records/203691/ has $100 (test #218)
 			'245: Must have a subfield _a.',	// E.g. /records/174312/ has "‡a$50,000 an ounce!"
 			'245: First word, el, may be an article, check 2nd indicator (0).',		// Only cases are El Niño (English record) and El'vel (Russian record)
