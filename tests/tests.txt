@@ -2111,10 +2111,10 @@ i242
 /4$/
 
 358
-Macro nfcount: 240 2nd indicator (based on *to) should have 3 for French record starting 'La '
+240 leading article count is always 0 under AACR2
 13989
 i240
-/3$/
+/0$/
 
 359
 Macro nfcount: Special characters with initial article are counted as nonfiling characters (with: "[La ")
@@ -4469,16 +4469,16 @@ articles only ‡zSome items
 ‡6245-01/(N‡a
 
 761
-240 Leading article count is 4 for English record without *lto for "The"
+240 English record without *lto for leading article "The " has that stripped
 6897
-i240
-/4$/
+240
+‡aAntarctic expeditions
 
 762
-240 Leading article count is 0 for non-English record without a leading article
+240 Non-English record with no leading article has no stripping
 1165
-i240
-/0$/
+240
+‡aLevnads- och
 
 763
 Multiple *kg present uses first as linkage
@@ -4563,3 +4563,11 @@ Multiple *kg present uses first as linkage
 10957
 300
 ‡a53 p., [1] leaf of plates :‡b
+
+777
+240 String after stripping leading article has first character made upper-case
+13989
+240
+‡aVie et les voyages
+
+

@@ -2217,23 +2217,34 @@ class marcConversion
 	}
 	
 	
-	# Macro for the indicator for 240 (*to), which takes account of (*lto), e.g. /records/13989/ (test #358)
-	private function macro_indicator240 ($value, $ignored)
+	# Macro for 240 (*to) to strip leading articles, as required by AACR2, taking account of (*lto), e.g. /records/6897/ (test #761); NB the leading article count is always 0 under AACR2, e.g. /records/13989/ (test #358)
+	private function macro_stripLeadingArticle240 ($to, $ignored)
 	{
-		# Obtain the *to
-		$to = $this->xPathValue ($this->xml, '/*/tg/to[1]');
-		
 		# Obtain the *lto language, if any
 		$lto = $this->xPathValue ($this->xml, '/*/tg/lto[1]');
 		
 		# Set the language; this should explicitly *not* fall back on the record language, because *to will generally not match the record language, e.g. /records/6897/ (test #761)
 		$language = ($lto ? $lto : 'English');
 		
-		# Obtain the non-filing character (leading article) count, e.g. /records/13989/ (test #358), /records/1165/ (test #762)
+		# Obtain the non-filing character (leading article) count, e.g. 4 in /records/6897/ (test #761), 0 in /records/1165/ (test #762)
 		$nfCount = $this->macro_nfCount ($to, $language);
 		
-		# Return the nfCount
-		return $nfCount;
+		# Determine if the *to starts with a [ bracket
+		$hasBracket = (substr ($to, 0, 1) == '[');
+		
+		# If there is an nfcount, strip that number of characters from the *to, e.g. 4 in /records/6897/ (test #761), no stripping in /records/1165/ (test #762); upper-case the first character, e.g. /records/13989/ (test #777)
+		if ($nfCount) {
+			$to = mb_substr ($to, $nfCount);
+			$to = mb_ucfirst ($to);		// Supplied in application.php as a polyfill function
+			
+			# Restore bracket if present; the nfCount will have included this, e.g. '[The ' is 5, so all will be stripped
+			if ($hasBracket) {
+				$to = '[' . $to;	// No examples, so no test available, but tested using dummy data
+			}
+		}
+		
+		# Return the *to, as potentially amended
+		return $to;
 	}
 	
 	
