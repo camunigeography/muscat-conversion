@@ -1662,8 +1662,11 @@ class marcConversion
 		#!# Check on effect of *to or *tc, as per /reports/bracketednfcount/
 		if ($isSquareBracketed = ((substr ($value, 0, 1) == '[') && (substr ($value, -1, 1) == ']'))) {
 			$language = 'English';	// E.g. /records/14153/
-			if (preg_match ('/^\[La /', $value)) {	// All in /reports/bracketednfcount/ were reviewed and found to be English, except /records/9196/
+			if (preg_match ('/^\[La /', $value)) {	// All in /reports/bracketednfcount/ were reviewed and found to be English, except /records/9196/ and others below
 				$language = 'French';
+			}
+			if (preg_match ('/^\[Die /', $value)) {	// /records/176560/
+				$language = 'German';
 			}
 		}
 		
@@ -3627,7 +3630,7 @@ class marcConversion
 			'den ' => 'Danish German Norwegian Swedish',
 			'der ' => 'German',
 			'det ' => 'Danish German Norwegian Swedish',
-			'die ' => 'German',
+			'die ' => 'Afrikaans German',
 			'een ' => 'Dutch',
 			'ei ' => 'Norwegian',	// /records/103693/ (test #171)
 			'ein ' => 'German Norwegian',
