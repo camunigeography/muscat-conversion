@@ -885,8 +885,10 @@ class muscatConversion extends frontControllerApplication
 		# Get the data or end
 		$linkFields = ($type != 'xml');
 		if (!$record = $this->getRecords ($id, $type, $convertEntities = true, $linkFields)) {
-			$errorHtml = sprintf ($this->types[$type]['errorHtml'], $id);
-			return false;
+			if (!in_array ($type, array ('marc', 'presented'))) {	// MARC and presented formats are both created dynamically, so should not be a fatal error
+				$errorHtml = sprintf ($this->types[$type]['errorHtml'], $id);
+				return false;
+			}
 		}
 		
 		# Regenerate MARC data on the fly (for MARC and presented versions), so that changes in code can be immediately viewed
