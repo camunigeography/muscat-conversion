@@ -150,6 +150,7 @@ class reports
 		'ntcyrillicunsupported_postmigration' => 'non-Russian records with all Cyrillic *nt for types never supported',
 		'locrusnodiacritics_postmigration' => 'records with *nt=LOCRus that need diacritics adding',
 		'article245_problem' => 'records with a suspected wrong language due to leading article mismatch in 245',
+		'tsdotend_problem' => '*ts records ending with a dot',
 	);
 	
 	# Listing (values) reports
@@ -3413,6 +3414,25 @@ class reports
 				id AS recordId
 			FROM catalogue_marc
 			WHERE bibcheckErrors REGEXP '245: First word, [a-z]+, may be an article, check 2nd indicator'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *ts records ending with a dot
+	public function report_tsdotend ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'tsdotend' AS report,
+				id AS recordId
+			FROM catalogue_processed
+			WHERE
+				    field = 'ts'
+				AND value LIKE '%.'
 		";
 		
 		# Return the query
