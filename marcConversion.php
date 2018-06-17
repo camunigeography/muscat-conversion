@@ -2224,6 +2224,7 @@ class marcConversion
 		$lto = $this->xPathValue ($this->xml, '/*/tg/lto[1]');
 		
 		# Set the language; this should explicitly *not* fall back on the record language, because *to will generally not match the record language, e.g. /records/6897/ (test #761)
+		# *to is assumed to be in English unless an *lto is specified, so an English *to in a Russian record needs *lto=English adding
 		$language = ($lto ? $lto : 'English');
 		
 		# Obtain the non-filing character (leading article) count, e.g. 4 in /records/6897/ (test #761), 0 in /records/1165/ (test #762)

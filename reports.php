@@ -144,7 +144,7 @@ class reports
 		'invalidcon_problem' => 'records with an invalid *con syntax',
 		'othertransliterations_postmigration' => 'records with names for transliteration in other languages (e.g. Yakut, Chinese, etc.) for upgrading',
 		'locationunassigned_postmigration' => 'records with location = ??',
-		'towithoutlto_problem' => 'records with *to without *lto defined',
+		'towithoutlto_problem' => 'records with *to without *lto defined, having whitelisted English *to in a non-Russian record',
 		'ntnoneslashupgrade_problem' => 'records with *nt=None which have not had / upgrading for 245',
 		'ntcyrillicinscope_postmigration' => 'non-Russian records with Cyrillic *nt = BGNRus/LOCRus',
 		'ntcyrillicunsupported_postmigration' => 'non-Russian records with all Cyrillic *nt for types never supported',
@@ -3276,7 +3276,7 @@ class reports
 	}
 	
 	
-	# Records with *to without *lto defined
+	# Records with *to without *lto defined, having whitelisted English *to in a non-Russian record; as per macro_stripLeadingArticle240 (), *to is assumed to be in English unless an *lto is specified
 	public function report_towithoutlto ()
 	{
 		# Define the query
@@ -3294,6 +3294,26 @@ class reports
 			LEFT JOIN catalogue_processed AS catalogueLto on fieldsindex.id = catalogueLto.recordId AND catalogueLto.field = 'lto'
 			WHERE fieldslist LIKE '%@to@%'
 			AND catalogueLto.value IS NULL
+			AND fieldsindex.id NOT IN (		/* Exclude these whitelisted records, where the *to is in English, and the record is not Russian, so no need to add *lto=English */
+				1314, 1921, 2052, 2194, 2346, 3169, 4273, 4618, 6897, 8792,
+				9054, 9664, 9665, 9672, 9673, 9701, 10004, 10011, 10519, 10520,
+				10853, 10854, 11148, 11637, 11756, 11758, 12199, 12364, 12381, 12386,
+				12522, 12799, 13296, 13297, 13531, 14174, 14205, 14620, 15045, 15236,
+				15465, 16139, 16483, 18280, 20477, 20859, 21652, 21933, 23164, 24048,
+				24649, 25904, 25968, 27081, 29147, 29327, 30631, 30632, 30633, 30639,
+				30759, 30903, 32009, 32010, 32128, 32204, 32205, 32206, 32207, 32239,
+				33780, 33783, 35401, 37265, 38637, 39601, 39602, 39603, 39851, 40812,
+				41777, 41999, 43395, 44399, 45527, 46408, 47175, 49734, 52709, 53512,
+				53791, 57922, 59515, 59710, 61656, 67602, 67772, 72608, 74008, 74209,
+				76030, 77044, 83998, 89351, 89666, 89771, 98487, 102617, 109301, 109309,
+				128087, 137395, 139072, 139639, 139896, 144335, 148438, 150139, 151127, 151620,
+				151977, 153704, 153825, 154314, 154521, 156529, 157007, 157995, 159057, 159158,
+				162416, 162902, 164002, 165673, 166480, 166879, 166880, 167978, 167979, 168615,
+				169981, 172386, 172754, 173300, 174384, 175758, 176529, 178300, 179644, 184900,
+				188669, 189170, 194055, 196400, 196431, 196534, 196673, 198097, 198406, 198565,
+				201042, 201214, 201543, 201912, 201913, 201916, 202389, 204049, 205099, 206330,
+				207476, 208426, 208636, 210841
+			)
 		";
 		
 		# Return the query
