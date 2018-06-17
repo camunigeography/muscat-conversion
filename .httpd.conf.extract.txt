@@ -56,11 +56,16 @@
 		php_value auto_append_file none
 	</LocationMatch>
 	
+	# Increase general memory limit, e.g. for tests
+	<Location $baseUrl/>
+		php_value memory_limit 100M
+	</Location>
+	
 	# High memory required for import
 	<Location $baseUrl/import/>
 		php_value upload_max_filesize 1000M
 		php_value post_max_size 1000M
-		php_value memory_limit 1000M
+		php_value memory_limit 1500M
 	</Location>
 	
 	# Cookie setting
