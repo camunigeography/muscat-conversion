@@ -1900,14 +1900,8 @@ No 260 880 generated if record is not Russian (implementation pending)
 !880
 260-
 
-317
-260 second indicator: if *loc starts with 'Theses' second indicator should be '0' (see also next test)
-3152
-i260
-#0
-
 318
-260 second indicator: normal case (see also previous test)
+260 second indicator should always be #
 1117
 i260
 ##
@@ -4263,12 +4257,6 @@ Anonymous is protected string in transliteration
 12376
 !916
 Binding : slight
-
-727
-260 second indicator still generated if no *location present
-11154
-i260
-/^##$/
 
 728
 *nt = BGNRus in a non-Russian record gets upgraded to LoC cyrillic and thence a mirror field created (implementation pending; not likely to be implemented; see /reports/ntcyrillicinscope/)

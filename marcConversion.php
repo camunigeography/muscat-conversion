@@ -1141,24 +1141,6 @@ class marcConversion
 	}
 	
 	
-	# Macro to set the second indicator for a 260 field, based on whether it is a thesis, e.g. /records/3152/ (test #317)
-	private function macro_theses260i ($values_ignored)
-	{
-		# Get the locations, if any
-		$locations = $this->xPathValues ($this->xml, '//loc[%i]/location', false);
-		
-		# "If *loc starts with 'Theses' second indicator should be '0'.", e.g. /records/3152/ (test #317)
-		foreach ($locations as $location) {
-			if (preg_match ('/^Theses/', $location)) {
-				return '0';
-			}
-		}
-		
-		# Otherwise return # if string not found, e.g. /records/1117/ (test #318), or if no *loc/*location, e.g. /records/11154/ (test #727)
-		return '#';
-	}
-	
-	
 	# Macro to create 260; $a and $b are grouped as there may be more than one publisher, e.g. /records/76743/ (#test 297); see: https://www.loc.gov/marc/bibliographic/bd260.html
 	private function macro_generate260 ($value_ignored, $transliterate = false)
 	{
