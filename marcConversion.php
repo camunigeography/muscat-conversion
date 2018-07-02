@@ -2865,7 +2865,7 @@ class marcConversion
 		# Get the data table
 		$lookupTable = file_get_contents ($this->applicationRoot . '/tables/' . $table . '.tsv');
 		
-		# Undo Muscat escaped asterisks @* , e.g. /records/180287/ (test #485)
+		# Undo Muscat escaped asterisks @* ; there is only one example and it is not used, but manual tests confirm it is fine
 		$lookupTable = $this->unescapeMuscatAsterisks ($lookupTable);
 		
 		# Convert to TSV
@@ -2936,7 +2936,7 @@ class marcConversion
 	}
 	
 	
-	# Helper function to unescape Muscat asterisks, e.g. /records/180287/ (test #485)
+	# Helper function to unescape Muscat asterisks, e.g. /records/2110/ (test #485)
 	#!#C Copied from muscatConversion (to avoid memory issues)
 	private function unescapeMuscatAsterisks ($string)
 	{

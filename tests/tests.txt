@@ -2880,9 +2880,9 @@ Basic lookupTable test
 
 485
 Undo Muscat escaped asterisks @*
-180287
-008
-/^.{15}ru#/
+2110
+651
+‡a(*3)
 
 486
 loadLookupTable needs definition of empty value fallback value
