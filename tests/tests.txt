@@ -4558,4 +4558,17 @@ Multiple *kg present uses first as linkage
 240
 ‡aVie et les voyages
 
+778
+710 requires dot when ) present before ‡t (unlike 700 - see next test)
+215849
+710
+Aerofotogrammetrici (EIRA).‡tIl
+
+779
+700 does not require dot when ) present before ‡t (unlike 710 - see previous test)
+215849
+700
+Aerofotogrammetrici (EIRA)‡tIl
+
+
 

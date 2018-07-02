@@ -361,7 +361,8 @@ class generateAuthors
 					
 					# Add the title (i.e. *art/*tg/*t)
 					if ($line) {
-						$line  = $this->marcConversion->macro_dotEnd ($line, $extendedCharacterList = '?.-)');		// (test #89) e.g. /records/9843/ , /records/13620/ ; "700: Subfield _t must be preceded by a question mark, full stop, hyphen or closing parenthesis."
+						$extendedCharacterList = ($this->field == 710 ? '.' : '?.-)');	// 710 doesn't allow ) but e.g. 700 does; e.g. /records/215849/ (tests #778, #779) ; "700: Subfield _t must be preceded by a question mark, full stop, hyphen or closing parenthesis."
+						$line  = $this->marcConversion->macro_dotEnd ($line, $extendedCharacterList);		// (test #89) e.g. /records/9843/ , /records/13620/
 						$line .= "{$this->doubleDagger}t" . $this->marcConversion->xPathValue ($childRecordXml, '/*/tg/t');
 					}
 					
