@@ -4570,5 +4570,8 @@ Aerofotogrammetrici (EIRA).‡tIl
 700
 Aerofotogrammetrici (EIRA)‡tIl
 
-
-
+780
+700 from content note has subfield ‡t must be preceded by a question mark, full stop, hyphen or closing parenthesis
+212487
+700
+[G. F. Müller].‡t

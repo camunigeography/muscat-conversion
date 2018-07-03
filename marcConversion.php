@@ -2520,10 +2520,10 @@ class marcConversion
 			if (preg_match ($splitRegexp, $subfields['r'][$i])) {
 				$authors = preg_split ($splitRegexp, $subfields['r'][$i]);
 				foreach ($authors as $author) {
-					$lines[] = '1# ' . $this->macro_dotEnd ("{$this->doubleDagger}a" . $this->generateAuthors->spaceOutInitials ($author), true) . $this->macro_dotEnd ("{$this->doubleDagger}t{$subfields['t'][$i]}", true);	// spaceOutInitials applied, e.g. /records/145748/ (test #765)
+					$lines[] = '1# ' . $this->macro_dotEnd ("{$this->doubleDagger}a" . $this->generateAuthors->spaceOutInitials ($author), '?.-)') . $this->macro_dotEnd ("{$this->doubleDagger}t{$subfields['t'][$i]}", true);	// spaceOutInitials applied, e.g. /records/145748/ (test #765); "700: Subfield _t must be preceded by a question mark, full stop, hyphen or closing parenthesis." e.g. /records/212487/ (test #780)
 				}
 			} else {
-				$lines[] = '1# ' . $this->macro_dotEnd ("{$this->doubleDagger}a" . $this->generateAuthors->spaceOutInitials ($subfields['r'][$i]), true) . $this->macro_dotEnd ("{$this->doubleDagger}t{$subfields['t'][$i]}", true);	// spaceOutInitials applied, e.g. /records/12059/ (test #764)
+				$lines[] = '1# ' . $this->macro_dotEnd ("{$this->doubleDagger}a" . $this->generateAuthors->spaceOutInitials ($subfields['r'][$i]), '?.-)') . $this->macro_dotEnd ("{$this->doubleDagger}t{$subfields['t'][$i]}", true);	// spaceOutInitials applied, e.g. /records/12059/ (test #764); "700: Subfield _t must be preceded by a question mark, full stop, hyphen or closing parenthesis." e.g. /records/212487/ (test #780)
 			}
 		}
 		
