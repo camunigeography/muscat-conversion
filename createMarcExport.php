@@ -203,6 +203,7 @@ class createMarcExport
 			'008: Check place code xxk - please set code for specific UK member country eg England, Wales (if known)', // E.g. /records/163302/
 			'020: Subfield _q is not allowed.',		// E.g. /records/165286/
 			'111: Subfield _j is not allowed.',		// E.g. /records/151282/
+			'240: Should not end with a full stop unless the final word is an abbreviation',	// E.g. /records/32075/
 			'245: Subfield _[1|2|4|5] is not allowed.',	// E.g. /records/203691/ has $100 (test #218)
 			'245: Must have a subfield _a.',	// E.g. /records/174312/ has "‡a$50,000 an ounce!"
 			'245: First word, el, may be an article, check 2nd indicator (0).',		// Only cases are El Niño (English record) and El'vel (Russian record)

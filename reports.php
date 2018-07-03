@@ -150,7 +150,7 @@ class reports
 		'ntcyrillicunsupported_postmigration' => 'non-Russian records with all Cyrillic *nt for types never supported',
 		'locrusnodiacritics_postmigration' => 'records with *nt=LOCRus that need diacritics adding',
 		'article245_problem' => 'records with a suspected wrong language due to leading article mismatch in 245',
-		'tsdotend_problem' => '*ts records ending with a dot',
+		'totsdotend_problem' => '*to/*ts records ending with a dot',
 	);
 	
 	# Listing (values) reports
@@ -3421,22 +3421,27 @@ class reports
 	}
 	
 	
-	# *ts records ending with a dot
-	public function report_tsdotend ()
+	# *to/*ts records ending with a dot
+	public function report_totsdotend ()
 	{
 		# Define the query
 		$query = "
 			SELECT
-				'tsdotend' AS report,
+				'totsdotend' AS report,
 				id AS recordId
 			FROM catalogue_processed
 			WHERE
-				    field = 'ts'
+				    field IN('to', 'ts')
 				AND value LIKE '%.'
+				AND value NOT LIKE '% gg.'
+				AND value NOT LIKE '% g.'
 				AND id NOT IN (
+					-- *ts cases
 					11557, 26328, 26336, 26933, 27437, 27438, 27443, 27444, 28578, 29854,
 					30411, 43561, 59501, 63387, 68289, 112329, 136241, 153757, 171379, 179695,
-					181096, 205665, 214848, 214850
+					181096, 205665, 214848, 214850,
+					-- *to cases
+					2346, 8138, 32239, 39665, 51233, 70687, 93368, 124143, 132595, 214254
 				)
 		";
 		
