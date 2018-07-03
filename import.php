@@ -386,13 +386,10 @@ class import
 			$record[$lineNumber] = trim ($record[$lineNumber]);
 			
 			# Skip if the line is the '#' terminator line at the end
-			#!# Need a check that it is the last line in the record
 			if ($record[$lineNumber] == '#') {
 				unset ($record[$lineNumber]);
 				continue;
 			}
-			
-			#!# Need to register cases where there isn't a *q0 at the start, which also ensures against -1 offsets
 			
 			# Join lines, separating by space, that do not begin with a key, and remove the orphaned carry-over
 			if (!$keyed) {
@@ -429,7 +426,6 @@ class import
 			# Ensure the first line is *q0
 			if ($lineNumber == 0) {
 				if ($matches[1] != 'q0') {
-					#!# Report the problem
 					return false;
 				}
 				
