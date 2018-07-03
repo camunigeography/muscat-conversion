@@ -41,7 +41,7 @@ class createMarcExport
 		}
 		
 		# Get the total records in the table
-		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], 'catalogue_marc', "WHERE status='{$fileset}'");
+		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], 'catalogue_marc', "WHERE status = '{$fileset}'");
 		
 		# Start the output
 		$marcText = '';
@@ -59,7 +59,7 @@ class createMarcExport
 			$query = "SELECT
 				id,marc
 				FROM {$this->settings['database']}.catalogue_marc
-				WHERE status='{$fileset}'
+				WHERE status = '{$fileset}'
 				ORDER BY FIELD(type, '" . implode ("','", $this->recordProcessingOrder) . "'), id
 				LIMIT {$offset},{$limit}
 			;";

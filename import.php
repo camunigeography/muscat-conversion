@@ -13,9 +13,10 @@ class import
 	
 	# Define the file sets and their labels
 	private $filesets = array (
-		'migrate'	=> 'Migrate to Voyager',
-		'suppress'	=> 'Suppress from OPAC',
-		'ignore'	=> 'Ignore record',
+		'migratewithitem'	=> 'Migrate to Voyager, with item record(s)',
+		'migrate'			=> 'Migrate to Voyager',
+		'suppress'			=> 'Suppress from OPAC',
+		'ignore'			=> 'Ignore record',
 	);
 	
 	# Fieldsindex fields
@@ -631,7 +632,7 @@ class import
 		# Add status field to enable suppression, and populate the data
 		$query = "
 			ALTER TABLE searchindex
-			ADD COLUMN status ENUM('migrate','suppress','ignore') COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Status' AFTER id,
+			ADD COLUMN status ENUM('migratewithitem','migrate','suppress','ignore') COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Status' AFTER id,
 			ADD INDEX(status)
 		;";
 		$this->databaseConnection->query ($query);
@@ -2206,7 +2207,7 @@ class import
 			CREATE TABLE IF NOT EXISTS catalogue_marc (
 				id int(11) NOT NULL COMMENT 'Record number',
 				type ENUM('/art/in','/art/j','/doc','/ser') DEFAULT NULL COMMENT 'Type of record',
-				status ENUM('migrate','suppress','ignore') NULL DEFAULT NULL COMMENT 'Status',
+				status ENUM('migratewithitem','migrate','suppress','ignore') NULL DEFAULT NULL COMMENT 'Status',
 				itemRecords INT(1) NULL COMMENT 'Create item record?',
 				mergeType VARCHAR(255) NULL DEFAULT NULL COMMENT 'Merge type',
 				mergeVoyagerId VARCHAR(255) NULL DEFAULT NULL COMMENT 'Voyager ID for merging',
@@ -2542,6 +2543,10 @@ class import
 			WHERE
 				(field = 'location' AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection'))
 		;";
+		$this->databaseConnection->execute ($query);
+		
+		# Set status to migratewithitem when there are item records specified
+		$query = "UPDATE catalogue_marc SET status = 'migratewithitem' WHERE itemRecords >= 1;";
 		$this->databaseConnection->execute ($query);
 	}
 	

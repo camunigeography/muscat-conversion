@@ -44,6 +44,7 @@
 #muscatconversion form#spellcheck {text-align: right;}
 #muscatconversion form#spellcheck input[type='number'] {width: 60px;}
 #muscatconversion p.jumplist {margin-bottom: 2.5em;}
+#muscatconversion table.downloads td:first-child {width: 25%;}
 #muscatconversion table.downloads td a {display: block; border: 1px solid #ddd; padding: 4px 8px 4px 28px; border-radius: 5px; height: 3.5em; background-color: #f7f7f7; background-position: 8px 8px; min-width: 5em;}
 #muscatconversion a[href$='.mrk']  {padding-left: 20px; background: transparent url(/images/icons/page_white_code.png) no-repeat center left;}
 #muscatconversion a[href$='.mrc']  {padding-left: 20px; background: transparent url(/images/icons/script_code_red.png) no-repeat center left;}

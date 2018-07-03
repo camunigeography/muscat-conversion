@@ -835,7 +835,7 @@ class muscatConversion extends frontControllerApplication
 		# Ensure records are public in public access mode
 		$constraint = '';
 		if (!$this->searchUserIsInternal) {
-			$constraint = " AND status = 'migrate'";
+			$constraint = " AND status IN('migratewithitem','migrate')";
 		}
 		
 		# Get the data
@@ -1383,7 +1383,7 @@ class muscatConversion extends frontControllerApplication
 			$constraints = array ('FLOOR(id/1000) = :thousand');
 			$preparedStatementValues = array ('thousand' => $thousand);
 			if (!$this->searchUserIsInternal) {
-				$constraints['_status'] = "status = 'migrate'";
+				$constraints['_status'] = "status IN('migratewithitem','migrate')";
 			}
 			$query = "SELECT id FROM searchindex WHERE (" . implode (")\nAND (", $constraints) . ');';
 			$ids = $this->databaseConnection->getPairs ($query, false, $preparedStatementValues);
@@ -2380,7 +2380,7 @@ class muscatConversion extends frontControllerApplication
 			
 			# Ensure records are public in public access mode
 			if (!$this->searchUserIsInternal) {
-				$constraints['_status'] = "status = 'migrate'";
+				$constraints['_status'] = "status IN('migratewithitem','migrate')";
 			}
 			
 			# Construct the query
@@ -2527,7 +2527,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Ensure records are public in public access mode
 		if (!$this->userIsAdministrator) {
-			$constraints['_status'] = "status = 'migrate'";
+			$constraints['_status'] = "status IN('migratewithitem','migrate')";
 		}
 		
 		# Get the data; use of _GET in field definition is safe against SQL injection due to previous check against $this->import->fieldsIndexFields

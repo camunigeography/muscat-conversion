@@ -75,8 +75,8 @@
 	
 	# Output files
 	AddType text/plain .mrk
-	RewriteRule $baseUrl/export/spri-marc-(migrate|suppress|ignore)\.(txt|mrk|mrc|mrc.zip|errors.txt)$ $baseUrl/spri-marc-$1.$2
-	<LocationMatch ^$baseUrl/export/spri-marc-(migrate|suppress|ignore)\.(txt|mrk|mrc|mrc.zip|errors.txt)$>
+	RewriteRule $baseUrl/export/spri-marc-(migratewithitem|migrate|suppress|ignore)\.(txt|mrk|mrc|mrc.zip|errors.txt)$ $baseUrl/spri-marc-$1.$2
+	<LocationMatch ^$baseUrl/export/spri-marc-(migratewithitem|migrate|suppress|ignore)\.(txt|mrk|mrc|mrc.zip|errors.txt)$>
 		Order allow,deny
 		Allow from all
 		Satisfy any
