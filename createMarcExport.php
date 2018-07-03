@@ -210,6 +210,7 @@ class createMarcExport
 			'245: Subfield _h may have invalid material designator, or lack square brackets, h.',	// /records/181410/ has ‡h[videorecording; electronic resource] defined in test #578
 			'245: Subfield _c initials should not have a space.',	// Happens on /records/13442/ which validly has "K.C.B. K.C."
 			'300: In subfield _a, p should be followed by a full stop.',	// See 8e5f9354da83b6aa7a9e338e0ba7d48e1d1e0b60 - intended "p." is already implemented correctly; see /records/54670/ (test #219)
+			'300: In subfield _a there should be a space between the comma and the next set of digits.',	// E.g. /records/32362/
 			'500: Subfield _2 is not allowed.',	// E.g. /records/161883/ has $220 (test #558)
 			'500: Subfield _- is not allowed.',	// E.g. /records/138509/ has "24-3, $-24-4"
 			'500: Subfield _1 is not allowed.',	// E.g. /records/142058/ has "price: $195"
