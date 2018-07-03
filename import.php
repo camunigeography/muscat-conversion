@@ -2754,7 +2754,7 @@ class import
 		# If required, regenerate the error reports depending on the data
 		if ($regenerateReport) {
 			$this->runReport ('bibcheckerrors', true);
-			$this->runReport ('possiblearticle', true);
+			$this->runReport ('article245', true);
 		}
 	}
 	

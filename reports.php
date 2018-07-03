@@ -111,7 +111,6 @@ class reports
 		'missingphysical_postmigration' => "records with a note containing the word 'missing' indicating items for reviewing of physical documents (i.e. not actually data work)",
 		'emptyauthorcontainers_problem' => "records with empty author containers",
 		'backslashg_problem' => 'records with \g remaining',
-		'possiblearticle_problem' => 'records with a 245 starting with a possible article',
 		'bracketednfcount_info' => 'records with a bracketed title starting with a leading article, for checking the nfcount',
 		'russianbracketedtitle_postmigration' => 'records marked *lang=Russian with a fully-bracketed title',
 		'russianldottitles_problem' => 'records (Russian) with L. in title to be checked individually, possibly resolving post-migration',
