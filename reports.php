@@ -151,6 +151,7 @@ class reports
 		'locrusnodiacritics_postmigration' => 'records with *nt=LOCRus that need diacritics adding',
 		'article245_problem' => 'records with a suspected wrong language due to leading article mismatch in 245',
 		'totsdotend_problem' => '*to/*ts records ending with a dot',
+		'physicalmisformat_problem' => 'physical description with incorrect syntax',
 	);
 	
 	# Listing (values) reports
@@ -3443,6 +3444,23 @@ class reports
 					-- *to cases
 					2346, 8138, 32239, 39665, 51233, 70687, 93368, 124143, 132595, 214254
 				)
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Physical description with incorrect syntax
+	public function report_physicalmisformat ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'physicalmisformat' AS report,
+				id AS recordId
+			FROM catalogue_marc
+			WHERE bibcheckErrors LIKE '%300: In subfield _a there should be a space between the number and the type of unit - please check.%'
 		";
 		
 		# Return the query
