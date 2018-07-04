@@ -174,6 +174,7 @@ class reports
 		'voyagerlocations' => 'Muscat locations that do not map to Voyager locations',
 		'translationnotevalues' => 'records containing a note regarding translation - distinct values',
 		'mergestatus_info' => 'records with a merge status',
+		'periodicalpamgrouped_problem' => 'records with location= both Periodical and Pam, grouped',
 		'tests_problem_countable' => 'automated tests',
 	);
 	
@@ -2795,6 +2796,66 @@ class reports
 		
 		# Return the query
 		return $query;
+	}
+	
+	
+	# Records with location= both Periodical and Pam, grouped
+	public function report_periodicalpamgrouped ()
+	{
+		// No action needed - the data is read dynamically in the associated _view method
+		return true;
+	}
+	
+	
+	# View for report_periodicalpamgrouped
+	public function report_periodicalpamgrouped_view ()
+	{
+		# Start the HTML
+		$html = '';
+		
+		# Get the data; query is based on the same thing in report_periodicalpam () but with the joins to add in the journal name, item and locations; takes 4 seconds
+		$query = "
+			SELECT
+				IFNULL(journalTitles.value, '[No title]') AS journalTitle,
+				catalogue_rawdata.recordId,
+				itemTitles.value AS itemTitle,
+				GROUP_CONCAT(DISTINCT locations.value SEPARATOR \"\n\") AS locations
+			FROM catalogue_rawdata
+			LEFT JOIN catalogue_processed AS journalTitles ON catalogue_rawdata.recordId = journalTitles.recordId AND journalTitles.field = 't' AND journalTitles.xPath LIKE '/art/%/tg/t'
+			LEFT JOIN catalogue_processed AS itemTitles ON catalogue_rawdata.recordId = itemTitles.recordId AND itemTitles.field = 't' AND itemTitles.xPath LIKE '/%/tg/t'
+			LEFT JOIN catalogue_processed AS locations ON catalogue_rawdata.recordId = locations.recordId AND locations.field = 'location'
+			WHERE
+				    catalogue_rawdata.field = 'location'
+				AND catalogue_rawdata.value = 'Periodical'
+				AND catalogue_rawdata.recordId IN(
+					SELECT recordId
+					FROM catalogue_rawdata
+					WHERE
+						    field = 'location'
+						AND (value REGEXP '^Pam' OR value REGEXP '^Pam ')
+				)
+			GROUP BY recordId		-- To enable GROUP_CONCAT of locations.value
+			ORDER BY journalTitle, recordId
+		";
+		$data = $this->databaseConnection->getData ($query);
+		
+		# Modify columns
+		foreach ($data as $index => $record) {
+			$data[$index]['recordId'] = "<a href=\"{$this->baseUrl}/records/{$record['recordId']}/\">{$record['recordId']}</a>";
+			$data[$index]['locations'] = nl2br ($record['locations']);
+		}
+		
+		# Regroup by journal title
+		$data = application::regroup ($data, 'journalTitle');
+		
+		# Render the HTML
+		foreach ($data as $journalTitle => $records) {
+			$html .= "\n<h3>" . htmlspecialchars ($journalTitle) . '</h3>';
+			$html .= application::htmlTable ($records, array (), 'lines periodicalpamgrouped', $keyAsFirstColumn = false, $keyAsFirstColumn = true, $allowHtml = true, $showColons = false, false, false, array (), $compress = true, $showHeadings = false);
+		}
+		
+		# Return the HTML
+		return $html;
 	}
 	
 	
