@@ -1380,9 +1380,9 @@ SPRI-1061
 
 229
 Leader byte count
-1001
+1005
 LDR
-/^01[2-3][0-9][0-9]nas/
+/^00[0-9]{3}nas/
 
 230
 880 link reciprocality (see also next test)
