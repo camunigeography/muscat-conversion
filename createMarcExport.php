@@ -214,7 +214,7 @@ class createMarcExport
 			'500: Subfield _2 is not allowed.',	// E.g. /records/161883/ has $220 (test #558)
 			'500: Subfield _- is not allowed.',	// E.g. /records/138509/ has "24-3, $-24-4"
 			'500: Subfield _1 is not allowed.',	// E.g. /records/142058/ has "price: $195"
-			'520: Subfield _[1m,2t)] is not allowed.',	// E.g. /records/140044/ (test #223)
+			'520: Subfield _[ 1m,2t)5] is not allowed.',	// E.g. /records/140044/ (test #223)
 			'533: Subfield _5 is not allowed.',	// E.g. /records/43953/ but this is clearly defined at https://www.loc.gov/marc/bibliographic/bd533.html
 			'541: Subfield _[0-9AUNC ] is not allowed.',	// E.g. /records/148863/ which has "AUS$ " (test #224); see example at: https://www.loc.gov/marc/bibliographic/bd541.html which confirms use of unescaped $
 			'541: Subfield _[0-9] is not repeatable.',	// The generate541 code definitely has no horizontal repeatability - this is Bibcheck being unable to distinguish e.g. $5 (money) from double-dagger5 (subfield), e.g. /records/9220/ (test #225)
