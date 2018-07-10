@@ -608,7 +608,7 @@ In *nd classification, strip italic tags
 In *nd classification, handle special-cases which generate a ‡b
 165177
 100
-‡b I,‡cPrince of Monaco.
+‡aAlbert‡bI,‡cPrince of Monaco.
 
 100
 In *ad classification, date appears as ‡d
