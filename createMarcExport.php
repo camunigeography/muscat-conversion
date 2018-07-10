@@ -200,7 +200,7 @@ class createMarcExport
 		$whitelistErrorRegexps = array (
 			'008: Check place code xxu - please set code for specific state \(if known\).',	// E.g. /records/1199/ (test #216) which is USA but no further detail
 			'008: 008 date may not match 260 date - please check.',	// E.g. /records/1150/ which has '[196-?]' which is valid (test #217) - Bibcheck isn't taking account of [...] brackets or five-digit values; see example "##$aNew York :$bHaworth,$c[198-]" at https://www.loc.gov/marc/bibliographic/bd008a.html
-			'008: Check place code xxk - please set code for specific UK member country eg England, Wales (if known)', // E.g. /records/163302/
+			'008: Check place code xxk - please set code for specific UK member country eg England, Wales (if known).', // E.g. /records/163302/
 			'020: Subfield _q is not allowed.',		// E.g. /records/165286/
 			'111: Subfield _j is not allowed.',		// E.g. /records/151282/
 			'240: Should not end with a full stop unless the final word is an abbreviation',	// E.g. /records/32075/
