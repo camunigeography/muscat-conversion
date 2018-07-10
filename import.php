@@ -2250,9 +2250,6 @@ class import
 		;";
 		$this->databaseConnection->execute ($query);
 		
-		# Add in the suppress/migrate/ignore status for each record; also available as a standalone option in the import
-		$this->marcRecordsSetStatus ();
-		
 		# Add in the Voyager merge data fields, retrieving the resulting data
 		$mergeData = $this->marcRecordsSetMergeFields ();
 		
@@ -2379,6 +2376,9 @@ class import
 			AND itemRecords = 1
 		;";
 		$this->databaseConnection->execute ($query);
+		
+		# Add in the migratewithitem/migrate/suppress/ignore status for each record; also available as a standalone option in the import
+		$this->marcRecordsSetStatus ();
 		
 		# Generate the output files
 		$this->createMarcExports ();
