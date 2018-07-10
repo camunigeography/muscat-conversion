@@ -1640,6 +1640,9 @@ class marcConversion
 	# Macro to generate the leading article count; this does not actually modify the string itself - just returns a number; e.g. 245 (based on *t) in /records/1116/ (test #355); 245 for Spanish record in /records/19042/ (test #356); 242 field (based on *tt) in /records/1204/ (test #357)
 	public function macro_nfCount ($value, $language = false, &$errorHtml_ignored = false, $externalXml = NULL)
 	{
+		# Strip any HTML tags, as will be stripped in the final record, e.g. /records/15161/ (test #782)
+		$value = strip_tags ($value);
+		
 		# If the the value is surrounded by square brackets, then it can be taken as English, and the record language itself ignored
 		#!# Check on effect of *to or *tc, as per /reports/bracketednfcount/
 		if ($isSquareBracketed = ((substr ($value, 0, 1) == '[') && (substr ($value, -1, 1) == ']'))) {
