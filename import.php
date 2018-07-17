@@ -2250,6 +2250,9 @@ class import
 		;";
 		$this->databaseConnection->execute ($query);
 		
+		# Add in the migratewithitem/migrate/suppress/ignore status for each record; also available as a standalone option in the import
+		$this->marcRecordsSetStatus ();
+		
 		# Add in the Voyager merge data fields, retrieving the resulting data
 		$mergeData = $this->marcRecordsSetMergeFields ();
 		
@@ -2377,8 +2380,9 @@ class import
 		;";
 		$this->databaseConnection->execute ($query);
 		
-		# Add in the migratewithitem/migrate/suppress/ignore status for each record; also available as a standalone option in the import
-		$this->marcRecordsSetStatus ();
+		# Update the status to migratewithitem when there are item records specified
+		$query = "UPDATE catalogue_marc SET status = 'migratewithitem' WHERE itemRecords >= 1;";
+		$this->databaseConnection->execute ($query);
 		
 		# Generate the output files
 		$this->createMarcExports ();
@@ -2545,9 +2549,8 @@ class import
 		;";
 		$this->databaseConnection->execute ($query);
 		
-		# Set status to migratewithitem when there are item records specified
-		$query = "UPDATE catalogue_marc SET status = 'migratewithitem' WHERE itemRecords >= 1;";
-		$this->databaseConnection->execute ($query);
+		// Settting status to migratewithitem is handled afterwards in marcRecordsSetStatus
+		
 	}
 	
 	
