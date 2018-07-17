@@ -2686,7 +2686,7 @@ class reports
 	{
 		# Define the query
 		$query = "
-			SELECT
+			SELECT DISTINCT
 				'paralleltitlesync' AS report,
 				recordId
 			FROM transliterations
