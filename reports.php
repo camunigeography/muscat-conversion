@@ -151,6 +151,7 @@ class reports
 		'article245_problem' => 'records with a suspected wrong language due to leading article mismatch in 245',
 		'totsdotend_problem' => '*to/*ts records ending with a dot',
 		'physicalmisformat_problem' => 'physical description with incorrect syntax',
+		'paralleltitlesyntax' => 'incorrect syntax for a parallel title',
 	);
 	
 	# Listing (values) reports
@@ -3522,6 +3523,25 @@ class reports
 				id AS recordId
 			FROM catalogue_marc
 			WHERE bibcheckErrors LIKE '%300: In subfield _a there should be a space between the number and the type of unit - please check.%'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Incorrect syntax for a parallel title, using // rather than =
+	public function report_paralleltitlesyntax ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'paralleltitlesyntax' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field IN ('t','tc','tt','to')
+				AND value LIKE '%//%'
 		";
 		
 		# Return the query
