@@ -2282,7 +2282,6 @@ class reports
 	
 	
 	# Records whose titles are being transliterated but appear to be in English
-	#!# Needs support for parallel titles, e.g. /records/167316/
 	public function report_transliteratedenglish ()
 	{
 		# Define the query
@@ -2294,11 +2293,13 @@ class reports
 				SELECT
 					recordId,
 					title,
--- #!# Check this
+-- #!# Check this - /records/66296/ seems to be wrong for instance
 					IF (INSTR(title_latin,'[') > 0, LEFT(title_latin,LOCATE('[',title_latin) - 1), title_latin) AS title_latin
 				FROM transliterations
 			) AS transliterations_firstParts
-			WHERE title_latin REGEXP '(the | of )'
+			WHERE
+				    title_latin REGEXP '(the | of )'
+				AND title_latin NOT LIKE '% = %'		-- Crude support for parallel titles; basically assumes that if = has been used, the record is likely to be correct
 		";
 		
 		# Return the query
