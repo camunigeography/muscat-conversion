@@ -423,6 +423,16 @@ AEU
 RAESK
 MAE
 IEZ
+AICHPE
+IAE SO RAN
+IAIE SO RAN
+IAIE
+IEOPP SO RAN
+IEIOPP SO RAN
+IEiOPP SO RAN
+DVGAEU
+IIAE DVO RAN
+VNIIOENG
 
 # Names
 Hook. fil. et Wils.
@@ -439,6 +449,15 @@ Sav.-Lyub. et Z. Smirn.
 Congressus Octavus Internationalis Fenno-Ugristarum
 Linguistica Uralica
 Bulletin de la Société de Géographique de l'U.R.S.S.
+VNIIEgazprom
+
+# English-name publishers in Russian record, i.e. exceptions to *pu with *lang=Russian
+Academy of Sciences of the USSR. The National Committee for Geodesy and Geophysics
+US Army Cold Regions Research and Engineering Laboratory
+State Committee of the Russian Federation on Statistics
+Greenpeace
+Soviet Geophysical Committee (Academy of Sciences of the USSR)
+Oelschlägel
 
 # Other strings to protect
 WWGS-89
@@ -453,12 +472,3 @@ juvenalia
 [Electronic resource]
 Porosymposiumi Rovaniemellä
 VIIIe sériė
-AICHPE
-VNIIEgazprom
-IAE SO RAN
-IAIE SO RAN
-IAIE
-IEOPP SO RAN
-IEiOPP SO RAN
-DVGAEU
-IIAE DVO RAN
