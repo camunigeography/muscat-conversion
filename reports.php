@@ -230,6 +230,15 @@ class reports
 			'missingrplstatus' =>
 				'Records that have a broad subject heading.',
 			
+			'missingphysical' =>
+				"Record whose note contains the word 'missing' - these need to be checked physically to see whether they are actually missing pages / not present or just that 'missing' relates to the content of the item itself.",
+			
+			'russianbracketedtitle' =>
+				'Items to be checked physically to see if a better title, in Cyrillic, can be added.',
+			
+			'othertransliterations' =>
+				'Records with names for transliteration in other languages (e.g. Yakut, Chinese, etc.) for upgrading by an expert speaker in that language; Muscat practice has never supported Yakut, Chinese, Japanese, etc.',
+			
 			'artjnokg' =>
 				"In case of a 773 without a SPRI host, could subsequently be linked to a UL host by adding a {$this->doubleDagger}w.",
 			
@@ -245,6 +254,8 @@ class reports
 			'locrusnodiacritics' =>
 				'All records using *nt = LOCRus have this string entered without diacritics. These items need to be checked and where relevant, the diacritics added.',
 			
+			'seriestitlemismatches3' =>
+				'These are analytic records for which SPRI does not have a parent, which means we have no name authority for the parent, making matching pre-migration unreliable.',
 			
 		);
 	}
