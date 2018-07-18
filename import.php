@@ -1430,8 +1430,7 @@ class import
 	# Function to run the transliterations in the transliteration table; this never alters title_latin which should be set only in createTransliterationsTable, read from the post- second-pass XML records
 	private function transliterateTransliterationsTable ()
 	{
-		# Obtain the raw values, indexed by shard ID
-		#!# Need to see effect of removing LOCRus
+		# Obtain the raw values, indexed by shard ID; LOCRus cases are not transliterated and are handled below
 		$query = "SELECT id,title_latin,lpt FROM transliterations WHERE language != 'LOCRus';";
 		$data = $this->databaseConnection->getData ($query, "{$this->settings['database']}.transliterations");
 		
@@ -1476,6 +1475,10 @@ class import
 		# Insert the data (takes around 15 seconds)
 		$this->logger ('  |-- In ' . __METHOD__ . ', batch-inserting the compiled transliterations data');
 		$this->databaseConnection->updateMany ($this->settings['database'], 'transliterations', $conversions, $chunking = 5000);
+		
+		# Set the title_loc for LOCRus cases, simply by copying them across, as the data is already in LOC; e.g. /records/7702/ (test #783)
+		$query = "UPDATE transliterations SET title_loc = title_latin WHERE language = 'LOCRus';";	// 61 lines updated
+		$data = $this->databaseConnection->query ($query);
 		
 		# Signal success
 		return true;

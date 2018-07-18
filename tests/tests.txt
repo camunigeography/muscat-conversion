@@ -4582,3 +4582,8 @@ nfcount strips tags
 i245
 /4$/
 
+783
+*nt=LOCRus results in transliteration carrying straight through, and data appearing in final record
+7702
+110
+‡aToll', Eduard Vasil'evich,‡cBaron.
