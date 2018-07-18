@@ -3048,6 +3048,7 @@ class reports
 			WHERE
 					field LIKE 't'
 				AND value LIKE '%.'
+				AND value NOT LIKE '%...'
 				AND value NOT LIKE '% ...'
 				AND value NOT LIKE '% &c.'
 				AND value NOT LIKE '% etc.'
