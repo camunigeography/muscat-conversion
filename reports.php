@@ -2709,7 +2709,7 @@ class reports
 		# Define the query
 		#!# Whitelist of tags need to be checked in all cases where they are handled
 		$query = "
-			SELECT
+			SELECT DISTINCT
 				'emptyvalue' AS report,
 				recordId
 			FROM catalogue_processed
