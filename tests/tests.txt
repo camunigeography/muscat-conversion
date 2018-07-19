@@ -335,7 +335,7 @@ Ensure 'Anon.' is treated as a transliterated protected string
 Anon.
 
 53
-English-name author should not result in an 880 transliteration (implementation pending)
+English-name author should not result in an 880 transliteration
 151048
 !880
 Доwдесwелл, J. А.
@@ -1835,7 +1835,7 @@ Macro generate260: multiple ‡b has colon between
 ‡bNatural Environment Research Council :‡bBritish 
 
 305
-Macro generate260: check against incorrect 880 (implementation pending)
+Macro generate260: check against incorrect 880
 1054
 !880
 /‡a\[S.l.\] :‡b\.$/
@@ -1895,7 +1895,7 @@ Macro generate260: *pl ‡a standard case
 ‡aCanberra :
 
 316
-No 260 880 generated if record is not Russian (implementation pending)
+No 260 880 generated if record is not Russian
 148932
 !880
 260-
@@ -2969,19 +2969,19 @@ In roleAndSiblings, *role (e.g. 'compiled by') is not subject to transliteration
 ; compiled by И.Л. Жеребцов.
 
 501
-{1|7}xx should be created but contents should not be transliterated when *nt = None present for author (implementation pending) (see also #502)
+{1|7}xx should be created but contents should not be transliterated when *nt = None present for author (see also #502)
 151048
 700
 /^‡aGorman, Michael R.$/
 
 502
-880-{1|7}xx not generated when *nt = None present for author (implementation pending), because the {1|7}xx is Latin characters (see also #501)
+880-{1|7}xx not generated when *nt = None present for author, because the {1|7}xx is Latin characters (see also #501)
 2650
 !880
 Беллингшаусен, Тhаддеус
 
 503
-880-245 in scope of transliteration retains Latin characters when *nt = None present for author; this is for non-upgraded records where explicit / + authors in Cyrillic has not been defined (implementation pending)
+880-245 in scope of transliteration retains Latin characters when *nt = None present for author; this is for non-upgraded records where explicit / + authors in Cyrillic has not been defined
 166652
 880
 ‡cА.П. Капица, W. Gareth Rees, eds.
