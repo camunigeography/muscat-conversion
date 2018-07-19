@@ -3534,7 +3534,9 @@ class reports
 				'physicalmisformat' AS report,
 				id AS recordId
 			FROM catalogue_marc
-			WHERE bibcheckErrors LIKE '%300: In subfield _a there should be a space between the number and the type of unit - please check.%'
+			WHERE
+				    bibcheckErrors LIKE '%300: In subfield _a there should be a space between the number and the type of unit - please check.%'
+				AND id NOT IN (164582, 203582)	-- Whitelist these two valid cases
 		";
 		
 		# Return the query
