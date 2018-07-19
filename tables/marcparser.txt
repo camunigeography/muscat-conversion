@@ -13,7 +13,7 @@ A  041 i{'0'|macro:languages041(true)}# ‡a{/.|macro:languages041}
 A  100 {/*|macro:authorsField(100)}
 A  110 {/*|macro:authorsField(110)}
 A  111 {/*|macro:authorsField(111)}
-A  240 10 ‡a{//tg/to[1]|macro:stripLeadingArticle240}
+E  240 10 ‡a{//tg/to[1]|macro:stripLeadingArticle240}{/*|macro:ifElse(//tg/lto,.,)}‡l{//tg/lto}
 A  242 i{'0'|macro:indicator1xxPresent(1)}i{/*/tg/tt|macro:nfCount(English)} ‡a{/*/tg/tt|macro:colonSplit(b)} ‡y{'eng'|macro:ifValue(/*/tg/tt)}
 A  245 {/|macro:generate245}
 AR 246 3# ‡a{//tg/ta|macro:colonSplit(b)}

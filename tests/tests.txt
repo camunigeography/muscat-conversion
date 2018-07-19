@@ -4587,3 +4587,15 @@ i245
 7702
 110
 ‡aToll', Eduard Vasil'evich,‡cBaron.
+
+784
+240 gets ‡l with language (and dot before) when *lto present (see also next test)
+1319
+240
+‡aNorga, mu rakkis aenan.‡lSami
+
+785
+240 does not get ‡l (or dot at end after ‡a) when *lto not present (see also previous test)
+8792
+240
+/‡aNational Antarctic Expedition$/
