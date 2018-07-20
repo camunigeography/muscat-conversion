@@ -3076,6 +3076,7 @@ class reports
 				AND value NOT LIKE '% Esq.'	--   ditto
 				AND value NOT LIKE '% al.'	-- Item is referring to another, e.g. for a review
 				AND value NOT LIKE '% eds.'	--   ditto
+				AND value NOT LIKE '% n.ė.'	-- Russian equivalent of A.D., in /records/173585/
 				AND value NOT REGEXP '[A-Z]\.$'
 		";
 		
