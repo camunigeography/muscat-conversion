@@ -3556,6 +3556,7 @@ class reports
 			WHERE
 				    field IN ('t','tc','tt','to')
 				AND value LIKE '%//%'
+				AND recordId NOT IN (41853, 121719, 121998)
 		";
 		
 		# Return the query
