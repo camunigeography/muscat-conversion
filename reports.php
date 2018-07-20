@@ -99,7 +99,7 @@ class reports
 		'kgnotart_info' => 'records with a *kg that are not an *art',
 		'langnott_info' => 'records with a *lang but no *tt, having first filtered out any locations whose *lang is English',
 		'doctsperiodicaltitle_problem' => '*doc records whose (first) *ts does not match the start of a periodical title',
-		'transliteratedenglish_problem' => 'records whose titles are being transliterated but appear to be in English',
+		'transliteratedenglish_problem' => 'records with strings being transliterated but which appear to be in English',
 		'transliteratefailure_problem' => 'records whose reverse transliteration is not reversible',
 		'transliterateem_problem' => 'records whose transliteration contains an incorrect <em> following transliteration',
 		'voyagerrecords_info' => 'records with an equivalent already in Voyager, targetted for merging',
@@ -2292,7 +2292,7 @@ class reports
 	}
 	
 	
-	# Records whose titles are being transliterated but appear to be in English
+	# Records with strings being transliterated but which appear to be in English
 	public function report_transliteratedenglish ()
 	{
 		# Define the query
