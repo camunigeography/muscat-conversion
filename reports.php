@@ -151,7 +151,7 @@ class reports
 		'article245_problem' => 'records with a suspected wrong language due to leading article mismatch in 245',
 		'totsdotend_problem' => '*to/*ts records ending with a dot',
 		'physicalmisformat_problem' => 'physical description with incorrect syntax',
-		'paralleltitlesyntax' => 'incorrect syntax for a parallel title',
+		'paralleltitlesyntax_problem' => 'incorrect syntax for a parallel title',
 	);
 	
 	# Listing (values) reports
