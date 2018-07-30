@@ -2700,16 +2700,23 @@ class muscatConversion extends frontControllerApplication
 			return;
 		}
 		
+		# Get the filesets
+		$filesets = $this->import->getFilesets ();
+		
 		# Get the fileset counts
 		$query = "SELECT status, COUNT(*) AS total FROM catalogue_marc GROUP BY status;";
 		$totals = $this->databaseConnection->getPairs ($query);
 		
+		# Add in the selection dataset
+		$filesets['selection'] = 'Representative selection dataset';
+		$selectionList = $this->import->getSelectionList ();
+		$totals['selection'] = count ($selectionList);
+		
 		# Compile the HTML
 		$html  = "\n<h3>Downloads</h3>";
 		$html .= "\n<table class=\"lines spaced downloads\">";
-		$filesets = $this->import->getFilesets ();
 		foreach ($filesets as $fileset => $label) {
-			$html .= "\n\t<tr>";
+			$html .= "\n\t<tr" . ($fileset == 'selection' ? ' class="selection"' : '') . ">";
 			$html .= "\n\t\t<td><strong>{$label}</strong>:<br />" . number_format ($totals[$fileset]) . ' records</td>';
 			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.txt\">MARC21 data<br />(text)</a></td>";
 			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrk\">MARC21 text<br />(text, .mrk)</a></td>";
