@@ -23,7 +23,7 @@ class createMarcExport
 	
 	
 	# Main entry point
-	public function createExport ($fileset, $selectionList = array ())
+	public function createExport ($fileset, $selectionList = array (), &$errorsHtml)
 	{
 		# Clear the current file(s)
 		$directory = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl;
@@ -124,7 +124,7 @@ class createMarcExport
 		$this->marcBinaryConversion ($fileset, $directory);
 		
 		# Check the output
-		$errorsFilename = $this->marcLintTest ($fileset, $directory);
+		$errorsFilename = $this->marcLintTest ($fileset, $directory, $errorsHtml /* amended by reference */);
 		
 		# Extract the errors from this error report, and add them to the MARC table
 		if (!$selectionList) {	// Do not re-run for a selection list export
@@ -174,7 +174,7 @@ class createMarcExport
 	
 	
 	# Function to do a Bibcheck lint test
-	private function marcLintTest ($fileset, $directory)
+	private function marcLintTest ($fileset, $directory, &$errorsHtml)
 	{
 		# Define the filename for the raw (unfiltered) errors file and the main filtered version
 		$errorsFilename = "{$directory}/spri-marc-{$fileset}.errors.txt";
@@ -192,7 +192,7 @@ class createMarcExport
 		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; perl lint_test.pl {$directory}/spri-marc-{$fileset}.mrc 2>&1";	//  2>> errors.txt
 		$output = shell_exec ($command);
 		if ($output) {
-			echo "\n<p class=\"warning\">Error in Bibcheck execution: " . htmlspecialchars (trim ($output)) . '</p>';
+			$errorsHtml .= "\n<p class=\"warning\">Error in Bibcheck execution: " . htmlspecialchars (trim ($output)) . '</p>';
 		}
 		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; mv errors.txt {$errorsUnfilteredFilename}";
 		$output = shell_exec ($command);
