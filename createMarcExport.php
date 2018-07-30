@@ -23,7 +23,7 @@ class createMarcExport
 	
 	
 	# Main entry point
-	public function createExport ($fileset)
+	public function createExport ($fileset, $selectionList = array ())
 	{
 		# Clear the current file(s)
 		$directory = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl;
@@ -41,7 +41,11 @@ class createMarcExport
 		}
 		
 		# Define the selection constraint
-		$filterConstraint = "status = '{$fileset}'";
+		if (!$selectionList) {
+			$filterConstraint = "status = '{$fileset}'";
+		} else {
+			$filterConstraint = 'id IN(' . implode (', ', $selectionList) . ')';
+		}
 		
 		# Get the total records in the table
 		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], 'catalogue_marc', 'WHERE ' . $filterConstraint);
@@ -123,7 +127,9 @@ class createMarcExport
 		$errorsFilename = $this->marcLintTest ($fileset, $directory);
 		
 		# Extract the errors from this error report, and add them to the MARC table
-		$this->attachBibcheckErrors ($errorsFilename);
+		if (!$selectionList) {	// Do not re-run for a selection list export
+			$this->attachBibcheckErrors ($errorsFilename);
+		}
 	}
 	
 	

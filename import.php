@@ -190,7 +190,7 @@ class import
 		
 		# Run option to export the MARC files for export and regenerate the Bibcheck report (included within the 'marc' (and therefore 'full') option above) if required
 		if ($importType == 'exports') {
-			$this->createMarcExports (true);
+			$this->createMarcExports (true, !$isSelection);
 			$html .= "\n<p>{$tick} The <a href=\"{$this->baseUrl}/export/\">export files and Bibcheck report</a> have been generated.</p>";
 		}
 		
@@ -2388,7 +2388,7 @@ class import
 		$this->databaseConnection->execute ($query);
 		
 		# Generate the output files
-		$this->createMarcExports ();
+		$this->createMarcExports (false, !$isSelection);
 		
 		# Signal success
 		return true;
@@ -2405,7 +2405,7 @@ class import
 	
 	
 	# Function to get the selection list, essentially a parsed version of muscatConversion::getSelectionDefinition ()
-	private function getSelectionList ()
+	public function getSelectionList ()
 	{
 		# Get the latest version and whether tests are required
 		$query = "SELECT * FROM {$this->settings['database']}.selectiondefinition ORDER BY id DESC LIMIT 1;";
@@ -2740,7 +2740,7 @@ class import
 	
 	
 	# Function to create all MARC exports
-	private function createMarcExports ($regenerateReport = false)
+	private function createMarcExports ($regenerateReport = false, $isFullSet = true)
 	{
 		# Log start
 		$this->logger ('Starting ' . __METHOD__);
@@ -2755,6 +2755,12 @@ class import
 		$createMarcExport = new createMarcExport ($this->muscatConversion, $this->applicationRoot, $this->recordProcessingOrder);
 		foreach ($this->filesets as $fileset => $label) {
 			$createMarcExport->createExport ($fileset);
+		}
+		
+		# Create a selected export group also
+		if ($isFullSet) {
+			$selectionList = $this->getSelectionList ();
+			$createMarcExport->createExport ('selection', $selectionList);
 		}
 		
 		# If required, regenerate the error reports depending on the data
