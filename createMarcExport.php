@@ -40,8 +40,11 @@ class createMarcExport
 			unlink ($filenameMrc);
 		}
 		
+		# Define the selection constraint
+		$filterConstraint = "status = '{$fileset}'";
+		
 		# Get the total records in the table
-		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], 'catalogue_marc', "WHERE status = '{$fileset}'");
+		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], 'catalogue_marc', 'WHERE ' . $filterConstraint);
 		
 		# Start the output
 		$marcText = '';
@@ -59,7 +62,7 @@ class createMarcExport
 			$query = "SELECT
 				id,marc
 				FROM {$this->settings['database']}.catalogue_marc
-				WHERE status = '{$fileset}'
+				WHERE {$filterConstraint}
 				ORDER BY FIELD(type, '" . implode ("','", $this->recordProcessingOrder) . "'), id
 				LIMIT {$offset},{$limit}
 			;";
