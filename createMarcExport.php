@@ -189,8 +189,13 @@ class createMarcExport
 		}
 		
 		# Define and execute the command for converting the text version to binary, generating the errors listing file; NB errors.txt is a hard-coded location in Bibcheck, hence the file-moving requirement
-		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; perl lint_test.pl {$directory}/spri-marc-{$fileset}.mrc 2>> errors.txt ; mv errors.txt {$errorsUnfilteredFilename}";
-		shell_exec ($command);
+		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; perl lint_test.pl {$directory}/spri-marc-{$fileset}.mrc 2>&1";	//  2>> errors.txt
+		$output = shell_exec ($command);
+		if ($output) {
+			echo "\n<p class=\"warning\">Error in Bibcheck execution: " . htmlspecialchars (trim ($output)) . '</p>';
+		}
+		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; mv errors.txt {$errorsUnfilteredFilename}";
+		$output = shell_exec ($command);
 		
 		# Strip whitelisted errors and save a filtered version
 		$errorsString = file_get_contents ($errorsUnfilteredFilename);
