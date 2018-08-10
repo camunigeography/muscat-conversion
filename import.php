@@ -625,7 +625,8 @@ class import
 		# Remove non-needed fields to improve table efficiency
 		$query = 'ALTER TABLE searchindex
 			DROP fieldslist,	-- Not used for searching
-			DROP location		-- Not in the search field list
+			DROP location,		-- Not in the search field list
+			DROP status			-- ON ORDER etc., not needed, but different status field (for migration status) added below
 		;';
 		$this->databaseConnection->query ($query);
 		
