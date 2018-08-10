@@ -1158,7 +1158,8 @@ class import
 			`forwardCheckFailed` INT(1) NULL COMMENT 'Forward check failed?',
 			`title_loc` TEXT COLLATE utf8_unicode_ci COMMENT 'Forward transliteration from generated Cyrillic (Library of Congress)',
 			`inNameAuthorityList` INT(11) SIGNED NULL DEFAULT NULL COMMENT 'Whether the title value is in the LoC name authority list',
-			PRIMARY KEY (`id`)
+			PRIMARY KEY (`id`),
+			INDEX(`field`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of transliterations'
 		;";
 		$this->databaseConnection->execute ($sql);
