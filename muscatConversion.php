@@ -839,9 +839,10 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Get the data
+		$safeRangeOptimisation = 1000;	// Optimisation to reduce SQL rows evaluated to this number (as identified using EXPLAIN), despite ID already being indexed
 		$query = "SELECT
-			(SELECT MAX(id) AS id FROM searchindex WHERE id < {$id} {$constraint}) AS previous,
-			(SELECT MIN(id) AS id FROM searchindex WHERE id > {$id} {$constraint}) AS next
+			(SELECT MAX(id) AS id FROM searchindex WHERE id < {$id} AND id > ({$id} - {$safeRangeOptimisation}) {$constraint}) AS previous,
+			(SELECT MIN(id) AS id FROM searchindex WHERE id > {$id} AND id < ({$id} + {$safeRangeOptimisation}) {$constraint}) AS next
 		;";
 		$data = $this->databaseConnection->getOne ($query);
 		
