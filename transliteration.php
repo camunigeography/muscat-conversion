@@ -125,6 +125,7 @@ class transliteration
 		# Extract the strings back to an array, restoring the index
 		$cyrillicStringsZeroIndexed = explode ($separator, $cyrillicBlock);
 		$i = 0;
+		$cyrillicStrings = array ();
 		foreach ($data as $id => $entry) {
 			$cyrillicStrings[$id] = $cyrillicStringsZeroIndexed[$i];
 			$i++;
