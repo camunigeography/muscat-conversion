@@ -92,7 +92,7 @@ class import
 		$errorsHtml = '';
 		
 		# Ensure that GROUP_CONCAT fields do not overflow
-		$sql = "SET SESSION group_concat_max_len := @@max_allowed_packet;";		// Otherwise GROUP_CONCAT truncates the combined strings
+		$sql = "SET SESSION group_concat_max_len := @@max_allowed_packet;";		// Otherwise GROUP_CONCAT truncates the combined strings, e.g. in createFieldsindexTable()
 		$this->databaseConnection->execute ($sql);
 		
 		# Treat selection import as if it were full, but set a flag to filter during the MARC phase
@@ -556,7 +556,7 @@ class import
 			ADD location TEXT NULL COMMENT 'Location',
 			ADD status VARCHAR(255) NULL COMMENT 'Status',
 			ADD anywhere TEXT NULL COMMENT 'Text anywhere within record',
-			ADD INDEX(title)
+			ADD INDEX(title(255))	-- See: https://stackoverflow.com/a/8747703/180733
 		;";
 		$this->databaseConnection->execute ($sql);
 		foreach ($this->fieldsIndexFields as $field => $source) {
