@@ -2867,8 +2867,8 @@ class import
 			  `description` VARCHAR(255) NOT NULL COMMENT 'Description',
 			  `recordId` INT(6) NOT NULL COMMENT 'Record number',
 			  `marcField` VARCHAR(3) NOT NULL COMMENT 'MARC field',
-			  `negativeTest` INT(1) NOT NULL COMMENT 'Negative test?',
-			  `indicatorTest` INT(1) NOT NULL COMMENT 'Indicator test?',
+			  `negativeTest` INT(1) DEFAULT NULL COMMENT 'Negative test?',
+			  `indicatorTest` INT(1) DEFAULT NULL COMMENT 'Indicator test?',
 			  `expected` VARCHAR(255) NOT NULL COMMENT 'Expected',
 			  `found` TEXT NULL COMMENT 'Found line(s)',
 			  PRIMARY KEY (`id`)
