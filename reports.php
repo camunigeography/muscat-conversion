@@ -2682,7 +2682,7 @@ class reports
 			FROM catalogue_xml
 			WHERE
 				id IN (
-					SELECT id FROM catalogue_processed WHERE recordLanguage = 'Russian' AND ((field = 't' AND xPath REGEXP '^/(art|doc|ser)/tg/t$') OR field = 'lpt') AND value LIKE '% = %'
+					SELECT DISTINCT recordId FROM catalogue_processed WHERE recordLanguage = 'Russian' AND ((field = 't' AND xPath REGEXP '^/(art|doc|ser)/tg/t$') OR field = 'lpt') AND value LIKE '% = %'
 				)
 				AND
 					(LENGTH( ExtractValue(xml, '/*/tg/t') )-LENGTH(REPLACE( ExtractValue(xml, '/*/tg/t') ,' = ','')))/LENGTH(' = ') !=
@@ -2938,9 +2938,9 @@ class reports
 				'artjwithoutvolume' AS report,
 				recordId
 			FROM catalogue_processed
-			LEFT JOIN catalogue_xml ON catalogue_processed.id = catalogue_xml.id
+			LEFT JOIN catalogue_xml ON catalogue_processed.recordId = catalogue_xml.id
 			WHERE
-				xPath = '/art/j/pt'
+				    xPath = '/art/j/pt'
 				AND value like ':%'
 				AND (
 					   catalogue_xml.xml NOT LIKE '%<d>%'
@@ -2973,13 +2973,13 @@ class reports
 	# *art records without a *pt, where the record has a SPRI location
 	public function report_artnopt ()
 	{
-		# Define the query; NB the query is a bit slow (1-2 minutes)
+		# Define the query
 		$query = "
 			SELECT
 				'artnopt' AS report,
 				fieldsindex.id AS recordId
 			FROM fieldsindex
-			LEFT JOIN catalogue_processed ON fieldsindex.id = catalogue_processed.id AND field = 'location'
+			LEFT JOIN catalogue_processed ON fieldsindex.id = catalogue_processed.recordId AND field = 'location'
 			WHERE
 				    fieldslist LIKE '%@art@%'
 				AND fieldslist NOT LIKE '%@pt@%'
@@ -3504,14 +3504,14 @@ class reports
 		$query = "
 			SELECT
 				'totsdotend' AS report,
-				id AS recordId
+				recordId
 			FROM catalogue_processed
 			WHERE
 				    field IN('to', 'ts')
 				AND value LIKE '%.'
 				AND value NOT LIKE '% gg.'
 				AND value NOT LIKE '% g.'
-				AND id NOT IN (
+				AND recordId NOT IN (
 					-- *ts cases
 					11557, 26328, 26336, 26933, 27437, 27438, 27443, 27444, 28578, 29854,
 					30411, 43561, 59501, 63387, 68289, 112329, 136241, 153757, 171379, 179695,
