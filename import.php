@@ -1314,7 +1314,7 @@ class import
 				AND catalogue_processed.topLevel = transliterations.topLevel
 		;";
 		$this->databaseConnection->query ($query);	// 1540 rows affected
-		$query = "UPDATE transliterations SET language = 'French' WHERE id = 88661 AND field = 'to' AND title_latin LIKE 'Voyage autour%';";	// Three records have multiple *to; 88661 is the only one of these three where the *to language varies
+		$query = "UPDATE transliterations SET language = 'French' WHERE recordId = 88661 AND field = 'to' AND title_latin LIKE 'Voyage autour%';";	// Three records have multiple *to; 88661 is the only one of these three where the *to language varies
 		$this->databaseConnection->query ($query);
 		
 		#!# Add support for *nt (within *a, *al and *n), e.g. None/BGNRus/LOCRus/BGNYak
