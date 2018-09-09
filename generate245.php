@@ -147,7 +147,7 @@ class generate245
 	
 	
 	# Function to define special-cases for the second indicator, where the *t is in some way correctly inconsistent with the *lang, e.g. /records/88579/ (test #781)
-	private function getSecondIndicatorSpecialCases ()
+	public function getSecondIndicatorSpecialCases ()
 	{
 		# Return the special cases, as record number => count
 		return $specialCases = array (

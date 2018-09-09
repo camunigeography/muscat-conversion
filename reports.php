@@ -3484,13 +3484,20 @@ class reports
 	# Records with a suspected wrong language due to leading article mismatch in 245
 	public function report_article245 ()
 	{
+		# Get the whitelisted records
+		require_once ('generate245.php');
+		$secondIndicatorSpecialCases = $this->marcConversion->generate245->getSecondIndicatorSpecialCases ();
+		$whitelistedIds = array_keys ($secondIndicatorSpecialCases);
+		
 		# Define the query
 		$query = "
 			SELECT
 				'article245' AS report,
 				id AS recordId
 			FROM catalogue_marc
-			WHERE bibcheckErrors REGEXP '245: First word, [a-z]+, may be an article, check 2nd indicator'
+			WHERE
+				bibcheckErrors REGEXP '245: First word, [a-z]+, may be an article, check 2nd indicator'
+			AND id NOT IN (" . implode (', ', $whitelistedIds) . ")
 		";
 		
 		# Return the query
