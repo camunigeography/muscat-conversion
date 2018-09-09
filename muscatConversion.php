@@ -2735,6 +2735,7 @@ class muscatConversion extends frontControllerApplication
 		$errorsHtml = '';
 		$jumplist = array ();
 		foreach ($filesets as $fileset => $label) {
+			if ($fileset == 'selection') {continue;}	// This is only a subset of things in other reports, so do not repeat
 			$filename = $directory . "/spri-marc-{$fileset}.errors.txt";
 			$errors = file_get_contents ($filename);
 			$errorListingHtml = htmlspecialchars (trim ($errors));
