@@ -1656,7 +1656,7 @@ class marcConversion
 	
 	
 	# Macro to generate the leading article count; this does not actually modify the string itself - just returns a number; e.g. 245 (based on *t) in /records/1116/ (test #355); 245 for Spanish record in /records/19042/ (test #356); 242 field (based on *tt) in /records/1204/ (test #357)
-	public function macro_nfCount ($value, $language = false, &$errorHtml_ignored = false, $externalXml = NULL)
+	public function macro_nfCount ($value, $language = false, &$errorHtml_ignored = false, $externalXml = NULL, $confirmedTopLevel = false)
 	{
 		# Strip any HTML tags, as will be stripped in the final record, e.g. /records/15161/ (test #782)
 		$value = strip_tags ($value);
@@ -1679,6 +1679,17 @@ class marcConversion
 			$xPath = '//lang[1]';	// Choose first only
 			$xml = ($externalXml ? $externalXml : $this->xml);	// Use external XML if supplied
 			$language = $this->xPathValue ($xml, $xPath);
+		}
+		
+		# Handle parallel titles; e.g. /records/100909/ (test #788)
+		if ($confirmedTopLevel) {	// Currently supported for top-level checking only
+			if (substr_count ($value, ' = ')) {
+				$xPath = '/*/tg/lpt';
+				$xml = ($externalXml ? $externalXml : $this->xml);	// Use external XML if supplied
+				if ($lpt = $this->xPathValue ($xml, $xPath)) {
+					list ($language, $otherLanguage) = explode (' = ', $lpt, 2);
+				}
+			}
 		}
 		
 		# If no language specified, choose 'English'
