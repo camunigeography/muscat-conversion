@@ -2135,7 +2135,7 @@ i245
 /5$/
 
 363
-Macro nfcount: Special characters with initial article are counted as nonfiling characters (with: "The 'Esk'")
+Macro nfcount: Special characters with initial article are counted as nonfiling characters (with: 'The "Esk"')
 1325
 i245
 /5$/

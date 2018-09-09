@@ -1692,7 +1692,7 @@ class marcConversion
 		# Therefore incorporate starting brackets in the consideration and the count if there is a leading article; see: https://www.loc.gov/marc/bibliographic/bd245.html , e.g. /records/27894/ (test #359), /records/56786/ (test #360), /records/4993/ (test #361)
 		# Include known starting/trailing punctuation within the count, e.g. /records/11329/ (test #362) , /records/1325/ (test #363) like example '15$aThe "winter mind"' in MARC documentation , /records/10366/ , as per http://www.library.yale.edu/cataloging/music/filing.htm#ignore
 		foreach ($this->leadingArticles[$language] as $leadingArticle) {
-			if (preg_match ("/^(['\"\[]*{$leadingArticle}['\"]*)/i", $value, $matches)) {	// Case-insensitive match, e.g. /records/1127/ (test #702)
+			if (preg_match ('/^(' . "['\"\[]*" . $leadingArticle . "['\"]*" . ')/i', $value, $matches)) {	// Case-insensitive match, e.g. /records/1127/ (test #702)
 				return (string) mb_strlen ($matches[1]); // The space, if present, is part of the leading article definition itself
 			}
 		}
