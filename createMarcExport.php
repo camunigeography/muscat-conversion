@@ -191,6 +191,7 @@ class createMarcExport
 		}
 		
 		# Define and execute the command for converting the text version to binary, generating the errors listing file; NB errors.txt is a hard-coded location in Bibcheck, hence the file-moving requirement
+		# If an error occurs, e.g. two LDRs, Bibcheck will output the errors file until the point the errors occurred, e.g. "Invalid indicators "00273nas\a22000977\\4500" forced to blanks in record 2523 for tag LDR \n no subfield data found in record 2523 for tag LDR"
 		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; perl lint_test.pl {$directory}/spri-marc-{$fileset}.mrc 2>&1";	//  2>> errors.txt
 		$output = shell_exec ($command);
 		if ($output) {
