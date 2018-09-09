@@ -134,8 +134,88 @@ class generate245
 		$nfCountLanguage = ($this->languageMode == 'default' ? false : $this->languageMode);	// Language mode relates to transliteration; languages like German should still have nfCount but will have 'default' language transliteration mode
 		$leadingArticleCharacterCount = $this->marcConversion->macro_nfCount ($this->t, $nfCountLanguage, $errorString_ignored, $this->xml, $confirmedTopLevel = true);
 		
+		# Check for special cases, e.g. /records/88579/ (test #781)
+		$id = $this->marcConversion->xPathValue ($this->xml, '/q0');
+		$secondIndicatorSpecialCases = $this->getSecondIndicatorSpecialCases ();
+		if (array_key_exists ($id, $secondIndicatorSpecialCases)) {
+			$leadingArticleCharacterCount = $secondIndicatorSpecialCases[$id];
+		}
+		
 		# Return the leading articles count
 		return $leadingArticleCharacterCount;
+	}
+	
+	
+	# Function to define special-cases for the second indicator, where the *t is in some way correctly inconsistent with the *lang, e.g. /records/88579/ (test #781)
+	private function getSecondIndicatorSpecialCases ()
+	{
+		# Return the special cases, as record number => count
+		return $specialCases = array (
+			
+			# Records where language of the actual title is in script Muscat/Alma cannot support (e.g. Inuktitut, Japanese, Chinese)
+			13410	=> 4,
+			14793	=> 4,
+			17681	=> 4,
+			17969	=> 4,
+			26135	=> 3,
+			31105	=> 4,
+			58176	=> 4,
+			72312	=> 2,
+			82989	=> 2,
+			88579	=> 4,		// /records/88579/ (test #781)
+			91745	=> 4,
+			100428	=> 2,
+			106069	=> 4,
+			127198	=> 4,
+			163366	=> 4,
+			181255	=> 4,
+			188847	=> 4,
+			199180	=> 4,
+			203055	=> 4,
+			203132	=> 4,
+			204087	=> 4,
+			209291	=> 4,
+			
+			# Records where title contains definite article in one language, but work is in another language
+			1669	=> 3,	// Le petit nord
+			37784	=> 4,	// Die Postpositionen
+			
+			# Records where there is no leading article, even if there is a language mismatch
+			5129	=> 0,	// Il'dia
+			52278	=> 0,	// Ho for the Klondike
+			
+			# Records where *lang is correct and there is no leading article
+			11762	=> 0,	// Um Grönlands
+			14251	=> 0,	// An den Toren
+			45860	=> 0,	// Um daginn
+			170015	=> 0,	// El'vel'
+			187957	=> 0,	// A'achek gavantolen
+			209503	=> 0,	// A 25 años
+			
+			# Records where everything seems to be correct - may need an explicit *lang OR other issue
+			14332	=> 2,	// "This record is causing confusion because the italian definite article before a vowel (L') is combined with speechmarks around the name of the ship - I believe the non filing count in this case should be 2"; see also https://lccn.loc.gov/30019370/marcxml
+			30921	=> 0,	// "'An' is not an article in German and does not need to generate an nf count"
+			44821	=> 0,	// https://lccn.loc.gov/78351468/marcxml possibly wrong
+			48841	=> 0,	// https://forum.wordreference.com/threads/norwegian-bokm%C3%A5l-%C3%A9n-ett.416233/ says 'whereas én/ett would be "one"'
+			50097	=> 0,	// Een gang Grønland
+			61935	=> 0,	// "'Les' is not an article in Russian"
+			67709	=> 0,	// "'Les' is not an article in Russian"
+			140846	=> 0,	// "Since El Nino is a proper name, nfcount = 0"
+			155115	=> 0,	// "'Les' is not an article in Russian"
+			156604	=> 0,	// "Since El Nino is a proper name, nfcount = 0"
+			159877	=> 0,	// "'Der' means there in Norwegian - not an article"
+			159978	=> 0,	// "'Les' is not an article in Russian"
+			160654	=> 2,	#!# Pending data fix
+			169691	=> 0,	// "'Les' is not an article in Russian"
+			191629	=> 0,	// "'Les' is not an article in Russian"
+			209505	=> 0,	// "While 'uno' can be an article in Spanish, in this case it means 'one'"
+			
+			# Records requiring item double-check
+			14766	=> 4,	// The Norway year book
+			65529	=> 4,	// The history of Greenland
+			121496	=> 0,	// https://searchworks.stanford.edu/view/3279936
+			134159	=> 4,	// The contribution of scientific research
+		);
 	}
 	
 	
