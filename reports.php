@@ -4857,7 +4857,7 @@ class reports
 			$data[$id]['marcField'] = ($data[$id]['negativeTest'] ? '!' : '') . ($data[$id]['indicatorTest'] ? 'i' : '') . $data[$id]['marcField'];
 			
 			# Expected
-			$data[$id]['expected'] = '<tt>' . htmlspecialchars ($test['expected']) . '</tt>';
+			$data[$id]['expected'] = '<tt>' . str_replace ('  ', ' &nbsp;', htmlspecialchars ($test['expected'])) . '</tt>';
 			
 			# Found lines
 			if ($test['found']) {
@@ -4880,7 +4880,7 @@ class reports
 							$matched = $matches[0];
 						}
 					}
-					$found = str_replace ($matched, '<span class="found' . ($data[$id]['negativeTest'] ? ' negative' : '') . '">' . $matched . '</span>', $found);
+					$found = str_replace ($matched, '<span class="found' . ($data[$id]['negativeTest'] ? ' negative' : '') . '">' . str_replace ('  ', ' &nbsp;', $matched) . '</span>', $found);
 				}
 				$data[$id]['found'] = '<tt>' . nl2br (application::str_truncate ($found, 700, "{$this->baseUrl}/records/{$test['recordId']}/")) . '</tt>';
 			} else {
