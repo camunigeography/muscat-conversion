@@ -4599,3 +4599,9 @@ i245
 8792
 240
 /‡aNational Antarctic Expedition$/
+
+786
+240 does not get starting . immediately after indicators when *lto present but no *to
+105148
+!240
+/^.‡lEnglish$/
