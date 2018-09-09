@@ -228,7 +228,7 @@ class marcConversion
 	
 	# Main entry point
 	# Local documentation at: http://www.lib.cam.ac.uk/libraries/login/bibstandard/bibstandards.htm
-	public function convertToMarc ($marcParserDefinition, $recordXml, $mergeDefinition = array (), $mergeType = false, $mergeVoyagerId = false, $suppressReasons = false)
+	public function convertToMarc ($marcParserDefinition, $recordXml, $mergeDefinition = array (), $mergeType = false, $mergeVoyagerId = false, $suppressReasons = false, $stripLeaderInMerge = true)
 	{
 		# Reset the error string and source registry so that they are clean for each iteration
 		$this->errorHtml = '';
@@ -290,7 +290,7 @@ class marcConversion
 		# If required, merge with an existing Voyager record, returning by reference the pre-merge record, and below returning the merged record
 		if ($mergeType) {
 			$this->marcPreMerge = $record;	// Save original record pre-merge
-			$record = $this->mergeWithExistingVoyager ($record, $mergeDefinition, $mergeType, $mergeVoyagerId);
+			$record = $this->mergeWithExistingVoyager ($record, $mergeDefinition, $mergeType, $mergeVoyagerId, $stripLeaderInMerge);
 		}
 		
 		# Report any UTF-8 problems
@@ -353,7 +353,7 @@ class marcConversion
 	
 	
 	# Function to perform merge of a MARC record with an existing Voyager record
-	private function mergeWithExistingVoyager ($localRecord, $mergeDefinitions, $mergeType, $mergeVoyagerId)
+	private function mergeWithExistingVoyager ($localRecord, $mergeDefinitions, $mergeType, $mergeVoyagerId, $stripLeaderInMerge)
 	{
 		# Start a source registry, to store which source each line comes from
 		$sourceRegistry = array ();
@@ -368,7 +368,7 @@ class marcConversion
 		$mergeDefinition = $mergeDefinitions[$mergeType];
 		
 		# Get the existing Voyager record
-		if (!$voyagerRecord = $this->getExistingVoyagerRecord ($mergeVoyagerId)) {
+		if (!$voyagerRecord = $this->getExistingVoyagerRecord ($mergeVoyagerId, $stripLeaderInMerge)) {
 			$this->errorHtml .= "Merge failed: could not retrieve existing Voyager record. The local record has been put in, without merging.";
 			return $localRecord;
 		}
@@ -493,7 +493,7 @@ class marcConversion
 	
 	
 	# Function to obtain the data for an existing Voyager record, as a multi-dimensional array indexed by field then an array of lines for that field
-	public function getExistingVoyagerRecord ($mergeVoyagerId, &$errorText = '')
+	public function getExistingVoyagerRecord ($mergeVoyagerId, $stripLeaderInMerge = true, &$errorText = '')
 	{
 		# If the merge voyager ID is not yet a pure integer (i.e. not yet a one-to-one lookup), state this and end
 		if (!ctype_digit ($mergeVoyagerId)) {
@@ -507,11 +507,21 @@ class marcConversion
 			return false;
 		}
 		
-		# Replace spaces with # in the Leader (LDR), to use the same format as generated records; e.g. /records/1011/ (test #787)
+		# Replace spaces with # in the Leader (LDR), to use the same format as generated records; cannot be tested as block below (with test #787) strips this in import
 		foreach ($voyagerRecordShards as $shardId => $shard) {
 			if ($shard['field'] == 'LDR') {
 				$voyagerRecordShards[$shardId]['data'] = str_replace (' ', '#', $shard['data']);
 				break;	// Only one, so stop loop
+			}
+		}
+		
+		# During import (but not in dynamic loading), remove the Leader (LDR) in the merge record, to avoid a double-leader, which causes Bibcheck to fail; e.g. /records/1011/ (test #787)
+		if ($stripLeaderInMerge) {
+			foreach ($voyagerRecordShards as $shardId => $shard) {
+				if ($shard['field'] == 'LDR') {
+					unset ($voyagerRecordShards[$shardId]);
+					break;	// Only one, so stop loop
+				}
 			}
 		}
 		

@@ -898,7 +898,7 @@ class muscatConversion extends frontControllerApplication
 				$data = $this->getRecords ($id, 'xml', false, false, $searchStable = (!$this->userIsAdministrator));
 				$marcParserDefinition = $this->import->getMarcParserDefinition ();
 				$mergeDefinition = $this->import->parseMergeDefinition ($this->import->getMergeDefinition ());
-				$marcRecord = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $record['suppressReasons']);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
+				$marcRecord = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $record['suppressReasons'], $stripLeaderInMerge = false /* Do not strip for dynamic merge; however it is stripped in the actual import */);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
 				$this->marcRecordDynamic = array (
 					'record'			=> $marcRecord,
 					'marcErrorHtml'		=> $this->marcConversion->getErrorHtml (),
@@ -954,7 +954,7 @@ class muscatConversion extends frontControllerApplication
 						$output .= "\n<h4>Pre-merge record from Muscat:</h4>";
 						$output .= "\n<pre>" . $this->highlightSubfields (htmlspecialchars ($this->marcRecordDynamic['marcPreMerge'])) . "\n</pre>";
 						$output .= "\n<h4>Existing Voyager record:</h4>";
-						$voyagerRecord = $this->marcConversion->getExistingVoyagerRecord ($record['mergeVoyagerId'], $voyagerRecordErrorText);	// Although it is wasteful to regenerate this, the alternative is messily passing back the record and error text as references through convertToMarc()
+						$voyagerRecord = $this->marcConversion->getExistingVoyagerRecord ($record['mergeVoyagerId'], $stripLeaderInMerge = false, $voyagerRecordErrorText);	// Although it is wasteful to regenerate this, the alternative is messily passing back the record and error text as references through convertToMarc()
 						$output .= "\n<pre>" . ($voyagerRecord ? $this->highlightSubfields (htmlspecialchars ($voyagerRecord)) : $voyagerRecordErrorText) . "\n</pre>";
 					}
 					$output .= "\n</div>";

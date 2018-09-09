@@ -4607,7 +4607,7 @@ i245
 /^.‡lEnglish$/
 
 787
-Merging: second LDR has spaces converted to #
+Merging: second LDR is stripped
 1011
-LDR
-/##4500$/
+!LDR
+/^00273nas/
