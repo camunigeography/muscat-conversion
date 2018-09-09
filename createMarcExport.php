@@ -192,7 +192,7 @@ class createMarcExport
 		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; perl lint_test.pl {$directory}/spri-marc-{$fileset}.mrc 2>&1";	//  2>> errors.txt
 		$output = shell_exec ($command);
 		if ($output) {
-			$errorsHtml .= "\n<p class=\"warning\">Error in Bibcheck execution: " . nl2br (str_replace ("\n\n", "\n", str_replace ("\n\r", "\n", htmlspecialchars (trim ($output))))) . '</p>';
+			$errorsHtml .= "\n<p class=\"warning\">Error in Bibcheck execution for fileset {$fileset}: " . nl2br (str_replace ("\n\n", "\n", str_replace ("\n\r", "\n", htmlspecialchars (trim ($output))))) . '</p>';
 		}
 		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; mv errors.txt {$errorsUnfilteredFilename}";
 		$output = shell_exec ($command);
