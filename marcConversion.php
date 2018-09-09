@@ -507,6 +507,14 @@ class marcConversion
 			return false;
 		}
 		
+		# Replace spaces with # in the Leader (LDR), to use the same format as generated records; e.g. /records/1011/ (test #787)
+		foreach ($voyagerRecordShards as $shardId => $shard) {
+			if ($shard['field'] == 'LDR') {
+				$voyagerRecordShards[$shardId]['data'] = str_replace (' ', '#', $shard['data']);
+				break;	// Only one, so stop loop
+			}
+		}
+		
 		# Construct the record lines
 		$recordLines = array ();
 		foreach ($voyagerRecordShards as $shard) {

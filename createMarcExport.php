@@ -139,8 +139,6 @@ class createMarcExport
 		# Reformat to Voyager input style; this process is done using shelled-out inline sed/perl, rather than preg_replace, to avoid an out-of-memory crash
 		exec ("sed -i 's" . "/{$this->doubleDagger}\([a-z0-9]\)/" . '\$\1' . "/g' {$filenameMrk}");		// Replace double-dagger(s) with $
 		exec ("sed -i '/^LDR /s/#/\\\\/g' {$filenameMrk}");												// Replace all instances of a # marker in the LDR field with \
-		exec ("sed -i '/^LDR /s/ /\\\\/g' {$filenameMrk}");												// Replace all instances of a space in the LDR field (from original Voyager data) with \
-		exec ("sed -i '/^LDR\\\\/s/LDR\\\\/LDR /g' {$filenameMrk}");									// |-- Fix up start from "LDR\\" back to "LDR  " ; see: https://stackoverflow.com/a/2166468/180733
 		exec ("sed -i '/^008 /s/#/\\\\/g' {$filenameMrk}");												// Replace all instances of a # marker in the 008 field with \
 		exec ("perl -pi -e 's" . '/^([0-9]{3}) #(.) (.+)$/' . '\1 \\\\\2 \3' . "/' {$filenameMrk}");	// Replace # marker in position 1 with \
 		exec ("perl -pi -e 's" . '/^([0-9]{3}) (.)# (.+)$/' . '\1 \2\\\\ \3' . "/' {$filenameMrk}");	// Replace # marker in position 2 with \
