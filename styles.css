@@ -49,9 +49,11 @@
 #muscatconversion table.downloads tr.selection td {opacity: 0.7; padding-top: 16px;}
 #muscatconversion a[href$='.mrk']  {padding-left: 20px; background: transparent url(/images/icons/page_white_code.png) no-repeat center left;}
 #muscatconversion a[href$='.mrc']  {padding-left: 20px; background: transparent url(/images/icons/script_code_red.png) no-repeat center left;}
-#muscatconversion p.colourkey {float: right; margin-right: 20px; color: #999;}
+#muscatconversion p.colourkey {float: right; margin-right: 20px; font-style: italic;}
+#muscatconversion p.colourkey span {font-style: normal;}
 #muscatconversion span.sourcem {color: #191970;}
 #muscatconversion span.sourcev {color: brown;}
+#muscatconversion span.stripped {color: gray;}
 #muscatconversion table td span.present {background-color: rgba(227, 249, 217, 0.7);}
 #muscatconversion table td span.absent {background-color: rgba(252, 199, 200, 0.7);}
 #muscatconversion table td span.probable {background-color: rgba(255,255, 153, 0.7);}

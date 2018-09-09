@@ -938,7 +938,7 @@ class muscatConversion extends frontControllerApplication
 						$output .= "\n<p>Note: this record has <strong>merge data</strong> (managed according to the <a href=\"{$this->baseUrl}/merge.html\" target=\"_blank\">merge specification</a>), shown underneath.</p>";
 					}
 					if ($record['mergeType']) {
-						$output .= "\n" . '<p class="colourkey">Color key: <span class="sourcem">Muscat</span> / <span class="sourcev">Voyager</span></p>';
+						$output .= "\n" . '<p class="colourkey">Colour key: &nbsp;<span class="sourcem">Muscat</span> / <span class="sourcev">Voyager</span> / <span class="stripped">Stripped</span></p>';
 					}
 				} else {
 					$output .= "\n<p id=\"exporttarget\">";
@@ -1253,6 +1253,13 @@ class muscatConversion extends frontControllerApplication
 			$cssClass = 'source' . strtolower ($sourceRegistry[$index]);	// i.e. 'sourcem' / 'sourcev'
 			$title = $titles[$sourceRegistry[$index]];
 			$decoratedRecord[$index] = "<span class=\"{$cssClass}\" title=\"{$title}\">" . $line . '</span>';
+		}
+		
+		# If a second LDR (i.e. from the merge record) is present, show it faded to indicate this does not end up in the export
+		if (isSet ($lines[1])) {	// Though should always be present
+			if (preg_match ('/^LDR /', $lines[1])) {
+				$decoratedRecord[1] = '<span class="stripped">' . $lines[1] . '</span>';
+			}
 		}
 		
 		# Return to a string
