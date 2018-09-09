@@ -144,6 +144,7 @@ class reports
 		'othertransliterations_postmigration' => 'records with names for transliteration in other languages (e.g. Yakut, Chinese, etc.) for upgrading',
 		'locationunassigned_postmigration' => 'records with location = ??',
 		'towithoutlto_problem' => 'records with *to without *lto defined, having whitelisted English *to in a non-Russian record',
+		'ltowithoutto_problem' => '*lto present but no *to',
 		'ntnoneslashupgrade_problem' => 'records with *nt=None which have not had / upgrading for 245',
 		'ntcyrillicinscope_postmigration' => 'non-Russian records with Cyrillic *nt = BGNRus/LOCRus',
 		'ntcyrillicunsupported_postmigration' => 'non-Russian records with all Cyrillic *nt for types never supported',
@@ -3558,6 +3559,25 @@ class reports
 				    field IN ('t','tc','tt','to')
 				AND value LIKE '%//%'
 				AND recordId NOT IN (41853, 121719, 121998)
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# *lto present but no *to
+	public function report_ltowithoutto ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'ltowithoutto' AS report,
+				id
+			FROM fieldsindex
+			WHERE
+				    fieldslist LIKE '%@lto@%'
+				AND fieldslist NOT LIKE '%@to@%'
 		";
 		
 		# Return the query
