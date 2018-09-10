@@ -453,7 +453,7 @@ VNIIEgazprom
 Imperial Academy of Sciences
 State Committee of the Russian Federation on Statistics
 
-# English-name publishers in Russian record, i.e. exceptions to *pu with *lang=Russian
+# English-name publishers in Russian record, i.e. exceptions to *pu with *lang=Russian; can also be put in transliterationProtectedShards.txt
 Academy of Sciences of the USSR. The National Committee for Geodesy and Geophysics
 US Army Cold Regions Research and Engineering Laboratory
 State Committee of the Russian Federation on Statistics

@@ -1,0 +1,1 @@
+# Shard IDs (catalogue_processed.id or transliterations.id values) that are known to be English; can also be put in transliterationProtectedStrings.txt

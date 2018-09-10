@@ -4623,3 +4623,9 @@ Merging: second LDR is stripped
 100909
 i245
 /2$/
+
+789
+Protected shards are exempted from transliteration
+15149
+!880
+Ленинград

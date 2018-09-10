@@ -1233,6 +1233,8 @@ class import
 			- Delete all *pu shards whose value is a token: '[n.pub.]', 'n.pub.', '[n.p.]'
 			- Delete all *n1 shards whose value is token: 'Anon.'
 			
+			- Delete all shards in the list of special-case shard numbers that have been manually reviewed
+			
 			- Finally, delete anything that doesn't contain 'Russian' (e.g. equals Russian or contains in 'A = B' style format) or LOCRus as the language
 			- We now only have shards with either (a) Russian, or (b) LOCRus, or (c) Parallel title list
 			
@@ -1373,6 +1375,11 @@ class import
 				AND transliterations.field = 't'
 				AND topLevel = 1
 		;";
+		$this->databaseConnection->query ($query);
+		
+		# Delete all shards in the list of special-case shard numbers that have been manually reviewed; e.g. *pu in /records/1888/ (test #789)
+		$transliterationProtectedShards = application::textareaToList ($this->applicationRoot . '/tables/' . 'transliterationProtectedShards.txt', true, true, true);
+		$query = "DELETE FROM transliterations WHERE id IN('" . implode ("', '", $transliterationProtectedShards) . "');";
 		$this->databaseConnection->query ($query);
 	}
 	
