@@ -4635,3 +4635,9 @@ Protected shards are exempted from transliteration
 150424
 !880
 Этhнологиcал
+
+791
+Author containing whole line "Anonymous." as protected string should not have 880 generated
+1571
+!880
+Anonymous.
