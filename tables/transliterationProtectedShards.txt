@@ -1,1 +1,5 @@
 # Shard IDs (catalogue_processed.id or transliterations.id values) that are known to be English; can also be put in transliterationProtectedStrings.txt
+
+# *pu values
+15149:15
+15149:16

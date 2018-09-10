@@ -451,15 +451,85 @@ Linguistica Uralica
 Bulletin de la Société de Géographique de l'U.R.S.S.
 VNIIEgazprom
 Imperial Academy of Sciences
-State Committee of the Russian Federation on Statistics
 
 # English-name publishers in Russian record, i.e. exceptions to *pu with *lang=Russian; can also be put in transliterationProtectedShards.txt
+# Find using: `SELECT id,field,xPath,title_latin FROM transliterations WHERE field LIKE 'pu' ORDER BY title_latin;` and scan down visually
 Academy of Sciences of the USSR. The National Committee for Geodesy and Geophysics
 US Army Cold Regions Research and Engineering Laboratory
-State Committee of the Russian Federation on Statistics
 Greenpeace
 Soviet Geophysical Committee (Academy of Sciences of the USSR)
 Oelschlägel
+Author
+Authors
+Azerbaijan State Publishers
+Elsevier
+Ethnoconsulting
+Four Continents' Book Corporation
+Gaudeamus
+Gazoil press
+Institute for Russian and East European Studies
+Institute of Geography RAS
+IRTS Gasprom
+Krylov Shipbuilding Research Institute
+Magadan Book Publishing House
+Melnikov Permafrost Institute SB RAS
+Memorial
+MGUK; Universite de Paris-Sorbonne
+Ministry of the Environment of Finland
+Morskoy Transport
+Moscow
+Moscow University Press
+Mouton & Co
+National Park Service, Denver Service Center
+no pub.
+Norman Ross Publishing
+Olma-Press
+OLMA-PRESS
+Oriental Research Partners
+Overseas Publications Interchange Ltd.
+Oxford University Press
+Palace Editions
+Paulsen
+Petropolis
+Prepress-Studio
+Preprint
+Publishing House of the Academy of Sciences of the U.S.S.R.
+RAO "Gazprom"
+RAO GASPROM
+Research Program on the U.S.S.R.
+Russian Academy of Sciences
+Russian Academy of Sciences. Institute of Geography
+Russian Heritage Institute
+Russian Research Institute for Cultural and Natural Heritage
+Russian-Baltic Information Centre "Blits"
+Russian-Baltic Information Centre "Blits"
+Sezam-Marketing
+Siberian Branch of Russian Academy of Sciences
+Smithsonian Institution
+Simon-Press
+Snowchange
+Soviet Encycolopedia Publishing House
+Soviet Geophysical Committee (Academy of Sciences of the USSR)
+State Committee of the Russian Federation on Statistics
+State Committee on Statistics of the Russian Federation
+State Publishing House for Geographical Literature
+State School Textbook Publishing House of the Ministry of Education of the R.S.F.S.R. Leningrad Branch
+The Association of former Russian Naval Officers in America
+Tromsø Museum
+U.S. Dept. of Commerce. Clearinghouse for Federal Scientific and Technical Information. Joint Publications Research Service
+UMI Books on Demand
+VNIIEgazprom
+WWF
+Zebra
+Arctic & Antarctic Research Institute
+Arctic Studies Center, Smithsonian Institution
+CMYK-Master
+Conflict Studies Research Centre
+Azerbaijan State Publishers
+Éditions en langues étrangères
+Estonian Academy of Sciences
+Ethnoconsulting
+Gesellschaft für bedrohte völker
 
 # Other strings to protect
 WWGS-89
