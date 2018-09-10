@@ -2293,7 +2293,7 @@ class reports
 	}
 	
 	
-	# Records with strings being transliterated but which appear to be in English
+	# Records with strings being transliterated but which appear to be in English; these can then be removed by adding cases in tables/transliterationProtectedStrings.txt or tables/transliterationProtectedShards.txt
 	public function report_transliteratedenglish ()
 	{
 		# Define the query

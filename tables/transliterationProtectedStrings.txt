@@ -531,6 +531,26 @@ Estonian Academy of Sciences
 Ethnoconsulting
 Gesellschaft für bedrohte völker
 
+# English-name *ts (title of series) in Russian record; e.g. /records/150424/ (test #790)
+# Find using: `SELECT id,field,xPath,title_latin FROM transliterations WHERE field LIKE 'ts' ORDER BY title_latin;` and scan down visually
+American Council of Learned Societies reprints: Russian series No. 1
+Autrement. Collection monde 17
+Ethnological Studies of Shamanism and Other Indigenous Spritual Beliefs and Practices 5
+Forgotten images
+Habent sua fata manuscripta 3
+Heritage of Beringia 2
+In the series
+Mimeographed series (East European Fund)
+Preprint
+Note de Travail de l'Établissement d'Études et de Recherches Météorologiques
+Numbered "1" (Antarctic)
+Papers from the All-Union Conference
+Regions of Russia
+UNESCO Man and Biosphere (MAB) Programme
+US Army Cold Regions Research and Engineering Laboratory
+Way North
+reprint
+
 # Other strings to protect
 WWGS-89
 Anonymous

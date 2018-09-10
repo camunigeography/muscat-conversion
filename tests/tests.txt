@@ -4629,3 +4629,9 @@ Protected shards are exempted from transliteration
 15149
 !880
 Ленинград
+
+790
+*ts shard in protected strings list exempted from transliteration
+150424
+!880
+Этhнологиcал
