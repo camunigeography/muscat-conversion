@@ -38,6 +38,7 @@ while ( my $record = $batch->next() ) {
 print OUT "\n\n===============================================================\n\n";
 print OUT encode_utf8( $record->as_formatted() );
 print OUT "\n^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n";
+# The error text itself may contain UTF-8 characters, e.g. "245: First word, hokuhyōyō, does not appear to be an article, check 2nd indicator (3).", which generates a warning about the error text
 foreach my$line(@sort_warn){print OUT "$line\n"}
 }
 
