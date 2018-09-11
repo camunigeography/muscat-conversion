@@ -2312,6 +2312,9 @@ class reports
 			WHERE
 				    title_latin REGEXP '(the | of )'
 				AND title_latin NOT LIKE '% = %'		-- Crude support for parallel titles; basically assumes that if = has been used, the record is likely to be correct
+				AND title_latin != title				-- Exclude ones that have not resulted in transliteration due to protected strings
+				AND title_latin NOT LIKE '%[%'			-- Exclude ones including square brackets
+				AND title_latin NOT LIKE '%<em>%'
 		";
 		
 		# Return the query
