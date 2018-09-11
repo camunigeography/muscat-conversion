@@ -444,6 +444,8 @@ Sav.-Lyub. et Z. Smirn.
 (Spitzbergen)
 (K.Neale)
 (Franz-Josef L.)
+Writers of Russia
+Finland. Ministry of the Environment
 
 # Organisation names
 Congressus Octavus Internationalis Fenno-Ugristarum
@@ -550,6 +552,29 @@ UNESCO Man and Biosphere (MAB) Programme
 US Army Cold Regions Research and Engineering Laboratory
 Way North
 reprint
+House of the Chief Administration of the Northern Sea Route
+University of Tromsø
+The Author
+
+# Titles (*t)
+Transactions of the Soviet Antarctic Expedition
+Oil and gas interests in the Russian political equation
+Aerometeorological research in Antarctica during the IGY
+
+# Titles (*ta)
+Language and folklore of the Alutor people
+Guiding lines of Beringia development in XXI-st century
+Inner structure of glacier in non-polar regions
+International relations in Northern Europe and the Barents Region
+On the heterogeneous structure of the atmospheric current under various meteorological conditions according to observational data from the Kola Peninsula
+Methods to determine the reliability of seasonally frozen constructions
+Experience and prospects for application of frequency-domain electromagnetic methods in frozen ground temperature monitoring
+Integrated exploration of small goldmine clusters
+The scientific research of Gerhard Ludwig von Maydell
+Catastrophic changes to mountain glaciers on the southern slopes of the Dzhungarskiy Alatau
+Isotope composition of ice core of Late Holocene pingo in the Pestsovy deposit in the vally of the River Yevoyakha in the southern Tazovskiy Peninsula
+Archaeology, ethnology and anthropology of Eurasia
+Papers from the All-Union Conference, Novosibirsk, 18-20 June 1979
 
 # Other strings to protect
 WWGS-89
