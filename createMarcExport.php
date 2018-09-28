@@ -162,7 +162,7 @@ class createMarcExport
 		exec ($command, $output, $unixReturnValue);
 		if ($unixReturnValue == 2) {
 			echo "<p class=\"warning\">Execution of <tt>/usr/local/bin/marcedit/cmarcedit.exe</tt> failed with Permission denied - ensure the webserver user can read <tt>/usr/local/bin/marcedit/</tt>.</p>";
-			break;
+			return false;
 		}
 		foreach ($output as $line) {
 			if (preg_match ('/^0 records have been processed/', $line)) {

@@ -793,7 +793,7 @@ class muscatConversion extends frontControllerApplication
 		exec ($command, $output, $unixReturnValue);
 		if ($unixReturnValue == 2) {
 			echo "<p class=\"warning\">Execution of <tt>/usr/local/bin/marcedit/cmarcedit.exe</tt> failed with Permission denied - ensure the webserver user can read <tt>/usr/local/bin/marcedit/</tt>.</p>";
-			break;
+			return false;
 		}
 		
 		# Read the MARCXML file
