@@ -119,7 +119,11 @@ class transliteration
 		$latinStringBlock = implode ($separator, $latinStrings);
 		
 		# Perform transliteration of the block
-		$command = "{$this->cpanDir}/bin/translit -trans '{$this->supportedReverseTransliterationLanguages[$language]}'";	//  --reverse
+		# Note that this uses a local copy of Lingua::Translit (not any copy by root), which has the "BGN PCGN 1947" XML file in /tables/reverseTransliteration.xml provided by compileReverseTransliterator ()
+		# If testing this command from the command-line, run using the webserver's user to ensure the correct environment
+		# www-data$ echo "hello" | PERL5LIB=/path/to/muscat-conversion/libraries/transliteration/cpan/Lingua-Translit-0.22/lib/perl5/ /path/to/muscat-conversion/libraries/transliteration/cpan/bin/translit -t "BGN PCGN 1947"
+		$perl5libLocation = $this->cpanDir . '/Lingua-Translit-0.22/lib/perl5/';	// See: https://perlmaven.com/how-to-change-inc-to-find-perl-modules-in-non-standard-locations
+		$command = "PERL5LIB={$perl5libLocation} {$this->cpanDir}/bin/translit -trans '{$this->supportedReverseTransliterationLanguages[$language]}'";	//  --reverse
 		$cyrillicBlock = application::createProcess ($command, $latinStringBlock);
 		
 		# Extract the strings back to an array, restoring the index

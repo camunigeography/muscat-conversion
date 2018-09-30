@@ -1444,7 +1444,7 @@ class import
 		$data = $this->databaseConnection->getData ($query, "{$this->settings['database']}.transliterations");
 		
 		# Transliterate the strings (takes around 4 minutes)
-		$this->logger ('  |-- In ' . __METHOD__ . ', running transliterateBgnLatinToCyrillic');
+		$this->logger ('  |-- In ' . __METHOD__ . ', running transliterateBgnLatinToCyrillicBatch');
 		$language = 'Russian';
 		$dataTransliterated = $this->transliteration->transliterateBgnLatinToCyrillicBatch ($data, $language, $cyrillicPreSubstitutions /* passed back by reference */, $protectedPartsPreSubstitutions /* passed back by reference */);
 		
