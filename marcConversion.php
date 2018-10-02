@@ -778,7 +778,7 @@ class marcConversion
 					
 					# Register the processed value
 					$datastructure[$lineNumber]['xpathReplacements'][$find]['replacement'] = $value;	// $value is usually a string, but an array if repeatable
-				} else {
+				} else {	// i.e. !$value :
 					$datastructure[$lineNumber]['xpathReplacements'][$find]['replacement'] = '';
 				}
 			}
@@ -811,7 +811,7 @@ class marcConversion
 			$counts = array ();
 			foreach ($line['xpathReplacements'] as $macroBlock => $xpathReplacementSpec) {
 				$replacementValues = $xpathReplacementSpec['replacement'];
-				$counts[$macroBlock] = count ($replacementValues);
+				$counts[$macroBlock] = (is_string ($replacementValues) ? 1 : count ($replacementValues));	// Check for is_string to avoid PHP7.2 warning following change in count() ; see: https://php.net/count#example-6224 and https://wiki.php.net/rfc/counting_non_countables
 			}
 			if (count (array_count_values ($counts)) != 1) {
 				$this->errorHtml .= 'Line ' . ($lineNumber + 1) . ' is a vertically-repeatable field, but the number of generated values in the subfields are not consistent:' . application::dumpData ($counts, false, true);
