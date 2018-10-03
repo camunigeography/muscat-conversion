@@ -1029,7 +1029,7 @@ class marcConversion
 		# Convert if required, e.g. /records/197739/ (test #584)
 		$hostname = parse_url ($url, PHP_URL_HOST);
 		if (preg_match ('/^xn--/', $hostname)) {
-			$utf8DomainName = idn_to_utf8 ($hostname);
+			$utf8DomainName = idn_to_utf8 ($hostname, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);	// options and variant set to avoid warnings in PHP 7.2/7.3; see: https://bugs.php.net/75609
 			$url = str_replace ($hostname, $utf8DomainName, $url);	// Substitute the domain within the overall URL
 		}
 		
