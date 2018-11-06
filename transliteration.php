@@ -63,8 +63,9 @@ class transliteration
 		Files are at
 		/root/.cpan/build/Lingua-Translit-0.22-th0SPW/xml/
 		
-		Documentation at
-		http://www.lingua-systems.com/translit/downloads/lingua-translit-developer-manual-eng.pdf
+		Lingua Translit documentation:
+		https://www.netzum-sorglos.de/software/lingua-translit/developer-documentation.html or https://github.com/gitpan/Lingua-Translit/blob/master/developer-manual__eng.pdf
+		http://search.cpan.org/~alinke/Lingua-Translit/lib/Lingua/Translit.pm#ADDING_NEW_TRANSLITERATIONS
 		
 		XML transliteration file:
 		/transliteration/bgn_pcgn_1947.xml
@@ -72,10 +73,6 @@ class transliteration
 		Instructions for root install:
 		Make changes to the XML file then run, as root:
 		cd /root/.cpan/build/Lingua-Translit-0.22-th0SPW/xml/ && make all-tables && cd /root/.cpan/build/Lingua-Translit-0.22-th0SPW/ && make clean && perl Makefile.PL && make && make install
-		
-		Lingua Translit documentation:
-		http://www.lingua-systems.com/translit/downloads/lingua-translit-developer-manual-eng.pdf
-		http://search.cpan.org/~alinke/Lingua-Translit/lib/Lingua/Translit.pm#ADDING_NEW_TRANSLITERATIONS
 		
 		# Example use:
 		echo "hello" | translit -r -t "BGN PCGN 1947"
@@ -178,7 +175,7 @@ class transliteration
 		# Use the built-in transliterator
 		$forwardBgnTransliterations = transliterator_transliterate ('Russian-Latin/BGN', $cyrillic);
 		
-		//# Experimental change to use the custom-written BGN PCGN 1947 transliteration but in reverse; doesn't work due to ambiguity; see: http://www.lingua-systems.com/translit/manuals-api.html
+		//# Experimental change to use the custom-written BGN PCGN 1947 transliteration but in reverse; doesn't work due to ambiguity; see: https://www.netzum-sorglos.de/software/lingua-translit/developer-documentation.html
 		//$command = "{$this->cpanDir}/bin/translit -trans 'BGN PCGN 1947' --reverse";
 		//$forwardBgnTransliterations = application::createProcess ($command, $cyrillic);
 		
