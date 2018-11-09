@@ -35,6 +35,14 @@
 <!-- https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/320274/Russian_Romanisation.pdf -->
 
 
+
+	<rule>
+		<from>Iye-Kut</from>
+		<to>Ийе-Кут</to>
+		<context>
+			<after>\b</after>
+		</context>
+	</rule>
 	<rule>
 		<from>Myaemets</from>
 		<to>Мяэметс</to>
