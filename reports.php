@@ -4231,12 +4231,13 @@ class reports
 				}
 			}
 			unset ($data[$id]['inNameAuthorityList']);
-			unset ($data[$id]['id']);	// Shard ID
 		}
 		
 		# Link each record
 		foreach ($data as $id => $record) {
 			$data[$id]['recordId'] = "<a href=\"{$this->baseUrl}/records/{$record['recordId']}/\">{$record['recordId']}</a>";
+			$data[$id]['recordId'] .= '<span class="faded">' . preg_replace ("/^{$record['recordId']}/", '', $record['id']) . '</span>';
+			unset ($data[$id]['id']);
 		}
 		
 		# Show the record and field together
