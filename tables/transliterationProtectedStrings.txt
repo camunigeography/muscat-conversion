@@ -456,6 +456,7 @@ Imperial Academy of Sciences
 
 # English-name publishers in Russian record, i.e. exceptions to *pu with *lang=Russian; can also be put in transliterationProtectedShards.txt
 # Find using: `SELECT id,field,xPath,title_latin FROM transliterations WHERE field LIKE 'pu' ORDER BY title_latin;` and scan down visually
+Soviet Union
 Academy of Sciences of the USSR. The National Committee for Geodesy and Geophysics
 US Army Cold Regions Research and Engineering Laboratory
 Greenpeace
