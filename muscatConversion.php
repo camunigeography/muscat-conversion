@@ -1158,7 +1158,12 @@ class muscatConversion extends frontControllerApplication
 				$locationComponents = array ();
 				foreach ($supportedSubfields as $supportedSubfield) {
 					if (isSet ($record852['subfields'][$supportedSubfield])) {
-						$locationComponents[] = trim ($record852['subfields'][$supportedSubfield][0]);
+						$locationComponent = trim ($record852['subfields'][$supportedSubfield][0]);
+						if ($locationComponent == 'SPRI-NIS') {
+							$locationComponent  = $record852['subfields']['z'][0] . ' (' . $locationComponent . ')';
+							$locationComponent .= ': ' . $record852['subfields']['x'][0];
+						}
+						$locationComponents[] = $locationComponent;
 					}
 				}
 				if ($locationComponents) {
