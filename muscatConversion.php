@@ -1150,17 +1150,23 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Location
-		$table['Location'] = false;
+		$table['Location(s)'] = false;
 		if (isSet ($record['852'])) {
-			$locations = array ();
 			$supportedSubfields = array ('b', 'c', 'h');
-			foreach ($supportedSubfields as $supportedSubfield) {
-				if (isSet ($record['852'][0]['subfields'][$supportedSubfield])) {
-					$locations[] = $record['852'][0]['subfields'][$supportedSubfield][0];
+			$locations = array ();
+			foreach ($record['852'] as $index => $record852) {
+				$locationComponents = array ();
+				foreach ($supportedSubfields as $supportedSubfield) {
+					if (isSet ($record852['subfields'][$supportedSubfield])) {
+						$locationComponents[] = trim ($record852['subfields'][$supportedSubfield][0]);
+					}
+				}
+				if ($locationComponents) {
+					$locations[] = implode (': ', $locationComponents);
 				}
 			}
 			if ($locations) {
-				$table['Location'] = implode ('<br />', $locations);
+				$table['Location(s)'] = implode ('<br />', $locations);
 			}
 		}
 		
