@@ -1,9 +1,4 @@
 
-Bugs:
------
-
-"p.\g 285" in /records/30729/
-
 
 
 Items 140709:
