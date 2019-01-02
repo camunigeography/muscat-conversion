@@ -4,7 +4,6 @@
 Items 140709:
 -------------
 	- Adjust createMarcExport() to filter out those in the report with @location@ matches "Not in SPRI", i.e. those in loccamuninotinspri
-	- 245 $a dotEnd is wrong. Need to remove, and change so that every record simply has a . at end of whole field if not already there
 
 
 	
