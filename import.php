@@ -184,6 +184,7 @@ class import
 		}
 		
 		# Run option to set the MARC record status (included within the 'marc' (and therefore 'full') option above) if required
+		#!# This is does not handle setting of 'migratewithitem', which is currently only being done towards the end of createMarcRecords()
 		if ($importType == 'outputstatus') {
 			$this->marcRecordsSetStatus ();
 		}
@@ -2263,6 +2264,9 @@ class import
 		$this->databaseConnection->execute ($query);
 		
 		# Add in the migratewithitem/migrate/suppress/ignore status for each record; also available as a standalone option in the import
+		# As per the note in commit 9d6d98bbf71e230c18009a9519504272854fba9a:
+		#   The main three status types have to be set before creating the MARC record, so that any 917 Suppression reason can be set.
+		#   However, migratewithitem has to be set after creating the MARC record, as it uses the item count created during that process.
 		$this->marcRecordsSetStatus ();
 		
 		# Add in the Voyager merge data fields, retrieving the resulting data
@@ -2392,8 +2396,9 @@ class import
 		;";
 		$this->databaseConnection->execute ($query);
 		
-		# Update the status to migratewithitem when there are item records specified
-		$query = "UPDATE catalogue_marc SET status = 'migratewithitem' WHERE itemRecords >= 1;";
+		# Update the status of migrate records to migratewithitem when there are item records specified
+		# This includes the status=migrate constraint to ensure that supressed records don't get unsuppressed, e.g. /records/2096/
+		$query = "UPDATE catalogue_marc SET status = 'migratewithitem' WHERE status = 'migrate' AND itemRecords >= 1;";
 		$this->databaseConnection->execute ($query);
 		
 		# Generate the output files
@@ -2561,7 +2566,7 @@ class import
 		;";
 		$this->databaseConnection->execute ($query);
 		
-		// Settting status to migratewithitem is handled afterwards in marcRecordsSetStatus
+		// Setting status to migratewithitem is handled afterwards in createMarcRecords
 		
 	}
 	
