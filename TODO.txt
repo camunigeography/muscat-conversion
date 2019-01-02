@@ -1,13 +1,63 @@
 
 
-
 	
 Items 140508:
 -------------
-	- When analytic support (i.e. record splitting) is added in, need to deal with report_artbecomedoc() which shows c. 17,000 records that should be treated as *doc and so should not be split, but their parentage needs to be evident (i.e. currently cannot tell that it has been extracted from something else)
-		- Requires note "Extracted from <*tg/*t> <*d> <*pt>"
-		- Same with report_artlocationpam(); this identifies pamphlets which need to be loaded into Voyager as documents (not as an article), but where the parent title needs to be made explicit in the record itself - i.e. is cases where SPRI doesn't subscribe to the journal so will never have a match - is standalone offprint
 
+	- When analytic support (i.e. record splitting) is added in, need to deal with report_artbecomedoc() which shows c. 17,000 records that should be treated as *doc and so should not be split, but their parentage needs to be evident (i.e. 
+          currently cannot tell that it has been extracted from something else)
+
+		- Requires note "Extracted from <*tg/*t> <*d> <*pt>"
+
+		- Same with report_artlocationpam(); this identifies pamphlets which need to be loaded into Voyager as documents (not as an article), but where the parent title needs to be made explicit in the record itself - i.e. is cases where 
+                  SPRI doesn't subscribe to the journal so will never have a match - is standalone offprint
+
+
+
+Items c. Mar 23 2016 (S final conversation):
+--------------------------------------------
+
+
+
+Q: How many 711s would you expect?
+SELECT * FROM `catalogue_marc` WHERE `marc` regexp '\n711 '
+SELECT * FROM `catalogue_marc` WHERE `marc` regexp '\n111 '
+currently see only 3.
+e.g. http://www.spri.cam.ac.uk/library/catalogue/conversion/records/151282/ is "comp." which causes that 711 switch
+===> More
+
+
+q
+http://www.spri.cam.ac.uk/library/catalogue/conversion/records/151282/
+should have $j in 711?
+YES.
+
+
+
+Fri, 16 Oct 2015 08:02:00 +0100
+Re: Sample SPRI catalogue records
+=> All in spreadsheet
+
+
+
+Check on existing Voyager merging - RF to give spec
+=> MLS to check with P at UL that it is fine that these have the original Voyager numbers in AND crucially that they will overwrite OK.
+
+
+"6XX: Unless the Literary form in the 008 is set to one of the fiction codes, there must be at least one 6XX field (ignore if the work is a sacred text.)" (see
+SPRI1061 for example)
+I'm guessing there's not a lot you can do about this at your end (if there's no subject heading information in the MUSCAT record then that's that) so unless the MUSCAT record DOES contain subject heading information that isn't being mapped to a 6XX field then you can ignore this message.
+=> example
+http://www.spri.cam.ac.uk/library/catalogue/conversion/records/1041/
+has k = C[2015]
+which should be on the ignore list
+
+
+
+541 - acq AND acc blocks?
+876 ‡a exclude, i.e. 876 just deals with x,z
+ditch 541*e acc - as elsewhere
+means just looping through group of acq
 
 
 
