@@ -24,10 +24,3 @@ Items 140508:
 
 
 
-
-General bugs:
--------------
-
-# Search needs to have minimum 3 characters for each field
-
-
