@@ -59,17 +59,6 @@ The clearing up of the 1,600 records will involve:
 
 
 
-Name prefixes:
---------------
-
-(Check need for this)
-
-SELECT DISTINCT  `value` FROM  `catalogue_rawdata` WHERE  `field` =  'nd' ORDER BY  `value`;
-Librarians to send back which are suffixes/prefixes
-
-
-
-
 
 
 General bugs:
