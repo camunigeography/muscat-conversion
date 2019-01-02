@@ -1,11 +1,6 @@
 
 
 
-Items 140709:
--------------
-	- Adjust createMarcExport() to filter out those in the report with @location@ matches "Not in SPRI", i.e. those in loccamuninotinspri
-
-
 	
 Items 140508:
 -------------
