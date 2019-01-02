@@ -71,41 +71,6 @@ Librarians to send back which are suffixes/prefixes
 
 
 
-Notes on replacement algorithm:
--------------------------------
-
-
--- Replace a string having { then shortly after } in a string
--- Initial try (rejected) used http://compgroups.net/comp.databases.mysql/replacing-only-the-first-occurence-of-a/334101
--- See also http://stackoverflow.com/questions/2056558/
--- The length(value) stuff is basically SUBSTR_COUNT - see: http://www.thingy-ma-jig.co.uk/blog/17-02-2010/mysql-count-occurrences-string
-
-
--- First try:
--- UPDATE catalogue_processed SET processed = CONCAT( SUBSTRING_INDEX(processed,'{',1), '<sub>',  SUBSTRING_INDEX(processed,'{',1) ) WHERE processed REGEXP '^([^}]+){' AND ((LENGTH(processed)-LENGTH(REPLACE(processed,'</sub>','')))/LENGTH('</sub>') = 0);
--- UPDATE catalogue_processed SET processed = CONCAT( SUBSTRING_INDEX(processed,'}',1), '</sub>', SUBSTRING ( processed FROM SUBSTRING_INDEX(processed,'}',1)) ) WHERE processed REGEXP '^([^{]+)}' AND ((LENGTH(processed)-LENGTH(REPLACE(processed,'<sub>' ,'')))/LENGTH('<sub>' ) = 1);
-
-
-UPDATE catalogue_processed SET processed = value;
-
--- Position of first occurence is LOCATE('{',processed)
--- String before first occurence is SUBSTRING(processed,1,(LOCATE('{',processed)-LENGTH('{')) )
--- String after first occurence is  SUBSTRING(processed,(LOCATE('{',processed)+LENGTH('{')) )
-
-UPDATE catalogue_processed SET processed = CONCAT(
-	SUBSTRING(processed,1,(LOCATE('{',processed)-LENGTH('{')) ),
-	'<sub>',
-	SUBSTRING(processed,  (LOCATE('{',processed)+LENGTH('{')) )
-) WHERE processed REGEXP '^([^}]+){' AND ((LENGTH(processed)-LENGTH(REPLACE(processed,'</sub>','')))/LENGTH('</sub>') = 0);
-
-UPDATE catalogue_processed SET processed = CONCAT(
-	SUBSTRING(processed,1,(LOCATE('}',processed)-LENGTH('}')) ),
-	'</sub>',
-	SUBSTRING(processed,  (LOCATE('}',processed)+LENGTH('}')) )
-) WHERE processed REGEXP '^([^{]+)}' AND ((LENGTH(processed)-LENGTH(REPLACE(processed,'<sub>','')))/LENGTH('<sub>') = 1);
-
-
-
 
 General bugs:
 -------------
