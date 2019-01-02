@@ -4,7 +4,6 @@
 	
 Items 140508:
 -------------
-	- Fix up report_emptyabstract - needs to post-filter for *abs is blank or *abs is empty
 	- The two export types, created in createMarcExport(), need to filter out those records listed at report_onorder()
 		- Also extract those into a separate download also in MARC format - this is so that the librarians can work through this list offline (they cannot be imported into Voyager directly)
 			- This needs to be done by date order, e.g. date=2012/06/14 shown in /records/171173/
