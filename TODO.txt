@@ -7,7 +7,6 @@ Items 140508:
 	- The two export types, created in createMarcExport(), need to filter out those records listed at report_onorder()
 		- Also extract those into a separate download also in MARC format - this is so that the librarians can work through this list offline (they cannot be imported into Voyager directly)
 			- This needs to be done by date order, e.g. date=2012/06/14 shown in /records/171173/
-	- Also, will need to the parser, a code and check which adds a flag for those where @location@ matches "Not in SPRI" and another @location@ field does NOT match "Cambridge University" (i.e. we don't items from other ex-Cam institutions appearing to the general public in Voyager, but bibliographers need to see them - Voyager has ability to allow staff to search on dark records)
 	- Amend record_missingd() also to exclude where (status IN ('On Order', 'On Order (O/P)', 'On Order (O/S)', 'Order Cancelled', 'Received') OR location is 'Not in SPRI')
 	- When analytic support (i.e. record splitting) is added in, need to deal with report_artbecomedoc() which shows c. 17,000 records that should be treated as *doc and so should not be split, but their parentage needs to be evident (i.e. currently cannot tell that it has been extracted from something else)
 		- Requires note "Extracted from <*tg/*t> <*d> <*pt>"
