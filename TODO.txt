@@ -31,36 +31,6 @@ Items 140508:
 
 
 
-Splitting of a record into bibliographic/holding/item
------------------------------------------------------
-
-1. Bibliographic [MARC standard]: Description of all instances of a book (or whatever); e.g. "A Dell T1500 has X memory, Y, disk space. etc."
-2. Holding [MARC standard]: Description of the overall holdings (instances) by a specific institution; e.g. "SPRI holds 6 Dell T1500s"
-3. Item [Proprietary, not part of MARC]: The actual instance within the holding, used for circulation such as barcoding and stockchecking [this implemented in Voyager (and others) but not all library systems]; e.g. "1 T1500 in Friends' Room", "1 T1500 in Friends' Room" ... [6 of these in total]
-
-Aim is to ensure all current Muscat data goes into 1, 2. Note that 3 is currently possible - will be generated in Voyager.
-
-Policy decision that we will not do Item records. Even though the hard work of splitting 1 Muscat record into parts, and doing matching, policy decision that this splits only into Bibliographic + Holding.
-
-A) First type of splitting:
-No manual splitting of /art/j or /art/in records at all - both the parent and child already exist (except the 1,600 or so /art/j which are being cleaned up), and they will continue to have 1:1 mappings in Muscat.
-Muscat will already have the parent and child anyway (pending the 1,600)
-Voyager will do this automatically, as the MARC record contains both parts.
-NB 870/880 field is what tells how to join together, i.e. parent like /records/60773/ will have a new field containing the parent identifier, and the children such as /records/209271/ will have a reciprocal number which matches that parent
-
-B) Second type of splitting:
-Splitting into Bibliographic/Holding/Item
-Again, Voyager will do this automatically, as the MARC record contains both parts.
-
-The clearing up of the 1,600 records will involve:
-- Fixing typos that mean the join doesn't work; or
-- Manually converting in Muscat the source record from being its current /art/in to being a /doc
-
-
-
-
-
-
 General bugs:
 -------------
 
