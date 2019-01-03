@@ -355,6 +355,11 @@ class marcConversion
 	# Function to perform merge of a MARC record with an existing Voyager record
 	private function mergeWithExistingVoyager ($localRecord, $mergeDefinitions, $mergeType, $mergeVoyagerId, $stripLeaderInMerge)
 	{
+		# Return the record unchanged if merging is not enabled
+		if (!$this->settings['mergingEnabled']) {
+			return $localRecord;
+		}
+		
 		# Start a source registry, to store which source each line comes from
 		$sourceRegistry = array ();
 		

@@ -93,6 +93,7 @@ class muscatConversion extends frontControllerApplication
 			'div' => strtolower (__CLASS__),
 			'useFeedback' => false,
 			'importLog' => '%applicationRoot/exports-tmp/importlog.txt',
+			'mergingEnabled' => true,
 		);
 		
 		# Return the defaults

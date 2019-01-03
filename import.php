@@ -2897,6 +2897,15 @@ class import
 			return false;
 		}
 		
+		# Disable merging-related tests if required
+		if (!$this->settings['mergingEnabled']) {
+			foreach ($tests as $id => $test) {
+				if (preg_match ('/^Merging/', $test['description'])) {
+					unset ($tests[$id]);
+				}
+			}
+		}
+		
 		# Determine record IDs to load
 		$ids = array ();
 		foreach ($tests as $test) {
