@@ -3544,7 +3544,7 @@ class marcConversion
 	private function macro_generate916 ($value)
 	{
 		# Define the supported *acc/... fields that can be included
-		#!# Not sure if con, recr, status should be present; ref and date are confirmed fine
+		#!# Not sure if recr, status should be present; ref and date are confirmed fine
 		$supportedFields = array ('ref', 'date', 'recr');
 		
 		# Loop through each *acc in the record; e.g. multiple in /records/3959/ (test #585)
