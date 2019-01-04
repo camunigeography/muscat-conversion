@@ -27,12 +27,6 @@ e.g. http://www.spri.cam.ac.uk/library/catalogue/conversion/records/151282/ is "
 ===> More
 
 
-q
-http://www.spri.cam.ac.uk/library/catalogue/conversion/records/151282/
-should have $j in 711?
-YES.
-
-
 
 Fri, 16 Oct 2015 08:02:00 +0100
 Re: Sample SPRI catalogue records
