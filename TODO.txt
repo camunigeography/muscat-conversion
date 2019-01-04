@@ -25,10 +25,4 @@ Re: Sample SPRI catalogue records
 
 
 
-541 - acq AND acc blocks?
-876 ‡a exclude, i.e. 876 just deals with x,z
-ditch 541*e acc - as elsewhere
-means just looping through group of acq
-
-
 

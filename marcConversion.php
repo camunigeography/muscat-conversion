@@ -2589,7 +2589,6 @@ class marcConversion
 	
 	
 	# Macro for generating the 541 field, which looks at *acq groups; it may generate a multiline result, e.g. /records/3959/ (test #456); see: https://www.loc.gov/marc/bibliographic/bd541.html
-	#!# Support for *acc, which is currently having things like *acc/*date lost as is it not present elsewhere
 	private function macro_generate541 ($value)
 	{
 		# Start a list of results
