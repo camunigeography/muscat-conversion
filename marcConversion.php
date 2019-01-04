@@ -2729,7 +2729,7 @@ class marcConversion
 	}
 	
 	
-	# Macro to look up a *ks (UDC) value
+	# Macro to look up a *ks (UDC) value, e.g. /records/166245/ (test #475); this may end up with no 650 at all if no *ks groups after status token are skipped, e.g. /records/1041/ (test #793)
 	private function macro_addLookedupKsValue ($value, $parameter_ignored, &$errorHtml)
 	{
 		# End if no value
