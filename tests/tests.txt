@@ -4654,4 +4654,8 @@ No 650 generated at all after status tokens are skipped from *ks
 !650
 *
 
-
+794
+*recr in generate916
+1424
+916
+1996/05/13 -- IW
