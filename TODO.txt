@@ -19,15 +19,6 @@ Items c. Mar 23 2016 (S final conversation):
 
 
 
-Q: How many 711s would you expect?
-SELECT * FROM `catalogue_marc` WHERE `marc` regexp '\n711 '
-SELECT * FROM `catalogue_marc` WHERE `marc` regexp '\n111 '
-currently see only 3.
-e.g. http://www.spri.cam.ac.uk/library/catalogue/conversion/records/151282/ is "comp." which causes that 711 switch
-===> More
-
-
-
 Fri, 16 Oct 2015 08:02:00 +0100
 Re: Sample SPRI catalogue records
 => All in spreadsheet

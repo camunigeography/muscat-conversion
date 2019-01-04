@@ -547,7 +547,7 @@ class generateAuthors
 		# Is the *n1 a conference? E.g. /records/50035/ (test #128)
 		if ($this->isConference ($n1)) {
 			
-			# Mutate to 111/711 field instead of 100/700 field
+			# Mutate to 111/711 field instead of 100/700 field; e.g. /records/88204/ (test #792)
 			$value = $this->generateX11 ($path);
 			
 		} else {
@@ -577,7 +577,7 @@ class generateAuthors
 			'konferenzen',
 			'inqua',
 			'polartech',
-			'symposium',
+			'symposium',	// /records/88204/ (test #792)
 			'tagung',
 		);
 		$strings = $this->entitiesToUtf8List ($strings);
@@ -631,7 +631,8 @@ class generateAuthors
 	}
 	
 	
-	# Function to generate a 111/711 field
+	# Function to generate a 111/711 field; e.g. only 711 in /records/88204/ (test #792)
+	# 711 should be rare, as would be a conference as the second/third/etc. name entry
 	private function generateX11 ($path)
 	{
 		# Assume 111/711 by default
