@@ -150,6 +150,7 @@ class reports
 		'ntcyrillicunsupported_postmigration' => 'non-Russian records with all Cyrillic *nt for types never supported',
 		'locrusnodiacritics_postmigration' => 'records with *nt=LOCRus that need diacritics adding',
 		'article245_problem' => 'records with a suspected wrong language due to leading article mismatch in 245',
+		'titleroundbrackets_problem' => 'records whose title is in round brackets',
 		'totsdotend_problem' => '*to/*ts records ending with a dot',
 		'physicalmisformat_problem' => 'physical description with incorrect syntax',
 		'paralleltitlesyntax_problem' => 'incorrect syntax for a parallel title',
@@ -3501,6 +3502,26 @@ class reports
 			WHERE
 				bibcheckErrors REGEXP '245: First word, [a-z]+, may be an article, check 2nd indicator'
 			AND id NOT IN (" . implode (', ', $whitelistedIds) . ")
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records whose title is in round brackets
+	public function report_titleroundbrackets ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'titleroundbrackets' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field LIKE 't'
+				AND value LIKE '(%'
+				AND value LIKE '%)'
 		";
 		
 		# Return the query
