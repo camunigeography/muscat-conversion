@@ -2297,16 +2297,16 @@ LDR
 a#
 
 390
-Test of migration datetime; migration is in 2018 :)
+Test of migration datetime; migration is in 2019 :)
 1000
 005
-/^2018[0-9]{4}[0-9]{6}\.0$/
+/^2019[0-9]{4}[0-9]{6}\.0$/
 
 391
-Test of migration date; migration is in 2018 :)
+Test of migration date; migration is in 2019 :)
 1000
 948
-/^‡a2018[0-9]{4}$/
+/^‡a2019[0-9]{4}$/
 
 392
 Macro generate007: with *form (Videorecording)
@@ -2339,10 +2339,10 @@ Macro generate007: no *form
 /^.{40}$/
 
 397
-008: positions 00-05; migration is in 2018 :)
+008: positions 00-05; migration is in 2019 :)
 1210
 008
-/^18[0-9]{4}[a-z]/
+/^19[0-9]{4}[a-z]/
 
 398
 008: positions 06-14 *ser with unknown start and end dates
