@@ -148,7 +148,7 @@ class marcConversion
 		if (!$this->errorHtml) {return $this->errorHtml;}
 		
 		# Assemble and return the HTML
-		return "\n<p class=\"warning\"><img src=\"/images/icons/exclamation.png\" class=\"icon\" /> Record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">{$this->recordId}</a>: MARC conversion error: {$this->errorHtml}</p>";
+		return "\n<p class=\"warning\"><img src=\"/images/icons/exclamation.png\" class=\"icon\" />" . ($this->recordId ? " Record <a href=\"{$this->baseUrl}/records/{$this->recordId}/\">{$this->recordId}</a>: " : '') . "MARC conversion error: {$this->errorHtml}</p>";
 	}
 	
 	
@@ -249,14 +249,14 @@ class marcConversion
 		# Ensure the line-by-line syntax is valid, extract macros, and construct a data structure representing the record
 		if (!$datastructure = $this->convertToMarc_InitialiseDatastructure ($recordXml, $marcParserDefinition)) {return false;}
 		
-		# End if not all macros are supported
-		if (!$this->convertToMarc_MacrosAllSupported ($datastructure)) {return false;}
-		
 		# Load the record as a valid XML object
 		$this->xml = $this->loadXmlRecord ($recordXml);
 		
 		# Determine the record number, used by several macros
 		$this->recordId = $this->xPathValue ($this->xml, '//q0');
+		
+		# End if not all macros are supported
+		if (!$this->convertToMarc_MacrosAllSupported ($datastructure)) {return false;}
 		
 		# Determine the record type
 		$this->recordType = $this->recordType ();
