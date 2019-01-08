@@ -154,6 +154,7 @@ class reports
 		'totsdotend_problem' => '*to/*ts records ending with a dot',
 		'physicalmisformat_problem' => 'physical description with incorrect syntax',
 		'paralleltitlesyntax_problem' => 'incorrect syntax for a parallel title',
+		'provenancenote_problem' => 'incorrect syntax for a provenance note',
 	);
 	
 	# Listing (values) reports
@@ -3590,6 +3591,27 @@ class reports
 				    field IN ('t','tc','tt','to')
 				AND value LIKE '%//%'
 				AND recordId NOT IN (41853, 121719, 121998)
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Incorrect syntax for a provenance note
+	public function report_provenancenote ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'provenancenote' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field IN('note', 'local', 'priv')
+				AND value LIKE 'Provenance%'
+				AND value NOT REGEXP BINARY '^Provenance: [A-Z]'
+				AND value NOT REGEXP BINARY '^Provenance: \"[A-Z]'
 		";
 		
 		# Return the query

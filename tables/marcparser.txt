@@ -31,6 +31,9 @@ AR 538 ## ‡a{//notes/note|macro:generate5xxNote(538)}
 A  541 0# {/*|macro:generate541}
 A  546 ## ‡a{/*|macro:multipleValues(//lang)|macro:commaAnd|macro:exceptExactly(English)|macro:prepend(In )|macro:dotEnd}
 A  546 ## ‡a{//lang[1]|macro:isTransliterated}
+AR 561 1# ‡a{//notes/note|macro:generate5xxNote(561)}
+AR 561 0# ‡a{//notes/local|macro:generate5xxNote(561)}
+AR 561 0# ‡a{//notes/priv|macro:generate5xxNote(561)}
 AR 583 ## {/|macro:generate583}
 AR 650 07 ‡a{//k/ks|macro:isNotRoundBracketed|macro:addLookedupKsValue|macro:dotEnd}‡2udc
 AR 650 07 ‡a{//rpl|macro:lookupRplValue|macro:dotEnd}‡2local
@@ -45,7 +48,7 @@ AR 785 10 ‡t{//st}
 A  852 7# {/*|macro:generate852}
 E  856 i{/*|macro:ifElse(//url/urlgen,4,#)}0 ‡u?R{//doi/doifld|macro:prepend(urn:doi:)}‡u?R{//doi/doifld|macro:prepend(https://dx.doi.org/)}‡u?R{//url/urlgen|macro:idnConversion}
 E  866 #0 ‡aR{//r} ‡xR{//hold}
-E  876 ## ‡xR{//notes/priv} ‡zR{//notes/local}
+E  876 ## ‡xR{//notes/priv|macro:exceptBegins(Provenance: )} ‡zR{//notes/local|macro:exceptBegins(Provenance: )}
 A  880 {/*|macro:authorsField(100,transliterated)|macro:880subfield6(100)}
 A  880 {/*|macro:authorsField(110,transliterated)|macro:880subfield6(110)}
 A  880 {/*|macro:authorsField(111,transliterated)|macro:880subfield6(111)}

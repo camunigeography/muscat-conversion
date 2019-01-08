@@ -4714,8 +4714,62 @@ Geophysics.‡2udc
 546
 ‡aIn Nenets.
 
+804
+Provenance note does not end up as 500
+17120
+!500
+Provenance
+
+805
+Public provenance note becomes 561
+17120
+561
+‡aHugh Robert Mill's Antarctic Collection
+
+806
+Public provenance note has first indicator 1
+17120
+i561
+/^1#$/
+
+807
+Private provenance note becomes 561
+8957
+561
+‡aLetter
+
+808
+Private provenance note has first indicator 1
+8957
+i561
+/^0#$/
+
+809
+Provenance note (private) does not appear in 876
+8957
+!876
+Provenance: 
+
 810
 Multiple private notes become multiple ‡x
 16928
 876
 1999 ‡xFormerly
+
+811
+Local provenance note becomes 561
+189071
+561
+‡a"To Heather
+
+812
+Local provenance note has first indicator 1
+8957
+i561
+/^0#$/
+
+813
+Provenance note (local) does not appear in 876
+189071
+!876
+Provenance: 

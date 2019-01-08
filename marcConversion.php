@@ -1052,11 +1052,22 @@ class marcConversion
 	}
 	
 	
-	# Macro to ensure a string does not match a specified and exact value; e.g. filtering out of only 'English' for 546 in /records/1007/ (test #802)
+	# Macro to ensure a string does not match a specified (and exact) value; e.g. filtering out of only 'English' for 546 in /records/1007/ (test #802)
 	private function macro_exceptExactly ($value, $text)
 	{
 		# Return false if the value matches the specified text; e.g. no 546 in /records/1007/ (test #802)
 		if ($value === $text) {return false;}
+		
+		# Otherwise, pass the value through unamended
+		return $value;
+	}
+	
+	
+	# Macro to ensure a string does not start with a specified value; e.g. filtering out of only 'Provenance: '... for 876 in /records/8957/ (test #809)
+	private function macro_exceptBegins ($value, $text)
+	{
+		# Return false if the value begins with the specified text; e.g. no 876 in /records/8957/ (test #809)
+		if (mb_substr ($value, 0, mb_strlen ($text)) === $text) {return false;}
 		
 		# Otherwise, pass the value through unamended
 		return $value;
@@ -2471,6 +2482,7 @@ class marcConversion
 			505 => '^Contents: (.+)$',			// Actually implemented below, but has to be defined here to avoid it also becoming a standard 500, e.g. /records/1488/ (test #581)
 			533 => "^Printout\.(.+)$",			// Actually implemented below, but has to be defined here to avoid it also becoming a standard 500, e.g. /records/142020/ (test #716)
 			538 => '^(Mode of access: .+)$',	// 538 - System Details Note; see: https://www.loc.gov/marc/bibliographic/bd538.html , e.g. /records/145666/ (test #582)
+			561 => '^Provenance: (.+)$',		// 561 - Provenance; see: https://www.loc.gov/marc/bibliographic/bd561.html , e.g. /records/17120/ (test #804, #805)
 		);
 		
 		# Supported special-case fields
