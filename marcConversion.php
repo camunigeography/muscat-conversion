@@ -771,6 +771,15 @@ class marcConversion
 						}
 					}
 					
+					# For horizontally-repeatable fields, if any sub-value has been returned as false, skip it; no known cases, but can be tested against /records/16928/ by changing 876 parser to exceptBegins(Title), which should exclude the first $x without leaving a space (i.e. "$x $xFormerly")
+					if ($isHorizontallyRepeatable) {
+						foreach ($value as $index => $subValue) {
+							if ($subValue === false) {
+								unset ($value[$index]);
+							}
+						}
+					}
+					
 					# For horizontally-repeatable fields, apply uniqueness after macro processing; e.g. if Lang1, Lang2, Lang3 becomes translatedlangA, translatedlangB, translatedlangB, unique to translatedlangA, translatedlangB; no examples available
 					if ($isHorizontallyRepeatable) {
 						$value = array_unique ($value);		// Key numbering may now have holes, but the next operation is imploding anyway
