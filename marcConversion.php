@@ -1043,6 +1043,17 @@ class marcConversion
 	}
 	
 	
+	# Macro to ensure a string does not match a specified and exact value; e.g. filtering out of only 'English' for 546 in /records/1007/ (test #802)
+	private function macro_exceptExactly ($value, $text)
+	{
+		# Return false if the value matches the specified text; e.g. no 546 in /records/1007/ (test #802)
+		if ($value === $text) {return false;}
+		
+		# Otherwise, pass the value through unamended
+		return $value;
+	}
+	
+	
 	# Macro to prepend a string if there is a value; e.g. /records/49940/ (test #273)
 	private function macro_prepend ($value, $text)
 	{
@@ -1159,7 +1170,7 @@ class marcConversion
 		# Return empty string if no values; e.g. /records/1102/ (test #296)
 		if (!$values) {return '';}
 		
-		# Implode and return; e.g. /records/160854/ (test #293), /records/1144/ (test #294), /records/1007/ (test #295)
+		# Implode and return; e.g. /records/160854/ (test #293), /records/1144/ (test #294), /records/115769/ (test #295)
 		return application::commaAndListing ($values);
 	}
 	

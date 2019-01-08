@@ -1776,9 +1776,9 @@ Macro commaAnd: 2 values
 
 295
 Macro commaAnd: 1 value
-1007
+115769
 546
-‡aIn English.
+‡aIn Nenets.
 
 296
 Macro commaAnd: no values
@@ -4701,3 +4701,15 @@ No space between end of ‡a and ‡2
 2800
 650
 Geophysics.‡2udc
+
+802
+546 filters out 'English' as only value
+1007
+!546
+*
+
+803
+546 exceptExactly English does not filter out other (e.g. indigenous) language, such as Nenets
+115769
+546
+‡aIn Nenets.
