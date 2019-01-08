@@ -441,7 +441,7 @@ class generateAuthors
 		$n1 = $this->marcConversion->xPathValue ($this->xml, $path . '/n1');
 		if (strlen ($n2)) {
 			
-			# Add to 100 field: 1, second indicator, ‡a <*a/*n1>,
+			# Add to 100 field: 1, second indicator, ‡a <*a/*n1>, ; no space between $a and name, e.g. /records/1103/ (test #795)
 			$value .= "1{$this->secondIndicator} {$this->doubleDagger}a{$n1}, ";
 			
 			# Classify *n2 field
@@ -846,7 +846,7 @@ class generateAuthors
 		$suffixes = $this->entitiesToUtf8List ($this->lookups['suffixes']);		// E.g. /records/23362/ (test #144)
 		$betweenN1AndN2 = $this->entitiesToUtf8List ($this->lookups['betweenN1AndN2']);		// E.g. /records/3180/ (test #145)
 		if (in_array ($fieldValue, $prefixes) || in_array ($fieldValue, $suffixes) || in_array ($fieldValue, $betweenN1AndN2)) {
-			$value .= ",{$this->doubleDagger}c{$fieldValue}";
+			$value .= ",{$this->doubleDagger}c{$fieldValue}";	// No space between comma and $c or between the $c and the title, e.g. /records/1290/ (test #796)
 			return $value;
 		}
 		
@@ -1049,7 +1049,7 @@ class generateAuthors
 			$replacements = array_unique ($replacements);
 			$subfieldCode = (in_array ($this->field, array (111, 711)) ? 'j' : 'e');	// X11 have Relator Term in $j; see: http://www.loc.gov/marc/bibliographic/bd711.html
 			foreach ($replacements as $replacement) {
-				$value .= ",{$this->doubleDagger}{$subfieldCode}{$replacement}";	// No space before $e, whether the first or multiple, as shown at https://www.loc.gov/marc/bibliographic/bd700.html e.g. /records/2295/ (tests #121, #122), 
+				$value .= ",{$this->doubleDagger}{$subfieldCode}{$replacement}";	// No space before $e, whether the first or multiple, as shown at https://www.loc.gov/marc/bibliographic/bd700.html e.g. /records/2295/ (tests #121, #122)
 			}
 		}
 		

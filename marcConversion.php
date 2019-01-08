@@ -1259,7 +1259,7 @@ class marcConversion
 			return '[S.l.]';	// Meaning 'sine loco' ('without a place')
 		}
 		
-		# *pl [if *pl is '[n.p.]' or '-', this should be replaced with '[S.l.]' ]. ; e.g. /records/1787/, /records/1102/ (test #308)
+		# *pl [if *pl is '[n.p.]' or '-', this should be replaced with '[S.l.]' ]. ; e.g. /records/1787/ (test #799), /records/1102/ (test #308)
 		if ($plValue == '[n.p.]' || $plValue == '-') {
 			return '[S.l.]';
 		}
@@ -1277,7 +1277,7 @@ class marcConversion
 	# Helper function for 260a *pu
 	private function formatPu ($puValue)
 	{
-		# *pu [if *pu is '[n.pub.]' or '-', this should be replaced with '[s.n.]' ] ; e.g. /records/1105/ , /records/1745/ (test #313)
+		# *pu [if *pu is '[n.pub.]' or '-', this should be replaced with '[s.n.]' ] ; e.g. /records/1105/ (test #313), /records/1788/ (test #800)
 		if (!strlen ($puValue) || $puValue == '[n.pub.]' || $puValue == '-') {
 			return '[s.n.]';	// Meaning 'sine nomine' ('without a name')
 		}
@@ -3451,7 +3451,7 @@ class marcConversion
 				}
 			}
 			
-			# Start the record with 852 7# ‡2camdept (which is the source indicator), e.g. /records/3959/ (test #623)
+			# Start the record with 852 7# ‡2camdept (which is the source indicator), without space before, e.g. /records/3959/ (test #623)
 			$result  = "{$this->doubleDagger}2camdept";
 			
 			# Add institution as $b, e.g. /records/31500/ (test #743)

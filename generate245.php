@@ -94,7 +94,7 @@ class generate245
 		$value .= $title;
 		$value .= $statementOfResponsibility;
 		
-		# Ensure the value ends with a dot (even if other punctuation is already present); e.g. /records/137684/ , /records/178352/ avoids two dots (test #177); also /records/1058/ which ends with ) so gets ). (test #178)
+		# Ensure the value ends with a dot (even if other punctuation is already present); e.g. /records/137684/ , /records/1104/ (test #797) , /records/178352/ avoids two dots (test #177); also /records/1058/ which ends with ) so gets ). (test #178)
 		$value = $this->marcConversion->macro_dotEnd ($value, $extendedCharacterList = false);
 		
 		# Return the value
@@ -111,6 +111,7 @@ class generate245
 	
 	
 	# Function to determine if the MARC record contains a 1XX field; e.g. /records/210651/ (test #166), /records/1102/ (test #167), /records/1134/ (test #168)
+	# NB This is the same as macro_indicator1xxPresent
 	private function recordHas1xxField ($authorsFields)
 	{
 		# Determine if any 1XX field has a value
@@ -300,7 +301,7 @@ class generate245
 			# If there is a *form, Add to 245 field'; "It follows the title proper ... and precedes the remainder of the title" as per spec at http://www.loc.gov/marc/bibliographic/bd245.html ; e.g. /records/12359/ (test #173)
 			$title .= $h;
 			
-			# Add all text after delimiter; e.g. /records/1119/ (test #172), /records/139981/ (test #506)
+			# Add all text after delimiter; e.g. /records/1119/ (test #172), /records/139981/ (test #506); no space between between colon and $b, or between $b and first letter of first word of subtitle, e.g. /records/1247/ (test #798)
 			$title .= $delimiters[$delimiter] . $this->doubleDagger . 'b' . trim ($titleComponents[1]);
 			
 		} else {
@@ -403,7 +404,7 @@ class generate245
 			return false;
 		}
 		
-		# Start the Statement of Responsibility with /$c ; e.g. /records/1159/ has a SoR (test #180)
+		# Start the Statement of Responsibility with /$c (NB the slash goes before the $c); e.g. /records/1159/ has a SoR (test #180)
 		# Separate multiple author groups with a semicolon-space; e.g. /records/134805/ (test #187); comma is present for ", and X others" which is not on its own as in /records/agwithonlyad/, e.g. /records/1681/ (test #190)
 		$statementOfResponsibility = ' /' . "{$this->doubleDagger}c" . implode (' ; ', $peopleGroups);
 		

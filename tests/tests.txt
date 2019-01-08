@@ -737,10 +737,10 @@ Check second *e becomes a 700
 ‡aSonnini, C. S.
 
 121
-Relator term ‡e does not have a space before
+Relator term ‡e does not have a space between the comma and ‡e or the ‡e and the term
 2295
 700
-‡aSonnini, C. S.,‡econtributor
+C. S.,‡econtributor
 
 122
 Multiple relator term ‡e values do not have space between
@@ -3695,7 +3695,7 @@ SUPPRESS
 ‡2camdept ‡bSCO ‡cSPRI-SPC ‡hPamphlet Boxes Breitfuss 91(08) : (*3)[1871 Weyprecht and Payer]
 
 623
-852 has camdept as source
+852 has camdept as source, without space before
 3959
 852
 ‡2camdept
@@ -4659,3 +4659,40 @@ No 650 generated at all after status tokens are skipped from *ks
 1424
 916
 1996/05/13 -- IW
+
+795
+No space between ‡a and author start
+1103
+100
+‡aWonders
+
+796
+No space between comma and ‡c or between the ‡c and the title
+1290
+100
+John,‡cSir.
+
+797
+Dot is at very end, not before any /‡c
+1104
+245
+‡aGlen Prosen and the memory of an Antarctic tragedy /‡cDuncan Fraser.
+
+798
+No space between between colon and ‡b, or between ‡b and first letter of first word of subtitle
+1247
+245
+cold water :‡bthe Beaufort Sea
+
+799
+If *pl is - then this should be replaced with '[S.l.]' (see also #308)
+1787
+260
+‡a[S.l.]
+
+800
+If *pu is - then this should be replaced with '[s.n.]' (see also #313)
+1788
+260
+‡b[s.n.]
+
