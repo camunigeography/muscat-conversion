@@ -1652,12 +1652,12 @@ class muscatConversion extends frontControllerApplication
 			
 			# Dynamically select unique values
 			$query = "SELECT
-					value AS title,
+					BINARY value AS title,		/* BINARY needed in MySQL >=5.7 to match presence in GROUP BY */
 					COUNT(*) AS instances
 				FROM `catalogue_processed`
 				WHERE field = :field
 				GROUP BY BINARY value
-				ORDER BY " . $this->databaseConnection->trimSql ('value') . "
+				ORDER BY " . $this->databaseConnection->trimSql ('title') . "
 			;";
 			
 			# Show the distinct values for this query (having regard to any page number supplied via the URL)
