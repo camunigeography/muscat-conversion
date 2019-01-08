@@ -32,9 +32,9 @@ A  541 0# {/*|macro:generate541}
 A  546 ## ‡a{/*|macro:multipleValues(//lang)|macro:commaAnd|macro:prepend(In )|macro:dotEnd}
 A  546 ## ‡a{//lang[1]|macro:isTransliterated}
 AR 583 ## {/|macro:generate583}
-AR 650 07 ‡2{//k/ks|macro:isNotRoundBracketed|macro:addLookedupKsValue|macro:dotEnd}
-AR 650 07 ‡2{//rpl|macro:lookupRplValue|macro:dotEnd}
-AR 651 #7 ‡2{//k/ks|macro:isRoundBracketed|macro:addLookedupKsValue|macro:dotEnd}
+AR 650 07 ‡a{//k/ks|macro:isNotRoundBracketed|macro:addLookedupKsValue|macro:dotEnd}‡2udc
+AR 650 07 ‡a{//rpl|macro:lookupRplValue|macro:dotEnd}‡2local
+AR 651 #7 ‡a{//k/ks|macro:isRoundBracketed|macro:addLookedupKsValue|macro:dotEnd}‡2udc
 A  700 {/*|macro:authorsField(700)}
 AR 700 {//notes/note|macro:contentNote700}
 A  710 {/*|macro:authorsField(710)}

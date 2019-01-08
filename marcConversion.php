@@ -2757,7 +2757,7 @@ class marcConversion
 		}
 		
 		# Construct the result string, e.g. /records/166245/ (test #475)
-		$string = strtolower ('UDC') . $this->doubleDagger . 'a' . $value . ' -- ' . $this->udcTranslations[$value] . ($description ? ": {$description}" : false);
+		$string = $value . ' -- ' . $this->udcTranslations[$value] . ($description ? ": {$description}" : false);
 		
 		# Return the result string
 		return $string;
@@ -2827,7 +2827,7 @@ class marcConversion
 		}
 		
 		# Construct the result string, e.g. /records/1102/ (test #479)
-		$string = 'local' . $this->doubleDagger . 'a' . $value . ' -- ' . $mappings[$value];
+		$string = $value . ' -- ' . $mappings[$value];
 		
 		# Return the result string
 		return $string;

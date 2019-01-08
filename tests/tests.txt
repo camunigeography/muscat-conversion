@@ -1526,7 +1526,7 @@ MARC parser horizontal repeatability check
 MARC parser vertical repeatability check
 1599
 650
-‡2local‡aZ
+‡aZ -- Miscellaneous.‡2local
 
 254
 MARC parser fixed string check
@@ -1607,10 +1607,10 @@ Subscript tag stripping in final MARC record
 to σθ and
 
 267
-MARC parser macro chaining
+MARC parser macro chaining (example here adds dot at end)
 2800
 650
-/\.$/
+.‡2
 
 268
 MARC parser parameter parsing
@@ -2819,10 +2819,10 @@ addLookedupKsValue UDC lookup
 ‡a82 -- Literature.
 
 476
-650 ends with dot
+650 ends with dot (before ‡2)
 166245
 650
-/Komi: Komi\.$/
+Komi: Komi.‡2
 
 477
 650 *rpl E1 fixed up to E2
@@ -2840,7 +2840,7 @@ Glaciology: general.
 650 *rpl assembly
 1102
 650
-/^‡2local‡aL -- Communication and transportation\.$/
+/^‡aL -- Communication and transportation\.‡2local$/
 
 480
 650 repeatability
@@ -4696,3 +4696,8 @@ If *pu is - then this should be replaced with '[s.n.]' (see also #313)
 260
 ‡b[s.n.]
 
+801
+No space between end of ‡a and ‡2
+2800
+650
+Geophysics.‡2udc
