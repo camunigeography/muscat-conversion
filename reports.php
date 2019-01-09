@@ -4520,8 +4520,8 @@ class reports
 				COUNT(recordId) AS instances
 			FROM catalogue_processed
 			WHERE
-				    field IN('note', 'local')
-				AND value LIKE 'SPRI has%'
+				    field IN('note', 'local', 'priv')
+				AND value LIKE 'SPRI has %'
 			GROUP BY value
 			ORDER BY value
 		;";

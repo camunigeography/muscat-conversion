@@ -4773,3 +4773,39 @@ Provenance note (local) does not appear in 876
 189071
 !876
 Provenance: 
+
+814
+Library-specific information in public note ("SPRI has two copies") should not be in 500, but in 852 (see also next test)
+123440
+!500
+SPRI has
+
+815
+Library-specific information in public note ("SPRI has two copies") should be in 852 ‡z (see also previous test)
+123440
+852
+‡zSPRI has two copies
+
+816
+Library-specific information in local note ("SPRI has two copies") should not be in 876, but in 852 (see also next test)
+1288
+!876
+SPRI has
+
+817
+Library-specific information in local note ("SPRI has two copies") should be in 852 ‡x (see also previous test)
+1288
+852
+‡xSPRI has two copies
+
+818
+Library-specific information in private note ("SPRI has two copies") should not be in 876, but in 852 (see also next test)
+122355
+!876
+SPRI has
+
+819
+Library-specific information in private note ("SPRI has two copies") should be in 852 ‡x (see also previous test)
+122355
+852
+‡xSPRI has two copies

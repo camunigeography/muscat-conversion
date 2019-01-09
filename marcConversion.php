@@ -2483,6 +2483,7 @@ class marcConversion
 			533 => "^Printout\.(.+)$",			// Actually implemented below, but has to be defined here to avoid it also becoming a standard 500, e.g. /records/142020/ (test #716)
 			538 => '^(Mode of access: .+)$',	// 538 - System Details Note; see: https://www.loc.gov/marc/bibliographic/bd538.html , e.g. /records/145666/ (test #582)
 			561 => '^Provenance: (.+)$',		// 561 - Provenance; see: https://www.loc.gov/marc/bibliographic/bd561.html , e.g. /records/17120/ (test #804, #805)
+			-1  => '^SPRI has (.+)$',			// Should be excluded from 500, as will be picked up in macro_generate852, e.g. /records/123440/ (test #815)
 		);
 		
 		# Supported special-case fields
@@ -3431,6 +3432,9 @@ class marcConversion
 	# Note that the algorithm here is a simplified replacement of doc/852 locations flowchart.xlsx (which was created before work to clean up 'Not in SPRI' records)
 	private function macro_generate852 ($value_ignored)
 	{
+		# Determine any "SPRI has "... notes, which will be added at the end
+		$notes = $this->spriHasNotes852 ();
+		
 		# Get the locations (if any), e.g. single location in /records/1102/ (test #621), multiple locations in /records/3959/ (test #622)
 		$locations = $this->xPathValues ($this->xml, '//loc[%i]/location');
 		
@@ -3439,6 +3443,7 @@ class marcConversion
 			$result  = "{$this->doubleDagger}2camdept";
 			$result .= " {$this->doubleDagger}b" . 'SCO';
 			$result .= " {$this->doubleDagger}c" . 'SPRIACQ';	// NB No hyphen
+			$result .= $notes;	// If any
 			return $result;
 		}
 		
@@ -3451,6 +3456,7 @@ class marcConversion
 				$result .= " {$this->doubleDagger}x" . implode (" {$this->doubleDagger}x", $otherLocations);		// Multiple in e.g. /records/31021/ (test #651)
 			}
 			$result .= " {$this->doubleDagger}zNot in SPRI";
+			$result .= $notes;	// If any
 			return $result;
 		}
 		
@@ -3560,6 +3566,10 @@ class marcConversion
 				}
 			}
 			
+			# Add any notes; e.g. /records/1288/ (test #817)
+			# Will be added to each line, as cannot disambiguated - though no actual cases, as verified with `SELECT * from fieldsindex WHERE id IN( SELECT recordId FROM catalogue_processed WHERE value LIKE 'SPRI has %' AND xPath LIKE '%notes%') AND fieldslist LIKE '%@location@location%'`
+			$result .= $notes;	// If any
+			
 			# Register this result
 			$resultLines[] = trim ($result);
 		}
@@ -3569,6 +3579,35 @@ class marcConversion
 		
 		# Return the result
 		return $result;
+	}
+	
+	
+	# Helper function to find and assemble "SPRI has "... notes; see: /report/multiplecopiesvalues/ ; e.g. /records/123440/ (test #815), /records/1288/ (test #817), /records/122355/ (test #819)
+	private function spriHasNotes852 ()
+	{
+		# Define the note types; $z is public note, $x is non-public note; see: https://www.loc.gov/marc/bibliographic/bd852.html
+		$notes = '';
+		$noteTypes = array (
+			'note'  => 'z',		// E.g. /records/123440/ (test #815)
+			'local' => 'x',		// E.g. /records/1288/ (test #817)
+			'priv'  => 'x',		// E.g. /records/122355/ (test #819)
+		);
+		
+		# Loop through each and obtain the notes
+		foreach ($noteTypes as $muscatField => $subfield) {
+			if ($noteValues = $this->xPathValues ($this->xml, "//{$muscatField}[%i]")) {	// E.g. //note[2] in /records/123440/
+				foreach ($noteValues as $note) {
+					
+					# Add $x/$z if found
+					if (preg_match ('/^SPRI has /', $note)) {
+						$notes .= " {$this->doubleDagger}{$subfield}" . $note;
+					}
+				}
+			}
+		}
+		
+		# Return the assembled string
+		return $notes;
 	}
 	
 	
