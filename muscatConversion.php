@@ -236,6 +236,15 @@ class muscatConversion extends frontControllerApplication
 				'allowDuringImport' => true,
 				'administrator' => true,
 			),
+			'udc' => array (
+				'description' => 'UDC codes and keywords',
+				'subtab' => 'UDC',
+				'url' => 'udc/',
+				'icon' => 'application_view_list',
+				'parent' => 'admin',
+				'allowDuringImport' => true,
+				'administrator' => true,
+			),
 			'export' => array (
 				'description' => 'Export MARC21 output',
 				'tab' => 'Export',
@@ -3116,6 +3125,65 @@ class muscatConversion extends frontControllerApplication
 			# Confirm success, resetting the HTML, and show the submission
 			$html = "<p>{$this->tick} The list has been saved.</p>";
 		}
+		
+		# Show the HTML
+		echo $html;
+	}
+	
+	
+	# Page to list the UDC codes and keywords
+	public function udc ()
+	{
+		# Set the default ordering
+		$defaultOrderBy = 'ks';
+		
+		# Load the fields and their headings
+		$fields = $this->databaseConnection->getHeadings ($this->settings['database'], 'udctranslations');
+		$headings = array ();
+		foreach ($fields as $field => $label) {
+			$headings[$field] = "<a href=\"{$this->baseUrl}/udc/" . ($field != $defaultOrderBy ? "{$field}.html" : '') . "\">{$label}</a>";
+		}
+		
+		# Determine the ordering, setting the default
+		$orderBy = (isSet ($_GET['orderby']) && isSet ($headings[$_GET['orderby']]) ? $_GET['orderby'] : $defaultOrderBy);
+		
+		# Load the UDC translation table data
+		$query = "SELECT
+				LEFT( UPPER(" . $this->databaseConnection->trimSql ($orderBy) . "), 1) AS `character`,
+				ks,
+				kw
+			FROM {$this->settings['database']}.udctranslations
+			ORDER BY {$orderBy}
+		;";
+		$udcTranslations = $this->databaseConnection->getData ($query);
+		$headings['character'] = '';
+		
+		# Show only the first instance of the character, erasing subsequent appearances, and providing a link anchor at the point of appearance
+		$characters = array ();
+		foreach ($udcTranslations as $key => $udcTranslation) {
+			$character = $udcTranslation['character'];
+			if (isSet ($characters[$character])) {
+				$udcTranslations[$key]['character'] = '';
+			} else {
+				$characterLowerCase = strtolower ($character);
+				$udcTranslations[$key]['character']  = "<a class=\"anchor\" href=\"#{$characterLowerCase}\" id=\"{$characterLowerCase}\"><strong>{$character}</strong></a>";
+				$udcTranslations[$key]['character'] .= "<span class=\"small comment\"> &nbsp;&nbsp; / <a href=\"#udcjumplist\">&#x25b2; top</a></span>";
+			}
+			$characters[$character] = $character;
+		}
+		
+		# Render jumplist characters as list
+		$list = array ();
+		foreach ($characters as $character) {
+			$list[] = '<a class="character" href="#' . strtolower ($character) . "\">{$character}</a>";
+		}
+		$list = '<p id="udcjumplist">Jump to: ' . implode (' ', $list) . '</p>';
+		
+		# Compile the HTML
+		$html  = "\n<p>The following is a definition list of the UDC codes and keywords.</p>";
+		$html .= "\n<p>You can click on the table column heading to sort by that column.</p>";
+		$html .= $list;
+		$html .= application::htmlTable ($udcTranslations, $headings, 'udc lines compressed', $keyAsFirstColumn = false, false, $allowHtml = array ('character'));
 		
 		# Show the HTML
 		echo $html;

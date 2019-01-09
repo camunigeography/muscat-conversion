@@ -43,6 +43,9 @@
 	RewriteRule ^$baseUrl/(reports)/([a-z0-9]+)$ $baseUrl/$1/$2/ [R]
 	RewriteRule ^$baseUrl/tests/$ $baseUrl/index.html?action=reports&item=tests [L,QSA]
 	RewriteRule ^$baseUrl/tests$ $baseUrl/$1/tests/ [R]
+	RewriteRule ^$baseUrl/(udc)/$ $baseUrl/index.html?action=$1 [L]
+	RewriteRule ^$baseUrl/(udc)$ $baseUrl/$1/ [R]
+	RewriteRule ^$baseUrl/(udc)/(ks|kw).html$ $baseUrl/index.html?action=$1&orderby=$2 [L]
 	# NB \1 is a backreference in the test
 	RewriteRule ^$baseUrl/reports/([a-z0-9]+)/\1.csv$ $baseUrl/index.html?action=reportdownload&item=$1 [L,QSA]
 	<LocationMatch ^$baseUrl/reports/([a-z0-9]+)/\1.csv$>

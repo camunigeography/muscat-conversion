@@ -2774,7 +2774,7 @@ class marcConversion
 		
 		# Split out any additional description string for re-insertation below, e.g. /records/1008/ (test #473)
 		$description = false;
-		if (preg_match ("/^(.+)\[(.+)\]$/", $value, $matches)) {
+		if (preg_match ('/^(.+)\[(.+)\]$/', $value, $matches)) {
 			$value = $matches[1];
 			$description = $matches[2];
 		}

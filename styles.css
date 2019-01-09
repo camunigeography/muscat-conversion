@@ -73,6 +73,10 @@
 #muscatconversion table.periodicalpamgrouped td:first-child {width: 6em;}
 #muscatconversion table.periodicalpamgrouped td:nth-child(2) {width: 35em;}
 #muscatconversion table.periodicalpamgrouped td:last-child {width: 25em;}
+#muscatconversion p#udcjumplist {margin: 20px 0;}
+#muscatconversion p#udcjumplist a, #muscatconversion table.udc a.anchor {border: 1px solid #ddd; padding: 2px 5px; color: gray; background-color: #f7f7f; margin-right: 2px;}
+#muscatconversion table.udc th {background-color: #eee; padding-bottom: 5px;}
+#muscatconversion table.udc td:first-child {width: 120px;}
 
 /* Print styles */
 @media print {
