@@ -4763,10 +4763,10 @@ Local provenance note becomes 561
 ‡a"To Heather
 
 812
-Local provenance note has first indicator 0
+Local provenance note has first indicator 1 (as per public note)
 8957
 i561
-/^0#$/
+/^1#$/
 
 813
 Provenance note (local) does not appear in 876
@@ -4793,10 +4793,10 @@ Library-specific information in local note ("SPRI has two copies") should not be
 SPRI has
 
 817
-Library-specific information in local note ("SPRI has two copies") should be in 852 ‡x (see also previous test)
+Library-specific information in local note ("SPRI has two copies") should be in 852 ‡z (see also previous test)
 1288
 852
-‡xSPRI has two copies
+‡zSPRI has two copies
 
 818
 Library-specific information in private note ("SPRI has two copies") should not be in 876, but in 852 (see also next test)

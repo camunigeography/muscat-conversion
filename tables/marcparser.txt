@@ -32,7 +32,7 @@ A  541 0# {/*|macro:generate541}
 A  546 ## ‡a{/*|macro:multipleValues(//lang)|macro:commaAnd|macro:exceptExactly(English)|macro:prepend(In )|macro:dotEnd}
 A  546 ## ‡a{//lang[1]|macro:isTransliterated}
 AR 561 1# ‡a{//notes/note|macro:generate5xxNote(561)}
-AR 561 0# ‡a{//notes/local|macro:generate5xxNote(561)}
+AR 561 1# ‡a{//notes/local|macro:generate5xxNote(561)}
 AR 561 0# ‡a{//notes/priv|macro:generate5xxNote(561)}
 AR 583 ## {/|macro:generate583}
 AR 650 07 ‡a{//k/ks|macro:isNotRoundBracketed|macro:addLookedupKsValue|macro:dotEnd}‡2udc

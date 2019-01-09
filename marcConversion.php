@@ -3586,10 +3586,11 @@ class marcConversion
 	private function spriHasNotes852 ()
 	{
 		# Define the note types; $z is public note, $x is non-public note; see: https://www.loc.gov/marc/bibliographic/bd852.html
+		# NB: Re *local: SM fields spreadsheet and spri_errors_in_file spreadsheet both clearly show that *local should be public, and 876 has always had local as $z (public note), but tables/muscatSchema.xml defines *local as "additional note, not for publication" - though *priv exists which is explicit
 		$notes = '';
 		$noteTypes = array (
 			'note'  => 'z',		// E.g. /records/123440/ (test #815)
-			'local' => 'x',		// E.g. /records/1288/ (test #817)
+			'local' => 'z',		// E.g. /records/1288/ (test #817)
 			'priv'  => 'x',		// E.g. /records/122355/ (test #819)
 		);
 		
