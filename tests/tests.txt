@@ -4739,7 +4739,7 @@ Private provenance note becomes 561
 ‡aLetter
 
 808
-Private provenance note has first indicator 1
+Private provenance note has first indicator 0
 8957
 i561
 /^0#$/
@@ -4763,7 +4763,7 @@ Local provenance note becomes 561
 ‡a"To Heather
 
 812
-Local provenance note has first indicator 1
+Local provenance note has first indicator 0
 8957
 i561
 /^0#$/
