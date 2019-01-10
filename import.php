@@ -1230,7 +1230,7 @@ class import
 			- Handle the special case of *nt=None: if there is an *nt=None, adjust the language of the n1/n2/nd values to None (or anything really, as it will be deleted), e.g. /records/151048/
 			- Handle the special case of *nt=LOCRus: if there is an *nt=None, adjust the language of the n1/n2/nd values to LOCRus
 			
-			- Delete all shards with [Titles fully in brackets like this]
+			- Delete all shards with [Titles fully in square brackets like this]
 			- Delete all *pu shards whose value is a token: '[n.pub.]', 'n.pub.', '[n.p.]'
 			- Delete all *n1 shards whose value is token: 'Anon.'
 			
@@ -1334,7 +1334,7 @@ class import
 		;";
 		$this->databaseConnection->query ($query);	// 1,054,823 rows affected, leaving 143,381
 		
-		# Exclude [Titles fully in brackets like this]
+		# Exclude [Titles fully in square brackets like this]
 		$this->logger ('|-- In ' . __METHOD__ . ', excluding titles fully in square brackets');
 		$query = "
 			DELETE FROM transliterations

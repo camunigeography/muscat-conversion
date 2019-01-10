@@ -4810,3 +4810,9 @@ Mid-word replacement protected in transliteration, but rest of word is translite
 880
 ТГФ·0,5Pr₄NF·16H₂O
 
+822
+[Titles fully in square brackets like this] should not be transliterated
+31750
+!880
+Contradictions between capitalistic countries
+

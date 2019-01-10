@@ -82,7 +82,7 @@ class transliteration
 		# Ensure language is supported
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return $stringLatin;}
 		
-		# Protect string portions (e.g. English language, HTML portions, parallel title portions, [Titles fully in brackets like this]) prior to transliteration
+		# Protect string portions (e.g. English language, HTML portions, parallel title portions, [Titles fully in square brackets like this]) prior to transliteration
 		$latinStrings = array ();
 		$protectedParts = array ();
 		$errors = array ();
@@ -150,7 +150,7 @@ class transliteration
 	# Useful tool at: https://www.translitteration.com/transliteration/en/russian/ala-lc/
 	public function transliterateLocLatinToCyrillic ($stringLatin, $lpt, &$error = '', &$nonTransliterable = false)
 	{
-		# Protect string portions (e.g. English language, HTML portions, parallel title portions, [Titles fully in brackets like this]) prior to transliteration
+		# Protect string portions (e.g. English language, HTML portions, parallel title portions, [Titles fully in square brackets like this]) prior to transliteration
 		$stringLatin = $this->protectSubstrings ($stringLatin, $lpt, $protectedParts, $error /* passed back by reference */, $nonTransliterable /* passed back by reference */);
 		if ($error) {return false;}
 		
@@ -254,7 +254,7 @@ class transliteration
 	 */
 	
 	
-	# Function to protect string portions (e.g. English language, HTML portions, parallel title portions, [Titles fully in brackets like this]) prior to transliteration; can be undone with a simple strtr()
+	# Function to protect string portions (e.g. English language, HTML portions, parallel title portions, [Titles fully in square brackets like this]) prior to transliteration; can be undone with a simple strtr()
 	private function protectSubstrings ($string, $lpt, &$protectedParts, &$error = '', &$nonTransliterable = false)
 	{
 		# Initialise a list of protected parts, which will be passed back by reference
@@ -299,7 +299,8 @@ class transliteration
 			}
 		}
 		
-		# Do not transliterate [Titles fully in brackets like this]; e.g. /records/31750/ ; this should take effect after parallel titles have been split off - the Russian part is the only part in the scope of transliteration, with other languages to be ignored by 880; however, [A] = B should logically never exist, and indeed this does not appear in the data
+		# Do not transliterate [Titles fully in square brackets like this]; e.g. /records/31750/ (test #822)
+		# This should take effect after parallel titles have been split off - the Russian part is the only part in the scope of transliteration, with other languages to be ignored by 880; however, [A] = B should logically never exist, and indeed this does not appear in the data
 		#!# Bug that the other $parallelTitles will be lost if the string is returned
 		if ($this->titleFullyInBrackets ($string)) {
 			// $error should not be given a string, as this scenario is not an error, e.g. /records/75010/ , /records/167609/ , /records/178982/
@@ -423,7 +424,7 @@ class transliteration
 	}
 	
 	
-	# Function to determine a [Title fully in brackets like this]; e.g. /records/31750/
+	# Function to determine a [Title fully in square brackets like this]; e.g. /records/31750/ (test #822)
 	private function titleFullyInBrackets ($title)
 	{
 		# Check for [...] ; the regexp should match the MySQL equivalent in createTransliterationsTable ()
