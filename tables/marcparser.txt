@@ -59,6 +59,7 @@ A  880 0# {//ts|macro:generate490|macro:transliterateSubfields(a)|macro:880subfi
 A  880 {/*|macro:authorsField(700,transliterated)|macro:880subfield6(700)}
 A  880 {/*|macro:authorsField(710,transliterated)|macro:880subfield6(710)}
 A  880 {/*|macro:authorsField(711,transliterated)|macro:880subfield6(711)}
+AR 880 10 {//ft|macro:transliterate|macro:880subfield6(780,t)}
 A  916 ## ‡a{/*|macro:generate916}
 E  917 ## ‡a{'TEST RECORD FROM MUSCAT ITERATION 2'} ‡a{'Unenhanced record from Muscat, imported 2018'} ‡aR{/|macro:showSuppressionReason}
 E  948 3# ‡a{/*|macro:migrationDate} ‡b{/|macro:multipleValues(//recr)|macro:implode(, )} ‡d{/*|macro:cataloguingStatus}

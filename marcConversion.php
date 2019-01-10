@@ -2195,7 +2195,7 @@ class marcConversion
 		# End if no value; e.g. 110 field in /records/151048/ (test #423)
 		if (!$value) {return $value;}
 		
-		# If master field is supplied as e.g. "780,t" this means treat as field and the incoming subfield to be prepended before the value but after the $6
+		# If master field is supplied as e.g. "780,t" this means treat as field and the incoming subfield to be prepended before the value but after the $6; e.g. /records/35280/ (test #826)
 		$addSubfield = false;
 		if (preg_match ('/^([0-9]+),([a-z0-9])$/', $masterField, $matches)) {
 			$masterField = $matches[1];
