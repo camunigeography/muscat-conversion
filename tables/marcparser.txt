@@ -52,13 +52,15 @@ E  876 ## ‡xR{//notes/priv|macro:exceptBegins(Provenance: )|macro:exceptBegins
 A  880 {/*|macro:authorsField(100,transliterated)|macro:880subfield6(100)}
 A  880 {/*|macro:authorsField(110,transliterated)|macro:880subfield6(110)}
 A  880 {/*|macro:authorsField(111,transliterated)|macro:880subfield6(111)}
+# 880-240: not yet implemented
 A  880 {/*|macro:generate245(transliterated)|macro:880subfield6(245)}
-A  880 ## {/*|macro:generate260(transliterated)|macro:880subfield6(260)}
 #AR 880 3# ‡a{//tg/ta|macro:colonSplit(b)|macro:transliterate|macro:880subfield6(246)}
+A  880 ## {/*|macro:generate260(transliterated)|macro:880subfield6(260)}
 A  880 0# {//ts|macro:generate490|macro:transliterateSubfields(a)|macro:880subfield6(490)}
 A  880 {/*|macro:authorsField(700,transliterated)|macro:880subfield6(700)}
 A  880 {/*|macro:authorsField(710,transliterated)|macro:880subfield6(710)}
 A  880 {/*|macro:authorsField(711,transliterated)|macro:880subfield6(711)}
+# 880-773: not yet implemented
 AR 880 10 {//ft|macro:transliterate|macro:880subfield6(780,t)}
 AR 880 10 {//st|macro:transliterate|macro:880subfield6(785,t)}
 A  916 ## ‡a{/*|macro:generate916}

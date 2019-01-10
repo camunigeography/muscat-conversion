@@ -74,14 +74,18 @@ class marcConversion
 	# Supported transliteration upgrade (BGN/PCGN -> Library of Congress) fields, at either (top/bottom) level of a record
 	# Confirmed other fields not likely, using: `SELECT field, count(*)  FROM `catalogue_processed` WHERE field NOT IN ('kw', 'ks', 'abs', 'doslink', 'winlink', 'lang', 'tc', 'tt', 'location') AND recordLanguage = 'Russian' AND `value` LIKE '%ya%' GROUP BY field;`
 	private $transliterationUpgradeFields = array (
-		't',
-		'n1', 'n2', 'nd',	// NB Keep these three together as generate245::classifyNdField() (as called from generate245::statementOfResponsibility() ), and generate245::roleAndSiblings() assumes they will be in sync in terms of transliteration
-		'pu',
-		'ts',
-		'ft',
-		'st',
-		'ta',
-		'to',	// Then stripped, except records with *lto
+		'n1', 'n2', 'nd',	// 1xx, 7xx;	NB Keep these three together as generate245::classifyNdField() (as called from generate245::statementOfResponsibility() ), and generate245::roleAndSiblings() assumes they will be in sync in terms of transliteration
+		#!# 240/*to Not yet implemented in parser
+		'to',				// 240;			NB Then stripped, except records with *lto
+		't',				// 245
+		#!# 246/*ta Not yet implemented in parser
+		'ta',				// 246
+		'pu',				// 260
+		'ts',				// 490
+		#!# 773 Not yet implemented in parser
+							// 773
+		'ft',				// 780
+		'st',				// 785
 	);
 	
 	# Define fields for transliteration name matching
