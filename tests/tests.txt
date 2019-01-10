@@ -4835,8 +4835,26 @@ Cases of [square-bracketed strings like this] amongst other strings that are not
 ‡6780-02/(N‡tМатериалы по Лабораторным Исследованиям Мерзлых Грунтов [Materials on Laboratory
 
 826
-880subfield6(field,subfield) format puts the incoming subfield to be prepended before the value but after the $6
+880subfield6(field,subfield) format puts the incoming subfield to be prepended before the value but after the $6 (see also next test)
 35280
 880
 ‡6780-02/(N‡tМатериалы
+
+827
+880subfield6(field,subfield) format handled correctly for repeatability (but not multiline) (see also previous test)
+205613
+880
+‡6785-03/(N‡tРечной Транспорт
+
+828
+880-785 transliteration *st
+1053
+880
+‡6785-02/(N‡tОтдел Прикладной
+
+829
+880-785 transliteration *st repeatability 2nd item
+205613
+880
+‡6785-03/(N‡tРечной Транспорт
 
