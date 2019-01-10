@@ -582,7 +582,22 @@ Papers from the All-Union Conference, Novosibirsk, 18-20 June 1979
 # Mid-sentence strings in square brackets; these are handled manually as cannot be assumed to be in English
 [electronic resource]
 [Electronic resource]
-
+[State Committee of the Russian Federation on Statistics]
+[Arctica]
+[Aids and Handbooks]
+[Popular scientific library of the far north]
+[Investigations on the Physics and Mechanics of Frozen Ground]
+[Materials on Laboratory Investigations of Frozen Soils]
+Geographical Sociėty of the USSR. Komi Branch. News]
+[Bulletin of the Apatity Seismic Station]
+[SNIIGGIMS]
+["Juraksamojedische Volksdichtung"]
+[by
+L[ėningrad]
+M[oscow]
+[Ministry of Agriculture RF]
+[Tadjikistan]
+[the]
 
 # Other strings to protect
 WWGS-89
