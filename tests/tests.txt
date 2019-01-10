@@ -3454,12 +3454,6 @@ co#|g|||||||||
 !500
 ‡aThe geology of the Nuuk region -- The oldest rocks on Earth
 
-582
-538 note support for Mode of access:
-145666
-538
-‡aMode of access: WWW
-
 584
 856 support for conversion to internationalized domain name (IDN)
 197739
@@ -3843,12 +3837,6 @@ SUPPRESS
 1711
 852
 ‡cSPRI-CBD ‡h202
-
-659
-852 'Electronic Resource (online)' gets ‡h and no ‡c qualifier
-6056
-852
-‡cSPRI-ELE ‡hElectronic Resource (online)
 
 660
 500 generate500analytics (/art/j pseudo-analytic mode) gets citation

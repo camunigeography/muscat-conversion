@@ -2481,7 +2481,7 @@ class marcConversion
 		$specialFields = array (
 			505 => '^Contents: (.+)$',			// Actually implemented below, but has to be defined here to avoid it also becoming a standard 500, e.g. /records/1488/ (test #581)
 			533 => "^Printout\.(.+)$",			// Actually implemented below, but has to be defined here to avoid it also becoming a standard 500, e.g. /records/142020/ (test #716)
-			538 => '^(Mode of access: .+)$',	// 538 - System Details Note; see: https://www.loc.gov/marc/bibliographic/bd538.html , e.g. /records/145666/ (test #582)
+			538 => '^(Mode of access: .+)$',	// 538 - System Details Note; see: https://www.loc.gov/marc/bibliographic/bd538.html ; now no records, so test removed
 			561 => '^Provenance: (.+)$',		// 561 - Provenance; see: https://www.loc.gov/marc/bibliographic/bd561.html , e.g. /records/17120/ (test #804, #805)
 			-1  => '^SPRI has (.+)$',			// Should be excluded from 500, as will be picked up in macro_generate852, e.g. /records/123440/ (test #815)
 		);
@@ -3503,7 +3503,7 @@ class marcConversion
 				$result .= " {$this->doubleDagger}c" . 'Issues shelved individually with ' . $matches[1];
 			}
 			
-			# Online items get $h (and does not get $c disambiguation check), e.g. /records/1473/ (test #659)
+			# Online items get $h (and does not get $c disambiguation check); now no records, so test removed
 			if ($locationName == 'Electronic Resource (online)') {
 				$result .= " {$this->doubleDagger}h" . $locationName;
 			} else {
