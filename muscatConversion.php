@@ -2228,7 +2228,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Define the import types
 		$importTypes = array (
-			'full'					=> 'FULL import (c. 5.8 hours)',
+			'full'					=> 'FULL import (c. 6.8 hours)',
 			'full-selection'		=> 'FULL import, filtered to selection list',
 			'xml'					=> 'Regenerate XML only (c. 21 minutes)',
 			'marc'					=> 'Regenerate MARC only (c. 1.1 hours)',
@@ -2237,7 +2237,7 @@ class muscatConversion extends frontControllerApplication
 			'outputstatus'			=> 'Regenerate output status only (c. 15 seconds)',
 			'exports'				=> 'Regenerate MARC export files and Bibcheck report (c. 15 minutes)',
 			'tests'					=> 'Run automated tests',
-			'reports'				=> 'Regenerate reports only (c. 7 minutes)',
+			'reports'				=> 'Regenerate reports only (c. 21 minutes)',
 			'listings'				=> 'Regenerate listings reports only (c. 30 minutes)',
 			'searchtables'			=> 'Regenerate search tables (c. 20 seconds)',
 		);
