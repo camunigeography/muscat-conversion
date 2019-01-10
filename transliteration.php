@@ -147,7 +147,7 @@ class transliteration
 	
 	
 	# Function to transliterate from Library of Congress (ALA LC) to Cyrillic; this is only run in a non-batched context; see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
-	# Useful tool at: http://www.translitteration.com/transliteration/en/russian/ala-lc/
+	# Useful tool at: https://www.translitteration.com/transliteration/en/russian/ala-lc/
 	public function transliterateLocLatinToCyrillic ($stringLatin, $lpt, &$error = '', &$nonTransliterable = false)
 	{
 		# Protect string portions (e.g. English language, HTML portions, parallel title portions, [Titles fully in brackets like this]) prior to transliteration
@@ -311,6 +311,7 @@ class transliteration
 		
 		# For performance reasons, reduce complexity of the preg_replace below by doing a basic substring match first
 		foreach ($replacements as $index => $replacement) {
+			$replacement = preg_replace ('/^@@/', '', $replacement);	// Mid-word replacements - see below
 			if (!substr_count ($string, $replacement)) {
 				unset ($replacements[$index]);
 			}
@@ -332,9 +333,17 @@ class transliteration
 		$replacements = array ();
 		$delimiter = '/';
 		foreach ($protectedParts as $replacementToken => $fixedString) {
+		
 			
-			# Determine whether a protected part is italics, as this not have a word boundary requirement, as the italics are an explicit part of the string
+			# Determine whether a protected part is italics, as this does not have a word boundary requirement, as the italics are an explicit part of the string
 			$isTagSurround = preg_match ('|^<em>.+</em>$|', $fixedString);
+			
+			# Handle mid-word strings, which do not have a word boundary requirement, stripping out the @@ token, e.g. /records/100714/ (test #821)
+			if (preg_match ('/^@@/', $fixedString)) {
+				$isTagSurround = true;
+				$fixedString = preg_replace ('/^@@/', '', $fixedString);
+				$protectedParts[$replacementToken] = $fixedString;
+			}
 			
 			#!# Hyphen in post- word boundary needs review
 			$search = $delimiter . ($isTagSurround ? '' : '(^|\s|\(|")') . preg_quote ($fixedString, $delimiter) . ($isTagSurround ? '' : '($|\s|\)|\.|-|,|:|")') . $delimiter;

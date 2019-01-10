@@ -4803,3 +4803,10 @@ Library-specific information in note ("SPRI has two copies") appears in each 852
 7455
 852
 [B] ‡zSPRI has 2 copies
+
+821
+Mid-word replacement protected in transliteration, but rest of word is transliterated (here, the start)
+100714
+880
+ТГФ·0,5Pr₄NF·16H₂O
+

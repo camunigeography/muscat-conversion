@@ -385,8 +385,10 @@ SO₂
 Rb-Sr
 D₂O
 Ag
-5Pr₄NF
 H₂О
+
+# Mid-word replacements, which must start with special token @@
+@@Pr₄NF·16H₂O
 
 # Latin abbreviations and phrases
 subsp.

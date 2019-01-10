@@ -174,9 +174,11 @@ This works by:
 
 6. Each pattern is converted to be word-boundary -based; the word boundary has to be defined manually rather than using `\b` because some strings start/end with a bracket.
 
-7. A single `preg_replace` is performed against the string, to substitute in the tokens.
+7. Protected strings starting with a special token `@@` are excluded from the word-boundary requirement. At this point, the @@ marker is stripped.
 
-8. At this point, the modified string, containing the tokens in place of the protected sections, is passed back, together with the list of `protectedParts` passed back by reference.
+8. A single `preg_replace` is performed against the string, to substitute in the tokens.
+
+9. At this point, the modified string, containing the tokens in place of the protected sections, is passed back, together with the list of `protectedParts` passed back by reference.
 
 
 ## TODO:
