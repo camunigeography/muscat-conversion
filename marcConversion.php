@@ -2195,6 +2195,13 @@ class marcConversion
 		# End if no value; e.g. 110 field in /records/151048/ (test #423)
 		if (!$value) {return $value;}
 		
+		# If master field is supplied as e.g. "780,t" this means treat as field and the incoming subfield to be prepended before the value but after the $6
+		$addSubfield = false;
+		if (preg_match ('/^([0-9]+),([a-z0-9])$/', $masterField, $matches)) {
+			$masterField = $matches[1];
+			$value = $this->doubleDagger . $matches[2] . $value;
+		}
+		
 		# Determine the field instance index, starting at 0; this will always be 0 unless called from a repeatable
 		#!# Repeatable field support not checked in practice yet as there are no such fields
 		$this->field880subfield6FieldInstanceIndex[$masterField] = (isSet ($this->field880subfield6FieldInstanceIndex[$masterField]) ? $this->field880subfield6FieldInstanceIndex[$masterField] + 1 : 0);
