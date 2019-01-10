@@ -4797,3 +4797,9 @@ Library-specific information in private note ("SPRI has two copies") should be i
 122355
 852
 ‡xSPRI has two copies
+
+820
+Library-specific information in note ("SPRI has two copies") appears in each 852
+7455
+852
+[B] ‡zSPRI has 2 copies

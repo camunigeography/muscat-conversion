@@ -3566,8 +3566,7 @@ class marcConversion
 				}
 			}
 			
-			# Add any notes; e.g. /records/1288/ (test #817)
-			# Will be added to each line, as cannot disambiguated - though no actual cases, as verified with `SELECT * from fieldsindex WHERE id IN( SELECT recordId FROM catalogue_processed WHERE value LIKE 'SPRI has %' AND xPath LIKE '%notes%') AND fieldslist LIKE '%@location@location%'`
+			# Add any notes, e.g. /records/1288/ (test #817); will be added to each line, as cannot disambiguated, e.g. /records/7455/ (test #820)
 			$result .= $notes;	// If any
 			
 			# Register this result
