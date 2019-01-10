@@ -301,6 +301,7 @@ class transliteration
 		
 		# Do not transliterate [Titles fully in square brackets like this]; e.g. /records/31750/ (test #822)
 		# This should take effect after parallel titles have been split off - the Russian part is the only part in the scope of transliteration, with other languages to be ignored by 880; however, [A] = B should logically never exist, and indeed this does not appear in the data
+		# Strings in square brackets that are amongst other text are not handled automatically, and so need to be added to the transliteration protected strings list, with the brackets included, e.g. /records/139647/ (test #823); these are handled manually, as they cannot be assumed to be in English, e.g. /records/14186/ (test #824)
 		#!# Bug that the other $parallelTitles will be lost if the string is returned
 		if ($this->titleFullyInBrackets ($string)) {
 			// $error should not be given a string, as this scenario is not an error, e.g. /records/75010/ , /records/167609/ , /records/178982/

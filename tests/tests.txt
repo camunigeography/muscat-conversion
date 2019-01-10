@@ -4816,3 +4816,15 @@ Mid-word replacement protected in transliteration, but rest of word is translite
 !880
 Contradictions between capitalistic countries
 
+823
+Cases of [square-bracketed strings like this] amongst other strings that are defined in the protected strings list are protected
+139647
+880
+Федерации по статистике [State Committee of the Russian Federation on Statistics],‡c
+
+824
+Cases of [square-bracketed strings like this] amongst other strings that are not defined in the protected strings list are not protected
+14186
+880
+‡bИздание DV [Дальневосточного] Общества
+
