@@ -54,10 +54,16 @@ This involves the following steps:
 	* `forwardCheckFailed` Flag for whether forward check failed
 	* `title_loc` Forward transliteration from generated Cyrillic (Library of Congress), e.g. `Za poli͡arnym krugom`
 	
- b. A list of Muscat fields which may contain transliterated strings is created. Currently this is:
+ b. A list of Muscat fields which may contain transliterated strings is created, defined as `$transliterationUpgradeFields`:
 
-    * `*t` only
-	* [This list is expected to be expanded]
+    * `*t`
+    * `*n1` `*n2` `*nd`
+    * `*pu`
+    * `*ts`
+    * `*ft`
+    * `*st`
+    * `*ta`
+    * `*to`
 	
  c. Records that have one of the fields, e.g. `*t` at top level (marked `topLevel = 1`) have each such shard copied from the processed table to the transliterations table, into the `title_latin` field.
 
