@@ -599,6 +599,36 @@ M[oscow]
 [Tadjikistan]
 [the]
 
+# *ta values to protect, as there is no *lta concept
+# See: /reports/transliterations/?xpath=/art/j/tg/ta and other variants
+Northern Vasts
+Les glaces dans l'ocean antarctique
+Isforholdene i Sydishavet
+Régions polaires
+Vergleich der Temperaturverhältnisse der hohen Breiten der südlichen und der nordlichen Halbkugel
+Die schottische Süd-Polar-Expedition und die Temperatur südlich von Süd-Amerika
+Meteorologie und Klimatologie der Südpolargegenden
+Sur la transparence de la glace pour la radiation ultraviolette du soleil
+On the heterogeneous structure of the atmospheric current under various meteorological conditions according to observational data from the Kola Peninsula
+Frost heave development and its manifestations in Yakutsk
+Methods to determine the reliability of seasonally frozen constructions
+Experience and prospects for application of frequency-domain electromagnetic methods in frozen ground temperature monitoring
+The scientific research of Gerhard Ludwig von Maydell
+Catastrophic changes to mountain glaciers on the southern slopes of the Dzhungarskiy Alatau
+Isotope composition of ice core of Late Holocene pingo in the Pestsovy deposit in the vally of the River Yevoyakha in the southern Tazovskiy Peninsula
+recueil d'articles scientifiques
+Language and folklore of the Alutor people
+Guiding lines of Beringia development in XXI-st century
+O.N. Betlingk and Turkic linguistics : collected papers
+Inner structure of glacier in non-polar regions
+International relations in Northern Europe and the Barents Region
+Integrated exploration of small goldmine clusters
+Sur la transparence de la glace pour la radiation ultraviolette du soleil
+Northern Vasts
+Northern Expanses
+Energy
+Archaeology, ethnology and anthropology of Eurasia
+
 # Other strings to protect
 WWGS-89
 Anonymous

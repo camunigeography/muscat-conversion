@@ -77,7 +77,6 @@ class marcConversion
 		'n1', 'n2', 'nd',	// 1xx, 7xx;	NB Keep these three together as generate245::classifyNdField() (as called from generate245::statementOfResponsibility() ), and generate245::roleAndSiblings() assumes they will be in sync in terms of transliteration
 		'to',				// 240;			NB Then stripped, except records with *lto
 		't',				// 245
-		#!# 246/*ta Not yet implemented in parser
 		'ta',				// 246
 		'pu',				// 260
 		'ts',				// 490

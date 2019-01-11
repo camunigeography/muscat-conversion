@@ -4882,6 +4882,42 @@ Cases of [square-bracketed strings like this] amongst other strings that are not
 880
 ‡6240-02/(N‡aПриспособление тюленей к обитанию в Арктике.‡lRussian
 
+834
+880-246 support for *ta in Russian record
+69064
+880
+‡6246-02/(N‡aМагнетосферные исследования
+
+835
+880-246 repeatability (here, third *ta)
+39424
+880
+‡6246-04/(N‡aЗоологический Музей Московского Государственного Университета. Сборник Трудов
+
+836
+880-246 with colon split
+32043
+880
+‡6246-02/(N‡aКосмические лучи. Сборник статей :‡bVII раздел программы МГГ
+
+837
+880-246 protected strings protected
+195773
+880
+‡aЭнергия = Energy
+
+838
+880-246 consisting entirely of protected string does not appear
+8938
+!880
+Die schottische Süd-Polar-Expedition und die Temperatur südlich von Süd-Amerika
+
+839
+880-246 does not appear for a non-Russian record
+15277
+!880
+Skiforeningens Årbok
+
 840
 In protectSubstrings, if whole string is a protected string, treat as non-transliterable
 8938
