@@ -160,7 +160,7 @@ class reports
 	
 	# Listing (values) reports
 	private $listingsList = array (
-		'multiplecopiesvalues_info' => 'listing: records where there appear to be multiple copies, in notes field - unique values',
+		'multiplecopiesvalues_postmigration' => 'listing: records where there appear to be multiple copies, in notes field - unique values',
 		'diacritics_info' => 'listing: counts of diacritics used in the raw data',
 		'journaltitles_info' => 'listing: journal titles',
 		'seriestitles_info' => 'listing: series titles',
@@ -260,6 +260,9 @@ class reports
 			
 			'seriestitlemismatches3' =>
 				'These are analytic records for which SPRI does not have a parent, which means we have no name authority for the parent, making matching pre-migration unreliable.',
+			
+			'multiplecopiesvalues' =>
+				'Notes such as "SPRI has..." need to be checked against the rest of the data, e.g. "SPRI has three copies" should be reflected as three locations.',
 			
 		);
 	}
