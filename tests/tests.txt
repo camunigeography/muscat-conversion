@@ -4924,3 +4924,26 @@ In protectSubstrings, if whole string is a protected string, treat as non-transl
 !880
 Die schottische Süd-Polar-Expedition und die Temperatur südlich von Süd-Amerika
 
+841
+880-773 support: pulls in transliterated version of host record
+59148
+880
+‡6773-05/(N‡7nnam ‡aВ.И. Коростелев, ed. ‡tГеология и тектоника рудоносных регионов Якутии (сборник). ‡dYakutsk : Якутский Государственный Университет, 1979. ‡wSPRI-59146
+
+842
+880-773 not created when host record has no transliteration data
+67559
+!880
+773
+
+843
+880-773 transliteration does not transliterate relator term
+59148
+880
+‡aВ.И. Коростелев, ed. ‡t
+
+844
+880-773 ‡g not transliterated
+1200
+880
+‡gVol. 10 (1931)

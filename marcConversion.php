@@ -80,8 +80,7 @@ class marcConversion
 		'ta',				// 246
 		'pu',				// 260
 		'ts',				// 490
-		#!# 773 Not yet implemented in parser
-							// 773
+		// (773 from host)	// 773
 		'ft',				// 780
 		'st',				// 785
 	);
@@ -3172,8 +3171,8 @@ class marcConversion
 	}
 	
 	
-	# Macro to generate the 773 (Host Item Entry) field; see: http://www.loc.gov/marc/bibliographic/bd773.html ; e.g. /records/1129/ (test #493)
-	private function macro_generate773 ($value, $parameter_unused, &$errorHtml_ignored = false, $mode500 = false)
+	# Macro to generate the 773 (Host Item Entry) field; see: https://www.loc.gov/marc/bibliographic/bd773.html ; e.g. /records/1129/ (test #493)
+	private function macro_generate773 ($value_ignored, $transliterate = false, &$errorHtml = false, $mode500 = false)
 	{
 		# Start a result
 		$result = '';
@@ -3184,6 +3183,17 @@ class marcConversion
 		
 		# Parse out the host record
 		$marc = $this->parseMarcRecord ($this->hostRecord);
+		
+		# If transliteration substitution is required, look up 880 equivalents and substitute where present, e.g. /records/59148/ (test #841)
+		if ($transliterate) {
+			$marc = $this->transliterationSubstitution ($marc, $fieldsHavingTransliteration /* returned by reference */, $errorHtml);
+			
+			# End if transliterated data is not present, e.g. /records/67559/ (test #842)
+			$fieldsIn773Implementation = array ('LDR', 001, 100, 110, 111, 245, 260);		// I.e. fields used elsewhere in this function below
+			if (!array_intersect ($fieldsIn773Implementation, $fieldsHavingTransliteration)) {
+				return false;
+			}
+		}
 		
 		# Start a list of subfields
 		$subfields = array ();
@@ -3451,6 +3461,53 @@ class marcConversion
 		
 		# Return the subfield pairs
 		return $subfields;
+	}
+	
+	
+	# Function to look up 880 equivalents and substitute where present, e.g. /records/59148/ (test #841)
+	private function transliterationSubstitution ($record, &$fieldsHavingTransliteration, &$errorHtml)
+	{
+		# Start a list of fields containing transliteration data, to be returned by reference
+		$fieldsHavingTransliteration = array ();
+		
+		# Loop through each field (except 880) then each line
+		foreach ($record as $fieldNumber => $field) {
+			if ($fieldNumber == 880) {continue;}	// 880 itself is never a source
+			foreach ($field as $lineIndex => $line) {
+				
+				# Skip if no subfield 6
+				if (!isSet ($line['subfields'][6])) {continue;}
+				
+				# Register presence of this field
+				$fieldsHavingTransliteration[] = $fieldNumber;
+				
+				# Extract the token number used for matching, e.g. `245 $6880-01 $a...` will get 01
+				$tokenIndex = str_replace ('880-', '', $line['subfields'][6][0]);
+				$token = $fieldNumber . '-' . $tokenIndex . '/(N';
+				
+				# Find the 880 entry for this token
+				$line880Matched = array ();
+				foreach ($record[880] as $line880Index => $line880) {
+					if ($line880['subfields'][6][0] == $token) {
+						$line880Matched = $line880;
+						unset ($line880Matched['subfields'][6][0]);	// Remove the token subfield itself
+						break;
+					}
+				}
+				
+				# Report cases of mismatched lines, which should not happen
+				if (!$line880Matched) {
+					$errorHtml .= "No matching 880 line found for line {$lineIndex} in transliteration substitution.";
+					continue;
+				}
+				
+				# Transplant the matched line structure in, replacing the original with the contents of its cyrillic-orientated equivalent
+				$record[$fieldNumber][$lineIndex] = $line880Matched;
+			}
+		}
+		
+		# Return the amended record, retaining the 880 field so that it can be used to detect the presence of transliteration data
+		return $record;
 	}
 	
 	

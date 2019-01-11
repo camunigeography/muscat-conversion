@@ -62,7 +62,7 @@ A  880 0# {//ts|macro:generate490|macro:transliterateSubfields(a)|macro:880subfi
 A  880 {/*|macro:authorsField(700,transliterated)|macro:880subfield6(700)}
 A  880 {/*|macro:authorsField(710,transliterated)|macro:880subfield6(710)}
 A  880 {/*|macro:authorsField(711,transliterated)|macro:880subfield6(711)}
-# 880-773: not yet implemented
+A  880 0# {/|macro:generate773(transliterated)|macro:880subfield6(773)}
 AR 880 10 {//ft|macro:transliterate|macro:880subfield6(780,t)}
 AR 880 10 {//st|macro:transliterate|macro:880subfield6(785,t)}
 A  916 ## ‡a{/*|macro:generate916}
