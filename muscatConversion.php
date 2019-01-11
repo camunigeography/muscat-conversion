@@ -1905,7 +1905,7 @@ class muscatConversion extends frontControllerApplication
 			'status' => 'Item status (on order/received etc.)',
 			't' => 'Title',
 			'ta' => 'Amendment to misspelled title (supplied by bibliographer)',
-			'tc' => '[Unknown]',
+			'tc' => '[Believed to be an automatic mirror of *t, plus *tc when present, by Muscat]',
 			'tg' => 'Title group',
 			'to' => 'Title of original (if publication is a translation)',
 			'ts' => 'Title of series',

@@ -26,7 +26,7 @@
 			<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
 			<to /><!-- title of original (if publication is a translation) -->
 			<lto /><!-- Language of *to -->
-			<tc /><!-- UNKNOWN -->
+			<tc /><!-- [Believed to be an automatic mirror of *t, plus *tc when present, by Muscat] -->
 			<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
 			<lpt /><!-- Languages of parallel title -->
 		</tg>
@@ -148,7 +148,7 @@
 			<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
 			<to /><!-- title of original (if publication is a translation) -->
 			<lto /><!-- Language of *to -->
-			<tc /><!-- UNKNOWN -->
+			<tc /><!-- [Believed to be an automatic mirror of *t, plus *tc when present, by Muscat] -->
 			<lang /><!-- name of language (e.g. 'French' 'German') -->
 			<lpt /><!-- Languages of parallel title -->
 		</tg>
@@ -185,7 +185,7 @@
 				<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
 				<to /><!-- title of original (if publication is a translation) -->
 				<lto /><!-- Language of *to -->
-				<tc /><!-- UNKNOWN -->
+				<tc /><!-- [Believed to be an automatic mirror of *t, plus *tc when present, by Muscat] -->
 				<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
 				<lpt /><!-- Languages of parallel title -->
 			</tg>
@@ -287,7 +287,7 @@
 				<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
 				<to /><!-- title of original (if publication is a translation) -->
 				<lto /><!-- Language of *to -->
-				<tc /><!-- UNKNOWN -->
+				<tc /><!-- [Believed to be an automatic mirror of *t, plus *tc when present, by Muscat] -->
 				<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
 				<lpt /><!-- Languages of parallel title -->
 			</tg>
@@ -386,7 +386,7 @@
 			<ta /><!-- amendment to misspelled title (supplied by bibliographer) -->
 			<to /><!-- title of original (if publication is a translation) -->
 			<lto /><!-- Language of *to -->
-			<tc /><!-- UNKNOWN -->
+			<tc /><!-- [Believed to be an automatic mirror of *t, plus *tc when present, by Muscat] -->
 			<lang /><!-- name of language (e.g. 'French' 'German'). Give more than one language if bi- or multi-lingual (e.g. French * English)  'English' is assumed and never entered by the bibliographers. If left blank Muscat defaults to English for indexing purposes -->
 			<lpt /><!-- Languages of parallel title -->
 		</tg>
