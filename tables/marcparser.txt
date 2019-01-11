@@ -53,7 +53,8 @@ E  876 ## ‡xR{//notes/priv|macro:exceptBegins(Provenance: )|macro:exceptBegins
 A  880 {/*|macro:authorsField(100,transliterated)|macro:880subfield6(100)}
 A  880 {/*|macro:authorsField(110,transliterated)|macro:880subfield6(110)}
 A  880 {/*|macro:authorsField(111,transliterated)|macro:880subfield6(111)}
-# 880-240: not yet implemented
+A  880 10 {//tg/to[1]|macro:ifXpathValue(//tg/lto[1],Russian)|macro:transliterate(Russian)|macro:880subfield6(240,a)}.‡l{//tg/lto[1]}
+A  880 10 {//tg/to[2]|macro:ifXpathValue(//tg/lto[2],Russian)|macro:transliterate(Russian)|macro:880subfield6(240,a)}.‡l{//tg/lto[2]}
 A  880 {/*|macro:generate245(transliterated)|macro:880subfield6(245)}
 #AR 880 3# ‡a{//tg/ta|macro:colonSplit(b)|macro:transliterate|macro:880subfield6(246)}
 A  880 ## {/*|macro:generate260(transliterated)|macro:880subfield6(260)}

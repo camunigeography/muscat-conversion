@@ -4864,3 +4864,21 @@ Cases of [square-bracketed strings like this] amongst other strings that are not
 240
 ‡aSuomen suvun uskonnot.‡lFinnish
 
+831
+880-240 support for *to with Russian *lto
+88661
+880
+‡6240-01/(N‡aПутешествие вокруг света на военном шлюпе Senyavin.‡lRussian
+
+832
+880-240 does not appear when *lto is not Russian
+1319
+!880
+‡lSami
+
+833
+880-240 second instance of *to/*lto
+51402
+880
+‡6240-02/(N‡aПриспособление тюленей к обитанию в Арктике.‡lRussian
+

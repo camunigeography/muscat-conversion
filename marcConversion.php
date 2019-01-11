@@ -75,7 +75,6 @@ class marcConversion
 	# Confirmed other fields not likely, using: `SELECT field, count(*)  FROM `catalogue_processed` WHERE field NOT IN ('kw', 'ks', 'abs', 'doslink', 'winlink', 'lang', 'tc', 'tt', 'location') AND recordLanguage = 'Russian' AND `value` LIKE '%ya%' GROUP BY field;`
 	private $transliterationUpgradeFields = array (
 		'n1', 'n2', 'nd',	// 1xx, 7xx;	NB Keep these three together as generate245::classifyNdField() (as called from generate245::statementOfResponsibility() ), and generate245::roleAndSiblings() assumes they will be in sync in terms of transliteration
-		#!# 240/*to Not yet implemented in parser
 		'to',				// 240;			NB Then stripped, except records with *lto
 		't',				// 245
 		#!# 246/*ta Not yet implemented in parser
@@ -1114,6 +1113,20 @@ class marcConversion
 		
 		# Return the result
 		return ($value ? $ifValue : $elseValue);
+	}
+	
+	
+	# Macro to check whether a value matches a supplied string, passing through the value if so, or returning values; e.g. /records/88661/ (test #831), negative case: /records/1319/ (test #832)
+	private function macro_ifXpathValue ($value, $parameters)
+	{
+		# Parse the parameters
+		list ($xPath, $testValue) = explode (',', $parameters, 2);
+		
+		# Determine the value
+		$xPathValue = $this->xPathValue ($this->xml, $xPath);
+		
+		# Return the result
+		return ($xPathValue == $testValue ? $value : false);
 	}
 	
 	
