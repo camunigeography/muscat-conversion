@@ -4858,3 +4858,9 @@ Cases of [square-bracketed strings like this] amongst other strings that are not
 880
 ‡6785-03/(N‡tРечной Транспорт
 
+830
+240 second instance of *to/*lto
+133473
+240
+‡aSuomen suvun uskonnot.‡lFinnish
+
