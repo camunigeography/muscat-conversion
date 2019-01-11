@@ -1945,7 +1945,10 @@ class marcConversion
 			MORE TODO
 		*/
 		#!# Need to determine whether the $lpt argument should ever be looked up, i.e. whether the $value represents a title and the record is in Russian
-		$output = $this->transliteration->transliterateLocLatinToCyrillic ($value, $lpt = false);
+		$output = $this->transliteration->transliterateLocLatinToCyrillic ($value, $lpt = false, $error /* returned by reference */, $nonTransliterable /* returned by reference */);
+		
+		# Return false if string is unchanged, e.g. fully in brackets or entirely a protected string, e.g. /records/214774/ (test #840)
+		if ($nonTransliterable) {return false;}
 		
 		# Return the string
 		return $output;

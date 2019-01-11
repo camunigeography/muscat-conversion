@@ -4882,3 +4882,9 @@ Cases of [square-bracketed strings like this] amongst other strings that are not
 880
 ‡6240-02/(N‡aПриспособление тюленей к обитанию в Арктике.‡lRussian
 
+840
+In protectSubstrings, if whole string is a protected string, treat as non-transliterable
+8938
+!880
+Die schottische Süd-Polar-Expedition und die Temperatur südlich von Süd-Amerika
+

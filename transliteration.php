@@ -331,11 +331,17 @@ class transliteration
 			$protectedParts[$key] = $replacement;	// e.g. '<||12||>' => 'Fungi'
 		}
 		
+		# If the whole string matches a protected string, then treat as non-transliterable, e.g. /records/214774/ (test #840)
+		foreach ($replacements as $replacement) {
+			if ($replacement == $string) {
+				$nonTransliterable = true;
+			}
+		}
+		
 		# Convert each pattern to be word-boundary -based; the word boundary has to be defined manually rather than using \b because some strings start/end with a bracket
 		$replacements = array ();
 		$delimiter = '/';
 		foreach ($protectedParts as $replacementToken => $fixedString) {
-		
 			
 			# Determine whether a protected part is italics, as this does not have a word boundary requirement, as the italics are an explicit part of the string
 			$isTagSurround = preg_match ('|^<em>.+</em>$|', $fixedString);
