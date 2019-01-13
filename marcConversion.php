@@ -3231,8 +3231,6 @@ class marcConversion
 		if ($this->recordType == '/art/in') {
 			if (isSet ($marc['260'])) {
 				
-				#!# Need to add support for an 880 (773) - e.g. /records/59148/ should get lines for both the LoC transliteration and the Cyrillic
-				
 				# Remove $6880 field if present, e.g. /records/59148/ (test #668)
 				if (isSet ($marc['260'][0]['subfields']['6'])) {
 					unset ($marc['260'][0]['subfields']['6']);
