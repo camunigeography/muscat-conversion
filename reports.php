@@ -145,7 +145,7 @@ class reports
 		'locationunassigned_postmigration' => 'records with location = ??',
 		'towithoutlto_problem' => 'records with *to without *lto defined, having whitelisted English *to in a non-Russian record',
 		'ltowithoutto_problem' => 'records with *lto present but no *to',
-		'ltomismatch_problem' => 'records whose *lto count does not match *to, when multiple',
+		'multipleto_problem' => 'records with more than one *to/*lto',
 		'ntnoneslashupgrade_problem' => 'records with *nt=None which have not had / upgrading for 245',
 		'ntcyrillicinscope_postmigration' => 'non-Russian records with Cyrillic *nt = BGNRus/LOCRus',
 		'ntcyrillicunsupported_postmigration' => 'non-Russian records with all Cyrillic *nt for types never supported',
@@ -3642,24 +3642,19 @@ class reports
 	}
 	
 	
-	# Records whose *lto count does not match *to, when multiple
-	public function report_ltomismatch ()
+	# Records with more than one *to/*lto
+	public function report_multipleto ()
 	{
 		# Define the query; uses substring count method in comments at: https://www.thingy-ma-jig.co.uk/blog/17-02-2010/mysql-count-occurrences-string
 		$query = "
-			SELECT
-				'ltomismatch' AS report,
-				id AS recordId
-			FROM fieldsindex
+			SELECT DISTINCT
+				'multipleto' AS report,
+				recordId
+			FROM catalogue_processed
 			WHERE
-				((LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@lto',''))) / LENGTH('@lto')) !=	-- @lto used rather than @lto@ as can be adjacent
-				((LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@to',''))) / LENGTH('@to'))
-			AND
-				(
-					   ((LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@lto',''))) / LENGTH('@lto')) > 1
-					OR ((LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@to',''))) / LENGTH('@to')) > 1
-				)
-			";
+				   xPathWithIndex LIKE '%/to[2]'
+				OR xPathWithIndex LIKE '%/tg/lto[2]'
+		";
 		
 		# Return the query
 		return $query;

@@ -4859,28 +4859,22 @@ Cases of [square-bracketed strings like this] amongst other strings that are not
 ‡6785-03/(N‡tРечной Транспорт
 
 830
-240 second instance of *to/*lto
+240 is not repeatable
 133473
-240
-‡aSuomen suvun uskonnot.‡lFinnish
+!240
+Finnish
 
 831
 880-240 support for *to with Russian *lto
-88661
+27093
 880
-‡6240-01/(N‡aПутешествие вокруг света на военном шлюпе Senyavin.‡lRussian
+‡6240-01/(N‡aАрктические ледяные острова и характер их дрейфа.‡lRussian
 
 832
 880-240 does not appear when *lto is not Russian
 1319
 !880
 ‡lSami
-
-833
-880-240 second instance of *to/*lto
-51402
-880
-‡6240-02/(N‡aПриспособление тюленей к обитанию в Арктике.‡lRussian
 
 834
 880-246 support for *ta in Russian record

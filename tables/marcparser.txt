@@ -13,8 +13,7 @@ A  041 i{'0'|macro:languages041(true)}# ‡a{/.|macro:languages041}
 A  100 {/*|macro:authorsField(100)}
 A  110 {/*|macro:authorsField(110)}
 A  111 {/*|macro:authorsField(111)}
-E  240 10 ‡a{//tg/to[1]|macro:stripLeadingArticle240}{//tg/to[1]|macro:ifElse(//tg/lto[1],.,)}‡l{//tg/lto[1]}
-E  240 10 ‡a{//tg/to[2]|macro:stripLeadingArticle240}{//tg/to[2]|macro:ifElse(//tg/lto[2],.,)}‡l{//tg/lto[2]}
+E  240 10 ‡a{//tg/to|macro:stripLeadingArticle240}{//tg/to|macro:ifElse(//tg/lto,.,)}‡l{//tg/lto}
 A  242 i{'0'|macro:indicator1xxPresent(1)}i{/*/tg/tt|macro:nfCount(English)} ‡a{/*/tg/tt|macro:colonSplit(b)} ‡y{'eng'|macro:ifValue(/*/tg/tt)}
 A  245 {/|macro:generate245}
 AR 246 3# ‡a{//tg/ta|macro:colonSplit(b)}
@@ -46,15 +45,14 @@ A  711 {/*|macro:authorsField(711)}
 A  773 0# {/|macro:generate773}
 AR 780 10 ‡t{//ft}
 AR 785 10 ‡t{//st}
-A  852 7# {/*|macro:generate852}
+E  852 7# {/*|macro:generate852}
 E  856 i{/*|macro:ifElse(//url/urlgen,4,#)}0 ‡u?R{//doi/doifld|macro:prepend(urn:doi:)}‡u?R{//doi/doifld|macro:prepend(https://dx.doi.org/)}‡u?R{//url/urlgen|macro:idnConversion}
 E  866 #0 ‡aR{//r} ‡xR{//hold}
 E  876 ## ‡xR{//notes/priv|macro:exceptBegins(Provenance: )|macro:exceptBegins(SPRI has )} ‡zR{//notes/local|macro:exceptBegins(Provenance: )|macro:exceptBegins(SPRI has )}
 A  880 {/*|macro:authorsField(100,transliterated)|macro:880subfield6(100)}
 A  880 {/*|macro:authorsField(110,transliterated)|macro:880subfield6(110)}
 A  880 {/*|macro:authorsField(111,transliterated)|macro:880subfield6(111)}
-A  880 10 {//tg/to[1]|macro:ifXpathValue(//tg/lto[1],Russian)|macro:transliterate(Russian)|macro:880subfield6(240,a)}.‡l{//tg/lto[1]}
-A  880 10 {//tg/to[2]|macro:ifXpathValue(//tg/lto[2],Russian)|macro:transliterate(Russian)|macro:880subfield6(240,a)}.‡l{//tg/lto[2]}
+A  880 10 {//tg/to|macro:ifXpathValue(//tg/lto,Russian)|macro:transliterate(Russian)|macro:880subfield6(240,a)}.‡l{//tg/lto}
 A  880 {/*|macro:generate245(transliterated)|macro:880subfield6(245)}
 AR 880 3# {//tg/ta|macro:transliterate|macro:880subfield6(246,a)|macro:colonSplit(b)}
 A  880 ## {/*|macro:generate260(transliterated)|macro:880subfield6(260)}
