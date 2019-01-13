@@ -1236,7 +1236,7 @@ class marcConversion
 			# Obtain the raw *pl value(s) for this *pg group
 			$plValues = array ();
 			for ($plIndex = 1; $plIndex <= 20; $plIndex++) {
-				$plValue = $this->xPathValue ($this->xml, "//pg[$pgIndex]/pl[{$plIndex}]");	// e.g. /records/1639/ has multiple (test #299)
+				$plValue = $this->xPathValue ($this->xml, "//pg[$pgIndex]/pl[{$plIndex}]");	// E.g. /records/1639/ has multiple (test #299)
 				if ($plIndex > 1 && !strlen ($plValue)) {break;}	// Empty $pl is fine for first and will show [S.l.] ('sine loco', i.e. 'without place'), e.g. /records/1484/ (test #300), but after that should not appear (no examples found)
 				$plValues[] = $this->formatPl ($plValue);
 			}
@@ -1245,7 +1245,7 @@ class marcConversion
 			$puValue = $this->xPathValue ($this->xml, "//pg[$pgIndex]/pu");
 			$puValues = array ();
 			for ($puIndex = 1; $puIndex <= 20; $puIndex++) {
-				$puValue = $this->xPathValue ($this->xml, "//pg[$pgIndex]/pu[{$puIndex}]");	// e.g. /records/1223/ has multiple (test #301)
+				$puValue = $this->xPathValue ($this->xml, "//pg[$pgIndex]/pu[{$puIndex}]");	// E.g. /records/1223/ has multiple (test #301)
 				if ($puIndex > 1 && !strlen ($puValue)) {break;}	// Empty $pu is fine for first and will show [s.n.] ('sine nomine', i.e. 'without name'), e.g. /records/1730/ (test #302), but after that should not appear (no examples found)
 				$puValues[] = $this->formatPu ($puValue);	// Will always return a string
 			}
@@ -1262,8 +1262,8 @@ class marcConversion
 			}
 			
 			# Assemble the result; NB If there is no $a and $b value, but there is a date, "260 ## ‡a[S.l.] :‡b[s.n.],‡c1985." is indeed correct to have $a and $b both created as shown, e.g. /records/76740/ (test #652)
-			$results[$pgIndex]  = "{$this->doubleDagger}a" . implode (" ;{$this->doubleDagger}a", $plValues);
-			$results[$pgIndex] .= " :{$this->doubleDagger}b" . implode (" :{$this->doubleDagger}b", $puValues);	// "a colon (:) when subfield $b is followed by another subfield $b" at https://www.loc.gov/marc/bibliographic/bd260.html , e.g. /records/1223/ (test #304)
+			$results[$pgIndex]  = "{$this->doubleDagger}a" . implode (" ;{$this->doubleDagger}a", $plValues) . ' :';	// E.g. /records/1639/ has multiple, so semi-colon present (test #299)
+			$results[$pgIndex] .= "{$this->doubleDagger}b" . implode (" :{$this->doubleDagger}b", $puValues);	// "a colon (:) when subfield $b is followed by another subfield $b" at https://www.loc.gov/marc/bibliographic/bd260.html , e.g. /records/1223/ (test #304)
 		}
 		
 		# Implode by space-semicolon: "a semicolon (;) when subfield $b is followed by subfield $a" at https://www.loc.gov/marc/bibliographic/bd260.html , e.g. /records/76743/ (test #303)
