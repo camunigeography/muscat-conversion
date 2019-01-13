@@ -2053,7 +2053,11 @@ class import
 					catalogue_processed.xPath          = catalogue_processed_xpaths_temp.xPath,
 					catalogue_processed.xPathWithIndex = catalogue_processed_xpaths_temp.xPathWithIndex
 			;";
-			$this->databaseConnection->execute ($sql);	// 4.5 minutes
+			if (!$this->databaseConnection->execute ($sql)) {	// 4.5 minutes
+				$html  = "<p class=\"warning\">Setting the xPath values query failed.</p>";
+				$errorsHtml .= $html;
+				return false;
+			}
 		}
 		
 		# Take down the temporary table
