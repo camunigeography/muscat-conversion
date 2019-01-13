@@ -2391,12 +2391,12 @@ class import
 		$this->databaseConnection->execute ($query);
 		
 		# Update the item records count for multiple locations; the problem of Periodical being present will not arise, as 'm' will have excluded those
+		# This counts the number of 852 7# instances, rather than *location instances which may include 'Not in SPRI', e.g. /records/27689/ has two *location but one 852 - absence of second 852 is not directly testable but test #649 is similar
 		$query = "
 			UPDATE fieldsindex
 			JOIN catalogue_marc ON fieldsindex.id = catalogue_marc.id
-			SET itemRecords = (LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@location','')))/LENGTH('@location') + 0	/* i.e. substr_count('@location') */
-			WHERE fieldslist REGEXP '@location@.*location@'
-			AND itemRecords = 1
+			SET itemRecords = CAST( ((LENGTH(marc)-LENGTH(REPLACE(marc,'\n852 7# ','')))/LENGTH('\n852 7# ') + 0) AS UNSIGNED INTEGER)	/* i.e. substr_count('\n852 7# ') */
+			WHERE itemRecords IS NOT NULL
 		;";
 		$this->databaseConnection->execute ($query);
 		
