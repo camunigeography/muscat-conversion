@@ -2194,13 +2194,13 @@ class marcConversion
 	}
 	
 	
-	# Function to determine whether a language is supported, and return it if so
+	# Function to determine whether a language is supported, and return it if so, e.g. /records/210651/ (test #165)
 	private function getTransliterationLanguage ($xml)
 	{
 		#!# Currently checking only the first language
 		$language = $this->xPathValue ($xml, '//lang[1]');
-		if ($language && isSet ($this->supportedReverseTransliterationLanguages[$language])) {
-			return $language;
+		if ($language && isSet ($this->supportedReverseTransliterationLanguages[$language])) {		// # NB This will not mistakenly catch "Byelorussian" as Russian, e.g. /records/96819/ (test #847))
+			return $language;	// E.g. /records/210651/ (test #165)
 		} else {
 			return false;
 		}
@@ -2330,10 +2330,11 @@ class marcConversion
 	# Macro for generating the 245 field; tests have full coverage as noted in the generate245 class
 	private function macro_generate245 ($value, $flag, &$errorHtml)
 	{
-		# If running in transliteration mode, require a supported language
+		# If running in transliteration mode, require a supported language, i.e. is in Russian or *lpt contains Russian
 		$languageMode = 'default';
 		if ($flag == 'transliterated') {
-			if (!$languageMode = $this->getTransliterationLanguage ($this->xml)) {return false;}
+			$languageMode = $this->languageModeTitle ();
+			if ($languageMode == 'default') {return false;}		// E.g. /records/178029/ (test #846)
 		}
 		
 		# Generate the value from the subclass
@@ -2345,6 +2346,24 @@ class marcConversion
 		
 		# Return the value, which may be false if transliteration not intended
 		return $value;
+	}
+	
+	
+	# Helper function to determine the language mode based on the record title, i.e. is in Russian or *lpt contains Russian
+	private function languageModeTitle ()
+	{
+		# Return true if language mode is Russian, e.g. /records/210651/ (test #165)
+		$language = $this->getTransliterationLanguage ($this->xml);
+		if ($language == 'Russian') {return 'Russian';}
+		
+		# Return true if the *lpt contains Russian, e.g. /records/172050/ (test #845)
+		if ($lpt = $this->xPathValue ($this->xml, '/*/tg/lpt')) {
+			$lptLanguages = explode (' = ', $lpt);
+			if (in_array ('Russian', $lptLanguages)) {return 'Russian';}
+		}
+		
+		# Return false, indicating default language mode, e.g. /records/178029/ (test #846)
+		return 'default';
 	}
 	
 	

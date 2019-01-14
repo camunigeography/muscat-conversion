@@ -34,7 +34,7 @@ Ensure that the data has been fully-loaded - this specifies a record very near t
 SPRI-215073
 
 3
-Ensure *lpt parsing
+Ensure *lpt parsing (see also #845)
 8690
 245
 moreĭ = Register der
@@ -4941,3 +4941,22 @@ Die schottische Süd-Polar-Expedition und die Temperatur südlich von Süd-Ameri
 1200
 880
 ‡gVol. 10 (1931)
+
+845
+880-245 generated for *lang=English record when *lpt present
+172050
+880
+centuries :‡bthe Vaezhskie Chukchi = Межплеменные отношения на юге Чукотки в XVIII-XX вехах : ваежские чукчи
+
+846
+No 880 for record without Russian from result of languageModeTitle routine (which takes into account *lpt as well as the record language)
+178029
+!880
+‡6245-
+
+847
+getTransliterationLanguage does not mistakenly catch "Byelorussian" as Russian
+96819
+!880
+*
+
