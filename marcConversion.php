@@ -2666,6 +2666,12 @@ class marcConversion
 	
 	
 	# Macro for generating the 541 field, which looks at *acq groups; it may generate a multiline result, e.g. /records/3959/ (test #456); see: https://www.loc.gov/marc/bibliographic/bd541.html
+	/* #!# Original spec has notes which may help deal with problems below:
+		If record is of type *ser and has multiple *o fields, separate 541 field required for each
+		If record has multiple *date fields, separate 541 field required for each
+		If record has multiple *acc/*ref fields, separate 541 field required for each
+		If record has multiple *pr fields, separate 541 field required for each
+	*/
 	private function macro_generate541 ($value)
 	{
 		# Start a list of results
