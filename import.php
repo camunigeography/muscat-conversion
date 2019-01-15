@@ -1215,6 +1215,7 @@ class import
 	
 	
 	# Function to populate the transliterations table with transliterable shards, determining which are transliterable
+	# This table essentially serves the purpose of (1) upgrading to LoC, as BGN/PCGN->Cyrillic->LoC, and (2) providing a debugging listing; it is not used in the live transliteration to Cyrillic (from now LoC in catalogue_processed)
 	private function populateTransliterableShards ()
 	{
 		/* The algorithm, implemented below, for correctly determining which shards are transliterable, is:
