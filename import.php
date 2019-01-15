@@ -1379,6 +1379,20 @@ class import
 		;";
 		$this->databaseConnection->query ($query);
 		
+		# Handle the special case of *note, which should only retain 'Contents: ' notes known to be Russian
+		$this->logger ('|-- In ' . __METHOD__ . ', retaining *note with relevant Contents note known to be in Russian');
+		$query = "
+			DELETE FROM transliterations
+			WHERE
+					field = 'note'
+				AND (
+					   title_latin NOT LIKE 'Contents:%'
+					OR language != 'Russian'
+					OR recordId IN(183257,197702,204261,210284,212106,212133,212246)	/* NB If updating, the same list of numbers should also be updated in macro_generate505Note */
+				)
+		;";		// 29343 rows affected (from original 29369 inserted), leaving 26, which correctly matches `SELECT * FROM `catalogue_processed` WHERE `field` LIKE 'note' and value like 'Contents:%' AND `recordLanguage` LIKE 'Russian' AND recordId NOT IN(183257,197702,204261,210284,212106,212133,212246);`
+		$this->databaseConnection->query ($query);
+		
 		# Delete all shards in the list of special-case shard numbers that have been manually reviewed; e.g. *pu in /records/1888/ (test #789)
 		$transliterationProtectedShards = application::textareaToList ($this->applicationRoot . '/tables/' . 'transliterationProtectedShards.txt', true, true, true);
 		$query = "DELETE FROM transliterations WHERE id IN('" . implode ("', '", $transliterationProtectedShards) . "');";

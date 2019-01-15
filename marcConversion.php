@@ -80,6 +80,7 @@ class marcConversion
 		'ta',				// 246
 		'pu',				// 260
 		'ts',				// 490
+		'note',				// 505			NB Then stripped, except for 'Contents: ' note records (minus known non-Russian)
 		// (773 from host)	// 773
 		'ft',				// 780
 		'st',				// 785
@@ -2555,7 +2556,7 @@ class marcConversion
 	
 	
 	# Helper function for 505 - Formatted Contents Note; see: https://www.loc.gov/marc/bibliographic/bd505.html , e.g. /records/1488/ (test #581)
-	private function macro_generate505Note ($note)
+	private function macro_generate505Note ($note, $transliterate = false)
 	{
 		# End if the note is not a content note, e.g. other notes in /records/2652/ (test #731)
 		if (!preg_match ('/^Contents: (.+)$/', $note, $matches)) {
@@ -2564,6 +2565,13 @@ class marcConversion
 		
 		# Use only the extracted section, removing "Contents: " which is assumed to be added by the library catalogue GUI; e.g. /records/1488/ (test #591)
 		$note = $matches[1];
+		
+		# Transliterate if required, e.g. /records/109111/ (test #848), excluding known English, e.g. /records/183257/ (test #851)
+		if ($transliterate) {
+			$whitelist = array (183257, 197702, 204261, 210284, 212106, 212133, 212246);	// NB If updating, the same list of numbers should also be updated in macro_generate505Note
+			if (in_array ($this->recordId, $whitelist)) {return false;}	// E.g. /records/183257/ (test #851)
+			$note = $this->macro_transliterate ($note, 'Russian');	// E.g. /records/109111/ (test #848)
+		}
 		
 		# In enhanced format perform substitutions e.g. /records/4660/ (test #588); in simple format, retain as simple $a, e.g. /records/1488/ (test #587)
 		if ($enhancedFormat = substr_count ($note, ' / ')) {

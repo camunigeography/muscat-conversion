@@ -4960,3 +4960,26 @@ getTransliterationLanguage does not mistakenly catch "Byelorussian" as Russian
 !880
 *
 
+848
+880-505 has transliterated Contents: note
+109111
+880
+‡6505-05/(N‡tБиармия: в поисках истины
+
+849
+880-505 does not have string "Contents: " present
+109111
+!880
+Contents:
+
+850
+505 Contents: note in Russian record is upgraded to LoC
+109111
+505
+Biarmii͡a: v poiskakh istiny
+
+851
+880-505 does not appear for known English Contents: note in Russian record
+183257
+!880
+‡6505-
