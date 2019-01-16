@@ -2163,7 +2163,7 @@ class marcConversion
 	{
 		# Return string; e.g. /records/1526/ (test #421)
 		if ($language == 'Russian') {
-			return 'Russian transliteration entered into original records using BGN/PCGN 1947 romanization of Russian; Cyrillic text in MARC 880 field(s) reverse transliterated from this by automated process; BGN/PCGN 1947 text then upgraded to Library of Congress romanization.';
+			return 'Russian transliteration entered into original records using BGN/PCGN 1947 romanisation of Russian; Cyrillic text in MARC 880 field(s) reverse transliterated from this by automated process; BGN/PCGN 1947 text then upgraded to Library of Congress romanisation.';
 		}
 		
 		# No match; e.g. /records/1527/ (test #422)

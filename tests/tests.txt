@@ -2492,7 +2492,7 @@ uuuuuuuuu
 546: Macro isTransliterated triggered for Russian language record
 1526
 546
-BGN/PCGN 1947 romanization of Russian
+BGN/PCGN 1947 romanisation of Russian
 
 422
 546: Macro isTransliterated not triggered for non-Russian language record

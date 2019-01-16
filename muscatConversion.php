@@ -2861,7 +2861,7 @@ class muscatConversion extends frontControllerApplication
 		));
 		$form->heading ('p', "Here you can define the reverse-transliteration definition.");
 		$form->heading ('p', 'Character set numbers - useful references for copying and pasting: <a href="http://en.wikipedia.org/wiki/Russian_alphabet" target="_blank">Russian</a> and <a href="http://en.wikipedia.org/wiki/List_of_Unicode_characters#Basic_Latin" target="_blank">Basic latin</a>.');
-		$form->heading ('p', 'Forward transliteration specification: <a href="https://en.wikipedia.org/wiki/BGN/PCGN_romanization_of_Russian" target="_blank">BGN/PCGN romanization of Russian (1947)</a>.');
+		$form->heading ('p', 'Forward transliteration specification: <a href="https://en.wikipedia.org/wiki/BGN/PCGN_romanization_of_Russian" target="_blank">BGN/PCGN romanisation of Russian (1947)</a>.');
 		$form->heading ('p', 'Character tester: <a href="https://graphemica.com/" target="_blank">Graphemica character tester</a>.');
 		$form->textarea (array (
 			'name'		=> 'definition',
