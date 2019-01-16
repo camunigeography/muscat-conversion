@@ -1902,7 +1902,7 @@ class marcConversion
 			if (!in_array ($subfield, $applyToSubfields)) {continue;}
 			
 			# Convert subfield contents, e.g. /records/35733/ (test #381)
-			$tokens[$index] = $this->macro_transliterate ($string, NULL, $language);
+			$tokens[$index] = $this->macro_transliterate ($string, $language);
 		}
 		
 		# Re-glue the string, e.g. /records/35733/ (test #381)
