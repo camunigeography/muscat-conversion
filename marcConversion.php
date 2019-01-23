@@ -1856,7 +1856,7 @@ class marcConversion
 	
 	
 	# Function to perform transliteration on specified subfields present in a full line; this is basically a tokenisation wrapper to macro_transliterate; e.g. /records/35733/ (test #381), /records/1406/ (test #382)
-	public function macro_transliterateSubfields ($value, $applyToSubfields, &$errorHtml_ignored = NULL, $language = false /* Parameter always supplied by external callers */)
+	public function macro_transliterateSubfields ($value, $applyToSubfields, &$errorHtml = NULL, $language = false /* Parameter always supplied by external callers */)
 	{
 		# If a forced language is not specified, obtain the language value for the record
 		if (!$language) {
@@ -1887,6 +1887,7 @@ class marcConversion
 		
 		# Work through the spread list
 		$subfield = false;
+		$transliterationPresent = false;
 		foreach ($tokens as $index => $string) {
 			
 			# Register then skip subfield indicators
@@ -1902,8 +1903,16 @@ class marcConversion
 			if (!in_array ($subfield, $applyToSubfields)) {continue;}
 			
 			# Convert subfield contents, e.g. /records/35733/ (test #381)
-			$tokens[$index] = $this->macro_transliterate ($string, $language);
+			$tokens[$index] = $this->macro_transliterate ($string, $language, $errorHtml, $nonTransliterable);
+			
+			# Unless the string has been found to be non-transliterable, flag that transliteration is present, to enable full non-transliterable lines to be removed from 880 generation, e.g. "Anonymous" in /records/1571/ (test #791)
+			if (!$nonTransliterable) {
+				$transliterationPresent = true;
+			}
 		}
+		
+		# Return false if no transliteration has taken place, e.g. "Anonymous" in /records/1571/ (test #791); this will take account of $applyToSubfields (i.e. a in `transliterateSubfields(a)`) as those will be skipped, leaving $transliterationPresent as false, e.g. /records/16319/ (test #852)
+		if (!$transliterationPresent) {return false;}
 		
 		# Re-glue the string, e.g. /records/35733/ (test #381)
 		$value = implode ($tokens);
@@ -1922,7 +1931,7 @@ class marcConversion
 	
 	
 	# Macro to perform transliteration; e.g. /records/6653/ (test #107), /records/23186/ (test #108)
-	private function macro_transliterate ($value, $language = false)
+	private function macro_transliterate ($value, $language = false, &$errorHtml_ignored = NULL, &$nonTransliterable = false)
 	{
 		# If a forced language is not specified, obtain the language value for the record
 		if (!$language) {

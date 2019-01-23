@@ -86,7 +86,7 @@ class transliteration
 		$latinStrings = array ();
 		$protectedParts = array ();
 		$errors = array ();
-		$nonTransliterable = array ();
+		$nonTransliterable = array ();	// NB Not actually used yet
 		foreach ($data as $id => $entry) {
 			$latinStrings[$id] = $this->protectSubstrings ($entry['title_latin'], $entry['lpt'], $protectedParts[$id], $error /* passed back by reference */, $nonTransliterable[$id] /* passed back by reference */);
 			if ($error) {
