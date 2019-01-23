@@ -4858,12 +4858,6 @@ Cases of [square-bracketed strings like this] amongst other strings that are not
 880
 ‡6785-03/(N‡tРечной Транспорт
 
-830
-240 is not repeatable
-133473
-!240
-Finnish
-
 831
 880-240 support for *to with Russian *lto
 27093
