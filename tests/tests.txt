@@ -4989,3 +4989,10 @@ Elimination of 880 line due to no transliteration present should take account on
 16319
 !880
 ‡6490-
+
+853
+nonTransliterable flag comparison done with punctuation trimmed
+16319
+!880
+‡6490-
+

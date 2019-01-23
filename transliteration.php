@@ -332,8 +332,10 @@ class transliteration
 		}
 		
 		# If the whole string matches a protected string, then treat as non-transliterable, e.g. /records/214774/ (test #840)
+		# The comparison is done with punctuation trimmed, e.g. 490 field in /records/16319/ (test #853)
+		$punctuationTrimming = ' .,:;';
 		foreach ($replacements as $replacement) {
-			if ($replacement == $string) {
+			if (trim ($replacement, $punctuationTrimming) == trim ($string, $punctuationTrimming)) {
 				$nonTransliterable = true;
 			}
 		}
