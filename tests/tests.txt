@@ -332,7 +332,7 @@ Cyrillic should not contain a ligature in 880-700 (e.g. from transliterating "Zh
 Ensure 'Anon.' is treated as a transliterated protected string
 6451
 880
-Anon.
+cAnon.
 
 53
 English-name author should not result in an 880 transliteration
@@ -4197,12 +4197,6 @@ Printout
 1150
 !533
 *
-
-719
-Anonymous is protected string in transliteration
-1571
-880
-‡aAnonymous.
 
 720
 583 basic presence
