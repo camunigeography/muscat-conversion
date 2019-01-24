@@ -1251,13 +1251,13 @@ class marcConversion
 				$puValues[] = $this->formatPu ($puValue);	// Will always return a string
 			}
 			
-			# Transliterate *pu if required; e.g. /records/6996/ (test #58)
+			# Transliterate *pu if required; e.g. /records/6996/ (test #58); case with protected string has that left but other elements transliterated, e.g. /records/210284/ (test #869)
 			# NB No attempt is made to transliterate *pl; e.g. /records/6996/ (test #306)
 			if ($transliterate) {
 				if ($puValues) {
 					foreach ($puValues as $index => $puValue) {
 						# NB The language is force-set to Russian, as the top guard clause would prevent getting this far; also this avoids auto-use in macro_transliterate() of //lang[1] which will not be section-half compliant
-						$puValues[$index] = $this->macro_transliterate ($puValue, 'Russian');	// NB: [s.n.] does not exist within any Russian record, but should not get transliterated anyway, being in square brackets (not possible to test)
+						$puValues[$index] = $this->macro_transliterate ($puValue, 'Russian', $errorHtml_ignored, $nonTransliterable_ignored, $nonTransliterableReturnsFalse = false);	// NB: [s.n.] does not exist within any Russian record, but should not get transliterated anyway, being in square brackets (not possible to test)
 					}
 				}
 			}
@@ -1931,7 +1931,7 @@ class marcConversion
 	
 	
 	# Macro to perform transliteration; e.g. /records/6653/ (test #107), /records/23186/ (test #108)
-	private function macro_transliterate ($value, $language = false, &$errorHtml_ignored = NULL, &$nonTransliterable = false)
+	private function macro_transliterate ($value, $language = false, &$errorHtml_ignored = NULL, &$nonTransliterable = false, $nonTransliterableReturnsFalse = true)
 	{
 		# If a forced language is not specified, obtain the language value for the record
 		if (!$language) {
@@ -1956,7 +1956,11 @@ class marcConversion
 		$output = $this->transliteration->transliterateLocLatinToCyrillic ($value, $lpt = false, $error /* returned by reference */, $nonTransliterable /* returned by reference */);
 		
 		# Return false if string is unchanged, e.g. fully in brackets or entirely a protected string, e.g. /records/214774/ (test #840)
-		if ($nonTransliterable) {return false;}
+		if ($nonTransliterable) {
+			if ($nonTransliterableReturnsFalse) {	// i.e. the direct parser calling mode - may be disabled by code callers
+				return false;
+			}
+		}
 		
 		# Return the string
 		return $output;
@@ -2579,7 +2583,7 @@ class marcConversion
 		if ($transliterate) {
 			$whitelist = array (183257, 197702, 204261, 210284, 212106, 212133, 212246);	// NB If updating, the same list of numbers should also be updated in macro_generate505Note
 			if (in_array ($this->recordId, $whitelist)) {return false;}	// E.g. /records/183257/ (test #851)
-			$note = $this->macro_transliterate ($note, 'Russian');	// E.g. /records/109111/ (test #848)
+			$note = $this->macro_transliterate ($note, 'Russian');	// E.g. /records/109111/ (test #848); NB no handling of $nonTransliterable as $whitelist already excludes such records (which would otherwise required massive whitelist strings)
 		}
 		
 		# In enhanced format perform substitutions e.g. /records/4660/ (test #588); in simple format, retain as simple $a, e.g. /records/1488/ (test #587)

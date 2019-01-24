@@ -5061,3 +5061,15 @@ Trotman, 1989
 9066
 773
 ‡dStockholm; Berlin : Lithographisches Institut des Generalstabs; A. Asher & Co., 1908-1920. ‡g
+
+869
+880 protected string should not be lost
+210284
+880
+‡bИнститут Наследия :‡bRussian Heritage Institute,
+
+870
+260 containing all non-transliterable strings should not generate 880
+214774
+!880
+‡6260-
