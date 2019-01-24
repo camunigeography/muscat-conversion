@@ -4607,7 +4607,7 @@ Protected shards are exempted from transliteration
 Этhнологиcал
 
 791
-Russian record with author containing no transliterable subfields due to protected strings (here "Anonymous") should not have 880 generated
+Russian record with author containing no transliterable subfields due to protected strings (here full "Anonymous" in 100) should not have 880 generated
 1571
 !880
 Anonymous.

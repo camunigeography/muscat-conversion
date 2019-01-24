@@ -632,7 +632,7 @@ Archaeology, ethnology and anthropology of Eurasia
 # Other strings to protect
 WWGS-89
 Anonymous
-Anon.
+Anon
 No.
 no.
 studia
@@ -641,4 +641,3 @@ juvenalia
 Porosymposiumi Rovaniemellä
 VIIIe sériė
 Contents:
-
