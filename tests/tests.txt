@@ -3155,7 +3155,7 @@ Pseudo-analytics should get a 500
 ‡tGeologii͡a i tektonika rudonosnykh regionov I͡akutii (sbornik). ‡d
 
 532
-773 $d uses space-colon-space between host 260 $a and $b
+773 ‡d uses space-colon-space between host 260 ‡a and ‡b
 67559
 773
 ‡dKatowice : Uniwersytet Ślaski, 1983. ‡w
@@ -3976,12 +3976,6 @@ Vols. 14 :260; 15 :45.
 500
 Vols. 41(11) :14-18; 41(12) :22-25; 42(1) :26-28, 68-72 (1975-1976)
 
-683
-combineSubfieldValues test of normalise trailing implode (doesn't have two colons)
-103259
-773
-London : Graham
-
 684
 combineSubfieldValues test of onlySubfields
 1222
@@ -3993,12 +3987,6 @@ combineSubfieldValues basic allocation of field values
 2494
 773
 ‡aFranklin, John,
-
-686
-combineSubfieldValues implodes multiple field values of subfield by comma-space
-7008
-773
-‡dChristiania, London, Leipzig
 
 687
 combineSubfieldValues avoid multiple commas after joining
@@ -4984,3 +4972,92 @@ nonTransliterable flag comparison done with punctuation trimmed
 !880
 ‡6490-
 
+854
+773 ‡d uses host 260 ‡a
+9066
+773
+‡dStockholm
+
+855
+773 ‡d using host 260 ‡a has trailing space-colon stripped before further processing
+9066
+!773
+Stockholm :
+
+856
+773 ‡d using host 260 ‡a combines multiple host ‡a values with semicolon-space (see also next test)
+9066
+773
+‡dStockholm; Berlin : 
+
+857
+773 ‡d using host 260 ‡a combines multiple host ‡a values with semicolon-space (example when only one)
+2614
+773
+‡dLondon : 
+
+858
+773 ‡d uses host 260 ‡b
+2614
+773
+ : John Murray
+
+859
+860 773 ‡d using host 260 ‡b removes the comma from the last 260 ‡b value (see also next test)
+9066
+!773
+A. Asher & Co.,,
+
+860
+860 773 ‡d using host 260 ‡b removes the comma from the last 260 ‡b value (example when only one)
+2614
+!773
+John Murray,,
+
+861
+773 ‡d using host 260 ‡b has trailing space-semicolon stripped before further processing
+9066
+!773
+Lithographisches Institut des Generalstabs ;
+
+862
+773 ‡d using host 260 ‡b combines multiple host ‡b values with semicolon-space (see also next test)
+9066
+773
+: Lithographisches Institut des Generalstabs; A. Asher & Co.,
+
+863
+773 ‡d using host 260 ‡b combines multiple host ‡b values with semicolon-space (example when only one)
+2614
+773
+ : John Murray, 
+
+864
+773 ‡d combines ‡a and ‡b of host 260
+103259
+773
+‡dLondon : Graham and Trotman,
+
+865
+773 ‡d uses host 260 ‡c (date) (see also next test)
+103259
+773
+Trotman, 1989.
+
+866
+773 ‡d without host 260 having ‡c (date)
+1331
+773
+Arctic Information. ‡wSPRI-
+
+867
+773 ‡d has comma-space before the date coming from 260 ‡c
+103259
+773
+Trotman, 1989
+
+868
+773 ‡d present having been assembled
+9066
+773
+‡dStockholm; Berlin : Lithographisches Institut des Generalstabs; A. Asher & Co., 1908-1920. ‡g

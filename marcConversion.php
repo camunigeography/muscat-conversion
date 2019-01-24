@@ -3270,24 +3270,54 @@ class marcConversion
 		}
 		
 		# Add 773 ‡d: Copy in the 260 (Place, publisher, and date of publication) from the host record, omitting subfield codes; *art/*in records only; e.g. /records/59148/ (test #667)
+		# 773 ‡d does not include 260 $6880 field if present in source, e.g. /records/59148/ (test #668)
 		if ($this->recordType == '/art/in') {
 			if (isSet ($marc['260'])) {
 				
-				# Remove $6880 field if present, e.g. /records/59148/ (test #668)
-				if (isSet ($marc['260'][0]['subfields']['6'])) {
-					unset ($marc['260'][0]['subfields']['6']);
+				# Create a local variable for clarity
+				$host260Line = $marc['260'][0]['subfields'];	// 260 is always single line (i.e. no multiline support), so can safely use just $marc['260'][0]
+				// application::dumpData ($host260Line);
+				
+				# Extract the 260 $a values, e.g. /records/9066/ (test #854), stripping off the space-colon which each ends with - see $results[$pgIndex] assembly of $a in macro_generate260, e.g. /records/9066/ (test #855)
+				$host260aValues = array ();
+				foreach ($host260Line['a'] as $host260aValue) {
+					$host260aValues[] = preg_replace ('/ :$/', '', $host260aValue);		// E.g. /records/9066/ (test #855)
+				}
+				$host260a = implode ('; ', $host260aValues);	// E.g. multiple ("Stockholm; Berlin") in /records/9066/ (test #856) ; single ("London") in /records/2614/ (test #857)
+				
+				# Before extracting the 260 $b values, remove the comma from the last (e.g. /records/9066/ (test #859) which will be present if there is a $c - see {$this->doubleDagger}c handling in macro_generate260; NB $a will always be present so comma extraction always happens from $b
+				if (isSet ($host260Line['b'])) {
+					if (isSet ($host260Line['c'])) {
+						$lastSubfieldBIndex = count ($host260Line['b']) - 1;
+						$host260Line['b'][$lastSubfieldBIndex] = preg_replace ('/,$/', '', $host260Line['b'][$lastSubfieldBIndex]);		// E.g. multiple in /records/9066/ (test #859) ; single in /records/2614/ (test #860) does not end up with "John Murray,, 1828"
+					}
 				}
 				
-				# If publisher and year are present, use (no-space)-comma-space for the splitter between those two, combining them before colon splitting of other fields; e.g. /records/2614/ ; confirmed that, if reaching this point, $marc['260'][0]['subfields'] always contains 3 subfields
-				if (isSet ($marc['260'][0]['subfields']['b']) && isSet ($marc['260'][0]['subfields']['c'])) {
-					$subfieldBValue = rtrim ($marc['260'][0]['subfields']['b'][0]);	// Extract to avoid double-comma in next line, e.g. /records/103259/
-					$marc['260'][0]['subfields']['_'][0] = $subfieldBValue . (substr ($subfieldBValue, -1) != ',' ? ',' : '') . ' ' . $marc['260'][0]['subfields']['c'][0];	// Make a virtual field, $_
-					unset ($marc['260'][0]['subfields']['b']);
-					unset ($marc['260'][0]['subfields']['c']);
+				# Extract the 260 $b values, e.g. /records/2614/ (test #858); intermediate items have space-semicolon, as that is put between $a+$b groups - see `implode (' ;', $results)` in macro_generate260
+				# NB Semicolon rather than comma is used, as otherwise hard to disambiguate when commas present in one token, e.g. /records/7008/ would combine "Jacob Dybwad" and "Longmans, Green, and Co." to make "Jacob Dybwad, Longmans, Green, and Co."
+				$host260bValues = array ();
+				foreach ($host260Line['b'] as $host260bValue) {
+					$host260bValues[] = preg_replace ('/ ;$/', '', $host260bValue);		// E.g. /records/9066/ (test #861)
+				}
+				$host260b = implode ('; ', $host260bValues);	// E.g. multiple in /records/9066/ (test #862); single in /records/2614/ (test #863)
+				
+				# Compile the value; e.g. /records/103259/ (test #864), separating by space-colon-space; e.g. /records/67559/ (test #532)
+				# Confirmed that, if reaching this point, $marc['260'][0]['subfields'] always contains both $a and $b subfields
+				$subfieldD = '';
+				if (($host260a || $host260b)) {
+					$subfieldD = "{$this->doubleDagger}d" . $host260a . ' : ' . $host260b;
 				}
 				
-				# Split by space-colon-space; e.g. /records/59148/ (test #532); normalise trailing implode " : " used to avoid " : : " appearing, e.g. /records/103259/ (test #683)
-				$subfields[] = $this->combineSubfieldValues ('d', $marc['260'], array (), ' : ', false, $normaliseTrailingImplode = true);
+				# Add date if present; e.g. /records/103259/ (test #865) no date so not added in /records/1331/ (test #866)
+				if (isSet ($host260Line['c'][0])) {
+					if (($host260a || $host260b)) {
+						$subfieldD .= ', ';		// Single comma between $b and $c, e.g. /records/103259/ (test #867)
+					}
+					$subfieldD .= $host260Line['c'][0];
+				}
+				
+				# Register subfield $d, e.g. /records/9066/ (test #868)
+				$subfields[] = $subfieldD;
 			}
 		}
 		
@@ -3368,21 +3398,8 @@ class marcConversion
 	
 	
 	# Function to combine subfield values in a line to a single string
-	private function combineSubfieldValues ($parentSubfield, $field, $onlySubfields = array (), $implodeSubfields = ', ', $stripLeadingArticleLanguage = false, $normaliseTrailingImplode = false)
+	private function combineSubfieldValues ($parentSubfield, $field, $onlySubfields = array (), $implodeSubfields = ', ', $stripLeadingArticleLanguage = false)
 	{
-		# If normalising the implode so that an existing trailing string (e.g. ':') is present, remove it to avoid duplication, e.g. /records/103259/ (test #683) which has "London :" gets "London : Graham and Trotman" not "London : : Graham and Trotman"
-		if ($normaliseTrailingImplode) {
-			$token = trim ($implodeSubfields);
-			foreach ($field[0]['subfields'] as $subfield => $subfieldValues) {
-				foreach ($subfieldValues as $subfieldKey => $subfieldValue) {
-					$subfieldValue = trim ($subfieldValue);
-					if (substr ($subfieldValue, 0 - strlen ($token)) == $token) {
-						$field[0]['subfields'][$subfield][$subfieldKey] = trim (substr ($subfieldValue, 0, 0 - strlen ($token)));
-					}
-				}
-			}
-		}
-		
 		# Assign the field values, e.g. /records/2494/ (test #685)
 		$fieldValues = array ();
 		foreach ($field[0]['subfields'] as $subfield => $subfieldValues) {	// Only [0] used, as it is known that all fields using this function are non-repeatable fields
@@ -3390,7 +3407,7 @@ class marcConversion
 			# Skip if required, e.g. /records/1222/ (test #684) uses only $c of source 245
 			if ($onlySubfields && !in_array ($subfield, $onlySubfields)) {continue;}
 			
-			# Add the field value(s) for this subfield, e.g. /records/2494/ (test #685); combine multiple values within the subfield itself (i.e. repeatable subfields - (R)) by comma-space, e.g. /records/7008/ (test #686)
+			# Add the field value(s) for this subfield, e.g. /records/2494/ (test #685); combine multiple values within the subfield itself (i.e. repeatable subfields - (R)) by comma-space (no examples now available, but confirmed working previously)
 			$fieldValues[] = implode (', ', $subfieldValues);
 		}
 		
@@ -3441,7 +3458,7 @@ class marcConversion
 		# Strip from start if present
 		$list = implode ('|', $this->leadingArticles[$language]);
 		$string = preg_replace ("/^({$list})(.+)$/i", '\2', $string);	// E.g. English: /records/3075/ (test #690), German: /records/5472/ (test #691)
-		$string = mb_ucfirst ($string);	// E.g. /records/3075/ (test #
+		$string = mb_ucfirst ($string);	// E.g. /records/3075/ (test #694)
 		
 		# Return the amended string
 		return $string;
