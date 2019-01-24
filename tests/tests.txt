@@ -5079,3 +5079,9 @@ Trotman, 1989
 205613
 880
 ‡6785-
+
+872
+When *nt=None present, generateAuthors creates an empty line slot in the correct field (which may have been mututed), to avoid 880 mismatches
+6883
+880
+‡6700-03/(N‡aИохельсон, В. И.‡g(alternative name)

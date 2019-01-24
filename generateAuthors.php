@@ -153,10 +153,8 @@ class generateAuthors
 			return false;	// The entry in $this->values for this field will be left as when initialised, i.e. an empty array
 		}
 		
-		# Do the classification
-		if (!$line = $this->main ($this->mainRecordXml, '//ag[parent::doc|parent::art][1]/a[1]', 100, $languageMode)) {
-			return false;
-		}
+		# Do the classification; NB this may return false, e.g. /records/6883/, which is necessary to ensure that the 880 handling correctly receives a multiline where there are >1 lines being processed, e.g. /records/6883/ (test #872)
+		$line = $this->main ($this->mainRecordXml, '//ag[parent::doc|parent::art][1]/a[1]', 100, $languageMode);
 		
 		# Subfield ‡u, if present, needs to go before subfield ‡e (test #90)
 		$line = $this->shiftSubfieldU ($line);
@@ -431,10 +429,8 @@ class generateAuthors
 		# Create a handle to the second indicator
 		$this->secondIndicator = $secondIndicator;
 		
-		# Handle *nt = None, which disables transliteration
-		if ($this->transliterationDisabledNt ($path, $languageMode)) {
-			return false;
-		}
+		# If *nt=None, which should disable transliteration, set a flag so that the eventual value is wiped below but the rest of the processing, which may result in field number mutation occuring, continues, e.g. /records/6883/ (test #872)
+		$transliterationDisabledNt = $this->transliterationDisabledNt ($path, $languageMode);
 		
 		# Does the *a contain a *n2?
 		$n2 = $this->marcConversion->xPathValue ($this->xml, $path . '/n2');
@@ -452,6 +448,9 @@ class generateAuthors
 			# Classify *n1 field
 			$value = $this->classifyN1Field ($path, $value, $n1);
 		}
+		
+		# If the line has been set to be wiped, due to *nt=None, erase its value; the calling code will retain the slot for this line (ensuring that 880 handling correctly receives a multiline where there are >1 lines being processed, thus avoiding 880 mismatches) but the line will be empty, e.g. /records/6883/ (test #872)
+		if ($transliterationDisabledNt) {return false;}
 		
 		# Return the value
 		return $value;
