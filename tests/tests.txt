@@ -1842,9 +1842,9 @@ Macro generate260: check against incorrect 880
 
 306
 880 generate260: No attempt is made to transliterate *pl
-6996
+12099
 880
-‡a[St. Petersburg] :‡b
+‡aBerlin :‡b
 
 307
 Macro generate260: date

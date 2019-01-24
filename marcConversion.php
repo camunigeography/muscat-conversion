@@ -1252,8 +1252,7 @@ class marcConversion
 			}
 			
 			# Transliterate *pu if required; e.g. /records/6996/ (test #58); case with protected string has that left but other elements transliterated, e.g. /records/210284/ (test #869)
-			# *pl will not be done, as too few cases which would mean c. 250 whitelisted strings for 50 records, and too many would be difficult to determine manually if in Russian - see: `SELECT DISTINCT value FROM catalogue_processed WHERE field LIKE 'pl' AND recordLanguage LIKE 'Russian' ORDER BY value;`
-			# NB No attempt is made to transliterate *pl; e.g. /records/6996/ (test #306)
+			# NB No attempt is made to transliterate *pl; e.g. /records/12099/ (test #306) - too few cases which would mean c. 250 whitelisted strings but only 50 possible Russian strings, and too many would be difficult to determine manually if in Russian - see: `SELECT DISTINCT value FROM catalogue_processed WHERE field LIKE 'pl' AND recordLanguage LIKE 'Russian' ORDER BY value;`
 			if ($transliterate) {
 				if ($puValues) {
 					$transliterationPresent = false;
