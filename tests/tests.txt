@@ -5073,3 +5073,9 @@ Trotman, 1989
 214774
 !880
 ‡6260-
+
+871
+880 processor handles repeatable fields, i.e. XXX_1 (here 785_1) as key in internal structure
+205613
+880
+‡6785-

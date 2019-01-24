@@ -2244,8 +2244,7 @@ class marcConversion
 			$value = $this->doubleDagger . $matches[2] . $value;	// NB not supported for multineline, but no instances of such usage in the parser definition
 		}
 		
-		# Determine the field instance index, starting at 0; this will always be 0 unless called from a repeatable
-		#!# Repeatable field support not checked in practice yet as there are no such fields
+		# Determine the field instance index, starting at 0; this will always be 0 unless called from a repeatable; repeatable fields supported, e.g. internal representation of $this->field880subfield6FieldInstanceIndex[785_1] in /records/205613/ (test #871)
 		$this->field880subfield6FieldInstanceIndex[$masterField] = (isSet ($this->field880subfield6FieldInstanceIndex[$masterField]) ? $this->field880subfield6FieldInstanceIndex[$masterField] + 1 : 0);
 		
 		# For a multiline field, e.g. /records/162152/ (test #424), parse out the field number, which on subsequent lines will not necessarily be the same as the master field; e.g. /records/68500/ (tests #425, #426)
