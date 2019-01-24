@@ -78,7 +78,7 @@ class marcConversion
 		'to',				// 240;			NB Then stripped, except records with *lto
 		't',				// 245
 		'ta',				// 246
-		'pu',				// 260
+		'pu',				// 260			NB *pl not in scope of transliteration - see note in generate260
 		'ts',				// 490
 		'note',				// 505			NB Then stripped, except for 'Contents: ' note records (minus known non-Russian)
 		// (773 from host)	// 773
@@ -1252,13 +1252,24 @@ class marcConversion
 			}
 			
 			# Transliterate *pu if required; e.g. /records/6996/ (test #58); case with protected string has that left but other elements transliterated, e.g. /records/210284/ (test #869)
+			# *pl will not be done, as too few cases which would mean c. 250 whitelisted strings for 50 records, and too many would be difficult to determine manually if in Russian - see: `SELECT DISTINCT value FROM catalogue_processed WHERE field LIKE 'pl' AND recordLanguage LIKE 'Russian' ORDER BY value;`
 			# NB No attempt is made to transliterate *pl; e.g. /records/6996/ (test #306)
 			if ($transliterate) {
 				if ($puValues) {
+					$transliterationPresent = false;
 					foreach ($puValues as $index => $puValue) {
+						
 						# NB The language is force-set to Russian, as the top guard clause would prevent getting this far; also this avoids auto-use in macro_transliterate() of //lang[1] which will not be section-half compliant
-						$puValues[$index] = $this->macro_transliterate ($puValue, 'Russian', $errorHtml_ignored, $nonTransliterable_ignored, $nonTransliterableReturnsFalse = false);	// NB: [s.n.] does not exist within any Russian record, but should not get transliterated anyway, being in square brackets (not possible to test)
+						$puValues[$index] = $this->macro_transliterate ($puValue, 'Russian', $errorHtml_ignored, $nonTransliterable, $nonTransliterableReturnsFalse = false);	// NB: [s.n.] does not exist within any Russian record, but should not get transliterated anyway, being in square brackets (not possible to test)
+						
+						# Unless the string has been found to be non-transliterable, flag that transliteration is present, to enable full non-transliterable lines to be removed from 880 generation, e.g. /records/214774/ (test #870)
+						if (!$nonTransliterable) {
+							$transliterationPresent = true;
+						}
 					}
+					
+					# Return false if no transliteration has taken place, e.g. /records/214774/ (test #870), but kept in /records/210284/ (test #869) where one subfield does have transliteration
+					if (!$transliterationPresent) {return false;}	// It is enough to check within the *pu handling, as this is the only part of generate260 involving transliteration
 				}
 			}
 			
