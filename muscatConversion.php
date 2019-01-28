@@ -1300,10 +1300,10 @@ class muscatConversion extends frontControllerApplication
 		$xml = $this->import->getSchema (false, true);
 		
 		# Convert to HTML
-		$html = "\n<pre>" . htmlspecialchars ($xml) . '</pre>';
+		$html = "\n<pre id=\"schema\">" . htmlspecialchars ($xml) . '</pre>';
 		
 		# Surround with a presentational box
-		$html = "\n<div class=\"graybox\">{$html}</div>";
+		$html = "\n<br clear=\"right\" />\n<div class=\"graybox\">{$html}</div>";
 		
 		# Show the HTML
 		echo $html;
