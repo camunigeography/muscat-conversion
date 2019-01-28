@@ -531,10 +531,8 @@ class generate245
 		$betweenN1AndN2 = $this->entitiesToUtf8List ($this->betweenN1AndN2 ());
 		if (in_array ($nd, $betweenN1AndN2)) {
 			
-			# Add to 245 field: <*n2>, <*nd> <*n1>
-			$string  = $n2 . ', ';
-			$string .= $nd . ' ';
-			$string .= $n1;
+			# Add to 245 field: <*n2> <*nd> <*n1>, i.e. "Sigismund Freiherr von Herberstein" in /records/3180/ (test #213)
+			$string  = $n2 . ' ' . $nd . ' ' . $n1;
 			return $string;
 		}
 		
@@ -616,7 +614,6 @@ class generate245
 			'Ensign',
 			'Father',
 			'Fr',
-			'Freiherr von',
 			'General',
 			'General Sir',
 			'General, Count',

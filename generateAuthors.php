@@ -1304,7 +1304,6 @@ class generateAuthors
 			'Ensign',
 			'Father',
 			'Fr',
-			'Freiherr von',
 			'General',
 			'General Sir',
 			'General, Count',
