@@ -429,7 +429,16 @@ class generate245
 		$subValues = array ();
 		$nIndex = 1;	// XPaths are indexed from 1, not 0
 		while ($string = $this->classifyNdField ($path . "/n[$nIndex]")) {
-			$subValues[] = ($this->languageMode == 'default' ? $string : $this->marcConversion->transliteration->transliterateLocLatinToCyrillic ($string, false));	// e.g. /records/1844/ (test #50)
+			
+			# Set the language mode; based on generateAuthors::transliterationDisabledNt(); if *nt=None is present, disable transliteration, e.g. /records/58374/ (test #873); only other case is /records/189228/ (as found using `SELECT * FROM catalogue_processed WHERE field = 'nt' and xPath not like '%/in/%' and xPath not like '%/j/%' and xPath not like '%/ag/%' AND value = 'None';`
+			$languageMode = $this->languageMode;
+			$nt = $this->marcConversion->xPathValue ($this->xml, $path . "/n[$nIndex]" . '/nt');
+			if ($nt == 'None') {
+				$languageMode = 'default';
+			}
+			
+			# Register this editor value
+			$subValues[] = ($languageMode == 'default' ? $string : $this->marcConversion->transliteration->transliterateLocLatinToCyrillic ($string, false));	// e.g. /records/1844/ (test #50)
 			
 			# Next
 			$nIndex++;

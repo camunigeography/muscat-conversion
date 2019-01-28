@@ -2981,7 +2981,7 @@ In roleAndSiblings, *role (e.g. 'compiled by') is not subject to transliteration
 Беллингшаусен, Тhаддеус
 
 503
-880-245 in scope of transliteration retains Latin characters when *nt = None present for author; this is for non-upgraded records where explicit / + authors in Cyrillic has not been defined
+880-245 in scope of transliteration retains Latin characters when *nt = None present for author; this is for non-upgraded records where explicit / + authors in Cyrillic has not been defined (see also test #873)
 65712
 880
 ‡cH.A. Mihelsons, Я.А. Виксне, eds.
@@ -5085,3 +5085,10 @@ When *nt=None present, generateAuthors creates an empty line slot in the correct
 6883
 880
 ‡6700-03/(N‡aИохельсон, В. И.‡g(alternative name)
+
+873
+880-245 in scope of transliteration retains Latin characters when *nt = None present for editor; this is for non-upgraded records where explicit / + authors in Cyrillic has not been defined (see also test #503)
+58374
+880
+‡cВарлам Шаламов ; with introduction by Michael Heller.
+
