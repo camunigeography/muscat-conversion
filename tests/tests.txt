@@ -4561,7 +4561,7 @@ i245
 783
 *nt=LOCRus results in transliteration carrying straight through, and data appearing in final record
 7702
-110
+100
 ‡aToll', Eduard Vasil'evich,‡cBaron.
 
 784
