@@ -3034,6 +3034,7 @@ class reports
 			WHERE
 				    xPath LIKE '%/art%'
 				AND field = 'form'
+				AND recordId NOT IN (2157, 11291, 14191, 47997, 47998, 47999, 48098, 52273, 62491, 194899)
 		";
 		
 		# Return the query
