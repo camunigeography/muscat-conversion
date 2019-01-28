@@ -2982,9 +2982,9 @@ In roleAndSiblings, *role (e.g. 'compiled by') is not subject to transliteration
 
 503
 880-245 in scope of transliteration retains Latin characters when *nt = None present for author; this is for non-upgraded records where explicit / + authors in Cyrillic has not been defined
-166652
+65712
 880
-‡cА.П. Капица, W. Gareth Rees, eds.
+‡cH.A. Mihelsons, Я.А. Виксне, eds.
 
 504
 245 in scope of transliteration, with explicit / , Russian names end up transliterated as LoC

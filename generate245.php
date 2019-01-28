@@ -343,7 +343,7 @@ class generate245
 					continue;
 				}
 				
-				# Set the language mode; based on generateAuthors::transliterationDisabledNt(); if *nt=None is present, disable transliteration, e.g. /records/166652/ (test #503)
+				# Set the language mode; based on generateAuthors::transliterationDisabledNt(); if *nt=None is present, disable transliteration, e.g. /records/65712/ (test #503)
 				$languageMode = $this->languageMode;
 				$nt = $this->marcConversion->xPathValue ($this->xml, "{$pathPrefix}/ag[$agIndex]/a[{$aIndex}]" . '/nt');
 				if ($nt == 'None') {
