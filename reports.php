@@ -3337,7 +3337,7 @@ class reports
 				recordId FROM catalogue_processed
 			WHERE
 				    field LIKE 'nt'
-				AND value NOT IN('None', 'BGNRus')
+				AND value NOT IN('None', 'BGNRus', 'LOCRus')
 		";
 		
 		# Return the query
