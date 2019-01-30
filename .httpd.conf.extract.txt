@@ -71,10 +71,10 @@
 		php_value memory_limit 1500M
 	</Location>
 	
-	# Cookie setting
-	<Location $baseUrl/marcparser.html>
+	# Cookie/header setting
+	<LocationMatch ^$baseUrl/(marcparser|transliterator).html>
 		php_value output_buffering 65536
-	</Location>
+	</LocationMatch>
 	
 	# Output files
 	AddType text/plain .mrk
