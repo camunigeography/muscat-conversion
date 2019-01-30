@@ -5152,3 +5152,8 @@ macro_nfCount uses first language only
 i245
 /^.3/
 
+884
+300 split includes full string 'portrait' variant
+27684
+300
+‡ap. 9-13 :‡bportrait.

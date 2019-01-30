@@ -134,7 +134,6 @@ class reports
 		'problematicpdot_problem' => 'problematic p. cases, assuming that multiplepdot report is cleared',
 		'pnodot_problem' => 'report for p not followed by a dot in *p / *pt',
 		'pcolonspace_problem' => '*p values containing colon-space rather than space-colon-space',
-		'figuresportraits_problem' => 'inappropriate splitting for figures and portraits',
 		'sermultipler_problem' => '*ser records with multiple *r',
 		'artjnokg_postmigration' => '/art/j records with no *kg in the Pamphlets',
 		'tslasheditors_problem' => '*t with explicit slash also having *e',
@@ -3195,26 +3194,6 @@ class reports
 				    field LIKE 'p'
 				AND value LIKE '%: %'
 				AND value not like '% : %'
-		";
-		
-		# Return the query
-		return $query;
-	}
-	
-	
-	# Inappropriate splitting for figures and portraits
-	public function report_figuresportraits ()
-	{
-		# Define the query
-		$query = "
-			SELECT
-				'figuresportraits' AS report,
-				recordId
-			FROM catalogue_processed
-			WHERE
-				    field IN ('p','pt')
-				AND value NOT LIKE '% : %'
-				AND value REGEXP '(figures|portrait|portraits)'
 		";
 		
 		# Return the query
