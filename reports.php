@@ -130,7 +130,7 @@ class reports
 		'agwithonlyad_problem' => '*ag records containing only an *ad',
 		'tdot_problem' => '*t values ending with a dot',
 		'ptspacecolonspace_problem' => '*pt values containing space-colon-space',
-		'multiplepdot_problem' => 'multiple p dot',
+		'multiplepdot_info' => 'multiple p dot',
 		'problematicpdot_problem' => 'problematic p. cases, assuming that multiplepdot report is cleared',
 		'pnodot_problem' => 'report for p not followed by a dot in *p / *pt',
 		'pcolonspace_problem' => '*p values containing colon-space rather than space-colon-space',
@@ -3111,8 +3111,7 @@ class reports
 	}
 	
 	
-	# *p values containing multiple cases of p.dot; this does contain some which will need to be whitelisted
-	#!# Need to tighten up constraints or whitelist record numbers after data work
+	# *p values containing multiple cases of p.dot; this does contain some which will need to be whitelisted; this was used to list cases for resolution in /reports/problematicpdot/
 	public function report_multiplepdot ()
 	{
 		# Define the query
