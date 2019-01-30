@@ -205,7 +205,6 @@ class generate245
 			156604	=> 0,	// "Since El Nino is a proper name, nfcount = 0"
 			159877	=> 0,	// "'Der' means there in Norwegian - not an article"
 			159978	=> 0,	// "'Les' is not an article in Russian"
-			160654	=> 2,	#!# Pending data fix
 			169691	=> 0,	// "'Les' is not an article in Russian"
 			191629	=> 0,	// "'Les' is not an article in Russian"
 			209505	=> 0,	// "While 'uno' can be an article in Spanish, in this case it means 'one'"
@@ -215,6 +214,35 @@ class generate245
 			65529	=> 4,	// The history of Greenland
 			121496	=> 0,	// https://searchworks.stanford.edu/view/3279936
 			134159	=> 4,	// The contribution of scientific research
+			
+			# Records with an assumed correction, where the item has not been checked (e.g. Not in SPRI / suppressed / *status=RECEIVED)
+			60691	=> 3,	// La parade nuptiale (French)
+			159995	=> 4,	// Les Evenks de (French)
+			167634	=> 4,	// Les uskujniki de novgorod (French)
+			172894	=> 3,	// La grêle surdimensionnée (French)
+			172990	=> 3,	// La notion de (French)
+			172991	=> 4,	// Les regs de toundra (French)
+			172992	=> 3,	// La notion de continentalisation (French)
+			177001	=> 4,	// Die extremen Schwankungen (German)
+			177597	=> 4,	// Une capture de Sterna (French)
+			179502	=> 3,	// La mission Jean Charcot (French)
+			179505	=> 3,	// Le Pole Nord (French)
+			179506	=> 2,	// L'expédition Amundsen (French)
+			179507	=> 2,	// L'expédition Amundsen (French)
+			179510	=> 4,	// Les voyages a la Jules Verne (French)
+			179511	=> 3,	// Le croiseur "Strasbourg" (French)
+			179512	=> 2,	// L'Expédition Byrd (French)
+			179513	=> 2,	// L'Expédition Byrd (French)
+			179516	=> 3,	// La découverte des restes (French)
+			179519	=> 3,	// Le voyage sentimental (French)
+			179523	=> 2,	// L'aviation transarctique (French)
+			179526	=> 3,	// Le retour des membres (French)
+			179527	=> 3,	// Le rapatriement de (French)
+			179534	=> 3,	// Un grand explorateur (French)
+			179535	=> 2,	// L'Expédition Byrd (French)
+			187990	=> 3,	// La quatrième campagne (French)
+			194616	=> 3,	// La Antártica y el (Spanish)
+			196526	=> 2,	// L'orpin rose (French)
 		);
 	}
 	
