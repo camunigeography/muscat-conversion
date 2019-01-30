@@ -1736,11 +1736,11 @@ class marcConversion
 		}
 		
 		# If a forced language is not specified, obtain the language value for the record
-		#!# //lang may no longer be reliable following introduction of *lang data within *in or *j
+		#!# Need to check that first //lang is what is always wanted, i.e. not using *lang data within *in or *j
 		if (!$language) {
-			$xPath = '//lang[1]';	// Choose first only
 			$xml = ($externalXml ? $externalXml : $this->xml);	// Use external XML if supplied
-			$language = $this->xPathValue ($xml, $xPath);
+			$xPath = '(//lang)[1]';	// Choose first only, e.g. /records/2003/ which has two instances of *lang=French within the record
+			$language = $this->xPathValue ($xml, $xPath, false);
 		}
 		
 		# Handle parallel titles; e.g. /records/100909/ (test #788)
