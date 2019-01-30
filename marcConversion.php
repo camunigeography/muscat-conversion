@@ -2207,7 +2207,7 @@ class marcConversion
 		# If running in transliteration mode, require a supported language
 		$languageMode = 'default';
 		if ($flag == 'transliterated') {
-			if (!$languageMode = $this->getTransliterationLanguage ($this->xml)) {return false;}
+			if (!$languageMode = $this->getTransliterationLanguage ($this->xml, $checkNtTokens = true)) {return false;}
 		}
 		
 		# Compile the value, to a multiline if required, e.g. /records/2295/ (test #756), or false for no lines (e.g. /records/178377/ (test #757))
@@ -2219,8 +2219,15 @@ class marcConversion
 	
 	
 	# Function to determine whether a language is supported, and return it if so, e.g. /records/210651/ (test #165)
-	private function getTransliterationLanguage ($xml)
+	private function getTransliterationLanguage ($xml, $checkNtTokens = false)
 	{
+		# Determine if *nt={BGNRus|LOCRus}, e.g. /records/102036/ (test #728) which is a Yakut record with *nt=BGNRus sections
+		if ($checkNtTokens) {
+			if ($this->supportedNtTokensPresent ($xml)) {
+				return 'Russian';
+			}
+		}
+		
 		#!# Currently checking only the first language
 		$language = $this->xPathValue ($xml, '//lang[1]');
 		if ($language && isSet ($this->supportedReverseTransliterationLanguages[$language])) {		// # NB This will not mistakenly catch "Byelorussian" as Russian, e.g. /records/96819/ (test #847))
@@ -2228,6 +2235,17 @@ class marcConversion
 		} else {
 			return false;
 		}
+	}
+	
+	
+	# Helper function to determine presence of *nt={BGNRus|LOCRus} language override tokens, e.g. /records/102036/ (test #728)
+	public function supportedNtTokensPresent ($xml)
+	{
+		# Check for supported *nt tokens present anywhere in the data
+		$supportedNtTokens = array ('BGNRus', 'LOCRus');
+		$ntTokens = $this->xPathValues ($xml, '(//nt)[%i]', false);
+		$supportedNtTokensPresent = array_intersect ($ntTokens, $supportedNtTokens);
+		return $supportedNtTokensPresent;
 	}
 	
 	

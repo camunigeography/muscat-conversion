@@ -4229,10 +4229,10 @@ Printout
 Binding : slight
 
 728
-*nt = BGNRus in a non-Russian record gets upgraded to LoC cyrillic and thence a mirror field created (implementation pending; not likely to be implemented; see /reports/ntcyrillicinscope/)
+*nt = BGNRus in a non-Russian record gets upgraded to LoC cyrillic and thence a mirror field created (see also test #874 and /reports/ntcyrillicinscope/)
 102036
 880
-Ermolaev, Rafaėlʹ Dmitrievich
+‡6700-01/(N‡aЕрмолаев, Рафаэль Дмитриевич.‡g(alternative name)
 
 729
 *nt = None (in a Russian record) should not result in transliteration of the associated tokens (see also next test)
@@ -5091,4 +5091,58 @@ When *nt=None present, generateAuthors creates an empty line slot in the correct
 58374
 880
 ‡cВарлам Шаламов ; with introduction by Michael Heller.
+
+874
+*nt = BGNYak in a non-Russian record having *nt = BGNRus does not get 880 (see also test #728)
+102036
+!880
+‡6100-
+
+875
+No 880 fields generated from generateAuthors if not Russian and no *nt tokens present
+178029
+!880
+*
+
+876
+No 880 fields generated from generateAuthors if not Russian and only out-of-scope *nt tokens present (here 'None')
+5255
+!880
+*
+
+877
+Non-Russian record with *nt=LOCRus has 100 present and unamended
+160653
+100
+‡6880-01‡aToll', Eduard Vasil'evich,‡cBaron.
+
+878
+Non-Russian record with *nt=LOCRus has 880 generated from 100
+160653
+880
+‡6100-01/(N‡aТолл', Едуард Васил'евич,‡cБарон.
+
+879
+Non-Russian record with *nt=LOCRus present has no 880 generated for group without *nt
+160653
+!880
+‡6700
+
+880
+Non-Russian record with Russian *nt has 880-100 generated
+154475
+880
+‡6100-01/(N‡aАльбанов, Валериан Иванович.
+
+881
+Non-Russian record with Russian *nt has 880 generated from *al block
+40263
+880
+‡6700-02/(N‡aБагатайский, Рафаэль.‡g
+
+882
+Non-Russian record with Russian *nt present has no 880 generated from *e block without *nt
+154475
+!880
+‡6700-
 

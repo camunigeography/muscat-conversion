@@ -147,7 +147,7 @@ class reports
 		'ltowithoutto_problem' => 'records with *lto present but no *to',
 		'multipleto_problem' => 'records with more than one *to/*lto',
 		'ntnoneslashupgrade_problem' => 'records with *nt=None which have not had / upgrading for 245',
-		'ntcyrillicinscope_postmigration' => 'non-Russian records with Cyrillic *nt = BGNRus/LOCRus',
+		'ntcyrillicinscope_info' => 'non-Russian records with Cyrillic *nt = BGNRus/LOCRus',
 		'ntcyrillicunsupported_postmigration' => 'non-Russian records with all Cyrillic *nt for types never supported',
 		'locrusnodiacritics_postmigration' => 'records with *nt=LOCRus that need diacritics adding',
 		'article245_problem' => 'records with a suspected wrong language due to leading article mismatch in 245',
@@ -248,9 +248,6 @@ class reports
 			
 			'locationunassigned' =>
 				'Valid records but the item needs to be found.',
-			
-			'ntcyrillicinscope' =>
-				'Some records with *nt = BGNRus or LOCRus are in records whose language is not marked as Russian, e.g. German. These records were unable to enter the transliteration module in the code, so the BGN or LoC remains untouched, and no 880 has been produced. These two changes need to be manually.',
 			
 			'ntcyrillicunsupported' =>
 				'Some records have *nt other than none/BGNRus/LOCRus, e.g. FRRus. These were considered out of scope for coding, so no attempt was made even to consider upgrading them. The name authority (1xx/7xx) needs to be upgraded and the 880 added.',
@@ -3431,7 +3428,7 @@ class reports
 	}
 	
 	
-	# Post-migration report for non-Russian records with Cyrillic *nt = BGNRus/LOCRus (essentially workaround for test #728, as that will be almost impossible to code)
+	# Post-migration report for non-Russian records with Cyrillic *nt = BGNRus/LOCRus, supported as per test #728
 	public function report_ntcyrillicinscope ()
 	{
 		# Define the query

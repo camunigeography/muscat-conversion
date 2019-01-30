@@ -101,6 +101,9 @@ class generateAuthors
 		# Determine the language of the record
 		$recordLanguages = $this->marcConversion->xPathValues ($mainRecordXml, '(//lang)[%i]', false);	// e.g. /records/1220/ , /records/8690/ have multiple languages (test #66)
 		
+		# Determine if *nt={BGNRus|LOCRus}, e.g. /records/102036/ (test #728) which is a Yakut record with *nt=BGNRus sections
+		$supportedNtTokensPresent = $this->marcConversion->supportedNtTokensPresent ($mainRecordXml);
+		
 		# Process both normal and transliterated modes
 		foreach ($this->languageModes as $languageMode) {
 			
@@ -110,10 +113,11 @@ class generateAuthors
 				$this->values[$languageMode][$field] = array ();
 			}
 			
-			# For the non-default language mode, if the current language mode does not match a language of the record, skip processing
+			# For the non-default language mode, if the current language mode does not match a language of the record (and has no supported *nt tokens present), skip processing, e.g. /records/178029/ (test #875), and /records/5255/ (test #876)
 			#!# Russian may only be one of the languages and not the relevant one
+			$this->recordLanguageTransliterable = (in_array ($languageMode, $recordLanguages));
 			if ($languageMode != 'default') {
-				if (!in_array ($languageMode, $recordLanguages)) {
+				if (!$this->recordLanguageTransliterable && !$supportedNtTokensPresent) {
 					continue;
 				}
 			}
@@ -154,19 +158,46 @@ class generateAuthors
 		}
 		
 		# Do the classification; NB this may return false, e.g. /records/6883/, which is necessary to ensure that the 880 handling correctly receives a multiline where there are >1 lines being processed, e.g. /records/6883/ (test #872)
-		$line = $this->main ($this->mainRecordXml, '//ag[parent::doc|parent::art][1]/a[1]', 100, $languageMode);
+		$xPath = '//ag[parent::doc|parent::art][1]/a[1]';
+		$line = $this->main ($this->mainRecordXml, $xPath, 100, $languageMode);
 		
 		# Subfield ‡u, if present, needs to go before subfield ‡e (test #90)
 		$line = $this->shiftSubfieldU ($line);
 		
-		# Pass through the transliterator if required; e.g. /records/6653/ (test #107), /records/23186/ (test #108)
-		$line = $this->marcConversion->macro_transliterateSubfields ($line, $this->transliterableSubfields[$this->field], $errorString_ignored, $languageMode);
+		# Pass through the transliterator if required; e.g. /records/6653/ (test #107), /records/23186/ (test #108); *nt handling: BGNRus example at /records/154475/ (test #880), and negative case at /records/102036/ (test #874)
+		$line = $this->transliterateNtAware ($line, $this->transliterableSubfields[$this->field], $languageMode, $xPath);
 		
 		# Ensure the line ends with punctuation; e.g. /records/1218/ (test #72), /records/1221/ (test #73)
 		$line = $this->marcConversion->macro_dotEnd ($line, $extendedCharacterList = true);
 		
 		# Write the value into the values registry
 		$this->values[$this->languageMode][$this->field][] = $line;
+	}
+	
+	
+	# Wrapper function to run the line through the transliterator, with *nt token support
+	private function transliterateNtAware ($line, $transliterableSubfields, $languageMode, $xPath)
+	{
+		# Perform transliteration
+		$line = $this->marcConversion->macro_transliterateSubfields ($line, $transliterableSubfields, $errorString_ignored, $languageMode);
+		
+		# If in non-default language mode because of *nt tokens present (rather than the main record language being transliterable), determine whether to cancel the transliteration
+		if ($languageMode != 'default') {
+			if (!$this->recordLanguageTransliterable) {
+				
+				# Obtain the *nt value for this path
+				$ntValue = $this->marcConversion->xPathValue ($this->mainRecordXml, $xPath . '/nt');
+				
+				# If a supported token, use the transliteration, i.e. take no further action having done the transliteration, e.g. /records/102036/ (test #728) for BGNRus example, /records/160653/ (tests #877 and #878) for LOCRus example; if not (no *nt, or any other *nt value) cancel the line, e.g. 700 in /records/160653/ (test #879)
+				$supportedNtTokens = array ('BGNRus', 'LOCRus');
+				if (!in_array ($ntValue, $supportedNtTokens)) {
+					return false;
+				}
+			}
+		}
+		
+		# Return the line, e.g. /records/23186/ (test #108) which is a Russian record with ordinary transliteration handling, or the *nt support examples as noted above, e.g. /records/102036/ (test #728)
+		return $line;
 	}
 	
 	
@@ -216,10 +247,10 @@ class generateAuthors
 			$lines[$index]['line'] = $this->shiftSubfieldU ($line['line']);
 		}
 		
-		# Pass each line through the transliterator if required (test #108, #109)
+		# Pass each line through the transliterator if required (test #108, #109); *nt handling: BGNRus example at /records/102036/ (test #728), and negative case at /records/160653/ (test #879)
 		foreach ($lines as $index => $line) {
 			$fieldNumber = $line['field'];
-			$lines[$index]['line'] = $this->marcConversion->macro_transliterateSubfields ($line['line'], $this->transliterableSubfields[$fieldNumber], $errorString_ignored, $languageMode);
+			$lines[$index]['line'] = $this->transliterateNtAware ($line['line'], $this->transliterableSubfields[$fieldNumber], $languageMode, $line['xPath']);
 		}
 		
 		# Ensure each line ends with punctuation; e.g. /records/7463/ (tests #81 and #82)
@@ -241,15 +272,15 @@ class generateAuthors
 		# Assume 700 by default
 		$this->field = 700;
 		
-		# Start a list of 700 line values; these are tuples as array(field,line); these are indexed numerically, rather than associatively as field=>line, as there may be more than one field instance
+		# Start a list of 700 line values; these are tuples as array(field,line,nt); these are indexed numerically, rather than associatively as field=>line, as there may be more than one field instance
 		# NB The client code (not this registry) then handles multiline, so that e.g. a 710 doesn't get stuck amongst 700s, e.g. /records/16272/ (test #755)
 		# It is considered acceptable that the order therefore does not necessary stay the same, i.e. authorA then authorB may become 700 authorB then 710 authorA; this is probably more logical anyway in that the MARC field order then remains correct rather than e.g. 700 710 700; this is not defined at https://www.loc.gov/marc/specifications/specrecstruc.html#varifields
 		$lines = array ();
 		
-		# If there is already a 700 field arising from generateFirstEntity, which will be a standard scalar string, register this first by transfering it into the lines format and resetting the 700 registry (test #109)
+		# If there is already a 700 field arising from generateFirstEntity, which will be a standard scalar string, register this first by transfering it into the lines format and resetting the 700 registry, e.g. /records/23186/ (test #109)
 		if ($this->values[$this->languageMode][700]) {
 			foreach ($this->values[$this->languageMode][700] as $line) {
-				$lines[] = array ('field' => 700, 'line' => $line);
+				$lines[] = array ('field' => 700, 'line' => $line, 'xPath' => NULL);
 			}
 			$this->values[$this->languageMode][700] = array ();		// Reset
 		}
@@ -275,21 +306,23 @@ class generateAuthors
 				}
 				
 				# Obtain the value
-				$line = $this->main ($this->mainRecordXml, "/*/ag[$agIndex]/a[{$aIndex}]", 700, $languageMode);
+				$xPath = "/*/ag[$agIndex]/a[{$aIndex}]";
+				$line = $this->main ($this->mainRecordXml, $xPath, 700, $languageMode);
 				
-				# Register the line, setting the field code, which may have been modified in main(), e.g. /records/1127/ (test #114)
-				$lines[] = array ('field' => $this->field, 'line' => $line);
+				# Register the line, setting the field code, which may have been modified in main(), e.g. /records/1127/ (test #114); no examples found for *nt handling as per `SELECT * FROM catalogue_processed WHERE field = 'nt' AND xPath LIKE '%/ag/a/%' AND xPathWithIndex LIKE '%[2]%' AND recordLanguage != 'Russian';`
+				$lines[] = array ('field' => $this->field, 'line' => $line, 'xPath' => $xPath);
 				
 				# Next *a, e.g. /records/132356/ (test #115)
 				$aIndex++;
 			}
 			
-			# Loop through each *al (author) in this *ag (author group), e.g. /records/1565/ (test #116)
+			# Loop through each *al (author) in this *ag (author group), e.g. /records/1565/ (test #116), and *nt handling example: /records/40263/ (test #881)
 			$alIndex = 1;	// XPaths are indexed from 1, not 0
 			while ($this->marcConversion->xPathValue ($this->mainRecordXml, "/*/ag[$agIndex]/al[{$alIndex}]")) {
 				
 				# Obtain the value
-				$line = $this->main ($this->mainRecordXml, "/*/ag[$agIndex]/al[{$alIndex}]", 700, $languageMode);
+				$xPath = "/*/ag[$agIndex]/al[{$alIndex}]";
+				$line = $this->main ($this->mainRecordXml, $xPath, 700, $languageMode);
 				
 				# The "*al Detail" block (and ", ‡g (alternative name)", once only) is added, e.g. /records/29234/ (test #118)
 				if ($line) {
@@ -300,7 +333,7 @@ class generateAuthors
 				}
 				
 				# Register the line, setting the field code, which may have been modified in main()
-				$lines[] = array ('field' => $this->field, 'line' => $line);
+				$lines[] = array ('field' => $this->field, 'line' => $line, 'xPath' => $xPath);
 				
 				# Next *al, e.g. /records/29234/ (test #117)
 				$alIndex++;
@@ -310,7 +343,7 @@ class generateAuthors
 			$agIndex++;
 		}
 		
-		# Loop through each *e
+		# Loop through each *e; *nt elsewhere handling negative example in /records/154475/ (test #882), but no positive cases available as per `SELECT * FROM catalogue_processed WHERE field = 'nt' AND xPath LIKE '%/e/%' AND recordLanguage != 'Russian'`
 		$eIndex = 1;
 		while ($this->marcConversion->xPathValue ($this->mainRecordXml, "/*/e[$eIndex]")) {
 			
@@ -329,11 +362,12 @@ class generateAuthors
 				
 				# Obtain the value
 				# In the case of each *e/*n, *role, with Relator Term lookup substitution, is incorporated; e.g. /records/47079/ (test #85) ; this is done inside classifyAdField ()
-				$line = $this->main ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]", 700, $languageMode);
+				$xPath = "/*/e[$eIndex]/n[{$nIndex}]";
+				$line = $this->main ($this->mainRecordXml, $xPath, 700, $languageMode);
 				
 				# Register the line, if it has resulted in a line, setting the field code, which may have been modified in main()
 				if ($line) {	// E.g. /records/8988/ which has "others" should not result in a line for /*/e[1]/n[2] due to classifyN1Field having "return false" (test #86)
-					$lines[] = array ('field' => $this->field, 'line' => $line);
+					$lines[] = array ('field' => $this->field, 'line' => $line, 'xPath' => $xPath);
 				}
 				
 				# Next *n, e.g. /records/2295/ (test #120)
@@ -355,7 +389,8 @@ class generateAuthors
 				foreach ($children as $id => $childRecordXml) {
 					
 					# Take the first *art/*ag/*a/ (only the first (test #88)) in that record within the *ag block, i.e. /records/9375/ /art/ag/a "contributor block" (test #76); the second indicator is set to '2' to indicate that this 700 line is an 'Analytical entry' (test #78)
-					$line = $this->main ($childRecordXml, "/*/ag[1]/a[1]", 700, $languageMode, '2');
+					$xPath = "/*/ag[1]/a[1]";
+					$line = $this->main ($childRecordXml, $xPath, 700, $languageMode, '2');
 					
 					# Add the title (i.e. *art/*tg/*t)
 					if ($line) {
@@ -365,7 +400,7 @@ class generateAuthors
 					}
 					
 					# Register the line, setting the field code, which may have been modified in main()
-					$lines[] = array ('field' => $this->field, 'line' => $line);
+					$lines[] = array ('field' => $this->field, 'line' => $line, 'xPath' => NULL);	// No cases of *nt handling (which would be buggy as xPath needs to be for the child not the current record), as shown with `SELECT * FROM catalogue_processed WHERE field = 'kg' AND value IN(SELECT recordId FROM `catalogue_processed` WHERE field = 'nt' and xPath LIKE '%/ag/a/%' and recordLanguage = 'Russian' and value IN('BGNRus', 'LOCRus'));`
 				}
 			}
 		}

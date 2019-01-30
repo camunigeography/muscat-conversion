@@ -1321,7 +1321,7 @@ class import
 		$query = "UPDATE transliterations SET language = 'French' WHERE recordId = 88661 AND field = 'to' AND title_latin LIKE 'Voyage autour%';";	// Three records have multiple *to; 88661 is the only one of these three where the *to language varies
 		$this->databaseConnection->query ($query);
 		
-		#!# Add support for *nt (within *a, *al and *n), e.g. None/BGNRus/LOCRus/BGNYak
+		# Add support for *nt (within *a, *al and *n), e.g. None/BGNRus/LOCRus/BGNYak
 		# E.g. /records/150203/ which has cases of *nt = 'None' (meaning do not transliterate fields at the same level of the hierarchy)
 		# E.g. /records/178377/ (test #729) and *nt = 'BGNRus' (which is an explicit override to whatever the language is, enabling Russian people in an English record to be handled properly)
 		# E.g. /records/102036/ (test #728); other values such as "BGNYak" should be ignored
