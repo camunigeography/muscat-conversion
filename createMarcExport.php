@@ -224,6 +224,11 @@ class createMarcExport
 			'245: First word, el, may be an article, check 2nd indicator (0).',		// Only cases are El Niño (English record) and El'vel (Russian record)
 			'245: Subfield _h may have invalid material designator, or lack square brackets, h.',	// /records/181410/ has ‡h[videorecording; electronic resource] defined in test #578
 			'245: Subfield _c initials should not have a space.',	// Happens on /records/13442/ which validly has "K.C.B. K.C."
+			'245: First word, en, does not appear to be an article, check 2nd indicator (3).',	// 54 cases, of valid 'en ' => 'Danish Norwegian Swedish'
+			'245: First word, de, does not appear to be an article, check 2nd indicator (3).',	// 33 cases, of valid 'de ' => 'Danish Swedish': SELECT * FROM catalogue_marc WHERE bibcheckErrors = '245: First word, de, does not appear to be an article, check 2nd indicator (3).' AND marc NOT REGEXP '(041 0# ‡adan|041 .# ‡aswe)';
+			'245: First word, et, does not appear to be an article, check 2nd indicator (3).',	// 17 cases, of valid 'et ' => 'Danish Norwegian'
+			'245: First word, a, does not appear to be an article, check 2nd indicator (2).',	// 2 cases
+			'245: First word, et, does not appear to be an article, check 2nd indicator (4).',	// 1 case
 			'245: First word, les, may be an article, check 2nd indicator (0).',	// 6 cases
 			'245: First word, a, may be an article, check 2nd indicator (0).',		// 5 cases
 			'245: First word, el, may be an article, check 2nd indicator (0).',		// 4 cases

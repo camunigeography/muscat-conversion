@@ -243,6 +243,7 @@ class generate245
 			187990	=> 3,	// La quatrième campagne (French)
 			194616	=> 3,	// La Antártica y el (Spanish)
 			196526	=> 2,	// L'orpin rose (French)
+			179517	=> 0,	// A la recherche d'une route (French - preposition)
 		);
 	}
 	
