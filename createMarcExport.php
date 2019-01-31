@@ -224,6 +224,17 @@ class createMarcExport
 			'245: First word, el, may be an article, check 2nd indicator (0).',		// Only cases are El Niño (English record) and El'vel (Russian record)
 			'245: Subfield _h may have invalid material designator, or lack square brackets, h.',	// /records/181410/ has ‡h[videorecording; electronic resource] defined in test #578
 			'245: Subfield _c initials should not have a space.',	// Happens on /records/13442/ which validly has "K.C.B. K.C."
+			'245: First word, les, may be an article, check 2nd indicator (0).',	// 6 cases
+			'245: First word, a, may be an article, check 2nd indicator (0).',		// 5 cases
+			'245: First word, el, may be an article, check 2nd indicator (0).',		// 4 cases
+			'245: First word, um, may be an article, check 2nd indicator (0).',		// 3 cases
+			'245: First word, an, may be an article, check 2nd indicator (0).',		// 2 cases
+			'245: First word, der, may be an article, check 2nd indicator (0).',	// 2 cases
+			'245: First word, il, may be an article, check 2nd indicator (0).',		// 1 case
+			'245: First word, ett, may be an article, check 2nd indicator (0).',	// 1 case
+			'245: First word, een, may be an article, check 2nd indicator (0).',	// 1 case
+			'245: First word, ho, may be an article, check 2nd indicator (0).',		// 1 case
+			'245: First word, uno, may be an article, check 2nd indicator (0).',	// 1 case
 			'300: In subfield _a, p should be followed by a full stop.',	// See 8e5f9354da83b6aa7a9e338e0ba7d48e1d1e0b60 - intended "p." is already implemented correctly; see /records/54670/ (test #219)
 			'300: In subfield _a there should be a space between the comma and the next set of digits.',	// E.g. /records/32362/
 			'300: In subfield _a there should be a space between the number and the type of unit - please check.',	// Only /records/164582/ and /records/203582/
