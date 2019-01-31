@@ -2787,11 +2787,15 @@ class muscatConversion extends frontControllerApplication
 		# List the error types, grouped with a count for each type
 		$html .= "\n<h3>Bibcheck error types</h3>";
 		$errorTypes = $this->getBibcheckErrorTypeCounts ();
-		$errorTypesList = array ();
-		foreach ($errorTypes as $type => $total) {
-			$errorTypesList[] = htmlspecialchars ($type) . ' <strong>(' . $total . ')</strong>';
+		if ($errorTypes) {
+			$errorTypesList = array ();
+			foreach ($errorTypes as $type => $total) {
+				$errorTypesList[] = htmlspecialchars ($type) . ' <strong>(' . $total . ')</strong>';
+			}
+			$html .= application::htmlUl ($errorTypesList, 0, 'smaller');
+		} else {
+			$html .= "\n<p>{$this->tick} There are no (non-whitelisted) Bibcheck errors.</p>";
 		}
-		$html .= application::htmlUl ($errorTypesList, 0, 'smaller');
 		
 		# Show errors
 		$html .= "\n<h3>Errors</h3>";
