@@ -1748,7 +1748,7 @@ Macro multipleValues: uniqueing
 Macro implode: multiple values
 132384
 948
-‡bOM, WM
+‡bOM; WM
 
 291
 Macro implode: single value
