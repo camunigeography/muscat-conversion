@@ -3481,7 +3481,7 @@ class reports
 				id AS recordId
 			FROM catalogue_marc
 			WHERE
-				bibcheckErrors REGEXP '245: First word, [a-z]+, may be an article, check 2nd indicator'
+				bibcheckErrors REGEXP '(245: First word, [a-z]+, may be an article, check 2nd indicator|245: First word, [a-z]+, does not appear to be an article, check 2nd indicator)'
 			AND id NOT IN (" . implode (', ', $whitelistedIds) . ")
 		";
 		
