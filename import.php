@@ -2708,7 +2708,7 @@ class import
 	}
 	
 	
-	# Helper function to unescape Muscat asterisks
+	# Helper function to unescape Muscat asterisks; e.g. /records/1005/ (test #485)
 	private function unescapeMuscatAsterisks ($string)
 	{
 		return str_replace ('@*', '*', $string);

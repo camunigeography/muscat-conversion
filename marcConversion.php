@@ -3085,7 +3085,7 @@ class marcConversion
 	}
 	
 	
-	# Helper function to unescape Muscat asterisks, e.g. /records/2110/ (test #485)
+	# Helper function to unescape Muscat asterisks; there is only one example and it is not used, but manual tests confirm it is fine
 	#!#C Copied from muscatConversion (to avoid memory issues)
 	private function unescapeMuscatAsterisks ($string)
 	{

@@ -2874,7 +2874,7 @@ Basic lookupTable test
 
 485
 Undo Muscat escaped asterisks @*
-2110
+1005
 651
 ‡a(*3)
 
