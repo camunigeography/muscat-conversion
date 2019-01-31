@@ -113,7 +113,7 @@ class reports
 		'backslashg_problem' => 'records with \g remaining',
 		'bracketednfcount_info' => 'records with a bracketed title starting with a leading article, for checking the nfcount',
 		'russianbracketedtitle_postmigration' => 'records marked *lang=Russian with a fully-bracketed title',
-		'russianldottitles_problem' => 'records (Russian) with L. in title to be checked individually, possibly resolving post-migration',
+		'russianldottitles_problem' => 'records (Russian) with L. in title to be checked individually',
 		'paralleltitlemismatch_problem' => 'records (Russian) whose parallel title component count does not match that of the title',
 		'paralleltitlesync_problem' => 'records where parallel titles and *lpt presence are not in sync',
 		'emptyvalue_problem' => 'records with empty scalar values',
@@ -2656,7 +2656,7 @@ class reports
 			FROM catalogue_processed
 			WHERE
 				    field = 't'
-				AND value LIKE BINARY '%L.%'
+				AND  IF( LOCATE(' / ', value), SUBSTR(value, 0, LOCATE(' / ', value)), value ) /* i.e. section before optional / - see: https://stackoverflow.com/a/3471224/180733 */  LIKE BINARY '%L.%'
 				AND recordLanguage = 'Russian'
 				AND recordId NOT IN (
 					2968, 8249, 11369, 14883, 15923, 20439, 22852, 26047, 27641, 27648,
