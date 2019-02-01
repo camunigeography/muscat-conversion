@@ -155,6 +155,7 @@ class reports
 		'physicalmisformat_problem' => 'physical description with incorrect syntax',
 		'paralleltitlesyntax_problem' => 'incorrect syntax for a parallel title',
 		'provenancenote_problem' => 'incorrect syntax for a provenance note',
+		'onmigration_postmigration' => 'records with a note regarding post-migration instructions',
 	);
 	
 	# Listing (values) reports
@@ -259,6 +260,9 @@ class reports
 			
 			'multiplecopiesvalues' =>
 				'Notes such as "SPRI has..." need to be checked against the rest of the data, e.g. "SPRI has three copies" should be reflected as three locations.',
+			
+			'onmigration' =>
+				'These records have a private note giving instructions for specific post-migration actions.',
 			
 		);
 	}
@@ -3571,6 +3575,25 @@ class reports
 				AND value LIKE 'Provenance%'
 				AND value NOT REGEXP BINARY '^Provenance: [A-Z]'
 				AND value NOT REGEXP BINARY '^Provenance: \"[A-Z]'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with a note regarding post-migration instructions
+	public function report_onmigration ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'onmigration' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field = 'priv'
+				AND value LIKE 'On migration%'
 		";
 		
 		# Return the query
