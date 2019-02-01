@@ -2254,8 +2254,12 @@ class muscatConversion extends frontControllerApplication
 		$html = '';
 		if (is_file ($this->errorsFile)) {
 			$html .= "\n<hr />";
-			$html .= "\n<h3>Errors from import:</h3>";
-			$html .= file_get_contents ($this->errorsFile);
+			$html .= "\n<h3>Errors from import</h3>";
+			if (filesize ($this->errorsFile)) {
+				$html .= file_get_contents ($this->errorsFile);
+			} else {
+				$html .= "\n<p>{$this->tick} No errors occured in the import processing.</p>";
+			}
 		}
 		
 		# Show the HTML
