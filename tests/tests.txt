@@ -4844,7 +4844,7 @@ Cases of [square-bracketed strings like this] amongst other strings that are not
 880-240 support for *to with Russian *lto
 27093
 880
-‡6240-01/(N‡aАрктические ледяные острова и характер их дрейфа.‡lRussian
+‡6240-02/(N‡aАрктические ледяные острова и характер их дрейфа.‡lRussian
 
 832
 880-240 does not appear when *lto is not Russian
@@ -5157,3 +5157,22 @@ i245
 27684
 300
 ‡ap. 9-13 :‡bportrait.
+
+885
+Determination of transliteration language uses first *lang only
+27093
+100
+‡6880-01‡aZubov, Nikolaĭ Nikolaevich.
+
+886
+In authors field handling, end if not running in transliteration mode
+27094
+!100
+1# ‡6880-01
+
+887
+Protected string for English title in record with *lang Russian
+27093
+245
+Arctic ice islands and how they drift
+
