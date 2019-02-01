@@ -63,7 +63,7 @@ class reports
 		'misformattedad_problem' => 'records where ed/eds/comp/comps indicator is not properly formatted',
 		'orphanedrole_problem' => 'records where *role is not followed by *n',
 		'emptyauthor_problem' => 'records with an empty *a',
-		'specialcharscasse' => 'records with irregular case-sensitivity of special characters',
+		'specialcharscase_problem' => 'records with irregular case-sensitivity of special characters',
 		'unknowndiacritics_problem' => 'records with unknown diacritics',
 		'locationunknown_info' => 'records where location is unknown, for records whether the status is not present or is GLACIOPAMS',
 		'multiplesourcesser_info' => 'records with multiple sources (*ser)',
@@ -169,14 +169,14 @@ class reports
 		'languages_info' => 'listing: languages',
 		'transliterations_problem_countable' => 'listing: transliterations',
 		'paralleltitlelanguages_info' => 'listing: records with parallel titles, filtered to Russian',
-		'distinctn1notfollowedbyn2' => 'Distinct values of all *n1 fields that are not immediately followed by a *n2 field',
-		'distinctn2notprecededbyn1' => 'Distinct values of all *n2 fields that are not immediately preceded by a *n1 field',
-		'kwunknown' => 'records where kw is unknown, showing the bibliographer concerned',
-		'doclocationperiodicaltsvalues' => '*doc records with one *location, which is Periodical - distinct *ts values',
-		'unrecognisedksvalues' => 'records with unrecognised *ks values - distinct *ks values',
+		'distinctn1notfollowedbyn2_info' => 'Distinct values of all *n1 fields that are not immediately followed by a *n2 field',
+		'distinctn2notprecededbyn1_info' => 'Distinct values of all *n2 fields that are not immediately preceded by a *n1 field',
+		'kwunknown_info' => 'records where kw is unknown, showing the bibliographer concerned',
+		'doclocationperiodicaltsvalues_info' => '*doc records with one *location, which is Periodical - distinct *ts values',
+		'unrecognisedksvalues_info' => 'records with unrecognised *ks values - distinct *ks values',
 		'volumenumbers_info' => 'volume number results arising from the 490 macro',
-		'voyagerlocations' => 'Muscat locations that do not map to Voyager locations',
-		'translationnotevalues' => 'records containing a note regarding translation - distinct values',
+		'voyagerlocations_info' => 'Muscat locations that do not map to Voyager locations',
+		'translationnotevalues_info' => 'records containing a note regarding translation - distinct values',
 		'mergestatus_info' => 'records with a merge status',
 		'periodicalpamgrouped_problem' => 'records with location= both Periodical and Pam, grouped',
 		'tests_problem_countable' => 'automated tests',
@@ -4659,7 +4659,7 @@ class reports
 				AND EXTRACTVALUE(xml, '//location') = 'Periodical'
 			GROUP BY value
 			ORDER BY value
-			";
+		";
 		
 		# Obtain the listing HTML
 		$html = $this->reportListing (NULL, 'values', false, false, $query);
