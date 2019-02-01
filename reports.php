@@ -3961,26 +3961,82 @@ class reports
 	private function report_seriestitlemismatches ($variantNumber, $locCondition)
 	{
 		# Create the table
-		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.listing_seriestitlemismatches{$variantNumber};";
-		$this->databaseConnection->execute ($sql);
-		$sql = "CREATE TABLE IF NOT EXISTS `listing_seriestitlemismatches{$variantNumber}` (
+		$query = "DROP TABLE IF EXISTS {$this->settings['database']}.listing_seriestitlemismatches{$variantNumber};";
+		$this->databaseConnection->execute ($query);
+		$query = "CREATE TABLE IF NOT EXISTS `listing_seriestitlemismatches{$variantNumber}` (
 			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
 			`title` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Series title',
 			`instances` int(11) NOT NULL COMMENT 'Instances',
 			PRIMARY KEY (`id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of series title mismatches'
 		;";
-		$this->databaseConnection->execute ($sql);
+		$this->databaseConnection->execute ($query);
+		
+		# Create temporary tables for use in the main query, as dynamic join in main query below is slow due to lack of indexing
+		$this->titlesMatchingTemporaryTables ($locCondition);
 		
 		# Select the data and insert it into the new table
 		$query = "
 			SELECT
 				DISTINCT articles.title,
 				COUNT(*) AS instances
-			FROM (
-				
-				/* Subquery to extract the serial title within the record, where the record is not a pamphlet */
-				/* NB As of 8/May/2014: matches 89,603 records */
+			FROM temp_articletitles AS articles
+			LEFT JOIN temp_serialtitles AS serials
+			ON (articles.title = serials.title)
+			WHERE serials.title IS NULL
+			GROUP BY articles.title
+			ORDER BY instances DESC, " . $this->databaseConnection->trimSql ('articles.title') . "
+		";
+		$query = "INSERT INTO listing_seriestitlemismatches{$variantNumber} (title, instances) \n {$query};";
+		$result = $this->databaseConnection->execute ($query);
+		
+		# Remove the temporary tables
+		$this->titlesMatchingTemporaryTables ($locCondition, true);
+		
+		# Fix entities; e.g. title of /records/196750/ ; see: https://stackoverflow.com/questions/30194976/
+		$query = "
+			UPDATE `listing_seriestitlemismatches{$variantNumber}`
+			SET title = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( title   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
+		;";
+		$this->databaseConnection->execute ($query);
+		
+		# Implement countability, by adding an entry, without reference to recordId, into the report results table
+		$query = "
+			INSERT INTO reportresults (report,recordId)
+				SELECT
+					-- Get as many rows as exist, but ignore the actual data in them:
+					'seriestitlemismatches{$variantNumber}' AS report,
+					-1 AS recordId
+				FROM listing_seriestitlemismatches{$variantNumber}
+		;";
+		$this->databaseConnection->execute ($query);
+		
+		# Return the result
+		return true;
+	}
+	
+	
+	# Function to create temporary tables for use in arttitlenoser and seriestitlemismatches reports
+	private function titlesMatchingTemporaryTables ($locCondition, $dropping = false)
+	{
+		# Clean out
+		$query = "DROP TABLE IF EXISTS {$this->settings['database']}.temp_articletitles;";
+		$this->databaseConnection->execute ($query);
+		$query = "DROP TABLE IF EXISTS {$this->settings['database']}.temp_serialtitles;";
+		$this->databaseConnection->execute ($query);
+		
+		# End if only dropping
+		if ($dropping) {return;}
+		
+		# Create a temporary table to extract the serial title within the record, where the record is not a pamphlet; as of 31/Jan/2019 creates 93,343 records for seriestitlemismatches3
+		$query = "
+			CREATE TABLE temp_articletitles (
+				id INT NOT NULL,
+				title VARCHAR(255) NOT NULL,
+				PRIMARY KEY (id),
+				INDEX (title)
+			) ENGINE=MyISAM
+			AS
 				SELECT
 					id,
 					EXTRACTVALUE(xml, 'art/j/tg/t') AS title
@@ -3991,45 +4047,23 @@ class reports
 					AND EXTRACTVALUE(xml, 'art/j/loc/location') NOT LIKE 'Special Collection %'	/* I.e. has a location which is not in the special collection (historic materials, bound copies together, early pamphlets) */
 					AND EXTRACTVALUE(xml, 'status') = ''
 					AND EXTRACTVALUE(xml, 'art/j/loc/location') {$locCondition}
-				) AS articles
-				
-			LEFT OUTER JOIN (
-				
+		;";
+		$this->databaseConnection->execute ($query);
+		
+		# Create a temporary table (as dynamic join in main query below is slow due to lack of indexing) to extract the title from the parent serials; as of 31/Jan/2019 creates 3,333 records for seriestitlemismatches3
+		$query = "
+			CREATE TABLE temp_serialtitles (
+				title VARCHAR(255) NOT NULL,
+				INDEX (title)
+			) ENGINE=MyISAM
+			AS
 				/* Subquery to extract the title from the parent serials */
 				SELECT
 					EXTRACTVALUE(xml, 'ser/tg/t') AS title
 				FROM catalogue_xml
-					WHERE EXTRACTVALUE(xml, 'ser/tg/t') != ''		/* Implicit within this that it is a serial */
-				) AS serials
-				
-			ON (articles.title = serials.title)
-			WHERE serials.title IS NULL
-			GROUP BY articles.title
-			ORDER BY instances DESC, " . $this->databaseConnection->trimSql ('articles.title') . "
-		";
-		$query = "INSERT INTO listing_seriestitlemismatches{$variantNumber} (title, instances) \n {$query};";
-		$result = $this->databaseConnection->execute ($query);
-		
-		# Fix entities; e.g. title of /records/196750/ ; see: https://stackoverflow.com/questions/30194976/
-		$sql = "
-			UPDATE `listing_seriestitlemismatches{$variantNumber}`
-			SET title = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( title   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
+				WHERE EXTRACTVALUE(xml, 'ser/tg/t') != ''		/* Implicit within this that it is a serial */
 		;";
-		$this->databaseConnection->execute ($sql);
-		
-		# Implement countability, by adding an entry, without reference to recordId, into the report results table
-		$sql = "
-			INSERT INTO reportresults (report,recordId)
-				SELECT
-					-- Get as many rows as exist, but ignore the actual data in them:
-					'seriestitlemismatches{$variantNumber}' AS report,
-					-1 AS recordId
-				FROM listing_seriestitlemismatches{$variantNumber}
-		;";
-		$this->databaseConnection->execute ($sql);
-		
-		# Return the result
-		return true;
+		$this->databaseConnection->execute ($query);
 	}
 	
 	
