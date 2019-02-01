@@ -2576,12 +2576,13 @@ class import
 		}
 		
 		# Records to ignore (highest priority)
-		#!# Currently will exclude records that are *also* held at IGS rather than *only* held at IGS - data work is in progress
+		# Verified that, following data work, all such records are also 'Not in SPRI' and have no other location, using `SELECT id, EXTRACTVALUE(xml, '//location') AS locations FROM catalogue_xml WHERE EXTRACTVALUE(xml, '//location') REGEXP '(IGS|International Glaciological Society|Basement IGS Collection)';`
 		$query = "UPDATE catalogue_marc
 			LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
 			SET status = 'ignore'
 			WHERE
-				(field = 'location' AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection'))
+				    field = 'location'
+				AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection')
 		;";
 		$this->databaseConnection->execute ($query);
 		
