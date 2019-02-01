@@ -42,7 +42,7 @@ class reports
 		'externallocations_info' => "records where no location is 'Not in SPRI', having first filtered out any matching a whitelist of internal locations",
 		'loclocloc_info' => 'records with three or more locations',
 		'singleexternallocation_problem' => 'records with only one external location, which is not on the whitelist',
-		'arttitlenoser' => 'articles without a matching serial title, that are not pamphlets or in the special collection',
+		'arttitlenoser_problem' => 'articles without a matching serial title, that are not pamphlets or in the special collection',
 		'locationauthoritycontrol_problem' => 'locations not passing authority control',
 		'notinspri_info' => 'items not in SPRI',
 		'notinspriinspri_problem' => 'items not in SPRI also having a SPRI location',
@@ -1119,43 +1119,22 @@ class reports
 	# Articles without a matching serial title in another record: orphaned works, that are not pamphlets or in the special collection
 	public function report_arttitlenoser ()
 	{
+		# Create temporary tables for use in the main query, as dynamic join in main query below is slow due to lack of indexing
+		# NB As of 31/Jan/2019 creates 94,949 records in temp_articletitles
+		$this->titlesMatchingTemporaryTables ($andConstraint = '');
+		
 		# Define the query; see: http://stackoverflow.com/a/367865 and http://stackoverflow.com/a/350180
-		/*
-			16525 - no *exact* match
-			
-			
-		*/
 		$query = "
 			SELECT
 				'arttitlenoser' AS report,
 				id AS recordId
-			FROM (
-				
-				/* Subquery to extract the serial title within the record, where the record is not a pamphlet */
-				/* NB As of 8/May/2014: matches 89,603 records */
-				SELECT
-					id,
-					EXTRACTVALUE(xml, 'art/j/tg/t') AS title
-				FROM catalogue_xml
-					WHERE
-						EXTRACTVALUE(xml, 'art/j') != ''							/* I.e. is in journal */
-					AND EXTRACTVALUE(xml, 'art/j/loc/location') NOT LIKE 'Pam %'	/* I.e. has a location which is not pamphlet */
-					AND EXTRACTVALUE(xml, 'art/j/loc/location') NOT LIKE 'Special Collection %'	/* I.e. has a location which is not in the special collection (historic materials, bound copies together, early pamphlets) */
-					AND EXTRACTVALUE(xml, 'status') = ''
-				) AS articles
-				
-			LEFT OUTER JOIN (
-				
-				/* Subquery to extract the title from the parent serials */
-				SELECT
-					EXTRACTVALUE(xml, 'ser/tg/t') AS title
-				FROM catalogue_xml
-					WHERE EXTRACTVALUE(xml, 'ser/tg/t') != ''		/* Implicit within this that it is a serial */
-				) AS serials
-				
+			FROM temp_articletitles AS articles
+			LEFT JOIN temp_serialtitles AS serials
 			ON (articles.title = serials.title)
 			WHERE serials.title IS NULL
 		";
+		
+		// NB Temporary tables will be cleaned up later in report_seriestitlemismatches
 		
 		# Return the query
 		return $query;
@@ -3973,7 +3952,8 @@ class reports
 		$this->databaseConnection->execute ($query);
 		
 		# Create temporary tables for use in the main query, as dynamic join in main query below is slow due to lack of indexing
-		$this->titlesMatchingTemporaryTables ($locCondition);
+		$andConstraint = "AND EXTRACTVALUE(xml, 'art/j/loc/location') {$locCondition};";
+		$this->titlesMatchingTemporaryTables ($andConstraint);
 		
 		# Select the data and insert it into the new table
 		$query = "
@@ -3991,7 +3971,7 @@ class reports
 		$result = $this->databaseConnection->execute ($query);
 		
 		# Remove the temporary tables
-		$this->titlesMatchingTemporaryTables ($locCondition, true);
+		$this->titlesMatchingTemporaryTables ($andConstraint, true);
 		
 		# Fix entities; e.g. title of /records/196750/ ; see: https://stackoverflow.com/questions/30194976/
 		$query = "
@@ -4017,7 +3997,7 @@ class reports
 	
 	
 	# Function to create temporary tables for use in arttitlenoser and seriestitlemismatches reports
-	private function titlesMatchingTemporaryTables ($locCondition, $dropping = false)
+	private function titlesMatchingTemporaryTables ($andConstraint, $dropping = false)
 	{
 		# Clean out
 		$query = "DROP TABLE IF EXISTS {$this->settings['database']}.temp_articletitles;";
@@ -4046,7 +4026,7 @@ class reports
 					AND EXTRACTVALUE(xml, 'art/j/loc/location') NOT LIKE 'Pam %'	/* I.e. has a location which is not pamphlet */
 					AND EXTRACTVALUE(xml, 'art/j/loc/location') NOT LIKE 'Special Collection %'	/* I.e. has a location which is not in the special collection (historic materials, bound copies together, early pamphlets) */
 					AND EXTRACTVALUE(xml, 'status') = ''
-					AND EXTRACTVALUE(xml, 'art/j/loc/location') {$locCondition}
+					{$andConstraint}
 		;";
 		$this->databaseConnection->execute ($query);
 		
