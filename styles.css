@@ -23,10 +23,10 @@
 #muscatconversion #marc {overflow-x: scroll;}
 #muscatconversion #marc pre strong, #muscatconversion table.reportlisting strong {color: #603; font-weight: normal; background-color: #ddd; opacity: 0.7;}
 #muscatconversion table.reports tr td {background-color: white;}
-#muscatconversion table.reports tr.info td {background-color: #eee !important; /* !important necessary for printing background colour */}
-#muscatconversion table.reports tr.problem td {background-color: #fcc7c8 !important; /* !important necessary for printing background colour */}
-#muscatconversion table.reports tr.ok td {background-color: #e3f9d9 !important; /* !important necessary for printing background colour */}
-#muscatconversion table.reports tr.postmigration td {background-color: #cdd0fe !important; /* !important necessary for printing background colour */}
+#muscatconversion table.reports tr.info td, #muscatconversion p#reportskey strong.info {background-color: #eee !important; /* !important necessary for printing background colour */}
+#muscatconversion table.reports tr.problem td, #muscatconversion p#reportskey strong.problem {background-color: #fcc7c8 !important; /* !important necessary for printing background colour */}
+#muscatconversion table.reports tr.ok td, #muscatconversion p#reportskey strong.ok {background-color: #e3f9d9 !important; /* !important necessary for printing background colour */}
+#muscatconversion table.reports tr.postmigration td, #muscatconversion p#reportskey strong.postmigration {background-color: #cdd0fe !important; /* !important necessary for printing background colour */}
 #muscatconversion #semanticmatcheslinks a, #muscatconversion #semanticmatcheslinks strong {border: 1px solid #ddd; padding: 1px 4px; margin-right: 2px;}
 #muscatconversion #semanticmatcheslinks strong {background-color: #eee;}
 #muscatconversion #form_definition {font-family: Lucida Console, courier, monospace; line-height: 1.5em; padding: 10px;}
@@ -38,8 +38,8 @@
 #muscatconversion table.diacritics table tr td:first-child {text-align: right;}
 #muscatconversion table.diacritics table tr td.unicode {font-size: 1.4em;}
 #muscatconversion table.fieldslisting td.Description {width: 400px;}
-#muscatconversion p#exporttarget {text-align: right;}
-#muscatconversion p#exporttarget strong {border: 1px solid #ddd; padding: 2px;}
+#muscatconversion p#exporttarget, #muscatconversion p#reportskey {text-align: right;}
+#muscatconversion p#exporttarget strong, #muscatconversion p#reportskey strong {border: 1px solid #ddd; padding: 2px;}
 #muscatconversion span.spelling {text-decoration: underline wavy red;}	/* In Chrome, requires "Enable experimental Web Platform features" in about://flags */
 #muscatconversion form#spellcheck {text-align: right;}
 #muscatconversion form#spellcheck input[type='number'] {width: 60px;}

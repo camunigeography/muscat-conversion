@@ -532,6 +532,19 @@ class muscatConversion extends frontControllerApplication
 			}
 		}
 		
+		# Create a key to show report types
+		$reportTypes = array (
+			'ok' => 'OK',
+			'problem' => 'Problems',
+			'postmigration' => 'Post-migration',
+			'info' => 'Informational',
+		);
+		$types = array ();
+		foreach ($reportTypes as $type => $label) {
+			$types[] = "<strong class=\"{$type}\">{$label}</strong>";
+		}
+		$keyHtml = "\n<p id=\"reportskey\">Key: &nbsp;" . implode (' &nbsp;', $types) . '</p>';
+		
 		# Get the counts
 		$counts = $this->getCounts ();
 		
@@ -569,7 +582,8 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Compile the HTML
-		$html  = application::htmlTable ($table, array (), 'reports lines', $keyAsFirstColumn = false, false, $allowHtml = true, false, false, $addRowKeyClasses = true);
+		$html  = $keyHtml;
+		$html .= application::htmlTable ($table, array (), 'reports lines', $keyAsFirstColumn = false, false, $allowHtml = true, false, false, $addRowKeyClasses = true);
 		
 		# Return the HTML
 		return $html;
