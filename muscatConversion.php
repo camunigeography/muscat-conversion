@@ -2798,7 +2798,7 @@ class muscatConversion extends frontControllerApplication
 				$errorsHtml .= "\n</pre>";
 				$errorsHtml .= "\n</div>";
 			} else {
-				$errorsHtml .= "\n<p><em>No errors for this group.</em></p>";
+				$errorsHtml .= "\n<p><em>No (non-whitelisted) Bibcheck errors for this group.</em></p>";
 			}
 		}
 		
