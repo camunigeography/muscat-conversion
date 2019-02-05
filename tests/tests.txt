@@ -1352,13 +1352,13 @@ index (θ .\$t/h²\$).
 Dollar in 541 is not an indicator, but wrongly triggers Bibcheck error now whitelisted
 148863
 541
-‡h50 AUS$ 
+‡h50 AUS$
 
 225
 Money value string $5 in 541 is not an indicator, but wrongly triggers Bibcheck error about repeatable field now whitelisted
 9220
 541
-‡h$50.00 ‡5UkCU-P
+‡h$50.00‡5UkCU-P
 
 226
 541 has $5 set, but triggers Bibcheck warning to check
@@ -1550,7 +1550,7 @@ Multiple *con in 583
 MARC parser check of 'A' (all) control character: value present (see also next test)
 3056
 541
-‡aMather, J.H. (bequest) ‡5UkCU-P
+‡aMather, J.H. (bequest)‡5UkCU-P
 
 258
 MARC parser check of 'A' (all) control character: not value present (see also previous test)
@@ -2702,7 +2702,7 @@ SSSR ;‡vTom 27
 541 multiline
 3959
 541
-/^‡aBreitfuss ‡5UkCU-P$/
+/^‡aBreitfuss‡5UkCU-P$/
 
 457
 541 single line
@@ -2735,34 +2735,34 @@ SSSR ;‡vTom 27
 ‡cExchange - PR;‡a
 
 462
-451 ‡c *sref
+541 ‡c *sref
 168419
 541
 ‡c329400;‡a
 
 463
-451 ‡a
+541 ‡a
 1050
 541
-‡aMinistry of Works and Division (gift) ‡
+‡aMinistry of Works and Division (gift)‡
 
 464
-451 ‡d
+541 ‡d
 3173
 541
-‡d2001/01/11 ‡
+‡d2001/01/11‡
 
 465
-451 ‡h
+541 ‡h
 3173
 541
-‡h85.00 UKP ‡
+‡h85.00 UKP‡
 
 466
 541 ‡5
 3173
 541
-/ ‡5UkCU-P$/
+/‡5UkCU-P$/
 
 467
 No 541 created if no *acq and no *kb
@@ -5188,4 +5188,8 @@ In 541, if there is a $c, use semicolon separator rather than space between it a
 541
 ‡cGift;‡aRees, G.
 
-
+890
+In 541, separate subfields without spaces or other separator
+176629
+541
+‡aEVP‡d2006/08/09‡h
