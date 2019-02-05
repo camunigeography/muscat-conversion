@@ -2779,14 +2779,17 @@ class marcConversion
 			# Register the line if subfields have been created, e.g. /records/3173/ (test #466)
 			if ($subfields) {
 				
-				# Add the institution to which field applies, i.e. SPRI
-				$subfields[] = "{$this->doubleDagger}5" . 'UkCU-P';
-				
 				# Compile the line, without any space or other separator, e.g. /records/176629/ (test #890)
 				$resultLine = implode ('', $subfields);
 				
-				# If there is a $c, add semicolon separator between it and the following subfield, e.g. /records/1038/ (test #889)
+				# If there is a $c, add semicolon separator between it and the following subfield, e.g. /records/1038/ (test #889); negative case in /records/72738/ (test #892)
 				$resultLine = preg_replace ("/({$this->doubleDagger}c)([^{$this->doubleDagger}]+)({$this->doubleDagger})/", '\1\2;\3', $resultLine);
+				
+				# "Field 541 ends with a period unless another mark of punctuation is present. If the final subfield is subfield $5, the mark of punctuation precedes that subfield.", e.g. /records/168419/ (test #891)
+				$resultLine = $this->macro_dotEnd ($resultLine, $extendedCharacterList = true);
+				
+				# Add the institution to which field applies, i.e. SPRI
+				$resultLine .= "{$this->doubleDagger}5" . 'UkCU-P';
 				
 				# Register the line
 				$resultLines[] = $resultLine;

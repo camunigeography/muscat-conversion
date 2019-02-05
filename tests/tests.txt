@@ -1358,7 +1358,7 @@ Dollar in 541 is not an indicator, but wrongly triggers Bibcheck error now white
 Money value string $5 in 541 is not an indicator, but wrongly triggers Bibcheck error about repeatable field now whitelisted
 9220
 541
-‡h$50.00‡5UkCU-P
+‡h$50.00.‡5UkCU-P
 
 226
 541 has $5 set, but triggers Bibcheck warning to check
@@ -2702,7 +2702,7 @@ SSSR ;‡vTom 27
 541 multiline
 3959
 541
-/^‡aBreitfuss‡5UkCU-P$/
+/^‡aBreitfuss.‡5UkCU-P$/
 
 457
 541 single line
@@ -2756,7 +2756,7 @@ SSSR ;‡vTom 27
 541 ‡h
 3173
 541
-‡h85.00 UKP‡
+‡h85.00 UKP.‡
 
 466
 541 ‡5
@@ -5183,13 +5183,25 @@ Macro generate250 dot end (dot example; see also #438)
 ‡bsuperintended by Rev. Robert Main.
 
 889
-In 541, if there is a $c, use semicolon separator rather than space between it and the following subfield
+In 541, if there is a ‡c, use semicolon separator rather than space between it and the following subfield (see also #892)
 1038
 541
-‡cGift;‡aRees, G.
+‡cGift;‡aRe
 
 890
 In 541, separate subfields without spaces or other separator
 176629
 541
 ‡aEVP‡d2006/08/09‡h
+
+891
+Field 541 ends with a period unless another mark of punctuation is present. If the final subfield is subfield ‡5, the mark of punctuation precedes that subfield.
+168419
+541
+‡d2004/06/24.‡5UkCU-P
+
+892
+No semicolon separator after ‡c if no further field (other than ‡5) present, as dotEnd present (see also #889)
+72738
+541
+‡cExchange.‡5UkCU-P
