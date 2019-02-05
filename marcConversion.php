@@ -2778,8 +2778,18 @@ class marcConversion
 			
 			# Register the line if subfields have been created, e.g. /records/3173/ (test #466)
 			if ($subfields) {
-				$subfields[] = "{$this->doubleDagger}5" . 'UkCU-P';	// Institution to which field applies, i.e. SPRI
-				$resultLines[] = implode (' ', $subfields);
+				
+				# Add the institution to which field applies, i.e. SPRI
+				$subfields[] = "{$this->doubleDagger}5" . 'UkCU-P';
+				
+				# Compile the line, space-separated
+				$resultLine = implode (' ', $subfields);
+				
+				# If there is a $c, use semicolon separator rather than space between it and the following subfield, e.g. /records/1038/ (test #889)
+				$resultLine = preg_replace ("/({$this->doubleDagger}c)([^{$this->doubleDagger}]+) ({$this->doubleDagger})/", '\1\2;\3', $resultLine);
+				
+				# Register the line
+				$resultLines[] = $resultLine;
 			}
 			
 			# Next *acq

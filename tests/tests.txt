@@ -2708,37 +2708,37 @@ SSSR ;‡vTom 27
 541 single line
 176629
 541
-‡ca2085809--BA Russia ‡a
+‡ca2085809--BA Russia;‡a
 
 458
 541 ‡c *fund alone becomes ‡c
 132544
 541
-‡cAO4J7D ‡a
+‡cAO4J7D;‡a
 
 459
 541 ‡c *fund and *sref
 176629
 541
-‡ca2085809--BA Russia ‡a
+‡ca2085809--BA Russia;‡a
 
 460
 541 ‡c *fund and *kb but no *fund
 195699
 541
-‡c60129--Exchange - PR and PGA ‡a
+‡c60129--Exchange - PR and PGA;‡a
 
 461
 541 ‡c *kb
 1010
 541
-‡cExchange - PR ‡a
+‡cExchange - PR;‡a
 
 462
 451 ‡c *sref
 168419
 541
-‡c329400 ‡a
+‡c329400;‡a
 
 463
 451 ‡a
@@ -5181,4 +5181,11 @@ Macro generate250 dot end (dot example; see also #438)
 3887
 250
 ‡bsuperintended by Rev. Robert Main.
+
+889
+In 541, if there is a $c, use semicolon separator rather than space between it and the following subfield
+1038
+541
+‡cGift;‡aRees, G.
+
 
