@@ -2591,10 +2591,10 @@ Macro generate250 compile with space between subfields
 ‡a2nd ed. /‡bcontaining
 
 438
-Macro generate250 dot end
+Macro generate250 dot end (punctuation example; see also #888)
 2549
 250
-/‡aNew edition \(Fourth\).$/
+/‡aNew edition \(Fourth\)$/
 
 439
 245: If there is a / in the title explicitly, use that (see also #546)
@@ -5175,4 +5175,10 @@ Protected string for English title in record with *lang Russian
 27093
 245
 Arctic ice islands and how they drift
+
+888
+Macro generate250 dot end (dot example; see also #438)
+3887
+250
+‡bsuperintended by Rev. Robert Main.
 

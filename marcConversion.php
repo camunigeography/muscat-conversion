@@ -2430,8 +2430,8 @@ class marcConversion
 		# Compile the overall string; e.g. /records/45901/ (test #437)
 		$value = implode (' ', $subfields);
 		
-		# Ensure the value ends with a dot (even if punctuation already present); e.g. /records/4432/ , /records/2549/ (test #438)
-		$value = $this->macro_dotEnd ($value);
+		# Ensure the value ends with a dot or punctuation; e.g. /records/4432/ , /records/2549/ (test #438)
+		$value = $this->macro_dotEnd ($value, $extendedCharacterList = true);
 		
 		# Return the value
 		return $value;
