@@ -2836,7 +2836,7 @@ class reports
 						    field = 'location'
 						AND (value REGEXP '^Pam' OR value REGEXP '^Pam ')
 				)
-			GROUP BY recordId		-- To enable GROUP_CONCAT of locations.value
+			GROUP BY recordId, IFNULL(journalTitles.value, '[No title]'), itemTitle		-- To enable GROUP_CONCAT of locations.value
 			ORDER BY journalTitle, recordId
 		";
 		$data = $this->databaseConnection->getData ($query);
