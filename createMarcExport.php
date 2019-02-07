@@ -251,6 +251,7 @@ class createMarcExport
 			'533: Subfield _5 is not allowed.',	// E.g. /records/43953/ but this is clearly defined at https://www.loc.gov/marc/bibliographic/bd533.html
 			'541: Subfield _[0-9AUNC ] is not allowed.',	// E.g. /records/148863/ which has "AUS$ " (test #224); see example at: https://www.loc.gov/marc/bibliographic/bd541.html which confirms use of unescaped $
 			'541: Subfield _[0-9] is not repeatable.',	// The generate541 code definitely has no horizontal repeatability - this is Bibcheck being unable to distinguish e.g. $5 (money) from double-dagger5 (subfield), e.g. /records/9220/ (test #225)
+			'541: Subfield _. is not allowed.'	// Dollar bug as per other whitelistings, e.g. /records/137359/
 			'Record is post 1900 but contains local information \(541 or 561 fields\) - please check.',	// For 541; confirmed fine as we are setting $5, e.g. /records/9220/ (test #226)
 			'6XX: Unless the Literary form in the 008 is set to one of the fiction codes, there must be at least one 6XX field \(ignore if the work is a sacred text.\)',		// This arises because Bibcheck has a litcode check at line 602 but that assumes that the 008 is a "008 - Books" which is not always the case - see position_18_34__33 in generate008; see e-mail dated 30/Mar/2016 investigating this, and e-mail 31/Mar/2016 confirming the error is safe to suppress; e.g. /records/1061/ (test #227)
 			'700: Subfield _1 is not allowed.',	// E.g. /records/194888/ has "proposed $12-billion"
