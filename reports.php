@@ -156,6 +156,7 @@ class reports
 		'paralleltitlesyntax_problem' => 'incorrect syntax for a parallel title',
 		'provenancenote_problem' => 'incorrect syntax for a provenance note',
 		'onmigration_postmigration' => 'records with a note regarding post-migration instructions',
+		'basementshelf0875_postmigration' => 'records with 087.5 but not Basement Shelf',
 	);
 	
 	# Listing (values) reports
@@ -257,6 +258,9 @@ class reports
 			
 			'seriestitlemismatches3' =>
 				'These are analytic records for which SPRI does not have a parent, which means we have no name authority for the parent, making matching pre-migration unreliable.',
+			
+			'basementshelf0875' =>
+				"Highlights books to be reclassified after migration so that they can be shelved in the children's collection.",
 			
 			'multiplecopiesvalues' =>
 				'Notes such as "SPRI has..." need to be checked against the rest of the data, e.g. "SPRI has three copies" should be reflected as three locations.',
@@ -3594,6 +3598,26 @@ class reports
 			WHERE
 				    field = 'priv'
 				AND value LIKE 'On migration%'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with 087.5 but not Basement Shelf
+	public function report_basementshelf0875 ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'basementshelf0875' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field = 'location'
+				AND value LIKE '%087.5%'
+				AND value NOT LIKE 'Basement Shelf%'
 		";
 		
 		# Return the query
