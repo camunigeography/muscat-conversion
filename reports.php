@@ -4070,6 +4070,7 @@ class reports
 				FROM catalogue_xml
 					WHERE
 						EXTRACTVALUE(xml, 'art/j') != ''							/* I.e. is in journal */
+					AND EXTRACTVALUE(xml, 'art/j/k2/kg') = ''						/* I.e. does not have an explicit match, e.g. to deal with 'Les Alpes : revue du Club alpin suisse' and 'Die Alpen : Monatsschrift des Schweizer Alpenclub' both matching to /records/12961/ which has 'Die Alpen = Les Alpes = Le Alpi = Las Alps : Monatsschrift des Schweizer Alpenclub = revue du Club alpin Suisse = rivista del Club alpino svizzero = survista del Club alpin svizzer' */
 					AND EXTRACTVALUE(xml, 'art/j/loc/location') NOT LIKE 'Pam %'	/* I.e. has a location which is not pamphlet */
 					AND EXTRACTVALUE(xml, 'art/j/loc/location') NOT LIKE 'Special Collection %'	/* I.e. has a location which is not in the special collection (historic materials, bound copies together, early pamphlets) */
 					AND EXTRACTVALUE(xml, 'status') = ''
