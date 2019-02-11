@@ -1739,7 +1739,7 @@ class marcConversion
 		#!# Need to check that first //lang is what is always wanted, i.e. not using *lang data within *in or *j
 		if (!$language) {
 			$xml = ($externalXml ? $externalXml : $this->xml);	// Use external XML if supplied
-			$xPath = '(//lang)[1]';	// Choose first only, e.g. /records/2003/ which has two instances of *lang=French within the record
+			$xPath = '(//lang)[1]';	// Choose first only, e.g. /records/2003/ (test #883) which has two instances of *lang=French within the record
 			$language = $this->xPathValue ($xml, $xPath, false);
 		}
 		

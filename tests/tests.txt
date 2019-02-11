@@ -1350,9 +1350,9 @@ index (θ .\$t/h²\$).
 
 224
 Dollar in 541 is not an indicator, but wrongly triggers Bibcheck error now whitelisted
-148863
+151041
 541
-‡h50 AUS$
+‡h50 AUS$.‡5
 
 225
 Money value string $5 in 541 is not an indicator, but wrongly triggers Bibcheck error about repeatable field now whitelisted
@@ -5148,9 +5148,9 @@ Non-Russian record with Russian *nt present has no 880 generated from *e block w
 
 883
 macro_nfCount uses first language only
-2003
+13258
 i245
-/^.3/
+/^.4/
 
 884
 300 split includes full string 'portrait' variant
