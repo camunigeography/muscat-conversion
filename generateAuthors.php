@@ -31,6 +31,8 @@
 					|---> Value can mutate into 710 then Add to record; go to next in loop
 					|
 					|---> Value can mutate into 711 then Add to record; go to next in loop
+	
+	If there are four or more authors (i.e. with no relator term), excluding those pulled in from *kg host, convert the 100 to 700, e.g. /records/1648/ (test #895, #896)
 */
 
 /* Key checks:
@@ -39,6 +41,7 @@
 	- Any further *art/*ag/*a fields should map to 7XX fields			e.g. /records/8249/ (test #60)
 	- Any *art/*ag/*al fields should map to 7XX fields					e.g. /records/1963/ (test #61)
 	- Any *art/*e/*n fields should map to 7XX fields					e.g. /records/5126/ (test #62)
+	- Four or more authors have their 100 turned to 700					e.g. /records/1648/ (test #895, #896)
 	
 	However...
 	
@@ -126,6 +129,9 @@ class generateAuthors
 			$this->generateFirstEntity ($languageMode);		// Round one: first entity
 			$this->generateOtherEntities ($languageMode);	// Round two: all other entities
 		}
+		
+		# If there are four or more authors (i.e. with no relator term), excluding those pulled in from *kg host, convert the 100 to 700, e.g. /records/1648/ (test #895, #896)
+		$this->fourOrMoreAuthorsAdjustment ();
 		
 		# Return the values
 		return $this->values;
@@ -262,6 +268,44 @@ class generateAuthors
 		foreach ($lines as $line) {
 			$fieldNumber = $line['field'];
 			$this->values[$this->languageMode][$fieldNumber][] = $line['line'];
+		}
+	}
+	
+	
+	# Function to adjust 100 to 700 when there are four or more authors (i.e. with no relator term), excluding those pulled in from *kg host, e.g. /records/1648/ (test #895, #896)
+	private function fourOrMoreAuthorsAdjustment ()
+	{
+		# Count pure authors, i.e. those without a relator term, and without a *kg host -derived title, also excluding alternative name entries
+		# This count is done in the default language mode, because Russian can have *nt=BGNRus handling causing empty slots to avoid 880 mismatches, e.g. /records/151048/ (test #898)
+		$pureAuthors = array ();
+		$fields = array (100, 700);
+		foreach ($fields as $field) {
+			foreach ($this->values['default'][$field] as $entry) {
+				
+				# Skip those with relator term (editors, illustrators, compilers, etc.) (which is always $e for 100 not $j), e.g. /records/154475/ (test #900)
+				if (substr_count ($entry, "{$this->doubleDagger}e")) {continue;}
+				
+				# Skip those with pulled in from *kg host, which have a title, e.g. /records/109111/ (test #899)
+				if (substr_count ($entry, "{$this->doubleDagger}t")) {continue;}
+				
+				# Exclude alternative name entries from consideration, as these are not real authors, e.g. /records/7624/ (test #902)
+				if (substr_count ($entry, "{$this->doubleDagger}g(alternative name)")) {continue;}
+				
+				# Add to the count, registering the field
+				$pureAuthors[] = $field;
+			}
+		}
+		
+		# End if not four more or authors, e.g. /records/154475/ (test #901)
+		if (count ($pureAuthors) < 4) {return;}
+		
+		# End if there is no 100 amongst the pure authors, e.g. /records/121744/ (test #903, though not properly testable as the effect is to create an invalid record with a 700 field but no line, which the marcParser routine used by the test system cannot recognise)
+		if (!in_array (100, $pureAuthors)) {return;}
+		
+		# Shift the 100 author (there can only ever be one) to the start of the 700 and reindex, for each language mode, e.g. /records/1648/ (test #895, #896), transliterated example at /records/9995/ (test #897)
+		foreach ($this->languageModes as $languageMode) {
+			$new700Entry = array_pop ($this->values[$languageMode][100]);
+			array_unshift ($this->values[$languageMode][700], $new700Entry);
 		}
 	}
 	

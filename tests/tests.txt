@@ -979,7 +979,7 @@ Test *e/*role handling when *n1 = 'the author'
 161
 100 Ensure single dot at end when already naturally present
 46175
-100
+700
 /L\.$/
 
 162
@@ -5217,4 +5217,59 @@ No semicolon separator after ‡c if no further field (other than ‡5) present,
 1154
 700
 ‡aBradshaw, Margaret A.,‡eeditor.
+
+895
+If 4 or more authors, the 100 is shifted to 700 (see also next test)
+1648
+!100
+‡aRay, G. C.
+
+896
+If 4 or more authors, the 100 is shifted to 700 (see also previous test)
+1648
+700
+‡aRay, G. C.
+
+897
+If 4 or more authors, the 100 is shifted to 700 - transliteration 880-100 to 880-700
+9995
+880
+‡6700-03/(N‡aПигнатти, В. Н.
+
+898
+In 4 or more authors handling in transliteration mode, maintain 880 no-mismatches handling, by doing calculation in default language mode side
+151048
+700
+‡6880-05‡aGorman, M. R.‡g(alternative name)
+
+899
+In 4 or more authors handling in transliteration mode, exclude those with pulled in from *kg host
+109111
+100
+‡aRogachev, Mikhail Borisovich.
+
+900
+In 4 or more authors handling in transliteration mode, exclude those with relator terms
+154475
+100
+‡aAlʹbanov, Valerian Ivanovich.
+
+901
+Do not apply 4 or more authors handling when less than 4 authors
+154475
+100
+‡aAlʹbanov, Valerian Ivanovich.
+
+902
+In 4 or more authors handling in transliteration mode, exclude alternative name entries from consideration
+7624
+100
+‡aKnipovich, Nikolaĭ Mikhaĭlovich.
+
+903
+Do not apply 4 or more authors handling when no 100
+121744
+!700
+/^$/
+
 
