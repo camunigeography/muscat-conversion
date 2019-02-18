@@ -5212,4 +5212,9 @@ No semicolon separator after ‡c if no further field (other than ‡5) present,
 !100
 *
 
+894
+*ag with multiple authors and *ad has relator term applied to each
+1154
+700
+‡aBradshaw, Margaret A.,‡eeditor.
 

@@ -1083,11 +1083,11 @@ class generateAuthors
 			$replacements = array_unique ($replacements);
 			$subfieldCode = (in_array ($this->field, array (111, 711)) ? 'j' : 'e');	// X11 have Relator Term in $j; see: http://www.loc.gov/marc/bibliographic/bd711.html
 			foreach ($replacements as $replacement) {
-				$value .= ",{$this->doubleDagger}{$subfieldCode}{$replacement}";	// No space before $e, whether the first or multiple, as shown at https://www.loc.gov/marc/bibliographic/bd700.html e.g. /records/2295/ (tests #121, #122)
+				$value .= ",{$this->doubleDagger}{$subfieldCode}{$replacement}";	// No space before $e, whether the first or multiple, as shown at https://www.loc.gov/marc/bibliographic/bd700.html , e.g. /records/2295/ (tests #121, #122)
 			}
 		}
 		
-		# Return the value
+		# Return the value, e.g. /records/2295/ (tests #121, #122); multiple where each person in the same author group (*ag) has same relator term added, e.g. /records/1154/ (test #894)
 		return $value;
 	}
 	
