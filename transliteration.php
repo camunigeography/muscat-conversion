@@ -183,6 +183,7 @@ class transliteration
 		$muscatRepresentations = array (
 			chr(0xCA).chr(0xB9) => "'",		// Soft sign -> Muscat quote
 			chr(0xCA).chr(0xBA) => "''",	// Hard sign -> Muscat double quote
+			'TGF·0,5Pr₄NF·16H₂O' => 'TGF·0,5Pr₄NF·16H₂O',	// Special case overriding middle dot handling (in next line) for /records/100714/ *t (shard 100714:19), purely for /reports/transliterations/?filter=1 checking - does not affect transliteration, which is handled by @@ (test #821)
 			chr(0xC2).chr(0xB7) => '',		// Remove middle dot, which Muscat does not use; see https://unicode.org/cldr/trac/changeset/12203 which is used by PHP7, and note about optional status of middle dot ("The use of this digraph is optional") in https://en.wikipedia.org/wiki/BGN/PCGN_romanization_of_Russian
 		);
 		$forwardBgnTransliterations = strtr ($forwardBgnTransliterations, $muscatRepresentations);

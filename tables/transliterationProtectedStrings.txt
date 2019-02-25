@@ -387,7 +387,7 @@ D₂O
 Ag
 H₂О
 
-# Mid-word replacements, which must start with special token @@
+# Mid-word replacements, which must start with special token @@, which become protected strings not affected by the ALA_LC transliteration phase in transliterateLocLatinToCyrillic
 @@Pr₄NF·16H₂O
 
 # Latin abbreviations and phrases
