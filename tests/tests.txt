@@ -5272,4 +5272,15 @@ Do not apply 4 or more authors handling when no 100
 !700
 /^$/
 
+904
+Special case for Yakut title (880)
+65817
+880
+‡aИйе-Кут
+
+905
+Special case for Yakut title (245)
+65817
+245
+‡aIĭe-Kut
 

@@ -1505,6 +1505,10 @@ class import
 		$query = "UPDATE transliterations SET title_loc = title_latin WHERE language = 'LOCRus';";	// 61 lines updated
 		$data = $this->databaseConnection->query ($query);
 		
+		# Fix up special case of Yakut title for Russian book to avoid erroneous reversibility check failure in /reports/transliterations/?filter=1 report; see: /records/65817/ (tests #904, #905)
+		$query = "UPDATE transliterations SET title_forward = title_latin, forwardCheckFailed = NULL, title_spellcheck_html = title WHERE id = '65817:7';";
+		$data = $this->databaseConnection->query ($query);
+		
 		# Signal success
 		return true;
 	}
