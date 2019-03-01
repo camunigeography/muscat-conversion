@@ -3753,6 +3753,11 @@ class marcConversion
 			# Add any notes, e.g. /records/1288/ (test #817); will be added to each line, as cannot disambiguated, e.g. /records/7455/ (test #820)
 			$result .= $notes;	// If any
 			
+			# Add the item record creation status, as a non-standard field $9 which will be stripped upon final import
+			if ($itemRecords = $this->itemRecordsCreation ($location)) {
+				$result .= " {$this->doubleDagger}9" . "Create {$itemRecords} item record" . ($itemRecords > 1 ? 's' : '');
+			}
+			
 			# Register this result
 			$resultLines[] = trim ($result);
 		}
@@ -3792,6 +3797,26 @@ class marcConversion
 		
 		# Return the assembled string
 		return $notes;
+	}
+	
+	
+	# Function to determine the item record creation status, for use as a private note in 852
+	private function itemRecordsCreation ($location)
+	{
+		# With a Shelf location, e.g. Shelf: /records/1043/ ; Pam: /records/1104/ ; Theses: /records/3152/ ; Atlas: /records/1563/ ; Folio: /records/1150/ ; Library Office: /records/2023/
+		if (preg_match ('/^(Shelf|Pam|Theses|Atlas|Folio|Library Office)/', $location)) {return 1;}
+		
+		# With a location containing the string '087.5' (see also /reports/basementshelf0875/ - not all are prefixed with "Basement Shelf"), e.g. /records/1694/
+		if (substr_count ($location, '087.5')) {return 1;}
+		
+		# With a location containing the string 'Special Collection', e.g. /records/1201/
+		if (substr_count ($location, 'Special Collection')) {return 1;}
+		
+		# They are *ser, e.g. /records/1000/
+		if ($this->recordType == '/ser') {return 1;}
+		
+		# No scenario matched, so no item record creation
+		return false;
 	}
 	
 	
