@@ -3813,7 +3813,17 @@ class marcConversion
 		if (substr_count ($location, 'Special Collection')) {return 1;}
 		
 		# They are *ser, e.g. /records/1000/
-		if ($this->recordType == '/ser') {return 1;}
+		# Count the total number of tokens in all *hold, e.g. /records/1029/ (single *hold) , /records/3339/ (multiple *hold)
+		if ($this->recordType == '/ser') {
+			$itemRecords = 1;	// Default, e.g. /records/1008/
+			if ($holdValues = $this->xPathValues ($this->xml, '//hold[%i]')) {
+				$itemRecords = 0;
+				foreach ($holdValues as $holdValue) {
+					$itemRecords += count (explode (';', $holdValue));
+				}
+			}
+			return $itemRecords;
+		}
 		
 		# No scenario matched, so no item record creation
 		return false;
