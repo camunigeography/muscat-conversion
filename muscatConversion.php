@@ -1256,7 +1256,7 @@ class muscatConversion extends frontControllerApplication
 	# Function to obtain the item records status for a MARC record
 	private function itemRecordsStatus ($id)
 	{
-		# Obtain the number
+		# Obtain the count, e.g. 23 from single 852 in /records/3339/, 2 from multiple 852 in /records/1364/
 		$itemRecords = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'itemRecords', $conditions = array ('id' => $id));
 		
 		# If none, format as dash
