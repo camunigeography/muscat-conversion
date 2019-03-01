@@ -2245,6 +2245,7 @@ class import
 				type ENUM('/art/in','/art/j','/doc','/ser') DEFAULT NULL COMMENT 'Type of record',
 				status ENUM('migratewithitem','migrate','suppress','ignore') NULL DEFAULT NULL COMMENT 'Status',
 				itemRecords INT(1) NULL COMMENT 'Create item record?',
+				itemRecordsSimple INT(1) NULL COMMENT 'Create item record?',
 				mergeType VARCHAR(255) NULL DEFAULT NULL COMMENT 'Merge type',
 				mergeVoyagerId VARCHAR(255) NULL DEFAULT NULL COMMENT 'Voyager ID for merging',
 				marcPreMerge TEXT NULL COLLATE utf8_unicode_ci COMMENT 'Pre-merged MARC representation of local Muscat record',
@@ -2405,19 +2406,57 @@ class import
 			}
 		}
 		
-		# Mark whether item records should be created; this looks at Leader position 7, which indicates Monograph; see marcConversion::macro_generateLeader ()
-		$query = "UPDATE catalogue_marc SET itemRecords = 1 WHERE marc REGEXP '^LDR .{7}m';";
+		# Mark whether item records should be created - fuller algorithm; the spec is:
+		/*
+			Serial records and analytic records do not require item records
+			However, some of the analytic records that are chapters in monographs will most likely be caught up in this - no harm is caused by this however.
+			Records will receive item records when the record matches any of:
+				a. With a Shelf location
+				b. With a Pam location
+				c. With a location containing the string '087.5' (see also /reports/basementshelf0875/ - not all are prefixed with "Basement Shelf")
+				d. With a Theses location
+				e. With an Atlas location
+				f. With a Folio location
+				g. With a location containing the string 'Special Collection'
+				h. With a location containing the string 'Library Office'
+				i. They are *ser, but item record count as per the number of holdings
+			All other records will not receive item records.
+		*/
+		
+		# NB: Simple "087.5" rather than slash-escape in regexp confirmed safe, using `SELECT * FROM catalogue_processed WHERE field = 'location' AND value REGEXP '087.5' AND value NOT LIKE '%087.5%';`
+		$query = "
+			UPDATE catalogue_marc
+			SET itemRecords = 1
+			WHERE id IN(
+			    SELECT
+			    DISTINCT recordId
+			    FROM catalogue_processed
+			    WHERE
+			        xPath = '/ser'
+			        OR (
+			                field = 'location'
+			            AND value REGEXP '(^Shelf|^Pam|087.5|^Theses|^Atlas|^Folio|Special Collection|Library Office)'
+			        )
+			);
+		";
+		$this->databaseConnection->execute ($query);
+		
+		# Mark whether item records should be created - simple algorithm; this looks at Leader position 7, which indicates Monograph; see marcConversion::macro_generateLeader ()
+		$query = "UPDATE catalogue_marc SET itemRecordsSimple = 1 WHERE marc REGEXP '^LDR .{7}m';";
 		$this->databaseConnection->execute ($query);
 		
 		# Update the item records count for multiple locations; the problem of Periodical being present will not arise, as 'm' will have excluded those
 		# This counts the number of 852 7# instances, rather than *location instances which may include 'Not in SPRI', e.g. /records/27689/ has two *location but one 852 - absence of second 852 is not directly testable but test #649 is similar
-		$query = "
-			UPDATE fieldsindex
-			JOIN catalogue_marc ON fieldsindex.id = catalogue_marc.id
-			SET itemRecords = CAST( ((LENGTH(marc)-LENGTH(REPLACE(marc,'\n852 7# ','')))/LENGTH('\n852 7# ') + 0) AS UNSIGNED INTEGER)	/* i.e. substr_count('\n852 7# ') */
-			WHERE itemRecords IS NOT NULL
-		;";
-		$this->databaseConnection->execute ($query);
+		$itemRecordsFields = array ('itemRecords', 'itemRecordsSimple');
+		foreach ($itemRecordsFields as $itemRecordsField) {
+			$query = "
+				UPDATE fieldsindex
+				JOIN catalogue_marc ON fieldsindex.id = catalogue_marc.id
+				SET {$itemRecordsField} = CAST( ((LENGTH(marc)-LENGTH(REPLACE(marc,'\n852 7# ','')))/LENGTH('\n852 7# ') + 0) AS UNSIGNED INTEGER)	/* i.e. substr_count('\n852 7# ') */
+				WHERE {$itemRecordsField} IS NOT NULL
+			;";
+			$this->databaseConnection->execute ($query);
+		}
 		
 		# Update the status of migrate records to migratewithitem when there are item records specified
 		# This includes the status=migrate constraint to ensure that supressed records don't get unsuppressed, e.g. /records/2096/
