@@ -3803,8 +3803,15 @@ class marcConversion
 	# Function to determine the item record creation status, for use as a private note in 852
 	private function itemRecordsCreation ($location)
 	{
-		# With a Shelf location, e.g. Shelf: /records/1043/ ; Pam: /records/1104/ ; Theses: /records/3152/ ; Atlas: /records/1563/ ; Folio: /records/1150/ ; Library Office: /records/2023/
-		if (preg_match ("/^(Shelf|Pam|Theses|Atlas|Folio|Library Office|Archives|Bibliographers' Office|Large Atlas|Librarian's Office|Map Room|Picture Library|Reference|Museum Working Collection)/", $location)) {return 1;}
+		# With a specified location, e.g. Pam: /records/1104/ ; Theses: /records/3152/ ; Atlas: /records/1563/ ; Folio: /records/1150/ ; Library Office: /records/2023/
+		if (preg_match ("/^(Pam|Theses|Atlas|Folio|Library Office|Archives|Bibliographers' Office|Large Atlas|Librarian's Office|Map Room|Picture Library|Reference|Museum Working Collection)/", $location)) {return 1;}
+		
+		# With a shelf location that is not an *art, e.g. created in /records/1220/ , not created in /records/1222/
+		if (preg_match ("/^(Shelf)/", $location)) {
+			if (!preg_match ('|^/art|', $this->recordType)) {
+				return 1;
+			}
+		}
 		
 		# With a location containing the string '087.5' (see also /reports/basementshelf0875/ - not all are prefixed with "Basement Shelf"), e.g. /records/1694/
 		if (substr_count ($location, '087.5')) {return 1;}
