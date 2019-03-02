@@ -2372,7 +2372,7 @@ class import
 						$html = $marcErrorHtml;
 						$errorsHtml .= $html;
 					}
-					preg_match_all ("/852 .+{$this->doubleDagger}9Create ([0-9]+) item record", $marc, $matches);
+					preg_match_all ("/852 .+{$this->doubleDagger}9Create ([0-9]+) item record/", $marc, $matches);
 					$inserts[$id] = array (
 						'id' => $id,
 						'marcPreMerge' => $marcPreMerge,
