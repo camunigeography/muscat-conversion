@@ -3770,7 +3770,7 @@ SUPPRESS
 852 ‡h is not created when no classmark (for standard SPRI locations) (see also previous test, and #647)
 31500
 852
-/‡cSPRI-BIB$/
+‡cSPRI-BIB ‡9
 
 648
 852 with no location gets ‡cSPRIACQ
@@ -3806,7 +3806,7 @@ SUPPRESS
 852 "Shelved with" does not get $h
 1032
 852
-/‡cIssues shelved individually with monographs$/
+‡cIssues shelved individually with monographs ‡9
 
 654
 852 ‡c is created
