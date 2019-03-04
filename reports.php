@@ -69,6 +69,7 @@ class reports
 		'multiplesourcesser_info' => 'records with multiple sources (*ser)',
 		'multiplesourcesdocart_info' => 'records with multiple sources (*doc/*art)',
 		'multiplecopies_info' => 'records where there appear to be multiple copies, in notes field',
+		'mismatchedmultiplecopies_problem' => 'records where there appear to be multiple copies, in notes field, not matching the location count',
 		'multiplein_problem' => 'records containing more than one *in field',
 		'multiplej_problem' => 'records containing more than one *j field',
 		'multipletopt_problem' => 'records containing more than one top-level *t field',
@@ -1741,6 +1742,37 @@ class reports
 				AND value LIKE '%opies%'
 				AND value NOT LIKE '%SPRI also has%'
 			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records where there appear to be multiple copies, in notes field, not matching the location count; see also /reports/multiplecopiesvalues/
+	public function report_mismatchedmultiplecopies ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'mismatchedmultiplecopies' AS report,
+				recordId
+			FROM (
+				SELECT
+					recordId,
+					TRIM( REPLACE( SUBSTRING( REPLACE(REPLACE(REPLACE(value, 'SPRI has four ', 'SPRI has 4 '), 'SPRI has three ', 'SPRI has 3 '), 'SPRI has two ', 'SPRI has 2 ') , 1, 11) , 'SPRI has ', '') ) AS title,
+					CAST( (LENGTH(fieldslist)-LENGTH(REPLACE(fieldslist,'@location@','')))/LENGTH('@location@') AS UNSIGNED) AS locationCount
+				FROM catalogue_processed
+				JOIN fieldsindex ON catalogue_processed.recordId = fieldsindex.id
+				WHERE
+					    field IN('note', 'local', 'priv')
+					AND value LIKE 'SPRI has % copies%'
+					AND value NOT LIKE '%missing%'
+				HAVING
+					    title REGEXP '^([0-9]+)$'
+					AND title != locationCount
+				ORDER BY recordId
+			) AS mismatchedmultiplecopies
+		";
 		
 		# Return the query
 		return $query;
