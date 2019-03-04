@@ -3680,13 +3680,13 @@ SUPPRESS
 852 with single location
 1102
 852
-‡2camdept ‡bSCO ‡cSPRI-SHF ‡h(*60) : 656.61.052
+‡2camdept‡bSCO‡cSPRI-SHF‡h(*60) : 656.61.052
 
 622
 852 with multiple locations
 3959
 852
-‡2camdept ‡bSCO ‡cSPRI-SPC ‡hPamphlet Boxes Breitfuss 91(08) : (*3)[1871 Weyprecht and Payer]
+‡2camdept‡bSCO‡cSPRI-SPC‡hPamphlet Boxes Breitfuss 91(08) : (*3)[1871 Weyprecht and Payer]
 
 623
 852 has camdept as source, without space before
@@ -3770,31 +3770,31 @@ SUPPRESS
 852 ‡h is not created when no classmark (for standard SPRI locations) (see also previous test, and #647)
 31500
 852
-‡cSPRI-BIB ‡9
+‡cSPRI-BIB‡9
 
 648
 852 with no location gets ‡cSPRIACQ
 1331
 852
-/^‡2camdept ‡bSCO ‡cSPRIACQ$/
+/^‡2camdept‡bSCO‡cSPRIACQ$/
 
 649
 852 Not in SPRI - with another location
 7976
 852
-‡2camdept ‡bSPRI-NIS ‡xRoyal Geographical Society ‡zNot in SPRI
+‡2camdept‡bSPRI-NIS‡xRoyal Geographical Society‡zNot in SPRI
 
 650
 852 Not in SPRI - with no other locations
 1302
 852
-‡2camdept ‡bSPRI-NIS ‡zNot in SPRI
+‡2camdept‡bSPRI-NIS‡zNot in SPRI
 
 651
 852 Not in SPRI - with multiple other locations
 31021
 852
-‡2camdept ‡bSPRI-NIS ‡xCambridge University Library ‡xLibrary of Congress ‡zNot in SPRI
+‡2camdept‡bSPRI-NIS‡xCambridge University Library‡xLibrary of Congress‡zNot in SPRI
 
 652
 260 Empty $a and $b value with date still shows $a and $b
@@ -3806,7 +3806,7 @@ SUPPRESS
 852 "Shelved with" does not get $h
 1032
 852
-‡cIssues shelved individually with monographs ‡9
+‡cIssues shelved individually with monographs‡9
 
 654
 852 ‡c is created
@@ -3830,13 +3830,13 @@ SUPPRESS
 852 ambiguous location codes get a ‡c qualifier except SPRI-SER/SPRI-SHF/SPRI-PAM
 211109
 852
-‡cSPRI-SER ‡zSee related
+‡cSPRI-SER‡zSee related
 
 658
 852 non-ambiguous location codes do not get ‡c qualifier
 1711
 852
-‡cSPRI-CBD ‡h202
+‡cSPRI-CBD‡h202
 
 660
 500 generate500analytics (/art/j pseudo-analytic mode) gets citation
@@ -4478,7 +4478,7 @@ Multiple *kg present uses first as linkage
 852 non- real serial analytics creates ‡h with trimmed location (see also previous test)
 100567
 852
-‡cSPRI-SHF ‡h(*7) : 551.7
+‡cSPRI-SHF‡h(*7) : 551.7
 
 770
 880-260: English record with bottom-half Russian, with publisher in bottom-half, gets transliterated
@@ -4490,31 +4490,31 @@ Multiple *kg present uses first as linkage
 852 Serial held entirely in basement gets $h (see also next test for child)
 165908
 852
-‡cSPRI-BMT ‡hBasement 53 E - 54 A
+‡cSPRI-BMT‡hBasement 53 E - 54 A
 
 772
 852 Analytic from serial held entirely in basement gets $z (see also previous test for parent)
 180007
 852
-‡cSPRI-BMT ‡zSee related holdings for SPRI location
+‡cSPRI-BMT‡zSee related holdings for SPRI location
 
 773
 852 Serial held entirely in Russian collection gets $h (see also next test for child)
 33585
 852
-‡cSPRI-RUS ‡hRussian MAT.GLYA.
+‡cSPRI-RUS‡hRussian MAT.GLYA.
 
 774
 852 Analytic from serial held entirely in Russian collection gets $z (see also previous test for parent)
 137033
 852
-‡cSPRI-RUS ‡zSee related holdings for SPRI location
+‡cSPRI-RUS‡zSee related holdings for SPRI location
 
 775
 852 Location split across parts of the library parent shows both locations as semicolon-punctuated string
 19822
 852
-‡cSPRI-SER ‡h132 C ; Basement 60 B-C
+‡cSPRI-SER‡h132 C ; Basement 60 B-C
 
 776
 300 support for "[1] leaf of plates" gets appended to pagination count as physical extent
@@ -4784,7 +4784,7 @@ Library-specific information in private note ("SPRI has two copies") should be i
 Library-specific information in note ("SPRI has two copies") appears in each 852
 7455
 852
-[B] ‡zSPRI has 2 copies
+[B]‡zSPRI has 2 copies
 
 821
 Mid-word replacement protected in transliteration, but rest of word is transliterated (here, the start)
@@ -5284,3 +5284,8 @@ Special case for Yakut title (245)
 245
 ‡aIĭe-Kut
 
+906
+852 has no spaces between subfields, which ‡b and ‡c (library and location) are sensitive to for matching
+1000
+852
+‡bSCO‡cSPRI-MAP‡9

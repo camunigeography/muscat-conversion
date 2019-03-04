@@ -3614,6 +3614,7 @@ class marcConversion
 	
 	# Macro to lookup periodical locations, which may generate a multiline result, e.g. /records/1102/ (test #621); see: https://www.loc.gov/marc/bibliographic/bd852.html
 	# Note that the algorithm here is a simplified replacement of doc/852 locations flowchart.xlsx (which was created before work to clean up 'Not in SPRI' records)
+	# No spaces are added between subfields, which $b and $c (library and location) are sensitive to for matching
 	private function macro_generate852 ($value_ignored)
 	{
 		# Determine any "SPRI has "... notes, which will be added at the end
@@ -3625,8 +3626,8 @@ class marcConversion
 		# If no locations, allocate $cSPRIACQ and end at this point, e.g. /records/1331/ (test #648) - this is the normal scenario for *status = RECEIVED, ON ORDER, etc.
 		if (!$locations) {
 			$result  = "{$this->doubleDagger}2camdept";
-			$result .= " {$this->doubleDagger}b" . 'SCO';
-			$result .= " {$this->doubleDagger}c" . 'SPRIACQ';	// NB No hyphen
+			$result .= "{$this->doubleDagger}b" . 'SCO';
+			$result .= "{$this->doubleDagger}c" . 'SPRIACQ';	// NB No hyphen
 			$result .= $notes;	// If any
 			return $result;
 		}
@@ -3635,11 +3636,11 @@ class marcConversion
 		if (in_array ('Not in SPRI', $locations)) {	// NB Manually validated in the database that this is always present as the full string, not a match
 			$otherLocations = array_diff ($locations, array ('Not in SPRI'));	// I.e. unset the entry containing this value
 			$result  = "{$this->doubleDagger}2camdept";
-			$result .= " {$this->doubleDagger}bSPRI-NIS";
+			$result .= "{$this->doubleDagger}bSPRI-NIS";
 			if ($otherLocations) {		// $x notes other location(s) if any; e.g. /records/7976/ (test #649); none in e.g. /records/1302/ (test #650)
-				$result .= " {$this->doubleDagger}x" . implode (" {$this->doubleDagger}x", $otherLocations);		// Multiple in e.g. /records/31021/ (test #651)
+				$result .= "{$this->doubleDagger}x" . implode ("{$this->doubleDagger}x", $otherLocations);		// Multiple in e.g. /records/31021/ (test #651)
 			}
-			$result .= " {$this->doubleDagger}zNot in SPRI";
+			$result .= "{$this->doubleDagger}zNot in SPRI";
 			$result .= $notes;	// If any
 			return $result;
 		}
@@ -3677,26 +3678,26 @@ class marcConversion
 			$result  = "{$this->doubleDagger}2camdept";
 			
 			# Add institution as $b, e.g. /records/31500/ (test #743)
-			$result .= " {$this->doubleDagger}b" . 'SCO';
+			$result .= "{$this->doubleDagger}b" . 'SCO';
 			
 			# Add corresponding Voyager location code to record: ‡c SPRI-XXX, e.g. /records/31500/ (test #654)
-			$result .= " {$this->doubleDagger}c" . $locationCode;
+			$result .= "{$this->doubleDagger}c" . $locationCode;
 			
 			# In the case of Shelved with ..., add clear description for use in $c, and do not use a classification, e.g. /records/1032/ (test #625)
 			if ($isShelvedWith = preg_match ('/^Shelved with (pamphlets|monographs)$/', $location, $matches)) {
-				$result .= " {$this->doubleDagger}c" . 'Issues shelved individually with ' . $matches[1];
+				$result .= "{$this->doubleDagger}c" . 'Issues shelved individually with ' . $matches[1];
 			}
 			
 			# Online items get $h (and does not get $c disambiguation check); now no records, so test removed
 			if ($locationName == 'Electronic Resource (online)') {
-				$result .= " {$this->doubleDagger}h" . $locationName;
+				$result .= "{$this->doubleDagger}h" . $locationName;
 			} else {
 				
 				# In the case of location codes where there is a many-to-one relationship (e.g. "Library Office" and "Librarian's Office" both map to SPRI-LIO), except for SPRI-SER, then add the original location verbatim, so that it can be disambiguated; e.g. /records/2023/ (test #656); negative case (i.e. non-ambigous) in /records/1711/ (test #658)
 				if (!in_array ($locationCode, array ('SPRI-SER', 'SPRI-SHF', 'SPRI-PAM'))) {	// E.g. /records/211109/ (test #657)
 					$locationCodeCounts = array_count_values ($locationCodes);
 					if ($locationCodeCounts[$locationCode] > 1) {
-						$result .= " {$this->doubleDagger}c" . $locationName;	// E.g. SPRI-LIO in /records/2023/ (test #656)
+						$result .= "{$this->doubleDagger}c" . $locationName;	// E.g. SPRI-LIO in /records/2023/ (test #656)
 					}
 				}
 			}
@@ -3711,11 +3712,11 @@ class marcConversion
 					if ($this->recordType == '/art/j' && $this->hostRecord) {	// E.g. /records/20557/ (test #749)
 						
 						# Add to record a helpful string ‡z, rather than ‡h with a hard-coded location (which would then become problematic to maintain)
-						$result .= " {$this->doubleDagger}z" . 'See related holdings for SPRI location';	// E.g. /records/20557/ (test #750); Basement example at /records/180007/ (test #772); Russian example at /records/137033/ (test #774)
+						$result .= "{$this->doubleDagger}z" . 'See related holdings for SPRI location';	// E.g. /records/20557/ (test #750); Basement example at /records/180007/ (test #772); Russian example at /records/137033/ (test #774)
 					} else {
 						
 						# Add to record: ‡h <*location_original> (i.e. the full string), e.g. /records/20534/ gets "‡h82 A-B"; Basement example at /records/165908/ (test #771); Russian example at /records/33585/ (test #773)
-						$result .= " {$this->doubleDagger}h" . $location;
+						$result .= "{$this->doubleDagger}h" . $location;
 					}
 					
 				# E.g. Shelf, e.g. /records/100567/ (test #766)
@@ -3728,11 +3729,11 @@ class marcConversion
 						if ($this->recordType == '/art/in' && $this->hostRecord) {
 							
 							# Add to record a helpful string ‡z, rather than ‡h with a hard-coded location (which would then become problematic to maintain), e.g. /records/100568/ (test #768)
-							$result .= " {$this->doubleDagger}z" . 'See related holdings for SPRI location';
+							$result .= "{$this->doubleDagger}z" . 'See related holdings for SPRI location';
 						} else {
 							
 							# Being a book or standalone pamphlet, use ‡h <*location_trimmed>"; e.g. /records/100567/ (test #769) (which has "‡h(*7) : 551.7" which comes from "Shelf (*7) : 551.7")
-							$result .= " {$this->doubleDagger}h" . $classification;
+							$result .= "{$this->doubleDagger}h" . $classification;
 						}
 					}
 				}
@@ -3745,7 +3746,7 @@ class marcConversion
 			$ksValues = $this->xPathValues ($this->xml, '//k[%i]/ks');
 			foreach ($ksValues as $ksValue) {
 				if (substr_count ($ksValue, 'MISSING')) {		// Covers 'MISSING' and e.g. 'MISSING[2004]' etc.; e.g. /records/1323/ ; data checked to ensure that the string always appears as upper-case "MISSING" ; all records checked that MISSING* is always in the format ^MISSING\[.+\]$, using "SELECT * FROM catalogue_processed WHERE field = 'ks' AND value like  'MISSING%' AND value !=  'MISSING' AND value NOT REGEXP '^MISSING\\[.+\\]$'"
-					$result .= " {$this->doubleDagger}z" . 'Item(s) missing';
+					$result .= "{$this->doubleDagger}z" . 'Item(s) missing';
 					break;
 				}
 			}
@@ -3755,7 +3756,7 @@ class marcConversion
 			
 			# Add the item record creation status, as a non-standard field $9 which will be stripped upon final import
 			if ($itemRecords = $this->itemRecordsCreation ($location)) {
-				$result .= " {$this->doubleDagger}9" . "Create {$itemRecords} item record" . ($itemRecords > 1 ? 's' : '');
+				$result .= "{$this->doubleDagger}9" . "Create {$itemRecords} item record" . ($itemRecords > 1 ? 's' : '');
 			}
 			
 			# Register this result
@@ -3789,7 +3790,7 @@ class marcConversion
 					
 					# Add $x/$z if found
 					if (preg_match ('/^SPRI has /', $note)) {
-						$notes .= " {$this->doubleDagger}{$subfield}" . $note;
+						$notes .= "{$this->doubleDagger}{$subfield}" . $note;
 					}
 				}
 			}
