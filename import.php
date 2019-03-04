@@ -3000,7 +3000,10 @@ class import
 		}
 		
 		# Pre-load the MARC records
-		$marcRecords = $this->databaseConnection->selectPairs ($this->settings['database'], 'catalogue_marc', array ('id' => $ids), array ('id', 'marc'));
+		if (!$marcRecords = $this->databaseConnection->selectPairs ($this->settings['database'], 'catalogue_marc', array ('id' => $ids), array ('id', 'marc'))) {
+			$errorHtml .= "<p class=\"warning\"><strong>Error:</strong> Could not obtain MARC records used in tests for test result generation.</p>";
+			return false;
+		}
 		
 		# Run each test and add in the result
 		foreach ($tests as $id => $test) {
