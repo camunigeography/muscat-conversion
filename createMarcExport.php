@@ -256,6 +256,7 @@ class createMarcExport
 			'Record is post 1900 but contains local information \(541 or 561 fields\) - please check.',	// For 541; confirmed fine as we are setting $5, e.g. /records/9220/ (test #226)
 			'6XX: Unless the Literary form in the 008 is set to one of the fiction codes, there must be at least one 6XX field \(ignore if the work is a sacred text.\)',		// This arises because Bibcheck has a litcode check at line 602 but that assumes that the 008 is a "008 - Books" which is not always the case - see position_18_34__33 in generate008; see e-mail dated 30/Mar/2016 investigating this, and e-mail 31/Mar/2016 confirming the error is safe to suppress; e.g. /records/1061/ (test #227)
 			'700: Subfield _1 is not allowed.',	// E.g. /records/194888/ has "proposed $12-billion"
+			'852: Subfield _9 is not allowed.',
 		);
 		
 		# Split the file into individual reports
