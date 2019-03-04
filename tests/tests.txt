@@ -5301,3 +5301,9 @@ i780
 1006
 i785
 /^0/
+
+909
+242 has dotEnd, even if punctuation present
+1058
+242
+biological research (1955-58).‡y
