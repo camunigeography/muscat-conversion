@@ -43,8 +43,8 @@ AR 700 {//notes/note|macro:contentNote700}
 A  710 {/*|macro:authorsField(710)}
 A  711 {/*|macro:authorsField(711)}
 A  773 0# {/|macro:generate773}
-AR 780 10 ‡t{//ft}
-AR 785 10 ‡t{//st}
+AR 780 00 ‡t{//ft}
+AR 785 00 ‡t{//st}
 E  852 7# {/*|macro:generate852}
 E  856 i{/*|macro:ifElse(//url/urlgen,4,#)}0 ‡u?R{//doi/doifld|macro:prepend(urn:doi:)}‡u?R{//doi/doifld|macro:prepend(https://dx.doi.org/)}‡u?R{//url/urlgen|macro:idnConversion}
 E  866 #0 ‡aR{//r} ‡xR{//hold}

@@ -5289,3 +5289,15 @@ Special case for Yakut title (245)
 1000
 852
 ‡bSCO‡cSPRI-MAP‡9
+
+907
+780 (from *ft) should have Display note enabled
+1007
+i780
+/^0/
+
+908
+785 (from *st) should have Display note enabled
+1006
+i785
+/^0/
