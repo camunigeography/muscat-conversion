@@ -157,6 +157,7 @@ class reports
 		'provenancenote_problem' => 'incorrect syntax for a provenance note',
 		'onmigration_postmigration' => 'records with a note regarding post-migration instructions',
 		'basementshelf0875_postmigration' => 'records with 087.5 but not Basement Shelf',
+		'openst_problem' => 'records with a *st but the holding statement is open',
 	);
 	
 	# Listing (values) reports
@@ -3618,6 +3619,28 @@ class reports
 				    field = 'location'
 				AND value LIKE '%087.5%'
 				AND value NOT LIKE 'Basement Shelf%'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with a *st but the holding statement is open
+	public function report_openst ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'openst' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field = 'r'
+				AND value LIKE '%-'
+				AND recordId IN(
+					SELECT id FROM fieldsindex WHERE fieldslist LIKE '%@st@%'
+				)
 		";
 		
 		# Return the query
