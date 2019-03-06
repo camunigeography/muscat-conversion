@@ -3813,6 +3813,9 @@ class marcConversion
 		# With a location containing the string 'Special Collection', e.g. /records/1201/
 		if (substr_count ($location, 'Special Collection')) {return 1;}
 		
+		# With a SPRI-ELE location, all of which have been confirmed to have that as the only location, e.g. /records/213625/
+		if (substr_count ($location, 'Digital Repository') || substr_count ($location, 'Electronic Resource (online)')) {return false;}
+		
 		# They are *ser, e.g. /records/1000/
 		# Count the total number of tokens in all *hold, e.g. /records/1029/ (single *hold) , /records/3339/ (multiple *hold)
 		if ($this->recordType == '/ser') {
