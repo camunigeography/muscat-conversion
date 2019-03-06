@@ -603,15 +603,14 @@ class marcConversion
 			$datastructure[$lineNumber]['line'] = $matches[2];
 			
 			# Extract all XPath references
-			preg_match_all ('/' . "({$this->doubleDagger}[a-z0-9])?" . '(\\??)' . '((R?)(i?){([^}]+)})' . "(\s*?)" /* Use of *? makes this capture ungreedy, so we catch any trailing space(s) */ . '/U', $line, $matches, PREG_SET_ORDER);
+			preg_match_all ('/' . "({$this->doubleDagger}[a-z0-9])?" . '((R?)(i?){([^}]+)})' . "(\s*?)" /* Use of *? makes this capture ungreedy, so we catch any trailing space(s) */ . '/U', $line, $matches, PREG_SET_ORDER);
 			foreach ($matches as $match) {
 				$subfieldIndicator = $match[1];		// e.g. $a (actually a dagger not a $)
-				$optionalBlockIndicator = $match[2];
-				$findBlock = $match[3];	// e.g. '{//somexpath}'
-				$isHorizontallyRepeatable = $match[4];	// The 'R' flag
-				$isIndicatorBlockMacro = $match[5];	// The 'i' flag
-				$xpath = $match[6];
-				$trailingSpace = $match[7];		// Trailing space(s), if any, so that these can be preserved during replacement
+				$findBlock = $match[2];	// e.g. '{//somexpath}'
+				$isHorizontallyRepeatable = $match[3];	// The 'R' flag
+				$isIndicatorBlockMacro = $match[4];	// The 'i' flag
+				$xpath = $match[5];
+				$trailingSpace = $match[6];		// Trailing space(s), if any, so that these can be preserved during replacement
 				
 				# Firstly, register macro requirements by stripping these from the end of the XPath, e.g. {/*/isbn|macro:validisbn|macro:foobar} results in $datastructure[$lineNumber]['macros'][/*/isbn|macro] = array ('xpath' => 'validisbn', 'macrosThisXpath' => 'foobar')
 				$macrosThisXpath = array ();
@@ -628,9 +627,6 @@ class marcConversion
 				
 				# Register the subfield indicator (test #248)
 				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['subfieldIndicator'] = $subfieldIndicator;
-				
-				# Register whether the block is an optional block; e.g. /records/188509/ (test #249)
-				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['isOptionalBlock'] = (bool) $optionalBlockIndicator;
 				
 				# Register whether this xPath replacement is in the indicator block; e.g. /records/1108/ (test #250)
 				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['isIndicatorBlockMacro'] = (bool) $isIndicatorBlockMacro;
@@ -901,13 +897,11 @@ class marcConversion
 							$lineHasContent = true;
 						}
 						
-						# If there is an 'A' (all) control character, require all non-optional placeholders to have resulted in text; e.g. /records/3056/ (test #257), /records/3057/ (test #258)
+						# If there is an 'A' (all) control character, require all placeholders to have resulted in text; e.g. /records/3056/ (test #257), /records/3057/ (test #258)
 						#!# Currently this takes no account of the use of a macro in the nonfiling-character section (e.g. 02), i.e. those macros prefixed with indicators; however in practice that should always return a string
 						if (in_array ('A', $datastructure[$lineNumber]['controlCharacters'])) {
-							if (!$xpathReplacementSpec['isOptionalBlock']) {
-								if (!$blockHasValue) {
-									continue 2;	// i.e. break out of further processing of blocks on this line (as further ones are irrelevant), and skip the whole line registration below
-								}
+							if (!$blockHasValue) {
+								continue 2;	// i.e. break out of further processing of blocks on this line (as further ones are irrelevant), and skip the whole line registration below
 							}
 						}
 					}

@@ -1498,12 +1498,6 @@ MARC parser indicators check
 i300
 ##
 
-249
-MARC parser optional block indicator (e.g. ‡?u) check
-188509
-856
-‡uurn
-
 250
 MARC parser dynamic indicator block check
 1108
