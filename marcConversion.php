@@ -1132,6 +1132,20 @@ class marcConversion
 	}
 	
 	
+	# Macro to implement a ternary check based on the value of an XPath matching a supplied string; e.g. /records/5265/ (test #912), /records/213625/ (test #913)
+	private function macro_ifXpathValueElse ($value_ignored, $parameters)
+	{
+		# Parse the parameters
+		list ($xPath, $testValue, $ifValue, $elseValue) = explode (',', $parameters, 4);
+		
+		# Determine the value
+		$xPathValue = $this->xPathValue ($this->xml, $xPath);
+		
+		# Return the result
+		return ($xPathValue == $testValue ? $ifValue : $elseValue);
+	}
+	
+	
 	# Splitting of strings with colons in
 	private function macro_colonSplit ($value, $splitMarker)
 	{

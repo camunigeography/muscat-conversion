@@ -5319,3 +5319,15 @@ Import phase unbreaks *urlgen value spacing
 5265
 856
 welcome.html
+
+912
+856 second indicator is 1 if alternative resource (i.e. URL present in record with location not SPRI-ELE)
+5265
+i856
+/1$/
+
+913
+856 second indicator is 0 if direct resource (i.e. SPRI-ELE)
+213625
+i856
+/0$/
