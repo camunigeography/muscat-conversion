@@ -1005,7 +1005,7 @@ class marcConversion
 			if (is_null ($parameter)) {
 				$string = $this->{$macroMethod} ($string, NULL, $this->errorHtml);
 			} else {
-				$string = $this->{$macroMethod} ($string, $parameter, $this->errorHtml);	// E.g. /records/188509/ (test #268)
+				$string = $this->{$macroMethod} ($string, $parameter, $this->errorHtml);	// E.g. $b for colonSplit in 246 in /records/3765/ (test #268)
 			}
 			
 			// Continue to next macro in chain (if any), using the processed string as it now stands; e.g. /records/2800/ (test #267)
@@ -1039,21 +1039,6 @@ class marcConversion
 		
 		# Return the value
 		return $string;
-	}
-	
-	
-	# Macro to convert an internationalised domain name to Unicode; see: https://en.wikipedia.org/wiki/Internationalized_domain_name#Top-level_domain_implementation
-	private function macro_idnConversion ($url)
-	{
-		# Convert if required, e.g. /records/197739/ (test #584)
-		$hostname = parse_url ($url, PHP_URL_HOST);
-		if (preg_match ('/^xn--/', $hostname)) {
-			$utf8DomainName = idn_to_utf8 ($hostname, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);	// options and variant set to avoid warnings in PHP 7.2/7.3; see: https://bugs.php.net/75609
-			$url = str_replace ($hostname, $utf8DomainName, $url);	// Substitute the domain within the overall URL
-		}
-		
-		# Return the possibly-modified URL
-		return $url;
 	}
 	
 	
@@ -3852,6 +3837,53 @@ class marcConversion
 		
 		# No scenario matched, so no item record creation
 		return false;
+	}
+	
+	
+	# Macro to generate a list of URLs for use in 856, e.g. /records/213625/ (test #914)
+	private function macro_generateUrlsList ($value_ignored)
+	{
+		# Start a list of entries, each of which will get $u
+		$u = array ();
+		
+		# Add any DOIs, which get both a "$uurn:doi:" -prefixed version and a URL equivalent, e.g. /records/188509/ (test #498), /records/2175/ (test #499)
+		if ($dois = $this->xPathValues ($this->xml, '//doi[%i]/doifld')) {
+			foreach ($dois as $doi) {
+				$u[] = 'urn:doi:' . $doi;	// E.g. /records/188509/ (test #498)
+				$u[] = 'https://dx.doi.org/' . $doi;	// E.g. /records/2175/ (test #499)
+			}
+		}
+		
+		# Add any plain URLs, dealing with IDN conversion where necessary, e.g. /records/213625/ (test #914), multiple in /records/197739/ (test #915)
+		if ($urls = $this->xPathValues ($this->xml, '//url[%i]/urlgen')) {
+			foreach ($urls as $url) {
+				$u[] = $this->idnConversion ($url);	// IDN conversion where necessary, e.g. /records/197739/ (test #584)
+			}
+		}
+		
+		# If no $u values, return false, e.g. /records/197740/ (test #916)
+		if (!$u) {return false;}
+		
+		# Compile $u values to string, which will the MARC parser with then prepend the first $u to; no space between multiple $u subfields, e.g. /records/6765/ (test #910)
+		$result = implode ("{$this->doubleDagger}u", $u);
+		
+		# Return the value
+		return $result;
+	}
+	
+	
+	# Helper function to convert an internationalised domain name to Unicode; see: https://en.wikipedia.org/wiki/Internationalized_domain_name#Top-level_domain_implementation
+	private function idnConversion ($url)
+	{
+		# Convert if required, e.g. /records/197739/ (test #584)
+		$hostname = parse_url ($url, PHP_URL_HOST);
+		if (preg_match ('/^xn--/', $hostname)) {
+			$utf8DomainName = idn_to_utf8 ($hostname, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);	// options and variant set to avoid warnings in PHP 7.2/7.3; see: https://bugs.php.net/75609
+			$url = str_replace ($hostname, $utf8DomainName, $url);	// Substitute the domain within the overall URL
+		}
+		
+		# Return the possibly-modified URL
+		return $url;
 	}
 	
 	

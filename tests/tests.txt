@@ -1614,9 +1614,9 @@ MARC parser macro chaining (example here adds dot at end)
 
 268
 MARC parser parameter parsing
-188509
-856
-urn:doi:
+3765
+246
+Thulia :‡ba tale
 
 269
 916 multiple component parts present in a group are first combined using comma-space (see also test #585)
@@ -5331,3 +5331,23 @@ i856
 213625
 i856
 /0$/
+
+914
+856 basic test
+213625
+856
+‡uhttp://www.arctic-herald.ru
+
+915
+856 multiple URLs
+197739
+856
+issues/2/‡uhttps
+
+916
+856 no URLs so no 856 generated
+197740
+!856
+*
+
+

@@ -46,7 +46,7 @@ A  773 0# {/|macro:generate773}
 AR 780 00 ‡t{//ft}
 AR 785 00 ‡t{//st}
 E  852 7# {/*|macro:generate852}
-E  856 i{/*|macro:ifElse(//url/urlgen,4,#)}i{/*|macro:ifXpathValueElse(//location[1],Digital Repository,0,1)} ‡u?R{//doi/doifld|macro:prepend(urn:doi:)}‡u?R{//doi/doifld|macro:prepend(https://dx.doi.org/)}‡u?Ru{//url/urlgen|macro:idnConversion}
+A  856 i{/*|macro:ifElse(//url/urlgen,4,#)}i{/*|macro:ifXpathValueElse(//location[1],Digital Repository,0,1)} ‡u{/*|macro:generateUrlsList}
 E  866 #0 ‡aR{//r} ‡xR{//hold}
 E  876 ## ‡xR{//notes/priv|macro:exceptBegins(Provenance: )|macro:exceptBegins(SPRI has )} ‡zR{//notes/local|macro:exceptBegins(Provenance: )|macro:exceptBegins(SPRI has )}
 A  880 {/*|macro:authorsField(100,transliterated)|macro:880subfield6(100)}
