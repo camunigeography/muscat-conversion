@@ -5307,3 +5307,9 @@ i785
 1058
 242
 biological research (1955-58).‡y
+
+910
+MARC parser horizontal repeatability unspaced modifier check
+197739
+856
+‡uhttps://северноеиздательство.рф/issues/2/‡uhttps://www.ks-yanao.ru/zhurnaly/

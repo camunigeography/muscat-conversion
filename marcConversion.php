@@ -603,15 +603,16 @@ class marcConversion
 			$datastructure[$lineNumber]['line'] = $matches[2];
 			
 			# Extract all XPath references
-			preg_match_all ('/' . "({$this->doubleDagger}[a-z0-9])?" . '(\\??)' . '((R?)(i?){([^}]+)})' . "(\s*?)" /* Use of *? makes this capture ungreedy, so we catch any trailing space(s) */ . '/U', $line, $matches, PREG_SET_ORDER);
+			preg_match_all ('/' . "({$this->doubleDagger}[a-z0-9])?" . '(\\??)' . '((R?)(u?)(i?){([^}]+)})' . "(\s*?)" /* Use of *? makes this capture ungreedy, so we catch any trailing space(s) */ . '/U', $line, $matches, PREG_SET_ORDER);
 			foreach ($matches as $match) {
 				$subfieldIndicator = $match[1];		// e.g. $a (actually a dagger not a $)
 				$optionalBlockIndicator = $match[2];
 				$findBlock = $match[3];	// e.g. '{//somexpath}'
 				$isHorizontallyRepeatable = $match[4];	// The 'R' flag
-				$isIndicatorBlockMacro = $match[5];	// The 'i' flag
-				$xpath = $match[6];
-				$trailingSpace = $match[7];		// Trailing space(s), if any, so that these can be preserved during replacement
+				$horizontallyRepeatableUnspaced = $match[5];	// The 'u' flag, e.g. /records/197739/ (test #910)
+				$isIndicatorBlockMacro = $match[6];	// The 'i' flag
+				$xpath = $match[7];
+				$trailingSpace = $match[8];		// Trailing space(s), if any, so that these can be preserved during replacement
 				
 				# Firstly, register macro requirements by stripping these from the end of the XPath, e.g. {/*/isbn|macro:validisbn|macro:foobar} results in $datastructure[$lineNumber]['macros'][/*/isbn|macro] = array ('xpath' => 'validisbn', 'macrosThisXpath' => 'foobar')
 				$macrosThisXpath = array ();
@@ -638,8 +639,9 @@ class marcConversion
 				# Register the XPath; e.g. /records/1003/ (test #251)
 				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['xPath'] = $xpath;
 				
-				# If the subfield is horizontally-repeatable, save the subfield indicator that should be used for imploding, resulting in e.g. $aFoo$aBar ; e.g. /records/1010/ (test #252)
+				# If the subfield is horizontally-repeatable, save the subfield indicator that should be used for imploding, resulting in e.g. $aFoo$aBar ; e.g. /records/1010/ (test #252), e.g. /records/197739/ (test #910)
 				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['horizontalRepeatability'] = ($isHorizontallyRepeatable ? $subfieldIndicator : false);
+				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['horizontallyRepeatableUnspaced'] = ($horizontallyRepeatableUnspaced);
 				
 				# Register any trailing space(s); e.g. /records/1049/ (test #246)
 				$datastructure[$lineNumber]['xpathReplacements'][$findBlock]['trailingSpace'] = $trailingSpace;
@@ -787,9 +789,10 @@ class marcConversion
 						$value = array_unique ($value);		// Key numbering may now have holes, but the next operation is imploding anyway
 					}
 					
-					# If horizontally-repeatable, compile with the subfield indicator as the implode string, including a space for clarity, e.g. /records/1010/ (test #752)
+					# If horizontally-repeatable, compile with the subfield indicator as the implode string, including a space for clarity, e.g. /records/1010/ (test #752), e.g. /records/197739/ (test #910)
 					if ($isHorizontallyRepeatable) {
-						$value = implode (' ' . $xpathReplacementSpec['horizontalRepeatability'], $value);
+						$implodeWith = ($xpathReplacementSpec['horizontallyRepeatableUnspaced'] ? '' : ' ');
+						$value = implode ($implodeWith . $xpathReplacementSpec['horizontalRepeatability'], $value);
 					}
 					
 					# Register the processed value
