@@ -5306,7 +5306,7 @@ biological research (1955-58).‡y
 856 has no space between multiple ‡u subfields
 6765
 856
-‡uhttps://dx.doi.org/10.1038/059442a0‡uhttp://www.nature.com/
+10.1038/059442a0‡uhttp:
 
 911
 Import phase unbreaks *urlgen value spacing
@@ -5344,4 +5344,20 @@ issues/2/‡uhttps
 !856
 *
 
+917
+530 generated if URL present in record with location not SPRI-ELE) (see also next test)
+5265
+530
+‡aAlso issued online ‡uhttp://
 
+918
+530 not generated if URL present in record but location is SPRI-ELE (see also previous test)
+213625
+!530
+*
+
+919
+530 has URLs as per 856
+6765
+530
+10.1038/059442a0‡uhttp:

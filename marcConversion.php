@@ -1108,6 +1108,20 @@ class marcConversion
 	}
 	
 	
+	# Macro to check whether a value does not match a supplied string, passing through the value if so, or returning values; e.g. /records/213625/ (test #918), (double-)negative case: /records/5265/ (test #917)
+	private function macro_ifNotXpathValue ($value, $parameters)
+	{
+		# Parse the parameters
+		list ($xPath, $testValue) = explode (',', $parameters, 2);
+		
+		# Determine the value
+		$xPathValue = $this->xPathValue ($this->xml, $xPath);
+		
+		# Return the result
+		return ($xPathValue == $testValue ? false : $value);
+	}
+	
+	
 	# Macro to implement a ternary check based on the value of an XPath matching a supplied string; e.g. /records/5265/ (test #912), /records/213625/ (test #913)
 	private function macro_ifXpathValueElse ($value_ignored, $parameters)
 	{
@@ -3831,9 +3845,12 @@ class marcConversion
 	}
 	
 	
-	# Macro to generate a list of URLs for use in 856, e.g. /records/213625/ (test #914)
-	private function macro_generateUrlsList ($value_ignored)
+	# Macro to generate a list of URLs for use in 530/856, e.g. 856 in /records/213625/ (test #914), 530 in /records/6765/ (test #919)
+	private function macro_generateUrlsList ($enabled)
 	{
+		# End if not enabled, i.e. if previous guard macro returned false; e.g. /records/213625/ (test #918)
+		if (!$enabled) {return false;}
+		
 		# Start a list of entries, each of which will get $u
 		$u = array ();
 		

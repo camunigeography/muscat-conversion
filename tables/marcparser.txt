@@ -26,6 +26,7 @@ A  500 ## {/|macro:generate500analytics}
 AR 500 ## ‡a{//notes/note|macro:generate5xxNote(500)}
 AR 505 {//notes/note|macro:generate505Note}
 A  520 3# ‡a{//abs|macro:excludeNoneValue|macro:dotEnd}
+A  530 ## ‡a{'Also issued online'} ‡u{'true'|macro:ifNotXpathValue(//location[1],Digital Repository)|macro:generateUrlsList}
 AR 533 ## ‡a{//notes/note|macro:generate533Note}
 AR 538 ## ‡a{//notes/note|macro:generate5xxNote(538)}
 A  541 0# {/*|macro:generate541}
