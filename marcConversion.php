@@ -1080,7 +1080,7 @@ class marcConversion
 	}
 	
 	
-	# Macro to implement a ternary check; e.g. /records/1010/ (test #277), /records/188509/ (test #278)
+	# Macro to implement a ternary check; e.g. /records/1122/ (test #277), /records/1921/ (test #278)
 	private function macro_ifElse ($value_ignored /* If empty, the macro will not even be called, so the value has to be passed in by parameter */, $parameters)
 	{
 		# Parse the parameters
@@ -1119,20 +1119,6 @@ class marcConversion
 		
 		# Return the result
 		return ($xPathValue == $testValue ? false : $value);
-	}
-	
-	
-	# Macro to implement a ternary check based on the value of an XPath matching a supplied string; e.g. /records/5265/ (test #912), /records/213625/ (test #913)
-	private function macro_ifXpathValueElse ($value_ignored, $parameters)
-	{
-		# Parse the parameters
-		list ($xPath, $testValue, $ifValue, $elseValue) = explode (',', $parameters, 4);
-		
-		# Determine the value
-		$xPathValue = $this->xPathValue ($this->xml, $xPath);
-		
-		# Return the result
-		return ($xPathValue == $testValue ? $ifValue : $elseValue);
 	}
 	
 	
@@ -3845,7 +3831,7 @@ class marcConversion
 	}
 	
 	
-	# Macro to generate a list of URLs for use in 530/856, e.g. 856 in /records/213625/ (test #914), 530 in /records/6765/ (test #919)
+	# Macro to generate a list of URLs for use in 530/856, e.g. 856 in /records/213625/ (test #913), 530 in /records/6765/ (test #919)
 	private function macro_generateUrlsList ($enabled)
 	{
 		# End if not enabled, i.e. if previous guard macro returned false; e.g. /records/213625/ (test #918)
@@ -3862,7 +3848,7 @@ class marcConversion
 			}
 		}
 		
-		# Add any plain URLs, dealing with IDN conversion where necessary, e.g. /records/213625/ (test #914), multiple in /records/197739/ (test #915)
+		# Add any plain URLs, dealing with IDN conversion where necessary, e.g. /records/213625/ (test #913), multiple in /records/197739/ (test #915)
 		if ($urls = $this->xPathValues ($this->xml, '//url[%i]/urlgen')) {
 			foreach ($urls as $url) {
 				$u[] = $this->idnConversion ($url);	// IDN conversion where necessary, e.g. /records/197739/ (test #584)

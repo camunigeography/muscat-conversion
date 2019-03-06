@@ -438,7 +438,7 @@ class import
 			# Skip the documentation records (within range 1-999)
 			if ($recordId < $firstRealRecord) {return false;}
 			
-			# Fix up line-break handling shortcoming in trimCombineCarryoverLines for *urlgen fields (*doslink and *winlink have the same problem, but never used in conversion, and harder to deal with, so are ignored here), which are space-sensitive, e.g. /records/5265/ (test #856)
+			# Fix up line-break handling shortcoming in trimCombineCarryoverLines for *urlgen fields (*doslink and *winlink have the same problem, but never used in conversion, and harder to deal with, so are ignored here), which are space-sensitive, e.g. /records/5265/ (test #910)
 			if ($matches[1] == 'urlgen') {	// i.e. field = *urlgen
 				$matches[2] = str_replace (' ', '', $matches[2]);
 			}

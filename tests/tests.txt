@@ -1662,15 +1662,15 @@ Macro ucfirst
 
 277
 Macro ifElse: value present
-1010
-i856
-/^4/
+1122
+240
+‡aPoli͡us.‡lRussian
 
 278
 Macro ifElse: value not present
-188509
-i856
-/^#/
+1921
+240
+/the British Trans-Antarctic Expedition$/
 
 279
 Macro colonSplit: colon present
@@ -2945,15 +2945,15 @@ generate500 prefix for */art/
 ‡aJania, Jacek. ‡t
 
 498
-856 DOI appears as ‡uurn:doi:
+530 DOI appears as ‡uurn:doi:
 188509
-856
+530
 ‡uurn:doi:10.1002/aqc.709
 
 499
-856 DOI appears also as URL
+530 DOI appears also as URL
 2175
-856
+530
 0023‡uhttps://dx.doi.org/10.1098
 
 500
@@ -3449,9 +3449,9 @@ co#|g|||||||||
 ‡aThe geology of the Nuuk region -- The oldest rocks on Earth
 
 584
-856 support for conversion to internationalized domain name (IDN)
+530 support for conversion to internationalized domain name (IDN)
 197739
-856
+530
 ‡uhttps://северноеиздательство.рф/issues/2/
 
 585
@@ -5303,49 +5303,49 @@ i785
 biological research (1955-58).‡y
 
 910
-856 has no space between multiple ‡u subfields
+530 has no space between multiple ‡u subfields
 6765
-856
+530
 10.1038/059442a0‡uhttp:
 
 911
 Import phase unbreaks *urlgen value spacing
 5265
-856
+530
 welcome.html
 
 912
-856 second indicator is 1 if alternative resource (i.e. URL present in record with location not SPRI-ELE)
+856 not generated if URL present in record with location not SPRI-ELE (see also next test and test #917)
 5265
-i856
-/1$/
+!856
+*
 
 913
-856 second indicator is 0 if direct resource (i.e. SPRI-ELE)
-213625
-i856
-/0$/
-
-914
-856 basic test
+856 generated if URL present in record but location is SPRI-ELE (see also previous test and test #918)
 213625
 856
 ‡uhttp://www.arctic-herald.ru
 
+914
+856 second indicator is always 0 if field is present, as will be direct resource (i.e. SPRI-ELE), i.e. not 1
+213625
+i856
+/0$/
+
 915
-856 multiple URLs
+530 multiple URLs
 197739
-856
+530
 issues/2/‡uhttps
 
 916
-856 no URLs so no 856 generated
+530 no URLs so no 530 generated
 197740
-!856
+!530
 *
 
 917
-530 generated if URL present in record with location not SPRI-ELE) (see also next test)
+530 generated if URL present in record with location not SPRI-ELE (see also next test and test #912)
 5265
 530
 ‡aAlso issued online ‡uhttp://
@@ -5357,7 +5357,7 @@ issues/2/‡uhttps
 *
 
 919
-530 has URLs as per 856
-6765
-530
-10.1038/059442a0‡uhttp:
+856 has URL as per 530 tests
+213625
+856
+‡uhttp://www.arctic-herald.ru
