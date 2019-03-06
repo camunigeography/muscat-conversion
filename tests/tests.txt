@@ -5309,10 +5309,10 @@ i785
 biological research (1955-58).‡y
 
 910
-MARC parser horizontal repeatability unspaced modifier check
-197739
+856 has no space between multiple ‡u subfields
+6765
 856
-‡uhttps://северноеиздательство.рф/issues/2/‡uhttps://www.ks-yanao.ru/zhurnaly/
+‡uhttps://dx.doi.org/10.1038/059442a0‡uhttp://www.nature.com/
 
 911
 Import phase unbreaks *urlgen value spacing
