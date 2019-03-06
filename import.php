@@ -395,7 +395,7 @@ class import
 			
 			# Join lines, separating by space, that do not begin with a key, and remove the orphaned carry-over
 			if (!$keyed) {
-				$record[$lineNumberAboveJoinable] .= ' ' . $record[$lineNumber];
+				$record[$lineNumberAboveJoinable] .= ' ' . $record[$lineNumber];	// NB *urlgen space handling is fixed up later in convertToCsv ()
 				unset ($record[$lineNumber]);
 				continue;
 			}
@@ -437,6 +437,11 @@ class import
 			
 			# Skip the documentation records (within range 1-999)
 			if ($recordId < $firstRealRecord) {return false;}
+			
+			# Fix up line-break handling shortcoming in trimCombineCarryoverLines for *urlgen fields (*doslink and *winlink have the same problem, but never used in conversion, and harder to deal with, so are ignored here), which are space-sensitive, e.g. /records/5265/ (test #856)
+			if ($matches[1] == 'urlgen') {	// i.e. field = *urlgen
+				$matches[2] = str_replace (' ', '', $matches[2]);
+			}
 			
 			# Assemble the line as one of the inserts
 			$record[$lineNumber] = array (
