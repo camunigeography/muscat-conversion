@@ -5361,3 +5361,23 @@ issues/2/‡uhttps
 213625
 856
 ‡uhttp://www.arctic-herald.ru
+
+920
+852 *doc item count from volumes
+13420
+852
+‡9Create 12 item records
+
+921
+852 *doc item count from volumes, variant example
+18824
+852
+‡9Create 2 item records
+
+922
+852 *doc item count from volumes, variant example
+2988
+852
+‡9Create 17 item records
+
+

@@ -3797,21 +3797,51 @@ class marcConversion
 	# Function to determine the item record creation status, for use as a private note in 852
 	private function itemRecordsCreation ($location)
 	{
+		# Assume a count of 1 where a count is returned
+		$count = 1;
+		
+		# For doc records, check for "N vols." in the *v, e.g. /records/13420/ (test #920)
+		if ($this->recordType == '/doc') {
+			if ($v = $this->xPathValue ($this->xml, '/doc/v')) {
+				if (preg_match ('/([1-9][0-9]*|three) vols/', $v, $mainMatches)) {
+					
+					# Interpret variants; see all using: `SELECT value, GROUP_CONCAT(recordId) FROM catalogue_processed WHERE field = 'v' AND `value` LIKE '%vols%' GROUP BY value ORDER BY value;`
+					switch (true) {
+						case preg_match ('/^([1-9][0-9]*) vols\.?$/', $v, $matches):		$count = $matches[1]; break;	// E.g. /records/13394/ (without dot), /records/2116/ (with dot)
+						case preg_match ('/(vols|vols\.|bound) (in|.in|as) ([1-9][0-9]*)/', $v, $matches):	$count = $matches[3]; break;	// E.g. /records/18824/ (in) (test #921), /records/11680/ (as), /records/5346/ , /records/3495/
+						case preg_match ('/(in|.in|as) one/', $v, $matches):	$count = 1; break;	// E.g. /records/18824/ (in), /records/11680/ (as), /records/5346/ , /records/3495/
+						case $v == '18-24 vols.':	$count = 7; break;	// E.g. /records/2345/
+						case preg_match ('/([1-9][0-9]*) vols\.? (and|\+) atlas/', $v, $matches):	$count = ($matches[1] + 1); break;	// E.g. /records/2988/ (test #922)
+						case preg_match ('/([1-9][0-9]*) vols. plus ([1-9][0-9]*) index vols./', $v, $matches):	$count = ($matches[1] + $matches[2]); break;	// E.g. /records/173662/
+						case preg_match ('/([1-9][0-9]*) parts/', $v, $matches):	$count = $matches[1]; break;	// E.g. /records/168916/
+						case preg_match ('/in (slipcase|box|slip case)/', $v, $matches):	$count = 1; break;	// E.g. /records/53204/ , /records/2557/
+						case preg_match ('/bound together/', $v, $matches):	$count = ($mainMatches[1] - 1); break;	// E.g. /records/5961/ , /records/2070/
+						case $v == '5 vols. (+ 3 vols. index)':	$count = 8; break;	// E.g. /records/4054/
+						case $v == '51 vols. plus 2 index vols.':	$count = 53; break;	// E.g. /records/173662/
+						case $v == '62 vols. and index':	$count = 63; break;	// E.g. /records/72167/
+						case $v == 'Three vols.':	$count = 3; break;	// E.g. /records/11548/
+						case $v == 'Three vols.':	$count = 3; break;	// E.g. /records/11548/
+						default:	$count = $mainMatches[1];	// Default to X vols as per main match, e.g. /records/2268/ , /records/13420/ (test #920)
+					}
+				}
+			}
+		}
+		
 		# With a specified location, e.g. Pam: /records/1104/ ; Theses: /records/3152/ ; Atlas: /records/1563/ ; Folio: /records/1150/ ; Library Office: /records/2023/
-		if (preg_match ("/^(Pam|Theses|Atlas|Folio|Library Office|Archives|Bibliographers' Office|Large Atlas|Librarian's Office|Map Room|Picture Library|Reference|Museum Working Collection)/", $location)) {return 1;}
+		if (preg_match ("/^(Pam|Theses|Atlas|Folio|Library Office|Archives|Bibliographers' Office|Large Atlas|Librarian's Office|Map Room|Picture Library|Reference|Museum Working Collection)/", $location)) {return $count;}
 		
 		# With a shelf location that is not an *art, e.g. created in /records/1220/ , not created in /records/1222/
 		if (preg_match ("/^(Shelf)/", $location)) {
 			if (!preg_match ('|^/art|', $this->recordType)) {
-				return 1;
+				return $count;
 			}
 		}
 		
 		# With a location containing the string '087.5' (see also /reports/basementshelf0875/ - not all are prefixed with "Basement Shelf"), e.g. /records/1694/
-		if (substr_count ($location, '087.5')) {return 1;}
+		if (substr_count ($location, '087.5')) {return $count;}
 		
 		# With a location containing the string 'Special Collection', e.g. /records/1201/
-		if (substr_count ($location, 'Special Collection')) {return 1;}
+		if (substr_count ($location, 'Special Collection')) {return $count;}
 		
 		# With a SPRI-ELE location, all of which have been confirmed to have that as the only location, e.g. /records/213625/
 		if (substr_count ($location, 'Digital Repository') || substr_count ($location, 'Electronic Resource (online)')) {return false;}
@@ -3819,14 +3849,14 @@ class marcConversion
 		# They are *ser, e.g. /records/1000/
 		# Count the total number of tokens in all *hold, e.g. /records/1029/ (single *hold) , /records/3339/ (multiple *hold)
 		if ($this->recordType == '/ser') {
-			$itemRecords = 1;	// Default, e.g. /records/1008/
+			$count = 1;	// Default, e.g. /records/1008/
 			if ($holdValues = $this->xPathValues ($this->xml, '//hold[%i]')) {
-				$itemRecords = 0;
+				$count = 0;
 				foreach ($holdValues as $holdValue) {
-					$itemRecords += count (explode (';', $holdValue));
+					$count += count (explode (';', $holdValue));
 				}
 			}
-			return $itemRecords;
+			return $count;
 		}
 		
 		# No scenario matched, so no item record creation
