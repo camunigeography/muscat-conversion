@@ -2414,23 +2414,7 @@ class import
 			}
 		}
 		
-		# Mark whether item records should be created - fuller algorithm; the spec is:
-		/*
-			Serial records and analytic records do not require item records
-			However, some of the analytic records that are chapters in monographs will most likely be caught up in this - no harm is caused by this however.
-			Records will receive item records when the record matches any of:
-				a. With a Shelf location
-				b. With a Pam location
-				c. With a location containing the string '087.5' (see also /reports/basementshelf0875/ - not all are prefixed with "Basement Shelf")
-				d. With a Theses location
-				e. With an Atlas location
-				f. With a Folio location
-				g. With a location containing the string 'Special Collection'
-				h. With a location containing the string 'Library Office'
-				i. They are *ser, but item record count as per the number of holdings
-			All other records will not receive item records.
-		*/
-		
+		# Mark whether item records should be created
 		# NB: Simple "087.5" rather than slash-escape in regexp confirmed safe, using `SELECT * FROM catalogue_processed WHERE field = 'location' AND value REGEXP '087.5' AND value NOT LIKE '%087.5%';`
 		$query = "
 			UPDATE catalogue_marc

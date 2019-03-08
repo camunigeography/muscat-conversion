@@ -3797,11 +3797,16 @@ class marcConversion
 	# Function to determine the item record creation status, for use as a private note in 852
 	private function itemRecordsCreation ($location)
 	{
-		# Assume a count of 1 where a count is returned
-		$count = 1;
+		# With a SPRI-ELE location, all of which have been confirmed to have that as the only location, e.g. /records/213625/
+		if (substr_count ($location, 'Digital Repository') || substr_count ($location, 'Electronic Resource (online)')) {return false;}
 		
-		# For doc records, check for "N vols." in the *v, e.g. /records/13420/ (test #920)
+		# Assume a count of 1 where a count is returned
+		$count = 1;	// Default, e.g. /records/1008/
+		
+		# *doc records
 		if ($this->recordType == '/doc') {
+			
+			# Check for "N vols." in the *v, e.g. /records/13420/ (test #920)
 			if ($v = $this->xPathValue ($this->xml, '/doc/v')) {
 				if (preg_match ('/([1-9][0-9]*|three) vols/', $v, $mainMatches)) {
 					
@@ -3825,38 +3830,56 @@ class marcConversion
 					}
 				}
 			}
+			
+			# Return the count
+			return $count;
 		}
 		
-		# With a specified location, e.g. Pam: /records/1104/ ; Theses: /records/3152/ ; Atlas: /records/1563/ ; Folio: /records/1150/ ; Library Office: /records/2023/
-		if (preg_match ("/^(Pam|Theses|Atlas|Folio|Library Office|Archives|Bibliographers' Office|Large Atlas|Librarian's Office|Map Room|Picture Library|Reference|Museum Working Collection)/", $location)) {return $count;}
-		
-		# With a shelf location that is not an *art, e.g. created in /records/1220/ , not created in /records/1222/
-		if (preg_match ("/^(Shelf)/", $location)) {
-			if (!preg_match ('|^/art|', $this->recordType)) {
-				return $count;
-			}
-		}
-		
-		# With a location containing the string '087.5' (see also /reports/basementshelf0875/ - not all are prefixed with "Basement Shelf"), e.g. /records/1694/
-		if (substr_count ($location, '087.5')) {return $count;}
-		
-		# With a location containing the string 'Special Collection', e.g. /records/1201/
-		if (substr_count ($location, 'Special Collection')) {return $count;}
-		
-		# With a SPRI-ELE location, all of which have been confirmed to have that as the only location, e.g. /records/213625/
-		if (substr_count ($location, 'Digital Repository') || substr_count ($location, 'Electronic Resource (online)')) {return false;}
-		
-		# They are *ser, e.g. /records/1000/
-		# Count the total number of tokens in all *hold, e.g. /records/1029/ (single *hold) , /records/3339/ (multiple *hold)
+		# *ser records, e.g. /records/1000/
 		if ($this->recordType == '/ser') {
-			$count = 1;	// Default, e.g. /records/1008/
+			
+			# Count the total number of tokens in all *hold, e.g. /records/1029/ (single *hold) , /records/3339/ (multiple *hold)
 			if ($holdValues = $this->xPathValues ($this->xml, '//hold[%i]')) {
 				$count = 0;
 				foreach ($holdValues as $holdValue) {
 					$count += count (explode (';', $holdValue));
 				}
 			}
+			
+			# Return the count
 			return $count;
+		}
+		
+		# *art records: determine based on a set of criteria which have been created following database querying
+		# E.g. Pam: /records/1104/ ; Theses: /records/3152/ ; Atlas: /records/1563/ ; Folio: /records/1150/ ; Library Office: /records/2023/
+		if (($this->recordType == '/art/in') || ($this->recordType == '/art/j')) {
+			
+			# If there is a host record, no item record created
+			if (!$this->hostRecord) {return false;}
+			
+			# Whitelist of locations, except where bound in
+			# E.g. Special Collection in /records/1201/
+			/* Equivalent SQL query gives 23,615 opt-ins with:
+				SELECT
+					catalogue_processed.id,recordId,value,xPath,title
+				FROM catalogue_processed
+				JOIN fieldsindex ON fieldsindex.id = catalogue_processed.id AND location NOT LIKE '%Not in SPRI%'
+				WHERE
+						field = 'location'
+					AND xPath LIKE '/art%'
+					AND fieldslist NOT LIKE '%@kg@%'		-- *kg indicates an actual parent
+					AND value NOT REGEXP '(^Basement Seligman|Bound in|^Periodical$)'
+					AND (
+						   value REGEXP "^(Atlas|Archives|Basement BB Roberts Cabinet|Bibliographers' Office|Folio|Librarian's Office|Map Room|Pam|Pam |Picture Library Store|Reference|Russian REZ.IS|Shelf|Shelved with monographs|Special Collection|Theses)"
+						OR value = '??'
+					)
+				;
+			*/
+			if (preg_match ("/^(Archives|Atlas|Basement BB Roberts Cabinet|Bibliographers' Office|Folio|Librarian's Office|Map Room|Pam|Pam |Picture Library Store|Reference|Russian REZ.IS|Shelf|Shelved with monographs|Special Collection|Theses)/", $location) || ($location == '??')) {
+				if (!substr_count ($location, 'Bound in')) {		// NB 'Not in SPRI' will already have stopped execution in the calling code so is not listed here but is needed in the equivalent SQL above
+					return $count = 1;
+				}
+			}
 		}
 		
 		# No scenario matched, so no item record creation
