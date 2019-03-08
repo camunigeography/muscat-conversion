@@ -5382,8 +5382,68 @@ issues/2/‡uhttps
 
 923
 Item records count for *doc has v. fixed up
-852
 197517
+852
 ‡9Create 12 item records
+
+924
+No item records created for SPRI-ELE items as do not physically exist
+213625
+!852
+‡9Create
+
+925
+852 *ser item count
+1000
+852
+‡9Create 2 item records
+
+926
+852 *ser item count with single *hold
+1029
+852
+‡9Create 3 item records
+
+927
+852 *ser item count with multiple *hold
+3339
+852
+‡9Create 23 item records
+
+928
+852 *art item count
+1107
+852
+‡9Create 1 item record
+
+929
+852 *art item count (another token)
+1590
+852
+‡9Create 1 item record
+
+930
+852 *art 'bound in' excluded
+1350
+!852
+‡9Create
+
+931
+852 *art item count with ?? does generate 1 item
+2579
+852
+‡9Create 1 item record
+
+932
+852 item count no match
+3979
+!852
+‡9Create
+
+933
+852 *ser item count default count of 1 if no *hold
+1008
+852
+‡9Create 1 item record
 
 

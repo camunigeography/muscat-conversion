@@ -3797,11 +3797,11 @@ class marcConversion
 	# Function to determine the item record creation status, for use as a private note in 852
 	private function itemRecordsCreation ($location)
 	{
-		# With a SPRI-ELE location, all of which have been confirmed to have that as the only location, e.g. /records/213625/
+		# No records for items with a SPRI-ELE location, as they do not physically exist, all of which have been confirmed to have that as the only location, e.g. /records/213625/ (test #924)
 		if (substr_count ($location, 'Digital Repository') || substr_count ($location, 'Electronic Resource (online)')) {return false;}
 		
-		# Assume a count of 1 where a count is returned
-		$count = 1;	// Default, e.g. /records/1008/
+		# Assume a count of 1 where a count is returned but the figure is not overriden by more detailed count algorithm below, e.g. /records/1008/ (test #933)
+		$count = 1;
 		
 		# *doc records
 		if ($this->recordType == '/doc') {
@@ -3812,7 +3812,7 @@ class marcConversion
 				# Normalise cases of "v." to "vols." prior to test, e.g. "12 v." in /records/197517/ (test #923) , "2 v. in 1" in /records/58001/
 				$v = preg_replace ('/^([1-9][0-9]*) v\.(| in 1)$/', '\1 vols.\2', $v);
 				
-				# Test
+				# Test, for "N vols." pattern and variants - tests as noted, e.g. /records/13420/ (test #920), #921 (test #921), #922 (test #922)
 				if (preg_match ('/([1-9][0-9]*|three) vols/', $v, $mainMatches)) {
 					
 					# Interpret variants; see all using: `SELECT value, GROUP_CONCAT(recordId) FROM catalogue_processed WHERE field = 'v' AND `value` LIKE '%vols%' GROUP BY value ORDER BY value;`
@@ -3836,14 +3836,14 @@ class marcConversion
 				}
 			}
 			
-			# Return the count
+			# Return the count, e.g. /records/13420/ (test #920)
 			return $count;
 		}
 		
-		# *ser records, e.g. /records/1000/
+		# *ser records, e.g. /records/1000/ (test #925)
 		if ($this->recordType == '/ser') {
 			
-			# Count the total number of tokens in all *hold, e.g. /records/1029/ (single *hold) , /records/3339/ (multiple *hold)
+			# Count the total number of tokens in all *hold, e.g. single *hold in /records/1029/ (test #926), multiple *hold in /records/3339/ (test #927)
 			if ($holdValues = $this->xPathValues ($this->xml, '//hold[%i]')) {
 				$count = 0;
 				foreach ($holdValues as $holdValue) {
@@ -3851,19 +3851,18 @@ class marcConversion
 				}
 			}
 			
-			# Return the count
+			# Return the count, e.g. /records/1000/ (test #925)
 			return $count;
 		}
 		
 		# *art records: determine based on a set of criteria which have been created following database querying
-		# E.g. Pam: /records/1104/ ; Theses: /records/3152/ ; Atlas: /records/1563/ ; Folio: /records/1150/ ; Library Office: /records/2023/
+		# E.g. 'Pam' in /records/1107/ (test #928), 'Special Collection' in /records/1590/ (test #929), '??' in /records/2579/ (test #931)
 		if (($this->recordType == '/art/in') || ($this->recordType == '/art/j')) {
 			
-			# If there is a host record, no item record created
-			if (!$this->hostRecord) {return false;}
+			# If there is a host record, no item record created, e.g. /records/1109/ (test #928)
+			if ($this->hostRecord) {return false;}
 			
-			# Whitelist of locations, except where bound in
-			# E.g. Special Collection in /records/1201/
+			# Whitelist of locations, except where 'bound in'
 			/* Equivalent SQL query gives 23,615 opt-ins with:
 				SELECT
 					catalogue_processed.id,recordId,value,xPath,title
@@ -3881,13 +3880,14 @@ class marcConversion
 				;
 			*/
 			if (preg_match ("/^(Archives|Atlas|Basement BB Roberts Cabinet|Bibliographers' Office|Folio|Librarian's Office|Map Room|Pam|Pam |Picture Library Store|Reference|Russian REZ.IS|Shelf|Shelved with monographs|Special Collection|Theses)/", $location) || ($location == '??')) {
-				if (!substr_count ($location, 'Bound in')) {		// NB 'Not in SPRI' will already have stopped execution in the calling code so is not listed here but is needed in the equivalent SQL above
+				#!# /records/1189/ has a note "Bound with"
+				if (!substr_count ($location, 'Bound in')) {		// E.g. /records/1350/ (test #930); NB 'Not in SPRI' will already have stopped execution in the calling code so is not listed here but is needed in the equivalent SQL above
 					return $count = 1;
 				}
 			}
 		}
 		
-		# No scenario matched, so no item record creation
+		# No scenario matched, so no item record creation, e.g. /records/3979/ (test #932)
 		return false;
 	}
 	
