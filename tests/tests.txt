@@ -5380,4 +5380,10 @@ issues/2/‡uhttps
 852
 ‡9Create 17 item records
 
+923
+Item records count for *doc has v. fixed up
+852
+197517
+‡9Create 12 item records
+
 

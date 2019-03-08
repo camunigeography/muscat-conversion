@@ -3808,6 +3808,11 @@ class marcConversion
 			
 			# Check for "N vols." in the *v, e.g. /records/13420/ (test #920)
 			if ($v = $this->xPathValue ($this->xml, '/doc/v')) {
+				
+				# Normalise cases of "v." to "vols." prior to test, e.g. "12 v." in /records/197517/ (test #923) , "2 v. in 1" in /records/58001/
+				$v = preg_replace ('/^([1-9][0-9]*) v\.(| in 1)$/', '\1 vols.\2', $v);
+				
+				# Test
 				if (preg_match ('/([1-9][0-9]*|three) vols/', $v, $mainMatches)) {
 					
 					# Interpret variants; see all using: `SELECT value, GROUP_CONCAT(recordId) FROM catalogue_processed WHERE field = 'v' AND `value` LIKE '%vols%' GROUP BY value ORDER BY value;`
