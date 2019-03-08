@@ -2250,8 +2250,6 @@ class import
 				type ENUM('/art/in','/art/j','/doc','/ser') DEFAULT NULL COMMENT 'Type of record',
 				status ENUM('migratewithitem','migrate','suppress','ignore') NULL DEFAULT NULL COMMENT 'Status',
 				itemRecords INT(4) NULL COMMENT 'Create item record?',
-				itemRecordsIteration2 INT(1) NULL COMMENT 'Create item record?',
-				itemRecordsIteration1 INT(1) NULL COMMENT 'Create item record?',
 				mergeType VARCHAR(255) NULL DEFAULT NULL COMMENT 'Merge type',
 				mergeVoyagerId VARCHAR(255) NULL DEFAULT NULL COMMENT 'Voyager ID for merging',
 				marcPreMerge TEXT NULL COLLATE utf8_unicode_ci COMMENT 'Pre-merged MARC representation of local Muscat record',
@@ -2413,47 +2411,6 @@ class import
 				}
 			}
 		}
-		
-		# Mark whether item records should be created
-		# NB: Simple "087.5" rather than slash-escape in regexp confirmed safe, using `SELECT * FROM catalogue_processed WHERE field = 'location' AND value REGEXP '087.5' AND value NOT LIKE '%087.5%';`
-		$query = "
-			UPDATE catalogue_marc
-			SET itemRecordsIteration2 = 1
-			WHERE id IN(
-			    SELECT
-			    DISTINCT recordId
-			    FROM catalogue_processed
-			    WHERE
-			        xPath = '/ser'
-			        OR (
-			                field = 'location'
-			            AND value REGEXP '(^Shelf|^Pam|087.5|^Theses|^Atlas|^Folio|Special Collection|Library Office)'
-			        )
-			);
-		";
-		$this->databaseConnection->execute ($query);
-		
-		# Mark whether item records should be created - simple algorithm; this looks at Leader position 7, which indicates Monograph; see marcConversion::macro_generateLeader ()
-		$query = "UPDATE catalogue_marc SET itemRecordsIteration1 = 1 WHERE marc REGEXP '^LDR .{7}m';";
-		$this->databaseConnection->execute ($query);
-		
-		# Update the item records count for multiple locations; the problem of Periodical being present will not arise, as 'm' will have excluded those
-		# This counts the number of 852 7# instances, rather than *location instances which may include 'Not in SPRI', e.g. /records/27689/ has two *location but one 852 - absence of second 852 is not directly testable but test #649 is similar
-		$itemRecordsFields = array ('itemRecordsIteration2', 'itemRecordsIteration1');
-		foreach ($itemRecordsFields as $itemRecordsField) {
-			$query = "
-				UPDATE fieldsindex
-				JOIN catalogue_marc ON fieldsindex.id = catalogue_marc.id
-				SET {$itemRecordsField} = CAST( ((LENGTH(marc)-LENGTH(REPLACE(marc,'\n852 7# ','')))/LENGTH('\n852 7# ') + 0) AS UNSIGNED INTEGER)	/* i.e. substr_count('\n852 7# ') */
-				WHERE {$itemRecordsField} IS NOT NULL
-			;";
-			$this->databaseConnection->execute ($query);
-		}
-		
-		# Update the status of migrate records to migratewithitem when there are item records specified
-		# This includes the status=migrate constraint to ensure that supressed records don't get unsuppressed, e.g. /records/2096/
-		$query = "UPDATE catalogue_marc SET status = 'migratewithitem' WHERE status = 'migrate' AND itemRecordsIteration2 >= 1;";
-		$this->databaseConnection->execute ($query);
 		
 		# Generate the output files
 		$this->createMarcExports (false, !$isSelection, $errorsHtml /* amended by reference */);
