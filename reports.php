@@ -159,6 +159,7 @@ class reports
 		'onmigration_postmigration' => 'records with a note regarding post-migration instructions',
 		'basementshelf0875_postmigration' => 'records with 087.5 but not Basement Shelf',
 		'openst_problem' => 'records with a *st but the holding statement is open',
+		'basementseligman_postmigration' => 'records in Basement Seligman which need a parent record created',
 	);
 	
 	# Listing (values) reports
@@ -263,6 +264,9 @@ class reports
 			
 			'basementshelf0875' =>
 				"Highlights books to be reclassified after migration so that they can be shelved in the children's collection.",
+			
+			'basementseligman' =>
+				'Items with location = Basement Seligman (01-92) do not yet have a parent record.',
 			
 			'multiplecopiesvalues' =>
 				'Notes such as "SPRI has..." need to be checked against the rest of the data, e.g. "SPRI has three copies" should be reflected as three locations.',
@@ -3673,6 +3677,25 @@ class reports
 				AND recordId IN(
 					SELECT id FROM fieldsindex WHERE fieldslist LIKE '%@st@%'
 				)
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records in Basement Seligman which need a parent record created
+	public function report_basementseligman ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'basementseligman' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field = 'location'
+				AND value LIKE '%Seligman%'
 		";
 		
 		# Return the query
