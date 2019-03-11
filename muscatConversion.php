@@ -1506,7 +1506,7 @@ class muscatConversion extends frontControllerApplication
 			if ($singleRecordId) {
 				$constraints = array (
 					'id' => $singleRecordId,
-					'status' => 'migrate',
+					'status' => array ('migrate', 'migratewithitem'),
 				);
 				if (!$this->databaseConnection->selectOneField ($this->settings['database'], 'searchindex', 'status', $constraints)) {
 					return false;
