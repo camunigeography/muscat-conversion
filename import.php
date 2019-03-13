@@ -2414,7 +2414,7 @@ class import
 		
 		# Update the status of migrate records to migratewithitem when there are item records specified
 		# This includes the status=migrate constraint to ensure that supressed records don't get unsuppressed, e.g. /records/2096/
-		$query = "UPDATE catalogue_marc SET status = 'migratewithitem' WHERE status = 'migrate' AND itemRecordsIteration2 >= 1;";
+		$query = "UPDATE catalogue_marc SET status = 'migratewithitem' WHERE status = 'migrate' AND itemRecords >= 1;";
 		$this->databaseConnection->execute ($query);
 		
 		# Generate the output files
