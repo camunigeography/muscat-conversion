@@ -4098,13 +4098,6 @@ class reports
 		# Remove the temporary tables
 		$this->titlesMatchingTemporaryTables ($andConstraint, true);
 		
-		# Fix entities; e.g. title of /records/196750/ ; see: https://stackoverflow.com/questions/30194976/
-		$query = "
-			UPDATE `listing_seriestitlemismatches{$variantNumber}`
-			SET title = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( title   , '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
-		;";
-		$this->databaseConnection->execute ($query);
-		
 		# Implement countability, by adding an entry, without reference to recordId, into the report results table
 		$query = "
 			INSERT INTO reportresults (report,recordId)
@@ -4170,6 +4163,16 @@ class reports
 				WHERE EXTRACTVALUE(xml, 'ser/tg/t') != ''		/* Implicit within this that it is a serial */
 		;";
 		$this->databaseConnection->execute ($query);
+		
+		# Fix entities in each table due to SQL ExtractValue returning the raw entities, e.g. /records/4137/ ha "Geographical Magazine (Trubner &amp; Co)" before conversion; see: https://stackoverflow.com/questions/30194976/
+		$tables = array ('temp_articletitles', 'temp_serialtitles');
+		foreach ($tables as $table) {
+			$query = "
+				UPDATE `{$table}`
+				SET title = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( title, '&amp;', '&'), '&lt;', '<'), '&gt;', '>'), '&quot;', '\"'), '&apos;', \"'\")
+			;";
+			$this->databaseConnection->execute ($query);
+		}
 	}
 	
 	
