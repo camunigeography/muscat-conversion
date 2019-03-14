@@ -42,7 +42,7 @@ class reports
 		'externallocations_info' => "records where no location is 'Not in SPRI', having first filtered out any matching a whitelist of internal locations",
 		'loclocloc_info' => 'records with three or more locations',
 		'singleexternallocation_problem' => 'records with only one external location, which is not on the whitelist',
-		'arttitlenoser_problem' => 'articles without a matching serial title, that are not pamphlets or in the special collection',
+		'arttitlenoser_problem' => 'articles without a matching serial title, that are not pamphlets or in the special collection or Not in SPRI',
 		'locationauthoritycontrol_problem' => 'locations not passing authority control',
 		'notinspri_info' => 'items not in SPRI',
 		'notinspriinspri_problem' => 'items not in SPRI also having a SPRI location',
@@ -1134,8 +1134,9 @@ class reports
 	public function report_arttitlenoser ()
 	{
 		# Create temporary tables for use in the main query, as dynamic join in main query below is slow due to lack of indexing
-		# NB As of 31/Jan/2019 creates 94,949 records in temp_articletitles
-		$this->titlesMatchingTemporaryTables ($andConstraint = '');
+		# NB As of 31/Jan/2019 creates 89,638 records in temp_articletitles
+		$andConstraint = "AND EXTRACTVALUE(xml, 'art/j/loc/location') NOT LIKE '%Not in SPRI%';";
+		$this->titlesMatchingTemporaryTables ($andConstraint);
 		
 		# Define the query; see: http://stackoverflow.com/a/367865 and http://stackoverflow.com/a/350180
 		$query = "
