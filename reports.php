@@ -1135,7 +1135,7 @@ class reports
 	{
 		# Create temporary tables for use in the main query, as dynamic join in main query below is slow due to lack of indexing
 		# NB As of 31/Jan/2019 creates 89,638 records in temp_articletitles
-		$andConstraint = "AND EXTRACTVALUE(xml, 'art/j/loc/location') NOT LIKE '%Not in SPRI%';";
+		$andConstraint = "AND EXTRACTVALUE(xml, 'art/j/loc/location') NOT LIKE '%Not in SPRI%'";
 		$this->titlesMatchingTemporaryTables ($andConstraint);
 		
 		# Define the query; see: http://stackoverflow.com/a/367865 and http://stackoverflow.com/a/350180
@@ -4077,8 +4077,13 @@ class reports
 		;";
 		$this->databaseConnection->execute ($query);
 		
-		# Create temporary tables for use in the main query, as dynamic join in main query below is slow due to lack of indexing
-		$andConstraint = "AND EXTRACTVALUE(xml, 'art/j/loc/location') {$locCondition};";
+		# Create temporary tables for use in the main query, as dynamic join in main query below is slow due to lack of indexing; confirmed no loc[5] exist
+		$andConstraint = "AND (
+			   EXTRACTVALUE(xml, 'art/j/loc[1]/location') {$locCondition}
+			OR EXTRACTVALUE(xml, 'art/j/loc[2]/location') {$locCondition}
+			OR EXTRACTVALUE(xml, 'art/j/loc[3]/location') {$locCondition}
+			OR EXTRACTVALUE(xml, 'art/j/loc[4]/location') {$locCondition}
+		)";
 		$this->titlesMatchingTemporaryTables ($andConstraint);
 		
 		# Select the data and insert it into the new table
@@ -4092,7 +4097,7 @@ class reports
 			WHERE serials.title IS NULL
 			GROUP BY articles.title
 			ORDER BY instances DESC, " . $this->databaseConnection->trimSql ('articles.title') . "
-		";
+		;";
 		$query = "INSERT INTO listing_seriestitlemismatches{$variantNumber} (title, instances) \n {$query};";
 		$result = $this->databaseConnection->execute ($query);
 		
