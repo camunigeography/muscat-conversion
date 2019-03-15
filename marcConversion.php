@@ -4322,39 +4322,11 @@ class marcConversion
 		#!# Needs review - concern that this means that items with more than one location could get in the suppression bucket; see e-mail 19/12/2016
 		return $suppressionScenarios = array (
 			
-			'STATUS-RECEIVED' => array (
-				# 5,376 records
-				'Item is being processed, i.e. has been accessioned and is with a bibliographer for classifying and cataloguing',
-				"   field = 'status' AND value = 'RECEIVED'
-				"),
-				
-			'ORDER-CANCELLED' => array (
-				# 232 records
-				'Order cancelled by SPRI, but record retained for accounting/audit purposes in the event that the item arrives',
-				"   field = 'status' AND value = 'ORDER CANCELLED'
-				"),
-				
 			'EXPLICIT-SUPPRESS' => array (
 				# 24,658 records
 				'Record marked specifically to suppress, e.g. pamphlets needing review, etc.',
 				# NB This has been achieved using a BCPL routine to mark the records as such
 				"   field = 'status' AND value = '{$this->suppressionStatusKeyword}'
-				"),
-				
-			'ON-ORDER-RECENT' => array (
-				# 15 records
-				'Item on order recently with expectation of being fulfilled',
-				"	    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
-					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
-					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
-				"),
-				
-			'ON-ORDER-OLD' => array (
-				# 654 records; see also: /reports/onorderold/ which matches
-				'Item on order recently unlikely to be fulfilled, but item remains desirable and of bibliographic interest',
-				"	    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
-					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
-					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
 				"),
 				
 			'MISSING-QQ' => array (
@@ -4407,6 +4379,34 @@ class marcConversion
 				"	    field = 'location'
 					AND value NOT REGEXP \"" . $locationCodesRegexpSql . "\"
 					AND value LIKE '%Cambridge University%'
+				"),
+				
+			'STATUS-RECEIVED' => array (
+				# 5,376 records
+				'Item is being processed, i.e. has been accessioned and is with a bibliographer for classifying and cataloguing',
+				"   field = 'status' AND value = 'RECEIVED'
+				"),
+				
+			'ORDER-CANCELLED' => array (
+				# 232 records
+				'Order cancelled by SPRI, but record retained for accounting/audit purposes in the event that the item arrives',
+				"   field = 'status' AND value = 'ORDER CANCELLED'
+				"),
+				
+			'ON-ORDER-RECENT' => array (
+				# 15 records
+				'Item on order recently with expectation of being fulfilled',
+				"	    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
+					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
+					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
+				"),
+				
+			'ON-ORDER-OLD' => array (
+				# 654 records; see also: /reports/onorderold/ which matches
+				'Item on order recently unlikely to be fulfilled, but item remains desirable and of bibliographic interest',
+				"	    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
+					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
+					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
 				"),
 				
 		);
