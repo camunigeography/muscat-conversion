@@ -4381,6 +4381,12 @@ class marcConversion
 					AND value LIKE '%Cambridge University%'
 				"),
 				
+			'IGNORE-NIS' => array (
+				# ? records
+				'Items held not in SPRI',
+				"   field = 'location' AND value = 'Not in SPRI'
+				"),
+				
 			'STATUS-RECEIVED' => array (
 				# 5,376 records
 				'Item is being processed, i.e. has been accessioned and is with a bibliographer for classifying and cataloguing',
