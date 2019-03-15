@@ -1123,6 +1123,16 @@ class import
 		$queries[] = "UPDATE `catalogue_processed` SET value = REPLACE(value, 'pub. ', '') WHERE field = 'location';";	// # 304 rows
 		$queries[] = "UPDATE `catalogue_processed` SET value = REPLACE(value, 'pub.', '') WHERE field = 'location';";	// # 13927 rows
 		
+		# Rename locations of cases where the item has a location which has been destroyed during an audit, but which were erroneously marked as *location=Periodical
+		$destroyed = application::textareaToList ($this->applicationRoot . '/tables/' . 'destroyed.txt', true, true);
+		$queries[] = "UPDATE catalogue_processed
+			SET value = 'Destroyed during audit'
+			WHERE
+				    recordId IN(" . implode (', ', $destroyed) . ")
+				AND field = 'location'
+				AND value = 'Periodical'
+		;";		// 1,422 updates
+		
 		# Run each query
 		foreach ($queries as $query) {
 			$result = $this->databaseConnection->query ($query);
