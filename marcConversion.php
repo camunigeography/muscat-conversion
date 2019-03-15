@@ -46,7 +46,7 @@ class marcConversion
 		'Special Collection'						=> 'SPRI-SPC',
 		'Theses'									=> 'SPRI-THE',
 		'Digital Repository'						=> 'SPRI-ELE',
-		'Electronic Resource \(online\)'			=> 'SPRI-ELE',
+		'Electronic Resource \(online\)'			=> 'SPRI-ELE',		// No items any more
 		"Friends' Room"								=> 'SPRI-FRI',
 		'Museum Working Collection'					=> 'SPRI-MUS',
 		'Shelved with pamphlets'					=> 'SPRI-PAM',
@@ -4393,6 +4393,12 @@ class marcConversion
 				# 44 records
 				'IGS locations',
 				"   field = 'location' AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection')
+				"),
+				
+			'ELECTRONIC-REMOTE' => array (
+				# 10 records
+				'Digital records',
+				"   field = 'location' AND value = 'Digital Repository'
 				"),
 				
 			'IGNORE-UL' => array (
