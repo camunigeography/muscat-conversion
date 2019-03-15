@@ -269,6 +269,9 @@ class reports
 			'basementseligman' =>
 				'Items with location = Basement Seligman (01-92) do not yet have a parent record.',
 			
+			'seriestitlemismatches1records' =>
+				'Items needing a parent record',
+			
 			'multiplecopiesvalues' =>
 				'Notes such as "SPRI has..." need to be checked against the rest of the data, e.g. "SPRI has three copies" should be reflected as three locations.',
 			
