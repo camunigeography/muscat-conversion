@@ -160,6 +160,7 @@ class reports
 		'basementshelf0875_postmigration' => 'records with 087.5 but not Basement Shelf',
 		'openst_problem' => 'records with a *st but the holding statement is open',
 		'basementseligman_postmigration' => 'records in Basement Seligman which need a parent record created',
+		'seriestitlemismatches1records_postmigration' => "listing: articles without a matching serial (journal) title in another record (that are neither pamphlets nor in the special collection), where location=Periodical: record numbers",
 	);
 	
 	# Listing (values) reports
@@ -4048,6 +4049,13 @@ class reports
 	}
 	
 	
+	# Listing of articles without a matching serial (journal) title in another record (variant 1): record numbers
+	public function report_seriestitlemismatches1records ()
+	{
+		return $query = $this->report_seriestitlemismatches (1, $locCondition = "= 'Periodical'", $captureRecordNumbersReport = 'seriestitlemismatches1records');
+	}
+	
+	
 	# Listing of articles without a matching serial (journal) title in another record (variant 2)
 	public function report_seriestitlemismatches2 ()
 	{
@@ -4063,7 +4071,7 @@ class reports
 	
 	
 	# Listing of articles without a matching serial (journal) title in another record; function is used by three variants
-	private function report_seriestitlemismatches ($variantNumber, $locCondition)
+	private function report_seriestitlemismatches ($variantNumber, $locCondition, $captureRecordNumbersReport = false)
 	{
 		# Create the table
 		$query = "DROP TABLE IF EXISTS {$this->settings['database']}.listing_seriestitlemismatches{$variantNumber};";
@@ -4100,6 +4108,23 @@ class reports
 		;";
 		$query = "INSERT INTO listing_seriestitlemismatches{$variantNumber} (title, instances) \n {$query};";
 		$result = $this->databaseConnection->execute ($query);
+		
+		# Capture record numbers if a record report is required
+		if ($captureRecordNumbersReport) {
+			
+			# Assemble the query
+			$query = "
+				SELECT
+					'{$captureRecordNumbersReport}' AS report,
+					id AS recordId
+				FROM temp_articletitles
+			";
+			
+			// NB Temporary tables will be cleaned up later in report_seriestitlemismatches
+			
+			# Return the query
+			return $query;
+		}
 		
 		# Remove the temporary tables
 		$this->titlesMatchingTemporaryTables ($andConstraint, true);
