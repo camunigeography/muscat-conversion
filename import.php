@@ -2583,13 +2583,14 @@ class import
 		}
 		
 		# Records to ignore (highest priority)
+		#!# As with supression, the assigment of status=ignore for the listed scenarios needs to be done on a per-location basis
 		# Verified that, following data work, all such records are also 'Not in SPRI' and have no other location, using `SELECT id, EXTRACTVALUE(xml, '//location') AS locations FROM catalogue_xml WHERE EXTRACTVALUE(xml, '//location') REGEXP '(IGS|International Glaciological Society|Basement IGS Collection)';`
 		$query = "UPDATE catalogue_marc
 			LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
 			SET status = 'ignore'
 			WHERE
 				    field = 'location'
-				AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection')
+				AND value IN('Destroyed during audit', 'IGS', 'International Glaciological Society', 'Basement IGS Collection')
 		;";
 		$this->databaseConnection->execute ($query);
 		
