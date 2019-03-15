@@ -2253,6 +2253,7 @@ class import
 		$this->databaseConnection->execute ($sql);
 		
 		# Create the new MARC table
+		#!# suppressReasons ideally should be renamed
 		$this->logger ('Creating catalogue_marc table');
 		$sql = "
 			CREATE TABLE IF NOT EXISTS catalogue_marc (
@@ -2265,7 +2266,7 @@ class import
 				marcPreMerge TEXT NULL COLLATE utf8_unicode_ci COMMENT 'Pre-merged MARC representation of local Muscat record',
 				marc TEXT COLLATE utf8_unicode_ci COMMENT 'MARC representation of Muscat record',
 				bibcheckErrors TEXT NULL COLLATE utf8_unicode_ci COMMENT 'Bibcheck errors, if any',
-				suppressReasons VARCHAR(255) NULL DEFAULT NULL COMMENT 'Reason(s) for status=suppress',
+				suppressReasons VARCHAR(255) NULL DEFAULT NULL COMMENT 'Reason(s) for status=suppress/ignore',
 			  PRIMARY KEY (id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC representation of Muscat records'
 		;";
@@ -2566,33 +2567,29 @@ class import
 		$query = "UPDATE catalogue_marc SET status = 'migrate', suppressReasons = NULL;";
 		$this->databaseConnection->execute ($query);
 		
-		# Records to suppress
-		$suppressionScenarios = $this->marcConversion->getSuppressionScenarios ();
-		foreach ($suppressionScenarios as $reasonToken => $suppressionScenario) {
-			$conditions = $suppressionScenario[1];
-			$query = "UPDATE catalogue_marc
-				LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
-				LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
-				SET
-					status = 'suppress',
-					suppressReasons = IF(suppressReasons IS NULL, '{$reasonToken}', CONCAT(suppressReasons, ', {$reasonToken}'))
-				WHERE
-					{$conditions}
-			;";
-			$this->databaseConnection->execute ($query);
+		# Records to suppress / ignore
+		#!# The assigment of status=ignore for the listed scenarios needs to be done on a per-location basis
+		# Verified that, following data work, all records in ignore are also 'Not in SPRI' and have no other location, using `SELECT id, EXTRACTVALUE(xml, '//location') AS locations FROM catalogue_xml WHERE EXTRACTVALUE(xml, '//location') REGEXP '(IGS|International Glaciological Society|Basement IGS Collection)';`
+		$statuses = array (
+			'suppress'	=> 'getSuppressionScenarios',
+			'ignore'	=> 'getIgnorationScenarios',	// Highest priority, as run last, thus overwriting any previous status
+		);
+		foreach ($statuses as $status => $scenariosFunction) {
+			$scenarios = $this->marcConversion->{$scenariosFunction} ();
+			foreach ($scenarios as $reasonToken => $scenario) {
+				$conditions = $scenario[1];
+				$query = "UPDATE catalogue_marc
+					LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
+					LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
+					SET
+						status = '{$status}',
+						suppressReasons = IF(suppressReasons IS NULL, '{$reasonToken}', CONCAT(suppressReasons, ', {$reasonToken}'))
+					WHERE
+						{$conditions}
+				;";
+				$this->databaseConnection->execute ($query);
+			}
 		}
-		
-		# Records to ignore (highest priority)
-		#!# As with supression, the assigment of status=ignore for the listed scenarios needs to be done on a per-location basis
-		# Verified that, following data work, all such records are also 'Not in SPRI' and have no other location, using `SELECT id, EXTRACTVALUE(xml, '//location') AS locations FROM catalogue_xml WHERE EXTRACTVALUE(xml, '//location') REGEXP '(IGS|International Glaciological Society|Basement IGS Collection)';`
-		$query = "UPDATE catalogue_marc
-			LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
-			SET status = 'ignore'
-			WHERE
-				    field = 'location'
-				AND value IN('Destroyed during audit', 'IGS', 'International Glaciological Society', 'Basement IGS Collection')
-		;";
-		$this->databaseConnection->execute ($query);
 		
 		// Setting status to migratewithitem is handled afterwards in createMarcRecords
 		

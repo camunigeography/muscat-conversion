@@ -51,6 +51,7 @@ class marcConversion
 		'Museum Working Collection'					=> 'SPRI-MUS',
 		'Shelved with pamphlets'					=> 'SPRI-PAM',
 		'Shelved with monographs'					=> 'SPRI-SHF',
+		'Destroyed during audit'					=> 'IGNORE',
 		// SPRI-NIS defined in marcConversion code
 	);
 	
@@ -117,8 +118,9 @@ class marcConversion
 		# Load the diacritics table
 		$this->diacriticsTable = $this->diacriticsTable ();
 		
-		# Load the suppression scenarios
+		# Load the suppression and ignoration scenarios
 		$this->suppressionScenarios = $this->suppressionScenarios ();
+		$this->ignorationScenarios = $this->ignorationScenarios ();
 		
 		# Load ISBN support
 		$this->isbn = $this->loadIsbnValidationLibrary ();
@@ -198,6 +200,11 @@ class marcConversion
 	public function getSuppressionScenarios ()
 	{
 		return $this->suppressionScenarios;
+	}
+	
+	public function getIgnorationScenarios ()
+	{
+		return $this->ignorationScenarios;
 	}
 	
 	public function getAcquisitionDate ()
@@ -3995,8 +4002,13 @@ class marcConversion
 		
 		# Create a list of results, adding an explanation for each, e.g. /records/1026/ (test #615)
 		$resultLines = array ();
-		foreach ($suppressReasons as $suppressReason) {
-			$resultLines[] = 'Suppression reason: ' . $suppressReason . ' (' . $this->suppressionScenarios[$suppressReason][0] . ')';
+		foreach ($suppressReasons as $token) {
+			if (isSet ($this->suppressionScenarios[$token])) {
+				$resultLines[] = 'Suppression reason: ' . $token . ' (' . $this->suppressionScenarios[$token][0] . ')';
+			}
+			if (isSet ($this->ignorationScenarios[$token])) {
+				$resultLines[] = 'Ignoration reason: ' . $token . ' (' . $this->ignorationScenarios[$token][0] . ')';
+			}
 		}
 		
 		# Implode the list, e.g. /records/1122/ (tests #613; no test for multiple, as no data, but verified manually that this works)
@@ -4357,6 +4369,28 @@ class marcConversion
 						OR value LIKE '%Cambridge University%'
 						OR value LIKE 'Picture Library Store : Video%'
 						)
+				"),
+				
+		);
+	}
+	
+	
+	# Function to define ignoration scenarios
+	private function ignorationScenarios ()
+	{
+		# Records to suppress, defined as a set of scenarios represented by a token
+		return $ignorationScenarios = array (
+			
+			'DESTROYED-COPIES' => array (
+				# 1,422 records
+				'Item has been destroyed during audit',
+				"   field = 'location' AND value = 'Destroyed during audit'
+				"),
+				
+			'IGS-IGNORED' => array (
+				# 44 records
+				'IGS locations',
+				"   field = 'location' AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection')
 				"),
 				
 		);
