@@ -4373,20 +4373,6 @@ class marcConversion
 				"   field = 'location' AND value = 'Digital Repository'
 				"),
 				
-			'IGNORE-UL' => array (
-				# ? records
-				'Items held at the UL (i.e. elsewhere)',
-				"	    field = 'location'
-					AND value NOT REGEXP \"" . $locationCodesRegexpSql . "\"
-					AND value LIKE '%Cambridge University%'
-				"),
-				
-			'IGNORE-NIS' => array (
-				# ? records
-				'Items held not in SPRI',
-				"   field = 'location' AND value = 'Not in SPRI'
-				"),
-				
 			'STATUS-RECEIVED' => array (
 				# 5,376 records
 				'Item is being processed, i.e. has been accessioned and is with a bibliographer for classifying and cataloguing',
@@ -4399,14 +4385,6 @@ class marcConversion
 				"   field = 'status' AND value = 'ORDER CANCELLED'
 				"),
 				
-			'ON-ORDER-RECENT' => array (
-				# 15 records
-				'Item on order recently with expectation of being fulfilled',
-				"	    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
-					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
-					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
-				"),
-				
 			'ON-ORDER-OLD' => array (
 				# 654 records; see also: /reports/onorderold/ which matches
 				'Item on order recently unlikely to be fulfilled, but item remains desirable and of bibliographic interest',
@@ -4415,6 +4393,27 @@ class marcConversion
 					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
 				"),
 				
+			'ON-ORDER-RECENT' => array (
+				# 15 records
+				'Item on order recently with expectation of being fulfilled',
+				"	    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
+					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
+					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
+				"),
+				
+			'IGNORE-NIS' => array (
+				# ? records
+				'Items held not in SPRI',
+				"   field = 'location' AND value = 'Not in SPRI'
+				"),
+				
+			'IGNORE-UL' => array (
+				# ? records
+				'Items held at the UL (i.e. elsewhere)',
+				"	    field = 'location'
+					AND value NOT REGEXP \"" . $locationCodesRegexpSql . "\"
+					AND value LIKE '%Cambridge University%'
+				"),
 		);
 	}
 	
