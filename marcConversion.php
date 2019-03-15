@@ -4319,6 +4319,7 @@ class marcConversion
 		# Records to suppress, defined as a set of scenarios represented by a token
 		#!# Check whether locationCode locations with 'Periodical' are correct to suppress
 		#!# Major issue: problem with e.g. /records/3929/ where two records need to be created, but not both should be suppressed; there are around 1,000 of these
+		#!# Needs review - concern that this means that items with more than one location could get in the suppression bucket; see e-mail 19/12/2016
 		return $suppressionScenarios = array (
 			
 			'STATUS-RECEIVED' => array (
@@ -4356,18 +4357,20 @@ class marcConversion
 					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
 				"),
 				
-			#!# Needs review - concern that this means that items with more than one location could get in the suppression bucket; see e-mail 19/12/2016
-			#!# Policy on ?? should be decided before final migration
-			'EXTERNAL-LOCATION' => array (
-				# 8,325 records
-				'Item of bibliographic interest, but not held at SPRI, so no holdings record can be created',
+			'MISSING-QQ' => array (
+				# ? records
+				'Missing with ?',
 				"	    field = 'location'
 					AND value NOT REGEXP \"" . $locationCodesRegexpSql . "\"
-					AND (
-						   value IN('??', 'Pam ?', 'Not in SPRI', 'Periodical')
-						OR value LIKE '%Cambridge University%'
-						OR value LIKE 'Picture Library Store : Video%'
-						)
+					AND value IN('??', 'Pam ?')
+				"),
+				
+			'PICTURELIBRARY-VIDEO' => array (
+				# ? records
+				'Picture Library Store videos',
+				"	    field = 'location'
+					AND value NOT REGEXP \"" . $locationCodesRegexpSql . "\"
+					AND value LIKE 'Picture Library Store : Video%'
 				"),
 				
 		);
@@ -4390,6 +4393,14 @@ class marcConversion
 				# 44 records
 				'IGS locations',
 				"   field = 'location' AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection')
+				"),
+				
+			'IGNORE-UL' => array (
+				# ? records
+				'Items held at the UL (i.e. elsewhere)',
+				"	    field = 'location'
+					AND value NOT REGEXP \"" . $locationCodesRegexpSql . "\"
+					AND value LIKE '%Cambridge University%'
 				"),
 				
 		);
