@@ -4364,8 +4364,7 @@ class marcConversion
 				"	    field = 'location'
 					AND value NOT REGEXP \"" . $locationCodesRegexpSql . "\"
 					AND (
-						   value IN('', '-', '??', 'Not in SPRI', 'Periodical')
-						OR value LIKE '%?%'
+						   value IN('??', 'Pam ?', 'Not in SPRI', 'Periodical')
 						OR value LIKE '%Cambridge University%'
 						OR value LIKE 'Picture Library Store : Video%'
 						)
