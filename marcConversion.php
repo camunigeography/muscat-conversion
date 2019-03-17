@@ -4390,20 +4390,10 @@ class marcConversion
 				"   field = 'status' AND value = 'ORDER CANCELLED'
 				"),
 				
-			'ON-ORDER-OLD' => array (
+			'ON-ORDER' => array (
 				# 562 records; see also: /reports/onorderold/ which matches
-				'Item on order recently unlikely to be fulfilled, but item remains desirable and of bibliographic interest',
+				'Item on order >1 year ago so unlikely to be fulfilled, but item remains desirable and of bibliographic interest',
 				"	    EXTRACTVALUE(xml, '//status') = 'ON ORDER'
-					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
-					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) < UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
-				"),
-				
-			'ON-ORDER-RECENT' => array (
-				# 13 records
-				'Item on order recently with expectation of being fulfilled',
-				"	    EXTRACTVALUE(xml, '//status') = 'ON ORDER'
-					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
-					AND UNIX_TIMESTAMP ( STR_TO_DATE( CONCAT ( EXTRACTVALUE(xml, '//acq/date'), ' 12:00:00'), '%Y/%m/%d %h:%i:%s') ) >= UNIX_TIMESTAMP('{$this->acquisitionDate} 00:00:00')
 				"),
 				
 			'IGNORE-NIS' => array (
