@@ -4323,14 +4323,14 @@ class marcConversion
 		return $suppressionScenarios = array (
 			
 			'EXPLICIT-SUPPRESS' => array (
-				# 24,658 records
+				# 21,196 records
 				'Record marked specifically to suppress, e.g. pamphlets needing review, etc.',
 				# NB This has been achieved using a BCPL routine to mark the records as such
 				"   field = 'status' AND value = '{$this->suppressionStatusKeyword}'
 				"),
 				
 			'MISSING-QQ' => array (
-				# ? records
+				# 496 records
 				'Missing with ?',
 				"	    field = 'location'
 					AND value NOT REGEXP \"" . $locationCodesRegexpSql . "\"
@@ -4338,7 +4338,8 @@ class marcConversion
 				"),
 				
 			'PICTURELIBRARY-VIDEO' => array (
-				# ? records
+				#!# No matches, as Picture Library is present in the location codes list
+				# 0 records
 				'Picture Library Store videos',
 				"	    field = 'location'
 					AND value NOT REGEXP \"" . $locationCodesRegexpSql . "\"
@@ -4378,19 +4379,19 @@ class marcConversion
 				"),
 				
 			'STATUS-RECEIVED' => array (
-				# 5,376 records
+				# 3,428 records
 				'Item is being processed, i.e. has been accessioned and is with a bibliographer for classifying and cataloguing',
 				"   field = 'status' AND value = 'RECEIVED'
 				"),
 				
 			'ORDER-CANCELLED' => array (
-				# 232 records
+				# 0 records
 				'Order cancelled by SPRI, but record retained for accounting/audit purposes in the event that the item arrives',
 				"   field = 'status' AND value = 'ORDER CANCELLED'
 				"),
 				
 			'ON-ORDER-OLD' => array (
-				# 654 records; see also: /reports/onorderold/ which matches
+				# 562 records; see also: /reports/onorderold/ which matches
 				'Item on order recently unlikely to be fulfilled, but item remains desirable and of bibliographic interest',
 				"	    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
@@ -4398,7 +4399,7 @@ class marcConversion
 				"),
 				
 			'ON-ORDER-RECENT' => array (
-				# 15 records
+				# 13 records
 				'Item on order recently with expectation of being fulfilled',
 				"	    EXTRACTVALUE(xml, '//status') LIKE 'ON ORDER%'
 					AND EXTRACTVALUE(xml, '//acq/date') REGEXP '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'	-- Merely checks correct syntax
@@ -4406,18 +4407,19 @@ class marcConversion
 				"),
 				
 			'IGNORE-NIS' => array (
-				# ? records
+				# 7,478 records
 				'Items held not in SPRI',
 				"   field = 'location' AND value = 'Not in SPRI'
 				"),
 				
 			'IGNORE-UL' => array (
-				# ? records
+				# 1,279 records
 				'Items held at the UL (i.e. elsewhere)',
 				"	    field = 'location'
 					AND value NOT REGEXP \"" . $locationCodesRegexpSql . "\"
 					AND value LIKE '%Cambridge University%'
 				"),
+				
 		);
 	}
 	
