@@ -4384,13 +4384,13 @@ class marcConversion
 				"   field = 'status' AND value = 'RECEIVED'
 				"),
 				
-			'ORDER-CANCELLED' => array (
+			'STATUS-ORDER-CANCELLED' => array (
 				# 0 records
 				'Order cancelled by SPRI, but record retained for accounting/audit purposes in the event that the item arrives',
 				"   field = 'status' AND value = 'ORDER CANCELLED'
 				"),
 				
-			'ON-ORDER' => array (
+			'STATUS-ON-ORDER' => array (
 				# 562 records; see also: /reports/onorderold/ which matches
 				'Item on order >1 year ago so unlikely to be fulfilled, but item remains desirable and of bibliographic interest',
 				"	    EXTRACTVALUE(xml, '//status') = 'ON ORDER'
