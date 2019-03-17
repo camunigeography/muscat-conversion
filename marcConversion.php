@@ -4352,6 +4352,10 @@ class marcConversion
 	# Function to define ignoration scenarios
 	private function ignorationScenarios ()
 	{
+		# Compile an SQL REGEXP clause for the location codes
+		$singleBackslash = '\\';
+		$locationCodesRegexpSql = '^(' . str_replace ($singleBackslash, str_repeat ($singleBackslash, 2), implode ('|', array_keys ($this->locationCodes))) . ')';
+		
 		# Records to suppress, defined as a set of scenarios represented by a token
 		return $ignorationScenarios = array (
 			
