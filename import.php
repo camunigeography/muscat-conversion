@@ -2267,6 +2267,7 @@ class import
 				marc TEXT COLLATE utf8_unicode_ci COMMENT 'MARC representation of Muscat record',
 				bibcheckErrors TEXT NULL COLLATE utf8_unicode_ci COMMENT 'Bibcheck errors, if any',
 				suppressReasons VARCHAR(255) NULL DEFAULT NULL COMMENT 'Reason(s) for status=suppress/ignore',
+				filterTokens VARCHAR(255) NULL DEFAULT NULL COMMENT 'Filtering tokens for suppression/ignoration',
 			  PRIMARY KEY (id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC representation of Muscat records'
 		;";
@@ -2382,6 +2383,7 @@ class import
 					$suppressReasons = (isSet ($suppressReasonsList[$id]) ? $suppressReasonsList[$id] : false);
 					$marc = $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $mergeDefinition, $mergeType, $mergeVoyagerId, $suppressReasons);
 					$marcPreMerge = $this->marcConversion->getMarcPreMerge ();
+					$filterTokens = $this->marcConversion->getFilterTokensString ();
 					if ($marcErrorHtml = $this->marcConversion->getErrorHtml ()) {
 						$html = $marcErrorHtml;
 						$errorsHtml .= $html;
@@ -2392,6 +2394,7 @@ class import
 						'marcPreMerge' => $marcPreMerge,
 						'marc' => $marc,
 						'itemRecords' => array_sum ($matches[1]),
+						'filterTokens' => $filterTokens,	// E.g. examples: "MISSING-QQ" or multiple "IGNORE-NIS, IGNORE-UL"
 					);
 					
 					# If the record has generated a second pass requirement if it has a parent, register the ID
@@ -2555,7 +2558,7 @@ class import
 	}
 	
 	
-	# Function to set the status of each MARC record
+	# Function to set the status of each MARC record; this is done before the records are generated, using XPath queries
 	private function marcRecordsSetStatus ()
 	{
 		# Log start
@@ -2954,6 +2957,7 @@ class import
 				$mergeVoyagerId	 = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeVoyagerId'] : false);
 				$suppressReasons = (isSet ($suppressReasonsList[$id]) ? $suppressReasonsList[$id] : false);
 				$marcRecords[$id]['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $mergeDefinition, $mergeType, $mergeVoyagerId, $suppressReasons);
+				$marcRecords[$id]['filterTokens'] = $this->marcConversion->getFilterTokensString ();
 			}
 			$this->databaseConnection->updateMany ($this->settings['database'], 'catalogue_marc', $marcRecords);
 		}

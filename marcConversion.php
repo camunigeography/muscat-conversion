@@ -7,6 +7,7 @@ class marcConversion
 	private $errorHtml = '';
 	private $marcPreMerge = NULL;
 	private $sourceRegistry = array ();
+	private $filterTokens = array ();
 	
 	# Caches
 	private $lookupTablesCache = array ();
@@ -170,6 +171,13 @@ class marcConversion
 	}
 	
 	
+	# Getter for filter tokens, as a string
+	public function getFilterTokensString ()
+	{
+		return implode (', ', $this->filterTokens);
+	}
+	
+	
 	# Getter for definitions
 	
 	public function getMergeTypes ()
@@ -252,8 +260,9 @@ class marcConversion
 		# Ensure the second-pass record ID flag is clean; this is used for a second-pass arising from 773 processing where the host does not exist at time of processing
 		$this->secondPassRecordId = NULL;
 		
-		# Create property handle
+		# Create property handle for filter tokens
 		$this->suppressReasons = $suppressReasons;
+		$this->filterTokens = array ();
 		
 		# Ensure the line-by-line syntax is valid, extract macros, and construct a data structure representing the record
 		if (!$datastructure = $this->convertToMarc_InitialiseDatastructure ($recordXml, $marcParserDefinition)) {return false;}

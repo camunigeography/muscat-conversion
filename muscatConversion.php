@@ -56,7 +56,7 @@ class muscatConversion extends frontControllerApplication
 			'icon'		=> 'page_white_code_red',
 			'title'		=> "The publication's record as raw MARC21 data",
 			'errorHtml'	=> "The MARC21 representation of the Muscat record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
-			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc', 'bibcheckErrors', 'suppressReasons'),
+			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc', 'bibcheckErrors', 'suppressReasons', 'filterTokens'),
 			'idField'	=> 'id',
 			'orderBy'	=> 'id',
 			'class'		=> false,
@@ -928,6 +928,7 @@ class muscatConversion extends frontControllerApplication
 					'marcErrorHtml'		=> $this->marcConversion->getErrorHtml (),
 					'marcPreMerge'		=> $this->marcConversion->getMarcPreMerge (),
 					'sourceRegistry'	=> $this->marcConversion->getSourceRegistry (),
+					'filterTokens'		=> $this->marcConversion->getFilterTokensString (),
 				);
 			}
 		}
@@ -955,6 +956,7 @@ class muscatConversion extends frontControllerApplication
 					$output .= "\n<div class=\"graybox marc\">";
 					$output .= "\n<p id=\"exporttarget\">";
 					$output .= "Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->migrationStatus ($id) . '</strong> &nbsp;&nbsp;';
+					$output .= "Filter tokens: <strong>" . ($this->marcRecordDynamic['filterTokens'] ? htmlspecialchars ($this->marcRecordDynamic['filterTokens']) : '-') . '</strong> &nbsp;&nbsp;';
 					$output .= "Item records: <strong>" . $this->itemRecordsStatus ($id) . '</strong> &nbsp;&nbsp;';
 					$output .= $marcXmlLink;
 					$output .= '</p>';
