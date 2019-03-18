@@ -2318,7 +2318,7 @@ class import
 		# Get the merge definition
 		if (!$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ())) {return false;}
 		
-		# Get the suppress reasons list for this chunk
+		# Get the suppress reasons list
 		$suppressReasonsList = $this->getSuppressReasonsList ();
 		
 		# Allow large queries for the chunking operation
@@ -2583,7 +2583,6 @@ class import
 				$conditions = $scenario[1];
 				$query = "UPDATE catalogue_marc
 					LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
-					LEFT JOIN catalogue_xml ON catalogue_marc.id = catalogue_xml.id
 					SET
 						status = '{$status}',
 						suppressReasons = IF(suppressReasons IS NULL, '{$reasonToken}', CONCAT(suppressReasons, ', {$reasonToken}'))

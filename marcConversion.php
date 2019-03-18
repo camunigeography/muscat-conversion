@@ -4399,7 +4399,7 @@ class marcConversion
 			'STATUS-ON-ORDER' => array (
 				# 576 records (563 records old + 13 records recent); see also: /reports/onorderold/ which matches
 				'Item on order >1 year ago so unlikely to be fulfilled, but item remains desirable and of bibliographic interest',
-				"	    EXTRACTVALUE(xml, '//status') = 'ON ORDER'
+				"   field = 'status' AND value = 'ON ORDER'
 				"),
 				
 			'IGNORE-NIS' => array (
