@@ -70,7 +70,7 @@ class marcConversion
 	# Suppression keyword in *status
 	private $suppressionStatusKeyword = 'SUPPRESS';
 	
-	# Acquisition date cut-off for on-order -type items; these range from 22/04/1992 to 30/10/2015; the intention of this date is that 'recent' on-order items (intended to be 1 year ago) would be migrated but suppressed, and the rest deleted - however, this needs review
+	# Acquisition date cut-off for on-order -type items; these range from 22/04/1992 to 30/10/2015; the intention of this date is that 'recent' on-order items (intended to be 1 year ago) would be migrated but suppressed, and the rest deleted - however, this needs review; newest is 2016/12/05
 	private $acquisitionDate = '2015-01-01';
 	
 	# Supported transliteration upgrade (BGN/PCGN -> Library of Congress) fields, at either (top/bottom) level of a record
@@ -4397,7 +4397,7 @@ class marcConversion
 				"),
 				
 			'STATUS-ON-ORDER' => array (
-				# 562 records; see also: /reports/onorderold/ which matches
+				# 576 records (563 records old + 13 records recent); see also: /reports/onorderold/ which matches
 				'Item on order >1 year ago so unlikely to be fulfilled, but item remains desirable and of bibliographic interest',
 				"	    EXTRACTVALUE(xml, '//status') = 'ON ORDER'
 				"),
