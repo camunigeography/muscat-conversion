@@ -4365,7 +4365,7 @@ class marcConversion
 			'IGS-IGNORED' => array (
 				# 44 records
 				'IGS locations',
-				"field = 'location' AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection')"
+				"field = 'location' AND value = 'International Glaciological Society'"
 			),
 			
 			'ELECTRONIC-REMOTE' => array (
