@@ -14,6 +14,7 @@ class reports
 		'emptytvariants_problem' => 'records with an empty *t/*tt/*tc',
 		'sermissingr_problem' => '*ser records without a *r, except where location is Not in SPRI',
 		'artwithoutlocstatus_problem' => '*art records where there is no *loc and no *status',
+		'nolocationnostatus_problem' => 'records with neither a location nor a status',
 		'tcnotone_problem' => 'records without exactly one *tc',
 		'tgmismatch_problemok' => 'records whose *tg count does not match *t (not all will be errors)',
 		'missingrpl_info' => 'records without a *rpl',
@@ -446,6 +447,25 @@ class reports
 			WHERE fieldslist LIKE '%@art@%'
 			  AND fieldslist NOT LIKE '%@loc@%'
 			  AND status IS NULL	-- Not using `fieldslist NOT LIKE '%@status@%'` as that includes status=SUPPRESS, though results do not actually change in this report
+			";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with neither a location nor a status
+	public function report_nolocationnostatus ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'nolocationnostatus' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				    fieldslist NOT LIKE '%@location@%'
+				AND fieldslist NOT LIKE '%@status@%'
 			";
 		
 		# Return the query
