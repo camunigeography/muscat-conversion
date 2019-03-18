@@ -4347,12 +4347,9 @@ class marcConversion
 				"),
 				
 			'PICTURELIBRARY-VIDEO' => array (
-				#!# No matches, as Picture Library is present in the location codes list
-				# 0 records
+				# 162 records
 				'Picture Library Store videos',
-				"	    field = 'location'
-					AND value NOT REGEXP \"" . $locationCodesRegexpSql . "\"
-					AND value LIKE 'Picture Library Store : Video%'
+				"   field = 'location' AND value LIKE 'Picture Library Store : Video%'
 				"),
 				
 		);
