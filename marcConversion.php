@@ -4409,11 +4409,9 @@ class marcConversion
 				"),
 				
 			'IGNORE-UL' => array (
-				# 1,279 records
+				# 1,289 records
 				'Items held at the UL (i.e. elsewhere)',
-				"	    field = 'location'
-					AND value NOT REGEXP \"" . $locationCodesRegexpSql . "\"
-					AND value LIKE '%Cambridge University%'
+				"   field = 'location' AND value LIKE 'Cambridge University%'
 				"),
 				
 		);
