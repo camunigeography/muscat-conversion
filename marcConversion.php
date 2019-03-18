@@ -4331,21 +4331,21 @@ class marcConversion
 				# 21,196 records
 				'Record marked specifically to suppress, e.g. pamphlets needing review, etc.',
 				# NB This has been achieved using a BCPL routine to mark the records as such
-				"   field = 'status' AND value = '{$this->suppressionStatusKeyword}'
-				"),
-				
+				"field = 'status' AND value = '{$this->suppressionStatusKeyword}'"
+			),
+			
 			'MISSING-QQ' => array (
 				# 496 records
 				'Missing with ?',
-				"   field = 'location' AND value IN('??', 'Pam ?')
-				"),
-				
+				"field = 'location' AND value IN('??', 'Pam ?')"
+			),
+			
 			'PICTURELIBRARY-VIDEO' => array (
 				# 162 records
 				'Picture Library Store videos',
-				"   field = 'location' AND value LIKE 'Picture Library Store : Video%'
-				"),
-				
+				"field = 'location' AND value LIKE 'Picture Library Store : Video%'"
+			),
+			
 		);
 	}
 	
@@ -4359,51 +4359,51 @@ class marcConversion
 			'DESTROYED-COPIES' => array (
 				# 1,422 records
 				'Item has been destroyed during audit',
-				"   field = 'location' AND value = 'Destroyed during audit'
-				"),
-				
+				"field = 'location' AND value = 'Destroyed during audit'"
+			),
+			
 			'IGS-IGNORED' => array (
 				# 44 records
 				'IGS locations',
-				"   field = 'location' AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection')
-				"),
-				
+				"field = 'location' AND value IN('IGS', 'International Glaciological Society', 'Basement IGS Collection')"
+			),
+			
 			'ELECTRONIC-REMOTE' => array (
 				# 10 records
 				'Digital records',
-				"   field = 'location' AND value = 'Digital Repository'
-				"),
-				
+				"field = 'location' AND value = 'Digital Repository'"
+			),
+			
 			'STATUS-RECEIVED' => array (
 				# 3,428 records
 				'Item is being processed, i.e. has been accessioned and is with a bibliographer for classifying and cataloguing',
-				"   field = 'status' AND value = 'RECEIVED'
-				"),
-				
+				"field = 'status' AND value = 'RECEIVED'"
+			),
+			
 			'STATUS-ORDER-CANCELLED' => array (
 				# 0 records
 				'Order cancelled by SPRI, but record retained for accounting/audit purposes in the event that the item arrives',
-				"   field = 'status' AND value = 'ORDER CANCELLED'
-				"),
-				
+				"field = 'status' AND value = 'ORDER CANCELLED'"
+			),
+			
 			'STATUS-ON-ORDER' => array (
 				# 576 records (563 records old + 13 records recent); see also: /reports/onorderold/ which matches
 				'Item on order >1 year ago so unlikely to be fulfilled, but item remains desirable and of bibliographic interest',
-				"   field = 'status' AND value = 'ON ORDER'
-				"),
-				
+				"field = 'status' AND value = 'ON ORDER'"
+			),
+			
 			'IGNORE-NIS' => array (
 				# 7,478 records
 				'Items held not in SPRI',
-				"   field = 'location' AND value = 'Not in SPRI'
-				"),
-				
+				"field = 'location' AND value = 'Not in SPRI'"
+			),
+			
 			'IGNORE-UL' => array (
 				# 1,289 records
 				'Items held at the UL (i.e. elsewhere)',
-				"   field = 'location' AND value LIKE 'Cambridge University%'
-				"),
-				
+				"field = 'location' AND value LIKE 'Cambridge University%'"
+			),
+			
 		);
 	}
 	
