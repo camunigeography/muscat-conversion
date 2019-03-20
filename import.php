@@ -13,8 +13,8 @@ class import
 	
 	# Define the file sets and their labels
 	private $filesets = array (
-		'migratewithitem'	=> 'Migrate to Voyager, with item record(s)',
-		'migrate'			=> 'Migrate to Voyager',
+		'migratewithitem'	=> 'Migrate to Alma, with item record(s)',
+		'migrate'			=> 'Migrate to Alma',
 		'suppress'			=> 'Suppress from OPAC',
 		'ignore'			=> 'Ignore record',
 	);
