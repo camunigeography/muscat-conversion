@@ -4381,7 +4381,7 @@ class marcConversion
 			),
 			
 			'STATUS-ORDER-CANCELLED' => array (
-				# 0 records
+				# 1 record
 				'Order cancelled by SPRI, but record retained for accounting/audit purposes in the event that the item arrives',
 				"field = 'status' AND value = 'ORDER CANCELLED'"
 			),
@@ -4400,7 +4400,7 @@ class marcConversion
 			
 			'IGNORE-UL' => array (
 				# 1,289 records
-				'Items held at the UL (i.e. elsewhere)',
+				'Items held at the UL, i.e. elsewhere',
 				"field = 'location' AND value LIKE 'Cambridge University%'"
 			),
 			
