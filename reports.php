@@ -760,6 +760,7 @@ class reports
 				AND fieldslist LIKE '%@location@%'
 				AND field = 'status'
 				AND value != 'GLACIOPAMS'
+				AND value != 'ORDER CANCELLED'
 				AND value != 'SUPPRESS'
 			";
 		
