@@ -3632,12 +3632,13 @@ class marcConversion
 		# Get the locations (if any), e.g. single location in /records/1102/ (test #621), multiple locations in /records/3959/ (test #622)
 		$locations = $this->xPathValues ($this->xml, '//loc[%i]/location');
 		
-		# If no locations, allocate $cSPRIACQ and end at this point, e.g. /records/1331/ (test #648) - this is the normal scenario for *status = RECEIVED, ON ORDER, etc.
+		# If no locations (which will mean there is a status - see /reports/nolocationnostatus/ ), allocate $cSPRIACQ and end at this point, e.g. /records/1331/ (test #648) - this is the normal scenario for *status = RECEIVED, ON ORDER, etc.
 		if (!$locations) {
 			$result  = "{$this->doubleDagger}2camdept";
 			$result .= "{$this->doubleDagger}b" . 'SCO';
 			$result .= "{$this->doubleDagger}c" . 'SPRIACQ';	// NB No hyphen
 			$result .= $notes;	// If any
+			$result .= $this->filterTokenCreation ();
 			return $result;
 		}
 		
@@ -3651,6 +3652,7 @@ class marcConversion
 			}
 			$result .= "{$this->doubleDagger}zNot in SPRI";
 			$result .= $notes;	// If any
+			$result .= $this->filterTokenCreation ($locations);
 			return $result;
 		}
 		
@@ -3767,6 +3769,9 @@ class marcConversion
 			if ($itemRecords = $this->itemRecordsCreation ($location)) {
 				$result .= "{$this->doubleDagger}9" . "Create {$itemRecords} item record" . ($itemRecords > 1 ? 's' : '');
 			}
+			
+			# Add the suppression status (if any), as a non-standard field $0 which will be stripped upon final import
+			$result .= $this->filterTokenCreation ($location);
 			
 			# Register this result
 			$resultLines[] = trim ($result);
@@ -4318,13 +4323,91 @@ class marcConversion
 	}
 	
 	
+	# Function to determine any suppression status based on *location and/or *status, for use as a private note in 852
+	private function filterTokenCreation ($locations = array () /* array of locations or single location */)
+	{
+		# Start a list of filter tokens for this instantiation (suppression-based instance or 852 location -based instance)
+		$filterTokens = array ();
+		
+		# Obtain the status
+		if ($status = $this->xPathValue ($this->xml, '//status')) {
+			
+			# Explicit suppression, e.g. /records/1122/
+			if ($status == $this->suppressionStatusKeyword) {
+				$filterTokens[] = 'EXPLICIT-SUPPRESS';
+			} else {
+				
+				# Handle status-based suppression, e.g. /records/1331/
+				$filterTokens[] = 'STATUS-' . str_replace (' ', '-', $status);
+			}
+		}
+		
+		# Work through locations
+		if (!is_array ($locations)) {$locations = array ($locations);}	// Ensure is an array of locations, even if a single location
+		foreach ($locations as $location) {
+			
+			# Location-based matches (exact)
+			$locationMatches = array (
+				'??'									=> 'MISSING-QQ',			// /records/1026/
+				'Pam ?'									=> 'MISSING-QQ',			// /records/1645/
+				'Destroyed during audit'				=> 'DESTROYED-COPIES',		// /records/1886/
+				'International Glaciological Society'	=> 'IGS-IGNORED',			// /records/27502/
+				'Digital Repository'					=> 'ELECTRONIC-REMOTE',		// /records/198655/
+				'Not in SPRI'							=> 'IGNORE-NIS',			// /records/27502/
+			);
+			if (isSet ($locationMatches[$location])) {
+				$filterTokens[] = $locationMatches[$location];
+			}
+			
+			# Matches
+			$locationMatches = array (
+				'^Picture Library Store : Video'		=> 'PICTURELIBRARY-VIDEO',	// /records/2021/
+				'^Cambridge University'					=> 'IGNORE-UL',				// /records/2096/
+			);
+			foreach ($locationMatches as $locationMatch => $token) {
+				if (preg_match ("/{$locationMatch}/", $location)) {
+					$filterTokens[] = $token;
+				}
+			}
+		}
+		
+		# If no filter tokens, migrate, e.g. /records/1123/ ; examples with both: /records/16870/ (ignore+migrate), /records/118221/ (migrate+ignore), /records/168774/ (migrate+ignore)
+		# Can identify some multiple cases using: `SELECT catalogue_marc.id,suppressReasons, catalogue_processed.* FROM catalogue_marc JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId WHERE filterTokens IS NOT NULL AND field = 'location' AND filterTokens NOT LIKE '%IGNORE-NIS%' AND xPathWithIndex LIKE '%[2]%';`
+		if (!$filterTokens) {
+			$filterTokens[] = 'MIGRATE';
+		}
+		
+		# Create the subfield entry (or entries, e.g. SPRI-NIS plus IGS-IGNORED)
+		$subfields = array ();
+		foreach ($filterTokens as $filterToken) {
+			
+			# Register the filter token
+			$this->filterTokens[] = $filterToken;
+			
+			# Create the subfield
+			if ($filterToken == 'MIGRATE') {
+				$subfields[] = "{$this->doubleDagger}0" . 'Migrate';
+			} else if (isSet ($this->suppressionScenarios[$filterToken])) {
+				$subfields[] = "{$this->doubleDagger}0" . 'Suppress: ' . $filterToken . ' (' . $this->suppressionScenarios[$filterToken][0] . ')';
+			} else {
+				$subfields[] = "{$this->doubleDagger}0" . 'Ignore: ' . $filterToken . ' (' . $this->ignorationScenarios[$filterToken][0] . ')';
+			}
+			
+			# Compile the result
+			$result = implode (' ', $subfields);
+		}
+		
+		# Return the result
+		return $result;
+	}
+	
+	
 	# Function to define suppression scenarios
 	private function suppressionScenarios ()
 	{
 		# Records to suppress, defined as a set of scenarios represented by a token
 		#!# Check whether locationCode locations with 'Periodical' are correct to suppress
 		#!# Major issue: problem with e.g. /records/3929/ where two records need to be created, but not both should be suppressed; there are around 1,000 of these
-		#!# Needs review - concern that this means that items with more than one location could get in the suppression bucket; see e-mail 19/12/2016
 		return $suppressionScenarios = array (
 			
 			'EXPLICIT-SUPPRESS' => array (
