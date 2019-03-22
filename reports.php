@@ -164,6 +164,7 @@ class reports
 		'seriestitlemismatches1records_postmigration' => "listing: articles without a matching serial (journal) title in another record (that are neither pamphlets nor in the special collection), where location=Periodical: record numbers",
 		'transfer541_postmigration' => 'records with multiple *locations whose 541 needs to be made specific to the location',
 		'volumeenumeration_postmigration' => 'records whose item records will need enumeration (*doc with *v)',
+		'voyagerbelievedmatch_postmigration' => 'records with possible but unconfirmed Voyager matches needing merging',
 	);
 	
 	# Listing (values) reports
@@ -286,6 +287,9 @@ class reports
 			
 			'volumeenumeration' =>
 				'*doc records with *v are multi-volume works, and will be getting separate item records for each volume in Alma, but details are needed for each item record.',
+			
+			'voyagerbelievedmatch' =>
+				'These serial records have a set of possible (or likely) matches with Voyager numbers, but will need manual checking to assign the correct match.',
 			
 		);
 	}
@@ -4290,6 +4294,23 @@ class reports
 				recordId
 			FROM catalogue_processed
 			WHERE xPath = '/doc/v'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with possible but unconfirmed Voyager matches needing merging
+	public function report_voyagerbelievedmatch ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'voyagerbelievedmatch' AS report,
+				id AS recordId
+			FROM catalogue_marc
+			WHERE mergeVoyagerId LIKE '%?%'
 		";
 		
 		# Return the query
