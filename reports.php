@@ -162,6 +162,7 @@ class reports
 		'openst_problem' => 'records with a *st but the holding statement is open',
 		'basementseligman_postmigration' => 'records in Basement Seligman which need a parent record created',
 		'seriestitlemismatches1records_postmigration' => "listing: articles without a matching serial (journal) title in another record (that are neither pamphlets nor in the special collection), where location=Periodical: record numbers",
+		'transfer541_postmigration' => 'records with multiple *locations whose 541 needs to be made specific to the location',
 	);
 	
 	# Listing (values) reports
@@ -278,6 +279,9 @@ class reports
 			
 			'onmigration' =>
 				'These records have a private note giving instructions for specific post-migration actions.',
+			
+			'transfer541' =>
+				'The 541 field (Immediate Source of Acquisition Note) is not being transferred to the holding record on load, but kept in the bib with $5 subfield. Where there are multiple holdings, it could be a potential task for a volunteer to check and update provenance details post-migration.',
 			
 		);
 	}
@@ -4249,6 +4253,26 @@ class reports
 	public function report_seriestitlemismatches3_view ()
 	{
 		return $html = $this->reportListing ('listing_seriestitlemismatches3', 'distinct series titles which do not match any parent serial title', 'journaltitle');
+	}
+	
+	
+	# Records with multiple *locations whose 541 needs to be made specific to the location
+	public function report_transfer541 ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'transfer541' AS report,
+				catalogue_marc.id AS recordId
+			FROM catalogue_marc
+			JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId AND field = 'location'
+			WHERE
+				    marc LIKE '%541 0# %'
+				AND xPathWithIndex LIKE '%[2]%'
+		";
+		
+		# Return the query
+		return $query;
 	}
 	
 	
