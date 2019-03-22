@@ -83,14 +83,8 @@ class createMarcExport
 		# Save the file, in the standard MARC format
 		file_put_contents ($filenameMarcTxt, $marcText);
 		
-		# Copy, so that a Voyager-specific formatted version can be created
-		copy ($filenameMarcTxt, $filenameMrk);
-		
-		# Reformat a MARC records file to Voyager input style
-		$this->reformatMarcToVoyagerStyle ($filenameMrk);
-		
 		# Create a binary version
-		$this->marcBinaryConversion ($fileset, $directory);
+		$this->marcBinaryConversion ($filenameMarcTxt, $filenameMrk, $filenameMrc);
 		
 		# Check the output
 		$errorsFilename = $this->marcLintTest ($fileset, $directory, $errorsHtml /* amended by reference */);
@@ -99,6 +93,40 @@ class createMarcExport
 		if (!$selectionList) {	// Do not re-run for a selection list export
 			$this->attachBibcheckErrors ($errorsFilename);
 		}
+	}
+	
+	
+	# Function to convert the MARC text to binary format, which creates a temporary .mrk intermediate version
+	private function marcBinaryConversion ($marcTxtFile, $mrkFile, $mrcFile)
+	{
+		# Copy, so that a Voyager-specific formatted version can be created
+		copy ($marcTxtFile, $mrkFile);
+		
+		# Reformat a MARC records file to Voyager input style
+		$this->reformatMarcToVoyagerStyle ($mrkFile);
+		
+		# Clear output file if it currently exists
+		if (file_exists ($mrcFile)) {
+			unlink ($mrcFile);
+		}
+		
+		# Define and execute the command for converting the text version to binary; see: http://marcedit.reeset.net/ and http://marcedit.reeset.net/cmarcedit-exe-using-the-command-line and http://blog.reeset.net/?s=cmarcedit
+		$command = "mono /usr/local/bin/marcedit/cmarcedit.exe -s {$mrkFile} -d {$mrcFile} -pd -make";
+		exec ($command, $output, $unixReturnValue);
+		if ($unixReturnValue == 2) {
+			echo "<p class=\"warning\">Execution of <tt>/usr/local/bin/marcedit/cmarcedit.exe</tt> failed with Permission denied - ensure the webserver user can read <tt>/usr/local/bin/marcedit/</tt>.</p>";
+			return false;
+		}
+		foreach ($output as $line) {
+			if (preg_match ('/^0 records have been processed/', $line)) {
+				$mrcFilename = basename ($mrcFile);
+				echo "<p class=\"warning\">Error in creation of MARC binary file ({$mrcFilename}): <tt>" . htmlspecialchars ($line) . '</tt></p>';
+				break;
+			}
+		}
+		
+		# Delete the .mrk file
+		unlink ($mrkFile);
 	}
 	
 	
@@ -114,35 +142,6 @@ class createMarcExport
 		exec ("perl -pi -e 's" . '/^([0-9]{3}|LDR) (.+)$/' . '\1  \2' . "/' {$filenameMrk}");			// Add double-space after LDR and each field number
 		exec ("perl -pi -e 's" . '/^([0-9]{3})  (.)(.) (.+)$/' . '\1  \2\3\4' . "/' {$filenameMrk}");	// Remove space after first and second indicators
 		exec ("perl -pi -e 's" . '/^(.+)$/' . '=\1' . "/' {$filenameMrk}");								// Add = at start of each line
-	}
-	
-	
-	# Function to convert the MARC text to binary format
-	private function marcBinaryConversion ($fileset, $directory)
-	{
-		# Clear file if it currently exists
-		$filename = "{$directory}/spri-marc-{$fileset}.mrc";
-		if (file_exists ($filename)) {
-			unlink ($filename);
-		}
-		
-		# Define and execute the command for converting the text version to binary; see: http://marcedit.reeset.net/ and http://marcedit.reeset.net/cmarcedit-exe-using-the-command-line and http://blog.reeset.net/?s=cmarcedit
-		$mrkFile = "{$directory}/spri-marc-{$fileset}.mrk";
-		$command = "mono /usr/local/bin/marcedit/cmarcedit.exe -s {$mrkFile} -d {$filename} -pd -make";
-		exec ($command, $output, $unixReturnValue);
-		if ($unixReturnValue == 2) {
-			echo "<p class=\"warning\">Execution of <tt>/usr/local/bin/marcedit/cmarcedit.exe</tt> failed with Permission denied - ensure the webserver user can read <tt>/usr/local/bin/marcedit/</tt>.</p>";
-			return false;
-		}
-		foreach ($output as $line) {
-			if (preg_match ('/^0 records have been processed/', $line)) {
-				echo "<p class=\"warning\">Error in creation of MARC binary file (spri-marc-{$fileset}.mrc): <tt>" . htmlspecialchars ($line) . "</tt></p>";
-				break;
-			}
-		}
-		
-		# Delete the .mrk file
-		unlink ($mrkFile);
 	}
 	
 	
