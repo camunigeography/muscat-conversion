@@ -2771,7 +2771,6 @@ class muscatConversion extends frontControllerApplication
 			$html .= "\n\t\t<td><strong>{$label}</strong>:<br />" . number_format ($totals[$fileset]) . ' records</td>';
 			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.txt\">MARC21 data<br />(text)</a></td>";
 			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrc\">MARC21 data<br />(binary .mrc)</a></td>";
-			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrc.zip\"><strong>MARC21 data, blocks<br />(binary .mrc)</strong></a></td>";
 			$html .= "\n\t</tr>";
 		}
 		$html .= "\n</table>";

@@ -58,12 +58,11 @@ class createMarcExport
 		$limit = 10000;		// This number confirmed best given indexing speed by Voyager
 		$recordsRemaining = $totalRecords;
 		$i = 0;
-		$blockFileMrcNames = array ();
 		while ($recordsRemaining > 0) {
 			
 			# Get the records, in groups as per the processing order
 			$query = "SELECT
-				id,marc
+					id,marc
 				FROM {$this->settings['database']}.catalogue_marc
 				WHERE {$filterConstraint}
 				ORDER BY FIELD(type, '" . implode ("','", $this->recordProcessingOrder) . "'), id
@@ -71,41 +70,17 @@ class createMarcExport
 			;";
 			$data = $this->databaseConnection->getPairs ($query);
 			
-			# Add each record to the current block
-			$marcTextThisBlock = '';
+			# Add each record
 			foreach ($data as $id => $record) {
-				$marcTextThisBlock .= trim ($record) . "\n\n";
+				$marcText .= trim ($record) . "\n\n";
 			}
-			
-			# Save a file for this block of records, formatted to Voyager style for use in the zip file version, and add to a registry for use in compiling the zip
-			$fileNumber = str_pad ($i, 2, '0', STR_PAD_LEFT);	// i.e. 00, 01, 02, .., 10, 11, etc.
-			$partSuffix = "-part{$fileNumber}";
-			$blockFileMrk = preg_replace ('/.mrk$/', $partSuffix . '.mrk', $filenameMrk);		// Complete path
-			$blockFileMrc = preg_replace ('/.mrc$/', $partSuffix . '.mrc', $filenameMrc);		// Complete path
-			file_put_contents ($blockFileMrk, $marcTextThisBlock);
-			$this->reformatMarcToVoyagerStyle ($blockFileMrk);
-			$this->marcBinaryConversion ($fileset . $partSuffix, $directory);
-			$blockFileMrcName = basename ($blockFileMrc);
-			$blockFileMrcNames[$blockFileMrcName] = $blockFileMrc;
-			$i++;
-			
-			# Add the block to the master string
-			$marcText .= $marcTextThisBlock;
 			
 			# Decrement the remaining records
 			$recordsRemaining = $recordsRemaining - $limit;
 			$offset += $limit;
 		}
 		
-		# Create a zip file from all the smaller block records
-		application::createZip ($blockFileMrcNames, basename ($filenameMrc), $directory . '/');
-		
-		# Delete each .mrc block file
-		foreach ($blockFileMrcNames as $blockFileMrcName => $blockFile) {
-			unlink ($blockFile);
-		}
-		
-		# Save the main file, in the standard MARC format
+		# Save the file, in the standard MARC format
 		file_put_contents ($filenameMarcTxt, $marcText);
 		
 		# Copy, so that a Voyager-specific formatted version can be created
