@@ -58,7 +58,6 @@ class createMarcExport
 		$limit = 10000;		// This number confirmed best given indexing speed by Voyager
 		$recordsRemaining = $totalRecords;
 		$i = 0;
-		$blockFileMrkNames = array ();
 		$blockFileMrcNames = array ();
 		while ($recordsRemaining > 0) {
 			
@@ -86,9 +85,7 @@ class createMarcExport
 			file_put_contents ($blockFileMrk, $marcTextThisBlock);
 			$this->reformatMarcToVoyagerStyle ($blockFileMrk);
 			$this->marcBinaryConversion ($fileset . $partSuffix, $directory);
-			$blockFileMrkName = basename ($blockFileMrk);
 			$blockFileMrcName = basename ($blockFileMrc);
-			$blockFileMrkNames[$blockFileMrkName] = $blockFileMrk;
 			$blockFileMrcNames[$blockFileMrcName] = $blockFileMrc;
 			$i++;
 			
@@ -103,10 +100,7 @@ class createMarcExport
 		# Create a zip file from all the smaller block records
 		application::createZip ($blockFileMrcNames, basename ($filenameMrc), $directory . '/');
 		
-		# Delete each block file from both sets
-		foreach ($blockFileMrkNames as $blockFileMrkName => $blockFile) {
-			unlink ($blockFile);
-		}
+		# Delete each .mrc block file
 		foreach ($blockFileMrcNames as $blockFileMrcName => $blockFile) {
 			unlink ($blockFile);
 		}
@@ -158,7 +152,8 @@ class createMarcExport
 		}
 		
 		# Define and execute the command for converting the text version to binary; see: http://marcedit.reeset.net/ and http://marcedit.reeset.net/cmarcedit-exe-using-the-command-line and http://blog.reeset.net/?s=cmarcedit
-		$command = "mono /usr/local/bin/marcedit/cmarcedit.exe -s {$directory}/spri-marc-{$fileset}.mrk -d {$filename} -pd -make";
+		$mrkFile = "{$directory}/spri-marc-{$fileset}.mrk";
+		$command = "mono /usr/local/bin/marcedit/cmarcedit.exe -s {$mrkFile} -d {$filename} -pd -make";
 		exec ($command, $output, $unixReturnValue);
 		if ($unixReturnValue == 2) {
 			echo "<p class=\"warning\">Execution of <tt>/usr/local/bin/marcedit/cmarcedit.exe</tt> failed with Permission denied - ensure the webserver user can read <tt>/usr/local/bin/marcedit/</tt>.</p>";
@@ -170,6 +165,9 @@ class createMarcExport
 				break;
 			}
 		}
+		
+		# Delete the .mrk file
+		unlink ($mrkFile);
 	}
 	
 	
