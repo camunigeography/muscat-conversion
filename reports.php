@@ -163,6 +163,7 @@ class reports
 		'basementseligman_postmigration' => 'records in Basement Seligman which need a parent record created',
 		'seriestitlemismatches1records_postmigration' => "listing: articles without a matching serial (journal) title in another record (that are neither pamphlets nor in the special collection), where location=Periodical: record numbers",
 		'transfer541_postmigration' => 'records with multiple *locations whose 541 needs to be made specific to the location',
+		'volumeenumeration_postmigration' => 'records whose item records will need enumeration (*doc with *v)',
 	);
 	
 	# Listing (values) reports
@@ -282,6 +283,9 @@ class reports
 			
 			'transfer541' =>
 				'The 541 field (Immediate Source of Acquisition Note) is not being transferred to the holding record on load, but kept in the bib with $5 subfield. Where there are multiple holdings, it could be a potential task for a volunteer to check and update provenance details post-migration.',
+			
+			'volumeenumeration' =>
+				'*doc records with *v are multi-volume works, and will be getting separate item records for each volume in Alma, but details are needed for each item record.',
 			
 		);
 	}
@@ -4269,6 +4273,23 @@ class reports
 			WHERE
 				    marc LIKE '%541 0# %'
 				AND xPathWithIndex LIKE '%[2]%'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records whose item records will need enumeration (*doc with *v)'
+	public function report_volumeenumeration ()
+	{
+		# Define the query
+		$query = "
+			SELECT DISTINCT
+				'volumeenumeration' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE xPath = '/doc/v'
 		";
 		
 		# Return the query
