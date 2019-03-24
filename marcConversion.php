@@ -7,6 +7,7 @@ class marcConversion
 	private $errorHtml = '';
 	private $marcPreMerge = NULL;
 	private $sourceRegistry = array ();
+	private $itemRecords = 0;
 	private $filterTokens = array ();
 	
 	# Caches
@@ -171,6 +172,12 @@ class marcConversion
 	}
 	
 	
+	# Getter for item records count
+	public function getItemRecords ()
+	{
+		return $this->itemRecords;
+	}
+	
 	# Getter for filter tokens, as a string
 	public function getFilterTokensString ()
 	{
@@ -260,7 +267,8 @@ class marcConversion
 		# Ensure the second-pass record ID flag is clean; this is used for a second-pass arising from 773 processing where the host does not exist at time of processing
 		$this->secondPassRecordId = NULL;
 		
-		# Create property handle for filter tokens
+		# Reset property handles for item records count and filter tokens
+		$this->itemRecords = 0;
 		$this->suppressReasons = $suppressReasons;
 		$this->filterTokens = array ();
 		
@@ -3765,9 +3773,10 @@ class marcConversion
 			# Add any notes, e.g. /records/1288/ (test #817); will be added to each line, as cannot disambiguated, e.g. /records/7455/ (test #820)
 			$result .= $notes;	// If any
 			
-			# Add the item record creation status, as a non-standard field $9 which will be stripped upon final import
+			# Add the item record creation status, as a non-standard field $9 which will be stripped upon final import, and update the count
 			if ($itemRecords = $this->itemRecordsCreation ($location)) {
 				$result .= "{$this->doubleDagger}9" . "Create {$itemRecords} item record" . ($itemRecords > 1 ? 's' : '');
+				$this->itemRecords += $itemRecords;		// E.g. 23 from single 852 in /records/3339/, 2 from multiple 852 in /records/1364/
 			}
 			
 			# Add the suppression status (if any), as a non-standard field $0 which will be stripped upon final import

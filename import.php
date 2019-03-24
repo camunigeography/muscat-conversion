@@ -2378,22 +2378,26 @@ class import
 				# Arrange as a set of inserts
 				$inserts = array ();
 				foreach ($records as $id => $record) {
+					
+					# Convert to MARC, and retrieve metadata
 					$mergeType       = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeType'] : false);
 					$mergeVoyagerId	 = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeVoyagerId'] : false);
 					$suppressReasons = (isSet ($suppressReasonsList[$id]) ? $suppressReasonsList[$id] : false);
 					$marc = $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $mergeDefinition, $mergeType, $mergeVoyagerId, $suppressReasons);
 					$marcPreMerge = $this->marcConversion->getMarcPreMerge ();
 					$filterTokens = $this->marcConversion->getFilterTokensString ();
+					$itemRecords = $this->marcConversion->getItemRecords ();
 					if ($marcErrorHtml = $this->marcConversion->getErrorHtml ()) {
 						$html = $marcErrorHtml;
 						$errorsHtml .= $html;
 					}
-					preg_match_all ("/852 .+{$this->doubleDagger}9Create ([0-9]+) item record/", $marc, $matches);
+					
+					# Assemble the insert for this record
 					$inserts[$id] = array (
 						'id' => $id,
 						'marcPreMerge' => $marcPreMerge,
 						'marc' => $marc,
-						'itemRecords' => array_sum ($matches[1]),
+						'itemRecords' => $itemRecords,
 						'filterTokens' => $filterTokens,	// E.g. examples: "SUPPRESS-MISSINGQ" or multiple "IGNORE-NOTINSPRI, IGNORE-LOCATIONUL"
 					);
 					
