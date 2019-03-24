@@ -2960,6 +2960,7 @@ class import
 				$mergeVoyagerId	 = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeVoyagerId'] : false);
 				$suppressReasons = (isSet ($suppressReasonsList[$id]) ? $suppressReasonsList[$id] : false);
 				$marcRecords[$id]['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $mergeDefinition, $mergeType, $mergeVoyagerId, $suppressReasons);
+				$marcRecords[$id]['itemRecords'] = $this->marcConversion->getItemRecords ();
 				$marcRecords[$id]['filterTokens'] = $this->marcConversion->getFilterTokensString ();
 			}
 			$this->databaseConnection->updateMany ($this->settings['database'], 'catalogue_marc', $marcRecords);
