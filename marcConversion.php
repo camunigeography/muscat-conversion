@@ -3663,7 +3663,7 @@ class marcConversion
 			$result .= "{$this->doubleDagger}b" . 'SCO';
 			$result .= "{$this->doubleDagger}c" . 'SPRIACQ';	// NB No hyphen
 			$result .= $notes;	// If any
-			$result .= $this->filterTokenCreation ();
+			$result .= $this->filterTokenCreation ($locations);
 			return $result;
 		}
 		
@@ -3796,7 +3796,7 @@ class marcConversion
 				$this->itemRecords += $itemRecords;		// E.g. 23 from single 852 in /records/3339/, 2 from multiple 852 in /records/1364/
 			}
 			
-			# Add the suppression status (if any), as a non-standard field $0 which will be stripped upon final import
+			# Add the status, as a non-standard field $0 which will be stripped upon final import, e.g. /records/16870/ (test #941)
 			$result .= $this->filterTokenCreation ($location);
 			
 			# Register this result
@@ -4346,7 +4346,7 @@ class marcConversion
 	
 	# Function to determine any suppression status based on *location and/or *status, for use as a private note in 852
 	#!# Check whether locationCode locations with 'Periodical' are correct to suppress
-	private function filterTokenCreation ($locations = array () /* array of locations or single location */)
+	private function filterTokenCreation ($locations /* array of locations (if any) or single location */)
 	{
 		# Start a list of filter tokens for this instantiation (suppression-based instance or 852 location -based instance)
 		$filterTokens = array ();
@@ -4368,6 +4368,7 @@ class marcConversion
 		}
 		
 		# Work through locations
+		# NB Verified that, following data work, all records in ignore are also 'Not in SPRI' and have no other location, using `SELECT id, EXTRACTVALUE(xml, '//location') AS locations FROM catalogue_xml WHERE EXTRACTVALUE(xml, '//location') REGEXP '(IGS|International Glaciological Society|Basement IGS Collection)';`
 		if (!is_array ($locations)) {$locations = array ($locations);}	// Ensure is an array of locations, even if a single location
 		foreach ($locations as $location) {
 			
@@ -4396,7 +4397,7 @@ class marcConversion
 			}
 		}
 		
-		# If no filter tokens, migrate, e.g. /records/1123/ (test #952); examples (but not testable) with both: /records/16870/ (suppress+migrate), /records/118221/ (migrate+ignore), /records/168774/ (migrate+ignore)
+		# If no filter tokens (i.e. the normal situation), migrate, e.g. *location="Pam 82-2" and no *status in /records/1123/ (test #952); examples (but not testable) with both: /records/16870/ (suppress+migrate), /records/118221/ (migrate+ignore), /records/168774/ (migrate+ignore)
 		# Can identify some multiple cases using: `SELECT catalogue_marc.id,filterTokens, catalogue_processed.* FROM catalogue_marc JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId WHERE filterTokens IS NOT NULL AND field = 'location' AND filterTokens NOT LIKE '%IGNORE-NOTINSPRI%' AND xPathWithIndex LIKE '%[2]%';`
 		if (!$filterTokens) {
 			$filterTokens[] = 'MIGRATE';

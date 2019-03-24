@@ -2533,8 +2533,6 @@ class import
 	}
 	
 	
-	
-	
 	# Function to add in the Voyager merge data fields
 	private function marcRecordsSetMergeFields ()
 	{
