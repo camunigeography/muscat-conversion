@@ -56,7 +56,7 @@ class muscatConversion extends frontControllerApplication
 			'icon'		=> 'page_white_code_red',
 			'title'		=> "The publication's record as raw MARC21 data",
 			'errorHtml'	=> "The MARC21 representation of the Muscat record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
-			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc', 'bibcheckErrors', 'suppressReasons', 'filterTokens'),
+			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc', 'bibcheckErrors', 'itemRecords', 'suppressReasons', 'filterTokens'),
 			'idField'	=> 'id',
 			'orderBy'	=> 'id',
 			'class'		=> false,
@@ -928,6 +928,7 @@ class muscatConversion extends frontControllerApplication
 					'marcErrorHtml'		=> $this->marcConversion->getErrorHtml (),
 					'marcPreMerge'		=> $this->marcConversion->getMarcPreMerge (),
 					'sourceRegistry'	=> $this->marcConversion->getSourceRegistry (),
+					'itemRecords'		=> $this->marcConversion->getItemRecords (),
 					'filterTokens'		=> $this->marcConversion->getFilterTokensString (),
 				);
 			}
@@ -957,7 +958,7 @@ class muscatConversion extends frontControllerApplication
 					$output .= "\n<p id=\"exporttarget\">";
 					$output .= "Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->migrationStatus ($id) . '</strong> &nbsp;&nbsp;';
 					$output .= "Filter tokens: <strong>" . ($this->marcRecordDynamic['filterTokens'] ? htmlspecialchars ($this->marcRecordDynamic['filterTokens']) : '-') . '</strong> &nbsp;&nbsp;';
-					$output .= "Item records: <strong>" . $this->itemRecordsStatus ($id) . '</strong> &nbsp;&nbsp;';
+					$output .= "Item records: <strong>" . ($this->marcRecordDynamic['itemRecords'] ? $this->marcRecordDynamic['itemRecords'] : '-') . '</strong> &nbsp;&nbsp;';
 					$output .= $marcXmlLink;
 					$output .= '</p>';
 					if ($record['mergeType']) {
@@ -1252,20 +1253,6 @@ class muscatConversion extends frontControllerApplication
 		
 		# Return the label for the status
 		return $label;
-	}
-	
-	
-	# Function to obtain the item records status for a MARC record
-	private function itemRecordsStatus ($id)
-	{
-		# Obtain the count, e.g. 23 from single 852 in /records/3339/, 2 from multiple 852 in /records/1364/
-		$itemRecords = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'itemRecords', $conditions = array ('id' => $id));
-		
-		# If none, format as dash
-		if (!$itemRecords) {$itemRecords = '-';}
-		
-		# Return the label for the status
-		return $itemRecords;
 	}
 	
 	
