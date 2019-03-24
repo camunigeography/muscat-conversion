@@ -930,6 +930,7 @@ class muscatConversion extends frontControllerApplication
 					'sourceRegistry'	=> $this->marcConversion->getSourceRegistry (),
 					'itemRecords'		=> $this->marcConversion->getItemRecords (),
 					'filterTokens'		=> $this->marcConversion->getFilterTokensString (),
+					'status'			=> $this->marcConversion->getStatus (),
 				);
 			}
 		}
@@ -956,7 +957,7 @@ class muscatConversion extends frontControllerApplication
 					}
 					$output .= "\n<div class=\"graybox marc\">";
 					$output .= "\n<p id=\"exporttarget\">";
-					$output .= "Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->migrationStatus ($id) . '</strong> &nbsp;&nbsp;';
+					$output .= "Target <a href=\"{$this->baseUrl}/export/\">export</a> group: <strong>" . $this->formatMigrationStatus ($this->marcRecordDynamic['status']) . '</strong> &nbsp;&nbsp;';
 					$output .= "Filter tokens: <strong>" . ($this->marcRecordDynamic['filterTokens'] ? htmlspecialchars ($this->marcRecordDynamic['filterTokens']) : '-') . '</strong> &nbsp;&nbsp;';
 					$output .= "Item records: <strong>" . ($this->marcRecordDynamic['itemRecords'] ? $this->marcRecordDynamic['itemRecords'] : '-') . '</strong> &nbsp;&nbsp;';
 					$output .= $marcXmlLink;
@@ -1239,14 +1240,9 @@ class muscatConversion extends frontControllerApplication
 	}
 	
 	
-	# Function to obtain the migration status for a MARC record
-	private function migrationStatus ($id)
+	# Function to format the migration status for a MARC record
+	private function formatMigrationStatus ($status)
 	{
-		# Obtain the status
-		if (!$status = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'status', $conditions = array ('id' => $id))) {
-			return '?';
-		}
-		
 		# Assign label
 		$filesets = $this->import->getFilesets ();
 		$label = $filesets[$status];

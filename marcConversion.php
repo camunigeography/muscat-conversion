@@ -9,6 +9,7 @@ class marcConversion
 	private $sourceRegistry = array ();
 	private $itemRecords = 0;
 	private $filterTokens = array ();
+	private $status = NULL;
 	
 	# Caches
 	private $lookupTablesCache = array ();
@@ -183,6 +184,22 @@ class marcConversion
 	{
 		return implode (', ', $this->filterTokens);
 	}
+	
+	# Getter for status
+	public function getStatus ()
+	{
+		# Return the appropriate status, based on filter tokens and item records
+		# Migrate takes priority over suppress if more than one, and suppress over ignore if more than one
+		$filterTokensString = $this->getFilterTokensString ();
+		switch (true) {
+			case (substr_count ($filterTokensString, 'MIGRATE')   && $this->itemRecords > 0): return 'migratewithitem';
+			case (substr_count ($filterTokensString, 'MIGRATE')   && $this->itemRecords = 0): return 'migrate';
+			case (substr_count ($filterTokensString, 'SUPPRESS-') && $this->itemRecords > 0): return 'suppresswithitem';
+			case (substr_count ($filterTokensString, 'SUPPRESS-') && $this->itemRecords = 0): return 'suppress';
+			case (substr_count ($filterTokensString, 'IGNORE-')                            ): return 'ignore';
+		}
+	}
+	
 	
 	
 	# Getter for definitions

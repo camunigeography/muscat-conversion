@@ -15,6 +15,7 @@ class import
 	private $filesets = array (
 		'migratewithitem'	=> 'Migrate to Alma, with item record(s)',
 		'migrate'			=> 'Migrate to Alma',
+		'suppresswithitem'	=> 'Suppress from OPAC, with item record(s)',
 		'suppress'			=> 'Suppress from OPAC',
 		'ignore'			=> 'Ignore record',
 	);
@@ -639,7 +640,7 @@ class import
 		# Add status field to enable suppression, and populate the data
 		$query = "
 			ALTER TABLE searchindex
-			ADD COLUMN status ENUM('migratewithitem','migrate','suppress','ignore') COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Status' AFTER id,
+			ADD COLUMN status ENUM('migratewithitem','migrate','suppresswithitem','suppress','ignore') COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Status' AFTER id,
 			ADD INDEX(status)
 		;";
 		$this->databaseConnection->query ($query);
@@ -2259,7 +2260,7 @@ class import
 			CREATE TABLE IF NOT EXISTS catalogue_marc (
 				id int(11) NOT NULL COMMENT 'Record number',
 				type ENUM('/art/in','/art/j','/doc','/ser') DEFAULT NULL COMMENT 'Type of record',
-				status ENUM('migratewithitem','migrate','suppress','ignore') NULL DEFAULT NULL COMMENT 'Status',
+				status ENUM('migratewithitem','migrate','suppresswithitem','suppress','ignore') NULL DEFAULT NULL COMMENT 'Status',
 				itemRecords INT(4) NULL COMMENT 'Create item record?',
 				mergeType VARCHAR(255) NULL DEFAULT NULL COMMENT 'Merge type',
 				mergeVoyagerId VARCHAR(255) NULL DEFAULT NULL COMMENT 'Voyager ID for merging',
@@ -2387,6 +2388,7 @@ class import
 					$marcPreMerge = $this->marcConversion->getMarcPreMerge ();
 					$filterTokens = $this->marcConversion->getFilterTokensString ();
 					$itemRecords = $this->marcConversion->getItemRecords ();
+					$status = $this->marcConversion->getStatus ();
 					if ($marcErrorHtml = $this->marcConversion->getErrorHtml ()) {
 						$html = $marcErrorHtml;
 						$errorsHtml .= $html;
@@ -2399,6 +2401,7 @@ class import
 						'marc' => $marc,
 						'itemRecords' => $itemRecords,
 						'filterTokens' => $filterTokens,	// E.g. examples: "SUPPRESS-MISSINGQ" or multiple "IGNORE-NOTINSPRI, IGNORE-LOCATIONUL"
+						'status' => $status,				// E.g. 'migratewithitem', derived from filterTokens and itemRecords count
 					);
 					
 					# If the record has generated a second pass requirement if it has a parent, register the ID
@@ -2959,9 +2962,10 @@ class import
 				$mergeType       = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeType'] : false);
 				$mergeVoyagerId	 = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeVoyagerId'] : false);
 				$suppressReasons = (isSet ($suppressReasonsList[$id]) ? $suppressReasonsList[$id] : false);
-				$marcRecords[$id]['marc'] = $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $mergeDefinition, $mergeType, $mergeVoyagerId, $suppressReasons);
-				$marcRecords[$id]['itemRecords'] = $this->marcConversion->getItemRecords ();
-				$marcRecords[$id]['filterTokens'] = $this->marcConversion->getFilterTokensString ();
+				$marcRecords[$id]['marc']			= $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $mergeDefinition, $mergeType, $mergeVoyagerId);
+				$marcRecords[$id]['itemRecords']	= $this->marcConversion->getItemRecords ();
+				$marcRecords[$id]['filterTokens']	= $this->marcConversion->getFilterTokensString ();
+				$marcRecords[$id]['status']			= $this->marcConversion->getStatus ();
 			}
 			$this->databaseConnection->updateMany ($this->settings['database'], 'catalogue_marc', $marcRecords);
 		}
