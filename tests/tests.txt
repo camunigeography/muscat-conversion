@@ -3611,10 +3611,10 @@ Society of Japan. Vol
 ‡ap. 397-412.
 
 611
-917 Supression status appears
+917 Suppression status appears (see also #934)
 1026
 917
-‡aSuppression reason: EXTERNAL-LOCATION (Item of bibliographic interest, but not held at SPRI, so no holdings record can be created)
+‡aSuppression reason: SUPPRESS-MISSINGQ (Missing with ?)
 
 612
 917 No suppression reason expected
@@ -3623,22 +3623,22 @@ Society of Japan. Vol
 Suppression reason
 
 613
-917 Multiple supression reasons generates multiple 917 fields
-1122
+917 Multiple suppression reasons generates multiple 917 ‡a subfields
+1645
 917
-‡aSuppression reason: EXPLICIT-SUPPRESS (
+‡aSuppression reason: SUPPRESS-EXPLICITLY (Record marked specifically to suppress, e.g. pamphlets needing review, etc.) ‡aSuppression reason: SUPPRESS-MISSINGQ
 
 614
-917 not repeatable, so multiple subfields on one line
+917 not repeatable, so multiple subfields of different kinds on one line
 1331
 917
-‡aUnenhanced record from Muscat, imported 2019 ‡aSuppression reason
+‡aUnenhanced record from Muscat, imported 2019 ‡aIgnoration reason
 
 615
-917 Supression explanation present
+917 Explanation included alongside suppression reason itself
 1026
 917
-‡aSuppression reason: EXTERNAL-LOCATION (Item of bibliographic interest, but not held at SPRI, so no holdings record can be created)
+‡aSuppression reason: SUPPRESS-MISSINGQ (Missing with ?)
 
 616
 948 ‡d status from *ks is present
@@ -3770,7 +3770,7 @@ SUPPRESS
 852 with no location gets ‡cSPRIACQ
 1331
 852
-/^‡2camdept‡bSCO‡cSPRIACQ$/
+‡2camdept‡bSCO‡cSPRIACQ‡
 
 649
 852 Not in SPRI - with another location
@@ -5446,4 +5446,8 @@ No item records created for SPRI-ELE items as do not physically exist
 852
 ‡9Create 1 item record
 
-
+934
+917 Ignoration status appears (see also #611)
+1331
+917
+‡aIgnoration reason: IGNORE-STATUSRECEIVED

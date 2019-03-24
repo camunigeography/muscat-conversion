@@ -4033,21 +4033,21 @@ class marcConversion
 	# Macro to generate a 917 record for the supression reason, e.g. /records/1026/ (test #611), no suppress reason (as no suppression/ignoration tokens) in /records/1027/ (test #612)
 	private function macro_showSuppressionReason ($value)
 	{
-		# Create a list of results, adding an explanation for each, e.g. /records/1026/ (test #615)
+		# Create a list of results, adding an explanation for each, e.g. /records/1026/ (test #615); migrate is not related to either scenario list so does not appear, e.g. /records/1027/ (test #612)
 		$resultLines = array ();
 		foreach ($this->filterTokens as $token) {
-			if (isSet ($this->suppressionScenarios[$token])) {
+			if (isSet ($this->suppressionScenarios[$token])) {	// E.g. suppression reason in /records/1026/ (test #611)
 				$resultLines[] = 'Suppression reason: ' . $token . ' (' . $this->suppressionScenarios[$token][0] . ')';
 			}
-			if (isSet ($this->ignorationScenarios[$token])) {
+			if (isSet ($this->ignorationScenarios[$token])) {	// E.g. ignoration reason in /records/1331/ (test #934)
 				$resultLines[] = 'Ignoration reason: ' . $token . ' (' . $this->ignorationScenarios[$token][0] . ')';
 			}
 		}
 		
-		# Implode the list by comma, e.g. /records/1122/ (tests #613 and #614)
+		# Implode the list by comma, e.g. /records/1645/ (test #613)
 		$result = implode (" {$this->doubleDagger}a", $resultLines);
 		
-		# Return the result line, e.g. /records/1026/ (test #611)
+		# Return the result line, e.g. /records/1026/ (test #611); this will be appended at parser-level to the other tokens present, e.g. /records/1331/ (test #614)
 		return $result;
 	}
 	
