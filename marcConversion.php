@@ -4396,7 +4396,7 @@ class marcConversion
 			}
 		}
 		
-		# If no filter tokens, migrate, e.g. /records/1123/ ; examples with both: /records/16870/ (ignore+migrate), /records/118221/ (migrate+ignore), /records/168774/ (migrate+ignore)
+		# If no filter tokens, migrate, e.g. /records/1123/ (test #952); examples (but not testable) with both: /records/16870/ (suppress+migrate), /records/118221/ (migrate+ignore), /records/168774/ (migrate+ignore)
 		# Can identify some multiple cases using: `SELECT catalogue_marc.id,filterTokens, catalogue_processed.* FROM catalogue_marc JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId WHERE filterTokens IS NOT NULL AND field = 'location' AND filterTokens NOT LIKE '%IGNORE-NOTINSPRI%' AND xPathWithIndex LIKE '%[2]%';`
 		if (!$filterTokens) {
 			$filterTokens[] = 'MIGRATE';
@@ -4409,7 +4409,7 @@ class marcConversion
 			# Register the filter token
 			$this->filterTokens[] = $filterToken;
 			
-			# Create the subfield
+			# Create the subfield, e.g. Migrate in /records/1123/ (test #953), Ignore in /records/168774/ (test #954)
 			if ($filterToken == 'MIGRATE') {
 				$subfields[] = "{$this->doubleDagger}0" . 'Migrate';
 			} else {
@@ -4417,7 +4417,7 @@ class marcConversion
 				$subfields[] = "{$this->doubleDagger}0" . "{$type}: " . $filterToken . ' (' . $this->filterTokenDescriptions[$filterToken] . ')';
 			}
 			
-			# Compile the result
+			# Compile the result; multiple in /records/1645/ (test #955)
 			$result = implode (' ', $subfields);
 		}
 		

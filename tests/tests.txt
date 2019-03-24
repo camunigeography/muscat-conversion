@@ -5554,3 +5554,26 @@ Suppression status: SUPPRESS-MISSINGQ - Pam ? variant (see also #941)
 852
 ‡0Suppress: SUPPRESS-MISSINGQ
 
+952
+Migrate filter token allocated when no suppression/ignoration scenarios
+1123
+852
+‡0Migrate
+
+953
+852 syntax for migration filter token subfield is ‡0 and Migrate
+1123
+852
+‡0Migrate
+
+954
+852 syntax for suppress/ignore filter token subfield is ‡0 then token itself, then description
+168774
+852
+‡0Ignore: IGNORE-DESTROYEDCOPIES (Item has been destroyed during audit)
+
+955
+852 multiple filter tokens subfields separated by space
+1645
+852
+‡0Suppress: SUPPRESS-EXPLICITLY (Record marked specifically to suppress, e.g. pamphlets needing review, etc.) ‡0Suppress: SUPPRESS-MISSINGQ
