@@ -447,7 +447,7 @@ class reports
 	}
 	
 	
-	# *art records where there is no *loc and no real (i.e. not 'SUPRESS') *status
+	# *art records where there is no *loc and no real (i.e. not 'SUPPRESS') *status
 	public function report_artwithoutlocstatus ()
 	{
 		# Define the query
@@ -538,7 +538,7 @@ class reports
 	}
 	
 	
-	# Records in SPRI without a *rpl and without a real (i.e. not 'SUPRESS') *status, that are not *ser; this aims to identify records that a broad subject heading, now a non-priority post-migration task
+	# Records in SPRI without a *rpl and without a real (i.e. not 'SUPPRESS') *status, that are not *ser; this aims to identify records that a broad subject heading, now a non-priority post-migration task
 	public function report_missingrplstatus ()
 	{
 		# Define the query
