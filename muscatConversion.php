@@ -56,7 +56,7 @@ class muscatConversion extends frontControllerApplication
 			'icon'		=> 'page_white_code_red',
 			'title'		=> "The publication's record as raw MARC21 data",
 			'errorHtml'	=> "The MARC21 representation of the Muscat record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
-			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc', 'bibcheckErrors', 'itemRecords', 'filterTokens')
+			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc', 'bibcheckErrors'),
 			'idField'	=> 'id',
 			'orderBy'	=> 'id',
 			'class'		=> false,
