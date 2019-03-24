@@ -4426,7 +4426,6 @@ class marcConversion
 	{
 		# Records to suppress, defined as a set of scenarios represented by a token
 		#!# Check whether locationCode locations with 'Periodical' are correct to suppress
-		#!# Major issue: problem with e.g. /records/3929/ where two records need to be created, but not both should be suppressed; there are around 1,000 of these
 		return $suppressionScenarios = array (
 			
 			'SUPPRESS-EXPLICITLY' => array (
