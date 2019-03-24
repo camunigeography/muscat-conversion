@@ -175,19 +175,13 @@ class import
 			}
 		}
 		
-		# Create the MARC records
+		# Create the MARC records, including their status
 		if (($importType == 'full') || ($importType == 'marc')) {
 			if (!$this->createMarcRecords ($isSelection, $errorsHtml /* amended by reference */)) {
 				$this->logErrors ($errorsHtml, true);
 				return false;
 			}
 			$html .= "\n<p>{$tick} The MARC versions of the records have been generated.</p>";
-		}
-		
-		# Run option to set the MARC record status (included within the 'marc' (and therefore 'full') option above) if required
-		#!# This is does not handle setting of 'migratewithitem', which is currently only being done towards the end of createMarcRecords()
-		if ($importType == 'outputstatus') {
-			$this->marcRecordsSetStatus ();
 		}
 		
 		# Run option to export the MARC files for export and regenerate the Bibcheck report (included within the 'marc' (and therefore 'full') option above) if required
@@ -2254,7 +2248,6 @@ class import
 		$this->databaseConnection->execute ($sql);
 		
 		# Create the new MARC table
-		#!# suppressReasons ideally should be renamed
 		$this->logger ('Creating catalogue_marc table');
 		$sql = "
 			CREATE TABLE IF NOT EXISTS catalogue_marc (
@@ -2267,7 +2260,6 @@ class import
 				marcPreMerge TEXT NULL COLLATE utf8_unicode_ci COMMENT 'Pre-merged MARC representation of local Muscat record',
 				marc TEXT COLLATE utf8_unicode_ci COMMENT 'MARC representation of Muscat record',
 				bibcheckErrors TEXT NULL COLLATE utf8_unicode_ci COMMENT 'Bibcheck errors, if any',
-				suppressReasons VARCHAR(255) NULL DEFAULT NULL COMMENT 'Reason(s) for status=suppress/ignore',
 				filterTokens VARCHAR(255) NULL DEFAULT NULL COMMENT 'Filtering tokens for suppression/ignoration',
 			  PRIMARY KEY (id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC representation of Muscat records'
@@ -2304,12 +2296,6 @@ class import
 		;";
 		$this->databaseConnection->execute ($query);
 		
-		# Add in the migratewithitem/migrate/suppress/ignore status for each record; also available as a standalone option in the import
-		# As per the note in commit 9d6d98bbf71e230c18009a9519504272854fba9a:
-		#   The main three status types have to be set before creating the MARC record, so that any 917 Suppression reason can be set.
-		#   However, migratewithitem has to be set after creating the MARC record, as it uses the item count created during that process.
-		$this->marcRecordsSetStatus ();
-		
 		# Add in the Voyager merge data fields, retrieving the resulting data
 		$mergeData = $this->marcRecordsSetMergeFields ();
 		
@@ -2318,9 +2304,6 @@ class import
 		
 		# Get the merge definition
 		if (!$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ())) {return false;}
-		
-		# Get the suppress reasons list
-		$suppressReasonsList = $this->getSuppressReasonsList ();
 		
 		# Allow large queries for the chunking operation
 		$maxQueryLength = (1024 * 1024 * 32);	// i.e. this many MB
@@ -2383,8 +2366,7 @@ class import
 					# Convert to MARC, and retrieve metadata
 					$mergeType       = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeType'] : false);
 					$mergeVoyagerId	 = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeVoyagerId'] : false);
-					$suppressReasons = (isSet ($suppressReasonsList[$id]) ? $suppressReasonsList[$id] : false);
-					$marc = $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $mergeDefinition, $mergeType, $mergeVoyagerId, $suppressReasons);
+					$marc = $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $mergeDefinition, $mergeType, $mergeVoyagerId);
 					$marcPreMerge = $this->marcConversion->getMarcPreMerge ();
 					$filterTokens = $this->marcConversion->getFilterTokensString ();
 					$itemRecords = $this->marcConversion->getItemRecords ();
@@ -2433,25 +2415,11 @@ class import
 			}
 		}
 		
-		# Update the status of migrate records to migratewithitem when there are item records specified
-		# This includes the status=migrate constraint to ensure that supressed records don't get unsuppressed, e.g. /records/2096/
-		$query = "UPDATE catalogue_marc SET status = 'migratewithitem' WHERE status = 'migrate' AND itemRecords >= 1;";
-		$this->databaseConnection->execute ($query);
-		
 		# Generate the output files
 		$this->createMarcExports (false, !$isSelection, $errorsHtml /* amended by reference */);
 		
 		# Signal success
 		return true;
-	}
-	
-	
-	# Function to get the supression reasons list
-	private function getSuppressReasonsList ($ids = array ())
-	{
-		$query = 'SELECT id,suppressReasons FROM catalogue_marc WHERE suppressReasons IS NOT NULL' . ($ids ? " AND id IN (" . implode (', ', $ids) . ")" : '') . ';';
-		$suppressReasonsList = $this->databaseConnection->getPairs ($query);
-		return $suppressReasonsList;
 	}
 	
 	
@@ -2565,44 +2533,6 @@ class import
 	}
 	
 	
-	# Function to set the status of each MARC record; this is done before the records are generated, using XPath queries
-	private function marcRecordsSetStatus ()
-	{
-		# Log start
-		$this->logger ('Starting ' . __METHOD__);
-		
-		# NB Unfortunately CASE does not seem to support compound statements, so these three statements are basically a CASE in reverse; see: http://stackoverflow.com/a/18170014/180733
-		
-		# Default to migrate
-		$query = "UPDATE catalogue_marc SET status = 'migrate', suppressReasons = NULL;";
-		$this->databaseConnection->execute ($query);
-		
-		# Records to suppress / ignore
-		#!# The assigment of status=ignore for the listed scenarios needs to be done on a per-location basis
-		# Verified that, following data work, all records in ignore are also 'Not in SPRI' and have no other location, using `SELECT id, EXTRACTVALUE(xml, '//location') AS locations FROM catalogue_xml WHERE EXTRACTVALUE(xml, '//location') REGEXP '(IGS|International Glaciological Society|Basement IGS Collection)';`
-		$statuses = array (
-			'suppress'	=> 'getSuppressionScenarios',
-			'ignore'	=> 'getIgnorationScenarios',	// Highest priority, as run last, thus overwriting any previous status
-		);
-		foreach ($statuses as $status => $scenariosFunction) {
-			$scenarios = $this->marcConversion->{$scenariosFunction} ();
-			foreach ($scenarios as $reasonToken => $scenario) {
-				$conditions = $scenario[1];
-				$query = "UPDATE catalogue_marc
-					LEFT JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId
-					SET
-						status = '{$status}',
-						suppressReasons = IF(suppressReasons IS NULL, '{$reasonToken}', CONCAT(suppressReasons, ', {$reasonToken}'))
-					WHERE
-						{$conditions}
-				;";
-				$this->databaseConnection->execute ($query);
-			}
-		}
-		
-		// Setting status to migratewithitem is handled afterwards in createMarcRecords
-		
-	}
 	
 	
 	# Function to add in the Voyager merge data fields
@@ -2952,7 +2882,6 @@ class import
 			# Retrieve the merge datasets
 			$mergeDefinition = $this->parseMergeDefinition ($this->getMergeDefinition ());
 			$mergeData = $this->marcRecordsSetMergeFields ();
-			$suppressReasonsList = $this->getSuppressReasonsList ($ids);
 			
 			# Convert the records
 			$marcParserDefinition = $this->getMarcParserDefinition ();
@@ -2961,7 +2890,6 @@ class import
 			foreach ($xmlRecords as $id => $record) {
 				$mergeType       = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeType'] : false);
 				$mergeVoyagerId	 = (isSet ($mergeData[$id]) ? $mergeData[$id]['mergeVoyagerId'] : false);
-				$suppressReasons = (isSet ($suppressReasonsList[$id]) ? $suppressReasonsList[$id] : false);
 				$marcRecords[$id]['marc']			= $this->marcConversion->convertToMarc ($marcParserDefinition, $record['xml'], $mergeDefinition, $mergeType, $mergeVoyagerId);
 				$marcRecords[$id]['itemRecords']	= $this->marcConversion->getItemRecords ();
 				$marcRecords[$id]['filterTokens']	= $this->marcConversion->getFilterTokensString ();

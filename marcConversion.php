@@ -269,7 +269,7 @@ class marcConversion
 	
 	# Main entry point
 	# Local documentation at: http://www.lib.cam.ac.uk/libraries/login/bibstandard/bibstandards.htm
-	public function convertToMarc ($marcParserDefinition, $recordXml, $mergeDefinition = array (), $mergeType = false, $mergeVoyagerId = false, $suppressReasons = false, $stripLeaderInMerge = true)
+	public function convertToMarc ($marcParserDefinition, $recordXml, $mergeDefinition = array (), $mergeType = false, $mergeVoyagerId = false, $stripLeaderInMerge = true)
 	{
 		# Reset the error string and source registry so that they are clean for each iteration
 		$this->errorHtml = '';
@@ -286,7 +286,6 @@ class marcConversion
 		
 		# Reset property handles for item records count and filter tokens
 		$this->itemRecords = 0;
-		$this->suppressReasons = $suppressReasons;
 		$this->filterTokens = array ();
 		
 		# Ensure the line-by-line syntax is valid, extract macros, and construct a data structure representing the record
@@ -4031,18 +4030,12 @@ class marcConversion
 	}
 	
 	
-	# Macro to generate a 917 record for the supression reason, e.g. /records/1026/ (test #611)
+	# Macro to generate a 917 record for the supression reason, e.g. /records/1026/ (test #611), no suppress reason (as no suppression/ignoration tokens) in /records/1027/ (test #612)
 	private function macro_showSuppressionReason ($value)
 	{
-		# End if no suppress reason(s), e.g. /records/1027/ (test #612)
-		if (!$this->suppressReasons) {return false;}
-		
-		# Explode by comma, e.g. /records/1122/ (tests #613 and #614)
-		$suppressReasons = explode (', ', $this->suppressReasons);
-		
 		# Create a list of results, adding an explanation for each, e.g. /records/1026/ (test #615)
 		$resultLines = array ();
-		foreach ($suppressReasons as $token) {
+		foreach ($this->filterTokens as $token) {
 			if (isSet ($this->suppressionScenarios[$token])) {
 				$resultLines[] = 'Suppression reason: ' . $token . ' (' . $this->suppressionScenarios[$token][0] . ')';
 			}
@@ -4051,7 +4044,7 @@ class marcConversion
 			}
 		}
 		
-		# Implode the list, e.g. /records/1122/ (tests #613; no test for multiple, as no data, but verified manually that this works)
+		# Implode the list by comma, e.g. /records/1122/ (tests #613 and #614)
 		$result = implode (" {$this->doubleDagger}a", $resultLines);
 		
 		# Return the result line, e.g. /records/1026/ (test #611)
@@ -4398,7 +4391,7 @@ class marcConversion
 		}
 		
 		# If no filter tokens, migrate, e.g. /records/1123/ ; examples with both: /records/16870/ (ignore+migrate), /records/118221/ (migrate+ignore), /records/168774/ (migrate+ignore)
-		# Can identify some multiple cases using: `SELECT catalogue_marc.id,suppressReasons, catalogue_processed.* FROM catalogue_marc JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId WHERE filterTokens IS NOT NULL AND field = 'location' AND filterTokens NOT LIKE '%IGNORE-NOTINSPRI%' AND xPathWithIndex LIKE '%[2]%';`
+		# Can identify some multiple cases using: `SELECT catalogue_marc.id,filterTokens, catalogue_processed.* FROM catalogue_marc JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId WHERE filterTokens IS NOT NULL AND field = 'location' AND filterTokens NOT LIKE '%IGNORE-NOTINSPRI%' AND xPathWithIndex LIKE '%[2]%';`
 		if (!$filterTokens) {
 			$filterTokens[] = 'MIGRATE';
 		}

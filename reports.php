@@ -2173,7 +2173,7 @@ class reports
 	# Records that contain photocopy/offprint in *note/*local/*priv
 	public function report_offprints ()
 	{
-		# Define the query; this should reflect the same clause as marcRecordsSetStatus
+		# Define the query
 		$query = "
 			SELECT DISTINCT
 				'offprints' AS report,

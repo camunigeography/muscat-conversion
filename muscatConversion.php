@@ -52,11 +52,11 @@ class muscatConversion extends frontControllerApplication
 			'public'	=> false,
 		),
 		'marc' => array (
-			'label'		=> 'MARC record',
+			'label'		=> 'MARC record',	// Gets overwritten in public UI
 			'icon'		=> 'page_white_code_red',
 			'title'		=> "The publication's record as raw MARC21 data",
 			'errorHtml'	=> "The MARC21 representation of the Muscat record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
-			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc', 'bibcheckErrors', 'itemRecords', 'suppressReasons', 'filterTokens'),
+			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc', 'bibcheckErrors', 'itemRecords', 'filterTokens')
 			'idField'	=> 'id',
 			'orderBy'	=> 'id',
 			'class'		=> false,
@@ -67,7 +67,7 @@ class muscatConversion extends frontControllerApplication
 			'icon'		=> 'page_white_star',
 			'title'		=> 'Listing of the publication as an easy-to-read record',
 			'errorHtml'	=> "The presented version of the Muscat record <em>%s</em> could not be retrieved, which indicates a database error. Please contact the Webmaster.",
-			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc', 'bibcheckErrors', 'suppressReasons'),
+			'fields'	=> array ('id', 'mergeType', 'mergeVoyagerId', 'marc', 'bibcheckErrors'),
 			'idField'	=> 'id',
 			'orderBy'	=> 'id',
 			'class'		=> false,
@@ -922,7 +922,7 @@ class muscatConversion extends frontControllerApplication
 				$data = $this->getRecords ($id, 'xml', false, false, $searchStable = (!$this->userIsAdministrator));
 				$marcParserDefinition = $this->import->getMarcParserDefinition ();
 				$mergeDefinition = $this->import->parseMergeDefinition ($this->import->getMergeDefinition ());
-				$marcRecord = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $record['suppressReasons'], $stripLeaderInMerge = false /* Do not strip for dynamic merge; however it is stripped in the actual import */);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
+				$marcRecord = $this->marcConversion->convertToMarc ($marcParserDefinition, $data['xml'], $mergeDefinition, $record['mergeType'], $record['mergeVoyagerId'], $stripLeaderInMerge = false /* Do not strip for dynamic merge; however it is stripped in the actual import */);		// Overwrite with dynamic read, maintaining other fields (e.g. merge data)
 				$this->marcRecordDynamic = array (
 					'record'			=> $marcRecord,
 					'marcErrorHtml'		=> $this->marcConversion->getErrorHtml (),
@@ -2233,7 +2233,6 @@ class muscatConversion extends frontControllerApplication
 			'marc'					=> 'Regenerate MARC only (c. 1.1 hours)',
 			'marc-selection'		=> 'Regenerate MARC only, filtered to selection list',
 			'external'				=> 'Regenerate external Voyager records only (c. 5 seconds)',
-			'outputstatus'			=> 'Regenerate output status only (c. 15 seconds)',
 			'exports'				=> 'Regenerate MARC export files and Bibcheck report (c. 35 minutes)',
 			'tests'					=> 'Run automated tests',
 			'reports'				=> 'Regenerate reports only (c. 20 minutes)',
