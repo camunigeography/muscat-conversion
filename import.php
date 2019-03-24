@@ -2394,7 +2394,7 @@ class import
 						'marcPreMerge' => $marcPreMerge,
 						'marc' => $marc,
 						'itemRecords' => array_sum ($matches[1]),
-						'filterTokens' => $filterTokens,	// E.g. examples: "MISSING-QQ" or multiple "IGNORE-NIS, IGNORE-UL"
+						'filterTokens' => $filterTokens,	// E.g. examples: "SUPPRESS-MISSINGQ" or multiple "IGNORE-NOTINSPRI, IGNORE-LOCATIONUL"
 					);
 					
 					# If the record has generated a second pass requirement if it has a parent, register the ID

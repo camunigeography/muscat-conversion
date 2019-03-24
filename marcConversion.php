@@ -4334,11 +4334,11 @@ class marcConversion
 			
 			# Explicit suppression, e.g. /records/1122/
 			if ($status == $this->suppressionStatusKeyword) {
-				$filterTokens[] = 'EXPLICIT-SUPPRESS';
+				$filterTokens[] = 'SUPPRESS-EXPLICITLY';
 			} else {
 				
 				# Handle status-based suppression, e.g. /records/1331/
-				$filterTokens[] = 'STATUS-' . str_replace (' ', '-', $status);
+				$filterTokens[] = 'IGNORE-STATUS' . str_replace (' ', '', $status);
 			}
 		}
 		
@@ -4348,12 +4348,12 @@ class marcConversion
 			
 			# Location-based matches (exact)
 			$locationMatches = array (
-				'??'									=> 'MISSING-QQ',			// /records/1026/
-				'Pam ?'									=> 'MISSING-QQ',			// /records/1645/
-				'Destroyed during audit'				=> 'DESTROYED-COPIES',		// /records/1886/
-				'International Glaciological Society'	=> 'IGS-IGNORED',			// /records/27502/
-				'Digital Repository'					=> 'ELECTRONIC-REMOTE',		// /records/198655/
-				'Not in SPRI'							=> 'IGNORE-NIS',			// /records/27502/
+				'??'									=> 'SUPPRESS-MISSINGQ',			// /records/1026/
+				'Pam ?'									=> 'SUPPRESS-MISSINGQ',			// /records/1645/
+				'Destroyed during audit'				=> 'IGNORE-DESTROYEDCOPIES',	// /records/1886/
+				'International Glaciological Society'	=> 'IGNORE-IGS',				// /records/27502/
+				'Digital Repository'					=> 'IGNORE-ELECTRONICREMOTE',	// /records/198655/
+				'Not in SPRI'							=> 'IGNORE-NOTINSPRI',			// /records/27502/
 			);
 			if (isSet ($locationMatches[$location])) {
 				$filterTokens[] = $locationMatches[$location];
@@ -4361,8 +4361,8 @@ class marcConversion
 			
 			# Matches
 			$locationMatches = array (
-				'^Picture Library Store : Video'		=> 'PICTURELIBRARY-VIDEO',	// /records/2021/
-				'^Cambridge University'					=> 'IGNORE-UL',				// /records/2096/
+				'^Picture Library Store : Video'		=> 'SUPPRESS-PICTURELIBRARYVIDEO',	// /records/2021/
+				'^Cambridge University'					=> 'IGNORE-LOCATIONUL',				// /records/2096/
 			);
 			foreach ($locationMatches as $locationMatch => $token) {
 				if (preg_match ("/{$locationMatch}/", $location)) {
@@ -4372,12 +4372,12 @@ class marcConversion
 		}
 		
 		# If no filter tokens, migrate, e.g. /records/1123/ ; examples with both: /records/16870/ (ignore+migrate), /records/118221/ (migrate+ignore), /records/168774/ (migrate+ignore)
-		# Can identify some multiple cases using: `SELECT catalogue_marc.id,suppressReasons, catalogue_processed.* FROM catalogue_marc JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId WHERE filterTokens IS NOT NULL AND field = 'location' AND filterTokens NOT LIKE '%IGNORE-NIS%' AND xPathWithIndex LIKE '%[2]%';`
+		# Can identify some multiple cases using: `SELECT catalogue_marc.id,suppressReasons, catalogue_processed.* FROM catalogue_marc JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId WHERE filterTokens IS NOT NULL AND field = 'location' AND filterTokens NOT LIKE '%IGNORE-NOTINSPRI%' AND xPathWithIndex LIKE '%[2]%';`
 		if (!$filterTokens) {
 			$filterTokens[] = 'MIGRATE';
 		}
 		
-		# Create the subfield entry (or entries, e.g. SPRI-NIS plus IGS-IGNORED)
+		# Create the subfield entry (or entries, e.g. IGNORE-NOTINSPRI plus IGNORE-IGS)
 		$subfields = array ();
 		foreach ($filterTokens as $filterToken) {
 			
@@ -4410,20 +4410,20 @@ class marcConversion
 		#!# Major issue: problem with e.g. /records/3929/ where two records need to be created, but not both should be suppressed; there are around 1,000 of these
 		return $suppressionScenarios = array (
 			
-			'EXPLICIT-SUPPRESS' => array (
+			'SUPPRESS-EXPLICITLY' => array (
 				# 21,196 records
 				'Record marked specifically to suppress, e.g. pamphlets needing review, etc.',
 				# NB This has been achieved using a BCPL routine to mark the records as such
 				"field = 'status' AND value = '{$this->suppressionStatusKeyword}'"
 			),
 			
-			'MISSING-QQ' => array (
+			'SUPPRESS-MISSINGQ' => array (
 				# 496 records
 				'Missing with ?',
 				"field = 'location' AND value IN('??', 'Pam ?')"
 			),
 			
-			'PICTURELIBRARY-VIDEO' => array (
+			'SUPPRESS-PICTURELIBRARYVIDEO' => array (
 				# 162 records
 				'Picture Library Store videos',
 				"field = 'location' AND value LIKE 'Picture Library Store : Video%'"
@@ -4439,49 +4439,49 @@ class marcConversion
 		# Records to suppress, defined as a set of scenarios represented by a token
 		return $ignorationScenarios = array (
 			
-			'DESTROYED-COPIES' => array (
+			'IGNORE-DESTROYEDCOPIES' => array (
 				# 1,422 records
 				'Item has been destroyed during audit',
 				"field = 'location' AND value = 'Destroyed during audit'"
 			),
 			
-			'IGS-IGNORED' => array (
+			'IGNORE-IGS' => array (
 				# 44 records
 				'IGS locations',
 				"field = 'location' AND value = 'International Glaciological Society'"
 			),
 			
-			'ELECTRONIC-REMOTE' => array (
+			'IGNORE-ELECTRONICREMOTE' => array (
 				# 10 records
 				'Digital records',
 				"field = 'location' AND value = 'Digital Repository'"
 			),
 			
-			'STATUS-RECEIVED' => array (
+			'IGNORE-STATUSRECEIVED' => array (
 				# 3,428 records
 				'Item is being processed, i.e. has been accessioned and is with a bibliographer for classifying and cataloguing',
 				"field = 'status' AND value = 'RECEIVED'"
 			),
 			
-			'STATUS-ORDER-CANCELLED' => array (
+			'IGNORE-STATUSORDERCANCELLED' => array (
 				# 1 record
 				'Order cancelled by SPRI, but record retained for accounting/audit purposes in the event that the item arrives',
 				"field = 'status' AND value = 'ORDER CANCELLED'"
 			),
 			
-			'STATUS-ON-ORDER' => array (
+			'IGNORE-STATUSONORDER' => array (
 				# 576 records (563 records old + 13 records recent); see also: /reports/onorderold/ which matches
 				'Item on order >1 year ago so unlikely to be fulfilled, but item remains desirable and of bibliographic interest',
 				"field = 'status' AND value = 'ON ORDER'"
 			),
 			
-			'IGNORE-NIS' => array (
+			'IGNORE-NOTINSPRI' => array (
 				# 7,478 records
 				'Items held not in SPRI',
 				"field = 'location' AND value = 'Not in SPRI'"
 			),
 			
-			'IGNORE-UL' => array (
+			'IGNORE-LOCATIONUL' => array (
 				# 1,289 records
 				'Items held at the UL, i.e. elsewhere',
 				"field = 'location' AND value LIKE 'Cambridge University%'"
