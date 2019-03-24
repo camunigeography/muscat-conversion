@@ -5451,3 +5451,34 @@ No item records created for SPRI-ELE items as do not physically exist
 1331
 917
 ‡aIgnoration reason: IGNORE-STATUSRECEIVED
+
+935
+Output status = migratewithitem
+5749
+852
+‡9Create 181 item records‡0Migrate
+
+936
+Output status = migrate
+1130
+852
+location‡0Migrate
+
+937
+Output status = suppresswithitem
+52260
+852
+‡9Create 2 item records‡0Suppress: SUPPRESS-MISSINGQ
+
+938
+Output status = supress
+1166
+852
+(*41)‡0Suppress: SUPPRESS-EXPLICITLY
+
+939
+Output status = ignore
+1282
+852
+‡zNot in SPRI‡0Ignore: IGNORE-NOTINSPRI
+

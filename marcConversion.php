@@ -189,14 +189,14 @@ class marcConversion
 	public function getStatus ()
 	{
 		# Return the appropriate status, based on filter tokens and item records
-		# Migrate takes priority over suppress if more than one, and suppress over ignore if more than one
+		# Migrate takes priority over additional other(s) if more than one (5 cases, e.g. /records/118221/ - but not directly testable), and then suppress over additional other(s) (no actual cases)
 		$filterTokensString = $this->getFilterTokensString ();
 		switch (true) {
-			case (substr_count ($filterTokensString, 'MIGRATE')   && $this->itemRecords > 0): return 'migratewithitem';
-			case (substr_count ($filterTokensString, 'MIGRATE')   && $this->itemRecords = 0): return 'migrate';
-			case (substr_count ($filterTokensString, 'SUPPRESS-') && $this->itemRecords > 0): return 'suppresswithitem';
-			case (substr_count ($filterTokensString, 'SUPPRESS-') && $this->itemRecords = 0): return 'suppress';
-			case (substr_count ($filterTokensString, 'IGNORE-')                            ): return 'ignore';
+			case (substr_count ($filterTokensString, 'MIGRATE')   && $this->itemRecords >  0): return 'migratewithitem';		// E.g. /records/5749/ (test #935)
+			case (substr_count ($filterTokensString, 'MIGRATE')   && $this->itemRecords == 0): return 'migrate';				// E.g. /records/1130/ (test #936)
+			case (substr_count ($filterTokensString, 'SUPPRESS-') && $this->itemRecords >  0): return 'suppresswithitem';		// E.g. /records/52260/ (test #937)
+			case (substr_count ($filterTokensString, 'SUPPRESS-') && $this->itemRecords == 0): return 'suppress';				// E.g. /records/1166/ (test #938)
+			case (substr_count ($filterTokensString, 'IGNORE-')                             ): return 'ignore';					// E.g. /records/1282/ (test #939)
 		}
 	}
 	
