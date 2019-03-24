@@ -2733,54 +2733,88 @@ class muscatConversion extends frontControllerApplication
 			return;
 		}
 		
-		# Get the filesets
+		# Get the filesets and record groupings
 		$filesets = $this->import->getFilesets ();
+		$recordGroupings = $this->import->getRecordGroupings ();
 		
 		# Get the fileset counts
-		$query = "SELECT status, COUNT(*) AS total FROM catalogue_marc GROUP BY status;";
-		$totals = $this->databaseConnection->getPairs ($query);
+		$totals = array ();
+		foreach ($recordGroupings as $type => $limitToRecordTypes) {
+			$query = "SELECT status, COUNT(*) AS total FROM catalogue_marc WHERE type IN('" . implode ("', '", $limitToRecordTypes) . "') GROUP BY status;";
+			$totals[$type] = $this->databaseConnection->getPairs ($query);
+			foreach ($filesets as $fileset => $label) {
+				if (!isSet ($totals[$type][$fileset])) {
+					$totals[$type][$fileset] = 0;
+				}
+				$totals['_both'][$fileset] = (isSet ($totals['_both'][$fileset]) ? $totals['_both'][$fileset] : 0) + $totals[$type][$fileset];
+			}
+		}
 		
 		# Add in the selection dataset
 		$filesets['selection'] = 'Representative selection dataset';
 		$selectionList = $this->import->getSelectionList ();
-		$totals['selection'] = count ($selectionList);
+		$totals['_both']['selection'] = count ($selectionList);
 		
 		# Compile the HTML
 		$html  = "\n<h3>Downloads</h3>";
 		$html .= "\n<table class=\"lines spaced downloads\">";
+		$html .= "\n\t<tr>";
+		$html .= "\n\t\t<th>Category:</th>";
+		foreach ($recordGroupings as $type => $limitToRecordTypes) {
+			$html .= "\n\t\t<th colspan=\"2\">" . ucfirst ($type) . ' ( <tt>' . implode ('</tt> , <tt>', $limitToRecordTypes) . '</tt> ):</th>';
+		}
+		$html .= "\n</tr>";
 		foreach ($filesets as $fileset => $label) {
-			$html .= "\n\t<tr" . ($fileset == 'selection' ? ' class="selection"' : '') . ">";
-			$html .= "\n\t\t<td><strong>{$label}</strong>:<br />" . number_format ($totals[$fileset]) . ' records</td>';
-			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.txt\">MARC21 data<br />(text)</a></td>";
-			$html .= "\n\t\t<td><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}.mrc\">MARC21 data<br />(binary .mrc)</a></td>";
+			$html .= "\n\t<tr" . ($fileset == 'selection' ? ' class="selection"' : '') . '>';
+			$html .= "\n\t\t<td rowspan=\"2\"><strong>{$label}</strong>:<br />" . number_format ($totals['_both'][$fileset]) . ' records</td>';
+			foreach ($recordGroupings as $type => $limitToRecordTypes) {
+				$html .= "\n\t\t<td class=\"filelink\"><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}-{$type}.txt\">MARC21 data<br />(text)</a></td>";
+				$html .= "\n\t\t<td class=\"filelink\"><a href=\"{$this->baseUrl}/export/spri-marc-{$fileset}-{$type}.mrc\">MARC21 data<br />(binary .mrc)</a></td>";
+			}
+			$html .= "\n\t</tr>";
+			$html .= "\n\t<tr>";
+				foreach ($recordGroupings as $type => $limitToRecordTypes) {
+					$html .= "\n\t\t<td colspan=\"2\" class=\"total small\">" . (isSet ($totals[$type][$fileset]) ? number_format ($totals[$type][$fileset]) : '?') . ' ' . preg_replace ('/s$/', '', $type) . " records</td>";
+				}
 			$html .= "\n\t</tr>";
 		}
 		$html .= "\n</table>";
 		
-		# Get the totals
-		$totalsQuery = "SELECT status, COUNT(*) AS total FROM {$this->settings['database']}.catalogue_marc WHERE bibcheckErrors IS NOT NULL GROUP BY status;";
-		$totals = $this->databaseConnection->getPairs ($totalsQuery);
-		
 		# Compile error listings
 		$errorsHtml = '';
 		$jumplist = array ();
-		foreach ($filesets as $fileset => $label) {
-			if ($fileset == 'selection') {continue;}	// This is only a subset of things in other reports, so do not repeat
-			$filename = $directory . "/spri-marc-{$fileset}.errors.txt";
-			$errors = file_get_contents ($filename);
-			$errorListingHtml = htmlspecialchars (trim ($errors));
-			$errorListingHtml = preg_replace ("/(\s)(SPRI-)([0-9]+)/", '\1\2<a href="' . $this->baseUrl . '/records/\3/"><strong>\3</strong></a>', $errorListingHtml);
-			$totalErrors = (isSet ($totals[$fileset]) ? $totals[$fileset] : '0');
-			$jumplist[] = "<a href=\"#{$fileset}\" class=\"" . ($totalErrors ? 'warning' : 'success') . "\">{$label} ({$totalErrors})</a>";
-			$errorsHtml .= "\n<h4 id=\"{$fileset}\" class=\"" . ($totalErrors ? 'warning' : 'success') . "\">Errors: {$label} (" . $totalErrors . ')</h4>';
-			if ($errorListingHtml) {
-				$errorsHtml .= "\n<div class=\"graybox\">";
-				$errorsHtml .= "\n<pre>";
-				$errorsHtml .= $errorListingHtml;
-				$errorsHtml .= "\n</pre>";
-				$errorsHtml .= "\n</div>";
-			} else {
-				$errorsHtml .= "\n<p><em>No (non-whitelisted) Bibcheck errors for this group.</em></p>";
+		foreach ($recordGroupings as $type => $limitToRecordTypes) {
+			
+			# Get the totals
+			$totalsQuery = "SELECT
+					status, COUNT(*) AS total
+				FROM {$this->settings['database']}.catalogue_marc
+				WHERE
+					    bibcheckErrors IS NOT NULL
+					AND type IN('" . implode ("', '", $limitToRecordTypes) . "')
+				GROUP BY status
+			;";
+			$totals = $this->databaseConnection->getPairs ($totalsQuery);
+			
+			# Show for each fileset
+			foreach ($filesets as $fileset => $label) {
+				if ($fileset == 'selection') {continue;}	// This is only a subset of things in other reports, so do not repeat
+				$filename = $directory . "/spri-marc-{$fileset}-{$type}.errors.txt";
+				$errors = file_get_contents ($filename);
+				$errorListingHtml = htmlspecialchars (trim ($errors));
+				$errorListingHtml = preg_replace ("/(\s)(SPRI-)([0-9]+)/", '\1\2<a href="' . $this->baseUrl . '/records/\3/"><strong>\3</strong></a>', $errorListingHtml);
+				$totalErrors = (isSet ($totals[$fileset]) ? $totals[$fileset] : '0');
+				$jumplist[] = "<a href=\"#{$fileset}-{$type}\" class=\"" . ($totalErrors ? 'warning' : 'success') . "\">{$label} ({$totalErrors})</a>";
+				$errorsHtml .= "\n<h4 id=\"{$fileset}-{$type}\" class=\"" . ($totalErrors ? 'warning' : 'success') . "\">Errors: {$label} - {$type} (" . $totalErrors . ')</h4>';
+				if ($errorListingHtml) {
+					$errorsHtml .= "\n<div class=\"graybox\">";
+					$errorsHtml .= "\n<pre>";
+					$errorsHtml .= $errorListingHtml;
+					$errorsHtml .= "\n</pre>";
+					$errorsHtml .= "\n</div>";
+				} else {
+					$errorsHtml .= "\n<p><em>No (non-whitelisted) Bibcheck errors for this group.</em></p>";
+				}
 			}
 		}
 		

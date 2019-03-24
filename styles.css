@@ -47,6 +47,8 @@
 #muscatconversion table.downloads {min-width: 75%;}
 #muscatconversion table.downloads td a {display: block; border: 1px solid #ddd; padding: 4px 8px 4px 28px; border-radius: 5px; height: 3.5em; background-color: #f7f7f7; background-position: 8px 8px; min-width: 5em;}
 #muscatconversion table.downloads tr.selection td {opacity: 0.7; padding-top: 16px;}
+#muscatconversion table.downloads td.filelink {border-bottom: 0; padding-bottom: 0;}
+#muscatconversion table.downloads td.total {padding-top: 4px; padding-bottom: 10px; color: #777; font-size: 1em;}
 #muscatconversion a[href$='.mrk']  {padding-left: 20px; background: transparent url(/images/icons/page_white_code.png) no-repeat center left;}
 #muscatconversion a[href$='.mrc']  {padding-left: 20px; background: transparent url(/images/icons/script_code_red.png) no-repeat center left;}
 #muscatconversion p.colourkey {float: right; margin-right: 20px; font-style: italic;}

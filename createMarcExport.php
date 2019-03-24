@@ -23,19 +23,19 @@ class createMarcExport
 	
 	
 	# Main entry point
-	public function createExport ($fileset, $selectionList = array (), &$errorsHtml)
+	public function createExport ($fileset, $selectionList = array (), $typeLabel, $limitToRecordTypes, &$errorsHtml)
 	{
 		# Clear the current file(s)
 		$directory = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl;
-		$filenameMarcTxt = $directory . "/spri-marc-{$fileset}.txt";
+		$filenameMarcTxt = $directory . "/spri-marc-{$fileset}-{$typeLabel}.txt";
 		if (file_exists ($filenameMarcTxt)) {
 			unlink ($filenameMarcTxt);
 		}
-		$filenameMrk = $directory . "/spri-marc-{$fileset}.mrk";
+		$filenameMrk = $directory . "/spri-marc-{$fileset}-{$typeLabel}.mrk";
 		if (file_exists ($filenameMrk)) {
 			unlink ($filenameMrk);
 		}
-		$filenameMrc = $directory . "/spri-marc-{$fileset}.mrc";
+		$filenameMrc = $directory . "/spri-marc-{$fileset}-{$typeLabel}.mrc";
 		if (file_exists ($filenameMrc)) {
 			unlink ($filenameMrc);
 		}
@@ -47,8 +47,14 @@ class createMarcExport
 			$filterConstraint = 'id IN(' . implode (', ', $selectionList) . ')';
 		}
 		
-		# Get the total records in the table
-		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], 'catalogue_marc', 'WHERE ' . $filterConstraint);
+		# Define the record type constraint
+		$recordTypeConstraint = "type IN('" . implode ("', '", $limitToRecordTypes) . "')";
+		
+		# Compile the constraints
+		$constraintsSql = "{$filterConstraint} AND {$recordTypeConstraint}";
+		
+		# Get the total records in the table matching the current constraints
+		$totalRecords = $this->databaseConnection->getTotal ($this->settings['database'], 'catalogue_marc', 'WHERE ' . $constraintsSql);
 		
 		# Start the output
 		$marcText = '';
@@ -64,7 +70,7 @@ class createMarcExport
 			$query = "SELECT
 					id,marc
 				FROM {$this->settings['database']}.catalogue_marc
-				WHERE {$filterConstraint}
+				WHERE {$constraintsSql}
 				ORDER BY FIELD(type, '" . implode ("','", $this->recordProcessingOrder) . "'), id
 				LIMIT {$offset},{$limit}
 			;";
@@ -87,7 +93,7 @@ class createMarcExport
 		$this->marcBinaryConversion ($filenameMarcTxt, $filenameMrk, $filenameMrc);
 		
 		# Check the output
-		$errorsFilename = $this->marcLintTest ($fileset, $directory, $errorsHtml /* amended by reference */);
+		$errorsFilename = $this->marcLintTest ($fileset, $typeLabel, $directory, $errorsHtml /* amended by reference */);
 		
 		# Extract the errors from this error report, and add them to the MARC table
 		if (!$selectionList) {	// Do not re-run for a selection list export
@@ -146,10 +152,10 @@ class createMarcExport
 	
 	
 	# Function to do a Bibcheck lint test
-	private function marcLintTest ($fileset, $directory, &$errorsHtml)
+	private function marcLintTest ($fileset, $typeLabel, $directory, &$errorsHtml)
 	{
 		# Define the filename for the raw (unfiltered) errors file and the main filtered version
-		$errorsFilename = "{$directory}/spri-marc-{$fileset}.errors.txt";
+		$errorsFilename = "{$directory}/spri-marc-{$fileset}-{$typeLabel}.errors.txt";
 		$errorsUnfilteredFilename = str_replace ('errors.txt', 'errors-unfiltered.txt', $errorsFilename);
 		
 		# Clear file(s) if currently existing
@@ -162,10 +168,10 @@ class createMarcExport
 		
 		# Define and execute the command for converting the text version to binary, generating the errors listing file; NB errors.txt is a hard-coded location in Bibcheck, hence the file-moving requirement
 		# If an error occurs, e.g. two LDRs, Bibcheck will output the errors file until the point the errors occurred, e.g. "Invalid indicators "00273nas\a22000977\\4500" forced to blanks in record 2523 for tag LDR \n no subfield data found in record 2523 for tag LDR"
-		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; PERL5LIB={$this->applicationRoot}/libraries/bibcheck/ perl lint_test.pl {$directory}/spri-marc-{$fileset}.mrc 2>&1";	//  2>> errors.txt
+		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; PERL5LIB={$this->applicationRoot}/libraries/bibcheck/ perl lint_test.pl {$directory}/spri-marc-{$fileset}-{$typeLabel}.mrc 2>&1";	//  2>> errors.txt
 		$output = shell_exec ($command);
 		if ($output) {
-			$errorsHtml .= "\n<p class=\"warning\">Error in Bibcheck execution for fileset {$fileset}: " . nl2br (str_replace ("\n\n", "\n", str_replace ("\n\r", "\n", htmlspecialchars (trim ($output))))) . '</p>';
+			$errorsHtml .= "\n<p class=\"warning\">Error in Bibcheck execution for fileset {$fileset}-{$typeLabel}: " . nl2br (str_replace ("\n\n", "\n", str_replace ("\n\r", "\n", htmlspecialchars (trim ($output))))) . '</p>';
 		}
 		$command = "cd {$this->applicationRoot}/libraries/bibcheck/ ; mv errors.txt {$errorsUnfilteredFilename}";
 		$output = shell_exec ($command);

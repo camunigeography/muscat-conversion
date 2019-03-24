@@ -11,6 +11,12 @@ class import
 		'/art/in',	// A part document consisting of a book chapter or conference paper
 	);
 	
+	# Record groupings for export
+	private $recordGroupings = array (
+		'serials'		=> array ('/ser'),
+		'monographs'	=> array ('/doc', '/art/in', '/art/j'),
+	);
+	
 	# Define the file sets and their labels
 	private $filesets = array (
 		'migratewithitem'	=> 'Migrate to Alma, with item record(s)',
@@ -70,6 +76,11 @@ class import
 	public function getFieldsIndexFields ()
 	{
 		return $this->fieldsIndexFields;
+	}
+	
+	public function getRecordGroupings ()
+	{
+		return $this->recordGroupings;
 	}
 	
 	public function getFilesets ()
@@ -2726,17 +2737,21 @@ class import
 			$this->databaseConnection->update ($this->settings['database'], 'catalogue_marc', array ('bibcheckErrors' => NULL));
 		}
 		
-		# Generate the output files and attach errors to the database records
-		require_once ('createMarcExport.php');
-		$createMarcExport = new createMarcExport ($this->muscatConversion, $this->applicationRoot, $this->recordProcessingOrder);
-		foreach ($this->filesets as $fileset => $label) {
-			$createMarcExport->createExport ($fileset, array (), $errorsHtml /* amended by reference */);
-		}
-		
-		# Create a selected export group also
-		if ($isFullSet) {
-			$selectionList = $this->getSelectionList ();
-			$createMarcExport->createExport ('selection', $selectionList, $errorsHtml /* amended by reference */);
+		# Create a set for each of the record type groups, defined as label => record types
+		foreach ($this->recordGroupings as $type => $limitToRecordTypes) {
+			
+			# Generate the output files and attach errors to the database records
+			require_once ('createMarcExport.php');
+			$createMarcExport = new createMarcExport ($this->muscatConversion, $this->applicationRoot, $this->recordProcessingOrder);
+			foreach ($this->filesets as $fileset => $label) {
+				$createMarcExport->createExport ($fileset, array (), $type, $limitToRecordTypes, $errorsHtml /* amended by reference */);
+			}
+			
+			# Create a selected export group also
+			if ($isFullSet) {
+				$selectionList = $this->getSelectionList ();
+				$createMarcExport->createExport ('selection', $selectionList, $type, $limitToRecordTypes, $errorsHtml /* amended by reference */);
+			}
 		}
 		
 		# If required, regenerate the error reports depending on the data
