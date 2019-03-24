@@ -3394,18 +3394,6 @@ LDR
 500
 /^‡aJournal of Navigation./
 
-573
-035 gets VoyagerBelievedMatch tag when /ser/kc/k2 present
-1046
-035
-VoyagerBelievedMatch-348234
-
-574
-No 035 VoyagerBelievedMatch when /ser/kc/k2 not present
-1049
-!035
-VoyagerBelievedMatch
-
 575
 Multiple *form results in multiple 007 (test 1 of 2 - see also next test)
 181410
@@ -5577,3 +5565,34 @@ Migrate filter token allocated when no suppression/ignoration scenarios
 1645
 852
 ‡0Suppress: SUPPRESS-EXPLICITLY (Record marked specifically to suppress, e.g. pamphlets needing review, etc.) ‡0Suppress: SUPPRESS-MISSINGQ
+
+956
+035 matching not required
+1031
+!035
+(UkCU)
+
+957
+035 matched as single confirmed case
+1011
+035
+‡a(UkCU)344107-depfacozdb
+
+958
+035 unconfirmed record number
+1000
+035
+(UkCU)343473-depfacozdb (Matchtype: P)
+
+959
+035 multiple combined with semicolon-space
+1000
+035
+(UkCU)343473-depfacozdb (Matchtype: P); (UkCU)343584-depfacozdb (Matchtype: P); (UkCU)343797
+
+960
+035 prefix string added when unconfirmed
+1030
+035
+‡aUnconfirmed match: (UkCU)345026-depfacozdb (Matchtype: P)
+

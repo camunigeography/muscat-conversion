@@ -1074,6 +1074,45 @@ class marcConversion
 	}
 	
 	
+	# Macro to provide a formatted version of VoyagerBelievedMatch items
+	private function macro_voyagerBelievedMatch ($value_ignored)
+	{
+		# End if no *k2 groups, e.g. /records/1031/ (test #956)
+		if (!$k2Groups = $this->xPathValues ($this->xml, '(//k2)[%i]', false)) {return false;}
+		
+		# Get the *kc values and parse to string tokens, ending if none
+		$tokens = array ();
+		$unconfirmed = false;
+		$i = 0;
+		foreach ($k2Groups as $k2Group) {
+			$i++;	// XPath indexes start at 1
+			
+			# Extract the match type and Voyager number
+			$ka = $this->xPathValue ($this->xml, "/ser/k2[{$i}]/ka");	// E.g. Matchtype: P
+			$kc = $this->xPathValue ($this->xml, "/ser/k2[{$i}]/kc");	// E.g. 343473??
+			
+			# Assemble the token
+			if (substr_count ($kc, '?')) {
+				$tokens[] = '(UkCU)' . str_replace ('?', '', $kc) . '-depfacozdb' . " ({$ka})";		// E.g. /records/1000/ (test #958)
+				$unconfirmed = true;
+			} else {
+				$tokens[] = '(UkCU)' . $kc . '-depfacozdb';		// E.g. /records/1011/ (test #957)
+			}
+		}
+		
+		# Combine the tokens, e.g. /records/1000/ (test #959)
+		$result = implode ('; ', $tokens);
+		
+		# If any contain a ?, mark them as unresolved and prefix with string, e.g. /records/1030/ (test #960)
+		if ($unconfirmed) {
+			$result = 'Unconfirmed match: ' . $result;
+		}
+		
+		# Return the result, e.g. /records/1011/ (test #957)
+		return $result;
+	}
+	
+	
 	# Macro to ensure a string does not match a specified (and exact) value; e.g. filtering out of only 'English' for 546 in /records/1007/ (test #802)
 	private function macro_exceptExactly ($value, $text)
 	{
