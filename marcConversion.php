@@ -4429,20 +4429,20 @@ class marcConversion
 		return $suppressionScenarios = array (
 			
 			'SUPPRESS-EXPLICITLY' => array (
-				# 21,196 records
+				# 21,196 records, e.g. /records/1166/ (test #940)
 				'Record marked specifically to suppress, e.g. pamphlets needing review, etc.',
 				# NB This has been achieved using a BCPL routine to mark the records as such
 				"field = 'status' AND value = '{$this->suppressionStatusKeyword}'"
 			),
 			
 			'SUPPRESS-MISSINGQ' => array (
-				# 496 records
+				# 553 records, e.g. /records/16870/ (test #941)
 				'Missing with ?',
 				"field = 'location' AND value IN('??', 'Pam ?')"
 			),
 			
 			'SUPPRESS-PICTURELIBRARYVIDEO' => array (
-				# 162 records
+				# 162 records, e.g. /records/2021/ (test #942)
 				'Picture Library Store videos',
 				"field = 'location' AND value LIKE 'Picture Library Store : Video%'"
 			),
@@ -4458,49 +4458,49 @@ class marcConversion
 		return $ignorationScenarios = array (
 			
 			'IGNORE-DESTROYEDCOPIES' => array (
-				# 1,422 records
+				# 1,473 records, e.g. /records/1886/ (test #943)
 				'Item has been destroyed during audit',
 				"field = 'location' AND value = 'Destroyed during audit'"
 			),
 			
 			'IGNORE-IGS' => array (
-				# 44 records
+				# 44 records, e.g. /records/27502/ (test #944)
 				'IGS locations',
 				"field = 'location' AND value = 'International Glaciological Society'"
 			),
 			
 			'IGNORE-ELECTRONICREMOTE' => array (
-				# 10 records
+				# 10 records, e.g. /records/198655/ (test #945)
 				'Digital records',
 				"field = 'location' AND value = 'Digital Repository'"
 			),
 			
 			'IGNORE-STATUSRECEIVED' => array (
-				# 3,428 records
+				# 3,428 records, e.g. /records/1331/ (test #946)
 				'Item is being processed, i.e. has been accessioned and is with a bibliographer for classifying and cataloguing',
 				"field = 'status' AND value = 'RECEIVED'"
 			),
 			
 			'IGNORE-STATUSORDERCANCELLED' => array (
-				# 1 record
+				# 1 record, e.g. /records/137797/ (test #947)
 				'Order cancelled by SPRI, but record retained for accounting/audit purposes in the event that the item arrives',
 				"field = 'status' AND value = 'ORDER CANCELLED'"
 			),
 			
 			'IGNORE-STATUSONORDER' => array (
-				# 576 records (563 records old + 13 records recent); see also: /reports/onorderold/ which matches
+				# 576 records (563 records old + 13 records recent), e.g. /records/1759/ (test #948); see also: /reports/onorderold/ which matches
 				'Item on order >1 year ago so unlikely to be fulfilled, but item remains desirable and of bibliographic interest',
 				"field = 'status' AND value = 'ON ORDER'"
 			),
 			
 			'IGNORE-NOTINSPRI' => array (
-				# 7,478 records
+				# 7,478 records, e.g. /records/1282/ (test #949)
 				'Items held not in SPRI',
 				"field = 'location' AND value = 'Not in SPRI'"
 			),
 			
 			'IGNORE-LOCATIONUL' => array (
-				# 1,289 records
+				# 1,279 records, e.g. /records/2029/ (test #950)
 				'Items held at the UL, i.e. elsewhere',
 				"field = 'location' AND value LIKE 'Cambridge University%'"
 			),
