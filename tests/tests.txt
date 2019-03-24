@@ -5405,7 +5405,7 @@ No item records created for SPRI-ELE items as do not physically exist
 ‡9Create 3 item records
 
 927
-852 *ser item count with multiple *hold
+852 *ser item count summed from multiple *hold resulting in multiple ‡x
 3339
 852
 ‡9Create 23 item records
