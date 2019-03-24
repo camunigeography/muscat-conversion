@@ -58,6 +58,21 @@ class marcConversion
 		// SPRI-NIS defined in marcConversion code
 	);
 	
+	# Define the filter token descriptions
+	private $filterTokenDescriptions = array (
+		'SUPPRESS-EXPLICITLY'			=> 'Record marked specifically to suppress, e.g. pamphlets needing review, etc.',
+		'SUPPRESS-MISSINGQ'				=> 'Missing with ?',
+		'SUPPRESS-PICTURELIBRARYVIDEO'	=> 'Picture Library Store videos',
+		'IGNORE-DESTROYEDCOPIES'		=> 'Item has been destroyed during audit',
+		'IGNORE-IGS'					=> 'IGS locations',
+		'IGNORE-ELECTRONICREMOTE'		=> 'Digital records',
+		'IGNORE-STATUSRECEIVED'			=> 'Item is being processed, i.e. has been accessioned and is with a bibliographer for classifying and cataloguing',
+		'IGNORE-STATUSORDERCANCELLED'	=> 'Order cancelled by SPRI, but record retained for accounting/audit purposes in the event that the item arrives',
+		'IGNORE-STATUSONORDER'			=> 'Item on order >1 year ago so unlikely to be fulfilled, but item remains desirable and of bibliographic interest',
+		'IGNORE-NOTINSPRI'				=> 'Items held not in SPRI',
+		'IGNORE-LOCATIONUL'				=> 'Items held at the UL, i.e. elsewhere',
+	);
+	
 	# Define known *ks values that represent status values rather than classifications
 	private $ksStatusTokens = array (
 		'MISSING',
@@ -120,10 +135,6 @@ class marcConversion
 		
 		# Load the diacritics table
 		$this->diacriticsTable = $this->diacriticsTable ();
-		
-		# Load the suppression and ignoration scenarios
-		$this->suppressionScenarios = $this->suppressionScenarios ();
-		$this->ignorationScenarios = $this->ignorationScenarios ();
 		
 		# Load ISBN support
 		$this->isbn = $this->loadIsbnValidationLibrary ();
@@ -227,16 +238,6 @@ class marcConversion
 	public function getDiacriticsTable ()
 	{
 		return $this->diacriticsTable;
-	}
-	
-	public function getSuppressionScenarios ()
-	{
-		return $this->suppressionScenarios;
-	}
-	
-	public function getIgnorationScenarios ()
-	{
-		return $this->ignorationScenarios;
 	}
 	
 	public function getAcquisitionDate ()
@@ -4030,18 +4031,19 @@ class marcConversion
 	}
 	
 	
-	# Macro to generate a 917 record for the supression reason, e.g. /records/1026/ (test #611), no suppress reason (as no suppression/ignoration tokens) in /records/1027/ (test #612)
+	# Macro to generate a 917 record for the supression/ignoration reason, e.g. /records/1026/ (test #611), no suppress reason (as no suppression/ignoration tokens) in /records/1027/ (test #612)
 	private function macro_showSuppressionReason ($value)
 	{
-		# Create a list of results, adding an explanation for each, e.g. /records/1026/ (test #615); migrate is not related to either scenario list so does not appear, e.g. /records/1027/ (test #612)
+		# Create a list of results, adding an explanation for each, e.g. /records/1026/ (test #615)
 		$resultLines = array ();
-		foreach ($this->filterTokens as $token) {
-			if (isSet ($this->suppressionScenarios[$token])) {	// E.g. suppression reason in /records/1026/ (test #611)
-				$resultLines[] = 'Suppression reason: ' . $token . ' (' . $this->suppressionScenarios[$token][0] . ')';
-			}
-			if (isSet ($this->ignorationScenarios[$token])) {	// E.g. ignoration reason in /records/1331/ (test #934)
-				$resultLines[] = 'Ignoration reason: ' . $token . ' (' . $this->ignorationScenarios[$token][0] . ')';
-			}
+		foreach ($this->filterTokens as $filterToken) {
+			
+			# Migrate is not related to either scenario list so does not appear, e.g. /records/1027/ (test #612)
+			if ($filterToken == 'MIGRATE') {continue;}
+			
+			# Add the description, e.g. suppression reason in /records/1026/ (test #611), ignoration reason in /records/1331/ (test #934)
+			$type = (preg_match ('/^SUPPRESS-/', $filterToken) ? 'Suppression' : 'Ignoration');
+			$resultLines[] = "{$type} reason: " . $filterToken . ' (' . $this->filterTokenDescriptions[$filterToken] . ')';
 		}
 		
 		# Implode the list by comma, e.g. /records/1645/ (test #613)
@@ -4343,20 +4345,24 @@ class marcConversion
 	
 	
 	# Function to determine any suppression status based on *location and/or *status, for use as a private note in 852
+	#!# Check whether locationCode locations with 'Periodical' are correct to suppress
 	private function filterTokenCreation ($locations = array () /* array of locations or single location */)
 	{
 		# Start a list of filter tokens for this instantiation (suppression-based instance or 852 location -based instance)
 		$filterTokens = array ();
 		
-		# Obtain the status
+		# Obtain the status, e.g. /records/1166/ (test #940)
 		if ($status = $this->xPathValue ($this->xml, '//status')) {
 			
-			# Explicit suppression, e.g. /records/1122/
+			# Explicit suppression: 21,196 records, e.g. /records/1166/ (test #940); NB This has been achieved using a BCPL routine to mark the records as such
 			if ($status == $this->suppressionStatusKeyword) {
 				$filterTokens[] = 'SUPPRESS-EXPLICITLY';
 			} else {
 				
-				# Handle status-based suppression, e.g. /records/1331/
+				# Handle status-based suppression
+				#  *status=RECEIVED: 3,428 records, e.g. /records/1331/ (test #946)
+				#  *status=ORDER CANCELLED: 1 record, e.g. /records/137797/ (test #947)
+				#  *status=ON ORDER: 576 records (563 records old + 13 records recent), e.g. /records/1759/ (test #948); see also: /reports/onorderold/ which matches
 				$filterTokens[] = 'IGNORE-STATUS' . str_replace (' ', '', $status);
 			}
 		}
@@ -4367,12 +4373,12 @@ class marcConversion
 			
 			# Location-based matches (exact)
 			$locationMatches = array (
-				'??'									=> 'SUPPRESS-MISSINGQ',			// /records/1026/
-				'Pam ?'									=> 'SUPPRESS-MISSINGQ',			// /records/1645/
-				'Destroyed during audit'				=> 'IGNORE-DESTROYEDCOPIES',	// /records/1886/
-				'International Glaciological Society'	=> 'IGNORE-IGS',				// /records/27502/
-				'Digital Repository'					=> 'IGNORE-ELECTRONICREMOTE',	// /records/198655/
-				'Not in SPRI'							=> 'IGNORE-NOTINSPRI',			// /records/27502/
+				'??'									=> 'SUPPRESS-MISSINGQ',			// 553 records, this variant example /records/16870/ (test #941)
+				'Pam ?'									=> 'SUPPRESS-MISSINGQ',			// 553 records, this variant example /records/1645/ (test #951)
+				'Destroyed during audit'				=> 'IGNORE-DESTROYEDCOPIES',	// 1,473 records, e.g. /records/1886/ (test #943)
+				'International Glaciological Society'	=> 'IGNORE-IGS',				// 44 records, e.g. /records/27502/ (test #944)
+				'Digital Repository'					=> 'IGNORE-ELECTRONICREMOTE',	// 10 records, e.g. /records/198655/ (test #945)
+				'Not in SPRI'							=> 'IGNORE-NOTINSPRI',			// 7,478 records, e.g. /records/1282/ (test #949)
 			);
 			if (isSet ($locationMatches[$location])) {
 				$filterTokens[] = $locationMatches[$location];
@@ -4380,8 +4386,8 @@ class marcConversion
 			
 			# Matches
 			$locationMatches = array (
-				'^Picture Library Store : Video'		=> 'SUPPRESS-PICTURELIBRARYVIDEO',	// /records/2021/
-				'^Cambridge University'					=> 'IGNORE-LOCATIONUL',				// /records/2096/
+				'^Picture Library Store : Video'		=> 'SUPPRESS-PICTURELIBRARYVIDEO',	// 162 records, e.g. /records/2021/ (test #942)
+				'^Cambridge University'					=> 'IGNORE-LOCATIONUL',				// 1,279 records, e.g. /records/2029/ (test #950)
 			);
 			foreach ($locationMatches as $locationMatch => $token) {
 				if (preg_match ("/{$locationMatch}/", $location)) {
@@ -4406,10 +4412,9 @@ class marcConversion
 			# Create the subfield
 			if ($filterToken == 'MIGRATE') {
 				$subfields[] = "{$this->doubleDagger}0" . 'Migrate';
-			} else if (isSet ($this->suppressionScenarios[$filterToken])) {
-				$subfields[] = "{$this->doubleDagger}0" . 'Suppress: ' . $filterToken . ' (' . $this->suppressionScenarios[$filterToken][0] . ')';
 			} else {
-				$subfields[] = "{$this->doubleDagger}0" . 'Ignore: ' . $filterToken . ' (' . $this->ignorationScenarios[$filterToken][0] . ')';
+				$type = (preg_match ('/^SUPPRESS-/', $filterToken) ? 'Suppress' : 'Ignore');
+				$subfields[] = "{$this->doubleDagger}0" . "{$type}: " . $filterToken . ' (' . $this->filterTokenDescriptions[$filterToken] . ')';
 			}
 			
 			# Compile the result
@@ -4418,94 +4423,6 @@ class marcConversion
 		
 		# Return the result
 		return $result;
-	}
-	
-	
-	# Function to define suppression scenarios
-	private function suppressionScenarios ()
-	{
-		# Records to suppress, defined as a set of scenarios represented by a token
-		#!# Check whether locationCode locations with 'Periodical' are correct to suppress
-		return $suppressionScenarios = array (
-			
-			'SUPPRESS-EXPLICITLY' => array (
-				# 21,196 records, e.g. /records/1166/ (test #940)
-				'Record marked specifically to suppress, e.g. pamphlets needing review, etc.',
-				# NB This has been achieved using a BCPL routine to mark the records as such
-				"field = 'status' AND value = '{$this->suppressionStatusKeyword}'"
-			),
-			
-			'SUPPRESS-MISSINGQ' => array (
-				# 553 records, e.g. /records/16870/ (test #941)
-				'Missing with ?',
-				"field = 'location' AND value IN('??', 'Pam ?')"
-			),
-			
-			'SUPPRESS-PICTURELIBRARYVIDEO' => array (
-				# 162 records, e.g. /records/2021/ (test #942)
-				'Picture Library Store videos',
-				"field = 'location' AND value LIKE 'Picture Library Store : Video%'"
-			),
-			
-		);
-	}
-	
-	
-	# Function to define ignoration scenarios
-	private function ignorationScenarios ()
-	{
-		# Records to suppress, defined as a set of scenarios represented by a token
-		return $ignorationScenarios = array (
-			
-			'IGNORE-DESTROYEDCOPIES' => array (
-				# 1,473 records, e.g. /records/1886/ (test #943)
-				'Item has been destroyed during audit',
-				"field = 'location' AND value = 'Destroyed during audit'"
-			),
-			
-			'IGNORE-IGS' => array (
-				# 44 records, e.g. /records/27502/ (test #944)
-				'IGS locations',
-				"field = 'location' AND value = 'International Glaciological Society'"
-			),
-			
-			'IGNORE-ELECTRONICREMOTE' => array (
-				# 10 records, e.g. /records/198655/ (test #945)
-				'Digital records',
-				"field = 'location' AND value = 'Digital Repository'"
-			),
-			
-			'IGNORE-STATUSRECEIVED' => array (
-				# 3,428 records, e.g. /records/1331/ (test #946)
-				'Item is being processed, i.e. has been accessioned and is with a bibliographer for classifying and cataloguing',
-				"field = 'status' AND value = 'RECEIVED'"
-			),
-			
-			'IGNORE-STATUSORDERCANCELLED' => array (
-				# 1 record, e.g. /records/137797/ (test #947)
-				'Order cancelled by SPRI, but record retained for accounting/audit purposes in the event that the item arrives',
-				"field = 'status' AND value = 'ORDER CANCELLED'"
-			),
-			
-			'IGNORE-STATUSONORDER' => array (
-				# 576 records (563 records old + 13 records recent), e.g. /records/1759/ (test #948); see also: /reports/onorderold/ which matches
-				'Item on order >1 year ago so unlikely to be fulfilled, but item remains desirable and of bibliographic interest',
-				"field = 'status' AND value = 'ON ORDER'"
-			),
-			
-			'IGNORE-NOTINSPRI' => array (
-				# 7,478 records, e.g. /records/1282/ (test #949)
-				'Items held not in SPRI',
-				"field = 'location' AND value = 'Not in SPRI'"
-			),
-			
-			'IGNORE-LOCATIONUL' => array (
-				# 1,279 records, e.g. /records/2029/ (test #950)
-				'Items held at the UL, i.e. elsewhere',
-				"field = 'location' AND value LIKE 'Cambridge University%'"
-			),
-			
-		);
 	}
 	
 	
