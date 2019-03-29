@@ -13,8 +13,8 @@ class import
 	
 	# Record groupings for export
 	private $recordGroupings = array (
-		'serials'		=> array ('/ser'),
-		'monographs'	=> array ('/doc', '/art/in', '/art/j'),
+		'serials'				=> array ('/ser'),
+		'monographsarticles'	=> array ('/doc', '/art/in', '/art/j'),
 	);
 	
 	# Define the file sets and their labels

@@ -2737,6 +2737,12 @@ class muscatConversion extends frontControllerApplication
 		$filesets = $this->import->getFilesets ();
 		$recordGroupings = $this->import->getRecordGroupings ();
 		
+		# Define labels for record groupings
+		$recordGroupingLabels = array (
+			'serials'				=> 'merials',
+			'monographsarticles'	=> 'monographs & articles',
+		);
+		
 		# Get the fileset counts
 		$totals = array ();
 		foreach ($recordGroupings as $type => $limitToRecordTypes) {
@@ -2761,7 +2767,7 @@ class muscatConversion extends frontControllerApplication
 		$html .= "\n\t<tr>";
 		$html .= "\n\t\t<th>Category:</th>";
 		foreach ($recordGroupings as $type => $limitToRecordTypes) {
-			$html .= "\n\t\t<th colspan=\"2\">" . ucfirst ($type) . ' ( <tt>' . implode ('</tt> , <tt>', $limitToRecordTypes) . '</tt> ):</th>';
+			$html .= "\n\t\t<th colspan=\"2\">" . htmlspecialchars (ucfirst ($recordGroupingLabels[$type])) . ' ( <tt>' . implode ('</tt> , <tt>', $limitToRecordTypes) . '</tt> ):</th>';
 		}
 		$html .= "\n</tr>";
 		foreach ($filesets as $fileset => $label) {
@@ -2774,7 +2780,7 @@ class muscatConversion extends frontControllerApplication
 			$html .= "\n\t</tr>";
 			$html .= "\n\t<tr>";
 				foreach ($recordGroupings as $type => $limitToRecordTypes) {
-					$html .= "\n\t\t<td colspan=\"2\" class=\"total small\">" . (isSet ($totals[$type][$fileset]) ? number_format ($totals[$type][$fileset]) : '?') . ' ' . preg_replace ('/s$/', '', $type) . " records</td>";
+					$html .= "\n\t\t<td colspan=\"2\" class=\"total small\">" . (isSet ($totals[$type][$fileset]) ? number_format ($totals[$type][$fileset]) : '?') . ' ' . htmlspecialchars ($recordGroupingLabels[$type]) . " records</td>";
 				}
 			$html .= "\n\t</tr>";
 		}
