@@ -4442,12 +4442,14 @@ class marcConversion
 			$filterTokens[] = 'MIGRATE';
 		}
 		
-		# Create the subfield entry (or entries, e.g. IGNORE-NOTINSPRI plus IGNORE-IGS)
-		$subfields = array ();
+		# Register the filter token(s)
 		foreach ($filterTokens as $filterToken) {
-			
-			# Register the filter token
 			$this->filterTokens[] = $filterToken;
+		}
+		
+		# Create the 852 subfield entry (or entries, e.g. IGNORE-NOTINSPRI plus IGNORE-IGS)
+		$subfields = array ();
+		foreach ($this->filterTokens as $filterToken) {
 			
 			# Create the subfield, e.g. Migrate in /records/1123/ (test #953), Ignore in /records/168774/ (test #954)
 			if ($filterToken == 'MIGRATE') {
