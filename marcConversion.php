@@ -4456,10 +4456,10 @@ class marcConversion
 				$type = (preg_match ('/^SUPPRESS-/', $filterToken) ? 'Suppress' : 'Ignore');
 				$subfields[] = "{$this->doubleDagger}0" . "{$type}: " . $filterToken . ' (' . $this->filterTokenDescriptions[$filterToken] . ')';
 			}
-			
-			# Compile the result; multiple in /records/1645/ (test #955)
-			$result = implode (' ', $subfields);
 		}
+		
+		# Compile the result; multiple in /records/1645/ (test #955)
+		$result = implode (' ', $subfields);
 		
 		# Return the result
 		return $result;
