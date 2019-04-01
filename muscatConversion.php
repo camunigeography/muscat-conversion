@@ -2727,7 +2727,7 @@ class muscatConversion extends frontControllerApplication
 	{
 		# End if no output
 		$directory = $_SERVER['DOCUMENT_ROOT'] . $this->baseUrl;
-		if (!file_exists ("{$directory}/spri-marc-migrate.txt")) {
+		if (!file_exists ("{$directory}/spri-marc-migratewithitem-serials.mrc")) {
 			$html = "\n<p>There is no MARC output yet. Please <a href=\"{$this->baseUrl}/import/\">run an import</a> first.</p>";
 			echo $html;
 			return;
