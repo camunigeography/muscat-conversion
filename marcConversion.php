@@ -3690,35 +3690,18 @@ class marcConversion
 	# No spaces are added between subfields, which $b and $c (library and location) are sensitive to for matching
 	private function macro_generate852 ($value_ignored)
 	{
-		# Determine any "SPRI has "... notes, which will be added at the end
-		$notes = $this->spriHasNotes852 ();
-		
 		# Get the locations (if any), e.g. single location in /records/1102/ (test #621), multiple locations in /records/1104/ (test #622)
 		$locations = $this->xPathValues ($this->xml, '//loc[%i]/location');
 		
 		# If no locations (which will mean there is a status - see /reports/nolocationnostatus/ ), no 852 is generated, e.g. /records/1331/ (test #648) - this is the normal scenario for *status = RECEIVED, ON ORDER, etc.
 		if (!$locations) {
-			$result  = "{$this->doubleDagger}2camdept";
-			$result .= "{$this->doubleDagger}b" . 'SCO';
-			$result .= "{$this->doubleDagger}c" . 'SPRIACQ';	// NB No hyphen
-			$result .= $notes;	// If any
 			$filterTokens = $this->filterTokenCreation ($locations /* i.e. empty array () */);		// Create the filterTokens registry entry
-			$result .= $this->create852dollar0FromFilterTokens ($filterTokens);
 			return false;	// Do not use the resulting $0 line as no 852 line since no *location
 		}
 		
-		# For the special case of "Not in SPRI" being present (in any *location), no 852 is generated, e.g. /records/7976/ (test #649); /reports/notinspriinspri/ confirms there are now no cases of items "Not in SPRI" also having a SPRI location, i.e. the other locations are always clarificatory adjuncts to the Not in SPRI
+		# For the special case of "Not in SPRI" being present (in any *location), no 852 is generated, e.g. /records/7976/ (test #649), multiple in e.g. /records/31021/ (test #651), none in e.g. /records/1302/ (test #650); /reports/notinspriinspri/ confirms there are now no cases of items "Not in SPRI" also having a SPRI location, i.e. the other locations are always clarificatory adjuncts to the Not in SPRI
 		if (in_array ('Not in SPRI', $locations)) {	// NB Manually validated in the database that this is always present as the full string, not a match
-			$otherLocations = array_diff ($locations, array ('Not in SPRI'));	// I.e. unset the entry containing this value
-			$result  = "{$this->doubleDagger}2camdept";
-			$result .= "{$this->doubleDagger}bSPRI-NIS";
-			if ($otherLocations) {		// $x notes other location(s) if any; e.g. /records/7976/ (test #649); none in e.g. /records/1302/ (test #650)
-				$result .= "{$this->doubleDagger}x" . implode ("{$this->doubleDagger}x", $otherLocations);		// Multiple in e.g. /records/31021/ (test #651)
-			}
-			$result .= "{$this->doubleDagger}zNot in SPRI";
-			$result .= $notes;	// If any
 			$filterTokens = $this->filterTokenCreation ($locations);		// Create the filterTokens registry entry
-			$result .= $this->create852dollar0FromFilterTokens ($filterTokens);
 			return false;	// Do not use the resulting $0 line as no 852 line since no *location
 		}
 		
@@ -3733,6 +3716,9 @@ class marcConversion
 				return false;
 			}
 		}
+		
+		# Determine any "SPRI has "... notes, which will be added at the end
+		$notes = $this->spriHasNotes852 ();
 		
 		# Loop through each location to create a result line
 		$resultLines = array ();
