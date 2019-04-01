@@ -4,9 +4,19 @@
 
 In Muscat, records can have one or more *location values, which represent a physical location.
 
-Sometimes, a record has been catalogued that does not physically exist in SPRI but in the past was considered to have value to the reader to come up in searches on a particular topic. These are given *location = 'Not in SPRI' and may optionally have one or more other *location values which are indications as to what library they actually exist at. Records that are 'Not in SPRI' never have a SPRI location also, as proven by the `notinspriinspri` report.
+### Standard case
 
-## *location=Periodical handling
+Each *location value is translated to a UL code for use in the 852 $c (Shelving location). These are defined in the `locationCodes` list.
+
+For instance 'Map Room' has the code 'SPRI-MAP'.
+
+### Not in SPRI
+
+Sometimes, a record has been catalogued that does not physically exist in SPRI but in the past was considered to have value to the reader to come up in searches on a particular topic. These are given *location = 'Not in SPRI' and may optionally have one or more other *location values which are indications as to what library they actually exist at.
+
+Records that are 'Not in SPRI' never have a SPRI location also, as proven by the `notinspriinspri` report.
+
+### *location=Periodical handling
 
 Where a record has originally been marked in the Muscat data as *location = Periodical, special handling takes place at a very early stage during the import routine.
 
@@ -23,25 +33,13 @@ Numbers of location=Periodical cases are as follows (March 2019):
 
 As per the matching routine in `titlesMatchingTemporaryTables` used by various reports, those remaining with location=Periodical either have an explicit *kg match, or are pamphlets or are in the special collection.
 
-## Item record lines (852)
-
-Item record lines (852) are created for each physical item, according to the following principles:
-
-  * Item records are created for each physical location (*location) that exists (i.e. not 'Not in SPRI').
-  * Item records are created for migrate/suppress record, but are skipped for ignore records.
-
-The following metadata is added to each 852 on an independent basis, in order to inform the UL of how to process this item record, and these tokens are then stripped by the UL:
-
-  * Item records contain a fake $9 field stating the number of item records required for this location.
-  * Item records contain one or more fake $0 field(s), listing the filter token(s), as described below.
-
 ## Filter tokens
 
-Every record has at least one filter token.
+Every record is given at least one filter token.
 
-Filter tokens are strings allocated to the (a) record metadata, (b) 852 field(s), and (c) 917 field, as a means to determine the allocation of records into a status bucket and to act as a means for cataloguers to know what problems exist in a record once in Alma.
+Filter tokens are strings created and then allocated to (a) the record metadata, (b) 852 field(s), and (c) the 917 field.
 
-Filter tokens are derived from either *status or *location. The `nolocationnostatus` report establishes that all records have either a location nor a status (or both).
+Filter tokens are derived from either *status or *location (or both). The `nolocationnostatus` report establishes that all records have either a location nor a status (or both).
 
   * A *location field is the location of each holding for the record.
   * A *status field (of which there can only be one in a record, as established in the `multiplestatus` report) is used for records prior to full cataloguing (i.e. ON ORDER, RECEIVED, or ORDER CANCELLED)
@@ -71,8 +69,10 @@ If there is more than one, then they are comma-separated in the metadata storage
 Filter tokens are used in three locations:
 
   * The record metadata, as the `filterTokens` field in `catalogue_marc` - this is then used to allocate the status category and thus the download bucket
-  * As one or more $0 subfields in the 852 field, where an 852 exists - automatically stripped during subsequent processing by the UL
+  * As one or more $0 subfields in the 852 field, where an 852 exists (i.e. item record(s) to be created for each location), so that each item record can independently be determined as migrate/suppress/ignore when there is more than one location - automatically stripped during subsequent processing by the UL
   * As one or more $a subfields in the 917 (locally-specific data) field, each such subfield stating the Suppression reason or Ignoration reason (but migrate is not created) - this 917 $a subfield is intended as an indicator for cataloguers to remove as records are cleaned
+
+Because filter tokens are added to the record metadata, this means that filtering takes place correctly irrespective of whether 852 item record lines exist.
 
 ### Filter token algorithm
 
@@ -96,6 +96,32 @@ The filter token algorithm is as follows:
 	  7. All the tokens from this iteration are added to the master registry
 	  8. The tokens from this iteration are returned to the calling triggering code (step 3 above), for potential use if there is an item record (i.e. if 852 is created)
 
+## 852 Item record lines
+
+Item record lines (852) are created for each physical item (being a repeatable field), according to the following principles:
+
+  * Item records are created for each physical location (*location) that exists (i.e. not 'Not in SPRI').
+  * Item records are created for migrate/suppress record, but are skipped for ignore records.
+
+The following metadata is added to each 852 on an independent basis, in order to inform the UL of how to process this item record, and these tokens will then be stripped by the UL:
+
+  * Item records contain a fake $9 field stating the number of item records required for this location.
+  * Item records contain one or more fake $0 field(s), listing the filter token(s), as described above.
+
+## 917 Locally-specific data line
+
+The 917 field is locally-specific data which will be used by cataloguers. Every record has a 917 as it also exists for several reasons. This is not a repeatable field.
+
+Filter tokens, added as $a, are useful in this field, as they enable a cataloguer to know what work is needed on a record so it can be unsuppressed. The $a is repeatable, so multiple filter tokens appear as $a.
+
+Tokens are considered as follows:
+
+  * MIGRATE requires no action, so no $a is generated.
+  * IGNORE-* records will not have an $a generated: such records will either not be picked up by the UL at all (as the download bucket will be ignored), or for multiple location records with mixed filter token statuses, will not have an 852 line when there are multiple locations (so that additional location will not have an item record generated).
+  * SUPPRESS-* records will have $a generated.
+
+Accordingly, the 917 $a algorithm will only contain SUPPRESS-* tokens, and ignores all others.
+
 ## Status categories
 
 Records are sorted into one of three status categories:
@@ -106,7 +132,7 @@ Records are sorted into one of three status categories:
 
 If an item has more than one location (e.g. migrate + ignore), migrate dominates over suppress, and suppress dominates over ignore.
 
-#!# ?? Does this mean that a record marked as to be migrated may still contain a suppression 852? or an ignore line at all?
+Thus a record marked as to be migrated may still contain a suppression 852 line, though can never contain an ignore line (as item records are skipped for ignore records).
 
 ## Download buckets from status
 
