@@ -67,7 +67,6 @@ class marcConversion
 		'IGNORE-IGS'					=> 'IGS locations',
 		'IGNORE-ELECTRONICREMOTE'		=> 'Digital records',
 		'IGNORE-STATUSRECEIVED'			=> 'Item is being processed, i.e. has been accessioned and is with a bibliographer for classifying and cataloguing',
-		'IGNORE-STATUSORDERCANCELLED'	=> 'Order cancelled by SPRI, but record retained for accounting/audit purposes in the event that the item arrives',
 		'IGNORE-STATUSONORDER'			=> 'Item on order >1 year ago so unlikely to be fulfilled, but item remains desirable and of bibliographic interest',
 		'IGNORE-NOTINSPRI'				=> 'Items held not in SPRI',
 		'IGNORE-LOCATIONUL'				=> 'Items held at the UL, i.e. elsewhere',
@@ -3865,7 +3864,6 @@ class marcConversion
 				
 				# Handle status-based suppression
 				#  *status=RECEIVED: 3,428 records, e.g. /records/1331/ (test #946)
-				#  *status=ORDER CANCELLED: 1 record, e.g. /records/137797/ (test #947)
 				#  *status=ON ORDER: 576 records (563 records old + 13 records recent), e.g. /records/1759/ (test #948); see also: /reports/onorderold/ which matches
 				$filterTokens[] = 'IGNORE-STATUS' . str_replace (' ', '', $status);
 			}

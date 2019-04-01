@@ -772,7 +772,6 @@ class reports
 				AND fieldslist LIKE '%@location@%'
 				AND field = 'status'
 				AND value != 'GLACIOPAMS'
-				AND value != 'ORDER CANCELLED'
 				AND value != 'SUPPRESS'
 			";
 		
@@ -1332,7 +1331,7 @@ class reports
 			FROM catalogue_processed
 			WHERE
 				    field = 'status'
-				AND (value LIKE 'ON ORDER%' OR value = 'ORDER CANCELLED')
+				AND value LIKE 'ON ORDER%'
 		";
 		
 		# Return the query
@@ -1348,7 +1347,6 @@ class reports
 			'ON ORDER'			=> 'Item is in the acquisition process',
 			'ON ORDER (O/P)'	=> 'On order, but out of print',
 			'ON ORDER (O/S)'	=> 'On order, but out of stock',
-			'ORDER CANCELLED'	=> 'Order has been cancelled for whatever reason',
 			'RECEIVED'			=> 'Item has arrived at the library but is awaiting further processing before becoming available to users',
 		);
 		
