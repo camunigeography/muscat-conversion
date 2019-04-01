@@ -3684,7 +3684,8 @@ class marcConversion
 	}
 	
 	
-	# Macro to lookup periodical locations, which may generate a multiline result, e.g. /records/1102/ (test #621); see: https://www.loc.gov/marc/bibliographic/bd852.html
+	# Macro to generate 852 item record lines, which may generate a multiline result, e.g. /records/1102/ (test #621); see: https://www.loc.gov/marc/bibliographic/bd852.html
+	# See: /doc/status.md
 	# Note that the algorithm here is a simplified replacement of doc/852 locations flowchart.xlsx (which was created before work to clean up 'Not in SPRI' records)
 	# No spaces are added between subfields, which $b and $c (library and location) are sensitive to for matching
 	private function macro_generate852 ($value_ignored)
@@ -3848,6 +3849,7 @@ class marcConversion
 	
 	
 	# Function to determine any suppression status based on *location and/or *status, for use as a private note in 852
+	# See: /doc/status.md
 	#!# Check whether locationCode locations with 'Periodical' are correct to suppress
 	private function filterTokenCreation ($locations /* array of locations (if any) or single location */)
 	{
@@ -4160,6 +4162,7 @@ class marcConversion
 	
 	
 	# Macro to generate a 917 record for the supression/ignoration reason, e.g. /records/1026/ (test #611), no suppress reason (as no suppression/ignoration tokens) in /records/1027/ (test #612)
+	# See: /doc/status.md
 	private function macro_showSuppressionReason ($value)
 	{
 		# Create a list of results, adding an explanation for each, e.g. /records/1026/ (test #615)
@@ -4169,15 +4172,18 @@ class marcConversion
 			# Migrate is not related to either scenario list so does not appear, e.g. /records/1027/ (test #612)
 			if ($filterToken == 'MIGRATE') {continue;}
 			
-			# Add the description, e.g. suppression reason in /records/1026/ (test #611), ignoration reason in /records/1331/ (test #934)
-			$type = (preg_match ('/^SUPPRESS-/', $filterToken) ? 'Suppression' : 'Ignoration');
-			$resultLines[] = "{$type} reason: " . $filterToken . ' (' . $this->filterTokenDescriptions[$filterToken] . ')';
+			# Ignore is omitted (see /doc/status.md), as there is no work to be done for these e.g. /records/198655/ (test #934)
+			# Such records will either not be picked up by the UL at all (as the download bucket will be ignored), or for multiple location records with mixed filter token statuses, will not have an 852 line when there are multiple locations (so that additional location will not have an item record generated).
+			if (preg_match ('/^IGNORE-/', $filterToken)) {continue;}
+			
+			# Add the description for the suppression reason in /records/1026/ (test #611)
+			$resultLines[] = "Suppression reason: " . $filterToken . ' (' . $this->filterTokenDescriptions[$filterToken] . ')';
 		}
 		
 		# Implode the list by comma, e.g. /records/1645/ (test #613)
 		$result = implode (" {$this->doubleDagger}a", $resultLines);
 		
-		# Return the result line, e.g. /records/1026/ (test #611); this will be appended at parser-level to the other tokens present, e.g. /records/1331/ (test #614)
+		# Return the result line, e.g. /records/1026/ (test #611); this will be appended at parser-level to the other tokens present, e.g. /records/1122/ (test #614)
 		return $result;
 	}
 	

@@ -3618,9 +3618,9 @@ Suppression reason
 
 614
 917 not repeatable, so multiple subfields of different kinds on one line
-1331
+1122
 917
-‡aUnenhanced record from Muscat, imported 2019 ‡aIgnoration reason
+‡aUnenhanced record from Muscat, imported 2019 ‡aSuppression reason
 
 615
 917 Explanation included alongside suppression reason itself
@@ -5435,40 +5435,41 @@ No item records created for SPRI-ELE items as do not physically exist
 ‡9Create 1 item record
 
 934
-917 Ignoration status appears (see also #611)
-1331
+917 IGNORE-* status does not generate $a
+198655
 917
-‡aIgnoration reason: IGNORE-STATUSRECEIVED
+/‡aUnenhanced record from Muscat, imported 2019$/
+
 
 935
 Output status = migratewithitem
 5749
-852
-‡9Create 181 item records‡0Migrate
+s
+migratewithitem
 
 936
 Output status = migrate (no item so no 852, but record generated, and 917 contains no filter tokens)
 1130
-917
-/‡aUnenhanced record from Muscat, imported 2019$/
+s
+migrate
 
 937
 Output status = suppresswithitem
 52260
-852
-‡9Create 2 item records‡0Suppress: SUPPRESS-MISSINGQ
+s
+suppresswithitem
 
 938
 Output status = suppress
 1166
-917
-‡aSuppression reason: SUPPRESS-EXPLICITLY
+s
+suppress
 
 939
 Output status = ignore
 1282
-917
-‡aIgnoration reason: IGNORE-NOTINSPRI
+s
+ignore
 
 940
 Suppression status: SUPPRESS-EXPLICITLY
@@ -5491,44 +5492,44 @@ Suppression status: SUPPRESS-PICTURELIBRARYVIDEO
 943
 Ignoration status: IGNORE-DESTROYEDCOPIES
 1886
-917
-‡aIgnoration reason: IGNORE-DESTROYEDCOPIES
+s
+ignore
 
 944
 Ignoration status: IGNORE-IGS
 27502
-917
-‡aIgnoration reason: IGNORE-IGS
+s
+ignore
 
 945
 Ignoration status: IGNORE-ELECTRONICREMOTE
 198655
-917
-‡aIgnoration reason: IGNORE-ELECTRONICREMOTE
+s
+ignore
 
 946
 Ignoration status: IGNORE-STATUSRECEIVED
 1331
-917
-‡aIgnoration reason: IGNORE-STATUSRECEIVED
+s
+ignore
 
 948
 Ignoration status: IGNORE-STATUSONORDER
 1759
-917
-‡aIgnoration reason: IGNORE-STATUSONORDER
+s
+ignore
 
 949
 Ignoration status: IGNORE-NOTINSPRI
 1282
-917
-‡aIgnoration reason: IGNORE-NOTINSPRI
+s
+ignore
 
 950
 Ignoration status: IGNORE-LOCATIONUL
 2029
-917
-‡aIgnoration reason: IGNORE-LOCATIONUL
+s
+ignore
 
 951
 Suppression status: SUPPRESS-MISSINGQ - Pam ? variant (see also #941)
