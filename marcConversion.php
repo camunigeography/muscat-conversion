@@ -3693,7 +3693,7 @@ class marcConversion
 		# Determine any "SPRI has "... notes, which will be added at the end
 		$notes = $this->spriHasNotes852 ();
 		
-		# Get the locations (if any), e.g. single location in /records/1102/ (test #621), multiple locations in /records/3959/ (test #622)
+		# Get the locations (if any), e.g. single location in /records/1102/ (test #621), multiple locations in /records/1104/ (test #622)
 		$locations = $this->xPathValues ($this->xml, '//loc[%i]/location');
 		
 		# If no locations (which will mean there is a status - see /reports/nolocationnostatus/ ), no 852 is generated, e.g. /records/1331/ (test #648) - this is the normal scenario for *status = RECEIVED, ON ORDER, etc.
@@ -3751,7 +3751,7 @@ class marcConversion
 				}
 			}
 			
-			# Start the record with 852 7# ‡2camdept (which is the source indicator), without space before, e.g. /records/3959/ (test #623)
+			# Start the record with 852 7# ‡2camdept (which is the source indicator), without space before, e.g. /records/1104/ (test #623)
 			$result  = "{$this->doubleDagger}2camdept";
 			
 			# Add institution as $b, e.g. /records/31500/ (test #743)
@@ -3770,8 +3770,8 @@ class marcConversion
 				$result .= "{$this->doubleDagger}h" . $locationName;
 			} else {
 				
-				# In the case of location codes where there is a many-to-one relationship (e.g. "Library Office" and "Librarian's Office" both map to SPRI-LIO), except for SPRI-SER, then add the original location verbatim, so that it can be disambiguated; e.g. /records/2023/ (test #656); negative case (i.e. non-ambigous) in /records/1711/ (test #658)
-				if (!in_array ($locationCode, array ('SPRI-SER', 'SPRI-SHF', 'SPRI-PAM'))) {	// E.g. /records/211109/ (test #657)
+				# In the case of location codes where there is a many-to-one relationship (e.g. "Library Office" and "Librarian's Office" both map to SPRI-LIO), except for SPRI-SER, then add the original location verbatim, so that it can be disambiguated; e.g. /records/2023/ (test #656); negative case (i.e. non-ambigous) in /records/9311/ (test #658)
+				if (!in_array ($locationCode, array ('SPRI-SER', 'SPRI-SHF', 'SPRI-PAM'))) {	// E.g. /records/1006/ (test #657)
 					$locationCodeCounts = array_count_values ($locationCodes);
 					if ($locationCodeCounts[$locationCode] > 1) {
 						$result .= "{$this->doubleDagger}c" . $locationName;	// E.g. SPRI-LIO in /records/2023/ (test #656)
@@ -3782,17 +3782,19 @@ class marcConversion
 			# Does *location_original start with a number? This is to deal with cases like "141 C", in which the creation of "SPRI-SER" in the MARC record is implicit
 			if (!$isShelvedWith) {		// "Shelved with ..." items do not get $h, e.g. /records/1032/ (test #653)
 				
-				# If starts with a number (rather than e.g. Shelf / Pam / etc.), it is shelved with periodicals, e.g. /records/20534/ (test #748); example with location split across parts of the library at /records/19822/ (test #775); Basement example at /records/165908/ (test #771) and its child /records/180007/ (test #772); Russian example at /records/33585/ (test #773) and its child /records/137033/ (test #774)
+				# If starts with a number (rather than e.g. Shelf / Pam / etc.), it is shelved with periodicals, e.g. /records/20534/ (test #748); example with location split across parts of the library at /records/19822/ (test #775); Basement example at /records/59062/ (test #771) and its *doc child /records/1146/ (test #772); Russian example at /records/13237/ (test #773) and its *doc child /records/14189/ (test #774)
 				if (preg_match ('/^([0-9]|Basement|Russian)/', $location)) {
 					
 					# For real serial analytics, provide human-readable text to look up; otherwise (i.e. /ser) put the real value
-					if ($this->recordType == '/art/j' && $this->hostRecord) {	// E.g. /records/20557/ (test #749)
+					# NO LONGER SUPPORTED - real analytics will not have an 852 as no item record created
+					#!# Need to check in Alma that earlier example /records/20557/ below contains some way to get to the location
+					if ($this->recordType == '/art/j' && $this->hostRecord) {	// E.g. negative case in /records/20534/ (test #749)
 						
 						# Add to record a helpful string ‡z, rather than ‡h with a hard-coded location (which would then become problematic to maintain)
-						$result .= "{$this->doubleDagger}z" . 'See related holdings for SPRI location';	// E.g. /records/20557/ (test #750); Basement example at /records/180007/ (test #772); Russian example at /records/137033/ (test #774)
+						$result .= "{$this->doubleDagger}z" . 'See related holdings for SPRI location';	// Previous examples, no longer applicable as no 852: no 852 in /records/20557/ (test #750)
 					} else {
 						
-						# Add to record: ‡h <*location_original> (i.e. the full string), e.g. /records/20534/ gets "‡h82 A-B"; Basement example at /records/165908/ (test #771); Russian example at /records/33585/ (test #773)
+						# Add to record: ‡h <*location_original> (i.e. the full string), e.g. /records/20534/ gets "‡h82 A-B"; Basement example at /records/59062/ (test #771) which has a *doc child /records/1146/ (test #772); Russian example at /records/13237/ (test #773) which has a *doc child /records/137033/ (test #774)
 						$result .= "{$this->doubleDagger}h" . $location;
 					}
 					
@@ -3802,11 +3804,13 @@ class marcConversion
 					# "Is *location_trimmed empty?; If no, add location to record, e.g. /records/100567/ (test #767), empty example at: /records/31500/ (test #647)
 					if (strlen ($classification)) {
 						
-						# For analytics from a monograph (book), provide human-readable text to look up, e.g. /records/100568/ (test #768); otherwise put the real value, e.g. /records/100567/ (test #769)
-						if ($this->recordType == '/art/in' && $this->hostRecord) {
+						# For analytics from a monograph (book), provide human-readable text to look up; otherwise put the real value, e.g. /records/100567/ (test #769)
+						# NO LONGER SUPPORTED - real analytics will not have an 852 as no item record created
+						#!# Need to check in Alma that earlier example /records/100568/ below contains some way to get to the location
+						if ($this->recordType == '/art/in' && $this->hostRecord) {	// E.g. negative case in /records/100567/ (test #768)
 							
-							# Add to record a helpful string ‡z, rather than ‡h with a hard-coded location (which would then become problematic to maintain), e.g. /records/100568/ (test #768)
-							$result .= "{$this->doubleDagger}z" . 'See related holdings for SPRI location';
+							# Add to record a helpful string ‡z, rather than ‡h with a hard-coded location (which would then become problematic to maintain)
+							$result .= "{$this->doubleDagger}z" . 'See related holdings for SPRI location';	// Previous examples, no longer applicable as no 852: no 852 in /records/100568/
 						} else {
 							
 							# Being a book or standalone pamphlet, use ‡h <*location_trimmed>"; e.g. /records/100567/ (test #769) (which has "‡h(*7) : 551.7" which comes from "Shelf (*7) : 551.7")
@@ -3850,7 +3854,7 @@ class marcConversion
 			$resultLines[] = trim ($result);
 		}
 		
-		# Implode the list as a multiline if multiple, e.g. /records/3959/ (test #622)
+		# Implode the list as a multiline if multiple, e.g. /records/1104/ (test #622)
 		$result = implode ("\n" . '852 7# ', $resultLines);
 		
 		# Return the result

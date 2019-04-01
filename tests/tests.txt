@@ -3666,13 +3666,13 @@ SUPPRESS
 
 622
 852 with multiple locations
-3959
+1104
 852
-‡2camdept‡bSCO‡cSPRI-SPC‡hPamphlet Boxes Breitfuss 91(08) : (*3)[1871 Weyprecht and Payer]
+‡2camdept‡bSCO‡cSPRI-PAM‡h91(08) : (*7)[1910-13 Scott][F]
 
 623
 852 has camdept as source, without space before
-3959
+1104
 852
 ‡2camdept
 
@@ -3755,28 +3755,28 @@ SUPPRESS
 ‡cSPRI-BIB‡9
 
 648
-852 with no location gets ‡cSPRIACQ
+852 not created when no *location (which will mean there is a *status) present
 1331
-852
-‡2camdept‡bSCO‡cSPRIACQ‡
+!852
+*
 
 649
-852 Not in SPRI - with another location
+852 not generated for Not in SPRI - with another location (which will be a clarificatory adjunct); see also next two tests
 7976
-852
-‡2camdept‡bSPRI-NIS‡xRoyal Geographical Society‡zNot in SPRI
+!852
+*
 
 650
-852 Not in SPRI - with no other locations
+852 not generated for Not in SPRI - with no other locations; see also previous and next test
 1302
-852
-‡2camdept‡bSPRI-NIS‡zNot in SPRI
+!852
+*
 
 651
-852 Not in SPRI - with multiple other locations
+852 not generated for Not in SPRI - with multiple other locations; see also previous two tests
 31021
-852
-‡2camdept‡bSPRI-NIS‡xCambridge University Library‡xLibrary of Congress‡zNot in SPRI
+!852
+*
 
 652
 260 Empty $a and $b value with date still shows $a and $b
@@ -3809,14 +3809,14 @@ SUPPRESS
 ‡cLibrary Office
 
 657
-852 ambiguous location codes get a ‡c qualifier except SPRI-SER/SPRI-SHF/SPRI-PAM
-211109
+852 ambiguous location codes normally getting a ‡c qualifier (i.e. second ‡c) not done for exempted SPRI-SER/SPRI-SHF/SPRI-PAM
+1006
 852
-‡cSPRI-SER‡zSee related
+‡bSCO‡cSPRI-SER‡h
 
 658
 852 non-ambiguous location codes do not get ‡c qualifier
-1711
+9311
 852
 ‡cSPRI-CBD‡h202
 
@@ -4337,16 +4337,16 @@ ISBN support for X check digit
 ‡h82 A-B
 
 749
-852 Switch for real serial analytics
-20557
+852 Switch against real serial analytics for /art/j (see also test #768)
+20534
 852
-‡zSee related holdings for SPRI location
+‡cSPRI-SER‡h
 
 750
-852 Real serial analytics /art/j with host record gets ‡z fixed text
+852 not generated for real serial analytics /art/j with host record
 20557
-852
-‡zSee related holdings for SPRI location
+!852
+*
 
 751
 852 Serial gets ‡h with location
@@ -4451,10 +4451,10 @@ Multiple *kg present uses first as linkage
 ‡h(*7) : 551.7
 
 768
-852 real serial analytics (/art/in with host record) provides human-readable text to look up (see also next test)
-100568
+852 Switch against real serial analytics for /art/in (see also test #749)
+100567
 852
-‡zSee related holdings for SPRI location
+‡cSPRI-SHF‡h
 
 769
 852 non- real serial analytics creates ‡h with trimmed location (see also previous test)
@@ -4470,27 +4470,27 @@ Multiple *kg present uses first as linkage
 
 771
 852 Serial held entirely in basement gets $h (see also next test for child)
-165908
+59062
 852
-‡cSPRI-BMT‡hBasement 53 E - 54 A
+‡cSPRI-BMT‡hBasement 44 D
 
 772
-852 Analytic from serial held entirely in basement gets $z (see also previous test for parent)
-180007
+852 Child (here *doc, no cases of *art) from serial held entirely in basement gets $h (see also previous test for parent)
+1146
 852
-‡cSPRI-BMT‡zSee related holdings for SPRI location
+‡cSPRI-BMT‡hBasement 44 D
 
 773
 852 Serial held entirely in Russian collection gets $h (see also next test for child)
-33585
+13237
 852
-‡cSPRI-RUS‡hRussian MAT.GLYA.
+‡cSPRI-RUS‡hRussian AK.KOMI.PO.IZ.YAK.MAT.
 
 774
-852 Analytic from serial held entirely in Russian collection gets $z (see also previous test for parent)
-137033
+852 Child (here *doc, no cases of *art) from serial held entirely in Russian collection gets $h (see also previous test for parent)
+14189
 852
-‡cSPRI-RUS‡zSee related holdings for SPRI location
+‡cSPRI-RUS‡hRussian AK.KOMI.PO.IZ.YAK.MAT.
 
 775
 852 Location split across parts of the library parent shows both locations as semicolon-punctuated string
@@ -5447,10 +5447,10 @@ Output status = migratewithitem
 ‡9Create 181 item records‡0Migrate
 
 936
-Output status = migrate
+Output status = migrate (no item so no 852, but record generated, and 917 contains no filter tokens)
 1130
-852
-location‡0Migrate
+917
+/‡aUnenhanced record from Muscat, imported 2019$/
 
 937
 Output status = suppresswithitem
@@ -5461,26 +5461,26 @@ Output status = suppresswithitem
 938
 Output status = suppress
 1166
-852
-(*41)‡0Suppress: SUPPRESS-EXPLICITLY
+917
+‡aSuppression reason: SUPPRESS-EXPLICITLY
 
 939
 Output status = ignore
 1282
-852
-‡zNot in SPRI‡0Ignore: IGNORE-NOTINSPRI
+917
+‡aIgnoration reason: IGNORE-NOTINSPRI
 
 940
 Suppression status: SUPPRESS-EXPLICITLY
 1166
-852
-‡0Suppress: SUPPRESS-EXPLICITLY
+917
+‡aSuppression reason: SUPPRESS-EXPLICITLY
 
 941
 Suppression status: SUPPRESS-MISSINGQ - ?? variant (see also #951)
 16870
-852
-‡0Suppress: SUPPRESS-MISSINGQ
+917
+‡aSuppression reason: SUPPRESS-MISSINGQ
 
 942
 Suppression status: SUPPRESS-PICTURELIBRARYVIDEO
@@ -5491,26 +5491,26 @@ Suppression status: SUPPRESS-PICTURELIBRARYVIDEO
 943
 Ignoration status: IGNORE-DESTROYEDCOPIES
 1886
-852
-‡0Ignore: IGNORE-DESTROYEDCOPIES
+917
+‡aIgnoration reason: IGNORE-DESTROYEDCOPIES
 
 944
 Ignoration status: IGNORE-IGS
 27502
-852
-‡0Ignore: IGNORE-IGS
+917
+‡aIgnoration reason: IGNORE-IGS
 
 945
 Ignoration status: IGNORE-ELECTRONICREMOTE
 198655
-852
-‡0Ignore: IGNORE-ELECTRONICREMOTE
+917
+‡aIgnoration reason: IGNORE-ELECTRONICREMOTE
 
 946
 Ignoration status: IGNORE-STATUSRECEIVED
 1331
-852
-‡0Ignore: IGNORE-STATUSRECEIVED
+917
+‡aIgnoration reason: IGNORE-STATUSRECEIVED
 
 947
 Ignoration status: IGNORE-STATUSORDERCANCELLED
@@ -5521,20 +5521,20 @@ Ignoration status: IGNORE-STATUSORDERCANCELLED
 948
 Ignoration status: IGNORE-STATUSONORDER
 1759
-852
-‡0Ignore: IGNORE-STATUSONORDER
+917
+‡aIgnoration reason: IGNORE-STATUSONORDER
 
 949
 Ignoration status: IGNORE-NOTINSPRI
 1282
-852
-‡0Ignore: IGNORE-NOTINSPRI
+917
+‡aIgnoration reason: IGNORE-NOTINSPRI
 
 950
 Ignoration status: IGNORE-LOCATIONUL
 2029
-852
-‡0Ignore: IGNORE-LOCATIONUL
+917
+‡aIgnoration reason: IGNORE-LOCATIONUL
 
 951
 Suppression status: SUPPRESS-MISSINGQ - Pam ? variant (see also #941)
@@ -5556,9 +5556,9 @@ Migrate filter token allocated when no suppression/ignoration scenarios
 
 954
 852 syntax for suppress/ignore filter token subfield is ‡0 then token itself, then description
-168774
+1645
 852
-‡0Ignore: IGNORE-DESTROYEDCOPIES (Item has been destroyed during audit)
+‡0Suppress: SUPPRESS-EXPLICITLY (Record marked specifically to suppress, e.g. pamphlets needing review, etc.)
 
 955
 852 multiple filter tokens subfields separated by space
