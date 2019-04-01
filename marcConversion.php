@@ -3862,6 +3862,99 @@ class marcConversion
 	}
 	
 	
+	# Function to determine any suppression status based on *location and/or *status, for use as a private note in 852
+	#!# Check whether locationCode locations with 'Periodical' are correct to suppress
+	private function filterTokenCreation ($locations /* array of locations (if any) or single location */)
+	{
+		# Start a list of filter tokens for this instantiation (suppression-based instance or 852 location -based instance)
+		$filterTokens = array ();
+		
+		# Obtain the status, e.g. /records/1166/ (test #940)
+		if ($status = $this->xPathValue ($this->xml, '//status')) {
+			
+			# Explicit suppression: 21,196 records, e.g. /records/1166/ (test #940); NB This has been achieved using a BCPL routine to mark the records as such
+			if ($status == $this->suppressionStatusKeyword) {
+				$filterTokens[] = 'SUPPRESS-EXPLICITLY';
+			} else {
+				
+				# Handle status-based suppression
+				#  *status=RECEIVED: 3,428 records, e.g. /records/1331/ (test #946)
+				#  *status=ORDER CANCELLED: 1 record, e.g. /records/137797/ (test #947)
+				#  *status=ON ORDER: 576 records (563 records old + 13 records recent), e.g. /records/1759/ (test #948); see also: /reports/onorderold/ which matches
+				$filterTokens[] = 'IGNORE-STATUS' . str_replace (' ', '', $status);
+			}
+		}
+		
+		# Work through locations
+		# NB Verified that, following data work, all records in ignore are also 'Not in SPRI' and have no other location, using `SELECT id, EXTRACTVALUE(xml, '//location') AS locations FROM catalogue_xml WHERE EXTRACTVALUE(xml, '//location') REGEXP '(IGS|International Glaciological Society|Basement IGS Collection)';`
+		if (!is_array ($locations)) {$locations = array ($locations);}	// Ensure is an array of locations, even if a single location
+		foreach ($locations as $location) {
+			
+			# Location-based matches (exact)
+			$locationMatches = array (
+				'??'									=> 'SUPPRESS-MISSINGQ',			// 553 records, this variant example /records/16870/ (test #941)
+				'Pam ?'									=> 'SUPPRESS-MISSINGQ',			// 553 records, this variant example /records/1645/ (test #951)
+				'Destroyed during audit'				=> 'IGNORE-DESTROYEDCOPIES',	// 1,473 records, e.g. /records/1886/ (test #943)
+				'International Glaciological Society'	=> 'IGNORE-IGS',				// 44 records, e.g. /records/27502/ (test #944)
+				'Digital Repository'					=> 'IGNORE-ELECTRONICREMOTE',	// 10 records, e.g. /records/198655/ (test #945)
+				'Not in SPRI'							=> 'IGNORE-NOTINSPRI',			// 7,478 records, e.g. /records/1282/ (test #949)
+			);
+			if (isSet ($locationMatches[$location])) {
+				$filterTokens[] = $locationMatches[$location];
+			}
+			
+			# Matches
+			$locationMatches = array (
+				'^Picture Library Store : Video'		=> 'SUPPRESS-PICTURELIBRARYVIDEO',	// 162 records, e.g. /records/2021/ (test #942)
+				'^Cambridge University'					=> 'IGNORE-LOCATIONUL',				// 1,279 records, e.g. /records/2029/ (test #950)
+			);
+			foreach ($locationMatches as $locationMatch => $token) {
+				if (preg_match ("/{$locationMatch}/", $location)) {
+					$filterTokens[] = $token;
+				}
+			}
+		}
+		
+		# If no filter tokens (i.e. the normal situation), migrate, e.g. *location="Pam 82-2" and no *status in /records/1123/ (test #952); examples (but not testable) with both: /records/16870/ (suppress+migrate), /records/118221/ (migrate+ignore), /records/168774/ (migrate+ignore)
+		# Can identify some multiple cases using: `SELECT catalogue_marc.id,filterTokens, catalogue_processed.* FROM catalogue_marc JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId WHERE filterTokens IS NOT NULL AND field = 'location' AND filterTokens NOT LIKE '%IGNORE-NOTINSPRI%' AND xPathWithIndex LIKE '%[2]%';`
+		if (!$filterTokens) {
+			$filterTokens[] = 'MIGRATE';
+		}
+		
+		# Register the filter token(s) to the overall registry
+		foreach ($filterTokens as $filterToken) {
+			$this->filterTokens[] = $filterToken;
+		}
+		
+		# Return the filter tokens arising from this instantiation
+		return $filterTokens;
+	}
+	
+	
+	# Function to create the filterToken-related 852 subfield entry (or entries, e.g. IGNORE-NOTINSPRI plus IGNORE-IGS)
+	private function create852dollar0FromFilterTokens ($filterTokens)
+	{
+		# Create the 852 subfield entry (or entries, e.g. IGNORE-NOTINSPRI plus IGNORE-IGS)
+		$subfields = array ();
+		foreach ($filterTokens as $filterToken) {
+			
+			# Create the subfield, e.g. Migrate in /records/1123/ (test #953), Suppress<em></em> in /records/168774/ (test #954)
+			if ($filterToken == 'MIGRATE') {
+				$subfields[] = "{$this->doubleDagger}0" . 'Migrate';
+			} else {
+				$type = (preg_match ('/^SUPPRESS-/', $filterToken) ? 'Suppress' : 'Ignore');
+				$subfields[] = "{$this->doubleDagger}0" . "{$type}: " . $filterToken . ' (' . $this->filterTokenDescriptions[$filterToken] . ')';
+			}
+		}
+		
+		# Compile the result; multiple in /records/1645/ (test #955)
+		$result = implode (' ', $subfields);
+		
+		# Return the result
+		return $result;
+	}
+	
+	
 	# Helper function to find and assemble "SPRI has "... notes; see: /report/multiplecopiesvalues/ ; e.g. /records/123440/ (test #815), /records/1288/ (test #817), /records/122355/ (test #819)
 	private function spriHasNotes852 ()
 	{
@@ -4392,99 +4485,6 @@ class marcConversion
 		
 		# Return the array
 		return $diacritics;
-	}
-	
-	
-	# Function to determine any suppression status based on *location and/or *status, for use as a private note in 852
-	#!# Check whether locationCode locations with 'Periodical' are correct to suppress
-	private function filterTokenCreation ($locations /* array of locations (if any) or single location */)
-	{
-		# Start a list of filter tokens for this instantiation (suppression-based instance or 852 location -based instance)
-		$filterTokens = array ();
-		
-		# Obtain the status, e.g. /records/1166/ (test #940)
-		if ($status = $this->xPathValue ($this->xml, '//status')) {
-			
-			# Explicit suppression: 21,196 records, e.g. /records/1166/ (test #940); NB This has been achieved using a BCPL routine to mark the records as such
-			if ($status == $this->suppressionStatusKeyword) {
-				$filterTokens[] = 'SUPPRESS-EXPLICITLY';
-			} else {
-				
-				# Handle status-based suppression
-				#  *status=RECEIVED: 3,428 records, e.g. /records/1331/ (test #946)
-				#  *status=ORDER CANCELLED: 1 record, e.g. /records/137797/ (test #947)
-				#  *status=ON ORDER: 576 records (563 records old + 13 records recent), e.g. /records/1759/ (test #948); see also: /reports/onorderold/ which matches
-				$filterTokens[] = 'IGNORE-STATUS' . str_replace (' ', '', $status);
-			}
-		}
-		
-		# Work through locations
-		# NB Verified that, following data work, all records in ignore are also 'Not in SPRI' and have no other location, using `SELECT id, EXTRACTVALUE(xml, '//location') AS locations FROM catalogue_xml WHERE EXTRACTVALUE(xml, '//location') REGEXP '(IGS|International Glaciological Society|Basement IGS Collection)';`
-		if (!is_array ($locations)) {$locations = array ($locations);}	// Ensure is an array of locations, even if a single location
-		foreach ($locations as $location) {
-			
-			# Location-based matches (exact)
-			$locationMatches = array (
-				'??'									=> 'SUPPRESS-MISSINGQ',			// 553 records, this variant example /records/16870/ (test #941)
-				'Pam ?'									=> 'SUPPRESS-MISSINGQ',			// 553 records, this variant example /records/1645/ (test #951)
-				'Destroyed during audit'				=> 'IGNORE-DESTROYEDCOPIES',	// 1,473 records, e.g. /records/1886/ (test #943)
-				'International Glaciological Society'	=> 'IGNORE-IGS',				// 44 records, e.g. /records/27502/ (test #944)
-				'Digital Repository'					=> 'IGNORE-ELECTRONICREMOTE',	// 10 records, e.g. /records/198655/ (test #945)
-				'Not in SPRI'							=> 'IGNORE-NOTINSPRI',			// 7,478 records, e.g. /records/1282/ (test #949)
-			);
-			if (isSet ($locationMatches[$location])) {
-				$filterTokens[] = $locationMatches[$location];
-			}
-			
-			# Matches
-			$locationMatches = array (
-				'^Picture Library Store : Video'		=> 'SUPPRESS-PICTURELIBRARYVIDEO',	// 162 records, e.g. /records/2021/ (test #942)
-				'^Cambridge University'					=> 'IGNORE-LOCATIONUL',				// 1,279 records, e.g. /records/2029/ (test #950)
-			);
-			foreach ($locationMatches as $locationMatch => $token) {
-				if (preg_match ("/{$locationMatch}/", $location)) {
-					$filterTokens[] = $token;
-				}
-			}
-		}
-		
-		# If no filter tokens (i.e. the normal situation), migrate, e.g. *location="Pam 82-2" and no *status in /records/1123/ (test #952); examples (but not testable) with both: /records/16870/ (suppress+migrate), /records/118221/ (migrate+ignore), /records/168774/ (migrate+ignore)
-		# Can identify some multiple cases using: `SELECT catalogue_marc.id,filterTokens, catalogue_processed.* FROM catalogue_marc JOIN catalogue_processed ON catalogue_marc.id = catalogue_processed.recordId WHERE filterTokens IS NOT NULL AND field = 'location' AND filterTokens NOT LIKE '%IGNORE-NOTINSPRI%' AND xPathWithIndex LIKE '%[2]%';`
-		if (!$filterTokens) {
-			$filterTokens[] = 'MIGRATE';
-		}
-		
-		# Register the filter token(s) to the overall registry
-		foreach ($filterTokens as $filterToken) {
-			$this->filterTokens[] = $filterToken;
-		}
-		
-		# Return the filter tokens arising from this instantiation
-		return $filterTokens;
-	}
-	
-	
-	# Function to create the filterToken-related 852 subfield entry (or entries, e.g. IGNORE-NOTINSPRI plus IGNORE-IGS)
-	private function create852dollar0FromFilterTokens ($filterTokens)
-	{
-		# Create the 852 subfield entry (or entries, e.g. IGNORE-NOTINSPRI plus IGNORE-IGS)
-		$subfields = array ();
-		foreach ($filterTokens as $filterToken) {
-			
-			# Create the subfield, e.g. Migrate in /records/1123/ (test #953), Ignore in /records/168774/ (test #954)
-			if ($filterToken == 'MIGRATE') {
-				$subfields[] = "{$this->doubleDagger}0" . 'Migrate';
-			} else {
-				$type = (preg_match ('/^SUPPRESS-/', $filterToken) ? 'Suppress' : 'Ignore');
-				$subfields[] = "{$this->doubleDagger}0" . "{$type}: " . $filterToken . ' (' . $this->filterTokenDescriptions[$filterToken] . ')';
-			}
-		}
-		
-		# Compile the result; multiple in /records/1645/ (test #955)
-		$result = implode (' ', $subfields);
-		
-		# Return the result
-		return $result;
 	}
 	
 	
