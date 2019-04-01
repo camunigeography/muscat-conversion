@@ -166,3 +166,72 @@ Accordingly, there are 16 downloads, representing all the combinations of:
 There are thus 16 download boxes on the export page.
 
 
+## Examples
+
+Migrate with item (record 1000, 2 item records):
+
+```
+852 7# ‡2camdept‡bSCO‡cSPRI-MAP‡9Create 2 item records‡0Migrate
+917 ## ‡aUnenhanced record from Muscat, imported 2019
+```
+
+
+Migrate (record 1109, no item records):
+
+```
+917 ## ‡aUnenhanced record from Muscat, imported 2019
+```
+
+
+Suppress with item (record 1026, 1 item record):
+
+```
+852 7# ‡2camdept‡bSCO‡cUNASSIGNED‡9Create 1 item record‡0Suppress: SUPPRESS-MISSINGQ (Missing with ?)
+917 ## ‡aUnenhanced record from Muscat, imported 2019 ‡aSuppression reason: SUPPRESS-MISSINGQ (Missing with ?)
+```
+
+
+Suppress (record 1166, no item records):
+
+```
+917 ## ‡aUnenhanced record from Muscat, imported 2019 ‡aSuppression reason: SUPPRESS-EXPLICITLY (Record marked specifically to suppress, e.g. pamphlets needing review, etc.)
+```
+
+
+Ignore (record 1282):
+
+```
+917 ## ‡aUnenhanced record from Muscat, imported 2019
+```
+
+
+One location plus status = suppress, both causing suppress with item (record 1645):
+
+```
+852 7# ‡2camdept‡bSCO‡cSPRI-PAM‡h?‡9Create 1 item record‡0Suppress: SUPPRESS-EXPLICITLY (Record marked specifically to suppress, e.g. pamphlets needing review, etc.) ‡0Suppress: SUPPRESS-MISSINGQ (Missing with ?)
+917 ## ‡aUnenhanced record from Muscat, imported 2019 ‡aSuppression reason: SUPPRESS-EXPLICITLY (Record marked specifically to suppress, e.g. pamphlets needing review, etc.) ‡aSuppression reason: SUPPRESS-MISSINGQ (Missing with ?)
+```
+
+
+Migrate plus ignore, giving overall migrate with item record and no mention of ignore (record 118221):
+
+```
+852 7# ‡2camdept‡bSCO‡cSPRI-SHF‡h629.783‡9Create 1 item record‡0Migrate
+917 ## ‡aUnenhanced record from Muscat, imported 2019
+```
+
+
+Two locations, both to migrate (record 1104):
+
+```
+852 7# ‡2camdept‡bSCO‡cSPRI-PAM‡h92[Scott, R.F.]‡zSPRI has two copies. Copy A detached from book. Copy B is photocopy with photocopy of picture showing Burnside bungalow today attached‡9Create 1 item record‡0Migrate
+852 7# ‡2camdept‡bSCO‡cSPRI-PAM‡h91(08) : (*7)[1910-13 Scott][F]‡zSPRI has two copies. Copy A detached from book. Copy B is photocopy with photocopy of picture showing Burnside bungalow today attached‡9Create 1 item record‡0Migrate
+917 ## ‡aUnenhanced record from Muscat, imported 2019
+```
+
+
+Not in SPRI, causing ignore (record 7976):
+
+```
+917 ## ‡aUnenhanced record from Muscat, imported 2019
+```

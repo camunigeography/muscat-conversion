@@ -5597,3 +5597,27 @@ Migrate filter token allocated when no suppression/ignoration scenarios
 !917
 TEST RECORD
 
+962
+One location plus status = suppress, both causing suppress
+1645
+s
+suppresswithitem
+
+963
+Migrate plus ignore, giving overall migrate with item record
+118221
+s
+migratewithitem
+
+964
+Two locations, both to migrate
+1104
+s
+migratewithitem
+
+965
+Not in SPRI causes ignore
+7976
+s
+ignore
+
