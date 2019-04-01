@@ -2912,7 +2912,7 @@ class import
 		}
 		
 		# Pre-load the MARC records
-		if (!$marcRecords = $this->databaseConnection->selectPairs ($this->settings['database'], 'catalogue_marc', array ('id' => $ids), array ('id', 'marc'))) {
+		if (!$marcRecords = $this->databaseConnection->select ($this->settings['database'], 'catalogue_marc', array ('id' => $ids), array ('id', 'marc', 'status'))) {
 			$errorHtml .= "<p class=\"warning\"><strong>Error:</strong> Could not obtain MARC records used in tests for test result generation.</p>";
 			return false;
 		}
@@ -2937,7 +2937,7 @@ class import
 			}
 			
 			# Parse the record
-			$record = $this->marcConversion->parseMarcRecord ($marcRecords[$recordId], false);
+			$record = $this->marcConversion->parseMarcRecord ($marcRecords[$recordId]['marc'], false);
 			// application::dumpData ($record);
 			
 			# Determine if the test is a negative test (i.e. fails if there is a match), starting with '!'
@@ -2962,9 +2962,13 @@ class import
 			
 			# Add the found line(s)
 			$lines = array ();
-			foreach ($fieldsMatching as $field) {
-				foreach ($record[$field] as $line) {
-					$lines[] = $line['fullLine'];
+			if ($tests[$id]['marcField'] == 's') {	// Status
+				$lines[] = $marcRecords[$recordId]['status'];	// For display
+			} else {
+				foreach ($fieldsMatching as $field) {
+					foreach ($record[$field] as $line) {
+						$lines[] = $line['fullLine'];
+					}
 				}
 			}
 			$tests[$id]['found'] = implode ("\n", $lines);
@@ -3020,6 +3024,13 @@ class import
 				$tests[$id]['result'] = !$isFound;
 			} else {
 				$tests[$id]['result'] = $isFound;
+			}
+			
+			# Status test
+			if ($tests[$id]['marcField'] == 's') {
+				if ($test['expected'] == $marcRecords[$recordId]['status']) {
+					$tests[$id]['result'] = true;	// isFound
+				}
 			}
 		}
 		
