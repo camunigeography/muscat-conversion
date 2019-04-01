@@ -98,6 +98,11 @@ The filter token algorithm is as follows:
 
 ## 852 Item record lines
 
+Two resources giving a good overview of the split between Bibliographic records and Item records can be found on Wikipedia:
+
+  * [Functional Requirements for Bibliographic Records](https://en.wikipedia.org/wiki/Functional_Requirements_for_Bibliographic_Records)
+  * [Library terminology informally explained](https://www.w3.org/2001/sw/wiki/Library_terminology_informally_explained)
+
 Item record lines (852) are created for each physical item (being a repeatable field), according to the following principles:
 
   * Item records are created for each physical location (*location) that exists (i.e. not 'Not in SPRI').
