@@ -123,6 +123,7 @@ class createMarcExport
 			echo "<p class=\"warning\">Execution of <tt>/usr/local/bin/marcedit/cmarcedit.exe</tt> failed with Permission denied - ensure the webserver user can read <tt>/usr/local/bin/marcedit/</tt>.</p>";
 			return false;
 		}
+		/*
 		foreach ($output as $line) {
 			if (preg_match ('/^0 records have been processed/', $line)) {
 				$mrcFilename = basename ($mrcFile);
@@ -130,6 +131,7 @@ class createMarcExport
 				break;
 			}
 		}
+		*/
 		
 		# Delete the .mrk file
 		unlink ($mrkFile);

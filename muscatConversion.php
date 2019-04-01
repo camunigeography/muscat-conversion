@@ -2739,7 +2739,7 @@ class muscatConversion extends frontControllerApplication
 		
 		# Define labels for record groupings
 		$recordGroupingLabels = array (
-			'serials'				=> 'merials',
+			'serials'				=> 'serials',
 			'monographsarticles'	=> 'monographs & articles',
 		);
 		
