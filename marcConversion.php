@@ -3696,17 +3696,18 @@ class marcConversion
 		# Get the locations (if any), e.g. single location in /records/1102/ (test #621), multiple locations in /records/3959/ (test #622)
 		$locations = $this->xPathValues ($this->xml, '//loc[%i]/location');
 		
-		# If no locations (which will mean there is a status - see /reports/nolocationnostatus/ ), allocate $cSPRIACQ and end at this point, e.g. /records/1331/ (test #648) - this is the normal scenario for *status = RECEIVED, ON ORDER, etc.
+		# If no locations (which will mean there is a status - see /reports/nolocationnostatus/ ), no 852 is generated, e.g. /records/1331/ (test #648) - this is the normal scenario for *status = RECEIVED, ON ORDER, etc.
 		if (!$locations) {
 			$result  = "{$this->doubleDagger}2camdept";
 			$result .= "{$this->doubleDagger}b" . 'SCO';
 			$result .= "{$this->doubleDagger}c" . 'SPRIACQ';	// NB No hyphen
 			$result .= $notes;	// If any
-			$result .= $this->filterTokenCreation ($locations);
-			return $result;
+			$filterTokens = $this->filterTokenCreation ($locations /* i.e. empty array () */);		// Create the filterTokens registry entry
+			$result .= $this->create852dollar0FromFilterTokens ($filterTokens);
+			return false;	// Do not use the resulting $0 line as no 852 line since no *location
 		}
 		
-		# For the special case of "Not in SPRI" being present (in any *location), then create a single 852 value, with the other location(s) noted if any, e.g. /records/7976/ (test #649); /reports/notinspriinspri/ confirms there are now no cases of items "Not in SPRI" also having a SPRI location
+		# For the special case of "Not in SPRI" being present (in any *location), no 852 is generated, e.g. /records/7976/ (test #649); /reports/notinspriinspri/ confirms there are now no cases of items "Not in SPRI" also having a SPRI location, i.e. the other locations are always clarificatory adjuncts to the Not in SPRI
 		if (in_array ('Not in SPRI', $locations)) {	// NB Manually validated in the database that this is always present as the full string, not a match
 			$otherLocations = array_diff ($locations, array ('Not in SPRI'));	// I.e. unset the entry containing this value
 			$result  = "{$this->doubleDagger}2camdept";
@@ -3716,8 +3717,9 @@ class marcConversion
 			}
 			$result .= "{$this->doubleDagger}zNot in SPRI";
 			$result .= $notes;	// If any
-			$result .= $this->filterTokenCreation ($locations);
-			return $result;
+			$filterTokens = $this->filterTokenCreation ($locations);		// Create the filterTokens registry entry
+			$result .= $this->create852dollar0FromFilterTokens ($filterTokens);
+			return false;	// Do not use the resulting $0 line as no 852 line since no *location
 		}
 		
 		# If the location is '??', treat it as 'UNASSIGNED', e.g. /records/34671/ (test #745); see also post-migration report at /reports/locationunassigned/
@@ -3815,6 +3817,8 @@ class marcConversion
 			}
 			
 			# If records are missing, add public note; e.g. /records/1014/ (test #655)
+			#!# Should missing be suppressed, like '??' / 'Pam ?'
+			#!# Should '??' / 'Pam ?' similarly create $z Item(s) missing?
 			# /reports/notinsprimissing/ confirms that no record has BOTH "Not in SPRI" (which would result in $z already existing above) and "MISSING"
 			# Note that this will set a marker for each *location; the report /reports/multiplelocationsmissing/ lists these cases, which will need to be fixed up post-migration - we are unable to work out from the Muscat record which *location the "MISSING" refers to
 			#!# Ideally also need to trigger this in cases where the record has note to this effect; or check that MISSING exists in all such cases by checking and amending records in /reports/notemissing/
@@ -3829,14 +3833,18 @@ class marcConversion
 			# Add any notes, e.g. /records/1288/ (test #817); will be added to each line, as cannot disambiguated, e.g. /records/7455/ (test #820)
 			$result .= $notes;	// If any
 			
-			# Add the item record creation status, as a non-standard field $9 which will be stripped upon final import, and update the count
-			if ($itemRecords = $this->itemRecordsCreation ($location)) {
-				$result .= "{$this->doubleDagger}9" . "Create {$itemRecords} item record" . ($itemRecords > 1 ? 's' : '');
-				$this->itemRecords += $itemRecords;		// E.g. 23 from single 852 in /records/3339/, 2 from multiple 852 in /records/1364/
-			}
+			# Generate the filterTokens registry entry, and speculatively create the status filter token for use below as $0
+			$filterTokens = $this->filterTokenCreation ($location);
 			
-			# Add the status, as a non-standard field $0 which will be stripped upon final import, e.g. /records/16870/ (test #941)
-			$result .= $this->filterTokenCreation ($location);
+			# Determine if item records should be created for this location, and if not, skip the 852 line entirely
+			if (!$itemRecords = $this->itemRecordsCreation ($location)) {continue;}
+			
+			# Add the item record creation status, as a non-standard field $9 which will be stripped upon final import, and update the count
+			$result .= "{$this->doubleDagger}9" . "Create {$itemRecords} item record" . ($itemRecords > 1 ? 's' : '');
+			$this->itemRecords += $itemRecords;		// E.g. 23 from single 852 in /records/3339/, 2 from multiple 852 in /records/1364/
+			
+			# Add the filter token subfield, as a non-standard field $0 which will be stripped upon final import, e.g. /records/16870/ (test #941)
+			$result .= $this->create852dollar0FromFilterTokens ($filterTokens);
 			
 			# Register this result
 			$resultLines[] = trim ($result);
@@ -4442,14 +4450,22 @@ class marcConversion
 			$filterTokens[] = 'MIGRATE';
 		}
 		
-		# Register the filter token(s)
+		# Register the filter token(s) to the overall registry
 		foreach ($filterTokens as $filterToken) {
 			$this->filterTokens[] = $filterToken;
 		}
 		
+		# Return the filter tokens arising from this instantiation
+		return $filterTokens;
+	}
+	
+	
+	# Function to create the filterToken-related 852 subfield entry (or entries, e.g. IGNORE-NOTINSPRI plus IGNORE-IGS)
+	private function create852dollar0FromFilterTokens ($filterTokens)
+	{
 		# Create the 852 subfield entry (or entries, e.g. IGNORE-NOTINSPRI plus IGNORE-IGS)
 		$subfields = array ();
-		foreach ($this->filterTokens as $filterToken) {
+		foreach ($filterTokens as $filterToken) {
 			
 			# Create the subfield, e.g. Migrate in /records/1123/ (test #953), Ignore in /records/168774/ (test #954)
 			if ($filterToken == 'MIGRATE') {
