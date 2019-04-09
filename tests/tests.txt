@@ -5574,21 +5574,21 @@ Migrate filter token allocated when no suppression/ignoration scenarios
 ‡a(UkCU)344107-depfacozdb
 
 958
-035 unconfirmed record number
+voyagerBelievedMatch unconfirmed record number
 1000
-035
+917
 (UkCU)343473-depfacozdb (Matchtype: P)
 
 959
-035 multiple combined with semicolon-space
+voyagerBelievedMatch multiple combined with semicolon-space
 1000
-035
+917
 (UkCU)343473-depfacozdb (Matchtype: P); (UkCU)343584-depfacozdb (Matchtype: P); (UkCU)343797
 
 960
-035 prefix string added when unconfirmed
+voyagerBelievedMatch prefix string added when unconfirmed
 1030
-035
+917
 ‡aUnconfirmed match: (UkCU)345026-depfacozdb (Matchtype: P)
 
 961
@@ -5621,3 +5621,44 @@ Not in SPRI causes ignore
 s
 ignore
 
+966
+035 gets absolute voyagerBelievedMatch only (see also next test)
+1011
+035
+‡a(UkCU)344107-depfacozdb
+
+967
+917 does not get absolute voyagerBelievedMatch (see also previous test)
+1011
+!917
+‡a(UkCU)344107-depfacozdb
+
+968
+035 does not get multiple voyagerBelievedMatch (see also next test)
+1000
+!035
+‡aUnconfirmed match: (UkCU)343473
+
+969
+917 gets multiple voyagerBelievedMatch (see also previous test)
+1000
+917
+‡aUnconfirmed match: (UkCU)343473
+
+970
+voyagerBelievedMatch is absolute match as only one /k2/kc and without ?
+1011
+035
+‡a(UkCU)344107-depfacozdb
+
+971
+voyagerBelievedMatch is not absolute match as has more than one /k2/kc
+1000
+917
+‡aUnconfirmed match: (UkCU)343473-depfacozdb (Matchtype: P); (UkCU)343584-depfacozdb (Matchtype: P)
+
+972
+voyagerBelievedMatch is not absolute match as has ? for single /k2/kc
+1025
+917
+‡aUnconfirmed match: (UkCU)344004-depfacozdb (Matchtype: P)

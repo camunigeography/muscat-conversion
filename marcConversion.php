@@ -1074,7 +1074,7 @@ class marcConversion
 	
 	
 	# Macro to provide a formatted version of VoyagerBelievedMatch items
-	private function macro_voyagerBelievedMatch ($value_ignored)
+	private function macro_voyagerBelievedMatch ($value_ignored, $absoluteMatchMode)
 	{
 		# End if no *k2 groups, e.g. /records/1031/ (test #956)
 		if (!$k2Groups = $this->xPathValues ($this->xml, '(//k2)[%i]', false)) {return false;}
@@ -1105,6 +1105,14 @@ class marcConversion
 		# If any contain a ?, mark them as unresolved and prefix with string, e.g. /records/1030/ (test #960)
 		if ($unconfirmed) {
 			$result = 'Unconfirmed match: ' . $result;
+		}
+		
+		# In absolute mode, require only a single absolute match (which will appear in the 035), and vice versa (which will appear in the 917 instead)
+		$isAbsoluteMatch = ((count ($tokens) == 1) && !$unconfirmed);	// Absolute match as only one match and without ? in /records/1011/ (test #970); non-absolute match as multiple matches in /records/1000/ (test #971); non-absolute match as single match but with ? in /records/1025/ (test #972)
+		if ($isAbsoluteMatch) {
+			if (!$absoluteMatchMode) {return false;}	// E.g. /records/1011/ (tests #966, #967)
+		} else {
+			if ($absoluteMatchMode) {return false;}	// E.g. /records/1000/ (tests #968, #969)
 		}
 		
 		# Return the result, e.g. /records/1011/ (test #957)
