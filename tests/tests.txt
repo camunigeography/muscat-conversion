@@ -5662,3 +5662,9 @@ voyagerBelievedMatch is not absolute match as has ? for single /k2/kc
 1025
 917
 ‡aUnconfirmed match: (UkCU)344004-depfacozdb (Matchtype: P)
+
+973
+Transliteration handles superscripts
+113242
+!880
+<
