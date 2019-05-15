@@ -5664,7 +5664,7 @@ voyagerBelievedMatch is not absolute match as has ? for single /k2/kc
 ‡aUnconfirmed match: (UkCU)344004-depfacozdb (Matchtype: P)
 
 973
-Transliteration handles superscripts
-113242
+Transliteration strips superscript tags
+114278
 !880
 <
