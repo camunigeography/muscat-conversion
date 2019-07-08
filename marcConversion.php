@@ -2262,7 +2262,7 @@ class marcConversion
 	# Macro to describe Russian transliteration scheme used, for 546 $a
 	#!# Needs to be made consistent with languages041 macro
 	#!# Uses only //lang[1]
-	private function macro_isTransliterated ($language)
+	private function macro_transliterationProcessNote ($language)
 	{
 		# Return string; e.g. /records/1526/ (test #421)
 		if ($language == 'Russian') {
