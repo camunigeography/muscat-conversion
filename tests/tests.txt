@@ -5685,3 +5685,11 @@ Dot at end of 500 standard note not present when ends with punctuation
 1889
 500
 /Aagaard \(1931\)$/
+
+977
+5xx generate5xxNote special types have dot-end
+17120
+561
+Hugh Robert Mill's Antarctic Collection.
+
+

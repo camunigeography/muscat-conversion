@@ -2651,12 +2651,14 @@ class marcConversion
 			-1  => '^SPRI has (.+)$',			// Should be excluded from 500, as will be picked up in macro_generate852, e.g. /records/123440/ (test #815)
 		);
 		
-		# Supported special-case fields
+		# Supported special-case fields; tests above
 		if (isSet ($specialFields[$field])) {
 			
 			# Check for a match and return the captured text if so
 			if (preg_match ('/' . $specialFields[$field] . '/', $note, $matches)) {
-				return $matches[1];
+				$note = $matches[1];
+				$note = $this->macro_dotEnd ($note, true);	// E.g. /records/17120/ (test #977)
+				return $note;
 			}
 			
 			# Otherwise no result if no match
