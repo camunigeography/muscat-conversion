@@ -2719,6 +2719,9 @@ class marcConversion
 		# Compile the string
 		$string = $firstIndicator . $secondIndicator . ' ' . $openingSubfield . $note;
 		
+		# Dot at end, e.g. /records/1488/ (test #978), unless punctuation present, e.g. /records/5273/ (test #979)
+		$string = $this->macro_dotEnd ($string, true);
+		
 		# Return the string
 		return $string;
 	}

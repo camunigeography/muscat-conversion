@@ -5692,4 +5692,14 @@ Dot at end of 500 standard note not present when ends with punctuation
 561
 Hugh Robert Mill's Antarctic Collection.
 
+978
+505 Formatted Contents Note has dot-end
+1488
+505
+gneisses -- The oldest collision between two continents.
 
+979
+505 Formatted Contents Note dot-end not present when ends with punctuation
+5273
+505
+/og Tromsø glimmerskifergruppe\)$/
