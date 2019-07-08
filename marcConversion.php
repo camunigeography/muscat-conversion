@@ -2793,7 +2793,7 @@ class marcConversion
 			return false;
 		}
 		
-		# Replace | with double-dagger, e.g. /records/142020/ (test #717)
+		# Replace | with double-dagger, e.g. /records/142020/ (test #717); dotEnd already present in original data, e.g. /records/43953/ (test #780)
 		$string = str_replace ('|', $this->doubleDagger, $note);
 		
 		# Return the string, e.g. /records/142020/ (test #715)
