@@ -2938,7 +2938,7 @@ class marcConversion
 		# Implode the list, e.g. multiple in /records/12376/ (test #256)
 		$result = implode ("\n" . '583 ## ', $resultLines);
 		
-		# Return the result
+		# Return the result; 583 does not have dotEnd applied; see: https://www.loc.gov/marc/bibliographic/bd583.html
 		return $result;
 	}
 	
