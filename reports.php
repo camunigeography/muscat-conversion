@@ -165,6 +165,7 @@ class reports
 		'transfer541_postmigration' => 'records with multiple *locations whose 541 needs to be made specific to the location',
 		'volumeenumeration_postmigration' => 'records whose item records will need enumeration (*doc with *v)',
 		'voyagerbelievedmatch_postmigration' => 'records with possible but unconfirmed Voyager matches needing merging',
+		'hostwithitem_problem' => 'records with both 773 (host entry) and 852 (item record) fields',
 	);
 	
 	# Listing (values) reports
@@ -4309,6 +4310,25 @@ class reports
 				id AS recordId
 			FROM catalogue_marc
 			WHERE mergeVoyagerId LIKE '%?%'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with both 773 (host entry) and 852 (item record) fields
+	public function report_hostwithitem ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'hostwithitem' AS report,
+				id AS recordId
+			FROM catalogue_marc
+			WHERE
+				    marc LIKE '%773 0# ‡%'
+				AND marc LIKE '%852 7# ‡%'
 		";
 		
 		# Return the query
