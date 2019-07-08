@@ -2670,6 +2670,9 @@ class marcConversion
 			}
 		}
 		
+		# Dot at end, e.g. /records/25728/ (test #975), unless punctuation present, e.g. /records/1889/ (test #976)
+		$note = $this->macro_dotEnd ($note, true);
+		
 		# Otherwise, return the confirmed standard 500 note, e.g. /records/1019/ (tests #509, #510)
 		return $note;
 	}

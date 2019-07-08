@@ -5673,3 +5673,15 @@ Transliteration strips superscript tags
 15078
 i583
 0#
+
+975
+Dot at end of 500 standard note
+25728
+500
+Almqvist & Wiksell, 1954.
+
+976
+Dot at end of 500 standard note not present when ends with punctuation
+1889
+500
+/Aagaard \(1931\)$/
