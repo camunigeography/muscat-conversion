@@ -2264,7 +2264,7 @@ class marcConversion
 	#!# Uses only //lang[1]
 	private function macro_transliterationProcessNote ($language)
 	{
-		# Return string; e.g. /records/1526/ (test #421)
+		# Return string; e.g. /records/1526/ (test #421); string below ends with dot, e.g. /records/1043/ (test #981)
 		if ($language == 'Russian') {
 			return 'Russian transliteration entered into original records using BGN/PCGN 1947 romanisation of Russian; Cyrillic text in MARC 880 field(s) reverse transliterated from this by automated process; BGN/PCGN 1947 text then upgraded to Library of Congress romanisation.';
 		}

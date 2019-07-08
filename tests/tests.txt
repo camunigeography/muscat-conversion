@@ -5709,3 +5709,10 @@ gneisses -- The oldest collision between two continents.
 43953
 533
 available online.‡5UkCU-P
+
+981
+546 transliterationProcessNote ends with dot
+1043
+546
+Library of Congress romanisation.
+
