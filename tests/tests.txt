@@ -1345,7 +1345,7 @@ bibliography
 Dollar in 520 is not an indicator, but wrongly triggers Bibcheck error now whitelisted
 140044
 520
-index (θ .\$t/h²\$).
+index (θ .\$t/h²\$)
 
 224
 Dollar in 541 is not an indicator, but wrongly triggers Bibcheck error now whitelisted
@@ -5716,3 +5716,14 @@ available online.‡5UkCU-P
 546
 Library of Congress romanisation.
 
+982
+520 abstact ends with dot
+1102
+520
+Barry Channel to Melville Island.
+
+983
+520 abstact ends dot-end not present when ends with punctuation
+1157
+520
+/Hvalfangstmuseum \(whales and whaling\)$/

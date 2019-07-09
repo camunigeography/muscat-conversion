@@ -1231,6 +1231,9 @@ class marcConversion
 		# End if no value
 		if (!strlen ($value)) {return $value;}
 		
+		# Handle parameter from parser string 'true' to be treated as boolean true, e.g. /records/1157/ (test #983)
+		if ($extendedCharacterList == 'true') {$extendedCharacterList = true;}
+		
 		# Determine characters to check at the end
 		$characterList = ($extendedCharacterList ? (is_string ($extendedCharacterList) ? $extendedCharacterList : '.])>') : '.');	// e.g. 260 $c shown at https://www.loc.gov/marc/bibliographic/bd260.html
 		
