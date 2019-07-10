@@ -3213,6 +3213,9 @@ class marcConversion
 				# Get the data from the 773, e.g. /records/1109/ (test #490)
 				$result = $this->macro_generate773 ($value, $parameter_unused, $errorHtml_ignored, $mode500 = true);
 				
+				# Add dot at end, e.g. /records/1166/ (test #984)
+				$result = $this->macro_dotEnd ($result);
+				
 			# If no host record (i.e. a pseudo-analytic), we assume it is an offprint, and use the title in the *j (i.e. second half) section
 			} else {
 				
@@ -3260,6 +3263,8 @@ class marcConversion
 				
 				# Prefix 'In: ' at the start, e.g. /records/1222/ (test #492)
 				$result = 'In: ' . $result;
+				
+				# NB There will be a dot at end, which will exist because generate245 does this, e.g. /records/1166/ (test #985)
 				
 			# For pseudo-analytics, there will be no host record, so create a title with statement of responsibility
 			} else {
