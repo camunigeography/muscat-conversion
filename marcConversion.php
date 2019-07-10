@@ -2060,7 +2060,7 @@ class marcConversion
 	}
 	
 	
-	# Macro for generating the Leader
+	# Macro for generating the Leader (LDR); see: https://www.loc.gov/marc/bibliographic/bdleader.html
 	private function macro_generateLeader ($value)
 	{
 		# Start the string
@@ -2098,6 +2098,18 @@ class marcConversion
 				$value06 = 'm'; break;
 		}
 		if (!$this->form) {$value06 = 'a';}	// E.g. /records/1187/ (test #386)
+		
+		# If theses, then position 06 is overriden to 't', e.g. /records/61792/ (test #986)
+		if ($kwValues = $this->xPathValues ($this->xml, '(//kw)[%i]', false)) {
+			foreach ($kwValues as $kwValue) {
+				if (preg_match ('/^Theses/', $kwValue)) {
+					$value06 = 't';
+					break;
+				}
+			}
+		}
+		
+		# Set the value of position 06
 		$string .= $value06;
 		
 		# Position 07: Bibliographic level
@@ -2118,7 +2130,7 @@ class marcConversion
 		# Position 08: Type of control; e.g. /records/1188/ (test #388)
 		$string .= '#';
 		
-		# Position 09: Character coding scheme
+		# Position 09: Character coding scheme - Unicode
 		$string .= 'a';
 		
 		# Position 10: Indicator count: Computer-generated number 2 that indicates the number of character positions used for indicators in a variable data field. 

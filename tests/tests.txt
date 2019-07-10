@@ -5739,3 +5739,10 @@ Vol. 18 :6-12.
 2905
 500
 Dumont d'Urville.
+
+986
+Leader position 06 has 't' for theses
+61792
+LDR
+/^.{6}t/
+
