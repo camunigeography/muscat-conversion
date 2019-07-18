@@ -142,6 +142,7 @@ class createMarcExport
 	public function reformatMarcToVoyagerStyle ($filenameMrk)
 	{
 		# Reformat to Voyager input style; this process is done using shelled-out inline sed/perl, rather than preg_replace, to avoid an out-of-memory crash
+		exec ("sed -i 's/\\$/{dollar}/g' {$filenameMrk}");												// Protect $ with {dollar}; see: https://www.loc.gov/marc/makrbrkr.html and https://blog.reeset.net/archives/1905 , e.g. /records/115595/
 		exec ("sed -i 's" . "/{$this->doubleDagger}\([a-z0-9]\)/" . '\$\1' . "/g' {$filenameMrk}");		// Replace double-dagger(s) with $
 		exec ("sed -i '/^LDR /s/#/\\\\/g' {$filenameMrk}");												// Replace all instances of a # marker in the LDR field with \
 		exec ("sed -i '/^008 /s/#/\\\\/g' {$filenameMrk}");												// Replace all instances of a # marker in the 008 field with \
