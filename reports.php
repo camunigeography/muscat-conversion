@@ -4325,10 +4325,21 @@ class reports
 			SELECT
 				'hostwithitem' AS report,
 				id AS recordId
-			FROM catalogue_marc
+			FROM fieldsindex
 			WHERE
-				    marc LIKE '%773 0# ‡%'
-				AND marc LIKE '%852 7# ‡%'
+				
+				-- Emulate presence of 773 (Host Item Entry)
+				-- i.e. marc LIKE '%773 0# ‡%'
+				    fieldslist LIKE '%@kg@%'				-- Must have //k2[1]/kg
+				
+				-- Emulate presence of 852 (item record)
+				-- i.e. marc LIKE '%852 7# ‡%'
+				AND fieldslist LIKE '%@location@%'
+				AND location NOT LIKE '%Not in SPRI%'		-- Must not include 'Not in SPRI'
+				-- One or more location must have itemRecordsCreation, which is done if:
+				AND location != '@Digital Repository@'		-- Checked that this only appears as a full single string
+				AND location != '@Electronic Resource (online)@'
+				AND fieldslist NOT LIKE '%@art@%'			-- Not /art with host record
 		";
 		
 		# Return the query
