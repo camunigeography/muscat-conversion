@@ -2205,7 +2205,9 @@ class import
 		# Insert the data for each grouping; note that the periodicallocations table is no longer needed after this
 		# For /doc records this requires at least partial match, e.g. "Annals of Glaciology ; 9" in child record's (first) /doc/ts matches "Annals of Glaciology" in parent (periodicallocations.title)
 		# /records/209527/ is an example with two *ts values - the first is used in Muscat as the match
-		#!# Records like /records/23120/ are now inconsistent in that they contain an explicit *kg now - need to decide what to do with these
+		#!# Records like /records/23120/ are now inconsistent in that they contain an explicit *kg now - presence of *kg should switch off the automatic lookup of *location=Periodical; another example is /records/43303/ (which has *kg=23052 but is being wrongly matched with *ts from /records/72770/)
+		#!# In a three-level hiearchy (article in AoG1, which is in AoG), we cannot be sure that the longest is found first, e.g. *ts="Annals of Glaciology 1" should find (parent *t=Annals of Glaciology 1" before parent *t="Annals of Glaciology" if both exist, and it should not match against *t="Annals of Glaciology 10"
+		#!# Tests needed here
 		$groupings = array (
 			'/art/j/tg/t'	=> true,	// 79,988 results; NB To permit NULL right-side results, i.e. unmatched parent (giving 82,185 results), change the HAVING clause to "HAVING value != ''"
 			'/doc/ts[1]'	=> false,	//    280 results; NB To permit NULL right-side results, i.e. unmatched parent (giving    294 results), change the HAVING clause to "HAVING value IS NOT NULL"

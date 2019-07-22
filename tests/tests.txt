@@ -5763,3 +5763,9 @@ LDR
 60971
 300
 ‡a1 microform.
+
+990
+In 852, where both *kg and location=Periodical are present, *kg should be used
+43303
+852
+‡h148 B-D‡z
