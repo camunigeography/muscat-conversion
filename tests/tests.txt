@@ -17,7 +17,7 @@
 # marcConversion (controller section): 100%
 # marcConversion (macros section): 100%
 # muscatConversion: 100% (is exclusively a controller, so no tests)
-# transliteration: 50%
+# transliteration: 90%
 # NB: These values do not include cases of bugs, marked with a bug marker: #!#
 
 
@@ -5836,4 +5836,21 @@ Prevent multiple italic sections being swallowed in transliterated protected str
 880
 семейства Linyphiidae (Aranei) из
 
+1002
+In 880, when handling parallel titles, Russian parts are not part of protected strings list (and thus get transliterated)
+65712
+880
+‡aМиграции птиц Восточной Европы и Северной Азии :‡bХищные-журавлеобразные = Migrations
+
+1003
+880 uses species Order names from *ks database for protected strings
+1264
+880
+распространению Phocidae северной
+
+1004
+880 loads protected strings list from file
+72688
+880
+семейства Linyphiidae
 

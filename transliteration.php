@@ -136,7 +136,7 @@ class transliteration
 		$cyrillicPreSubstitutions = $cyrillicStrings;
 		$protectedPartsPreSubstitutions = $protectedParts;
 		
-		# Reinstate protected substrings
+		# Reinstate protected substrings, e.g. /records/139647/ (test #823)
 		foreach ($cyrillicStrings as $id => $cyrillicString) {
 			$cyrillicStrings[$id] = $this->reinstateProtectedSubstrings ($cyrillicString, $protectedParts[$id]);
 		}
@@ -337,7 +337,7 @@ class transliteration
 		$punctuationTrimming = ' .,:;';
 		foreach ($replacements as $replacement) {
 			if (trim ($replacement, $punctuationTrimming) == trim ($string, $punctuationTrimming)) {
-				$nonTransliterable = true;
+				$nonTransliterable = true;	// E.g. /records/214774/ (test #840)
 			}
 		}
 		
@@ -380,7 +380,7 @@ class transliteration
 	}
 	
 	
-	# Function to handle extraction of parallel titles
+	# Function to handle extraction of parallel titles, e.g. /records/65712/ (test #441)
 	private function nonTransliterablePartsInParallelTitle ($russianAsTransliteratedLatin, $lpt, &$error = '')
 	{
 		# Tokenise the definition
@@ -388,7 +388,7 @@ class transliteration
 		$parallelTitleLanguages = explode ($parallelTitleSeparator, $lpt);
 		$parallelTitleComponents = explode ($parallelTitleSeparator, $russianAsTransliteratedLatin);
 		
-		# Ensure the counts match; this is looking for the same problem as the paralleltitlemismatch report
+		# Ensure the counts match; this is looking for the same problem as /reports/paralleltitlemismatch/
 		if (count ($parallelTitleLanguages) != count ($parallelTitleComponents)) {
 			$error = 'Transliteration requested with parallel titles list whose token count does not match the title';
 			return false;
@@ -404,8 +404,10 @@ class transliteration
 			return false;
 		}
 		
-		# Return the portions that are not for transliteration, so they can be protected
+		# Remove the portions that are not for transliteration, leaving only those to be protected, e.g. /records/65712/ (test #1002)
 		unset ($parallelTitles['Russian']);
+		
+		# Return the list
 		return $parallelTitles;
 	}
 	
@@ -421,10 +423,10 @@ class transliteration
 		# Start a list
 		$replacements = array ();
 		
-		# Protect species Order names (which will not be in italics)
-		$replacements = array_merge ($replacements, array_values ($this->getSpeciesOrderNames ()));
+		# Protect species Order names (which will not be in italics); e.g. /records/1264/ (test #1003)
+		$replacements = array_merge ($replacements, $this->getSpeciesOrderNames ());
 		
-		# Protect a defined list of species names, chemical formulae, latin abbreviations, and other strings
+		# Protect a defined list of species names, chemical formulae, latin abbreviations, and other strings; e.g. /records/72688/ (test #1004)
 		$definedList = application::textareaToList ($this->applicationRoot . '/tables/' . 'transliterationProtectedStrings.txt', true, true, true);
 		$replacements = array_merge ($replacements, $definedList);
 		
@@ -454,19 +456,20 @@ class transliteration
 	}
 	
 	
-	# Function to obtain species Order names
+	# Function to obtain species Order names; e.g. /records/1264/ (test #1003)
 	private function getSpeciesOrderNames ()
 	{
 		# Obtain the data from the UDC table
 		$query = "SELECT * FROM udctranslations WHERE ks REGEXP '^(582|593|594|595|597|598|599)\\\\.'";
 		$orders = $this->databaseConnection->getPairs ($query);
+		$orders = array_values ($orders);
 		
 		# Return the list
 		return $orders;
 	}
 	
 	
-	# Function to reinstate protected substrings
+	# Function to reinstate protected substrings, e.g. /records/139647/ (test #823)
 	public function reinstateProtectedSubstrings ($cyrillic, $protectedParts)
 	{
 		return $cyrillic = strtr ($cyrillic, $protectedParts);
