@@ -108,7 +108,7 @@ class transliteration
 		 * "Unicode CLDR provides other transliterations based on the U.S. Board on Geographic Names (BGN) transliterations. These are currently unidirectional — to Latin only. The goal is to make them bidirectional in future versions of CLDR."
 		 * and the current implementation of Russiah-Latin/BGN only has 'direction="forward"':
 		 * http://unicode.org/cldr/trac/browser/trunk/common/transforms/Russian-Latin-BGN.xml
-		 * Ticket raised at: http://unicode.org/cldr/trac/ticket/9086
+		 * Ticket raised at: https://unicode-org.atlassian.net/browse/CLDR-9086
 		 */
 		
 		# Compile the strings to a single text string block
@@ -354,6 +354,11 @@ class transliteration
 				$isTagSurround = true;
 				$fixedString = preg_replace ('/^@@/', '', $fixedString);
 				$protectedParts[$replacementToken] = $fixedString;
+			}
+			
+			# Tags themselves do not have a word boundary requirement, e.g. /records/114278/ (test #973)
+			if (in_array ($fixedString, $tags)) {
+				$isTagSurround = true;
 			}
 			
 			#!# Hyphen in post- word boundary needs review
