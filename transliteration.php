@@ -346,23 +346,28 @@ class transliteration
 		$delimiter = '/';
 		foreach ($protectedParts as $replacementToken => $fixedString) {
 			
+			# Enable word boundaries by default
+			$useWordBoundaries = true;
+			
 			# Determine whether a protected part is italics, as this does not have a word boundary requirement, as the italics are an explicit part of the string
-			$isTagSurround = preg_match ('|^<em>.+</em>$|', $fixedString);
+			if (preg_match ('|^<em>.+</em>$|', $fixedString)) {
+				$useWordBoundaries = false;
+			}
 			
 			# Handle mid-word strings, which do not have a word boundary requirement, stripping out the @@ token, e.g. /records/100714/ (test #821)
 			if (preg_match ('/^@@/', $fixedString)) {
-				$isTagSurround = true;
+				$useWordBoundaries = false;
 				$fixedString = preg_replace ('/^@@/', '', $fixedString);
 				$protectedParts[$replacementToken] = $fixedString;
 			}
 			
 			# Tags themselves do not have a word boundary requirement, e.g. /records/114278/ (test #973)
 			if (in_array ($fixedString, $tags)) {
-				$isTagSurround = true;
+				$useWordBoundaries = false;
 			}
 			
 			#!# Hyphen in post- word boundary needs review
-			$search = $delimiter . ($isTagSurround ? '' : '(^|\s|\(|")') . preg_quote ($fixedString, $delimiter) . ($isTagSurround ? '' : '($|\s|\)|\.|-|,|:|")') . $delimiter;
+			$search = $delimiter . ($useWordBoundaries ? '(^|\s|\(|")' : '') . preg_quote ($fixedString, $delimiter) . ($useWordBoundaries ? '($|\s|\)|\.|-|,|:|")' : '') . $delimiter;
 			$replacements[$search] = '\1' . $replacementToken . '\2';	// \1 and \2 are the word boundary strings (e.g. a space) which need to be restored
 		}
 		
