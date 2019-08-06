@@ -17,7 +17,7 @@
 # marcConversion (controller section): 100%
 # marcConversion (macros section): 100%
 # muscatConversion: 100% (is exclusively a controller, so no tests)
-# transliteration: 0%
+# transliteration: 50%
 # NB: These values do not include cases of bugs, marked with a bug marker: #!#
 
 
@@ -292,7 +292,7 @@ epo
 Выпуск 1-й.
 
 46
-Prevent multiple italic sections being swallowed in transliterated protected string handling
+Prevent multiple italic sections being swallowed in transliterated protected string handling (see also #992)
 17256
 245
 Belukha ili beluga
@@ -5663,10 +5663,10 @@ voyagerBelievedMatch is not absolute match as has ? for single /k2/kc
 ‡aUnconfirmed match: (UkCU)344004-depfacozdb (Matchtype: P)
 
 973
-Transliteration strips superscript tags
+Transliteration protects tag strings of superscript / subscript (tag strings themselves)
 114278
 !880
-<
+<суб>
 
 974
 583 Action Note should be private
@@ -5769,3 +5769,71 @@ In 852, where both *kg and location=Periodical are present, *kg should be used
 43303
 852
 ‡h148 B-D‡z
+
+991
+Library of Congress Cyrillic, created from generated Cyrillic (from BGN/PCGN), replaces original BGN/PCGN entered in Muscat
+1043
+245
+Trudy Murmanskoĭ nauchno-promyslovoĭ ėkspedit͡sii
+
+992
+Prevent multiple italic sections being swallowed in transliterated protected string handling - Cyrillic version (see also #46)
+17256
+880
+‡aBelukha или beluga
+
+993
+880 italic protection - Cyrillic version (see also next test)
+1664
+880
+‡aЛебедь-кликун (Cygnus Cygnus) на
+
+994
+880 italic protection - Cyrillic version (see also previous test)
+1664
+245
+‡aLebedʹ-klikun (Cygnus Cygnus) na
+
+995
+880 protected strings basic test
+72688
+880
+семейства Linyphiidae
+
+996
+880 dynamic protected strings
+131979
+880
+учащихся X-XI классов
+
+997
+880 dynamic protected strings trimming to deal with overlapping strings
+120782
+880
+Якутов XVII- XIX веков
+
+998
+880 no protected strings results in string being passed through
+1053
+880
+‡aОтдел Рыболовства и Научно-Промысловых Исследований. Известия.
+
+999
+880 protected strings algorithm uses word boundaries to avoid mid-word replacement; here "et" protected string does not affect cyrillic version of "Sovetskai͡a"
+1058
+880
+‡aСоветская
+
+1000
+880 protected strings algorithm uses defined boundaries including brackets ( ) rather than \b
+180415
+880
+расчет)
+
+1001
+880 protected strings implemented using registry of protected parts
+72688
+880
+семейства Linyphiidae (Aranei) из
+
+

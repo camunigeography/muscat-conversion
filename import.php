@@ -1972,13 +1972,13 @@ class import
 	}
 	
 	
-	# Function to upgrade the shards consisting of transliterated strings to Library of Congress (LoC). This copies back and over the processed table with the new LoC transliterations, saving the pre-transliteration upgrade value
+	# Function to upgrade the shards consisting of transliterated strings to Library of Congress (LoC), e.g. /records/1043/ (test #991). This copies back and over the processed table with the new LoC transliterations, saving the pre-transliteration upgrade value
 	private function upgradeTransliterationsToLoc ()
 	{
 		# Log start
 		$this->logger ('Starting ' . __METHOD__);
 		
-		# Upgrade the processed record shards containing transliteration to use the new Library of Congress transliterations, and save the original BGN/PCGN value
+		# Upgrade the processed record shards containing transliteration to use the new Library of Congress transliterations, and save the original BGN/PCGN value, e.g. /records/1043/ (test #991)
 		$query = "UPDATE catalogue_processed
 			INNER JOIN transliterations ON catalogue_processed.id = transliterations.id
 			SET

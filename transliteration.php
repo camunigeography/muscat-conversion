@@ -56,7 +56,7 @@ class transliteration
 	
 	
 	
-	# Function to reverse-transliterate a string from BGN/PCGN latin to Cyrillic
+	# Function to reverse-transliterate a string from BGN/PCGN latin to Cyrillic; basic test of transliteration in /records/6653/ (test #107)
 	# This is batch-safe following introduction of word-boundary protection algorithm in b5265809a8dca2a1a161be2fcc26c13c926a0cda
 	#!# The same issue about previous crosstalk in unsafe batching presumably applies to line-by-line conversions, i.e. C (etc.) will get translated later in the same line; need to check on this
 	/*
@@ -82,7 +82,7 @@ class transliteration
 		# Ensure language is supported
 		if (!isSet ($this->supportedReverseTransliterationLanguages[$language])) {return $stringLatin;}
 		
-		# Protect string portions (e.g. English language, HTML portions, parallel title portions, [Titles fully in square brackets like this]) prior to transliteration
+		# Protect string portions (e.g. English language, HTML portions, parallel title portions, [Titles fully in square brackets like this]) prior to transliteration, e.g. /records/139647/ (test #823)
 		$latinStrings = array ();
 		$protectedParts = array ();
 		$errors = array ();
@@ -150,7 +150,7 @@ class transliteration
 	# Useful tool at: https://www.translitteration.com/transliteration/en/russian/ala-lc/
 	public function transliterateLocLatinToCyrillic ($stringLatin, $lpt, &$error = '', &$nonTransliterable = false)
 	{
-		# Protect string portions (e.g. English language, HTML portions, parallel title portions, [Titles fully in square brackets like this]) prior to transliteration
+		# Protect string portions (e.g. English language, HTML portions, parallel title portions, [Titles fully in square brackets like this]) prior to transliteration, e.g. /records/139647/ (test #823)
 		$stringLatin = $this->protectSubstrings ($stringLatin, $lpt, $protectedParts, $error /* passed back by reference */, $nonTransliterable /* passed back by reference */);
 		if ($error) {return false;}
 		
@@ -163,12 +163,12 @@ class transliteration
 		# Reinstate protected substrings
 		$cyrillic = $this->reinstateProtectedSubstrings ($cyrillic, $protectedParts);
 		
-		# Return the transliteration
+		# Return the transliteration; e.g. /records/6653/ (test #107)
 		return $cyrillic;
 	}
 	
 	
-	# Function to transliterate from Cyrillic to BGN/PCGN latin
+	# Function to transliterate from Cyrillic to BGN/PCGN latin; this is used for reversibility checking - see /reports/transliteratefailure/ and /reports/transliterations/?filter=1
 	# See: https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/501620/ROMANIZATION_SYSTEM_FOR_RUSSIAN.pdf and earlier edition http://web.archive.org/web/20151005154715/https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/320274/Russian_Romanisation.pdf
 	public function transliterateCyrillicToBgnLatin ($cyrillic)
 	{
@@ -193,7 +193,7 @@ class transliteration
 	}
 	
 	
-	# Function to transliterate from Cyrillic to Library of Congress (ALA LC); see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
+	# Function to transliterate from Cyrillic to Library of Congress (ALA LC), e.g. /records/1043/ (test #991); see: https://www.loc.gov/catdir/cpso/romanization/russian.pdf
 	public function transliterateCyrillicToLocLatin ($cyrillic)
 	{
 		# Load the Library of Congress transliterations definition, copied from https://github.com/umpirsky/Transliterator/blob/master/src/Transliterator/data/ru/ALA_LC.php
@@ -201,7 +201,7 @@ class transliteration
 			$this->locTransliterationDefinition = require_once ('tables/ALA_LC.php');
 		}
 		
-		# Transliterate and return
+		# Transliterate and return, e.g. /records/1043/ (test #991)
 		return str_replace ($this->locTransliterationDefinition['cyr'], $this->locTransliterationDefinition['lat'], $cyrillic);
 	}
 	
@@ -255,7 +255,7 @@ class transliteration
 	 */
 	
 	
-	# Function to protect string portions (e.g. English language, HTML portions, parallel title portions, [Titles fully in square brackets like this]) prior to transliteration; can be undone with a simple strtr()
+	# Function to protect string portions (e.g. English language, HTML portions, parallel title portions, [Titles fully in square brackets like this]) prior to transliteration; can be undone with a simple strtr(), e.g. /records/139647/ (test #823)
 	private function protectSubstrings ($string, $lpt, &$protectedParts, &$error = '', &$nonTransliterable = false)
 	{
 		# Initialise a list of protected parts, which will be passed back by reference
@@ -264,7 +264,7 @@ class transliteration
 		# Start an array of replacements
 		$replacements = array ();
 		
-		# Handle parallel titles, e.g. "Title in Russian = Equivalent in English = Equivalent in French"; see: /fields/lpt/values/
+		# Handle parallel titles, e.g. "Title in Russian = Equivalent in English = Equivalent in French"; see: /fields/lpt/values/ ; e.g. /records/65712/ (test #441)
 		if ($lpt) {
 			if (!$nonTransliterableParts = $this->nonTransliterablePartsInParallelTitle ($string, $lpt, $error /* passed back by reference */)) {
 				return false;	// $error will now be written to
@@ -272,20 +272,20 @@ class transliteration
 			$replacements = array_merge ($replacements, array_values ($nonTransliterableParts));
 		}
 		
-		# Protect parts in italics, which are Latin names that a publisher would not translate
-		preg_match_all ('|(<em>.+</em>)|uU', $string, $italicisedNameMatches);		// Uses /U ungreedy, to avoid "a <em>b</em> c <em>d</em> e" becoming "a  e" (test #46)
+		# Protect parts in italics, which are Latin names that a publisher would not translate, e.g. /records/1664/ (tests #993 and #994)
+		preg_match_all ('|(<em>.+</em>)|uU', $string, $italicisedNameMatches);		// Uses /U ungreedy, to avoid "a <em>b</em> c <em>d</em> e" becoming "a  e", e.g. /records/17256/ (tests #46 and #992)
 		$replacements = array_merge ($replacements, $italicisedNameMatches[1]);
 		
-		# Protect HTML tags, protecting the tag string itself, not its contents
+		# Protect HTML tags, protecting the tag string itself, not its contents; e.g. /records/114278/ (test #973)
 		$tags = array ('<sub>', '</sub>', '<sup>', '</sup>', );
 		$replacements = array_merge ($replacements, $tags);
 		
-		# Protect known strings to protect from transliteration (Latin abbreviations, Order names, Roman numeral pattern regexps)
+		# Protect known strings to protect from transliteration (Latin abbreviations, Order names, Roman numeral pattern regexps), e.g. /records/72688/ (test #995), /records/195773/ (test #837)
 		$replacements = array_merge ($replacements, $this->transliterationProtectedStrings ());
 		
-		# Create dynamic replacements
+		# Create dynamic replacements, e.g. /records/131979/ (test #996)
 		foreach ($replacements as $index => $matchString) {
-			if (preg_match ('|^/.+/i?$|', $matchString)) {	// e.g. a pattern /(X-XI)/i against string 'Foo X-Xi Bar' would add 'X-Xi' to the replacements list
+			if (preg_match ('|^/.+/i?$|', $matchString)) {	// e.g. a pattern /(X-XI)/i against string 'Foo X-XI Bar' would add 'X-XI' to the replacements list
 				unset ($replacements[$index]);	// Remove the pattern itself from the replacement list, as it should not be treated as a literal
 				
 				# Create a test string based on the string (but do not modify the test itself); this doubles-up any spaces, so that preg_match_all can match adjacent matches (e.g. see /records/120782/ ) due to "After the first match is found, the subsequent searches are continued on from end of the last match."
@@ -294,7 +294,7 @@ class transliteration
 				# Perform the match
 				if (preg_match_all ($matchString, $testString, $matches, PREG_PATTERN_ORDER)) {
 					foreach ($matches[0] as $match) {
-						$replacements[] = trim ($match);	// Trim so that overlapping strings e.g. "XVII- XIX" which has matches "XVII- " and " XIX" in /records/120782/ are both picked up
+						$replacements[] = trim ($match);	// Trim so that overlapping strings e.g. "XVII- XIX" which has matches "XVII- " and " XIX" in /records/120782/ (test #997) are both picked up
 					}
 				}
 			}
@@ -312,7 +312,7 @@ class transliteration
 		
 		# At this point, all strings are known to be fixed strings, not regexps
 		
-		# For performance reasons, reduce complexity of the preg_replace below by doing a basic substring match first
+		# For performance reasons, reduce complexity of the preg_replace below by doing a basic substring match first, to trim the list of c. 1,000 strings down to those present
 		foreach ($replacements as $index => $replacement) {
 			$replacement = preg_replace ('/^@@/', '', $replacement);	// Mid-word replacements - see below
 			if (!substr_count ($string, $replacement)) {
@@ -320,12 +320,12 @@ class transliteration
 			}
 		}
 		
-		# If no replacements, return the string unmodified
+		# If no replacements, return the string unmodified, e.g. /records/1053/ (test #998)
 		if (!$replacements) {
 			return $string;
 		}
 		
-		# Create a token for each protected part; this is passed back by reference, for easy restoration
+		# Create a token for each protected part; this is passed back by reference, for easy restoration, e.g. /records/72688/ (test #1001)
 		$i = 0;
 		foreach ($replacements as $replacement) {
 			$key = str_replace ('%i', $i++, $this->protectedSubstringsPattern);
@@ -341,15 +341,15 @@ class transliteration
 			}
 		}
 		
-		# Convert each pattern to be word-boundary -based; the word boundary has to be defined manually rather than using \b because some strings start/end with a bracket
+		# Convert each pattern to be word-boundary -based, e.g. /records/1058/ (test #999), except for specific cases like italics and tags, e.g. /records/1664/ (tests #993 and #994); the word boundary has to be defined manually rather than using \b because some strings start/end with a bracket, e.g. /records/180415/ (test #1000)
 		$replacements = array ();
 		$delimiter = '/';
 		foreach ($protectedParts as $replacementToken => $fixedString) {
 			
-			# Enable word boundaries by default
+			# Enable word boundaries by default, e.g. /records/1058/ (test #999)
 			$useWordBoundaries = true;
 			
-			# Determine whether a protected part is italics, as this does not have a word boundary requirement, as the italics are an explicit part of the string
+			# Determine whether a protected part is italics, as this does not have a word boundary requirement, as the italics are an explicit part of the string, e.g. /records/1664/ (tests #993 and #994)
 			if (preg_match ('|^<em>.+</em>$|', $fixedString)) {
 				$useWordBoundaries = false;
 			}
@@ -366,15 +366,16 @@ class transliteration
 				$useWordBoundaries = false;
 			}
 			
+			# Define the replacement now as a regexp, with the word boundary where enabled
 			#!# Hyphen in post- word boundary needs review
-			$search = $delimiter . ($useWordBoundaries ? '(^|\s|\(|")' : '') . preg_quote ($fixedString, $delimiter) . ($useWordBoundaries ? '($|\s|\)|\.|-|,|:|")' : '') . $delimiter;
+			$search = $delimiter . ($useWordBoundaries ? '(^|\s|\(|")' : '') . preg_quote ($fixedString, $delimiter) . ($useWordBoundaries ? '($|\s|\)|\.|-|,|:|")' : '') . $delimiter;		// Defined list rather than \b so that brackets etc. work; e.g. /records/180415/ (test #1000)
 			$replacements[$search] = '\1' . $replacementToken . '\2';	// \1 and \2 are the word boundary strings (e.g. a space) which need to be restored
 		}
 		
-		# Perform protection, by replacing with the numbered token
+		# Perform protection, by replacing with the numbered token, e.g. /records/139647/ (test #823)
 		$string = preg_replace (array_keys ($replacements), array_values ($replacements), $string);
 		
-		# Return the protected string
+		# Return the protected string; NB $protectedParts are returned by reference
 		return $string;
 	}
 	
