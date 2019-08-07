@@ -267,6 +267,7 @@ class transliteration
 		# Handle parallel titles, e.g. "Title in Russian = Equivalent in English = Equivalent in French"; see: /fields/lpt/values/ ; e.g. /records/65712/ (test #441)
 		if ($lpt) {
 			if (!$nonTransliterableParts = $this->nonTransliterablePartsInParallelTitle ($string, $lpt, $error /* passed back by reference */)) {
+				# This is a check for data consistency; as of Aug/2019 it is not triggered
 				return false;	// $error will now be written to
 			}
 			$replacements = array_merge ($replacements, array_values ($nonTransliterableParts));
