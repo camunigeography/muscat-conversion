@@ -422,29 +422,30 @@ class transliteration
 		}
 		
 		# Start a list
-		$replacements = array ();
+		$protectedStrings = array ();
 		
 		# Protect species Order names (which will not be in italics); e.g. /records/1264/ (test #1003)
-		$replacements = array_merge ($replacements, $this->getSpeciesOrderNames ());
+		$protectedStrings = array_merge ($protectedStrings, $this->getSpeciesOrderNames ());
 		
 		# Protect a defined list of species names, chemical formulae, latin abbreviations, and other strings; e.g. /records/72688/ (test #1004)
 		$definedList = application::textareaToList ($this->applicationRoot . '/tables/' . 'transliterationProtectedStrings.txt', true, true, true);
-		$replacements = array_merge ($replacements, $definedList);
+		$protectedStrings = array_merge ($protectedStrings, $definedList);
 		
-		# Protect Roman numerals, by defining dynamic replacement patterns; note that standard latin characters rather than 'real' Unicode symbols are used, as per the recommendation in the Unicode standard - see: https://en.wikipedia.org/wiki/Numerals_in_Unicode#Roman_numerals_in_Unicode
+		# Protect Roman numerals, by defining dynamic replacement patterns
+		# Note that standard latin characters rather than 'real' Unicode symbols are used, as per the recommendation in the Unicode standard - see: https://en.wikipedia.org/wiki/Numerals_in_Unicode#Roman_numerals_in_Unicode
 		#!# There is still the potential for "Volume I." at the end of a sentence, but that I. cannot be disambiguated from I. as an initial
-		$replacements[] = '/' . '(?:^|\s|\()' . '[IVXLCDM]+[-IVXLCDM]*' . '(?:$|\s|\)|,)' . '/';
-		$replacements[] = '/' . '(?:^|\s|\()' . '[IVXLCDM]+[-IVXLCDM]+' . '(?:$|\s|\)|,|\.)' . '/';	// Allow space if more than one; e.g. /records/144193/ which includes "Dactylopteriformes. - XXXVII."
+		$protectedStrings[] = '/' . '(?:^|\s|\()' . '[IVXLCDM]+[-IVXLCDM]*' . '(?:$|\s|\)|,)' . '/';
+		$protectedStrings[] = '/' . '(?:^|\s|\()' . '[IVXLCDM]+[-IVXLCDM]+' . '(?:$|\s|\)|,|\.)' . '/';	// Allow space if more than one; e.g. /records/144193/ which includes "Dactylopteriformes. - XXXVII."
 		
 		# Roman numeral special handling for I and V: Is a Roman numeral, EXCEPT treated as a letter when at start of phrase + space, or space before + dot
 		
 		
 		
 		# Cache
-		$this->transliterationProtectedStrings = $replacements;
+		$this->transliterationProtectedStrings = $protectedStrings;
 		
 		# Return the list
-		return $replacements;
+		return $protectedStrings;
 	}
 	
 	
