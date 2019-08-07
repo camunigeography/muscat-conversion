@@ -460,9 +460,7 @@ Imperial Academy of Sciences
 # Find using: `SELECT id,field,xPath,title_latin FROM transliterations WHERE field LIKE 'pu' ORDER BY title_latin;` and scan down visually
 Soviet Union
 Academy of Sciences of the USSR. The National Committee for Geodesy and Geophysics
-US Army Cold Regions Research and Engineering Laboratory
 Greenpeace
-Soviet Geophysical Committee (Academy of Sciences of the USSR)
 Oelschlägel
 Author
 Authors
@@ -506,7 +504,6 @@ Russian Academy of Sciences
 Russian Academy of Sciences. Institute of Geography
 Russian Heritage Institute
 Russian Research Institute for Cultural and Natural Heritage
-Russian-Baltic Information Centre "Blits"
 Russian-Baltic Information Centre "Blits"
 Sezam-Marketing
 Siberian Branch of Russian Academy of Sciences
@@ -568,21 +565,6 @@ Oil and gas interests in the Russian political equation
 Aerometeorological research in Antarctica during the IGY
 Arctic ice islands and how they drift
 
-# Titles (*ta)
-Language and folklore of the Alutor people
-Guiding lines of Beringia development in XXI-st century
-Inner structure of glacier in non-polar regions
-International relations in Northern Europe and the Barents Region
-On the heterogeneous structure of the atmospheric current under various meteorological conditions according to observational data from the Kola Peninsula
-Methods to determine the reliability of seasonally frozen constructions
-Experience and prospects for application of frequency-domain electromagnetic methods in frozen ground temperature monitoring
-Integrated exploration of small goldmine clusters
-The scientific research of Gerhard Ludwig von Maydell
-Catastrophic changes to mountain glaciers on the southern slopes of the Dzhungarskiy Alatau
-Isotope composition of ice core of Late Holocene pingo in the Pestsovy deposit in the vally of the River Yevoyakha in the southern Tazovskiy Peninsula
-Archaeology, ethnology and anthropology of Eurasia
-Papers from the All-Union Conference, Novosibirsk, 18-20 June 1979
-
 # Mid-sentence strings in square brackets; these are handled manually as cannot be assumed to be in English
 [electronic resource]
 [Electronic resource]
@@ -605,6 +587,7 @@ M[oscow]
 
 # *ta values to protect, as there is no *lta concept
 # See: /reports/transliterations/?xpath=/art/j/tg/ta and other variants
+Papers from the All-Union Conference, Novosibirsk, 18-20 June 1979
 Northern Vasts
 Les glaces dans l'ocean antarctique
 Isforholdene i Sydishavet
@@ -627,7 +610,6 @@ O.N. Betlingk and Turkic linguistics : collected papers
 Inner structure of glacier in non-polar regions
 International relations in Northern Europe and the Barents Region
 Integrated exploration of small goldmine clusters
-Sur la transparence de la glace pour la radiation ultraviolette du soleil
 Northern Vasts
 Northern Expanses
 Energy
