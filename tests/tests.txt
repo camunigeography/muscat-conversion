@@ -52,16 +52,16 @@ Use of " as a pseudo- word boundary character, so that "<em>...</em>" gets prote
 v "Cantus Arcticus" Ė. Rautavaary
 
 6
-Roman numerals followed by hyphen should not be transliterated (implementation pending)
+Roman numerals followed by hyphen mid-word should not be transliterated (implementation pending)
 206607
 880
-XVII-
+XVII-первая
 
 7
-Roman numerals followed by hyphen should not be transliterated (implementation pending)
-143341
+Roman numerals followed by hyphen then space should not be transliterated
+180099
 880
-XXI-
+конец XIX- начало
 
 8
 Unescape Muscat escaped asterisks @*

@@ -431,9 +431,10 @@ class transliteration
 		$definedList = application::textareaToList ($this->applicationRoot . '/tables/' . 'transliterationProtectedStrings.txt', true, true, true);
 		$protectedStrings = array_merge ($protectedStrings, $definedList);
 		
-		# Protect Roman numerals, by defining dynamic replacement patterns
+		# Protect Roman numerals, by defining dynamic replacement patterns; note that these cannot have spaces due to the doubling-spaces algorithm in protectSubstrings
 		# Note that standard latin characters rather than 'real' Unicode symbols are used, as per the recommendation in the Unicode standard - see: https://en.wikipedia.org/wiki/Numerals_in_Unicode#Roman_numerals_in_Unicode
 		#!# There is still the potential for "Volume I." at the end of a sentence, but that I. cannot be disambiguated from I. as an initial
+		# Roman numeral followed by hyphen then space is protected, e.g. /records/180099/ (test #7)
 		$protectedStrings[] = '/' . '(?:^|\s|\()' . '[IVXLCDM]+[-IVXLCDM]*' . '(?:$|\s|\)|,)' . '/';
 		$protectedStrings[] = '/' . '(?:^|\s|\()' . '[IVXLCDM]+[-IVXLCDM]+' . '(?:$|\s|\)|,|\.)' . '/';	// Allow space if more than one; e.g. /records/144193/ which includes "Dactylopteriformes. - XXXVII."
 		
