@@ -628,3 +628,10 @@ juvenalia
 Porosymposiumi Rovaniemellä
 VIIIe sériė
 Contents:
+MI-4
+IL-14
+IL-18-D
+KAMSHEL-87
+ACEX-2004
+ECHAM-4
+EURASTRENCOLD-2008
