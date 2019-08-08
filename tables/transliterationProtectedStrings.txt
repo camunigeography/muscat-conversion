@@ -532,6 +532,7 @@ Azerbaijan State Publishers
 Estonian Academy of Sciences
 Ethnoconsulting
 Gesellschaft für bedrohte völker
+N-M SOS
 
 # English-name *ts (title of series) in Russian record; e.g. /records/150424/ (test #790)
 # Find using: `SELECT id,field,xPath,title_latin FROM transliterations WHERE field LIKE 'ts' ORDER BY title_latin;` and scan down visually

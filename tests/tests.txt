@@ -5884,3 +5884,9 @@ Standalone letter within Roman numeral set, e.g. "M" with . after treated as nor
 880
 Пуцилло, М. Р.
 
+1010
+M within word not Roman numeral
+179989
+880
+МГУ
+
