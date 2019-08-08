@@ -52,10 +52,10 @@ Use of " as a pseudo- word boundary character, so that "<em>...</em>" gets prote
 v "Cantus Arcticus" Ė. Rautavaary
 
 6
-Roman numerals followed by hyphen mid-word should not be transliterated (implementation pending)
+Roman numerals followed by hyphen mid-word should not be transliterated; case with bracket; see also #1007
 206607
 880
-XVII-первая
+(XVII-первая
 
 7
 Roman numerals followed by hyphen then space should not be transliterated
@@ -5865,3 +5865,15 @@ In 880, when handling parallel titles, Russian parts are not part of protected s
 85867
 880
 ‡aВладимир
+
+1007
+Roman numerals followed by hyphen mid-word should not be transliterated; case without bracket; see also #6
+206529
+880
+XVIII-начале
+
+1008
+Roman numeral range with V-...
+45779
+880
+в V-VI секторах

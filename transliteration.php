@@ -439,7 +439,7 @@ class transliteration
 		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]*)' . '(?:$|\s|\)|,)' . '/';		// Word boundary used to avoid e.g. "Vladimir" being treated as non-translitered 'V' + transliterated 'ladimir', e.g. /records/85867/ (test #1006)
 		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]+)' . '(?:$|\s|\)|,|\.)' . '/';	// Allow space if more than one; e.g. /records/144193/ which includes "Dactylopteriformes. - XXXVII."
 		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]*)' . '(?:-)(?:nachale|nachalo|nachala|pervoy|pervaya|seredine|seredina|go)' . '(?:$|\s|\)|,)' . '/';
-		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]+)' . '(?:-)(?:nachale|nachalo|nachala|pervoy|pervaya|seredine|seredina|go)' . '(?:$|\s|\)|,|\.)' . '/';	// E.g. /records/206607/ (test #6)
+		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]+)' . '(?:-)(?:nachale|nachalo|nachala|pervoy|pervaya|seredine|seredina|go)' . '(?:$|\s|\)|,|\.)' . '/';	// E.g. /records/206607/ (test #6), /records/206529/ (test #1007)
 		
 		# Roman numeral special handling for I and V: Is a Roman numeral, EXCEPT treated as a letter when at start of phrase + space, or space before + dot
 		
