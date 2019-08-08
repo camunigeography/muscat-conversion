@@ -5877,3 +5877,10 @@ Roman numeral range with V-...
 45779
 880
 в V-VI секторах
+
+1009
+Standalone letter within Roman numeral set, e.g. "M" with . after treated as normal letter transliterated
+4578
+880
+Пуцилло, М. Р.
+
