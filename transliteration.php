@@ -284,7 +284,8 @@ class transliteration
 		# Protect known strings to protect from transliteration (Latin abbreviations, Order names, Roman numeral pattern regexps), e.g. /records/72688/ (test #995), /records/195773/ (test #837)
 		$replacements = array_merge ($replacements, $this->transliterationProtectedStrings ());
 		
-		# Create dynamic replacements, e.g. /records/131979/ (test #996)
+		# Create dynamic replacements; e.g. /records/131979/ (test #996)
+		# These must have a single capture bracket-set () from which the extraction is taken (rather than the full string), e.g. match "/(XVII)-pervaya/" will match source string "XVII-pervaya" but extract "XVII" as the result for protection; e.g. /records/206607/ (test #6)
 		foreach ($replacements as $index => $matchString) {
 			if (preg_match ('|^/.+/i?$|', $matchString)) {	// e.g. a pattern /(X-XI)/i against string 'Foo X-XI Bar' would add 'X-XI' to the replacements list
 				unset ($replacements[$index]);	// Remove the pattern itself from the replacement list, as it should not be treated as a literal
@@ -294,7 +295,7 @@ class transliteration
 				
 				# Perform the match
 				if (preg_match_all ($matchString, $testString, $matches, PREG_PATTERN_ORDER)) {
-					foreach ($matches[0] as $match) {
+					foreach ($matches[1] as $match) {
 						$replacements[] = trim ($match);	// Trim so that overlapping strings e.g. "XVII- XIX" which has matches "XVII- " and " XIX" in /records/120782/ (test #997) are both picked up
 					}
 				}
@@ -435,8 +436,10 @@ class transliteration
 		# Note that standard latin characters rather than 'real' Unicode symbols are used, as per the recommendation in the Unicode standard - see: https://en.wikipedia.org/wiki/Numerals_in_Unicode#Roman_numerals_in_Unicode
 		#!# There is still the potential for "Volume I." at the end of a sentence, but that I. cannot be disambiguated from I. as an initial
 		# Roman numeral followed by hyphen then space is protected, e.g. /records/180099/ (test #7)
-		$protectedStrings[] = '/' . '(?:^|\s|\()' . '[IVXLCDM]+[-IVXLCDM]*' . '(?:$|\s|\)|,)' . '/';
-		$protectedStrings[] = '/' . '(?:^|\s|\()' . '[IVXLCDM]+[-IVXLCDM]+' . '(?:$|\s|\)|,|\.)' . '/';	// Allow space if more than one; e.g. /records/144193/ which includes "Dactylopteriformes. - XXXVII."
+		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]*)' . '(?:$|\s|\)|,)' . '/';
+		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]+)' . '(?:$|\s|\)|,|\.)' . '/';	// Allow space if more than one; e.g. /records/144193/ which includes "Dactylopteriformes. - XXXVII."
+		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]*)' . '(?:-)(?:nachale|nachalo|nachala|pervoy|pervaya|seredine|seredina|go)' . '(?:$|\s|\)|,)' . '/';
+		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]+)' . '(?:-)(?:nachale|nachalo|nachala|pervoy|pervaya|seredine|seredina|go)' . '(?:$|\s|\)|,|\.)' . '/';	// E.g. /records/206607/ (test #6)
 		
 		# Roman numeral special handling for I and V: Is a Roman numeral, EXCEPT treated as a letter when at start of phrase + space, or space before + dot
 		
