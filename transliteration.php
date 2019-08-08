@@ -436,7 +436,7 @@ class transliteration
 		# Note that standard latin characters rather than 'real' Unicode symbols are used, as per the recommendation in the Unicode standard - see: https://en.wikipedia.org/wiki/Numerals_in_Unicode#Roman_numerals_in_Unicode
 		#!# There is still the potential for "Volume I." at the end of a sentence, but that I. cannot be disambiguated from I. as an initial
 		# Roman numeral followed by hyphen then space is protected, e.g. /records/180099/ (test #7)
-		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]*)' . '(?:$|\s|\)|,)' . '/';
+		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]*)' . '(?:$|\s|\)|,)' . '/';		// Word boundary used to avoid e.g. "Vladimir" being treated as non-translitered 'V' + transliterated 'ladimir', e.g. /records/85867/ (test #1006)
 		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]+)' . '(?:$|\s|\)|,|\.)' . '/';	// Allow space if more than one; e.g. /records/144193/ which includes "Dactylopteriformes. - XXXVII."
 		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]*)' . '(?:-)(?:nachale|nachalo|nachala|pervoy|pervaya|seredine|seredina|go)' . '(?:$|\s|\)|,)' . '/';
 		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]+)' . '(?:-)(?:nachale|nachalo|nachala|pervoy|pervaya|seredine|seredina|go)' . '(?:$|\s|\)|,|\.)' . '/';	// E.g. /records/206607/ (test #6)

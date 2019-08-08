@@ -5859,3 +5859,9 @@ In 880, when handling parallel titles, Russian parts are not part of protected s
 191554
 880
 сценария ECHAM-4
+
+1006
+880 V at start of ordinary word treated as letter, not Roman numeral
+85867
+880
+‡aВладимир
