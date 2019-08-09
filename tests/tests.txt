@@ -5926,3 +5926,8 @@ V in middle of text is Roman numeral
 880
 исследования в Антарктике
 
+1018
+880 V (in/at) at start of sentence in middle of string is Russian word, not Roman numeral
+15502
+880
+. В двух

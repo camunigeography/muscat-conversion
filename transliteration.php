@@ -284,6 +284,9 @@ class transliteration
 		# Protect known strings to protect from transliteration (Latin abbreviations, Order names, Roman numeral pattern regexps), e.g. /records/72688/ (test #995), /records/195773/ (test #837)
 		$replacements = array_merge ($replacements, $this->transliterationProtectedStrings ());
 		
+		# Protect Roman numerals, dynamically based on the specific string
+		$replacements = array_merge ($replacements, $this->protectRomanNumeralsIV ($string));
+		
 		# Create dynamic replacements; e.g. /records/131979/ (test #996)
 		# These must have a single capture bracket-set () from which the extraction is taken (rather than the full string), e.g. match "/(XVII)-pervaya/" will match source string "XVII-pervaya" but extract "XVII" as the result for protection; e.g. /records/206607/ (test #6)
 		foreach ($replacements as $index => $matchString) {
@@ -436,21 +439,38 @@ class transliteration
 		# Note that standard latin characters rather than 'real' Unicode symbols are used, as per the recommendation in the Unicode standard - see: https://en.wikipedia.org/wiki/Numerals_in_Unicode#Roman_numerals_in_Unicode
 		#!# There is still the potential for "Volume I." at the end of a sentence, but that I. cannot be disambiguated from I. as an initial
 		# Roman numeral followed by hyphen then space is protected, e.g. /records/180099/ (test #7)
-		$protectedStrings[] = '/' .   '(?:\s)'    . '([IV])' . '(?:$|\s|\)|,)' . '/';	// Capitals I and V are found to be words when at the start of the sentence, e.g. /records/5017/ (test #1011) and /records/84560/ (test #1015), but occur as Roman numerals when in the middle of a sentence, e.g. /records/102516/ (test #1014) and /records/28472/ (test #1016)
 		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([XLCDM]+[-IVXLCDM]*)' . '(?:$|\s|\)|,)' . '/';		// Word boundary used to avoid e.g. "Vladimir" being treated as non-translitered 'V' + transliterated 'ladimir', e.g. /records/85867/ (test #1006); standalone letter without "." after (e.g. as in "M.L." in author) not treated as Roman numeral, e.g. /records/4578/ (test #1009)
 		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]+)' . '(?:$|\s|\)|,|\.)' . '/';	// Allow space if more than one; e.g. /records/144193/ which includes "Dactylopteriformes. - XXXVII."
 		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]*)' . '(?:-)(?:nachale|nachalo|nachala|pervoy|pervaya|seredine|seredina|go)' . '(?:$|\s|\)|,)' . '/';
 		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]+)' . '(?:-)(?:nachale|nachalo|nachala|pervoy|pervaya|seredine|seredina|go)' . '(?:$|\s|\)|,|\.)' . '/';	// E.g. /records/206607/ (test #6), /records/206529/ (test #1007)
 		
 		# Roman numeral special handling for I and V: Is a Roman numeral, EXCEPT treated as a letter when at start of phrase + space, or space before + dot
-		
-		
+		/* Can't get this to work, so handled instead by protectRomanNumeralsIV below
+		$protectedStrings[] = '/([=?!.] [IV] (*SKIP)(*FAIL)|(?: )[IV](?: ))/';	// See: https://regex101.com/r/9Xz0ce/3 and https://stackoverflow.com/questions/57431509/
+		*/
 		
 		# Cache
 		$this->transliterationProtectedStrings = $protectedStrings;
 		
 		# Return the list
 		return $protectedStrings;
+	}
+	
+	
+	# Function to protect (standalone) I and V Roman numerals when in the middle of a sentence; this is a dynamic function that registers a protected string specific to the incoming source string
+	# See also: https://regex101.com/r/9Xz0ce/3 and https://stackoverflow.com/questions/57431509/
+	private function protectRomanNumeralsIV ($string)
+	{
+		# Protect (standalone) I and V Roman numerals when in the middle of a sentence
+		# Capitals I and V are found to be words when at the start of the sentence, e.g. /records/5017/ (test #1011) and /records/84560/ (test #1015), but occur as Roman numerals when in the middle of a sentence, e.g. /records/102516/ (test #1014) and /records/28472/ (test #1016)
+		if (preg_match ('/ ([IV]) /', $string, $matches)) {
+			if (!preg_match ('/[=?!.] ([IV]) /', $string)) {
+				return array ($matches[1]);
+			}
+		}
+		
+		# Return no result
+		return array ();
 	}
 	
 	
