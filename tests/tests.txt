@@ -5886,7 +5886,43 @@ Standalone letter within Roman numeral set, e.g. "M" with . after treated as nor
 
 1010
 M within word not Roman numeral
-179989
+36362
 880
 МГУ
+
+1011
+880 V (in/at) at start of title is Russian word, not Roman numeral
+5017
+880
+В стране
+
+1012
+880 V (in/at) at start of title is Russian word, not Roman numeral - parallel title
+122000
+880
+В Амге была весна
+
+1014
+V in middle of text is Roman numeral
+102516
+880
+Материалы V региональной
+
+1015
+880 I (and) at start of title is Russian word, not Roman numeral
+84560
+880
+И зональный
+
+1016
+880 Capital I in middle of text is Roman numeral
+28472
+880
+Часть I Основные
+
+1017
+880 word i (lower-case) in middle of text is Russian word
+29862
+880
+исследования в Антарктике
 
