@@ -1220,7 +1220,7 @@ class muscatConversion extends frontControllerApplication
 		if ($table['Title']) {
 			$html .= "\n<h3>" . htmlspecialchars ($table['Title']) . '</h3>';
 		}
-		#!# Need to support allowHtml properly - currently allows through entities
+		#!#I Need to support allowHtml properly - currently allows through entities
 		$html .= application::htmlTableKeyed ($table, array (), $omitEmpty = true, 'lines presented', $allowHtml = array ('In journal', 'Keywords', 'Notes'));
 		
 		# Debug info
@@ -1761,7 +1761,7 @@ class muscatConversion extends frontControllerApplication
 		if ($linkPrefix) {
 			foreach ($data as $index => $record) {
 				$title = htmlspecialchars ($record['title']);
-				#!# Using htmlspecialchars seems to cause double-encoding of &amp; or, e.g. the link becomes buggy on /fields/pu/values/ for value = '("Optimus")'
+				#!#I Using htmlspecialchars seems to cause double-encoding of &amp; or, e.g. the link becomes buggy on /fields/pu/values/ for value = '("Optimus")'
 				# Note that a value containing only a dot is not possible to create a link for: http://stackoverflow.com/questions/3856693/a-url-resource-that-is-a-dot-2e
 				$data[$index]['title'] = "<a href=\"{$this->baseUrl}{$linkPrefix}" . urlencode ($record['title']) . "/\">{$title}</a>";
 			}
@@ -2281,9 +2281,9 @@ class muscatConversion extends frontControllerApplication
 	# Search
 	public function search ()
 	{
-		#!# Move fieldsindex code into search index and reduce fields
-		#!# Work out why search also seems to check transliterated version
-		#!# htmlspecialchars on each part of result
+		#!#I Move fieldsindex code into search index and reduce fields
+		#!#I Work out why search also seems to check transliterated version
+		#!#I htmlspecialchars on each part of result
 		
 		/*
 		Main fields that people want to search within are:
@@ -2310,12 +2310,12 @@ class muscatConversion extends frontControllerApplication
 		*/
 		
 		# Determine whether to do case-sensitive matching
-		#!# Currently only implemented for the anywhere key
+		#!#I Currently only implemented for the anywhere key
 		$caseSensitivity = (isSet ($_GET['casesensitive']) && ($_GET['casesensitive'] == '1') ? 'BINARY ' : '');
 		
 		# Determine whether to force matching for a complete value rather than part of a value, i.e. whether 'science' matches only 'science' rather than 'academy of science' also
-		#!# Currently only implemented for the anywhere key
-		#!# Doesn't seem to work
+		#!#I Currently only implemented for the anywhere key
+		#!#I Doesn't seem to work
 		$completeMatch = (isSet ($_GET['completematch']) && ($_GET['completematch'] == '1'));
 		
 		# Define the search clause templates
@@ -2492,8 +2492,8 @@ class muscatConversion extends frontControllerApplication
 			'inputAsSearch' => true,
 			'autocomplete' => $this->baseUrl . '/data.html?do=searchautocomplete&field=%field',	// term=... will be added
 			'attributes' => array (
-				#!# type=search should not be required - not sure what bug in ultimateForm is causing this
-				'title' => array ('type' => 'search', 'append' => '<input type="submit" value="Search" />', 'autocompleteOptions' => $titleAutocompleteOptions),	#!# Ideally, ultimateForm should have a natively way to add a second submit button within the form
+				#!#C type=search should not be required - not sure what bug in ultimateForm is causing this
+				'title' => array ('type' => 'search', 'append' => '<input type="submit" value="Search" />', 'autocompleteOptions' => $titleAutocompleteOptions),	#!#C Ideally, ultimateForm should have a natively way to add a second submit button within the form
 				'region' => array ('autocomplete' => false, 'type' => 'select', 'nullText' => 'Any', 'values' => array_keys ($searchClauses['region']), ),
 				'year' => array ('regexp' => '^([0-9]{4})$', 'size' => 7, 'maxlength' => 4, ),
 				'anywhere' => array ('autocomplete' => false, ),
