@@ -2180,7 +2180,7 @@ class marcConversion
 	
 	
 	# Helper function to determine the record type
-	#!#C Copied from generate008 class
+	#!#C Copied from generate008 class; confirmed the same (equivalent) in August 2019
 	private function recordType ()
 	{
 		# Determine the record type, used by subroutines
@@ -3208,7 +3208,7 @@ class marcConversion
 	
 	
 	# Helper function to unescape Muscat asterisks; there is only one example and it is not used, but manual tests confirm it is fine
-	#!#C Copied from muscatConversion (to avoid memory issues)
+	#!#C Copied from muscatConversion (to avoid memory issues); confirmed the same in August 2019
 	private function unescapeMuscatAsterisks ($string)
 	{
 		return str_replace ('@*', '*', $string);
