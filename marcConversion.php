@@ -2248,7 +2248,7 @@ class marcConversion
 				'Sound disc'			=> 'sd#||||nn|||||',
 				'DVD'					=> 'vd#|v||z|',
 				'Videorecording'		=> 'vf#|u||u|',			// E.g. /records/9992/ (test #392)
-				'Text'					=> 'ta',				// #!# No test available yet as no records
+				'Text'					=> 'ta',				// No records explicitly marked as 'Text' (hence no test available), but 'ta' returned at start if no form
 			);
 			
 			# Look up the value and return it
