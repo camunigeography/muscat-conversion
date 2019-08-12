@@ -52,7 +52,7 @@ Bug markers are defined as follows:
 Author
 ------
 
-Martin Lucas-Smith, Department of Geography, University of Cambridge, 2012-16.
+Martin Lucas-Smith, Department of Geography, University of Cambridge, 2012-19.
 
 
 License
