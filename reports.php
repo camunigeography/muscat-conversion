@@ -2670,11 +2670,12 @@ class reports
 		$query = "
 			SELECT
 				'bracketednfcount' AS report,
-				id AS recordId
-			FROM catalogue_xml
+				recordId
+			FROM catalogue_processed
 			WHERE
-				    ExtractValue(xml, '/*/tg/t') LIKE '[%'
-				AND ExtractValue(xml, '/*/tg/t') REGEXP \"" . '^' . '\\\\[' . '(' . implode ('|', array_keys ($leadingArticles)) . ')' . "\"
+				    field = 't'
+				AND value LIKE '[%'
+				AND value REGEXP \"" . '^' . '\\\\[' . '(' . implode ('|', array_keys ($leadingArticles)) . ')' . "\"
 		";
 		
 		# Return the query
