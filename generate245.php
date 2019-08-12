@@ -321,8 +321,6 @@ class generate245
 		# Does the *t include the delimiter? E.g. /records/1119/ (test #172)
 		if ($delimiter) {
 			
-			#!# Need to check spacing rules here and added trimming; e.g. see /records/12359/
-			
 			# Add all text before delimiter; e.g. /records/1119/ (test #172)
 			$titleComponents = explode ($delimiter, $t, 2);
 			$title .= $this->doubleDagger . 'a' . trim ($titleComponents[0]);
