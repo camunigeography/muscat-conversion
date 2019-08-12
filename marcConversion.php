@@ -144,7 +144,6 @@ class marcConversion
 		$this->generateAuthors = new generateAuthors ($this, $languageModes);
 		
 		# Load generate008 support
-		#!# Use of marcConversion::lookupValue in generate008 may be creating a circular reference
 		require_once ('generate008.php');
 		$this->generate008 = new generate008 ($this);
 		
