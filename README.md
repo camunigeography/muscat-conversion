@@ -37,6 +37,18 @@ Dependencies
 * [FamFamFam Silk Icons set](http://www.famfamfam.com/lab/icons/silk/)
 
 
+Bug marker notes
+----------------
+
+Bug markers are defined as follows:
+
+* `#!#` General, unresolved
+* `#!#C` Code-purity -related, not essential to fix
+* `#!#I` Interface-related, and do not affect conversion correctness
+* `#!#M` Merging-related, unproblematic as merging is disabled in final release
+* `#!#H` Indicates hard-coded language (Russian), will not be fixed as other transliterations deemed out of scope
+
+
 Author
 ------
 
