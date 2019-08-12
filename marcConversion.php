@@ -4254,7 +4254,7 @@ class marcConversion
 		# Can verify presence of languages using: `SELECT value, COUNT(*) FROM catalogue_processed WHERE field = 'lang' GROUP BY value LIMIT 9999;`
 		$leadingArticles = array (
 			'a ' => 'English Galician Hungarian Portuguese',
-			'al-' => 'Arabic',			// #!# Check what should happen for 245 field in /records/62926/ which is an English record but with Al- name at start of title
+			'al-' => 'Arabic',			// No instances of lang=Arabic anyway; 245 field in /records/62926/ with Al- as a name at start of title is an English record, so correctly has 0 nfcount (test #1020)
 			'an ' => 'English',
 			'ane ' => 'Middle-English',
 			'das ' => 'German',

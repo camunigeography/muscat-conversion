@@ -5938,3 +5938,10 @@ Roman numerals followed by hyphen mid-word should not be transliterated; case wi
 880
 XVII-середине
 
+1020
+Title with Arabic-style name Al- at start, in English record, correctly gets nfcount = 0
+62926
+i245
+/0$/
+
+
