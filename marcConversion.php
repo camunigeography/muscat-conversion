@@ -1876,7 +1876,7 @@ class marcConversion
 	}
 	
 	
-	# Macro to convert language codes and notes for the 041 field; see: http://www.loc.gov/marc/bibliographic/bd041.html
+	# Macro to convert language codes and notes for the 041 field; see: https://www.loc.gov/marc/bibliographic/bd041.html
 	private function macro_languages041 ($value_ignored, $indicatorMode = false, &$errorHtml)
 	{
 		# Start the string
@@ -2203,7 +2203,7 @@ class marcConversion
 	# Macro for generating a datetime; e.g. /records/1000/ (test #390)
 	private function macro_migrationDatetime ($value)
 	{
-		# Date and Time of Latest Transaction; see: http://www.loc.gov/marc/bibliographic/bd005.html
+		# Date and Time of Latest Transaction; see: https://www.loc.gov/marc/bibliographic/bd005.html
 		return date ('YmdHis.0');
 	}
 	
@@ -2211,12 +2211,12 @@ class marcConversion
 	# Macro for generating a datetime; e.g. /records/1000/ (test #391)
 	private function macro_migrationDate ($value)
 	{
-		# Date and Time of Latest Transaction; see: http://www.loc.gov/marc/bibliographic/bd005.html
+		# Date and Time of Latest Transaction; see: https://www.loc.gov/marc/bibliographic/bd005.html
 		return date ('Ymd');
 	}
 	
 	
-	# Macro for generating the 007 field, Physical Description Fixed Field; see: http://www.loc.gov/marc/bibliographic/bd007.html
+	# Macro for generating the 007 field, Physical Description Fixed Field; see: https://www.loc.gov/marc/bibliographic/bd007.html
 	private function macro_generate007 ($value)
 	{
 		# No form value
@@ -2805,7 +2805,7 @@ class marcConversion
 	}
 	
 	
-	# Helper function for 533 - Reproduction Note; see: http://www.loc.gov/marc/bibliographic/bd533.html , e.g. /records/142020/ (test #715)
+	# Helper function for 533 - Reproduction Note; see: https://www.loc.gov/marc/bibliographic/bd533.html , e.g. /records/142020/ (test #715)
 	private function macro_generate533Note ($note)
 	{
 		# End if the note is not a reproduction note, e.g. /records/1150/ (test #718)

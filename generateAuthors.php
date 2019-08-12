@@ -207,7 +207,7 @@ class generateAuthors
 	}
 	
 	
-	# Other entities generation entry point, which assumes 700 but may become 710/711; see: http://www.loc.gov/marc/bibliographic/bd700.html
+	# Other entities generation entry point, which assumes 700 but may become 710/711; see: https://www.loc.gov/marc/bibliographic/bd700.html
 	/*
 	 * This is basically all the people involved in the book except the first author, which if present is covered in 100/110/111. (tests #74, #75)
 	 * It includes people in the analytic (child) records, but limited to the first of them for each such child record
@@ -733,7 +733,7 @@ class generateAuthors
 	}
 	
 	
-	# Function to parse a conference title; see: http://www.loc.gov/marc/bibliographic/bd111.html
+	# Function to parse a conference title; see: https://www.loc.gov/marc/bibliographic/bd111.html
 	private function parseConferenceTitle ($n1)
 	{
 		# Convert separator used in the data from , to ;
@@ -822,7 +822,7 @@ class generateAuthors
 			$n2FieldValue = $n2;
 		}
 		
-		# Any initials in the $a subfield should be separated by a space (test #91); e.g. /records/1296/ ; note that 245 $c does not seem to do the same: http://www.loc.gov/marc/bibliographic/bd245.html (test #92)
+		# Any initials in the $a subfield should be separated by a space (test #91); e.g. /records/1296/ ; note that 245 $c does not seem to do the same: https://www.loc.gov/marc/bibliographic/bd245.html (test #92)
 		$n2FieldValue = $this->spaceOutInitials ($n2FieldValue);	// Spacing-out needed in e.g. /records/1296/ (test #91)
 		
 		# Add the value
@@ -1125,7 +1125,7 @@ class generateAuthors
 		# Assemble the string if there are replacements
 		if ($replacements) {
 			$replacements = array_unique ($replacements);
-			$subfieldCode = (in_array ($this->field, array (111, 711)) ? 'j' : 'e');	// X11 have Relator Term in $j; see: http://www.loc.gov/marc/bibliographic/bd711.html
+			$subfieldCode = (in_array ($this->field, array (111, 711)) ? 'j' : 'e');	// X11 have Relator Term in $j; see: https://www.loc.gov/marc/bibliographic/bd711.html
 			foreach ($replacements as $replacement) {
 				$value .= ",{$this->doubleDagger}{$subfieldCode}{$replacement}";	// No space before $e, whether the first or multiple, as shown at https://www.loc.gov/marc/bibliographic/bd700.html , e.g. /records/2295/ (tests #121, #122)
 			}

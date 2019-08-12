@@ -1,6 +1,6 @@
 <?php
 
-# Class to generate the complex 008 field; see: http://www.loc.gov/marc/bibliographic/bd008.html
+# Class to generate the complex 008 field; see: https://www.loc.gov/marc/bibliographic/bd008.html
 class generate008
 {
 	# Constructor

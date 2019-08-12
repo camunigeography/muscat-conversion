@@ -1,6 +1,6 @@
 <?php
 
-# Class to generate the complex 245 (Title and statement of responsibility) field; see: http://www.loc.gov/marc/bibliographic/bd245.html
+# Class to generate the complex 245 (Title and statement of responsibility) field; see: https://www.loc.gov/marc/bibliographic/bd245.html
 class generate245
 {
 	# Constructor
@@ -325,7 +325,7 @@ class generate245
 			$titleComponents = explode ($delimiter, $t, 2);
 			$title .= $this->doubleDagger . 'a' . trim ($titleComponents[0]);
 			
-			# If there is a *form, Add to 245 field'; "It follows the title proper ... and precedes the remainder of the title" as per spec at http://www.loc.gov/marc/bibliographic/bd245.html ; e.g. /records/12359/ (test #173)
+			# If there is a *form, Add to 245 field'; "It follows the title proper ... and precedes the remainder of the title" as per spec at https://www.loc.gov/marc/bibliographic/bd245.html ; e.g. /records/12359/ (test #173)
 			$title .= $h;
 			
 			# Add all text after delimiter; e.g. /records/1119/ (test #172), /records/139981/ (test #506); no space between between colon and $b, or between $b and first letter of first word of subtitle, e.g. /records/1247/ (test #798)
