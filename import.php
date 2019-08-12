@@ -1540,7 +1540,7 @@ class import
 	private function batchTransliterateStrings ($strings, $transliterationFunction)
 	{
 		# Define supported language
-		#!# Need to remove explicit dependency
+		#!#H Need to remove explicit dependency
 		$language = 'Russian';
 		
 		# Compile the strings to a TSV string, tabs never appearing in the original data, so it is safe to use \t as the separator

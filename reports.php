@@ -2687,7 +2687,7 @@ class reports
 	public function report_russianbracketedtitle ()
 	{
 		# Define the query
-		#!# Hardcoded language value
+		#!#H Hardcoded language value
 		$query = "
 			SELECT
 				'russianbracketedtitle' AS report,

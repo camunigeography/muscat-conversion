@@ -403,7 +403,7 @@ class transliteration
 		$parallelTitles = array_combine ($parallelTitleLanguages, $parallelTitleComponents);
 		
 		# Set the supported language as the part to be transliterated
-		#!# Currently hard-coded support for Russian only
+		#!#H Currently hard-coded support for Russian only
 		if (!isSet ($parallelTitles['Russian'])) {
 			$error = 'Transliteration requested with parallel titles list that does not include Russian';
 			return false;
