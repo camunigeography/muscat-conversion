@@ -441,8 +441,8 @@ class transliteration
 		# Roman numeral followed by hyphen then space is protected, e.g. /records/180099/ (test #7)
 		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([XLCDM]+[-IVXLCDM]*)' . '(?:$|\s|\)|,)' . '/';		// Word boundary used to avoid e.g. "Vladimir" being treated as non-translitered 'V' + transliterated 'ladimir', e.g. /records/85867/ (test #1006); standalone letter without "." after (e.g. as in "M.L." in author) not treated as Roman numeral, e.g. /records/4578/ (test #1009)
 		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]+)' . '(?:$|\s|\)|,|\.)' . '/';	// Allow space if more than one; e.g. /records/144193/ which includes "Dactylopteriformes. - XXXVII."
-		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]*)' . '(?:-)(?:nachale|nachalo|nachala|pervoy|pervaya|seredine|seredina|go)' . '(?:$|\s|\)|,)' . '/';
-		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]+)' . '(?:-)(?:nachale|nachalo|nachala|pervoy|pervaya|seredine|seredina|go)' . '(?:$|\s|\)|,|\.)' . '/';	// E.g. /records/206607/ (test #6), /records/206529/ (test #1007)
+		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]*)' . '(?:-)(?:nachale|nachalo|nachala|pervoy|pervoĭ|pervaya|pervai͡a|seredine|seredina|go)' . '(?:$|\s|\)|,)' . '/';
+		$protectedStrings[] = '/' . '(?:^|\s|\()' . '([IVXLCDM]+[-IVXLCDM]+)' . '(?:-)(?:nachale|nachalo|nachala|pervoy|pervoĭ|pervaya|pervai͡a|seredine|seredina|go)' . '(?:$|\s|\)|,|\.)' . '/';	// E.g. LoC variants pervoĭ/pervai͡ /records/206607/ (test #6), /records/206529/ (test #1007); and others which are the same in BGN/PCGN vs LoC (e.g. seredine): /records/61945/ (test #1019)
 		
 		# Roman numeral special handling for I and V: Is a Roman numeral, EXCEPT treated as a letter when at start of phrase + space, or space before + dot
 		/* Can't get this to work, so handled instead by protectRomanNumeralsIV below
