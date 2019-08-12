@@ -2660,7 +2660,6 @@ class reports
 	
 	
 	# Records with a bracketed title starting with a leading article, for checking the nfcount; this is to try to deal with the issue that titles starting [ , e.g. /records/9196/ (test #359)
-	#!# Check for *to and *tc too?
 	public function report_bracketednfcount ()
 	{
 		# Get the leading articles list, indexed by language
@@ -2668,12 +2667,12 @@ class reports
 		
 		# Define the query
 		$query = "
-			SELECT
+			SELECT DISTINCT
 				'bracketednfcount' AS report,
 				recordId
 			FROM catalogue_processed
 			WHERE
-				    field = 't'
+				    field IN('t', 'tc', 'to')
 				AND value LIKE '[%'
 				AND value REGEXP \"" . '^' . '\\\\[' . '(' . implode ('|', array_keys ($leadingArticles)) . ')' . "\"
 		";
