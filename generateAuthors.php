@@ -397,7 +397,7 @@ class generateAuthors
 				
 				# When considering the *e/*n, there is a guard clause to skip cases of 'the author' as the 100 field would have already pulled in that person (e.g. the 100 field could create "<name> $eIllustrator" indicating the author <name> is also the illustrator); e.g. /records/147053/ (test #84)
 				#!# Move this check into the main processing?
-				#!# Check this is as expected for e.g. /records/147053/
+				#!# Check this is as expected for e.g. /records/147053/ - which has no reference in the 1xx/7xx to the author as also being an illustrator
 				$n1 = $this->marcConversion->xPathValue ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]/n1");
 				if ($n1 == 'the author') {
 					$nIndex++;
