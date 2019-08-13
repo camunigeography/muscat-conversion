@@ -1308,8 +1308,8 @@ class import
 		$this->databaseConnection->query ($query);	// 413 rows affected
 		
 		# Handle the special case of *lpt for *t - if there is an *lpt in the same half of the record, update the language of that *t shared to the *lpt string, e.g. /records/6498/
-		#!# Check now working for "English = Russian" but where the record is marked as *lang=English, e.g. /records/135449/
 		# This gives 724 updates, which exactly matches 724 results for `SELECT * FROM `catalogue_processed` WHERE `field` = 'lpt';`
+		# Works fine for "English = Russian" but where the record is marked as *lang=English, e.g. /records/135449/ or /records/172050/ (test #845)
 		$this->logger ('|-- In ' . __METHOD__ . ', setting the *lpt parallel title language for *t');
 		$query = "
 			UPDATE transliterations
