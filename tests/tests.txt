@@ -5949,3 +5949,17 @@ For a Russian record, if the title is [in brackets] but the author is transliter
 6996
 880
 ‡6245-02/(N‡a[Polyarnyye strany] /‡cЮлий Михайлович Шокальский.
+
+1022
+In 880, allow transliteration for special case full strings [in brackets]: *t
+7826
+880
+‡6245-02/(N‡a[Сопоставление температурных условий в высоких широтах южного и северного полушария] /‡cА. Воейков.
+
+1023
+In 880, allow transliteration for special case full strings [in brackets]: *pu
+29343
+880
+‡aMoscow :‡b[Комитет по Международного геофизического года],‡c
+
+

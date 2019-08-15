@@ -19,6 +19,7 @@ class transliteration
 	{
 		# Create property handles
 		$this->databaseConnection = $muscatConversion->databaseConnection;
+		$this->settings = $muscatConversion->settings;
 		$this->applicationRoot = $muscatConversion->applicationRoot;
 		
 		# Ensure the transliteration module is present
@@ -30,6 +31,9 @@ class transliteration
 			echo $html;
 			return true;
 		}
+		
+		# Special-case cases of [titles in square brackets] that should still be transliterated
+		$this->transliterableFullStringsInBrackets = $this->assignTransliterableFullStringsInBrackets ();
 		
 	}
 	
@@ -46,6 +50,13 @@ class transliteration
 	public function getSupportedReverseTransliterationLanguages ()
 	{
 		return $this->supportedReverseTransliterationLanguages;
+	}
+	
+	
+	# Getter for transliterableFullStringsInBrackets
+	public function getTransliterableFullStringsInBrackets ()
+	{
+		return $this->transliterableFullStringsInBrackets;
 	}
 	
 	
@@ -477,6 +488,9 @@ class transliteration
 	# Function to determine a [Title fully in square brackets like this]; e.g. /records/31750/ (test #822)
 	private function titleFullyInBrackets ($title)
 	{
+		# Omit special cases, e.g. *t example in /records/7826/ (test #1022) and *pu example in /records/29343/ (test #1023)
+		if (in_array ($title, $this->transliterableFullStringsInBrackets)) {return false;}
+		
 		# Check for [...] ; the regexp should match the MySQL equivalent in createTransliterationsTable ()
 		$literalBackslash = '\\';
 		return (preg_match ('/' . "^{$literalBackslash}[([^{$literalBackslash}]]+){$literalBackslash}]$" . '/', $title));
@@ -493,6 +507,49 @@ class transliteration
 		
 		# Return the list
 		return $orders;
+	}
+	
+	
+	# Function to define a list of full strings [in square brackets] that should be transliterated, because they are simply not in the publication itself but otherwise known; e.g. *t example in /records/7826/ (test #1022) and *pu example in /records/29343/ (test #1023)
+	private function assignTransliterableFullStringsInBrackets ()
+	{
+		# Define a list of shards that should be protected
+		# Identified by inspection of list `SELECT * FROM catalogue_processed WHERE value LIKE '[%' AND recordLanguage LIKE 'Russian' AND value NOT IN ('[n.d]',  '[n.p.]' , '[n.pub.]', '[Anon.]', '[Leningrad]', '[St. Petersburg]', '[Moscow]') AND field NOT IN('d', 'p','note', 'tc') LIMIT 500;`
+		$shards = array (
+			// *pu:
+			29343	=> '/doc/pg/pu',
+			29344	=> '/doc/pg/pu',
+			30052	=> '/doc/pg/pu',
+			34729	=> '/doc/pg/pu',
+			139645	=> '/doc/pg/pu',
+			212337	=> '/doc/pg/pu',
+			215922	=> '/doc/pg/pu',
+			// *t:
+			6996	=> '/art/tg/t',
+			7826	=> '/art/tg/t',
+			13057	=> '/art/j/tg/t',
+			116039	=> '/art/tg/t',
+			142468	=> '/art/tg/t',
+		);
+		
+		# Combine to create an efficient query
+		$identifiers = array ();
+		foreach ($shards as $recordId => $xPath) {
+			$identifiers[] = $recordId . ':' . $xPath;
+		}
+		
+		# Obtain the shard strings
+		$query = "SELECT
+			DISTINCT value
+			FROM {$this->settings['database']}.catalogue_processed
+			WHERE
+				    recordId IN(" . implode (',', array_keys ($shards)) . ")		-- Prefilter to reduce search space
+				AND CONCAT(recordId, ':', xPath) IN('" . implode ("','", $identifiers) . "')
+		;";
+		$titles = $this->databaseConnection->getPairs ($query);
+		
+		# Return the list
+		return $titles;
 	}
 	
 	

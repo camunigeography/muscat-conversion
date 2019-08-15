@@ -1356,13 +1356,15 @@ class import
 		;";
 		$this->databaseConnection->query ($query);	// 1,054,823 rows affected, leaving 143,381
 		
-		# Exclude [Titles fully in square brackets like this]
+		# Exclude [Titles fully in square brackets like this], except known special cases
 		$this->logger ('|-- In ' . __METHOD__ . ', excluding titles fully in square brackets');
+		$transliterableFullStringsInBrackets = $this->transliteration->getTransliterableFullStringsInBrackets ();
 		$query = "
 			DELETE FROM transliterations
 			WHERE
 				    LEFT (title_latin, 1) = '['
 				AND RIGHT(title_latin, 1) = ']'
+				AND title_latin NOT IN '" . implode ("','", $transliterableFullStringsInBrackets) . "'
 		;";
 		$this->databaseConnection->query ($query);	// 198 rows deleted
 		
