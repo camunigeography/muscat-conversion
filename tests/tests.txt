@@ -5944,4 +5944,8 @@ Title with Arabic-style name Al- at start, in English record, correctly gets nfc
 i245
 /0$/
 
-
+1021
+For a Russian record, if the title is [in brackets] but the author is transliterable, this should still result in an 880-245
+6996
+880
+‡6245-02/(N‡a[Polyarnyye strany] /‡cЮлий Михайлович Шокальский.
