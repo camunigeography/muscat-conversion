@@ -190,6 +190,7 @@ class reports
 		'translationnotevalues_info' => 'records containing a note regarding translation - distinct values',
 		'mergestatus_info' => 'records with a merge status',
 		'periodicalpamgrouped_problem' => 'records with location= both Periodical and Pam, grouped',
+		'russianitalics_postmigration' => 'records in Russian containing italicised string which may or may not be in Russian',
 		'tests_problem_countable' => 'automated tests',
 	);
 	
@@ -291,6 +292,9 @@ class reports
 			
 			'voyagerbelievedmatch' =>
 				'These serial records have a set of possible (or likely) matches with Voyager numbers, but will need manual checking to assign the correct match.',
+			
+			'russianitalics' =>
+				'This report aims to facilitate manual inspection of Russian records where the title is in Russian but contains a section in italics. Currently, these italicised section are all protected, under the standard rule for italics. However, in some cases, these are names in Russian and should be upgraded to LoC and also converted to Cyrillic as if an unprotected string.',
 			
 		);
 	}
@@ -2933,6 +2937,47 @@ class reports
 			$html .= "\n<h3>" . htmlspecialchars ($journalTitle) . '</h3>';
 			$html .= application::htmlTable ($records, array (), 'lines periodicalpamgrouped', $keyAsFirstColumn = false, $keyAsFirstColumn = true, $allowHtml = true, $showColons = false, false, false, array (), $compress = true, $showHeadings = false);
 		}
+		
+		# Return the HTML
+		return $html;
+	}
+	
+	
+	# Records in Russian containing italicised string which may or may not be in Russian
+	public function report_russianitalics ()
+	{
+		// No action needed - the data is read dynamically in the associated _view method
+		return true;
+	}
+	
+	
+	# View for report_russianitalics
+	public function report_russianitalics_view ()
+	{
+		# Start the HTML
+		$html = '';
+		
+		# Get the data; query is based on the same thing in report_periodicalpam () but with the joins to add in the journal name, item and locations; takes 4 seconds
+		$query = "
+			SELECT
+				recordId,
+				SUBSTRING_INDEX(SUBSTRING_INDEX(title_latin, '<em>', -1), '</em>', 1) AS extract,	-- https://stackoverflow.com/a/28432157
+				title_latin,
+				title
+			FROM transliterations
+			WHERE title_latin LIKE '%<em>%'
+		";
+		$data = $this->databaseConnection->getData ($query);
+		
+		# Modify columns
+		foreach ($data as $index => $record) {
+			$data[$index]['recordId'] = "<a href=\"{$this->baseUrl}/records/{$record['recordId']}/\">{$record['recordId']}</a>";
+		}
+		
+		# Render as HTML
+		$html .= "\n<p>This report aims to facilitate manual inspection of Russian records where the title is in Russian but contains a section in italics. Currently, these italicised section are all protected, under the standard rule for italics. However, in some cases, these are names in Russian and should be upgraded to LoC and also converted to Cyrillic as if an unprotected string.</p>";
+		$html .= "\n<p>There are " . count ($data) . ' records:</p>';
+		$html .= application::htmlTable ($data, array (), 'lines', $keyAsFirstColumn = false, $keyAsFirstColumn = true, $allowHtml = true, $showColons = false, false, false, array (), $compress = true, $showHeadings = false);
 		
 		# Return the HTML
 		return $html;
