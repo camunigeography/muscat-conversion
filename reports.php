@@ -166,6 +166,7 @@ class reports
 		'volumeenumeration_postmigration' => 'records whose item records will need enumeration (*doc with *v)',
 		'voyagerbelievedmatch_postmigration' => 'records with possible but unconfirmed Voyager matches needing merging',
 		'hostwithitem_problem' => 'records with both 773 (host entry) and 852 (item record) fields',
+		'conwithoutacc_problem' => 'records with a condition report but no accession number',
 	);
 	
 	# Listing (values) reports
@@ -4385,6 +4386,25 @@ class reports
 				AND location != '@Digital Repository@'		-- Checked that this only appears as a full single string
 				AND location != '@Electronic Resource (online)@'
 				AND fieldslist NOT LIKE '%@art@%'			-- Not /art with host record
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with a condition report but no accession number
+	public function report_conwithoutacc ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'conwithoutacc' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				    fieldslist LIKE '%@con@%'
+				AND fieldslist NOT LIKE '%@ref@%'
 		";
 		
 		# Return the query
