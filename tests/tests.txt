@@ -3478,7 +3478,7 @@ i505
 00
 
 591
-505 Contents note does not start with "Contents: "
+505 Contents note does not start with "Contents: ", which the MARC spec shows is added by the OPAC
 1488
 !505
 Contents: 
@@ -4924,7 +4924,7 @@ getTransliterationLanguage does not mistakenly catch "Byelorussian" as Russian
 ‡6505-05/(N‡tБиармия: в поисках истины
 
 849
-880-505 does not have string "Contents: " present
+880-505 does not have string "Contents: " present, which the MARC spec shows is added by the OPAC
 109111
 !880
 Contents:
@@ -4936,7 +4936,7 @@ Contents:
 Biarmii͡a: v poiskakh istiny
 
 851
-880-505 does not appear for known English Contents: note in Russian record
+880-505 does not appear for known (i.e. whitelisted) English Contents: note in Russian record
 183257
 !880
 ‡6505-
@@ -5967,3 +5967,10 @@ In 880, allow transliteration for special case full strings [in brackets]: *pu
 197739
 530
 ‡aAlso issued online ‡u
+
+1025
+880-505 contents note not created for non-Russian record
+1488
+!880
+‡6505-
+

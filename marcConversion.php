@@ -2709,11 +2709,18 @@ class marcConversion
 		# Use only the extracted section, removing "Contents: " which is assumed to be added by the library catalogue GUI; e.g. /records/1488/ (test #591)
 		$note = $matches[1];
 		
-		# Transliterate if required, e.g. /records/109111/ (test #848), excluding known English, e.g. /records/183257/ (test #851)
+		# Transliterate if required, e.g. /records/109111/ (test #848)
 		if ($transliterate) {
+			
+			# Do not create 880-505 when the record is not Russian, e.g. /records/1488/ (test #1025)
+			if (!$this->getTransliterationLanguage ($this->xml)) {return false;}
+			
+			# Exclude whitelist of Russian records containing known English, e.g. /records/183257/ (test #851)
 			$whitelist = array (183257, 197702, 204261, 210284, 212106, 212133, 212246);	// NB If updating, the same list of numbers should also be updated in macro_generate505Note
 			if (in_array ($this->recordId, $whitelist)) {return false;}	// E.g. /records/183257/ (test #851)
-			$note = $this->macro_transliterate ($note, 'Russian');	// E.g. /records/109111/ (test #848); NB no handling of $nonTransliterable as $whitelist already excludes such records (which would otherwise required massive whitelist strings)
+			
+			# Perform the transliteration, e.g. /records/109111/ (test #848)
+			$note = $this->macro_transliterate ($note, 'Russian');	// NB no handling of $nonTransliterable as $whitelist already excludes such records (which would otherwise required massive whitelist strings)
 		}
 		
 		# In enhanced format perform substitutions e.g. /records/4660/ (test #588); in simple format, retain as simple $a, e.g. /records/1488/ (test #587)
