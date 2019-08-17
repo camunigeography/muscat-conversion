@@ -108,7 +108,7 @@ class reports
 		'nohostlang_problem' => 'records whose *in or *j contains a *lang but the main part does not',
 		'emptylang_problem' => 'records with an empty *lang',
 		'bibcheckerrors_problem' => 'records with Bibcheck errors',
-		'multiplelocationsmissing_problem' => 'records with multiple locations but marked as missing',
+		'multiplelocationsmissing_problem' => 'records with multiple locations but marked as missing without disambiguation',
 		'notemissing_problem' => "records with a note containing the word 'missing' without a *ks MISSING; not all will actually be missing",
 		'missingphysical_postmigration' => "records with a note containing the word 'missing' indicating items for reviewing of physical documents (i.e. not actually data work)",
 		'emptyauthorcontainers_problem' => "records with empty author containers",
@@ -2501,7 +2501,7 @@ class reports
 	}
 	
 	
-	# Records with multiple locations but marked as missing
+	# Records with multiple locations but marked as missing without disambiguation
 	public function report_multiplelocationsmissing ()
 	{
 		# Define the query
