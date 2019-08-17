@@ -12,6 +12,12 @@ class transliteration
 	private $protectedSubstringsPattern = '<||%i||>';		// %i represents an index that will be generated, e.g. '<||367||>', which acts as a token representing the value of $replacements[367]
 	private $protectedSubstringsRegexp = '<\|\|[0-9]+\|\|>';	// Equivalent, as regexp
 	
+	# Other internal properties
+	private $databaseConnection;
+	private $settings;
+	private $applicationRoot;
+	private $cpanDir;
+	private $transliterableFullStringsInBrackets;
 	
 	
 	# Constructor
@@ -32,9 +38,6 @@ class transliteration
 			return true;
 		}
 		
-		# Special-case cases of [titles in square brackets] that should still be transliterated
-		$this->transliterableFullStringsInBrackets = $this->assignTransliterableFullStringsInBrackets ();
-		
 	}
 	
 	
@@ -51,14 +54,6 @@ class transliteration
 	{
 		return $this->supportedReverseTransliterationLanguages;
 	}
-	
-	
-	# Getter for transliterableFullStringsInBrackets
-	public function getTransliterableFullStringsInBrackets ()
-	{
-		return $this->transliterableFullStringsInBrackets;
-	}
-	
 	
 	
 	/* 
@@ -489,7 +484,7 @@ class transliteration
 	private function titleFullyInBrackets ($title)
 	{
 		# Omit special cases, e.g. *t example in /records/7826/ (test #1022) and *pu example in /records/29343/ (test #1023)
-		if (in_array ($title, $this->transliterableFullStringsInBrackets)) {return false;}
+		if (in_array ($title, $this->getTransliterableFullStringsInBrackets ())) {return false;}
 		
 		# Check for [...] ; the regexp should match the MySQL equivalent in createTransliterationsTable ()
 		$literalBackslash = '\\';
@@ -511,8 +506,14 @@ class transliteration
 	
 	
 	# Function to define a list of full strings [in square brackets] that should be transliterated, because they are simply not in the publication itself but otherwise known; e.g. *t example in /records/7826/ (test #1022) and *pu example in /records/29343/ (test #1023)
-	private function assignTransliterableFullStringsInBrackets ()
+	# NB This has to be late-bound and cannot be run in the constructor, because it depends on catalogue_processed existing, which is not the case at the point $this->transliteration is instantiated in muscatConversion::main ()
+	private function getTransliterableFullStringsInBrackets ()
 	{
+		# Use cache if present
+		if (isSet ($this->transliterableFullStringsInBrackets)) {
+			return $this->transliterableFullStringsInBrackets;
+		}
+		
 		# Define a list of shards that should be protected
 		# Identified by inspection of list `SELECT * FROM catalogue_processed WHERE value LIKE '[%' AND recordLanguage LIKE 'Russian' AND value NOT IN ('[n.d]',  '[n.p.]' , '[n.pub.]', '[Anon.]', '[Leningrad]', '[St. Petersburg]', '[Moscow]') AND field NOT IN('d', 'p','note', 'tc') LIMIT 500;`
 		$shards = array (
@@ -546,10 +547,13 @@ class transliteration
 				    recordId IN(" . implode (',', array_keys ($shards)) . ")		-- Prefilter to reduce search space
 				AND CONCAT(recordId, ':', xPath) IN('" . implode ("','", $identifiers) . "')
 		;";
-		$titles = $this->databaseConnection->getPairs ($query);
+		$transliterableFullStringsInBrackets = $this->databaseConnection->getPairs ($query);
+		
+		# Cache
+		$this->transliterableFullStringsInBrackets = $transliterableFullStringsInBrackets;
 		
 		# Return the list
-		return $titles;
+		return $transliterableFullStringsInBrackets;
 	}
 	
 	

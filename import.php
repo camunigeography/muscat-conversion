@@ -1358,7 +1358,7 @@ class import
 		
 		# Exclude [Titles fully in square brackets like this], except known special cases
 		$this->logger ('|-- In ' . __METHOD__ . ', excluding titles fully in square brackets');
-		$transliterableFullStringsInBrackets = $this->transliteration->getTransliterableFullStringsInBrackets ();
+		$transliterableFullStringsInBrackets = $this->transliteration->getTransliterableFullStringsInBrackets ();	// Dependency: catalogue_processed
 		$query = "
 			DELETE FROM transliterations
 			WHERE
