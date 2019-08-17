@@ -5962,4 +5962,8 @@ In 880, allow transliteration for special case full strings [in brackets]: *pu
 880
 ‡aMoscow :‡b[Комитет по Международного геофизического года],‡c
 
-
+1024
+530 has ‡a fixed string
+197739
+530
+‡aAlso issued online ‡u
