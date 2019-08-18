@@ -6003,3 +6003,10 @@ In generateAuthors, only first language is considered for transliteration
 191969
 773
 ‡tSEEDS II : the
+
+1031
+300 with *p and *v has bracketed section lcfirst, rather than e.g. "3 parts (Variously paged)"
+2047
+300
+‡a3 parts (variously paged)
+

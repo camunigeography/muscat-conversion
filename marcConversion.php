@@ -1612,7 +1612,6 @@ class marcConversion
 			return false;
 		}
 		
-		#!# /records/2047/ ends up with "‡a3 parts Variously paged"
 		# Do not add p. prefix if unpaged (and variants), e.g. /records/1147/ (test #602)
 		$unpagedTypes = array ('unpaged', 'variously paged', 'various pagings');	// Use lower-case in comparison, e.g. upper-case in /records/209663/ (test #603)
 		foreach ($unpagedTypes as $unpagedType) {
@@ -1706,7 +1705,7 @@ class marcConversion
 			$vMuscat = $this->xPathValue ($this->xml, '//v');
 			if (strlen ($vMuscat)) {
 				if ($a) {
-					$a = $vMuscat . ' (' . $a . ')';	// I.e. "Volume (pages)", e.g. /records/2281/ (test #513)
+					$a = $vMuscat . ' (' . lcfirst ($a) . ')';	// I.e. "Volume (pages)", e.g. /records/2281/ (test #513); lcfirst used to avoid capital V in "3 parts (Variously paged)", e.g. /records/2047/ (test #1031)
 				} else {
 					$a = $vMuscat;	// I.e. no citation - just has number of volumes, e.g. /records/37420/ (test #628)
 				}
