@@ -3500,7 +3500,7 @@ class marcConversion
 		}
 		
 		# Except in 500 mode, add 773 ‡w: Copy in the 001 (Record control number) from the host record; this will need to be modified in the target Voyager system post-import, e.g. /records/6787/ (test #670)
-		#!# For one of the merge strategies, the Voyager number will already be known
+		#!#M For one of the merge strategies, the Voyager number will already be known
 		if (!$mode500) {
 			$subfields[] = "{$this->doubleDagger}w" . $marc['001'][0]['line'];
 		}
