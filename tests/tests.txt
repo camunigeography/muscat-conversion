@@ -5128,8 +5128,8 @@ Non-Russian record with Russian *nt present has no 880 generated from *e block w
 ‡6700-
 
 883
-macro_nfCount uses first language only
-13258
+macro_nfCount uses first (top-level) language only
+53254
 i245
 /^.4/
 

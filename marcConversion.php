@@ -1803,7 +1803,8 @@ class marcConversion
 	}
 	
 	
-	# Macro to generate the leading article count; this does not actually modify the string itself - just returns a number; e.g. 245 (based on *t) in /records/1116/ (test #355); 245 for Spanish record in /records/19042/ (test #356); 242 field (based on *tt) in /records/1204/ (test #357)
+	# Macro to generate the leading article count, using the top-level *lang, e.g. /records/53254/ (test #883)
+	# This does not actually modify the string itself - just returns a number; e.g. 245 (based on *t) in /records/1116/ (test #355); 245 for Spanish record in /records/19042/ (test #356); 242 field (based on *tt) in /records/1204/ (test #357)
 	public function macro_nfCount ($value, $language = false, &$errorHtml_ignored = false, $externalXml = NULL, $confirmedTopLevel = false)
 	{
 		# Strip any HTML tags, as will be stripped in the final record, e.g. /records/15161/ (test #782)
@@ -1821,11 +1822,10 @@ class marcConversion
 			}
 		}
 		
-		# If a forced language is not specified, obtain the language value for the record
-		#!# Need to check that first //lang is what is always wanted, i.e. not using *lang data within *in or *j
+		# If a forced language is not specified, obtain the language value for the record; this uses the top-level *lang - all callers are checking for the nfCount of top-level data, e.g. /records/53254/ (test #883)
 		if (!$language) {
 			$xml = ($externalXml ? $externalXml : $this->xml);	// Use external XML if supplied
-			$xPath = '(//lang)[1]';	// Choose first only, e.g. /records/2003/ (test #883) which has two instances of *lang=French within the record
+			$xPath = '(//lang)[1]';	// Choose first only, e.g. /records/53254/ (test #883) which has two instances of *lang=German within the record; /reports/nohostlang/ proves that a top-level lang[1] is always present if there is a lower one, so //lang[1] is safe to use
 			$language = $this->xPathValue ($xml, $xPath, false);
 		}
 		
@@ -2443,7 +2443,7 @@ class marcConversion
 		$language = ($lto ? $lto : 'English');
 		
 		# Obtain the non-filing character (leading article) count, e.g. 4 in /records/6897/ (test #761), 0 in /records/1165/ (test #762)
-		$nfCount = $this->macro_nfCount ($to, $language);
+		$nfCount = $this->macro_nfCount ($to, $language);	// Uses top-level *lang (as concerned with /*/tg/lto[1] which is top-level)
 		
 		# Determine if the *to starts with a [ bracket
 		$hasBracket = (substr ($to, 0, 1) == '[');
