@@ -507,7 +507,7 @@ class transliteration
 	
 	# Function to define a list of full strings [in square brackets] that should be transliterated, because they are simply not in the publication itself but otherwise known; e.g. *t example in /records/7826/ (test #1022) and *pu example in /records/29343/ (test #1023)
 	# NB This has to be late-bound and cannot be run in the constructor, because it depends on catalogue_processed existing, which is not the case at the point $this->transliteration is instantiated in muscatConversion::main ()
-	private function getTransliterableFullStringsInBrackets ()
+	public function getTransliterableFullStringsInBrackets ()
 	{
 		# Use cache if present
 		if (isSet ($this->transliterableFullStringsInBrackets)) {
