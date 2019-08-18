@@ -6010,3 +6010,14 @@ In generateAuthors, only first language is considered for transliteration
 300
 ‡a3 parts (variously paged)
 
+1032
+546: Macro transliterationProcessNote triggered when any 880 present - example of *lang=English and *in *lang=Russian
+189648
+546
+Russian transliteration entered into original records
+
+1033
+546: Macro transliterationProcessNote triggered when any 880 present - example of *lang=English and *lpt containing Russian
+47602
+546
+Russian transliteration entered into original records
