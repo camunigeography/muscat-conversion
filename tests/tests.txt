@@ -5974,3 +5974,15 @@ In 880, allow transliteration for special case full strings [in brackets]: *pu
 !880
 ‡6505-
 
+1026
+100 author who is also illustrator should have both as relator terms (see also next test)
+23965
+100
+‡aDebenham, Frank,‡eauthor,‡eillustrator.
+
+1027
+100 author who is also illustrator should have both as relator terms - three relator terms example (see also previous test)
+23161
+100
+‡aCherry-Garrard, Apsley George Benet,‡eauthor,‡ecartographer,‡eillustrator.
+

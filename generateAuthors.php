@@ -395,9 +395,7 @@ class generateAuthors
 			$nIndex = 1;	// XPaths are indexed from 1, not 0
 			while ($this->marcConversion->xPathValue ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]")) {
 				
-				# When considering the *e/*n, there is a guard clause to skip cases of 'the author' as the 100 field would have already pulled in that person (e.g. the 100 field could create "<name> $eIllustrator" indicating the author <name> is also the illustrator); e.g. /records/147053/ (test #84)
-				#!# Move this check into the main processing?
-				#!# Check this is as expected for e.g. /records/147053/ - which has no reference in the 1xx/7xx to the author as also being an illustrator
+				# When considering the *e/*n, there is a guard clause to skip cases of 'the author' as the 100 field would have already pulled in that person (e.g. the 100 field could create "<name> $eIllustrator" indicating the author <name> is also the illustrator); e.g. /records/147053/ (test #84), /records/23965/ (test #1026), /records/23161/ (test #1027)
 				$n1 = $this->marcConversion->xPathValue ($this->mainRecordXml, "/*/e[$eIndex]/n[{$nIndex}]/n1");
 				if ($n1 == 'the author') {
 					$nIndex++;
@@ -1073,8 +1071,9 @@ class generateAuthors
 		
 		# Does the record contain a *doc/*e/*n/*n1 OR *art/*e/*n/*n1 that is equal to 'the author'?
 		# E.g. *e/*role containing "Illustrated and translated by" and *n1 "the author"; e.g. /records/147053/ (test #159)
-		$n1 = $this->marcConversion->xPathValue ($this->xml, '//e/n/n1');
-		if ($n1 == 'the author') {
+		$n1Values = $this->marcConversion->xPathValues ($this->xml, '(//e/n/n1)[%i]', false);
+		if (in_array ('the author', $n1Values)) {
+			$value .= ",{$this->doubleDagger}eauthor";	// E.g. /records/23965/ (test #1026), and example with two additional relator terms at /records/23161/ (test #1027)
 			$role = $this->marcConversion->xPathValue ($this->xml, '//e/role');	// Obtain the $role, having determined that *n1 matches "the author"
 			$value .= $this->relatorTermsEField ($role);
 		}
