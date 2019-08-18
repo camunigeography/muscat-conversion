@@ -1811,7 +1811,8 @@ class marcConversion
 		$value = strip_tags ($value);
 		
 		# If the the value is surrounded by square brackets, then it can be taken as English, and the record language itself ignored
-		#!# Check on effect of *to or *tc, as per /reports/bracketednfcount/
+		# This block has no effect on *to as no cases of *to starting with [
+		# This block has no effect on *tt as is always English by definition
 		if ($isSquareBracketed = ((substr ($value, 0, 1) == '[') && (substr ($value, -1, 1) == ']'))) {
 			$language = 'English';	// E.g. /records/14153/
 			if (preg_match ('/^\[La /', $value)) {	// All in /reports/bracketednfcount/ were reviewed and found to be English, except /records/9196/ and others below
