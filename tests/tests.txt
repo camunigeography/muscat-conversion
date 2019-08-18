@@ -5991,3 +5991,15 @@ In generateAuthors, only first language is considered for transliteration
 83587
 !880
 ‡6100-
+
+1029
+500 generate500analytics /art/j with host record does not have "In: " added
+191969
+500
+‡aSEEDS II : the
+
+1030
+773 ‡t from parent 245 with colon before ‡b correctly becomes " : "
+191969
+773
+‡tSEEDS II : the

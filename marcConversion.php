@@ -3227,7 +3227,7 @@ class marcConversion
 		# /art/j case
 		if ($this->recordType == '/art/j') {
 			
-			# If there is a host record, we use the 773 (but do not prefix with "In: ")
+			# If there is a host record, we use the 773 (but do not prefix with "In: " - e.g. /records/191969/ (test #1029))
 			#!# Note: at present, some pseudo-analytics erroneously have a *kg in - this will either be fixed in the data, or we will change here to use 490 instead of 773 in cases of a controlled serial
 			if ($this->hostRecord) {
 				
@@ -3419,7 +3419,7 @@ class marcConversion
 			#!# Surely this should be the language of the host record, not the current record (though they may often be the same anyway), as we are combining subfield values of the host and therefore stripping leading articles from that? - probably need to do an xPath read of the host record for /toplevel/tg/lang
 			$language = $this->xPathValue ($this->xml, $xPath);
 			if (!$language) {$language = 'English';}
-			$subfields[] = $this->combineSubfieldValues ('t', $marc['245'], array ('a', 'b'), ' ', $language);	// Space separator only, as already has : in master 245; e.g. /records/67559/ (test #529), /records/59148/ (test #530). Will automatically have a . (which replaces /) e.g. /records/59148/ (test #531)
+			$subfields[] = $this->combineSubfieldValues ('t', $marc['245'], array ('a', 'b'), ' ', $language);	// Space separator only, as already has : in master 245; e.g. /records/67559/ (test #529), /records/59148/ (test #530), /records/191969/ (test #1030). Will automatically have a . (which replaces /) e.g. /records/59148/ (test #531)
 		}
 		
 		# Add 773 ‡d: Copy in the 260 (Place, publisher, and date of publication) from the host record, omitting subfield codes; *art/*in records only; e.g. /records/59148/ (test #667)
@@ -3583,8 +3583,6 @@ class marcConversion
 			# Register the amended value
 			$fieldValues[$index] = $fieldValue;
 		}
-		
-		#!# Need to handle cases like /records/191969/ having a field value ending with :
 		
 		# Compile the value, combining with the specified string, e.g. /records/2614/ (test #689)
 		$value = implode ($implodeSubfields, $fieldValues);
