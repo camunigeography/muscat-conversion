@@ -2305,7 +2305,7 @@ class marcConversion
 		# If running in transliteration mode, require a supported language, e.g. /records/27093/ (test #885)
 		$languageMode = 'default';
 		if ($flag == 'transliterated') {
-			if (!$languageMode = $this->getTransliterationLanguage ($this->xml, $checkNtTokens = true)) {return false;}		// E.g. /records/27094/ (test #886)
+			if (!$languageMode = $this->getTransliterationLanguage ($this->xml, $checkNtTokens = true)) {return false;}		// E.g. /records/27094/ (test #886), /records/83587/ (test #1028)
 		}
 		
 		# Compile the value, to a multiline if required, e.g. /records/2295/ (test #756), or false for no lines (e.g. /records/178377/ (test #757))
@@ -2327,7 +2327,7 @@ class marcConversion
 		}
 		
 		# Get the record language, if any, and return it if present and supported (or false)
-		$language = $this->xPathValue ($xml, '/*/tg/lang[1]');		// I.e. top-level only, e.g. /records/27093/ (test #885)
+		$language = $this->xPathValue ($xml, '/*/tg/lang[1]');		// I.e. top-level only, e.g. /records/27093/ (test #885), /records/83587/ (test #1028)
 		if ($language && isSet ($this->supportedReverseTransliterationLanguages[$language])) {		// # NB This will not mistakenly catch "Byelorussian" as Russian, e.g. /records/96819/ (test #847))
 			return $language;	// E.g. /records/210651/ (test #165)
 		} else {

@@ -101,8 +101,8 @@ class generateAuthors
 		# Create a handle to the XML
 		$this->mainRecordXml = $mainRecordXml;
 		
-		# Determine the language of the record
-		$recordLanguages = $this->marcConversion->xPathValues ($mainRecordXml, '(//lang)[%i]', false);	// e.g. /records/1220/ , /records/8690/ have multiple languages (test #66)
+		# Determine the language of the record; this uses only the first language, e.g. /records/83587/ (test #1028) which is enforced by macro_authorsField instantiation anyway; NB /records/1220/ , /records/8690/ have multiple languages (see also test #66)
+		$recordLanguage = $this->marcConversion->xPathValue ($mainRecordXml, '(//lang)[1]', false);
 		
 		# Determine if *nt={BGNRus|LOCRus}, e.g. /records/102036/ (test #728) which is a Yakut record with *nt=BGNRus sections
 		$supportedNtTokensPresent = $this->marcConversion->supportedNtTokensPresent ($mainRecordXml);
@@ -117,8 +117,7 @@ class generateAuthors
 			}
 			
 			# For the non-default language mode, if the current language mode does not match a language of the record (and has no supported *nt tokens present), skip processing, e.g. /records/178029/ (test #875), and /records/5255/ (test #876)
-			#!# Russian may only be one of the languages and not the relevant one
-			$this->recordLanguageTransliterable = (in_array ($languageMode, $recordLanguages));
+			$this->recordLanguageTransliterable = ($languageMode == $recordLanguage);
 			if ($languageMode != 'default') {
 				if (!$this->recordLanguageTransliterable && !$supportedNtTokensPresent) {
 					continue;

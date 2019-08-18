@@ -5986,3 +5986,8 @@ In 880, allow transliteration for special case full strings [in brackets]: *pu
 100
 ‡aCherry-Garrard, Apsley George Benet,‡eauthor,‡ecartographer,‡eillustrator.
 
+1028
+In generateAuthors, only first language is considered for transliteration
+83587
+!880
+‡6100-
