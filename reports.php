@@ -167,6 +167,7 @@ class reports
 		'voyagerbelievedmatch_postmigration' => 'records with possible but unconfirmed Voyager matches needing merging',
 		'hostwithitem_problem' => 'records with both 773 (host entry) and 852 (item record) fields',
 		'conwithoutacc_problem' => 'records with a condition report but no accession number',
+		'adcomma_problem' => 'records with a rogue comma at the end of the *ad',
 	);
 	
 	# Listing (values) reports
@@ -4405,6 +4406,25 @@ class reports
 			WHERE
 				    fieldslist LIKE '%@con@%'
 				AND fieldslist NOT LIKE '%@ref@%'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with a rogue comma at the end of the *ad
+	public function report_adcomma ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'adcomma' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field = 'ad'
+				AND value LIKE '%,'
 		";
 		
 		# Return the query
