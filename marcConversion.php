@@ -964,9 +964,8 @@ class marcConversion
 				$lineOutputKey = $attributes['marcCode'] . '_' . $i++;	// e.g. 650_1 for the second 650 record, 650_2 for the third, etc.
 			}
 			
-			# Trim the line, e.g. /records/1054/ (test #261); NB This will not trim within multiline output lines
-			#!# Need to check multiline outputs to ensure they are trimming
-			$line = trim ($line);
+			# Trim the line, e.g. /records/1054/ (test #261), including multilines (no examples found for tests, but tested by emulated string)
+			$line = implode ("\n", array_map ('trim', explode ("\n", $line)));	// https://stackoverflow.com/a/1655176
 			
 			# Register the value
 			$outputLines[$lineOutputKey] = $line;
