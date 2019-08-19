@@ -6023,7 +6023,27 @@ Russian transliteration entered into original records
 Russian transliteration entered into original records
 
 1034
-541 has $e from *acq/*ref
+541 has ‡e from *acq/*ref
 1329
 541
 ‡eA0028
+
+1035
+541 ‡a multiple *o within *acq group results in comma-separated list
+213478
+541
+‡aAmazon.fr, 1971emmanuel‡
+
+1036
+541 ‡e multiple *ref within *acq group results in comma-separated list
+140027
+541
+‡eD0176, 114473
+
+1037
+541 ‡h multiple *pr within *acq group results in comma-separated list
+157719
+541
+‡h29 DM, 34 EUR
+
+

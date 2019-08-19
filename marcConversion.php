@@ -2828,12 +2828,6 @@ class marcConversion
 	
 	
 	# Macro for generating the 541 field, which looks at *acq groups; it may generate a multiline result, e.g. /records/3959/ (test #456); see: https://www.loc.gov/marc/bibliographic/bd541.html
-	/* #!# Original spec has notes which may help deal with problems below:
-		If record is of type *ser and has multiple *o fields, separate 541 field required for each
-		If record has multiple *date fields, separate 541 field required for each
-		If record has multiple *acq/*ref fields, separate 541 field required for each
-		If record has multiple *pr fields, separate 541 field required for each
-	*/
 	private function macro_generate541 ($value)
 	{
 		# Start a list of results
@@ -2876,14 +2870,14 @@ class marcConversion
 			# Map other fields across, which are simpler
 			$fields = array (
 				// MARC => Muscat
-				'a'	=> 'o',		// Create $a, from *acq/*o    - Source of acquisition, e.g. /records/1050/ (test #463)
-				'd'	=> 'date',	// Create $d, from *acq/*date - Date of acquisition, e.g. /records/3173/ (test #464)
-				'e'	=> 'ref',	// Create $e, from *acq/*ref  - Acquisition reference, e.g. /records/1329/ (test #1034)
-				'h'	=> 'pr',	// Create $h, from *acq/*pr   - Purchase price, e.g. /records/3173/ (test #465)
+				'a'	=> 'o',		// Create $a, from *acq/*o    - Source of acquisition, e.g. /records/1050/ (test #463), multiple in /records/213478/ (test #1035)
+				'd'	=> 'date',	// Create $d, from *acq/*date - Date of acquisition, e.g. /records/3173/ (test #464), no cases of multiple within the same block
+				'e'	=> 'ref',	// Create $e, from *acq/*ref  - Acquisition reference, e.g. /records/1329/ (test #1034), multiple in /records/140027/ (test #1036)
+				'h'	=> 'pr',	// Create $h, from *acq/*pr   - Purchase price, e.g. /records/3173/ (test #465), multiple in /records/157719/ (test #1037)
 			);
 			foreach ($fields as $marcSubfield => $muscatField) {
-				if ($value = $this->xPathValue ($this->xml, "//acq[{$acqIndex}]/{$muscatField}")) {
-					$subfields[] = "{$this->doubleDagger}" . $marcSubfield . $value;
+				if ($values = $this->xPathValues ($this->xml, "(//acq[{$acqIndex}]/{$muscatField})[%i]", false)) {
+					$subfields[] = "{$this->doubleDagger}" . $marcSubfield . implode (', ', $values);
 				}
 			}
 			
