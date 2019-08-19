@@ -2848,9 +2848,9 @@ class marcConversion
 			*/
 			#!# Spec is unclear: What if there are more than one of these, or other combinations not shown here? Currently, items have any second (or third, etc.) lost, or e.g. *kb but not *sref would not show
 			$fund = $this->xPathValues ($this->xml, "//acq[$acqIndex]/fund[%i]");	// Code		// #!# e.g. multiple at /records/132544/ , /records/138939/ - also need tests once decision made
-			#!# Should $kb be top-level, rather than within an *acq group? What happens if multiple *acq groups, which will each pick up the same *kb
 			$kb   = $this->xPathValues ($this->xml, "//kb[%i]");					// Exchange
 			$sref = $this->xPathValues ($this->xml, "//acq[$acqIndex]/sref[%i]");	// Supplier reference
+			
 			$c = false;
 			if (count ($sref) == 1 && count ($fund) == 1 && !$kb) {
 				$c = $sref[1] . '--' . $fund[1];	// E.g. /records/176629/ (test #459)
