@@ -3172,27 +3172,82 @@ class reports
 			SELECT
 				'tdot' AS report,
 				recordId
-			FROM catalogue_processed
+			FROM catalogue_rawdata
 			WHERE
 					field LIKE 't'
 				AND value LIKE '%.'
+			-- Punctuation:
 				AND value NOT LIKE '%...'
 				AND value NOT LIKE '% ...'
-				AND value NOT LIKE '% &c.'
+				AND value NOT LIKE '%&c.'
 				AND value NOT LIKE '% etc.'
+				AND value NOT LIKE '% m.m.'
+				AND value NOT LIKE '% m.v.'
+				AND value NOT LIKE '% cont.'
+				AND value NOT LIKE '% usw.'
+				AND value NOT LIKE '% u.s.w.'
+				AND value NOT LIKE '% o.a.'
+			-- Initials:
+				AND value NOT REGEXP BINARY '[A-Z]\.$'
+				AND value NOT LIKE '% Shch.'
+			-- Names:
+				AND value NOT LIKE '% esq.'
+				AND value NOT LIKE '% Esq.'
+				AND value NOT LIKE '% Jr.'
+				AND value NOT LIKE '% al.'
+				AND value NOT LIKE '% eds.'
 				AND value NOT LIKE '% Ltd.'
-				AND value NOT LIKE '% g.'	-- Russian abbreviations for year
-				AND value NOT LIKE '% gg.'	-- Russian abbreviations for years
-				AND value NOT LIKE '% v.'	-- Russian abbreviations for century
-				AND value NOT LIKE '% vv.'	-- Russian abbreviations for centuries
-				AND value NOT LIKE '% sp.'	-- Species
-				AND value NOT LIKE '% Jr.'	-- In obituaries, etc.
-				AND value NOT LIKE '% esq.'	--   ditto
-				AND value NOT LIKE '% Esq.'	--   ditto
-				AND value NOT LIKE '% al.'	-- Item is referring to another, e.g. for a review
-				AND value NOT LIKE '% eds.'	--   ditto
-				AND value NOT LIKE '% n.ė.'	-- Russian equivalent of A.D., in /records/173585/
-				AND value NOT REGEXP '[A-Z]\.$'
+				AND value NOT LIKE '% Inc.'
+				AND value NOT LIKE '% inc.'
+				AND value NOT LIKE '% Co.'
+				AND value NOT LIKE '% Jnr.'
+				AND value NOT LIKE '% D.Sc.'
+				AND value NOT LIKE '% Cantab.'
+			-- Places:
+				AND value NOT LIKE '% Fla.'
+				AND value NOT LIKE '% Calif.'
+				AND value NOT LIKE '% Ariz.'
+				AND value NOT LIKE '% Ind.'
+				AND value NOT LIKE '% Sask.'
+				AND value NOT LIKE '% Wash.'
+			-- Dates:
+				AND value NOT LIKE '%19..'
+				AND value NOT LIKE '% yr.'
+				AND value NOT LIKE '% e.Kr.'
+				AND value NOT LIKE '% n.e.'		-- Russian equivalent of A.D., in /records/173585/
+				AND value NOT LIKE '% g.'
+				AND value NOT LIKE '% v.'
+				AND value NOT LIKE '% vv.'
+				AND value NOT LIKE '% gg.'
+				AND value NOT LIKE '% r.'
+				AND value NOT LIKE '% g.g.'
+				AND value NOT LIKE '% a^orh.'
+			-- Pagination:
+				AND value NOT LIKE '% s.'
+				AND value NOT LIKE '% p.'
+			-- Species (general):
+				AND value NOT LIKE '% spp.'
+				AND value NOT LIKE '% sp. nov.'
+				AND value NOT LIKE '% subsp. nov.'
+				AND value NOT LIKE '% sp.nov.'
+				AND value NOT LIKE '% sp.'
+				AND value NOT LIKE '% sp.n.'
+				AND value NOT LIKE '% sp. n.'
+				AND value NOT LIKE '% n.sp.'
+				AND value NOT LIKE '% Linn.'
+			-- Geographic:
+				AND value NOT LIKE '% a.s.l.'
+				AND value NOT LIKE '%\gdeg v. d.'
+				AND value NOT LIKE '%\gdeg v.d.'
+				AND value NOT LIKE '%\gmin v.d.'
+				AND value NOT LIKE '% Doc.'
+				AND value NOT LIKE '% Journ.'
+				AND value NOT LIKE '% LLd.'
+				AND value NOT LIKE '% Met.'
+				AND value NOT LIKE '% Soc.'
+				AND value NOT LIKE '% Mt.'
+				AND value NOT LIKE '% mts.'
+				AND value NOT LIKE '% gen. n.'
 		";
 		
 		# Return the query
