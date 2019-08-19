@@ -5179,7 +5179,7 @@ In 541, separate subfields without spaces or other separator
 Field 541 ends with a period unless another mark of punctuation is present. If the final subfield is subfield ‡5, the mark of punctuation precedes that subfield.
 168419
 541
-‡d2004/06/24.‡5UkCU-P
+‡d2004/06/24‡eK0970.‡5UkCU-P
 
 892
 No semicolon separator after ‡c if no further field (other than ‡5) present, as dotEnd present (see also #889)
