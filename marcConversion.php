@@ -2873,24 +2873,18 @@ class marcConversion
 				$subfields[] = "{$this->doubleDagger}c" . $c;
 			}
 			
-			# Create $a, from *o - Source of acquisition, e.g. /records/1050/ (test #463)
-			if ($value = $this->xPathValue ($this->xml, "//acq[$acqIndex]/o")) {
-				$subfields[] = "{$this->doubleDagger}a" . $value;
-			}
-			
-			# Create $d, from *date - Date of acquisition, e.g. /records/3173/ (test #464)
-			if ($value = $this->xPathValue ($this->xml, "//acq[$acqIndex]/date")) {
-				$subfields[] = "{$this->doubleDagger}d" . $value;
-			}
-			
-			# Create $e, from *acq/*ref - Acquisition reference, e.g. /records/1329/ (test #1034)
-			if ($value = $this->xPathValue ($this->xml, "//acq[$acqIndex]/ref")) {
-				$subfields[] = "{$this->doubleDagger}e" . $value;
-			}
-			
-			# Create $h, from *pr - Purchase price, e.g. /records/3173/ (test #465)
-			if ($value = $this->xPathValue ($this->xml, "//acq[$acqIndex]/pr")) {
-				$subfields[] = "{$this->doubleDagger}h" . $value;
+			# Map other fields across, which are simpler
+			$fields = array (
+				// MARC => Muscat
+				'a'	=> 'o',		// Create $a, from *acq/*o    - Source of acquisition, e.g. /records/1050/ (test #463)
+				'd'	=> 'date',	// Create $d, from *acq/*date - Date of acquisition, e.g. /records/3173/ (test #464)
+				'e'	=> 'ref',	// Create $e, from *acq/*ref  - Acquisition reference, e.g. /records/1329/ (test #1034)
+				'h'	=> 'pr',	// Create $h, from *acq/*pr   - Purchase price, e.g. /records/3173/ (test #465)
+			);
+			foreach ($fields as $marcSubfield => $muscatField) {
+				if ($value = $this->xPathValue ($this->xml, "//acq[{$acqIndex}]/{$muscatField}")) {
+					$subfields[] = "{$this->doubleDagger}" . $marcSubfield . $value;
+				}
 			}
 			
 			# Register the line if subfields have been created, e.g. /records/3173/ (test #466)
