@@ -166,7 +166,7 @@ class reports
 		'volumeenumeration_postmigration' => 'records whose item records will need enumeration (*doc with *v)',
 		'voyagerbelievedmatch_postmigration' => 'records with possible but unconfirmed Voyager matches needing merging',
 		'hostwithitem_problem' => 'records with both 773 (host entry) and 852 (item record) fields',
-		'conwithoutacc_problem' => 'records with a condition report but no accession number',
+		'conwithoutacc_info' => 'records with a condition report but no accession number',
 		'adcomma_problem' => 'records with a rogue comma at the end of the *ad',
 	);
 	
