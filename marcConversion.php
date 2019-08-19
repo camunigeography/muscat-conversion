@@ -2840,31 +2840,20 @@ class marcConversion
 			# Start a line of subfields, used to construct the values; e.g. /records/176629/ (test #457)
 			$subfields = array ();
 			
-			# Support $c - constructed from *fund / *kb / *sref
-			/* Spec is:
-				"*fund OR *kb OR *sref, unless the record contains a combination / multiple instances of these fields - in which case:
-				- IF record contains ONE *sref and ONE *fund and NO *kb => ‡c*sref '--' *fund
-				- IF record contains ONE *sref and ONE *kb and NO *fund => ‡c*sref '--' *kb"
-			*/
-			#!# Spec is unclear: What if there are more than one of these, or other combinations not shown here? Currently, items have any second (or third, etc.) lost, or e.g. *kb but not *sref would not show
-			$fund = $this->xPathValues ($this->xml, "//acq[$acqIndex]/fund[%i]");	// Code		// #!# e.g. multiple at /records/132544/ , /records/138939/ - also need tests once decision made
-			$kb   = $this->xPathValues ($this->xml, "//kb[%i]");					// Exchange
-			$sref = $this->xPathValues ($this->xml, "//acq[$acqIndex]/sref[%i]");	// Supplier reference
-			
-			$c = false;
-			if (count ($sref) == 1 && count ($fund) == 1 && !$kb) {
-				$c = $sref[1] . '--' . $fund[1];	// E.g. /records/176629/ (test #459)
-			} else if (count ($sref) == 1 && count ($kb) == 1 && !$fund) {
-				$c = $sref[1] . '--' . $kb[1];		// E.g. /records/195699/ (test #460)
-			} else if ($fund) {
-				$c = $fund[1];	// E.g. /records/132544/ (test #458)
-			} else if ($kb) {
-				$c = $kb[1];	// E.g. /records/1010/ (test #461)
-			} else if ($sref) {
-				$c = $sref[1];	// E.g. /records/168419/ (test #462)
+			# $c (Method of acquisition) - constructed from *fund / *kb / *sref
+			$fields = array (
+				'kb'	=> '//kb',						// Exchange - e.g. /records/1010/ (test #461), no cases of multiple *kb
+				'fund'	=> "//acq[{$acqIndex}]/fund",	// Code - e.g. /records/1334/ (test #458), multiple *fund in /records/132544/ (test #1038)
+				'sref'	=> "//acq[{$acqIndex}]/sref",	// Supplier reference - e.g. /records/168419/ (test #462), multiple *sref in /records/179185/ (test #1039)
+			);
+			$c = array ();
+			foreach ($fields as $field => $xPath) {
+				if ($values = $this->xPathValues ($this->xml, "({$xPath})[%i]", false)) {
+					$c[] = implode (', ', $values);		// E.g. multiple *fund in /records/132544/
+				}
 			}
 			if ($c) {
-				$subfields[] = "{$this->doubleDagger}c" . $c;
+				$subfields['c'] = "{$this->doubleDagger}c" . implode (' -- ', $c);	// Combine, e.g. /records/176629/ (test #459), /records/195699/ (test #460)
 			}
 			
 			# Map other fields across, which are simpler
@@ -2877,7 +2866,7 @@ class marcConversion
 			);
 			foreach ($fields as $marcSubfield => $muscatField) {
 				if ($values = $this->xPathValues ($this->xml, "(//acq[{$acqIndex}]/{$muscatField})[%i]", false)) {
-					$subfields[] = "{$this->doubleDagger}" . $marcSubfield . implode (', ', $values);
+					$subfields[$marcSubfield] = "{$this->doubleDagger}" . $marcSubfield . implode (', ', $values);
 				}
 			}
 			
@@ -2902,6 +2891,13 @@ class marcConversion
 			
 			# Next *acq
 			$acqIndex++;
+		}
+		
+		# If there are no *acq groups (i.e. no result lines generated so far), but there is a *kb, add that as this will be outside the *acq group loop, e.g. /records/213080/ (test #1040)
+		if (!$resultLines) {
+			if ($kb = $this->xPathValue ($this->xml, '//kb')) {		// As noted above, *kb is known to be not repeated
+				$resultLines[] = "{$this->doubleDagger}c" . $kb;
+			}
 		}
 		
 		# End if no lines, e.g. /records/3174/ (test #467)

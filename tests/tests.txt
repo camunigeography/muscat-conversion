@@ -2701,25 +2701,25 @@ SSSR ;‡vTom 27
 541 single line
 176629
 541
-‡ca2085809--BA Russia;‡a
+‡cBA Russia -- a2085809;‡a
 
 458
-541 ‡c *fund alone becomes ‡c
-132544
+541 ‡c *fund
+1334
 541
-‡cAO4J7D;‡a
+‡cExchange;‡a
 
 459
 541 ‡c *fund and *sref
 176629
 541
-‡ca2085809--BA Russia;‡a
+‡cBA Russia -- a2085809;‡a
 
 460
 541 ‡c *fund and *kb but no *fund
 195699
 541
-‡c60129--Exchange - PR and PGA;‡a
+‡cExchange - PR and PGA -- 60129;‡a
 
 461
 541 ‡c *kb
@@ -5173,7 +5173,7 @@ In 541, if there is a ‡c, use semicolon separator rather than space between it
 In 541, separate subfields without spaces or other separator
 176629
 541
-‡aEVP‡d2006/08/09‡h
+‡cBA Russia -- a2085809;‡aEVP‡d2006/08/09‡e
 
 891
 Field 541 ends with a period unless another mark of punctuation is present. If the final subfield is subfield ‡5, the mark of punctuation precedes that subfield.
@@ -6046,4 +6046,20 @@ Russian transliteration entered into original records
 541
 ‡h29 DM, 34 EUR
 
+1038
+541 ‡c multiple *fund
+132544
+541
+‡cAO4J7D, AO4J7E;
 
+1039
+541 ‡c multiple *sref
+179185
+541
+N01482, N01482a;
+
+1040
+541 ‡c *kb but no *acq block
+213080
+541
+‡cYakutsk
