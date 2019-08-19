@@ -2831,7 +2831,7 @@ class marcConversion
 	/* #!# Original spec has notes which may help deal with problems below:
 		If record is of type *ser and has multiple *o fields, separate 541 field required for each
 		If record has multiple *date fields, separate 541 field required for each
-		If record has multiple *acc/*ref fields, separate 541 field required for each
+		If record has multiple *acq/*ref fields, separate 541 field required for each
 		If record has multiple *pr fields, separate 541 field required for each
 	*/
 	private function macro_generate541 ($value)
@@ -2883,7 +2883,7 @@ class marcConversion
 				$subfields[] = "{$this->doubleDagger}d" . $value;
 			}
 			
-			#!# *acc/*ref?
+			#!# *acq/*ref?
 			
 			# Create $h, from *pr - Purchase price, e.g. /records/3173/ (test #465)
 			if ($value = $this->xPathValue ($this->xml, "//acq[$acqIndex]/pr")) {

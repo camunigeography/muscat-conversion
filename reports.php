@@ -991,7 +991,7 @@ class reports
 			FROM fieldsindex
 			WHERE fieldslist LIKE '%@art@%'
 			  AND fieldslist LIKE '%@k2@%'
-			";
+		";
 		
 		# Return the query
 		return $query;
@@ -1009,7 +1009,7 @@ class reports
 			FROM fieldsindex
 			WHERE fieldslist LIKE '%@doc@%'
 			  AND fieldslist LIKE '%@kb@%'
-			";
+		";
 		
 		# Return the query
 		return $query;
