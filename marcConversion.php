@@ -2883,7 +2883,10 @@ class marcConversion
 				$subfields[] = "{$this->doubleDagger}d" . $value;
 			}
 			
-			#!# *acq/*ref?
+			# Create $e, from *acq/*ref - Acquisition reference, e.g. /records/1329/ (test #1034)
+			if ($value = $this->xPathValue ($this->xml, "//acq[$acqIndex]/ref")) {
+				$subfields[] = "{$this->doubleDagger}e" . $value;
+			}
 			
 			# Create $h, from *pr - Purchase price, e.g. /records/3173/ (test #465)
 			if ($value = $this->xPathValue ($this->xml, "//acq[$acqIndex]/pr")) {
