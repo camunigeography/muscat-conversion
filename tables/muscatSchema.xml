@@ -77,7 +77,6 @@
 			<ka /><!-- Voyager merge data: Type of match and other comments -->
 			<kb />
 			<kc /><!-- Voyager merge data: Serial id/control number -->
-			<kd />
 			<ke /><!-- Analytic record link: (redundant for processing purposes) used in host record that Muscat uses for GUI purposes to link to a lookup -->
 			<kf /><!-- Analytic record link: (redundant for processing purposes) internal Muscat GUI representation of kg -->
 			<kg /><!-- Analytic record link: used in analytic (child) record that is basically a join to the q0 (ID) of the host -->
@@ -228,7 +227,6 @@
 				<ka /><!-- Voyager merge data: Type of match and other comments -->
 				<kb />
 				<kc /><!-- Voyager merge data: Serial id/control number -->
-				<kd />
 				<ke /><!-- Analytic record link: (redundant for processing purposes) used in host record that Muscat uses for GUI purposes to link to a lookup -->
 				<kf /><!-- Analytic record link: (redundant for processing purposes) internal Muscat GUI representation of kg -->
 				<kg /><!-- Analytic record link: used in analytic (child) record that is basically a join to the q0 (ID) of the host -->
@@ -315,7 +313,6 @@
 				<ka /><!-- Voyager merge data: Type of match and other comments -->
 				<kb />
 				<kc /><!-- Voyager merge data: Serial id/control number -->
-				<kd />
 				<ke /><!-- Analytic record link: (redundant for processing purposes) used in host record that Muscat uses for GUI purposes to link to a lookup -->
 				<kf /><!-- Analytic record link: (redundant for processing purposes) internal Muscat GUI representation of kg -->
 				<kg /><!-- Analytic record link: used in analytic (child) record that is basically a join to the q0 (ID) of the host -->
@@ -418,7 +415,6 @@
 			<ka /><!-- Voyager merge data: Type of match and other comments -->
 			<kb />
 			<kc /><!-- Voyager merge data: Serial id/control number -->
-			<kd />
 			<ke /><!-- Analytic record link: (redundant for processing purposes) used in host record that Muscat uses for GUI purposes to link to a lookup -->
 			<kf /><!-- Analytic record link: (redundant for processing purposes) internal Muscat GUI representation of kg -->
 			<kg /><!-- Analytic record link: used in analytic (child) record that is basically a join to the q0 (ID) of the host -->
