@@ -2564,7 +2564,6 @@ class marcConversion
 	
 	# Macro for generating the 490 field, e.g. /records/10279/ (test #1041); repeatable in /records/1252/ (test #1042); repeatable in Russian record in /records/7624/ (test #1043)
 	#!# Currently almost all parts of the conversion system assume a single *ts - this will need to be fixed: all derived uses of *ts need to be checked in respect of repeatability
-	#!# For pseudo-analytic /art/j and possibly /art/in where there the host is a series, everything before a colon in the record's *pt (analytic volume designation) that describes a volume or issue number should possibly end up in 490
 	public function macro_generate490 ($ts, $ignored, &$errorHtml_ignored = false, &$matchedRegexp = false)
 	{
 		# Obtain the *ts value or end, e.g. no *ts in /records/1253/ (test #444)
