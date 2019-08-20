@@ -6063,3 +6063,22 @@ N01482, N01482a;
 213080
 541
 ‡cYakutsk
+
+1041
+490 basic test of 490 from *ts
+10279
+490
+‡aSciences physiques: documents scientifiques
+
+1042
+490 repeatable uses subsequent *ts
+1252
+490
+Centre of Military History
+
+1043
+880-490 repeatable
+7624
+880
+(N‡aМурманская научно-промысловая экспедится (1898-1908)
+
