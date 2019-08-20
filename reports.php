@@ -5143,7 +5143,8 @@ class reports
 				a,
 				v,
 				result,
-				matchedRegexp
+				matchedRegexp,
+				vno
 			FROM {$this->settings['database']}.{$table}
 			" . ($enableFilter ? $filterConstraint : '') . "
 			ORDER BY a, recordId
