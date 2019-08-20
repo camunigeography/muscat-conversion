@@ -2692,7 +2692,6 @@ class import
 			v VARCHAR(255) DEFAULT NULL COMMENT '{$this->doubleDagger}v value in result',
 			result VARCHAR(255) DEFAULT NULL COMMENT 'Result of translation',
 			matchedRegexp VARCHAR(255) DEFAULT NULL COMMENT 'Matched regexp',
-			vno VARCHAR(255) DEFAULT NULL COMMENT '*vno value in record',
 			PRIMARY KEY (id)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of volume numbers'
 		;";
@@ -2700,16 +2699,14 @@ class import
 		
 		# Insert the data
 		$sql = "
-			INSERT INTO volumenumbers (id, recordId, line, ts, vno)
+			INSERT INTO volumenumbers (id, recordId, line, ts)
 			SELECT
-				catalogue_processed.id,
-				catalogue_processed.recordId,
-				catalogue_processed.line,
-				catalogue_processed.value AS ts,
-				catalogue_processed_vno.value AS vno
+				id,
+				recordId,
+				line,
+				value AS ts
 			FROM catalogue_processed
-			LEFT JOIN catalogue_processed AS catalogue_processed_vno ON catalogue_processed.recordId = catalogue_processed_vno.recordId AND catalogue_processed_vno.field = 'vno'
-			WHERE catalogue_processed.xPath LIKE '%/ts'
+			WHERE xPath LIKE '%/ts'
 		";
 		$this->databaseConnection->execute ($sql);
 		
@@ -2719,14 +2716,13 @@ class import
 		# Generate the result
 		$updates = array ();
 		foreach ($data as $recordId => $ts) {
-			$result = $this->marcConversion->macro_generate490 ($ts, NULL, $errorString_ignored, $matchedRegexp, $reportGenerationMode = true);
+			$result = $this->marcConversion->macro_generate490 ($ts, NULL, $errorString_ignored, $matchedRegexp);
 			$subfieldValues = $this->marcConversion->parseSubfieldsToPairs ($result, $knownSingular = true);
 			$updates[$recordId] = array (
 				'a' => $subfieldValues['a'],
 				'v' => (isSet ($subfieldValues['v']) ? $subfieldValues['v'] : NULL),
 				'result' => $result,
 				'matchedRegexp' => $matchedRegexp,
-				// vno (and other fields) will remain as-is
 			);
 		}
 		

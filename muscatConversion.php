@@ -1916,7 +1916,7 @@ class muscatConversion extends frontControllerApplication
 			'urlfull' => 'URL mirror',
 			'urlgen' => 'URL mirror',
 			'v' => 'Number of volumes',
-			'vno' => 'Volume number',
+			'vno' => 'Volume number (location of an article in an item, not the series statement)',
 			'winlink' => 'Linking field for URLs',
 		);
 	}

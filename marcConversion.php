@@ -2563,11 +2563,10 @@ class marcConversion
 	
 	
 	# Macro for generating the 490 field, e.g. /records/10279/ (test #1041); repeatable in /records/1252/ (test #1042); repeatable in Russian record in /records/7624/ (test #1043)
-	#!# Currently almost all parts of the conversion system assume a single *ts - this will need to be fixed
-	#!# Repeatability experimentally added to 490 at definition level, but this may not work properly as the field reads in *vno for instance; all derived uses of *ts need to be checked
+	#!# Currently almost all parts of the conversion system assume a single *ts - this will need to be fixed: all derived uses of *ts need to be checked in respect of repeatability
 	#!# Issue of missing $a needs to be resolved in original data
 	#!# For pseudo-analytic /art/j and possibly /art/in where there the host is a series, everything before a colon in the record's *pt (analytic volume designation) that describes a volume or issue number should possibly end up in 490
-	public function macro_generate490 ($ts, $ignored, &$errorHtml_ignored = false, &$matchedRegexp = false, $reportGenerationMode = false)
+	public function macro_generate490 ($ts, $ignored, &$errorHtml_ignored = false, &$matchedRegexp = false)
 	{
 		# Obtain the *ts value or end, e.g. no *ts in /records/1253/ (test #444)
 		if (!strlen ($ts)) {return false;}
@@ -2624,17 +2623,10 @@ class marcConversion
 			}
 		}
 		
-		# If there is a *vno, use it in $v (e.g. /records/10279/ (test #452)
-		if (!$reportGenerationMode) {		// I.e. if running in MARC generation context, rather than for report generation
-			if ($vno = $this->xPathValue ($this->xml, '//vno')) {
-				$volumeNumber = ($volumeNumber ? $volumeNumber . ', ' : '') . $vno;		// If volume number (from *ts) already present, e.g. /records/9031/ (test #453), append the *vno to existing, separated by comma
-			}
-		}
-		
 		# Start with the $a subfield
 		$string = $this->doubleDagger . 'a' . $seriesTitle;
 		
-		# Deal with optional volume number, e.g. /records/31402/ (test #704)
+		# Deal with optional volume number, e.g. /records/31402/ (test #704); NB *vno is not used in $v because *vno refers to the location of an article in an item, not the series statement - e.g. /records/10279/ (test #452)
 		if (strlen ($volumeNumber)) {
 			
 			# Strip any trailing ,. character in $a, and re-trim, e.g. /records/20040/ (test #454)
