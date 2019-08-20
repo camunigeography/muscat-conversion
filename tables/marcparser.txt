@@ -57,7 +57,7 @@ A  880 10 {//tg/to|macro:ifXpathValue(//tg/lto,Russian)|macro:transliterate(Russ
 A  880 {/*|macro:generate245(transliterated)|macro:880subfield6(245)}
 AR 880 3# {//tg/ta|macro:transliterate|macro:880subfield6(246,a)|macro:colonSplit(b)}
 A  880 ## {/*|macro:generate260(transliterated)|macro:880subfield6(260)}
-AR 880 0# {//ts|macro:generate490|macro:transliterateSubfields(a)|macro:880subfield6(490)}
+AR 880 0# {//ts|macro:generate490|macro:transliterateSubfields(av)|macro:880subfield6(490)}
 AR 880 {//notes/note|macro:generate505Note(transliterated)|macro:880subfield6(505)}
 A  880 {/*|macro:authorsField(700,transliterated)|macro:880subfield6(700)}
 A  880 {/*|macro:authorsField(710,transliterated)|macro:880subfield6(710)}

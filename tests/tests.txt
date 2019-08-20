@@ -352,10 +352,10 @@ Relator terms should be in English in records in scope of transliteration
 editor.
 
 57
-880 490 ‡v for Russian records having *ts with a *vno should not be transliterated (pending further discussion)
-136356
+880 490 ‡v for Russian records having *ts with a $v should be transliterated
+54896
 880
-/‡6490-04\/\(N.+‡vChast 2/
+/‡6490-04\/\(N.+‡vТруды 31/
 
 58
 880 260 for Russian records has ‡b transliteration enabled
@@ -2236,10 +2236,10 @@ i041
 /^0/
 
 381
-Macro transliterateSubfields basic functionality sees subfield transliterated
+Macro transliterateSubfields basic functionality sees subfield(s) transliterated
 35733
 880
-‡6490-04/(N‡aЖизнь замечательных людей ;‡vVypusk 19
+‡6490-04/(N‡aЖизнь замечательных людей ;‡vВыпуск 19
 
 382
 Macro transliterateSubfields single subfield only present and in scope
@@ -2257,7 +2257,7 @@ Macro transliterateSubfields ends without result if language not supported
 Test of tokeniseToSubfields subroutine
 35733
 880
-‡6490-04/(N‡aЖизнь замечательных людей ;‡vVypusk 19
+‡6490-04/(N‡aЖизнь замечательных людей ;‡vВыпуск 19
 
 385
 Leader position 06: with *form (Videorecording)
@@ -6075,4 +6075,10 @@ Centre of Military History
 7624
 880
 (N‡aМурманская научно-промысловая экспедится (1898-1908)
+
+1044
+880 490 ‡v for Russian records having *ts with a $v where $v is protected string should be protected
+127547
+880
+(Якутия) ;‡vPart II
 
