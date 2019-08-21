@@ -2856,7 +2856,9 @@ class marcConversion
 			);
 			foreach ($fields as $marcSubfield => $muscatField) {
 				if ($values = $this->xPathValues ($this->xml, "(//acq[{$acqIndex}]/{$muscatField})[%i]", false)) {
-					$subfields[$marcSubfield] = "{$this->doubleDagger}" . $marcSubfield . implode (', ', $values);
+					$subfieldValue = implode (', ', $values);
+					if ($marcSubfield == 'd') {$subfieldValue = str_replace ('/', '', $subfieldValue);}	// "Preferred structure for the date is according to Representatives of Dates and Times (ISO 8601): yyyymmdd." - https://www.loc.gov/marc/bibliographic/bd541.html , e.g. /records/171701/ (test #1045)
+					$subfields[$marcSubfield] = "{$this->doubleDagger}" . $marcSubfield . $subfieldValue;
 				}
 			}
 			

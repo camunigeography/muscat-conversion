@@ -2734,10 +2734,10 @@ SSSR ;‡vTom 27
 ‡aMinistry of Works and Division (gift)‡
 
 464
-541 ‡d
+541 ‡d, from *acq/*date
 3173
 541
-‡d2001/01/11‡
+‡d20010111‡
 
 465
 541 ‡h
@@ -5167,13 +5167,13 @@ In 541, if there is a ‡c, use semicolon separator rather than space between it
 In 541, separate subfields without spaces or other separator
 176629
 541
-‡cBA Russia -- a2085809;‡aEVP‡d2006/08/09‡e
+‡cBA Russia -- a2085809;‡aEVP‡d20060809‡e
 
 891
 Field 541 ends with a period unless another mark of punctuation is present. If the final subfield is subfield ‡5, the mark of punctuation precedes that subfield.
 168419
 541
-‡d2004/06/24‡eK0970.‡5UkCU-P
+‡d20040624‡eK0970.‡5UkCU-P
 
 892
 No semicolon separator after ‡c if no further field (other than ‡5) present, as dotEnd present (see also #889)
@@ -6081,4 +6081,10 @@ Centre of Military History
 127547
 880
 (Якутия) ;‡vPart II
+
+1045
+541 date format is yyyymmdd without slashes
+171701
+541
+20050418
 
