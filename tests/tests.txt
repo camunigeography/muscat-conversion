@@ -2159,9 +2159,9 @@ i245
 
 368
 Macro languages041 languages are uniqued
-2071
+63375
 041
-/‡afre$/
+/‡arus$/
 
 369
 Macro languages041 multiple different languages
@@ -6112,4 +6112,8 @@ Anon author with *ad absent results in 1xx/7xx omitted
 700
 ‡aAnonymous.‡tSupplement aux voyages du Capitaine Wood
 
-
+1050
+041 deals only with top-level *lang, not *in section
+27093
+041
+/^‡arus$/

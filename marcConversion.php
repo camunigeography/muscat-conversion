@@ -1881,9 +1881,9 @@ class marcConversion
 		# Start the string
 		$string = '';
 		
-		# Obtain any languages used in the record
-		$languages = $this->xPathValues ($this->xml, '(//lang)[%i]', false);	// E.g. /records/168933/ (test #369)
-		$languages = array_unique ($languages);	// E.g. /records/2071/ has two sets of French (test #368)
+		# Obtain any languages used in the record; this uses top-level languages only as *in is not the item itself, e.g. /records/27093/ (test #1050)
+		$languages = $this->xPathValues ($this->xml, '/*/tg/lang[%i]');	// E.g. /records/168933/ (test #369)
+		$languages = array_unique ($languages);	// This is an error in the cataloguing, so this fixes up; e.g. /records/63375/ has two sets of Russian (test #368) - see: `SELECT id, ExtractValue(xml, '/*/tg/lang[1]') AS lang1, ExtractValue(xml, '/*/tg/lang[2]') AS lang2 FROM `catalogue_xml` HAVING lang1 != '' AND lang2 != '' AND lang1 = lang2;`
 		
 		# Obtain any note containing "translation from [language(s)]"; e.g. /records/4353/ (test #372) , /records/2040/ (test #373)
 		#!# Should *abs and *role also be considered?; see results from quick query: SELECT * FROM `catalogue_processed` WHERE `value` LIKE '%translated from original%', e.g. /records/1639/ and /records/175067/
