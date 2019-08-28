@@ -30,7 +30,7 @@ A  530 ## ‡a{'Also issued online'} ‡u{'true'|macro:ifNotXpathValue(//locatio
 AR 533 ## ‡a{//notes/note|macro:generate533Note}
 AR 538 ## ‡a{//notes/note|macro:generate5xxNote(538)}
 A  541 0# {/*|macro:generate541}
-A  546 ## ‡a{/*|macro:multipleValues(//lang)|macro:commaAnd|macro:exceptExactly(English)|macro:prepend(In )|macro:dotEnd}
+A  546 ## ‡a{/*|macro:multipleValues(/root/*/tg/lang)|macro:commaAnd|macro:exceptExactly(English)|macro:prepend(In )|macro:dotEnd}
 A  546 ## ‡a{//lang[1]|macro:transliterationProcessNote}
 AR 561 1# ‡a{//notes/note|macro:generate5xxNote(561)}
 AR 561 1# ‡a{//notes/local|macro:generate5xxNote(561)}

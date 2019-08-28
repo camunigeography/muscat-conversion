@@ -6123,3 +6123,9 @@ Anon author with *ad absent results in 1xx/7xx omitted
 1000
 !041
 *
+
+1052
+546 *lang (non-English) with *in *lang in different language gets only top-level language
+57745
+546
+‡aIn Russian.
