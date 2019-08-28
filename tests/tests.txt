@@ -6117,3 +6117,9 @@ Anon author with *ad absent results in 1xx/7xx omitted
 27093
 041
 /^‡arus$/
+
+1051
+041 if English is the only *lang, treat that as if no *lang present
+1000
+!041
+*
