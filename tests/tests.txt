@@ -2921,9 +2921,9 @@ generate500 prefix for */art/
 
 495
 773 ‡a: pull in 100
-2073
+215881
 773
-‡aAnonymous. ‡
+‡aBethune, William Clark
 
 496
 773 ‡a: pull in 245 ‡c

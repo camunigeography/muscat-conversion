@@ -3384,7 +3384,7 @@ class marcConversion
 			
 			# If the host record has a 100 field, copy in the 1XX (Main entry heading) from the host record, omitting subfield codes; otherwise use 245 $c
 			if (isSet ($marc['100'])) {
-				$aSubfieldValue = $this->combineSubfieldValues ('a', $marc['100']);	// E.g. lookup of record 2070 in /records/2074/ (test #495)
+				$aSubfieldValue = $this->combineSubfieldValues ('a', $marc['100']);	// E.g. lookup of record 15955 in /records/215881/ (test #495)
 			} else if (isSet ($marc['245'])) {
 				$aSubfieldValue = $this->combineSubfieldValues ('a', $marc['245'], array ('c'));	// E.g. lookup of record 1221 in /records/1222/ (test #496)
 			}
