@@ -748,10 +748,10 @@ Multiple relator term ‡e values do not have space between
 ‡econtributor,‡eeditor.
 
 123
-Anon handling for 100
-1394
-100
-‡aAnonymous.
+Anon matching for 100
+68219
+700
+‡aAnonymous
 
 124
 Single name handling for 100
@@ -6087,4 +6087,29 @@ Centre of Military History
 171701
 541
 20050418
+
+1046
+Anon author with *ad present results in 1xx/7xx present created, with relator term
+39875
+700
+‡aAnonymous,‡eeditor.
+
+1047
+Anon author with *ad absent results in 1xx/7xx omitted
+213264
+!100
+*
+
+1048
+773 pulling in Anonymous publication gets 245 as 100 will not exist
+124316
+773
+‡aAnon. ‡t
+
+1049
+7xx *ke handling disables omitAnon handling, to ensure a ‡a gets generated and thus the whole line
+2070
+700
+‡aAnonymous.‡tSupplement aux voyages du Capitaine Wood
+
 

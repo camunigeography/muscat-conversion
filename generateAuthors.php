@@ -431,7 +431,7 @@ class generateAuthors
 					
 					# Take the first *art/*ag/*a/ (only the first (test #88)) in that record within the *ag block, i.e. /records/9375/ /art/ag/a "contributor block" (test #76); the second indicator is set to '2' to indicate that this 700 line is an 'Analytical entry' (test #78)
 					$xPath = "/*/ag[1]/a[1]";
-					$line = $this->main ($childRecordXml, $xPath, 700, $languageMode, '2');
+					$line = $this->main ($childRecordXml, $xPath, 700, $languageMode, '2', $omitAnon = false);	// Omit anon disabled, so that the $a gets generated, e.g. /records/2070/ (test #1049)
 					
 					# Add the title (i.e. *art/*tg/*t)
 					if ($line) {
@@ -488,7 +488,7 @@ class generateAuthors
 	
 	
 	# Function providing an entry point into the main classification block, which switches between the name format
-	private function main ($xml, $path, $defaultFieldCode, $languageMode, $secondIndicator = '#')
+	private function main ($xml, $path, $defaultFieldCode, $languageMode, $secondIndicator = '#', $omitAnon = true)
 	{
 		# Start the value
 		$value = '';
@@ -522,7 +522,7 @@ class generateAuthors
 		} else {
 			
 			# Classify *n1 field
-			$value = $this->classifyN1Field ($path, $value, $n1);
+			$value = $this->classifyN1Field ($path, $value, $n1, $omitAnon);
 		}
 		
 		# If the line has been set to be wiped, due to *nt=None, erase its value; the calling code will retain the slot for this line (ensuring that 880 handling correctly receives a multiline where there are >1 lines being processed, thus avoiding 880 mismatches) but the line will be empty, e.g. /records/6883/ (test #872)
@@ -551,7 +551,7 @@ class generateAuthors
 	
 	
 	# Function to classify *n1 field
-	private function classifyN1Field ($path, $value, $n1)
+	private function classifyN1Field ($path, $value, $n1, $omitAnon)
 	{
 		# Start the value for this section
 		$value = '';
@@ -567,7 +567,7 @@ class generateAuthors
 			return false;	// Resets $value
 		}
 		
-		# Is the *n1 exactly equal to a set of specific strings? E.g. /records/1394/ (test #123)
+		# Is the *n1 exactly equal to a set of specific strings? E.g. /records/68219/ (test #123)
 		$strings = array (
 			'-',
 			'Anon',
@@ -582,9 +582,16 @@ class generateAuthors
 			$value .= "0{$this->secondIndicator} {$this->doubleDagger}aAnonymous";
 			
 			# GO TO: Classify *ad Field
-			$value = $this->classifyAdField ($path, $value);
+			$value = $this->classifyAdField ($path, $value, $hasAd /* returned by reference */);
 			
-			# End
+			# If no *ad is present, omit Anon entirely (if enabled), so that no 1xx/7xx line is generated, e.g. /records/213264/ (test #1047), /records/124316/ (test #1048) which pulls in record 123915 that has Anon. handling removing 100 line "$aAnonymous.", so ends up using the 245 version
+			if (!$hasAd) {
+				if ($omitAnon) {	// Not enabled for 700 *ke handling, e.g. /records/2070/ (test #1049)
+					return false;
+				}
+			}
+			
+			# Return the value, under the *ad present scenario (or $omitAnon), e.g. /records/39875/ (test #1046)
 			return $value;
 		}
 		
@@ -1033,7 +1040,7 @@ class generateAuthors
 	
 	
 	# Function to classify *ad field
-	private function classifyAdField ($path, $value)
+	private function classifyAdField ($path, $value, &$hasAd = false)
 	{
 		# If running in a 7** context, and going through *e/*n, trigger the "Classify *e Field" subroutine check; e.g. /records/147053/ (test #158)
 		if (!$this->context1xx) {
@@ -1048,6 +1055,7 @@ class generateAuthors
 		$ad = $this->marcConversion->xPathValue ($this->xml, $path . '/following-sibling::ad');
 		if (strlen ($ad)) {
 			$value = $this->_classifySingleValueNdOrAdField ($value, $ad, true);
+			$hasAd = true;	// Flag that *ad present, returned by reference, e.g. /records/39875/ (test #1046)
 		}
 		
 		# GO TO: Add *aff Field

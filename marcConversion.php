@@ -3348,6 +3348,7 @@ class marcConversion
 	
 	
 	# Macro to generate the 773 (Host Item Entry) field; see: https://www.loc.gov/marc/bibliographic/bd773.html ; e.g. /records/1129/ (test #493)
+	# Note that createMarcRecords deals with record processing to ensure that generate773 has access to *doc/*ser processed records up-front
 	private function macro_generate773 ($value_ignored, $transliterate = false, &$errorHtml = false, $mode500 = false)
 	{
 		# Start a result
@@ -3386,7 +3387,7 @@ class marcConversion
 			if (isSet ($marc['100'])) {
 				$aSubfieldValue = $this->combineSubfieldValues ('a', $marc['100']);	// E.g. lookup of record 15955 in /records/215881/ (test #495)
 			} else if (isSet ($marc['245'])) {
-				$aSubfieldValue = $this->combineSubfieldValues ('a', $marc['245'], array ('c'));	// E.g. lookup of record 1221 in /records/1222/ (test #496)
+				$aSubfieldValue = $this->combineSubfieldValues ('a', $marc['245'], array ('c'));	// E.g. lookup of record 1221 in /records/1222/ (test #496); e.g. /records/124316/ (test #1048) which pulls in record 123915 that has Anon. handling removing 100 line "$aAnonymous.", so ends up using the 245 version
 			}
 			
 			# Add a dot at the end; we know that there will be always be something following this, because in the (current) /art/in context, all parents are known to have a title, e.g. /records/67559/ (test #497)
