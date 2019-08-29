@@ -4788,16 +4788,17 @@ class reports
 		$html = '';
 		
 		# Define the query; NB have checked no results with equivalent /*/*/tg/t together with /*/*/tg/lang
+		# NB MySQL does not appear to support (//lang)[n] but an explicit top-part is wanted here anyway - see https://stackoverflow.com/questions/57600620/how-to-use-xpath-pathn-syntax-in-mysqls-extractvalue
 		$query = "SELECT
 				id,
 				ExtractValue(xml, '/*/tg/t') as topLevelT,
 				CAST( (LENGTH( ExtractValue(xml, '/*/tg/t') )-LENGTH(REPLACE( ExtractValue(xml, '/*/tg/t') ,' = ','')))/LENGTH(' = ') AS SIGNED) + 1 AS totalParts,
 				ExtractValue(xml, 'count(//lang)') AS totalLang,
 				'' AS isDifferent,
-				ExtractValue(xml, '//lang[1]') AS lang1,
-				ExtractValue(xml, '//lang[2]') AS lang2,
-				ExtractValue(xml, '//lang[3]') AS lang3,
-				ExtractValue(xml, '//lang[4]') AS lang4
+				ExtractValue(xml, '/*/tg/lang[1]') AS lang1,
+				ExtractValue(xml, '/*/tg/lang[2]') AS lang2,
+				ExtractValue(xml, '/*/tg/lang[3]') AS lang3,
+				ExtractValue(xml, '/*/tg/lang[4]') AS lang4
 			FROM catalogue_xml
 			WHERE
 				    ExtractValue(xml, '/*/tg/t') LIKE '% = %'
