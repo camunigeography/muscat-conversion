@@ -6154,3 +6154,8 @@ Macro languages041 *role "translated from" results in ‡h
 561
 1946.‡5UkCU-P
 
+1059
+035 has SPRI- ID
+1011
+035
+‡aSPRI-1011
