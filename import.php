@@ -2206,7 +2206,7 @@ class import
 		
 		# Insert the data for each grouping; note that the periodicallocations table is no longer needed after this
 		# For /doc records this requires at least partial match, e.g. "Annals of Glaciology ; 9" in child record's (first) /doc/ts matches "Annals of Glaciology" in parent (periodicallocations.title)
-		# /records/209527/ is an example with two *ts values - the first is used in Muscat as the match
+		# /records/209527/ is an example with two *ts values - the first is used in Muscat as the match - there are 1170 cases of /ts[2] but these are ignored as per Muscat
 		#!# Records like /records/23120/ are now inconsistent in that they contain an explicit *kg now - presence of *kg should switch off the automatic lookup of *location=Periodical; another example is /records/43303/ (which has *kg=23052 but is being wrongly matched with *ts from /records/72770/)
 		#!# In relation to this, need a report comparing direct *kg's *location with the child's derived replacement of location=Periodical; there are 82735 cases of both present, as found with `SELECT recordId FROM catalogue_rawdata WHERE recordId IN( SELECT id FROM `fieldsindex` where fieldslist like '%@kg@%' and fieldslist like '%@location@%' ) AND field = 'location' AND value = 'Periodical'`
 		#!# In a three-level hiearchy (article in AoG1, which is in AoG), we cannot be sure that the longest is found first, e.g. *ts="Annals of Glaciology 1" should find (parent *t=Annals of Glaciology 1" before parent *t="Annals of Glaciology" if both exist, and it should not match against *t="Annals of Glaciology 10"

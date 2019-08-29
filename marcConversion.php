@@ -2678,6 +2678,9 @@ class marcConversion
 			if (preg_match ('/' . $specialFields[$field] . '/', $note, $matches)) {
 				$note = $matches[1];
 				$note = $this->macro_dotEnd ($note, true);	// E.g. /records/17120/ (test #977)
+				if ($field == 561) {
+					$note .= "{$this->doubleDagger}5" . 'UkCU-P';	// E.g. /records/6897/ (test #1058)
+				}
 				return $note;
 			}
 			
@@ -2885,7 +2888,7 @@ class marcConversion
 				# "Field 541 ends with a period unless another mark of punctuation is present. If the final subfield is subfield $5, the mark of punctuation precedes that subfield.", e.g. /records/168419/ (test #891)
 				$resultLine = $this->macro_dotEnd ($resultLine, $extendedCharacterList = true);
 				
-				# Add the institution to which field applies, i.e. SPRI
+				# Add the institution to which field applies, i.e. SPRI, e.g. /records/3173/ (test #466)
 				$resultLine .= "{$this->doubleDagger}5" . 'UkCU-P';
 				
 				# Register the line
