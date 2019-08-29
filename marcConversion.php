@@ -1891,13 +1891,16 @@ class marcConversion
 			$languages = array ();
 		}
 		
-		# Obtain any note containing "translation from [language(s)]"; e.g. /records/4353/ (test #372) , /records/2040/ (test #373)
-		#!# Should *abs and *role also be considered?; see results from quick query: SELECT * FROM `catalogue_processed` WHERE `value` LIKE '%translated from original%', e.g. /records/1639/ and /records/175067/
-		$notes = $this->xPathValues ($this->xml, '(//note)[%i]', false);
+		# Obtain any note (as well as *abs and *role) containing "translation from [language(s)]"; e.g. /records/4353/ (test #372) , /records/2040/ (test #373)
+		$notes = $this->xPathValues ($this->xml, '(//note)[%i]', false);	// E.g. /records/4353/ (test #372)
+		$abss  = $this->xPathValues ($this->xml, '(//abs)[%i]', false);		// E.g. /records/4377/ (test #1055)
+		$roles = $this->xPathValues ($this->xml, '(//role)[%i]', false);	// E.g. /records/1639/ (test #1056)
+		$strings = array_merge ($notes, $abss, $roles);
 		$nonLanguageWords = array ('article', 'published', 'manuscript');	// e.g. /records/196791/ , /records/32279/ (test #375)
 		$translationNotes = array ();
-		foreach ($notes as $note) {
-			# Perform a match, e.g. /records/175067/ (test #376); this is not using a starting at (^) match e.g. /records/190904/ which starts "English translation from Russian" (test #377)
+		foreach ($strings as $note) {
+			
+			# Perform a match, e.g. /records/4353/ (test #372); NB this matching does not use a starting at (^) match e.g. /records/190904/ which starts "English translation from Russian" (test #377)
 			if (preg_match ('/[Tt]ranslat(?:ion|ed) (?:from|reprint of)(?: original| the original| the|) ([a-zA-Z]+)/i', $note, $matches)) {	// Deliberately not using strip_tags, as that would pick up Translation from <em>publicationname</em> which would not be wanted anyway, e.g. /records/8814/ (test #378)
 				// application::dumpData ($matches);
 				$language = $matches[1];	// e.g. 'Russian', 'English'

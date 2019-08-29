@@ -2182,13 +2182,13 @@ Macro languages041 presence of note regarding translation gives eng
 ‡aeng‡
 
 372
-Macro languages041 "translation from" results in ‡h
+Macro languages041 *note "translation from" results in ‡h
 4353
 041
 ‡hdan
 
 373
-Macro languages041 "translated from" results in ‡h
+Macro languages041 *note "translated from" results in ‡h
 2040
 041
 ‡hspa
@@ -2204,12 +2204,6 @@ Macro languages041 "Translated from article" is not a note in scope of matching
 32279
 !041
 *
-
-376
-Macro languages041 Russian record also with "Translated from Norwegian by" ignores this non-matching note but shows Russian
-175067
-041
-/^‡arus$/
 
 377
 Macro languages041 match is non- start-anchored so "English translation from Russian" produces match
@@ -6141,3 +6135,16 @@ Macro transliterateSubfields uses (top-level) *lang
 1043
 880
 ‡6780-
+
+1055
+Macro languages041 *abs "translated from" results in ‡h
+4377
+041
+‡hswe
+
+1056
+Macro languages041 *role "translated from" results in ‡h
+1639
+041
+‡hice
+
