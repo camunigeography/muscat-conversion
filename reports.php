@@ -168,6 +168,7 @@ class reports
 		'hostwithitem_problem' => 'records with both 773 (host entry) and 852 (item record) fields',
 		'conwithoutacc_info' => 'records with a condition report but no accession number',
 		'adcomma_problem' => 'records with a rogue comma at the end of the *ad',
+		'splitlang_info' => 'records having a Russian *lang (thus transliterable) with different *lang vs *in/*lang',
 	);
 	
 	# Listing (values) reports
@@ -4480,6 +4481,30 @@ class reports
 			WHERE
 				    field = 'ad'
 				AND value LIKE '%,'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records having a Russian *lang (thus transliterable) with different *lang vs *in/*lang
+	public function report_splitlang ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'splitlang' AS report,
+				id AS recordId
+			FROM catalogue_xml
+			WHERE
+				    ExtractValue(xml, '/*/tg/lang')    != ''
+				AND ExtractValue(xml, '/*/in/tg/lang') != ''
+				AND ExtractValue(xml, '/*/tg/lang')    != ExtractValue(xml, '/*/in/tg/lang')
+				AND (
+					   ExtractValue(xml, '/*/tg/lang')    LIKE '%Russian%'
+					OR ExtractValue(xml, '/*/in/tg/lang') LIKE '%Russian%'
+				)
 		";
 		
 		# Return the query

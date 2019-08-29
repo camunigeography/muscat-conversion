@@ -6129,3 +6129,15 @@ Anon author with *ad absent results in 1xx/7xx omitted
 57745
 546
 ‡aIn Russian.
+
+1053
+Macro transliterateSubfields uses (top-level) *lang
+3748
+880
+‡6490-
+
+1054
+Macro transliterateSubfields uses (top-level) *lang
+1043
+880
+‡6780-

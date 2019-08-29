@@ -1339,7 +1339,7 @@ class marcConversion
 					$transliterationPresent = false;
 					foreach ($puValues as $index => $puValue) {
 						
-						# NB The language is force-set to Russian, as the top guard clause would prevent getting this far; also this avoids auto-use in macro_transliterate() of //lang[1] which will not be section-half compliant
+						# NB The language is force-set to Russian, as the top guard clause would prevent getting this far; also this avoids auto-use in macro_transliterate() of (//lang)[1] which will not be section-half compliant
 						$puValues[$index] = $this->macro_transliterate ($puValue, 'Russian', $errorHtml_ignored, $nonTransliterable, $nonTransliterableReturnsFalse = false);	// NB: [s.n.] does not exist within any Russian record, but should not get transliterated anyway, being in square brackets (not possible to test)
 						
 						# Unless the string has been found to be non-transliterable, flag that transliteration is present, to enable full non-transliterable lines to be removed from 880 generation, e.g. /records/214774/ (test #870)
@@ -1962,9 +1962,10 @@ class marcConversion
 	public function macro_transliterateSubfields ($value, $applyToSubfields, &$errorHtml = NULL, $language = false /* Parameter always supplied by external callers */)
 	{
 		# If a forced language is not specified, obtain the language value for the record
+		#!# This needs to be made aware of whether the value under consideration is derived from an *in, and thus should use any *in language instead, e.g. 880-490 *ts|macro:generate490|macro:transliterateSubfields has //ts from *in - see /reports/splitlang/
 		if (!$language) {
-			$xPath = '//lang[1]';	// Choose first only
-			$language = $this->xPathValue ($this->xml, $xPath);
+			$xPath = '/*/tg/lang[1]';	// Choose top-level language, e.g. /records/3748/ (test #1053)
+			$language = $this->xPathValue ($this->xml, $xPath, true);
 		}
 		
 		# Return unmodified if the language mode is default, e.g. /records/211150/ (test #700)
@@ -2037,9 +2038,10 @@ class marcConversion
 	private function macro_transliterate ($value, $language = false, &$errorHtml_ignored = NULL, &$nonTransliterable = false, $nonTransliterableReturnsFalse = true)
 	{
 		# If a forced language is not specified, obtain the language value for the record
+		#!# This needs to be made aware of whether the value under consideration is derived from an *in, and thus should use any *in language instead - see /reports/splitlang/
 		if (!$language) {
-			$xPath = '//lang[1]';	// Choose first only
-			$language = $this->xPathValue ($this->xml, $xPath);
+			$xPath = '/*/tg/lang[1]';	// Choose top-level language, e.g. /records/1043/ (test #1054); no cases of *in/*lang applicable
+			$language = $this->xPathValue ($this->xml, $xPath, true);
 		}
 		
 		# End without output if no language, i.e. if default
