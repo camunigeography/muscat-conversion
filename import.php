@@ -2147,6 +2147,29 @@ class import
 		# Log start
 		$this->logger ('Starting ' . __METHOD__);
 		
+		# Firstly handle explicit matches, by replacing *kg in the processed records with the real, looked-up values
+		#!# Currently there are some parent records with location[2] - should that be ignored? - see `select * from catalogue_processed where xPathWithIndex LIKE '%/location[2]' and recordId IN( SELECT distinct value FROM `catalogue_processed` WHERE `field` LIKE 'kg' ORDER BY `value` DESC )`
+		$this->logger ('Replacing location=Periodical for explicit match with *kg');
+		$sql = "
+			UPDATE catalogue_processed
+			LEFT JOIN catalogue_processed AS kgLookup ON
+				    catalogue_processed.recordId = kgLookup.recordId
+				AND kgLookup.field = 'kg'
+			LEFT JOIN catalogue_processed AS valueLookup ON
+				    kgLookup.value = valueLookup.recordId
+				AND valueLookup.field = 'location'
+				AND valueLookup.xPathWithIndex LIKE '%/location[1]'
+			SET catalogue_processed.value = valueLookup.value
+			WHERE
+				    catalogue_processed.field = 'location' AND catalogue_processed.value = 'Periodical'
+				AND kgLookup.value IS NOT NULL
+				AND valueLookup.value IS NOT NULL
+			;";
+		$this->databaseConnection->execute ($sql);
+		
+		# Start implicit match
+		$this->logger ('Replacing location=Periodical for implicit match using title');
+		
 		# Assign XPaths to catalogue_processed; this unfortunate dependency means that the XML processing has to be run twice
 		$this->createXmlTable ($pathSeedingOnly = true, $errorsHtml);
 		
