@@ -2204,16 +2204,12 @@ class import
 				location.value AS location
 			FROM catalogue_processed
 			LEFT JOIN (
-				-- Ensure one-to-one mapping with parents that have more than one *location, e.g. /records/204332/ , by using GROUP_CONCAT to pre-group these before doing the JOIN
-				SELECT
-					recordId,
-					GROUP_CONCAT(value SEPARATOR '; ') AS value
+				SELECT recordId, value
 				FROM catalogue_processed
 				WHERE xPath = '/ser/loc/location'
-				GROUP BY recordId
 			) AS location ON catalogue_processed.recordId = location.recordId
 			WHERE catalogue_processed.xPath = '/ser/tg/t'
-		;";		// 3,363 rows inserted
+		;";		// 3,332 rows inserted
 		$this->databaseConnection->execute ($sql);
 		
 		# Create the table of matches, clearing it out first if existing from a previous import
