@@ -2147,6 +2147,9 @@ class import
 		# Log start
 		$this->logger ('Starting ' . __METHOD__);
 		
+		# Assign XPaths to catalogue_processed; this unfortunate dependency means that the XML processing has to be run twice
+		$this->createXmlTable ($pathSeedingOnly = true, $errorsHtml);
+		
 		# Firstly handle explicit matches, by replacing *kg in the processed records with the real, looked-up values
 		#!# Currently there are some parent records with location[2] - should that be ignored? - see `select * from catalogue_processed where xPathWithIndex LIKE '%/location[2]' and recordId IN( SELECT distinct value FROM `catalogue_processed` WHERE `field` LIKE 'kg' ORDER BY `value` DESC )`
 		$this->logger ('Replacing location=Periodical for explicit match with *kg');
@@ -2169,9 +2172,6 @@ class import
 		
 		# Start implicit match
 		$this->logger ('Replacing location=Periodical for implicit match using title');
-		
-		# Assign XPaths to catalogue_processed; this unfortunate dependency means that the XML processing has to be run twice
-		$this->createXmlTable ($pathSeedingOnly = true, $errorsHtml);
 		
 		# Create a table of periodicals, with their title and location(s), clearing it out first if existing from a previous import
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.periodicallocations;";
