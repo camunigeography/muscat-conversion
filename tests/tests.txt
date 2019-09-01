@@ -1645,7 +1645,7 @@ Macro prepend: value present
 Macro prepend: value not present
 49941
 !546
-‡aIn .
+‡aIn 
 
 275
 Macro ifValue: value present
@@ -6195,4 +6195,10 @@ Macro languages041 "Translated from Government" is not an *abs -derived note in 
 71300
 !041
 *
+
+1065
+546 "In ..." language note not triggered when *lang=English but has *in/*lang as the record itself is not in Russian (i.e. is only English)
+189648
+!546
+‡aIn 
 

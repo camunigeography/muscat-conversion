@@ -2294,7 +2294,6 @@ class marcConversion
 	
 	
 	# Macro to describe Russian transliteration scheme used, for 546 $a
-	#!# /records/189648/ which has *lang=English and /in/ *lang=Russian and gets "546 ## ‡aIn English and Russian." - is this correct?
 	#!# /records/189648/ which has *lang=English with *lpt containing Russian has no "546 ## ‡aIn English and Russian." - is this correct?
 	private function macro_transliterationProcessNote ($language)
 	{
