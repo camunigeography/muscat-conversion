@@ -2294,7 +2294,6 @@ class marcConversion
 	
 	
 	# Macro to describe Russian transliteration scheme used, for 546 $a
-	#!# Needs to be made consistent with languages041 macro, which is more extensive
 	#!# This should be present if there is any 880 present, e.g. /records/189648/ (e.g. #1032) or e.g. arising from English language record with *lpt containing Russian e.g. /records/47602/ (test #1033)
 	#!# /records/189648/ which has *lang=English and /in/ *lang=Russian and gets "546 ## ‡aIn English and Russian." - is this correct?
 	#!# /records/189648/ which has *lang=English with *lpt containing Russian has no "546 ## ‡aIn English and Russian." - is this correct?
