@@ -3251,6 +3251,12 @@ class reports
 				AND value NOT LIKE '% Mt.'
 				AND value NOT LIKE '% mts.'
 				AND value NOT LIKE '% gen. n.'
+			-- Whitelist:
+				AND recordId NOT IN(
+					5618, 5664, 8921, 9415, 13565, 28879, 33982, 37885, 42876, 45427,
+					49895, 50040, 52695, 63974, 80857, 93092, 114763, 121055, 122189, 123200,
+					159027, 161607, 182382, 182985, 194628, 198922
+				)
 		";
 		
 		# Return the query
