@@ -171,6 +171,7 @@ class reports
 		'splitlang_info' => 'records having a Russian *lang (thus transliterable) with different *lang vs *in/*lang',
 		'locationperiodical_problem' => 'records with *location=Periodical remaining',
 		'artkgart_problem' => 'records with an *art joining (via *kg) to an *art',
+		'multipleholdingssamelocation_postmigration' => 'records with multiple holdings at the same location',
 	);
 	
 	# Listing (values) reports
@@ -300,6 +301,9 @@ class reports
 			
 			'russianitalics' =>
 				'This report aims to facilitate manual inspection of Russian records where the title is in Russian but contains a section in italics. Currently, these italicised section are all protected, under the standard rule for italics. However, in some cases, these are names in Russian and should be upgraded to LoC and also converted to Cyrillic as if an unprotected string.',
+			
+			'multipleholdingssamelocation' =>
+				'Records with multiple holdings at the same $c location have not had any more than one holding created. This list of records will need to have to holdings added post-migration.',
 			
 		);
 	}
@@ -4562,6 +4566,40 @@ class reports
 				    catalogue_processed.xPath LIKE '/art%'
 			    AND catalogue_processed.field = 'kg'
 			    AND lookup.xPath = '/art'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with multiple holdings at the same location
+	public function report_multipleholdingssamelocation ()
+	{
+		# Define unicode symbols
+		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
+		
+		# Get the location codes
+		$locationCodes = array_unique (array_values ($this->locationCodes));
+		
+		# Create SQL fragments, essentially an SQL equivalent of substr_count
+		$whereOr = array ();
+		foreach ($locationCodes as $locationCode) {
+			if ($locationCode == 'IGNORE') {continue;}	// Skip IGNORE
+			$whereOr[] = "(LENGTH(marc)-LENGTH(REPLACE(marc,'{$this->doubleDagger}c{$locationCode}','')))/LENGTH('{$this->doubleDagger}c{$locationCode}') > 1";
+		}
+		
+		# Compile the SQL where clause
+		$where = '(' . implode (") OR\n\t\t\t\t(", $whereOr) . ')';
+		
+		# Define the query
+		$query = "
+			SELECT
+				'multipleholdingssamelocation' AS report,
+				id
+			FROM catalogue_marc
+			WHERE
+				{$where}
 		";
 		
 		# Return the query
