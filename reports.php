@@ -169,6 +169,8 @@ class reports
 		'conwithoutacc_info' => 'records with a condition report but no accession number',
 		'adcomma_problem' => 'records with a rogue comma at the end of the *ad',
 		'splitlang_info' => 'records having a Russian *lang (thus transliterable) with different *lang vs *in/*lang',
+		'locationperiodical_problem' => 'records with *location=Periodical remaining',
+		'artkgart_problem' => 'records with an *art joining (via *kg) to an *art',
 	);
 	
 	# Listing (values) reports
@@ -4505,6 +4507,50 @@ class reports
 					   ExtractValue(xml, '/*/tg/lang')    LIKE '%Russian%'
 					OR ExtractValue(xml, '/*/in/tg/lang') LIKE '%Russian%'
 				)
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with *location=Periodical remaining
+	public function report_locationperiodical ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'locationperiodical' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE
+				    field = 'location'
+				AND value = 'Periodical'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with an *art joining (via *kg) to an *art
+	public function report_artkgart ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'artkgart' AS report,
+				catalogue_processed.recordId
+			    -- ,catalogue_processed.field,
+			    -- catalogue_processed.value,
+			    -- catalogue_processed.xPath,
+			    -- lookup.xPath
+			FROM catalogue_processed
+			JOIN catalogue_processed AS lookup ON catalogue_processed.value = lookup.recordId
+			WHERE
+				    catalogue_processed.xPath LIKE '/art%'
+			    AND catalogue_processed.field = 'kg'
+			    AND lookup.xPath = '/art'
 		";
 		
 		# Return the query

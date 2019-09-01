@@ -5753,7 +5753,7 @@ LDR
 ‡a1 microform.
 
 990
-In 852, where both *kg and location=Periodical are present, *kg should be used
+In 852, where both *kg and location=Periodical are present, *kg takes priority
 43303
 852
 ‡h148 B-D‡z
@@ -6159,3 +6159,21 @@ Macro languages041 *role "translated from" results in ‡h
 1011
 035
 ‡aSPRI-1011
+
+1060
+852 uses explicit *kg where it exists for location=Periodical
+23120
+852
+‡h148 B‡9
+
+1061
+852 explicit *kg written to location=Periodical and not other location present (see also next test)
+15523
+852
+‡h(*32) : 598.2‡z
+
+1062
+852 explicit *kg written to location=Periodical and not other location present (see also previous test)
+15523
+852
+‡hBasement 13 E‡z

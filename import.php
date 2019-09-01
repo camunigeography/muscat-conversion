@@ -2150,8 +2150,12 @@ class import
 		# Assign XPaths to catalogue_processed; this unfortunate dependency means that the XML processing has to be run twice
 		$this->createXmlTable ($pathSeedingOnly = true, $errorsHtml);
 		
-		# Firstly handle explicit matches, by replacing *kg in the processed records with the real, looked-up values
-		#!# Currently there are some parent records with location[2] - should that be ignored? - see `select * from catalogue_processed where xPathWithIndex LIKE '%/location[2]' and recordId IN( SELECT distinct value FROM `catalogue_processed` WHERE `field` LIKE 'kg' ORDER BY `value` DESC )`
+		# Firstly handle explicit matches, by replacing *kg in the processed records with the real, looked-up values; e.g. /records/23120/ (test #1060)
+		# Explicit matches using *kg take priority; this switches off the title-baed lookup for replacing *location=Periodical, e.g. /records/43303/ (test #990), which has *kg=23052 rather than wrongly matching using *ts from /records/72770/
+		# This maintains the field = 'location' AND value = 'Periodical' constraint so that records like /record/15523/ (tests #1061, #1062) and /records/39757/ do not wipe out another *location (e.g. hard-coded shelf location)
+		# *kg parents are: 2270 *doc, 1455 *ser, 11 *art, e.g. `SELECT * FROM catalogue_processed WHERE field = 'doc' and recordId IN( SELECT distinct value FROM catalogue_processed WHERE field = 'kg' ORDER BY value DESC);`
+		#!# Currently there are some parent records with location[2] - should that be ignored? - see `SELECT * FROM catalogue_processed WHERE field = 'location' and xPathWithIndex LIKE '%/location[2]' AND recordId IN( SELECT DISTINCT value FROM `catalogue_processed` WHERE field = 'kg' ORDER BY value DESC);`
+		#!# Should we overwrite just location=Periodical or any other location value, e.g. hard-coded as particularly exist with *doc records?
 		$this->logger ('Replacing location=Periodical for explicit match with *kg');
 		$sql = "
 			UPDATE catalogue_processed
@@ -2167,13 +2171,15 @@ class import
 				    catalogue_processed.field = 'location' AND catalogue_processed.value = 'Periodical'
 				AND kgLookup.value IS NOT NULL
 				AND valueLookup.value IS NOT NULL
-			;";
+		;";
 		$this->databaseConnection->execute ($sql);
 		
 		# Start implicit match
 		$this->logger ('Replacing location=Periodical for implicit match using title');
 		
 		# Create a table of periodicals, with their title and location(s), clearing it out first if existing from a previous import
+		# Both *art and *doc are able to link to *ser
+		# Link for *doc found with: SELECT * FROM `catalogue_rawdata` join catalogue_rawdata AS lookup ON catalogue_rawdata.recordId = lookup.recordId AND lookup.field = 'doc' where catalogue_rawdata.field = 'location' and catalogue_rawdata.value = 'Periodical'
 		$sql = "DROP TABLE IF EXISTS {$this->settings['database']}.periodicallocations;";
 		$this->databaseConnection->execute ($sql);
 		$sql = "CREATE TABLE IF NOT EXISTS `periodicallocations` (
@@ -2189,6 +2195,7 @@ class import
 		$this->databaseConnection->execute ($sql);
 		
 		# Insert the data; note that the query assumes presence of catalogue_processed.xPath
+		# Confirmed (30/8/2019) that all *ser end up in this list, and end up with the correct location
 		$sql = "
 			INSERT INTO `periodicallocations` (recordId, title, location)
 			SELECT
@@ -2229,9 +2236,7 @@ class import
 		
 		# Insert the data for each grouping; note that the periodicallocations table is no longer needed after this
 		# For /doc records this requires at least partial match, e.g. "Annals of Glaciology ; 9" in child record's (first) /doc/ts matches "Annals of Glaciology" in parent (periodicallocations.title)
-		# /records/209527/ is an example with two *ts values - the first is used in Muscat as the match - there are 1170 cases of /ts[2] but these are ignored as per Muscat
-		#!# Records like /records/23120/ are now inconsistent in that they contain an explicit *kg now - presence of *kg should switch off the automatic lookup of *location=Periodical; another example is /records/43303/ (which has *kg=23052 but is being wrongly matched with *ts from /records/72770/)
-		#!# In relation to this, need a report comparing direct *kg's *location with the child's derived replacement of location=Periodical; there are 82735 cases of both present, as found with `SELECT recordId FROM catalogue_rawdata WHERE recordId IN( SELECT id FROM `fieldsindex` where fieldslist like '%@kg@%' and fieldslist like '%@location@%' ) AND field = 'location' AND value = 'Periodical'`
+		# NB /records/209527/ is an example with two *ts values - the first is used in Muscat as the match - there are 1170 cases of /ts[2] but these are ignored as per Muscat
 		#!# In a three-level hiearchy (article in AoG1, which is in AoG), we cannot be sure that the longest is found first, e.g. *ts="Annals of Glaciology 1" should find (parent *t=Annals of Glaciology 1" before parent *t="Annals of Glaciology" if both exist, and it should not match against *t="Annals of Glaciology 10"
 		#!# Tests needed here
 		$groupings = array (
