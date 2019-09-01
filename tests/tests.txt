@@ -6202,3 +6202,10 @@ Macro languages041 "Translated from Government" is not an *abs -derived note in 
 !546
 ‡aIn 
 
+1066
+546 "In ..." language note not triggered when record is in English but has *lpt containing with Russian
+47602
+!546
+‡aIn 
+
+

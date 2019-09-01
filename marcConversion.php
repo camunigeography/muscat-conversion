@@ -2294,7 +2294,6 @@ class marcConversion
 	
 	
 	# Macro to describe Russian transliteration scheme used, for 546 $a
-	#!# /records/189648/ which has *lang=English with *lpt containing Russian has no "546 ## ‡aIn English and Russian." - is this correct?
 	private function macro_transliterationProcessNote ($language)
 	{
 		# Always create a placeholder, which at the end of processing is then removed or has the note added; this string should never appear in the final record, e.g. /records/1000/ (test #1057)
