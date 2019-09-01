@@ -6148,6 +6148,12 @@ Macro languages041 *role "translated from" results in ‡h
 041
 ‡hice
 
+1057
+Transliteration process note placeholder does not appear in final records not having transliteration
+1000
+!546
+<transliterationProcessNote>
+
 1058
 561 has institution token
 6897

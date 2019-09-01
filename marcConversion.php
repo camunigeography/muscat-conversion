@@ -83,6 +83,9 @@ class marcConversion
 		'D',		// Dead serial
 	);
 	
+	# Transliteration process note placeholder
+	private $transliterationProcessNotePlaceholder = '<transliterationProcessNote>';
+	
 	# Suppression keyword in *status
 	private $suppressionStatusKeyword = 'SUPPRESS';
 	
@@ -994,6 +997,9 @@ class marcConversion
 				$outputLines[$lineOutputKey] = $this->insertSubfieldAfterMarcFieldThenIndicators ($outputLines[$lineOutputKey], $linkToken);	// E.g. /records/1062/ (test #263)
 			}
 		}
+		
+		# Deal with transliteration process note, now that all lines are known to exist, e.g. /records/189648/ (test #1032)
+		$outputLines = $this->transliterationProcessNote ($outputLines);
 		
 		# Compile the record
 		$record = implode ("\n", $outputLines);
@@ -2287,20 +2293,43 @@ class marcConversion
 	}
 	
 	
-	# Macro to describe Russian transliteration scheme used, for 546 $a; this takes account only of //lang[1], as the transliteration system throughout uses only //lang[1]
+	# Macro to describe Russian transliteration scheme used, for 546 $a
 	#!# Needs to be made consistent with languages041 macro, which is more extensive
 	#!# This should be present if there is any 880 present, e.g. /records/189648/ (e.g. #1032) or e.g. arising from English language record with *lpt containing Russian e.g. /records/47602/ (test #1033)
 	#!# /records/189648/ which has *lang=English and /in/ *lang=Russian and gets "546 ## ‡aIn English and Russian." - is this correct?
 	#!# /records/189648/ which has *lang=English with *lpt containing Russian has no "546 ## ‡aIn English and Russian." - is this correct?
 	private function macro_transliterationProcessNote ($language)
 	{
-		# Return string; e.g. /records/1526/ (test #421); string below ends with dot, e.g. /records/1043/ (test #981)
-		if ($language == 'Russian') {
-			return 'Russian transliteration entered into original records using BGN/PCGN 1947 romanisation of Russian; Cyrillic text in MARC 880 field(s) reverse transliterated from this by automated process; BGN/PCGN 1947 text then upgraded to Library of Congress romanisation.';
+		# Always create a placeholder, which at the end of processing is then removed or has the note added; this string should never appear in the final record, e.g. /records/1000/ (test #1057)
+		return $this->transliterationProcessNotePlaceholder;
+	}
+	
+	
+	# Function to substitute the placeholder created in macro_transliterationProcessNote
+	# This is present if there is any 880 present, e.g. /records/189648/ (test #1032) or e.g. arising from English language record with *lpt containing Russian e.g. /records/47602/ (test #1033)
+	private function transliterationProcessNote ($outputLines)
+	{
+		# Identify the line number (e.g. 546_0) containing the placeholder
+		foreach ($outputLines as $lineNumber => $string) {
+			if (preg_match ('/^546_/', $lineNumber)) {
+				if (substr_count ($string, $this->transliterationProcessNotePlaceholder)) {
+					break;	// $lineNumber will now be set
+				}
+			}
 		}
 		
-		# No match; e.g. /records/1527/ (test #422)
-		return false;
+		# Return string; e.g. /records/1526/ (test #421); string below ends with dot, e.g. /records/1043/ (test #981)
+		if ($this->field880subfield6ReciprocalLinks) {	// i.e. has 880
+			$note = 'Russian transliteration entered into original records using BGN/PCGN 1947 romanisation of Russian; Cyrillic text in MARC 880 field(s) reverse transliterated from this by automated process; BGN/PCGN 1947 text then upgraded to Library of Congress romanisation.';
+			$outputLines[$lineNumber] = str_replace ($this->transliterationProcessNotePlaceholder, $note, $outputLines[$lineNumber]);
+			
+		# No match, so unset the 546 line; e.g. /records/1527/ (test #422)
+		} else {
+			unset ($outputLines[$lineNumber]);
+		}
+		
+		# Return the amended lines set
+		return $outputLines;
 	}
 	
 	
