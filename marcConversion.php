@@ -2647,6 +2647,7 @@ class marcConversion
 			
 			# Find the first match, then stop, if any
 			foreach ($this->regexps490 as $index => $regexp) {
+				if (preg_match ('|2007/08$|', $ts)) {break;}	// Special-case, e.g. /records/202321/ (test #1069)
 				$delimeter = '~';	// Known not to be in the tables/volumeRegexps.txt list
 				if (preg_match ($delimeter . $regexp . $delimeter . 'i', $ts, $matches)) {	// Regexps are permitted to have their own captures; matches 3 onwards are just ignored; this is done case-insensitively, e.g.: /records/170770/ (test #450)
 					$seriesTitle = $matches[1];

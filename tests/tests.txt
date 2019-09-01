@@ -6220,3 +6220,9 @@ location=Periodical match using *ts used when *kg not present (see also test #10
 852
 ‡h108 E‡9
 
+1069
+490 special case to avoid incorrect ‡v splitting
+202321
+490
+Polar Year 2007/08
+
