@@ -6208,4 +6208,9 @@ Macro languages041 "Translated from Government" is not an *abs -derived note in 
 !546
 ‡aIn 
 
+1067
+245 Anon variants (e.g. '[Anon.]' here) are not normalised but kept as-is
+27516
+245
+Browne /‡c[Anon.].
 

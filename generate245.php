@@ -379,6 +379,7 @@ class generate245
 				}
 				
 				# Register this author value
+				# Note that there is no normalisation of Anon variants as happens with 1xx/7xx, e.g. /records/27516/ (test #1067)
 				$authorsThisAg[] = ($languageMode == 'default' ? $string : $this->marcConversion->transliteration->transliterateLocLatinToCyrillic ($string, false));
 				
 				# Next *a
