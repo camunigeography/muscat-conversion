@@ -2928,6 +2928,11 @@ class reports
 		";
 		$data = $this->databaseConnection->getData ($query);
 		
+		# If no data, state this
+		if (!$data) {
+			return $html = '<p>No matches.</p>';
+		}
+		
 		# Modify columns
 		foreach ($data as $index => $record) {
 			$data[$index]['recordId'] = "<a href=\"{$this->baseUrl}/records/{$record['recordId']}/\">{$record['recordId']}</a>";
