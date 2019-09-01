@@ -6226,3 +6226,9 @@ location=Periodical match using *ts used when *kg not present (see also test #10
 490
 Polar Year 2007/08
 
+1070
+*ts parallel title protected string
+6498
+880
+Mémoires de lʹAcadémie Impériale des Sciences de St.-Pétersbourg VIIIe
+
