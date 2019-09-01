@@ -3437,10 +3437,9 @@ class marcConversion
 		
 		# Add 773 ‡t: Copy in the 245 (Title) ‡a and ‡b from the host record, omitting subfield codes, stripping leading articles, e.g. /records/67559/ (test #666)
 		if (isSet ($marc['245'])) {
-			#!# /records/2073/ gets "FrenchFrench" - it has /art/tg/lang and /art/in/tg/lang both French
-			$xPath = '//lang[1]';	// Choose first only
 			#!# Surely this should be the language of the host record, not the current record (though they may often be the same anyway), as we are combining subfield values of the host and therefore stripping leading articles from that? - probably need to do an xPath read of the host record for /toplevel/tg/lang
-			$language = $this->xPathValue ($this->xml, $xPath);
+			$xPath = '(//lang)[1]';	// Choose first only
+			$language = $this->xPathValue ($this->xml, $xPath, false);	// E.g. /records/5472/ (test #1071)
 			if (!$language) {$language = 'English';}
 			$subfields[] = $this->combineSubfieldValues ('t', $marc['245'], array ('a', 'b'), ' ', $language);	// Space separator only, as already has : in master 245; e.g. /records/67559/ (test #529), /records/59148/ (test #530), /records/191969/ (test #1030). Will automatically have a . (which replaces /) e.g. /records/59148/ (test #531)
 		}

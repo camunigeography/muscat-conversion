@@ -6232,3 +6232,8 @@ Polar Year 2007/08
 880
 Mémoires de lʹAcadémie Impériale des Sciences de St.-Pétersbourg VIIIe
 
+1071
+773 ‡t uses language to strip leading articles of pulled-in 245
+5472
+773
+‡tInternationale Polarforschung
