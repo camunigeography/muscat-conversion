@@ -6185,7 +6185,7 @@ Transliteration process note placeholder does not appear in final records not ha
 ‡hBasement 13 E‡z
 
 1063
-location=Periodical match using *ts uses first *ts (here to parent 20180, which has location=82 E)
+location=Periodical match using *ts uses first *ts (here to parent 20180, which has location=82 E) (see also test #1068)
 209527
 852
 ‡h82 E‡9
@@ -6213,4 +6213,10 @@ Macro languages041 "Translated from Government" is not an *abs -derived note in 
 27516
 245
 Browne /‡c[Anon.].
+
+1068
+location=Periodical match using *ts used when *kg not present (see also test #1063)
+37181
+852
+‡h108 E‡9
 

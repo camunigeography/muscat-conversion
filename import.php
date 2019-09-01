@@ -2174,7 +2174,7 @@ class import
 		;";
 		$this->databaseConnection->execute ($sql);
 		
-		# Start implicit match
+		# Start implicit matches, e.g. /records/37181/ (test #1068) which has /doc/ts join to /records/32048/ so picks up that location to replace location=Periodical
 		$this->logger ('Replacing location=Periodical for implicit match using title');
 		
 		# Create a table of periodicals, with their title and location(s), clearing it out first if existing from a previous import
@@ -2237,7 +2237,7 @@ class import
 		#!# Tests needed here
 		$groupings = array (
 			'/art/j/tg/t'	=> true,	// 79,988 results; NB To permit NULL right-side results, i.e. unmatched parent (giving 82,185 results), change the HAVING clause to "HAVING value != ''"
-			'/doc/ts[1]'	=> false,	//    280 results; NB To permit NULL right-side results, i.e. unmatched parent (giving    294 results), change the HAVING clause to "HAVING value IS NOT NULL"
+			'/doc/ts[1]'	=> false,	// e.g. /records/37181/ (test #1068);   280 results; NB To permit NULL right-side results, i.e. unmatched parent (giving    294 results), change the HAVING clause to "HAVING value IS NOT NULL"
 		);
 		foreach ($groupings as $titleField => $isExactMatch) {
 			$sql = "
