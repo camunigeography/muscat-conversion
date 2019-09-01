@@ -5942,7 +5942,7 @@ For a Russian record, if the title is [in brackets] but the author is transliter
 In 880, allow transliteration for special case full strings [in brackets]: *t
 7826
 880
-‡6245-02/(N‡a[Сопоставлениые температурных условиы в высоких широтах ыужного и северного полушариыа] /‡cА. Воейков.
+‡6245-02/(N‡a[Сопоставление температурных условий в высоких широтах южного и северного полушария] /‡cА. Воейков.
 
 1023
 In 880, allow transliteration for special case full strings [in brackets]: *pu

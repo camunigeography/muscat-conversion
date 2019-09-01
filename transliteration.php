@@ -514,7 +514,7 @@ class transliteration
 			return $this->transliterableFullStringsInBrackets;
 		}
 		
-		# Define a list of shards that should be protected
+		# Define a list of shards that should be protected from being protected (i.e. are transliterated)
 		# Identified by inspection of list `SELECT * FROM catalogue_processed WHERE value LIKE '[%' AND recordLanguage LIKE 'Russian' AND value NOT IN ('[n.d]',  '[n.p.]' , '[n.pub.]', '[Anon.]', '[Leningrad]', '[St. Petersburg]', '[Moscow]') AND field NOT IN('d', 'p','note', 'tc') LIMIT 500;`
 		$shards = array (
 			// *pu:
