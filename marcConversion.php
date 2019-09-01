@@ -1902,7 +1902,7 @@ class marcConversion
 		$abss  = $this->xPathValues ($this->xml, '(//abs)[%i]', false);		// E.g. /records/4377/ (test #1055)
 		$roles = $this->xPathValues ($this->xml, '(//role)[%i]', false);	// E.g. /records/1639/ (test #1056)
 		$strings = array_merge ($notes, $abss, $roles);
-		$nonLanguageWords = array ('article', 'published', 'manuscript');	// e.g. /records/196791/ , /records/32279/ (test #375)
+		$nonLanguageWords = array ('a', 'Academy', 'Arc', 'article', 'articles', 'author', 'by', 'cover', 'Doklady', 'field', 'G', 'Gerlache', 'Government', 'in', 'Izvestiya', 'Krasheninnikov', 'languages', 'manuscript', 'Mateorologiya', 'memoirs', 'Meteorologiya', 'Moscow', 'Mueller', 'Munk', 'official', 'Okeanologiya', 'Old', 'original', 'part', 'published', 'seventh', 'the', 'version', 'work', 'Zhurnal');	// e.g. /records/196791/ , /records/32279/ (test #375), *abs example in /records/71300/ (test #1064)
 		$translationNotes = array ();
 		foreach ($strings as $note) {
 			
@@ -3115,6 +3115,8 @@ class marcConversion
 	
 	
 	# Generalised lookup table function
+	# NB languageCodes 'MARC Code' column comes from: https://www.loc.gov/marc/languages/language_code.html with reference to https://www.loc.gov/marc/languages/language_name.html
+	# NB languageCodes 'Script Code' column comes from position 33 definition at: https://www.loc.gov/marc/bibliographic/bd008s.html
 	public function lookupValue ($table, $fallbackKey, $caseSensitiveComparison = true, $stripBrackets = false, $value, $field, &$errorHtml)
 	{
 		# Load the lookup table

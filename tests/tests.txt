@@ -6190,4 +6190,9 @@ location=Periodical match using *ts uses first *ts (here to parent 20180, which 
 852
 ‡h82 E‡9
 
+1064
+Macro languages041 "Translated from Government" is not an *abs -derived note in scope of matching
+71300
+!041
+*
 
