@@ -309,7 +309,7 @@ class marcConversion
 		$this->authorsFields = $this->generateAuthors->createAuthorsFields ($this->xml);
 		
 		# Up-front, look up the host record, if any
-		$this->hostRecord = $this->lookupHostRecord ();
+		$this->hostRecord = $this->lookupHostRecord ($this->hostRecordId /* returned by reference */);
 		
 		# Lookup XPath values from the record which are needed multiple times, for efficiency
 		$this->form = $this->xPathValue ($this->xml, '(//form)[1]', false);
@@ -3362,7 +3362,7 @@ class marcConversion
 	
 	
 	# Function to look up the host record, if any
-	private function lookupHostRecord ()
+	private function lookupHostRecord (&$hostId = false)
 	{
 		# Up-front, obtain the host ID (if any) from *kg, used in both 773 and 500, e.g. /records/1129/ (test #493); if more than one, the first is chosen, e.g. /records/1896/ (test #763)
 		#!# Need to determine what happens when *k2[2]/kg is present, e.g. /records/1896/
@@ -3435,13 +3435,20 @@ class marcConversion
 			$subfields[] = $this->macro_dotEnd ($aSubfieldValue, $extendedCharacterList = '.])>-');	// See: https://www.oclc.org/bibformats/en/7xx/773.html which has more examples than the main MARC site
 		}
 		
-		# Add 773 ‡t: Copy in the 245 (Title) ‡a and ‡b from the host record, omitting subfield codes, stripping leading articles, e.g. /records/67559/ (test #666)
+		# Add 773 ‡t: Copy in the 245 (Title) ‡a and ‡b from the host record, omitting subfield codes, stripping leading articles (using the host's language, not the local record's language), e.g. /records/67559/ (test #666)
 		if (isSet ($marc['245'])) {
-			#!# Surely this should be the language of the host record, not the current record (though they may often be the same anyway), as we are combining subfield values of the host and therefore stripping leading articles from that? - probably need to do an xPath read of the host record for /toplevel/tg/lang
+			
+			# Obtain the XML of the host record, so that the language can be looked up
+			$hostRecordXml = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_xml', 'xml', $conditions = array ('id' => $this->hostRecordId));
+			$hostRecordXml = $this->loadXmlRecord ($hostRecordXml);
+			
+			# Obtain the language of the host record, e.g. /records/10150/ (test #1071), /records/151207/, /records/158317/
 			$xPath = '(//lang)[1]';	// Choose first only
-			$language = $this->xPathValue ($this->xml, $xPath, false);	// E.g. /records/5472/ (test #1071)
-			if (!$language) {$language = 'English';}
-			$subfields[] = $this->combineSubfieldValues ('t', $marc['245'], array ('a', 'b'), ' ', $language);	// Space separator only, as already has : in master 245; e.g. /records/67559/ (test #529), /records/59148/ (test #530), /records/191969/ (test #1030). Will automatically have a . (which replaces /) e.g. /records/59148/ (test #531)
+			$languageHostRecord = $this->xPathValue ($hostRecordXml, $xPath, false);
+			if (!$languageHostRecord) {$languageHostRecord = 'English';}
+			
+			# Assemble the subfield ‡t
+			$subfields[] = $this->combineSubfieldValues ('t', $marc['245'], array ('a', 'b'), ' ', $languageHostRecord);	// Space separator only, as already has : in master 245; e.g. /records/67559/ (test #529), /records/59148/ (test #530), /records/191969/ (test #1030). Will automatically have a . (which replaces /) e.g. /records/59148/ (test #531)
 		}
 		
 		# Add 773 ‡d: Copy in the 260 (Place, publisher, and date of publication) from the host record, omitting subfield codes; *art/*in records only; e.g. /records/59148/ (test #667)
