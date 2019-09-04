@@ -3871,7 +3871,6 @@ class marcConversion
 			}
 			
 			# If records are missing, add public note; e.g. /records/1014/ (test #655)
-			#!# Should missing be suppressed, like '??' / 'Pam ?'
 			#!# Should '??' / 'Pam ?' similarly create $z Item(s) missing?
 			# /reports/notinsprimissing/ confirms that no record has BOTH "Not in SPRI" (which would result in $z already existing above) and "MISSING"
 			# Note that this will set a marker for each *location; the report /reports/multiplelocationsmissing/ lists these cases, which will need to be fixed up post-migration - we are unable to work out from the Muscat record which *location the "MISSING" refers to
