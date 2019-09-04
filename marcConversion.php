@@ -3872,7 +3872,6 @@ class marcConversion
 			
 			# If records are missing, add public note; e.g. /records/1014/ (test #655)
 			# /reports/notinsprimissing/ confirms that no record has BOTH "Not in SPRI" (which would result in $z already existing above) and "MISSING"
-			#!# Ideally also need to trigger this in cases where the record has note to this effect; or check that MISSING exists in all such cases by checking and amending records in /reports/notemissing/ - think this is done
 			$isMissing = false;
 			if ($location == '??' || $location == 'Pam ?') {	// E.g. ?? in /records/30700/ (test #1077), Pam ? in /records/35398/ (test #1078)
 				$isMissing = true;
