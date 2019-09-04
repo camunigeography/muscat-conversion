@@ -2156,23 +2156,8 @@ class import
 		# *kg parents are: 2270 *doc, 1455 *ser, 11 *art, e.g. `SELECT * FROM catalogue_processed WHERE field = 'doc' and recordId IN( SELECT distinct value FROM catalogue_processed WHERE field = 'kg' ORDER BY value DESC);`
 		#!# Currently there are some parent records with location[2] - should that be ignored? - see `SELECT * FROM catalogue_processed WHERE field = 'location' and xPathWithIndex LIKE '%/location[2]' AND recordId IN( SELECT DISTINCT value FROM `catalogue_processed` WHERE field = 'kg' ORDER BY value DESC);`
 		#!# Should we overwrite just location=Periodical or any other location value, e.g. hard-coded as particularly exist with *doc records?
-		$this->logger ('Replacing location=Periodical for explicit match with *kg');
-		$sql = "
-			UPDATE catalogue_processed
-			LEFT JOIN catalogue_processed AS kgLookup ON
-				    catalogue_processed.recordId = kgLookup.recordId
-				AND kgLookup.field = 'kg'
-			LEFT JOIN catalogue_processed AS valueLookup ON
-				    kgLookup.value = valueLookup.recordId
-				AND valueLookup.field = 'location'
-				AND valueLookup.xPathWithIndex LIKE '%/location[1]'
-			SET catalogue_processed.value = valueLookup.value
-			WHERE
-				    catalogue_processed.field = 'location' AND catalogue_processed.value = 'Periodical'
-				AND kgLookup.value IS NOT NULL
-				AND valueLookup.value IS NOT NULL
-		;";
-		$this->databaseConnection->execute ($sql);
+		$this->logger ('Replacing location=Periodical for explicit match with *kg (first pass, before implicit matches');
+		$this->joinKg ();
 		
 		# Start implicit matches, e.g. /records/37181/ (test #1068) which has /doc/ts join to /records/32048/ so picks up that location to replace location=Periodical
 		$this->logger ('Replacing location=Periodical for implicit match using title');
@@ -2269,6 +2254,34 @@ class import
 				    field = 'Location' AND value = 'Periodical'
 				AND parentLocation IS NOT NULL
 			;";
+		$this->databaseConnection->execute ($sql);
+		
+		# Re-run the *kg joining, which will pick up records whose parents are themselves relying on a title (implicit) match
+		# This is not testable, as all 549 records appear to have 773 $w so do not have a hard-coded location; however, the effect of this re-running is to ensure that the /reports/locationperiodical/ report contains genuine cases with no match
+		$this->logger ('Replacing location=Periodical for explicit match with *kg (second pass, after implicit matches');
+		$this->joinKg ();
+	}
+	
+	
+	# Function to join *kg records to overwrite location=Periodical
+	public function joinKg ()
+	{
+		# Replace *kg in the processed records with the real, looked-up values; e.g. /records/23120/ (test #1060)
+		$sql = "
+			UPDATE catalogue_processed
+			LEFT JOIN catalogue_processed AS kgLookup ON
+				    catalogue_processed.recordId = kgLookup.recordId
+				AND kgLookup.field = 'kg'
+			LEFT JOIN catalogue_processed AS valueLookup ON
+				    kgLookup.value = valueLookup.recordId
+				AND valueLookup.field = 'location'
+				AND valueLookup.xPathWithIndex LIKE '%/location[1]'
+			SET catalogue_processed.value = valueLookup.value
+			WHERE
+				    catalogue_processed.field = 'location' AND catalogue_processed.value = 'Periodical'
+				AND kgLookup.value IS NOT NULL
+				AND valueLookup.value IS NOT NULL
+		;";
 		$this->databaseConnection->execute ($sql);
 	}
 	

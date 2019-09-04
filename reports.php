@@ -169,7 +169,7 @@ class reports
 		'conwithoutacc_info' => 'records with a condition report but no accession number',
 		'adcomma_problem' => 'records with a rogue comma at the end of the *ad',
 		'splitlang_info' => 'records having a Russian *lang (thus transliterable) with different *lang vs *in/*lang',
-		'locationperiodical_problem' => 'records with *location=Periodical remaining',
+		'locationperiodical_postmigration' => 'records with *location=Periodical remaining',
 		'artkgart_problem' => 'records with an *art joining (via *kg) to an *art',
 		'multipleholdingssamelocation_postmigration' => 'records with multiple holdings at the same location',
 	);
@@ -304,6 +304,9 @@ class reports
 			
 			'multipleholdingssamelocation' =>
 				'Records with multiple holdings at the same $c location have not had any more than one holding created. This list of records will need to have to holdings added post-migration.',
+			
+			'locationperiodical' =>
+				'Records with location=Periodical which have not been able to be matched with any parent, which thus have no location. These need to be found.',
 			
 		);
 	}
