@@ -3890,14 +3890,19 @@ class marcConversion
 			# Generate the filterTokens registry entry, and speculatively create the status filter token for use below as $0
 			$filterTokens = $this->filterTokenCreation ($location);
 			
-			# Determine if item records should be created for this location, and if not, skip the 852 line entirely
-			if (!$itemRecords = $this->itemRecordsCreation ($location)) {continue;}
+			# Determine whether this *location should result in an 852 being generated, and if so, how many item records in the $9 or no item records (so no $9)
+			list ($create852, $itemRecordsCountDollar9) = $this->itemRecordsCreation ($location);
+			
+			# Determine if item records should be created for this location, and if not, skip the 852 line entirely, e.g. /records/1109/ (test #1075)
+			if (!$create852) {continue;}
 			
 			# Add the item record creation status, as a non-standard field $9 which will be stripped upon final import, and update the count
-			$result .= "{$this->doubleDagger}9" . "Create {$itemRecords} item record" . ($itemRecords > 1 ? 's' : '');
-			$this->itemRecords += $itemRecords;		// E.g. 23 from single 852 in /records/3339/, 2 from multiple 852 in /records/1364/
+			if ($itemRecordsCountDollar9) {		// $9 created in e.g. /records/1107/ (test #928); no $9 created in /records/1350/ (test #930)
+				$result .= "{$this->doubleDagger}9" . "Create {$itemRecordsCountDollar9} item record" . ($itemRecordsCountDollar9 > 1 ? 's' : '');
+				$this->itemRecords += $itemRecordsCountDollar9;		// E.g. 23 from single 852 in /records/3339/, 2 from multiple 852 in /records/1364/
+			}
 			
-			# Add the filter token subfield, as a non-standard field $0 which will be stripped upon final import, e.g. /records/16870/ (test #941)
+			# Add the filter token subfield, as a non-standard field $0 (which will be stripped upon final import), e.g. /records/1123/ (test #953)
 			$result .= $this->create852dollar0FromFilterTokens ($filterTokens);
 			
 			# Register this result
@@ -3981,7 +3986,7 @@ class marcConversion
 	}
 	
 	
-	# Function to create the filterToken-related 852 subfield entry (or entries, e.g. IGNORE-NOTINSPRI plus IGNORE-IGS)
+	# Function to create the filterToken-related 852 subfield entry (or entries, e.g. IGNORE-NOTINSPRI plus IGNORE-IGS), e.g. /records/1123/ (test #953)
 	private function create852dollar0FromFilterTokens ($filterTokens)
 	{
 		# Create the 852 subfield entry (or entries, e.g. IGNORE-NOTINSPRI plus IGNORE-IGS)
@@ -4039,7 +4044,9 @@ class marcConversion
 	private function itemRecordsCreation ($location)
 	{
 		# No records for items with a SPRI-ELE location, as they do not physically exist, all of which have been confirmed to have that as the only location, e.g. /records/213625/ (test #924)
-		if (substr_count ($location, 'Digital Repository') || substr_count ($location, 'Electronic Resource (online)')) {return false;}
+		if (substr_count ($location, 'Digital Repository') || substr_count ($location, 'Electronic Resource (online)')) {
+			return array ($create852 = false, $count = 0);
+		}
 		
 		# Assume a count of 1 where a count is returned but the figure is not overriden by more detailed count algorithm below, e.g. /records/1008/ (test #933)
 		$count = 1;
@@ -4078,7 +4085,7 @@ class marcConversion
 			}
 			
 			# Return the count, e.g. /records/13420/ (test #920)
-			return $count;
+			return array ($create852 = true, $count);
 		}
 		
 		# *ser records, e.g. /records/1000/ (test #925)
@@ -4093,15 +4100,17 @@ class marcConversion
 			}
 			
 			# Return the count, e.g. /records/1000/ (test #925)
-			return $count;
+			return array ($create852 = true, $count);
 		}
 		
 		# *art records: determine based on a set of criteria which have been created following database querying
 		# E.g. 'Pam' in /records/1107/ (test #928), 'Special Collection' in /records/1590/ (test #929), '??' in /records/2579/ (test #931)
 		if (($this->recordType == '/art/in') || ($this->recordType == '/art/j')) {
 			
-			# If there is a host record, no item record created, e.g. /records/1109/ (test #928)
-			if ($this->hostRecord) {return false;}
+			# If there is a host record, no item record created, e.g. /records/1109/ (test #1075)
+			if ($this->hostRecord) {
+				return array ($create852 = false, $count);
+			}
 			
 			# Whitelist of locations, except where 'bound in'
 			/* Equivalent SQL query gives 23,615 opt-ins with:
@@ -4120,16 +4129,22 @@ class marcConversion
 					)
 				;
 			*/
-			if (preg_match ("/^(Archives|Atlas|Basement BB Roberts Cabinet|Bibliographers' Office|Folio|Librarian's Office|Map Room|Pam|Pam |Picture Library Store|Reference|Russian REZ.IS|Shelf|Shelved with monographs|Special Collection|Theses)/", $location) || ($location == '??')) {
+			
+			# For *art records without a host, create an item record if the record is in the list of non-serial locations and is not "Bound in"; otherwise still create the 852 but without an item record ($9); tests for each scenario below
+			if (preg_match ("/^(Archives|Atlas|Basement BB Roberts Cabinet|Bibliographers' Office|Folio|Librarian's Office|Map Room|Pam|Pam |Picture Library Store|Reference|Russian REZ.IS|Shelf|Shelved with monographs|Special Collection|Theses)/", $location) || ($location == '??')) {	// ?? example: /records/2581/ (test #1073)
 				#!# /records/1189/ has a note "Bound with"
-				if (!substr_count ($location, 'Bound in')) {		// E.g. /records/1350/ (test #930); NB 'Not in SPRI' will already have stopped execution in the calling code so is not listed here but is needed in the equivalent SQL above
-					return $count = 1;
+				if (!substr_count ($location, 'Bound in')) {		// NB 'Not in SPRI' will already have stopped execution in the calling code so is not listed here but is needed in the equivalent SQL above
+					$count = 1;		// E.g. /records/1107/ (test #928)
+				} else {
+					$count = 0;		// E.g. /records/1350/ (test #930)
 				}
+			} else {
+				$count = 0;		// E.g. /records/3978/ (test #1074)
 			}
+			
+			# No scenario matched, so no item record creation, e.g. records as just above, e.g. /records/1109/ (test #928)
+			return array ($create852 = true, $count);
 		}
-		
-		# No scenario matched, so no item record creation, e.g. /records/3979/ (test #932)
-		return false;
 	}
 	
 	

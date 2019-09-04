@@ -5386,7 +5386,7 @@ No item records created for SPRI-ELE items as do not physically exist
 ‡9Create 23 item records
 
 928
-852 *art item count
+852 *art being physical item, in non-serial locations, creates 852 and has 1 item
 1107
 852
 ‡9Create 1 item record
@@ -5398,22 +5398,16 @@ No item records created for SPRI-ELE items as do not physically exist
 ‡9Create 1 item record
 
 930
-852 *art 'bound in' excluded
+852 *art without host record 'bound in' has 852 but no $9
 1350
-!852
-‡9Create
+852
+‡h599(26) [Bound in: Pamphlets Marine Mammals]‡0Migrate
 
 931
 852 *art item count with ?? does generate 1 item
 2579
 852
 ‡9Create 1 item record
-
-932
-852 item count no match
-3979
-!852
-‡9Create
 
 933
 852 *ser item count default count of 1 if no *hold
@@ -5427,15 +5421,14 @@ No item records created for SPRI-ELE items as do not physically exist
 917
 /‡aUnenhanced record from Muscat, imported 2019$/
 
-
 935
-Output status = migratewithitem
+Output status = migratewithitem (i.e. with 852, containing $9)
 5749
 s
 migratewithitem
 
 936
-Output status = migrate (no item so no 852, but record generated, and 917 contains no filter tokens)
+Output status = migrate (no item so no $9), but record generated, and 917 contains no filter tokens)
 1130
 s
 migrate
@@ -6237,3 +6230,34 @@ Mémoires de lʹAcadémie Impériale des Sciences de St.-Pétersbourg VIIIe
 10150
 773
 ‡tExpédition norvégienne
+
+1072
+*art without a host record gets an 852 (so that it has a location), but no ‡9 as no item records created
+1350
+852
+‡2camdept‡bSCO‡cSPRI-SPC‡h599(26) [Bound in: Pamphlets Marine Mammals]‡0Migrate
+
+1073
+*art with no host record having location ?? gets an 852 with an item record
+2581
+852
+‡9Create 1 item record
+
+1074
+*art with no host record not being in the whitelist of non-serial locations gets an 852 but no item records
+3978
+852
+‡hBasement 125 C-F, 54 A-C‡0Migrate
+
+1075
+*art with host record does not get any 852 at all (and also therefore no item record count $9)
+1109
+!852
+*
+
+1076
+Output status = migrate (without 852, and thus no $9 (item)), but record generated, and 917 contains no filter tokens)
+1109
+s
+migrate
+
