@@ -3249,11 +3249,11 @@ class marcConversion
 		# /art/j case
 		if ($this->recordType == '/art/j') {
 			
-			# If there is a host record, we use the 773 (but do not prefix with "In: " - e.g. /records/191969/ (test #1029))
+			# If there is a (real) host record, we use the 773 (but do not prefix with "In: " - e.g. /records/191969/ (test #1029))
 			#!# Note: at present, some pseudo-analytics erroneously have a *kg in - this will either be fixed in the data, or we will change here to use 490 instead of 773 in cases of a controlled serial
 			if ($this->hostRecord) {
 				
-				# Get the data from the 773, e.g. /records/1109/ (test #490)
+				# Get the data from the 773, e.g. /records/1109/ (test #490); for an /*art/*j the 245 of the parent is not sufficient, because e.g. it doesn't have the volume number etc., in
 				$result = $this->macro_generate773 ($value, $parameter_unused, $errorHtml_ignored, $mode500 = true);
 				
 			# If no host record (i.e. a pseudo-analytic), we assume it is an offprint, and use the title in the *j (i.e. second half) section
@@ -3272,7 +3272,7 @@ class marcConversion
 		} else if ($this->recordType == '/art/in') {
 			
 			# For genuine analytics, use the 245 of the host record, but prefix with "In: " ; e.g. /records/5472/ (test #538)
-			if ($this->hostRecord) {
+			if ($this->hostRecord) {	// If an *art*/in has a parent, it appears that it will have an explicit *kg
 				
 				# Obtain the 245 of the host record, e.g. /records/5472/ (test #538)
 				$marc = $this->parseMarcRecord ($this->hostRecord);
@@ -3365,8 +3365,19 @@ class marcConversion
 	private function lookupHostRecord (&$hostId = false)
 	{
 		# Up-front, obtain the host ID (if any) from *kg, used in both 773 and 500, e.g. /records/1129/ (test #493); if more than one, the first is chosen, e.g. /records/1896/ (test #763)
-		#!# Need to determine what happens when *k2[2]/kg is present, e.g. /records/1896/
-		if (!$hostId = $this->xPathValue ($this->xml, '//k2[1]/kg')) {return NULL;}
+		$hostId = false;
+		#!# Need to determine what happens when *k2[2]/kg is present, e.g. /records/1896/ which joins to /records/11625/ and /records/1895/ - `SELECT * FROM `fieldsindex` WHERE `fieldslist` REGEXP '@kg@.*kg@'` - there is actually one case only, and this represents articles in a physical book set (of multiple physical parts), with the second *kg representing the serialised parts within each of this physical set; the second *kg is being ignored at the article level, but the parents are correctly getting the children
+		if ($hostIdFromExplicitKg = $this->xPathValue ($this->xml, '//k2[1]/kg')) {
+			$hostId = $hostIdFromExplicitKg;
+		} else {
+			
+			# If no explicit *kg, try an implicit title match lookup, e.g. /records/3978/ which has host /records/214738/ (test #1079)
+			#!# Need to review implications where $this->hostRecord is used of adding this new implicit match for *doc (and the two weird *ser cases)
+			if ($hostIdFromImplicitTitleMatch = $this->databaseConnection->selectOneField ($this->settings['database'], 'periodicallocationmatches', 'parentRecordId', $conditions = array ('recordId' => $this->recordId))) {
+				$hostId = $hostIdFromImplicitTitleMatch;
+			}
+		}
+		if (!$hostId) {return NULL;}	// E.g. /*art/*in without *kg and without matching serial, i.e. a residual location=Periodical: /records/81852/ (test #
 		
 		# Obtain the processed MARC record; note that createMarcRecords processes the /doc records before /art/in records
 		$hostRecord = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'marc', $conditions = array ('id' => $hostId));
@@ -3396,8 +3407,11 @@ class marcConversion
 		$result = '';
 		
 		# Only relevant if there is a host record (i.e. has a *kg which exists); records will usually be /art/in or /art/j only, but there are some /doc records, e.g. /records/1129/ (test #493), or negative case /records/2075/ (test #494)
-		#!# At present this leaves tens of thousands of journal analytics without links (because they don't have explicit *kg fields) - these are pseudo-analytics, i.e. generate everything except the $w, so that the $w could be manually added post-migration, e.g. /records/116085/ - see /reports/artjnokg/ and its postmigrationDescriptions commentary
+		#!# What about pseudo-analytics (e.g. *art/*in /records/108239/)? i.e. generate everything except the $w, so that the $w could be manually added post-migration, e.g. /records/116085/ - see /reports/artjnokg/ and its postmigrationDescriptions commentary
 		if (!$this->hostRecord) {return false;}
+		
+		
+		
 		
 		# Parse out the host record
 		$marc = $this->parseMarcRecord ($this->hostRecord);
@@ -3836,10 +3850,11 @@ class marcConversion
 				if (preg_match ('/^([0-9]|Basement|Russian)/', $location)) {
 					
 					# For real serial analytics, provide human-readable text to look up; otherwise (i.e. /ser) put the real value
-					# NO LONGER SUPPORTED - real analytics will not have an 852 as no item record created
+					#!#C This code should be amended to remove the case that will never arise - see "No longer supported" below
 					#!# Need to check in Alma that earlier example /records/20557/ below contains some way to get to the location
 					if ($this->recordType == '/art/j' && $this->hostRecord) {	// E.g. negative case in /records/20534/ (test #749)
 						
+						# NO LONGER SUPPORTED - real analytics will not have an 852 as no item record created
 						# Add to record a helpful string ‡z, rather than ‡h with a hard-coded location (which would then become problematic to maintain)
 						$result .= "{$this->doubleDagger}z" . 'See related holdings for SPRI location';	// Previous examples, no longer applicable as no 852: no 852 in /records/20557/ (test #750)
 					} else {
@@ -3855,10 +3870,11 @@ class marcConversion
 					if (strlen ($classification)) {
 						
 						# For analytics from a monograph (book), provide human-readable text to look up; otherwise put the real value, e.g. /records/100567/ (test #769)
-						# NO LONGER SUPPORTED - real analytics will not have an 852 as no item record created
+						#!#C This code should be amended to remove the case that will never arise - see "No longer supported" below
 						#!# Need to check in Alma that earlier example /records/100568/ below contains some way to get to the location
 						if ($this->recordType == '/art/in' && $this->hostRecord) {	// E.g. negative case in /records/100567/ (test #768)
 							
+							# NO LONGER SUPPORTED - real analytics will not have an 852 as no item record created
 							# Add to record a helpful string ‡z, rather than ‡h with a hard-coded location (which would then become problematic to maintain)
 							$result .= "{$this->doubleDagger}z" . 'See related holdings for SPRI location';	// Previous examples, no longer applicable as no 852: no 852 in /records/100568/
 						} else {

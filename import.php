@@ -2218,6 +2218,7 @@ class import
 		# Insert the data for each grouping; note that the periodicallocations table is no longer needed after this
 		# For /doc records this requires at least partial match, e.g. "Annals of Glaciology ; 9" in child record's (first) /doc/ts matches "Annals of Glaciology" in parent (periodicallocations.title)
 		# For a /doc/ts join, when there are two *ts values, the first is used in Muscat as the match, so that is used here, e.g. /records/209527/ which joins to parent record no. 20180 (test #1063); there are 1170 cases of /ts[2] but these are ignored as per Muscat
+		# No attempt is made to try to match /art/in, as when they don't have a *kg (2075 of them) they seem to be actual pamphlets - the following query eliminates known pamphlet locations, and the remaining 188 by observation look likely to be pamphlets: `SELECT * FROM fieldsindex WHERE `fieldslist` LIKE '%@art@%@in@%' and fieldslist not like '%@kg@%' and location not like '@Pam %' and location not like '%Not in SPRI%' and location not like '%Basement seligman%' and location not like '%Pamphlet Boxes%';`
 		#!# In a three-level hiearchy (article in AoG1, which is in AoG), we cannot be sure that the longest is found first, e.g. *ts="Annals of Glaciology 1" should find (parent *t=Annals of Glaciology 1" before parent *t="Annals of Glaciology" if both exist, and it should not match against *t="Annals of Glaciology 10"
 		#!# Tests needed here
 		$groupings = array (

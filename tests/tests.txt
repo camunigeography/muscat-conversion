@@ -6273,4 +6273,16 @@ migrate
 852
 ‡cSPRI-PAM‡h?‡zItem(s) missing
 
+1079
+In lookupHostRecord, if no explicit *kg, then try implicit title matching - case where match found, resulting in 773 appearing and other format changes
+3978
+773
+‡wSPRI-21045
+
+1080
+In lookupHostRecord, if no explicit *kg, then try implicit title matching - case where no match found (in this case, a residual *location=Periodical record)
+81852
+!773
+*
+
 
