@@ -3871,16 +3871,22 @@ class marcConversion
 			}
 			
 			# If records are missing, add public note; e.g. /records/1014/ (test #655)
-			#!# Should '??' / 'Pam ?' similarly create $z Item(s) missing?
 			# /reports/notinsprimissing/ confirms that no record has BOTH "Not in SPRI" (which would result in $z already existing above) and "MISSING"
-			# Note that this will set a marker for each *location; the report /reports/multiplelocationsmissing/ lists these cases, which will need to be fixed up post-migration - we are unable to work out from the Muscat record which *location the "MISSING" refers to
-			#!# Ideally also need to trigger this in cases where the record has note to this effect; or check that MISSING exists in all such cases by checking and amending records in /reports/notemissing/
+			#!# Ideally also need to trigger this in cases where the record has note to this effect; or check that MISSING exists in all such cases by checking and amending records in /reports/notemissing/ - think this is done
+			$isMissing = false;
+			if ($location == '??' || $location == 'Pam ?') {	// E.g. ?? in /records/30700/ (test #1077), Pam ? in /records/35398/ (test #1078)
+				$isMissing = true;
+			}
 			$ksValues = $this->xPathValues ($this->xml, '//k[%i]/ks');
 			foreach ($ksValues as $ksValue) {
+				# Note that the *ks MISSING will set a marker for each *location; the report /reports/multiplelocationsmissing/ lists these cases, which will need to be fixed up post-migration - we are unable to work out from the Muscat record which *location the "MISSING" refers to
 				if (substr_count ($ksValue, 'MISSING')) {		// Covers 'MISSING' and e.g. 'MISSING[2004]' etc.; e.g. /records/1323/ ; data checked to ensure that the string always appears as upper-case "MISSING" ; all records checked that MISSING* is always in the format ^MISSING\[.+\]$, using "SELECT * FROM catalogue_processed WHERE field = 'ks' AND value like  'MISSING%' AND value !=  'MISSING' AND value NOT REGEXP '^MISSING\\[.+\\]$'"
-					$result .= "{$this->doubleDagger}z" . 'Item(s) missing';
+					$isMissing = true;
 					break;
 				}
+			}
+			if ($isMissing) {
+				$result .= "{$this->doubleDagger}z" . 'Item(s) missing';
 			}
 			
 			# Add any notes, e.g. /records/1288/ (test #817); will be added to each line, as cannot disambiguated, e.g. /records/7455/ (test #820)

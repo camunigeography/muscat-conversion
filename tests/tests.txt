@@ -6261,3 +6261,16 @@ Output status = migrate (without 852, and thus no $9 (item)), but record generat
 s
 migrate
 
+1077
+852 location "??" gets $zItem(s) missing
+35398
+852
+‡cSPRI-PAM‡h?‡zItem(s) missing
+
+1078
+852 location "Pam ?" gets $zItem(s) missing
+35398
+852
+‡cSPRI-PAM‡h?‡zItem(s) missing
+
+
