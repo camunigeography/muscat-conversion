@@ -170,7 +170,7 @@ class reports
 		'adcomma_problem' => 'records with a rogue comma at the end of the *ad',
 		'splitlang_info' => 'records having a Russian *lang (thus transliterable) with different *lang vs *in/*lang',
 		'locationperiodical_postmigration' => 'records with *location=Periodical remaining',
-		'artkgart_problem' => 'records with an *art joining (via *kg) to an *art',
+		'artkgart_info' => 'records with an *art joining (via *kg) to an *art',
 		'multipleholdingssamelocation_postmigration' => 'records with multiple holdings at the same location',
 	);
 	
