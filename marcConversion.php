@@ -4136,7 +4136,7 @@ class marcConversion
 			
 			# For *art records without a host, create an item record if the record is in the list of non-serial locations and is not "Bound in"; otherwise still create the 852 but without an item record ($9); tests for each scenario below
 			if (preg_match ("/^(Archives|Atlas|Basement BB Roberts Cabinet|Bibliographers' Office|Folio|Librarian's Office|Map Room|Pam|Pam |Picture Library Store|Reference|Russian REZ.IS|Shelf|Shelved with monographs|Special Collection|Theses)/", $location) || ($location == '??')) {	// ?? example: /records/2581/ (test #1073)
-				#!# /records/1189/ has a note "Bound with"
+				#!# /records/1189/ has a note "Bound with" - ideally (to avoid 500 locations pointlessly getting item records) opt in "Bound with%" (at the start) in *note/*local/*priv where there is only one location; all other cases of "bound with" appearing in such a note get in a report for manual review as to (a) whether they are actually bound with, and if multiple locations, which location; see: `select * from fieldsindex fieldslist where fieldslist like '%location%location%' and id IN( SELECT recordId FROM `catalogue_processed` WHERE `field` IN ('note','local','priv') AND `value` LIKE 'Bound with%' )`
 				if (!substr_count ($location, 'Bound in')) {		// NB 'Not in SPRI' will already have stopped execution in the calling code so is not listed here but is needed in the equivalent SQL above
 					$count = 1;		// E.g. /records/1107/ (test #928)
 				} else {
