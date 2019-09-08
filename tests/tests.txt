@@ -6327,3 +6327,15 @@ Kruchinin, I︠U︡ A.
 876
 ‡jMissing (1 of the 2 copies)
 
+1088
+917 gets SUPPRESS-MISSINGLOCATIONPERIODICAL
+23057
+917
+SUPPRESS-MISSINGLOCATIONPERIODICAL
+
+1089
+Status test for location=Periodical unmatched gets output status = suppress
+23057
+s
+suppress
+
