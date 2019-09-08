@@ -510,7 +510,7 @@ class transliteration
 	public function getTransliterableFullStringsInBrackets ()
 	{
 		# Use cache if present
-		if (isSet ($this->transliterableFullStringsInBrackets)) {
+		if ($this->transliterableFullStringsInBrackets) {
 			return $this->transliterableFullStringsInBrackets;
 		}
 		
