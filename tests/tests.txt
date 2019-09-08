@@ -6285,4 +6285,27 @@ In lookupHostRecord, if no explicit *kg, then try implicit title matching - case
 !773
 *
 
+1081
+LoC ligature in transliteration uses combining ligature left half (U+FE20) and combining ligature right half (U+FE21)
+215034
+245
+Gli︠a︡t︠s︡iologicheskie
+
+1082
+LoC ligature does not appear in 880
+1343
+880
+в Иужном Забайкалье
+
+1083
+LoC ligature in transliteration has lower-case second letter when in a word, i.e. I︠u︡zhnom rather than I︠U︡zhnom
+1343
+245
+v I︠u︡zhnom
+
+1084
+LoC ligature in transliteration has upper-case second letter when in a standalone capitalised context
+46172
+100
+Kruchinin, I︠U︡ A.
 
