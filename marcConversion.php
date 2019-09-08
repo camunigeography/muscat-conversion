@@ -4169,6 +4169,37 @@ class marcConversion
 	}
 	
 	
+	# Macro to generate 876 $j item status when missing; see: https://www.loc.gov/marc/holdings/hd876878.html ; e.g. /records/1645/ (test #1086)
+	private function macro_missing876j ($value, $ignored)
+	{
+		# Get the locations
+		$locations = $this->xPathValues ($this->xml, '//loc[%i]/location');
+		
+		# Count missing locations
+		$missingLocations = 0;
+		foreach ($locations as $location) {
+			if ($location == '??' || $location == 'Pam ?') {	// I.e. SUPPRESS-MISSINGQ status types, 'Pam ?' in /records/1645/ (test #1086)
+				$missingLocations++;
+			}
+		}
+		
+		# End if no missing locations, generating no result; e.g. /records/1647/ (test #1085)
+		if (!$missingLocations) {return false;}
+		
+		# Assemble the result
+		$result = 'Missing';
+		$totalLocations = count ($locations);
+		if ($totalLocations > 1) {
+			if ($missingLocations != $totalLocations) {
+				$result .= " ({$missingLocations} of the {$totalLocations} copies)";	// E.g. /records/16870/ (test #1087)
+			}
+		}
+		
+		# Return the result
+		return $result;
+	}
+	
+	
 	# Macro to generate a list of URLs for use in 530/856, e.g. 856 in /records/213625/ (test #913), 530 in /records/6765/ (test #919)
 	private function macro_generateUrlsList ($enabled)
 	{

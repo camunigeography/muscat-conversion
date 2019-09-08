@@ -6309,3 +6309,21 @@ LoC ligature in transliteration has upper-case second letter when in a standalon
 100
 Kruchinin, I︠U︡ A.
 
+1085
+876 missing not generated when no missing locations
+1647
+!876
+*
+
+1086
+876 missing generated when missing location
+1645
+876
+‡jMissing
+
+1087
+876 missing notes when only some of the copies not present
+16870
+876
+‡jMissing (1 of the 2 copies)
+

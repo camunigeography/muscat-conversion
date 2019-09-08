@@ -50,6 +50,7 @@ E  852 7# {/*|macro:generate852}
 A  856 i{/*|macro:ifElse(//url/urlgen,4,#)}0 ‡u{'true'|macro:ifXpathValue(//location[1],Digital Repository)|macro:generateUrlsList}
 E  866 #0 ‡aR{//r} ‡xR{//hold}
 E  876 ## ‡xR{//notes/priv|macro:exceptBegins(Provenance: )|macro:exceptBegins(SPRI has )} ‡zR{//notes/local|macro:exceptBegins(Provenance: )|macro:exceptBegins(SPRI has )}
+A  876 ## ‡j{/*|macro:missing876j}
 A  880 {/*|macro:authorsField(100,transliterated)|macro:880subfield6(100)}
 A  880 {/*|macro:authorsField(110,transliterated)|macro:880subfield6(110)}
 A  880 {/*|macro:authorsField(111,transliterated)|macro:880subfield6(111)}
