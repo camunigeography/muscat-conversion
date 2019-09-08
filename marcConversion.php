@@ -3371,7 +3371,7 @@ class marcConversion
 			$hostId = $hostIdFromExplicitKg;
 		} else {
 			
-			# If no explicit *kg, try an implicit title match lookup, e.g. /records/3978/ which has host /records/214738/ (test #1079)
+			# If no explicit *kg, try an implicit title match lookup, e.g. /records/3978/ which has host /records/21045/ (test #1079)
 			#!# Need to review implications where $this->hostRecord is used of adding this new implicit match for *doc (and the two weird *ser cases)
 			if ($hostIdFromImplicitTitleMatch = $this->databaseConnection->selectOneField ($this->settings['database'], 'periodicallocationmatches', 'parentRecordId', $conditions = array ('recordId' => $this->recordId))) {
 				$hostId = $hostIdFromImplicitTitleMatch;
@@ -3391,6 +3391,7 @@ class marcConversion
 			}
 			
 			# The host MARC record has not yet been processed, therefore register the child for reprocessing in the second-pass phase
+			# As of 8/9/2019, second pass is 1338, approximately with 636 arising from *kg and around 702 from implicit title match due to $hostIdFromImplicitTitleMatch being added (which could have upto 896 extra being the number of entries in periodicallocationmatches)
 			$this->secondPassRecordId = $this->recordId;
 		}
 		
