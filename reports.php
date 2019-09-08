@@ -165,7 +165,7 @@ class reports
 		'transfer541_postmigration' => 'records with multiple *locations whose 541 needs to be made specific to the location',
 		'volumeenumeration_postmigration' => 'records whose item records will need enumeration (*doc with *v)',
 		'voyagerbelievedmatch_postmigration' => 'records with possible but unconfirmed Voyager matches needing merging',
-		'hostwithitem_problem' => 'records with both 773 (host entry) and 852 (item record) fields',
+		'hostwithitem_problem' => 'records which will have both 773 (host entry) and 852 (item record) fields',
 		'conwithoutacc_info' => 'records with a condition report but no accession number',
 		'adcomma_problem' => 'records with a rogue comma at the end of the *ad',
 		'splitlang_info' => 'records having a Russian *lang (thus transliterable) with different *lang vs *in/*lang',
@@ -4440,7 +4440,8 @@ class reports
 	}
 	
 	
-	# Records with both 773 (host entry) and 852 (item record) fields
+	# Records which will have both 773 (host entry) and 852 (item record) fields
+	# NB This query should match `SELECT * FROM `catalogue_marc` WHERE marc like '%773 0# %' and marc like '%852 7# %';`; does, as of 8/9/2019
 	public function report_hostwithitem ()
 	{
 		# Define the query
@@ -4453,16 +4454,22 @@ class reports
 				
 				-- Emulate presence of 773 (Host Item Entry)
 				-- i.e. marc LIKE '%773 0# ‡%'
-				    fieldslist LIKE '%@kg@%'				-- Must have //k2[1]/kg
+				(
+					   fieldslist LIKE '%@kg@%'									-- Must have //k2[1]/kg
+					OR id IN( SELECT recordId FROM periodicallocationmatches )	-- Or implicit title matching
+				)
 				
 				-- Emulate presence of 852 (item record)
 				-- i.e. marc LIKE '%852 7# ‡%'
-				AND fieldslist LIKE '%@location@%'
-				AND location NOT LIKE '%Not in SPRI%'		-- Must not include 'Not in SPRI'
-				-- One or more location must have itemRecordsCreation, which is done if:
 				AND location != '@Digital Repository@'		-- Checked that this only appears as a full single string
 				AND location != '@Electronic Resource (online)@'
 				AND fieldslist NOT LIKE '%@art@%'			-- Not /art with host record
+			/* repeated condition, so omitted
+				AND fieldslist LIKE '%@kg@%'				-- Must have //k2[1]/kg
+			*/
+				AND fieldslist LIKE '%@location@%'
+				AND location NOT LIKE '%Not in SPRI%'		-- Must not include 'Not in SPRI'
+				-- One or more location must have itemRecordsCreation, which is done if:
 		";
 		
 		# Return the query
