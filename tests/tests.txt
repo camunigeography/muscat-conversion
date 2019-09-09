@@ -793,7 +793,7 @@ Conference handling for n1 in 1xx with entities
 Conference handling for Russian LoC transliterated values
 32818
 111
-‡aNauchnai͡a konferent͡sii͡a
+‡aNauchnai︠a︡ konferent︠s︡ii︠a︡
 
 131
 Conference handling for congress (not US Congress) (see also next test)
@@ -1195,7 +1195,7 @@ Fritz Müller, and 8 others.
 245 Role and siblings construction
 1844
 245
-compiled by I.L. Zherebt͡sov.
+compiled by I.L. Zherebt︠s︡ov.
 
 198
 245 Role and siblings construction (multiple *e groups)
@@ -1663,7 +1663,7 @@ Macro ucfirst
 Macro ifElse: value present
 1122
 240
-‡aPoli͡us.‡lRussian
+‡aPoli︠u︡s.‡lRussian
 
 278
 Macro ifElse: value not present
@@ -2893,7 +2893,7 @@ loadLookupTable case-insensitive comparison (definition side) (see also #483)
 generate500 strips subfield indicators
 22095
 500
-‡aIn: Pushnye bogatstva SSSR. Vypusk pervyĭ / M.S. Kuznet͡sov,
+‡aIn: Pushnye bogatstva SSSR. Vypusk pervyĭ / M.S. Kuznet︠s︡ov,
 
 492
 generate500 prefix for */art/
@@ -2971,7 +2971,7 @@ In roleAndSiblings, *role (e.g. 'compiled by') is not subject to transliteration
 245 in scope of transliteration, with explicit / , Russian names end up transliterated as LoC
 6449
 245
-‡clekt͡sii: Barona F. Vrangeli͡a i Vit͡se-Admirala S.O. Makarova.
+‡clekt︠s︡ii: Barona F. Vrangeli︠a︡ i Vit︠s︡e-Admirala S.O. Makarova.
 
 505
 880-245 in scope of transliteration, with explicit / , Russian names end up as Cyrillic
@@ -3127,13 +3127,13 @@ Pseudo-analytics should get a 500
 773 ‡t without host 245 ‡b gets no extra characters
 59148
 773
-‡tGeologii͡a i tektonika rudonosnykh regionov I͡akutii (sbornik). ‡d
+‡tGeologii︠a︡ i tektonika rudonosnykh regionov I︠A︡kutii (sbornik). ‡d
 
 531
 773 ‡t ends with dot
 59148
 773
-‡tGeologii͡a i tektonika rudonosnykh regionov I͡akutii (sbornik). ‡d
+‡tGeologii︠a︡ i tektonika rudonosnykh regionov I︠A︡kutii (sbornik). ‡d
 
 532
 773 ‡d uses space-colon-space between host 260 ‡a and ‡b
@@ -3241,7 +3241,7 @@ Antarctica. Scientific Report / Geological Survey of India. Department of Ocean 
 245: If there is a / in the title explicitly, use that and discard all people groups (see also #439 and #714)
 2683
 245
-‡aPoezdka v I͡akutsk /‡cizd. N. Shch.
+‡aPoezdka v I︠A︡kutsk /‡cizd. N. Shch.
 
 550
 Leader: Position 7 for pseudo-analytic (i.e. /art with no host record) is 'm'
@@ -3859,7 +3859,7 @@ Majesté. Vols
 773 ‡d use of 260 does not include ‡6 transliteration 880 marker
 59148
 773
-‡dYakutsk : I͡akutskiĭ Gosudarstvennyĭ Universitet, 1979. ‡w
+‡dYakutsk : I︠A︡kutskiĭ Gosudarstvennyĭ Universitet, 1979. ‡w
 
 669
 773 subfields separated by space
@@ -4921,7 +4921,7 @@ Contents:
 505 Contents: note in Russian record is upgraded to LoC
 109111
 505
-Biarmii͡a: v poiskakh istiny
+Biarmii︠a︡: v poiskakh istiny
 
 851
 880-505 does not appear for known (i.e. whitelisted) English Contents: note in Russian record
@@ -5755,7 +5755,7 @@ In 852, where both *kg and location=Periodical are present, *kg takes priority
 Library of Congress Cyrillic, created from generated Cyrillic (from BGN/PCGN), replaces original BGN/PCGN entered in Muscat
 1043
 245
-Trudy Murmanskoĭ nauchno-promyslovoĭ ėkspedit͡sii
+Trudy Murmanskoĭ nauchno-promyslovoĭ ėkspedit︠s︡ii
 
 992
 Prevent multiple italic sections being swallowed in transliterated protected string handling - Cyrillic version (see also #46)
@@ -6295,7 +6295,7 @@ Gli︠a︡t︠s︡iologicheskie
 LoC ligature does not appear in 880
 1343
 880
-в Иужном Забайкалье
+в Южном Забайкалье
 
 1083
 LoC ligature in transliteration has upper-case second letter; word example
