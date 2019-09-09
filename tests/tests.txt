@@ -6298,13 +6298,13 @@ LoC ligature does not appear in 880
 в Иужном Забайкалье
 
 1083
-LoC ligature in transliteration has lower-case second letter when in a word, i.e. I︠u︡zhnom rather than I︠U︡zhnom
+LoC ligature in transliteration has upper-case second letter; word example
 1343
 245
-v I︠u︡zhnom
+v I︠U︡zhnom
 
 1084
-LoC ligature in transliteration has upper-case second letter when in a standalone capitalised context
+LoC ligature in transliteration has upper-case second letter; standalone capitalised example
 46172
 100
 Kruchinin, I︠U︡ A.
