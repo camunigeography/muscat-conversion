@@ -6334,8 +6334,8 @@ Kruchinin, I︠U︡ A.
 SUPPRESS-MISSINGLOCATIONPERIODICAL
 
 1089
-Status test for location=Periodical unmatched gets output status = suppress
+Status test for location=Periodical unmatched gets suppressed
 23057
 s
-suppress
+suppresswithitem
 
