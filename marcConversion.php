@@ -4161,7 +4161,7 @@ class marcConversion
 					$count = 0;		// E.g. /records/1350/ (test #930)
 				}
 			} else {
-				$count = 0;		// E.g. /records/3978/ (test #1074)
+				$count = 0;		// E.g. /records/1512/ (test #1074)
 			}
 			
 			# No scenario matched, so no item record creation, e.g. records as just above, e.g. /records/1109/ (test #928)
