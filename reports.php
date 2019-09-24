@@ -261,7 +261,7 @@ class reports
 				'Records with names for transliteration in other languages (e.g. Yakut, Chinese, etc.) for upgrading by an expert speaker in that language; Muscat practice has never supported Yakut, Chinese, Japanese, etc.',
 			
 			'artjnokg' =>
-				"In case of a 773 without a SPRI host, could subsequently be linked to a UL host by adding a {$this->doubleDagger}w.",
+				"In case of an *art/*j Pam without a SPRI host, could subsequently be linked to a UL host by creating a 773 including a {$this->doubleDagger}w.",
 			
 			'locationunassigned' =>
 				'Valid records but the item needs to be found.',
@@ -3404,6 +3404,7 @@ class reports
 	
 	
 	# /art/j records with no *kg in the Pamphlets
+	#!# This report should be amended to exclude implicit title match - currently it looks only at explicit *kg match
 	public function report_artjnokg ()
 	{
 		# Define the query

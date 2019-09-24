@@ -6339,3 +6339,9 @@ Status test for location=Periodical unmatched gets suppressed
 s
 suppresswithitem
 
+1090
+Pseudo-analytic does not get 773
+116085
+!773
+*
+

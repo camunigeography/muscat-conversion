@@ -3408,12 +3408,9 @@ class marcConversion
 		# Start a result
 		$result = '';
 		
-		# Only relevant if there is a host record (i.e. has a *kg which exists); records will usually be /art/in or /art/j only, but there are some /doc records, e.g. /records/1129/ (test #493), or negative case /records/2075/ (test #494)
-		#!# What about pseudo-analytics (e.g. *art/*in /records/108239/)? i.e. generate everything except the $w, so that the $w could be manually added post-migration, e.g. /records/116085/ - see /reports/artjnokg/ and its postmigrationDescriptions commentary
+		# Only relevant if there is a host record (i.e. has a *kg which exists, or a title match); records will usually be /art/in or /art/j only, but there are some /doc records, e.g. /records/1129/ (test #493); negative case /records/2075/ (test #494)
+		# Decided that pseudo-analytic does not get a (skelton, i.e. without *w) 773, e.g. /records/116085/
 		if (!$this->hostRecord) {return false;}
-		
-		
-		
 		
 		# Parse out the host record
 		$marc = $this->parseMarcRecord ($this->hostRecord);
