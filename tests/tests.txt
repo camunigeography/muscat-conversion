@@ -6351,5 +6351,8 @@ Translation "of" ... also supported in 041
 041
 ‡hswe
 
-
-
+1092
+583 multiline should have same first indicator (0) as single line result
+15078
+!i583
+##

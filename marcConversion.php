@@ -2983,8 +2983,8 @@ class marcConversion
 		# End if no lines (i.e. no *con), e.g. /records/171184/ (test #723)
 		if (!$resultLines) {return false;}
 		
-		# Implode the list, e.g. multiple in /records/12376/ (test #256)
-		$result = implode ("\n" . '583 ## ', $resultLines);
+		# Implode the list, e.g. multiple in /records/12376/ (test #256), indicator same as main, e.g. /records/15078/ (test #1092)
+		$result = implode ("\n" . '583 0# ', $resultLines);
 		
 		# Return the result; 583 does not have dotEnd applied; see: https://www.loc.gov/marc/bibliographic/bd583.html
 		return $result;
