@@ -6345,3 +6345,11 @@ Pseudo-analytic does not get 773
 !773
 *
 
+1091
+Translation "of" ... also supported in 041
+13398
+041
+‡hswe
+
+
+
