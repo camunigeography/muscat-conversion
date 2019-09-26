@@ -3373,7 +3373,6 @@ class marcConversion
 		} else {
 			
 			# If no explicit *kg, try an implicit title match lookup, e.g. /records/3978/ which has host /records/21045/ (test #1079)
-			#!# Need to review implications where $this->hostRecord is used of adding this new implicit match for *doc (and the two weird *ser cases)
 			if ($hostIdFromImplicitTitleMatch = $this->databaseConnection->selectOneField ($this->settings['database'], 'periodicallocationmatches', 'parentRecordId', $conditions = array ('recordId' => $this->recordId))) {
 				$hostId = $hostIdFromImplicitTitleMatch;
 			}
