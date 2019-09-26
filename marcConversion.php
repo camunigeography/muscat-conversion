@@ -3849,7 +3849,6 @@ class marcConversion
 					
 					# For real serial analytics, provide human-readable text to look up; otherwise (i.e. /ser) put the real value
 					#!#C This code should be amended to remove the case that will never arise - see "No longer supported" below
-					#!# Need to check in Alma that earlier example /records/20557/ below contains some way to get to the location
 					if ($this->recordType == '/art/j' && $this->hostRecord) {	// E.g. negative case in /records/20534/ (test #749)
 						
 						# NO LONGER SUPPORTED - real analytics will not have an 852 as no item record created
@@ -3869,7 +3868,6 @@ class marcConversion
 						
 						# For analytics from a monograph (book), provide human-readable text to look up; otherwise put the real value, e.g. /records/100567/ (test #769)
 						#!#C This code should be amended to remove the case that will never arise - see "No longer supported" below
-						#!# Need to check in Alma that earlier example /records/100568/ below contains some way to get to the location
 						if ($this->recordType == '/art/in' && $this->hostRecord) {	// E.g. negative case in /records/100567/ (test #768)
 							
 							# NO LONGER SUPPORTED - real analytics will not have an 852 as no item record created
