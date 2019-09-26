@@ -4103,6 +4103,13 @@ class marcConversion
 				}
 			}
 			
+			# If there is a host records, and the location is Bound in, then omit the 852 as there will be a 773 for this instance, e.g. /records/60720/ (test #1094, #1095)
+			if ($this->hostRecord) {
+				if (substr_count ($location, 'Bound in')) {
+					return array ($create852 = false, $count);
+				}
+			}
+			
 			# Return the count, e.g. /records/13420/ (test #920)
 			return array ($create852 = true, $count);
 		}

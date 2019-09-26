@@ -6356,3 +6356,9 @@ Translation "of" ... also supported in 041
 15078
 !i583
 ##
+
+1095
+852 for *doc records, if there is a host and the *location under consideration is bound in, omit the 852, as there will be a 773 (773 test; see also previous test)
+6072
+773
+‡tContributions from the Cloud
