@@ -170,7 +170,7 @@ class reports
 		'adcomma_problem' => 'records with a rogue comma at the end of the *ad',
 		'splitlang_info' => 'records having a Russian *lang (thus transliterable) with different *lang vs *in/*lang',
 		'locationperiodical_postmigration' => 'records with *location=Periodical remaining',
-		'artkgart_info' => 'records with an *art joining (via *kg) to an *art',
+		'artkgart_postmigration' => 'records with an *art joining (via *kg) to an *art',
 		'multipleholdingssamelocation_postmigration' => 'records with multiple holdings at the same location',
 	);
 	
@@ -301,6 +301,9 @@ class reports
 			
 			'russianitalics' =>
 				'This report aims to facilitate manual inspection of Russian records where the title is in Russian but contains a section in italics. Currently, these italicised section are all protected, under the standard rule for italics. However, in some cases, these are names in Russian and should be upgraded to LoC and also converted to Cyrillic as if an unprotected string.',
+			
+			'artkgart' =>
+				'These records need to be checked for their odd structure. Note that 141 of them have one parent, Materialy.',
 			
 			'multipleholdingssamelocation' =>
 				'Records with multiple holdings at the same $c location have not had any more than one holding created. This list of records will need to have to holdings added post-migration.',
