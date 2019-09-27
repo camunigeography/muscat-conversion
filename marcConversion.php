@@ -4180,6 +4180,7 @@ class marcConversion
 		# Count missing locations
 		$missingLocations = 0;
 		foreach ($locations as $location) {
+			#!# This should be skipping cases where the location derives from location=Periodical, i.e. if the parent is missing, this should not result in an 876, because the 876 gets attached to item records, whereas a location=Periodical match will be a 773 instead, so this is misleading - if this can't be resolved, turn into a post-migration report
 			if ($location == '??' || $location == 'Pam ?') {	// I.e. SUPPRESS-MISSINGQ status types, 'Pam ?' in /records/1645/ (test #1086)
 				$missingLocations++;
 			}
