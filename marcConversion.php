@@ -3515,7 +3515,7 @@ class marcConversion
 					$subfieldD = "{$this->doubleDagger}d" . $host260a . ' : ' . $host260b;
 				}
 				
-				# Add date if present; e.g. /records/103259/ (test #865) no date so not added in /records/1331/ (test #866)
+				# Add date if present; e.g. /records/103259/ (test #865); no negative cases of date not present so that scenario not testable
 				if (isSet ($host260Line['c'][0])) {
 					if (($host260a || $host260b)) {
 						$subfieldD .= ', ';		// Single comma between $b and $c, e.g. /records/103259/ (test #867)

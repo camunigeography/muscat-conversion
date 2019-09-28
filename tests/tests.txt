@@ -4995,12 +4995,6 @@ Lithographisches Institut des Generalstabs ;
 773
 Trotman, 1989.
 
-866
-773 ‡d without host 260 having ‡c (date)
-1331
-773
-Arctic Information. ‡wSPRI-
-
 867
 773 ‡d has comma-space before the date coming from 260 ‡c
 103259
