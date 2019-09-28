@@ -3865,7 +3865,7 @@ class marcConversion
 					} else {
 						
 						# Add to record: ‡h <*location_original> (i.e. the full string), e.g. /records/20534/ gets "‡h82 A-B"; Basement example at /records/59062/ (test #771) which has a *doc child /records/1146/ (test #772); Russian example at /records/13237/ (test #773) which has a *doc child /records/137033/ (test #774)
-						$result .= "{$this->doubleDagger}h" . $location;
+						$result .= "{$this->doubleDagger}h" . (substr_count ($location, 'Basement Seligman') ? 'Bound in ' : '') . $location;	// 'Bound in' prepended for Basement Seligman, e.g. /records/1491/ (test #1104)
 					}
 					
 				# E.g. Shelf, e.g. /records/100567/ (test #766)

@@ -6405,3 +6405,9 @@ In 852 matching (under not-shelved-with and starts-with-number, for /art/j with 
 s
 migrate
 
+1104
+852 Basement Seligman has "Bound in " prepended
+1491
+852
+‡hBound in Basement Seligman 09
+
