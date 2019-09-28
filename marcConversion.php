@@ -4149,6 +4149,11 @@ class marcConversion
 				}
 			}
 			
+			# Basement Seligman items are a special case of not having a physical item and there is no actual parent, so has no $9 items created, e.g. /records/1491/ (test #1105), /records/215322/
+			if (substr_count ($location, 'Basement Seligman')) {
+				return array ($create852 = true, $count = 0);
+			}
+			
 			# Return the count, e.g. /records/13420/ (test #920)
 			return array ($create852 = true, $count);
 		}

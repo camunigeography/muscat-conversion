@@ -6411,3 +6411,8 @@ migrate
 852
 ‡hBound in Basement Seligman 09
 
+1105
+852 special case of Basement Seligman items has no $9 items created
+1491
+852
+‡hBound in Basement Seligman 09‡0Migrate
