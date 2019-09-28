@@ -3847,13 +3847,21 @@ class marcConversion
 				# If starts with a number (rather than e.g. Shelf / Pam / etc.), it is shelved with periodicals, e.g. /records/20534/ (test #748); example with location split across parts of the library at /records/19822/ (test #775); Basement example at /records/59062/ (test #771) and its *doc child /records/1146/ (test #772); Russian example at /records/13237/ (test #773) and its *doc child /records/14189/ (test #774)
 				if (preg_match ('/^([0-9]|Basement|Russian)/', $location)) {
 					
-					# For real serial analytics, provide human-readable text to look up; otherwise (i.e. /ser) put the real value
-					#!#C This code should be amended to remove the case that will never arise - see "No longer supported" below
+					# For real serial analytics, create an 852 for the location, or omit if this matches the host record (i.e. the *kg/title is a proxy for the location)
+					# c. 600 instances
 					if ($this->recordType == '/art/j' && $this->hostRecord) {	// E.g. negative case in /records/20534/ (test #749)
 						
-						# NO LONGER SUPPORTED - real analytics will not have an 852 as no item record created
-						# Add to record a helpful string ‡z, rather than ‡h with a hard-coded location (which would then become problematic to maintain)
-						$result .= "{$this->doubleDagger}z" . 'See related holdings for SPRI location';	// Previous examples, no longer applicable as no 852: no 852 in /records/20557/ (test #750)
+						# Look up whether the *location under consideration matches the location of the host record
+						# Sometimes *kg is a separate location, other times is it a proxy for a *location; e.g. /records/1109/ has a *kg whose location matches *location (so gets only 773), whereas /records/27094/ has three different locations: *kg's location, *location, *location (so gets 773, 852, 852)
+						$hostRecordLocation = $this->getHostRecordLocation ();	// (which is a *kg or title-based match)
+						if ($location == $hostRecordLocation) {
+							# If the current location matches the host location, skip creation of the 852, as the host is a proxy for the location, and a 773 will have been created representing the link, e.g. /records/20557/ (tests #1096, #1097), /records/1109/
+							continue;
+						} else {
+							# If it does not match, create the 852, e.g. /records/27094/ (tests #1098, #1099, #1100), /records/1959/
+							$result .= "{$this->doubleDagger}h" . (substr_count ($location, 'Basement Seligman') ? 'Bound in ' : '') . $location;
+						}
+						
 					} else {
 						
 						# Add to record: ‡h <*location_original> (i.e. the full string), e.g. /records/20534/ gets "‡h82 A-B"; Basement example at /records/59062/ (test #771) which has a *doc child /records/1146/ (test #772); Russian example at /records/13237/ (test #773) which has a *doc child /records/137033/ (test #774)
@@ -3867,12 +3875,18 @@ class marcConversion
 					if (strlen ($classification)) {
 						
 						# For analytics from a monograph (book), provide human-readable text to look up; otherwise put the real value, e.g. /records/100567/ (test #769)
-						#!#C This code should be amended to remove the case that will never arise - see "No longer supported" below
+						# c. 26,000 instances
 						if ($this->recordType == '/art/in' && $this->hostRecord) {	// E.g. negative case in /records/100567/ (test #768)
 							
-							# NO LONGER SUPPORTED - real analytics will not have an 852 as no item record created
-							# Add to record a helpful string ‡z, rather than ‡h with a hard-coded location (which would then become problematic to maintain)
-							$result .= "{$this->doubleDagger}z" . 'See related holdings for SPRI location';	// Previous examples, no longer applicable as no 852: no 852 in /records/100568/
+							# Look up whether the *location under consideration matches the location of the host record
+							# See fuller commentary above in similar block
+							$hostRecordLocation = $this->getHostRecordLocation ();
+							if ($location == $hostRecordLocation) {
+								continue;	// Skip creation of the 852, e.g. /records/1222/ (tests #1101, #1102)
+							} else {
+								$result .= "{$this->doubleDagger}h" . $classification;	// #!# Tests needed
+							}
+							
 						} else {
 							
 							# Being a book or standalone pamphlet, use ‡h <*location_trimmed>"; e.g. /records/100567/ (test #769) (which has "‡h(*7) : 551.7" which comes from "Shelf (*7) : 551.7")
@@ -3925,11 +3939,39 @@ class marcConversion
 			$resultLines[] = trim ($result);
 		}
 		
+		# End if no result lines, but ensure filter token creation is run, e.g. /records/1222/ (test #1103) where 852 has been skipped because the *location matches its *kg's *location, resulting in only 773 and not 852
+		if (!$resultLines) {
+			$filterTokens = $this->filterTokenCreation (array ());		// Create the filterTokens registry entry
+			return false;
+		}
+		
 		# Implode the list as a multiline if multiple, e.g. /records/1104/ (test #622)
 		$result = implode ("\n" . '852 7# ', $resultLines);
 		
 		# Return the result
 		return $result;
+	}
+	
+	
+	# Function to get the host record's (first) location
+	private function getHostRecordLocation ()
+	{
+		# This uses database lookup, which should be guaranteed to be present
+		# The alternative method, of parsing-out using $this->parseMarcRecord ($this->hostRecord) and using the 852 ($c+)$h , is not reliable - e.g. /records/67633/ has no 852 as it is an *art with *art parent, and the $c + $h joining is likely error-prone
+		$query = "SELECT
+				value
+			FROM catalogue_processed
+			WHERE
+				    recordId = {$this->hostRecordId}
+				AND field = 'location'
+				AND xPathWithIndex LIKE '%/location[1]'
+		;";
+		if ($location = $this->databaseConnection->getOneField ($query, 'value')) {
+			return $location;
+		}
+		
+		# No match
+		return false;
 	}
 	
 	

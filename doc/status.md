@@ -108,6 +108,22 @@ Item record lines (852) are created for each physical item (being a repeatable f
   * Item records are created for each physical location (*location) that exists (i.e. not 'Not in SPRI').
   * Item records are created for migrate/suppress record, but are skipped for ignore records.
 
+Where the record has a host (i.e. a *kg or with a title-based match), and the (first) *location of that host matches the current *location under consideration as an 852, that 852 is skipped, as there will be a 773. Examples:
+
+E.g. one location, but with a host with the same location (record 20557):
+
+```
+773 0# ‡7nnas ‡tJournal of Glaciology. ‡gVol. 1(1) (1947) ‡wSPRI-20534
+```
+
+E.g. two locations, and a *kg whose location does not match either, so three in total (record 27094):
+
+```
+773 0# ‡7nnas ‡tMeddelelser om Grønland. ‡gVol. 137(1) (1955) ‡wSPRI-4496
+852 7# ‡2camdept‡bSCO‡cSPRI-PAM‡h(*38) : 528.37‡9Create 1 item record‡0Migrate
+852 7# ‡2camdept‡bSCO‡cSPRI-BMT‡hBound in Basement Seligman 59‡0Migrate
+```
+
 The following metadata is added to each 852 on an independent basis, in order to inform the UL of how to process this item record, and these tokens will then be stripped by the UL:
 
   * Item records contain a fake $9 field stating the number of item records required for this location.

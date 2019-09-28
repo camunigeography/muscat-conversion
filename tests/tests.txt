@@ -4329,12 +4329,6 @@ ISBN support for X check digit
 852
 ‡cSPRI-SER‡h
 
-750
-852 not generated for real serial analytics /art/j with host record
-20557
-!852
-*
-
 751
 852 Serial gets ‡h with location
 20534
@@ -6362,3 +6356,52 @@ Translation "of" ... also supported in 041
 6072
 773
 ‡tContributions from the Cloud
+
+1096
+In 852 matching (under not-shelved-with and starts-with-number, for /art/j with host (*kg or title-based) record), if the current location matches that host's location, skip 852 creation, as there will be a 773 (see also next test)
+20557
+!852
+*
+
+1097
+852 (under not-shelved-with and starts-with-number, for /art/j with host (*kg or title-based) record), if the current location matches that host's location, skip 852 creation, as there will be a 773 (see also previous test)
+20557
+773
+‡wSPRI-20534
+
+1098
+852 (under not-shelved-with and starts-with-number, for /art/j with host (*kg or title-based) record), if the current location does not match that host's location, create 773 and 852 (see also next two tests)
+27094
+773
+‡wSPRI-4496
+
+1099
+852 (under not-shelved-with and starts-with-number, for /art/j with host (*kg or title-based) record), if the current location does not match that host's location, create 852 (see also previous and next tests)
+27094
+852
+‡cSPRI-PAM‡h(*38) : 528.37
+
+1100
+852 (under not-shelved-with and starts-with-number, for /art/j with host (*kg or title-based) record), if the current location does not match that host's location, create 852 (see also previous two tests)
+27094
+852
+‡cSPRI-BMT‡hBound in Basement Seligman 59
+
+1101
+852 (under not-shelved-with and does-not-start-with-number and has-classification, for /art/in with host (*kg or title-based) record), if the current location matches that host's location, skip 852 creation, as there will be a 773 (see also next test)
+1222
+!852
+*
+
+1102
+852 (under not-shelved-with and does-not-start-with-number and has-classification, for /art/in with host (*kg or title-based) record), if the current location matches that host's location, skip 852 creation, as there will be a 773 (see also previous test)
+1222
+773
+‡wSPRI-1221
+
+1103
+852 skipping due to locations matching host location giving only 773 still results in filterTokenCreation (with migrate) happening
+1222
+s
+migrate
+
