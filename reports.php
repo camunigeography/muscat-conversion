@@ -172,6 +172,7 @@ class reports
 		'locationperiodical_postmigration' => 'records with *location=Periodical remaining',
 		'artkgart_postmigration' => 'records with an *art joining (via *kg) to an *art',
 		'multipleholdingssamelocation_postmigration' => 'records with multiple holdings at the same location',
+		'rvalues_postmigration' => 'records with an *r (range, in *ser) values for review',
 	);
 	
 	# Listing (values) reports
@@ -307,6 +308,9 @@ class reports
 			
 			'multipleholdingssamelocation' =>
 				'Records with multiple holdings at the same $c location have not had any more than one holding created. This list of records will need to have to holdings added post-migration.',
+			
+			'rvalues' =>
+				'*r (range, in *ser) values for review, so that the number and values for item records can be collectly allocated',
 			
 			'locationperiodical' =>
 				'Records with location=Periodical which have not been able to be matched with any parent, which thus have no location. These need to be found.',
@@ -4596,6 +4600,23 @@ class reports
 			FROM catalogue_marc
 			WHERE
 				{$where}
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with an *r (range, in *ser) values for review
+	public function report_rvalues ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'rvalues' AS report,
+				recordId
+			FROM catalogue_processed
+			WHERE field = 'r'
 		";
 		
 		# Return the query
