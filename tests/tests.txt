@@ -6447,3 +6447,22 @@ Skip creation of 035 for Voyager match if no *ka / *kc
 852
 ‡cSPRI-LIO‡h(Library Office) CD-ROM (*531.1)
 
+1110
+773 If the host record has no 852 and no 773 (i.e. no location), then treat the child as Not in SPRI also
+16302
+!773
+*
+
+1111
+500 from 773 If the host record has no 852 and no 773 (i.e. no location), 500 still generated
+16302
+500
+‡aZeitschrift für Gletscherkunde, für Eiszeitforschung und Geschichte des Klimas. Vol. 22(1-5) :1-19 (1935).
+
+1112
+773 If the host record has no 852 and no 773 (i.e. no location), but has another *location, that latter location still gets generated as 852
+16313
+852
+‡cSPRI-BMT‡hBound in Basement Seligman 13
+
+

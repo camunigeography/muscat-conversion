@@ -3417,6 +3417,16 @@ class marcConversion
 		# Parse out the host record
 		$marc = $this->parseMarcRecord ($this->hostRecord);
 		
+		# If the host record has no 852 and no 773 (i.e. no location), then treat the child as Not in SPRI also, e.g. /records/16302/ (test #1110) which has host /records/215924/, e.g. /records/9555/
+		# Was decided in discussions not to create a 773 but without a $w, but instead to omit the 773 entirely
+		# Any other *location in the current (child) record still results in an 852, e.g. /records/16313/ (test #1112)
+		# There are 49 cases of records with host record having no 852/773; NB only 1 of these (/records/1331/) has no *location but that record has IGNORE-STATUSRECEIVED
+		if (!$mode500) {	// In the current (child) record, only deal with the 773 directly, as the 500 is still needed, e.g. /records/16302/ (test #1111)
+			if (!isSet ($marc[852]) && !isSet ($marc[773])) {
+				return false;
+			}
+		}
+		
 		# If transliteration substitution is required, look up 880 equivalents and substitute where present, e.g. /records/59148/ (test #841)
 		if ($transliterate) {
 			$marc = $this->transliterationSubstitution ($marc, $fieldsHavingTransliteration /* returned by reference */, $errorHtml);
