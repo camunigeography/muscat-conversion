@@ -6351,6 +6351,12 @@ Translation "of" ... also supported in 041
 !i583
 ##
 
+1094
+852 for *doc records, if there is a host and the *location under consideration is bound in, omit the 852, as there will be a 773 (852 test; see also next test)
+60720
+!852
+*
+
 1095
 852 for *doc records, if there is a host and the *location under consideration is bound in, omit the 852, as there will be a 773 (773 test; see also previous test)
 60720
