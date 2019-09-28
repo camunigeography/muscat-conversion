@@ -1095,9 +1095,12 @@ class marcConversion
 			$ka = $this->xPathValue ($this->xml, "/ser/k2[{$i}]/ka");	// E.g. Matchtype: P
 			$kc = $this->xPathValue ($this->xml, "/ser/k2[{$i}]/kc");	// E.g. 343473??
 			
+			# Skip if no *ka/*kc, to avoid a junk 035 being created, e.g. /records/5414/ (test #1106), /records/1146/
+			if (!strlen ($ka) || !strlen ($kc)) {continue;}
+			
 			# Assemble the token
 			if (substr_count ($kc, '?')) {
-				$tokens[] = '(UkCU)' . str_replace ('?', '', $kc) . '-depfacozdb' . " ({$ka})";		// E.g. /records/1000/ (test #958)
+				$tokens[] = '(UkCU)' . str_replace ('?', '', $kc) . '-depfacozdb' . " ({$ka})";		// E.g. /records/1000/ (test #968)
 				$unconfirmed = true;
 			} else {
 				$tokens[] = '(UkCU)' . $kc . '-depfacozdb';		// E.g. /records/1011/ (test #957)

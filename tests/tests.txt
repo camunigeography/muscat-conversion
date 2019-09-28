@@ -6416,3 +6416,9 @@ migrate
 1491
 852
 ‡hBound in Basement Seligman 09‡0Migrate
+
+1106
+Skip creation of 035 for Voyager match if no *ka / *kc
+5414
+!035
+(UkCU)-depfacozdb
