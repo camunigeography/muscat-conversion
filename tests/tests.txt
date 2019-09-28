@@ -3664,10 +3664,10 @@ SUPPRESS
 ‡2camdept
 
 625
-852 "Shelved with" has modified string as ‡c
+852 "Issues shelved individually with" added as ‡h (as it is nearest to a shelfmark)
 1032
 852
-‡cIssues shelved individually with monographs
+‡hIssues shelved individually with monographs
 
 626
 300 ‡a for *doc uses citation (see also next test)

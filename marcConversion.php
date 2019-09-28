@@ -3825,9 +3825,9 @@ class marcConversion
 			# Add corresponding Voyager location code to record: ‡c SPRI-XXX, e.g. /records/31500/ (test #654)
 			$result .= "{$this->doubleDagger}c" . $locationCode;
 			
-			# In the case of Shelved with ..., add clear description for use in $c, and do not use a classification, e.g. /records/1032/ (test #625)
+			# In the case of Shelved with ..., add clear description for use as nearest-to-location $h, and do not use a classification, e.g. /records/1032/ (test #625)
 			if ($isShelvedWith = preg_match ('/^Shelved with (pamphlets|monographs)$/', $location, $matches)) {
-				$result .= "{$this->doubleDagger}c" . 'Issues shelved individually with ' . $matches[1];
+				$result .= "{$this->doubleDagger}h" . 'Issues shelved individually with ' . $matches[1];
 			}
 			
 			# Online items get $h (and does not get $c disambiguation check); now no records, so test removed
