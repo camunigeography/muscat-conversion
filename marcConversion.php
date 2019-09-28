@@ -3833,15 +3833,6 @@ class marcConversion
 			# Online items get $h (and does not get $c disambiguation check); now no records, so test removed
 			if ($locationName == 'Electronic Resource (online)') {
 				$result .= "{$this->doubleDagger}h" . $locationName;
-			} else {
-				
-				# In the case of location codes where there is a many-to-one relationship (e.g. "Library Office" and "Librarian's Office" both map to SPRI-LIO), except for SPRI-SER, then add the original location verbatim, so that it can be disambiguated; e.g. /records/2023/ (test #656); negative case (i.e. non-ambigous) in /records/9311/ (test #658)
-				if (!in_array ($locationCode, array ('SPRI-SER', 'SPRI-SHF', 'SPRI-PAM'))) {	// E.g. /records/1006/ (test #657)
-					$locationCodeCounts = array_count_values ($locationCodes);
-					if ($locationCodeCounts[$locationCode] > 1) {
-						$result .= "{$this->doubleDagger}c" . $locationName;	// E.g. SPRI-LIO in /records/2023/ (test #656)
-					}
-				}
 			}
 			
 			# Does *location_original start with a number? This is to deal with cases like "141 C", in which the creation of "SPRI-SER" in the MARC record is implicit
@@ -3895,6 +3886,18 @@ class marcConversion
 							# Being a book or standalone pamphlet, use ‡h <*location_trimmed>"; e.g. /records/100567/ (test #769) (which has "‡h(*7) : 551.7" which comes from "Shelf (*7) : 551.7")
 							$result .= "{$this->doubleDagger}h" . $classification;
 						}
+					}
+				}
+			}
+			
+			# In the case of location codes where there is a many-to-one relationship (e.g. "Library Office" and "Librarian's Office" both map to SPRI-LIO), except for SPRI-SER, then add the original location verbatim, so that it can be disambiguated; e.g. /records/2023/ (test #656); negative case (i.e. non-ambigous) in /records/9311/ (test #658)
+			if (!in_array ($locationCode, array ('SPRI-SER', 'SPRI-SHF', 'SPRI-PAM'))) {	// E.g. /records/1006/ (test #657)
+				$locationCodeCounts = array_count_values ($locationCodes);
+				if ($locationCodeCounts[$locationCode] > 1) {
+					if (substr_count ($result, "{$this->doubleDagger}h")) {		// Prepend to existing if already present; cannot put in a $c (which requires specific locations, e.g. "SPRI-LIO"), or extra $h (as is non-repeatable)
+						$result = str_replace ("{$this->doubleDagger}h", "{$this->doubleDagger}h({$locationName}) ", $result);	// E.g. /records/215841/ (test #1109)
+					} else {
+						$result .= "{$this->doubleDagger}h" . $locationName;	// E.g. SPRI-LIO in /records/2023/ (test #656)
 					}
 				}
 			}

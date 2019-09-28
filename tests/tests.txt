@@ -3790,19 +3790,19 @@ SUPPRESS
 ‡zItem(s) missing
 
 656
-852 ambiguous location codes get a ‡c qualifier
+852 ambiguous location codes get a ‡h qualifier (see also test #1109)
 2023
 852
-‡cLibrary Office
+‡hLibrary Office
 
 657
-852 ambiguous location codes normally getting a ‡c qualifier (i.e. second ‡c) not done for exempted SPRI-SER/SPRI-SHF/SPRI-PAM
+852 ambiguous location codes normally getting a ‡h qualifier (i.e. second ‡c) not done for exempted SPRI-SER/SPRI-SHF/SPRI-PAM
 1006
 852
-‡bSCO‡cSPRI-SER‡h
+‡bSCO‡cSPRI-SER‡h148
 
 658
-852 non-ambiguous location codes do not get ‡c qualifier
+852 non-ambiguous location codes do not get ‡h qualifier
 9311
 852
 ‡cSPRI-CBD‡h202
@@ -6434,4 +6434,10 @@ Skip creation of 035 for Voyager match if no *ka / *kc
 1323
 876
 ‡jMissing
+
+1109
+852 ambiguous location codes get a ‡h qualifier - case of prepending to existing ‡h (see also test #656)
+215841
+852
+‡cSPRI-LIO‡h(Library Office) CD-ROM (*531.1)
 
