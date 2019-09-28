@@ -4301,7 +4301,7 @@ ISBN support for X check digit
 
 745
 852 created with ‡cUNASSIGNED if location is '??'
-34671
+15128
 852
 ‡cUNASSIGNED
 
@@ -4450,26 +4450,14 @@ Multiple *kg present uses first as linkage
 ‡bСахалинское Книжное Издательство
 
 771
-852 Serial held entirely in basement gets $h (see also next test for child)
+852 Serial held entirely in basement gets $h (parent, as no child will be relevant due to 852 with host matching *location rule)
 59062
 852
 ‡cSPRI-BMT‡hBasement 44 D
 
-772
-852 Child (here *doc, no cases of *art) from serial held entirely in basement gets $h (see also previous test for parent)
-1146
-852
-‡cSPRI-BMT‡hBasement 44 D
-
 773
-852 Serial held entirely in Russian collection gets $h (see also next test for child)
+852 Serial held entirely in Russian collection gets $h (parent, as no child will be relevant due to 852 with host matching *location rule)
 13237
-852
-‡cSPRI-RUS‡hRussian AK.KOMI.PO.IZ.YAK.MAT.
-
-774
-852 Child (here *doc, no cases of *art) from serial held entirely in Russian collection gets $h (see also previous test for parent)
-14189
 852
 ‡cSPRI-RUS‡hRussian AK.KOMI.PO.IZ.YAK.MAT.
 
@@ -5410,7 +5398,7 @@ No item records created for SPRI-ELE items as do not physically exist
 ‡9Create 1 item record
 
 934
-917 IGNORE-* status does not generate $a
+917 IGNORE-* status does not generate $a Suppression reason
 198655
 917
 /‡aUnenhanced record from Muscat, imported 2019$/
@@ -5435,7 +5423,7 @@ suppresswithitem
 
 938
 Output status = suppress
-1166
+82493
 s
 suppress
 
@@ -5740,10 +5728,10 @@ LDR
 ‡a1 microform.
 
 990
-In 852, where both *kg and location=Periodical are present, *kg takes priority
+In 852, where both *kg and location=Periodical are present, *kg takes priority in location matching over title-based matching
 43303
-852
-‡h148 B-D‡z
+773
+‡wSPRI-23052
 
 991
 Library of Congress Cyrillic, created from generated Cyrillic (from BGN/PCGN), replaces original BGN/PCGN entered in Muscat
@@ -6154,13 +6142,13 @@ Transliteration process note placeholder does not appear in final records not ha
 ‡aSPRI-1011
 
 1060
-852 uses explicit *kg where it exists for location=Periodical
+Explicit *kg used where it exists for location=Periodical
 23120
-852
-‡h148 B‡9
+!852
+*
 
 1061
-852 explicit *kg written to location=Periodical and not other location present (see also next test)
+852 explicit *kg written to location=Periodical 773 and not other 852 location present (see also next test)
 15523
 852
 ‡h(*32) : 598.2‡z
@@ -6168,14 +6156,14 @@ Transliteration process note placeholder does not appear in final records not ha
 1062
 852 explicit *kg written to location=Periodical and not other location present (see also previous test)
 15523
-852
+!852
 ‡hBasement 13 E‡z
 
 1063
 location=Periodical match using *ts uses first *ts (here to parent 20180, which has location=82 E) (see also test #1068)
 209527
-852
-‡h82 E‡9
+773
+‡wSPRI-20180
 
 1064
 Macro languages041 "Translated from Government" is not an *abs -derived note in scope of matching
@@ -6204,8 +6192,8 @@ Browne /‡c[Anon.].
 1068
 location=Periodical match using *ts used when *kg not present (see also test #1063)
 37181
-852
-‡h108 E‡9
+!852
+*
 
 1069
 490 special case to avoid incorrect ‡v splitting
@@ -6245,7 +6233,7 @@ Mémoires de lʹAcadémie Impériale des Sciences de St.-Pétersbourg VIIIe
 
 1075
 *art with host record does not get any 852 at all (and also therefore no item record count $9)
-1109
+23120
 !852
 *
 
@@ -6465,4 +6453,14 @@ Skip creation of 035 for Voyager match if no *ka / *kc
 852
 ‡cSPRI-BMT‡hBound in Basement Seligman 13
 
+1113
+When there is a host record, skip 852 creation when the current *location was originally location=Periodical, i.e. scenario of the location=Periodical being the same entity as the *kg - *doc example (see also next test)
+1146
+!852
+*
 
+1114
+When there is a host record, skip 852 creation when the current *location was originally location=Periodical, i.e. scenario of the location=Periodical being the same entity as the *kg - *art example (see also previous test)
+36315
+!852
+*

@@ -208,7 +208,7 @@ class marcConversion
 			case (substr_count ($filterTokensString, 'MIGRATE')   && $this->itemRecords >  0): return 'migratewithitem';		// E.g. /records/5749/ (test #935)
 			case (substr_count ($filterTokensString, 'MIGRATE')   && $this->itemRecords == 0): return 'migrate';				// E.g. /records/1130/ (test #936)
 			case (substr_count ($filterTokensString, 'SUPPRESS-') && $this->itemRecords >  0): return 'suppresswithitem';		// E.g. /records/52260/ (test #937)
-			case (substr_count ($filterTokensString, 'SUPPRESS-') && $this->itemRecords == 0): return 'suppress';				// E.g. /records/1166/ (test #938)
+			case (substr_count ($filterTokensString, 'SUPPRESS-') && $this->itemRecords == 0): return 'suppress';				// E.g. /records/82493/ (test #938)
 			case (substr_count ($filterTokensString, 'IGNORE-')                             ): return 'ignore';					// E.g. /records/1282/ (test #939)
 		}
 	}
@@ -3794,7 +3794,8 @@ class marcConversion
 			return false;	// Do not use the resulting $0 line as no 852 line since no *location
 		}
 		
-		# If the location is '??', treat it as 'UNASSIGNED', e.g. /records/34671/ (test #745); see also post-migration report at /reports/locationunassigned/
+		# If the location is '??', treat it as 'UNASSIGNED', e.g. /records/15128/ (test #745); see also post-migration report at /reports/locationunassigned/
+		# Note that locations with ?? which have a host record whose parent whose location is ?? will later have their 852 stripped (because they have a 773) according to the standard matching rule in itemRecordsCreation ()
 		$locationCodes = $this->locationCodes;	// Make a local copy, in case ?? => UNASSIGNED needs to be added
 		$locationCodes['\?\?'] = 'UNASSIGNED';
 		
@@ -3811,7 +3812,7 @@ class marcConversion
 		
 		# Loop through each location to create a result line
 		$resultLines = array ();
-		foreach ($locations as $index => $location) {
+		foreach ($locations as $locationIndex => $location) {
 			
 			# Split the value out into values for ‡c (location code) and ‡h (classification, which may or may not exist)
 			$locationCode = false;
@@ -3848,7 +3849,7 @@ class marcConversion
 			# Does *location_original start with a number? This is to deal with cases like "141 C", in which the creation of "SPRI-SER" in the MARC record is implicit
 			if (!$isShelvedWith) {		// "Shelved with ..." items do not get $h, e.g. /records/1032/ (test #653)
 				
-				# If starts with a number (rather than e.g. Shelf / Pam / etc.), it is shelved with periodicals, e.g. /records/20534/ (test #748); example with location split across parts of the library at /records/19822/ (test #775); Basement example at /records/59062/ (test #771) and its *doc child /records/1146/ (test #772); Russian example at /records/13237/ (test #773) and its *doc child /records/14189/ (test #774)
+				# If starts with a number (rather than e.g. Shelf / Pam / etc.), it is shelved with periodicals, e.g. /records/20534/ (test #748); example with location split across parts of the library at /records/19822/ (test #775); Basement example at /records/59062/ (test #771); Russian example at /records/13237/ (test #773)
 				if (preg_match ('/^([0-9]|Basement|Russian)/', $location)) {
 					
 					# For real serial analytics, create an 852 for the location, or omit if this matches the host record (i.e. the *kg/title is a proxy for the location)
@@ -3868,7 +3869,7 @@ class marcConversion
 						
 					} else {
 						
-						# Add to record: ‡h <*location_original> (i.e. the full string), e.g. /records/20534/ gets "‡h82 A-B"; Basement example at /records/59062/ (test #771) which has a *doc child /records/1146/ (test #772); Russian example at /records/13237/ (test #773) which has a *doc child /records/137033/ (test #774)
+						# Add to record: ‡h <*location_original> (i.e. the full string), e.g. /records/20534/ gets "‡h82 A-B"; Basement example at /records/59062/ (test #771); Russian example at /records/13237/ (test #773)
 						$result .= "{$this->doubleDagger}h" . (substr_count ($location, 'Basement Seligman') ? 'Bound in ' : '') . $location;	// 'Bound in' prepended for Basement Seligman, e.g. /records/1491/ (test #1104)
 					}
 					
@@ -3937,9 +3938,9 @@ class marcConversion
 			$filterTokens = $this->filterTokenCreation ($location);
 			
 			# Determine whether this *location should result in an 852 being generated, and if so, how many item records in the $9 or no item records (so no $9)
-			list ($create852, $itemRecordsCountDollar9) = $this->itemRecordsCreation ($location);
+			list ($create852, $itemRecordsCountDollar9) = $this->itemRecordsCreation ($location, $locationIndex);
 			
-			# Determine if item records should be created for this location, and if not, skip the 852 line entirely, e.g. /records/1109/ (test #1075)
+			# Determine if item records should be created for this location, and if not, skip this 852 line entirely, e.g. /records/23120/ (test #1075)
 			if (!$create852) {continue;}
 			
 			# Add the item record creation status, as a non-standard field $9 which will be stripped upon final import, and update the count
@@ -4115,7 +4116,7 @@ class marcConversion
 	
 	
 	# Function to determine the item record creation status, for use as a private note in 852
-	private function itemRecordsCreation ($location)
+	private function itemRecordsCreation ($location, $locationIndex /* i.e. which location, e.g. 0, 1, etc. */)
 	{
 		# No records for items with a SPRI-ELE location, as they do not physically exist, all of which have been confirmed to have that as the only location, e.g. /records/213625/ (test #924)
 		if (substr_count ($location, 'Digital Repository') || substr_count ($location, 'Electronic Resource (online)')) {
@@ -4124,6 +4125,35 @@ class marcConversion
 		
 		# Assume a count of 1 where a count is returned but the figure is not overriden by more detailed count algorithm below, e.g. /records/1008/ (test #933)
 		$count = 1;
+		
+		# If there is a host record, and the current location has been looked up from location=Periodical, i.e. there is a host record from which this location has been derived, skip item record created for this location; there may be other locations, e.g. *doc example: /records/1146/ (test #1113), *art example: /records/36315/ (test #1114)
+		# Essentially, this scenario is where a host (e.g. *kg) and location=Periodical are considered to be the same location, rather than an additional location
+		# Many cases may well not have got this far anyway, because of the earlier getHostRecordLocation () handling, which is used in certain *art scenarios, which has a similar effect
+		# This is indexed by location number, so that other present locations in the same record will not be affected, e.g. /records/2598/ still gets 852 from the second *location
+		if ($this->hostRecord) {
+			$query = "
+				SELECT
+					id
+				FROM catalogue_rawdata
+				WHERE id = (
+						-- Look up the shard ID in the processed table
+						SELECT
+							id
+						FROM catalogue_processed
+						WHERE
+							    recordId = {$this->recordId}
+							AND field = 'location'
+							AND xPathWithIndex LIKE '%/location[{$locationIndex}]'
+						)
+					AND field = 'location'
+					AND value = 'Periodical'
+				;";
+			$shardId = $this->databaseConnection->getOneField ($query, 'id');
+			//var_dump ($shardId);
+			if ($shardId) {
+				return array ($create852 = false, $count);
+			}
+		}
 		
 		# *doc records
 		if ($this->recordType == '/doc') {
@@ -4192,11 +4222,6 @@ class marcConversion
 		# *art records: determine based on a set of criteria which have been created following database querying
 		# E.g. 'Pam' in /records/1107/ (test #928), 'Special Collection' in /records/1590/ (test #929), '??' in /records/2579/ (test #931)
 		if (($this->recordType == '/art/in') || ($this->recordType == '/art/j')) {
-			
-			# If there is a host record, no item record created, e.g. /records/1109/ (test #1075)
-			if ($this->hostRecord) {
-				return array ($create852 = false, $count);
-			}
 			
 			# Whitelist of locations, except where 'bound in'
 			/* Equivalent SQL query gives 23,615 opt-ins with:
