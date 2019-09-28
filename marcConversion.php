@@ -4236,6 +4236,17 @@ class marcConversion
 			}
 		}
 		
+		# Also find *ks=MISSING, e.g. /records/1734/ (test #1107), (with variant MISSING[YEAR]), e.g. /records/1323/ (test #1108)
+		if (!$missingLocations) {	// E.g. /records/1083/
+			$ksValues = $this->xPathValues ($this->xml, '//k[%i]/ks');
+			foreach ($ksValues as $ksValue) {
+				if (substr_count ($ksValue, 'MISSING')) {		// Covers 'MISSING' and e.g. 'MISSING[2004]' etc.; e.g. /records/1323/
+					$missingLocations++;
+					break;
+				}
+			}
+		}
+		
 		# End if no missing locations, generating no result; e.g. /records/1647/ (test #1085)
 		if (!$missingLocations) {return false;}
 		
@@ -4244,7 +4255,7 @@ class marcConversion
 		$totalLocations = count ($locations);
 		if ($totalLocations > 1) {
 			if ($missingLocations != $totalLocations) {
-				$result .= " ({$missingLocations} of the {$totalLocations} copies)";	// E.g. /records/16870/ (test #1087)
+				$result .= " ({$missingLocations} of the {$totalLocations} copies)";	// Add note to flag up need for disambiguation if multiple locations, some of which are not missing, e.g. /records/16870/ (test #1087)
 			}
 		}
 		

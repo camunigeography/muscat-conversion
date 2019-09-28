@@ -6310,7 +6310,7 @@ Kruchinin, I︠U︡ A.
 *
 
 1086
-876 missing generated when missing location
+876 missing generated when missing location (see also test #1107)
 1645
 876
 ‡jMissing
@@ -6422,3 +6422,16 @@ Skip creation of 035 for Voyager match if no *ka / *kc
 5414
 !035
 (UkCU)-depfacozdb
+
+1107
+876 ‡jMissing created with *ks=MISSING (see also test #1086, and next test)
+1734
+876
+‡jMissing
+
+1108
+876 ‡jMissing created with *ks=MISSING[year] variant (see also previous test)
+1323
+876
+‡jMissing
+
