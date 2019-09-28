@@ -3775,7 +3775,7 @@ SUPPRESS
 852 "Shelved with" does not get $h
 1032
 852
-‡cIssues shelved individually with monographs‡9
+‡hIssues shelved individually with monographs‡9
 
 654
 852 ‡c is created
