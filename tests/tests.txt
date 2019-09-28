@@ -6322,7 +6322,7 @@ Pseudo-analytic does not get 773
 *
 
 1091
-Translation "of" ... also supported in 041
+041 match on formulation "translation of <language> original\b" results in ‡h (see also tests #372, #373)
 13398
 041
 ‡hswe
@@ -6464,3 +6464,4 @@ When there is a host record, skip 852 creation when the current *location was or
 2652
 852
 ‡9Create 3 item records
+
