@@ -6241,7 +6241,7 @@ Mémoires de lʹAcadémie Impériale des Sciences de St.-Pétersbourg VIIIe
 *art with no host record not being in the whitelist of non-serial locations gets an 852 but no item records
 1512
 852
-‡hBasement Seligman 34‡0Migrate
+‡hBound in Basement Seligman 34‡0Migrate
 
 1075
 *art with host record does not get any 852 at all (and also therefore no item record count $9)
