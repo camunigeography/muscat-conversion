@@ -4165,12 +4165,12 @@ class marcConversion
 				$v = preg_replace ('/^([1-9][0-9]*) v\.(| in 1)$/', '\1 vols.\2', $v);
 				
 				# Test, for "N vols." pattern and variants - tests as noted, e.g. /records/13420/ (test #920), #921 (test #921), #922 (test #922)
-				if (preg_match ('/([1-9][0-9]*|three) vols/', $v, $mainMatches)) {
+				if (preg_match ('/([1-9][0-9]*|three) (vols|volumes)/', $v, $mainMatches)) {	// "volumes" variant in /records/2652/ (test #1115)
 					
 					# Interpret variants; see all using: `SELECT value, GROUP_CONCAT(recordId) FROM catalogue_processed WHERE field = 'v' AND `value` LIKE '%vols%' GROUP BY value ORDER BY value;`
 					switch (true) {
 						case preg_match ('/^([1-9][0-9]*) vols\.?$/', $v, $matches):		$count = $matches[1]; break;	// E.g. /records/13394/ (without dot), /records/2116/ (with dot)
-						case preg_match ('/(vols|vols\.|bound) (in|.in|as) ([1-9][0-9]*)/', $v, $matches):	$count = $matches[3]; break;	// E.g. /records/18824/ (in) (test #921), /records/11680/ (as), /records/5346/ , /records/3495/
+						case preg_match ('/(vols|volumes|vols\.|bound) (in|.in|as) ([1-9][0-9]*)/', $v, $matches):	$count = $matches[3]; break;	// E.g. /records/18824/ (in) (test #921), /records/11680/ (as), /records/5346/ , /records/3495/ , "volumes" variant in /records/2652/ (test #1115)
 						case preg_match ('/(in|.in|as) one/', $v, $matches):	$count = 1; break;	// E.g. /records/18824/ (in), /records/11680/ (as), /records/5346/ , /records/3495/
 						case $v == '18-24 vols.':	$count = 7; break;	// E.g. /records/2345/
 						case preg_match ('/([1-9][0-9]*) vols\.? (and|\+) atlas/', $v, $matches):	$count = ($matches[1] + 1); break;	// E.g. /records/2988/ (test #922)
