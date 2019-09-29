@@ -2073,7 +2073,15 @@ class marcConversion
 			generate260 uses //pg[]/pu[], but 880 generate260(transliterated); e.g. /records/6996/ (test #58)
 			MORE TODO
 		*/
+		
 		#!# Need to determine whether the $lpt argument should ever be looked up, i.e. whether the $value represents a title and the record is in Russian
+		/*
+		Macro uses identified using `SELECT * FROM `catalogue_processed` WHERE `field` IN ('lto', 'ta', 'ts', 'ft', 'st') and value like '% = %' and recordLanguage = 'Russian'` and protected strings added for these 7 cases
+		Code uses are:
+			- generateAuthors, which uses *t when pulling-in via *ke in the generateOtherEntitiesLines () block
+			- macro_generate260 which uses *pu so not relevant
+			- macro_generate505Note which uses *note so not relevant
+		*/
 		$output = $this->transliteration->transliterateLocLatinToCyrillic ($value, $lpt = false, $error /* returned by reference */, $nonTransliterable /* returned by reference */);
 		
 		# Return false if string is unchanged, e.g. fully in brackets or entirely a protected string, e.g. /records/214774/ (test #840)
