@@ -3892,7 +3892,7 @@ class marcConversion
 							if ($location == $hostRecordLocation) {
 								continue;	// Skip creation of the 852, e.g. /records/1222/ (tests #1101, #1102)
 							} else {
-								$result .= "{$this->doubleDagger}h" . $classification;	// #!# Tests needed
+								$result .= "{$this->doubleDagger}h" . $classification;	// E.g. /records/2288/ (tests #1115, #1116) , /records/9142/ , /records/30693/
 							}
 							
 						} else {

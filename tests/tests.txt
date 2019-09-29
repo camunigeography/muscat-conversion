@@ -6465,3 +6465,14 @@ When there is a host record, skip 852 creation when the current *location was or
 852
 ‡9Create 3 item records
 
+1116
+852 (under not-shelved-with and does-not-start-with-number and has-classification, for /art/in with host (*kg or title-based) record), if the current location does not match that host's location, create 773 and 852 (see also next test)
+2288
+773
+‡wSPRI-2286
+
+1117
+852 (under not-shelved-with and does-not-start-with-number and has-classification, for /art/in with host (*kg or title-based) record), if the current location does not match that host's location, create 773 and 852 (see also previous test)
+2288
+852
+‡cSPRI-SPC‡h(*41) : 675.6
