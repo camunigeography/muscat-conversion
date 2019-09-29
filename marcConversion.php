@@ -3386,6 +3386,7 @@ class marcConversion
 		if (!$hostId) {return NULL;}	// E.g. /*art/*in without *kg and without matching serial, i.e. a residual location=Periodical: /records/81852/ (test #
 		
 		# Obtain the processed MARC record; note that createMarcRecords processes the /doc records before /art/in records
+		#!# Need to check record processing order is enough, e.g. art with art parent? or ser?
 		$hostRecord = $this->databaseConnection->selectOneField ($this->settings['database'], 'catalogue_marc', 'marc', $conditions = array ('id' => $hostId));
 		
 		# If there is no host record yet (because the ordering is such that it has not yet been reached), register the child for reprocessing in the second-pass phase
