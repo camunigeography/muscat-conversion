@@ -38,6 +38,8 @@ class transliteration
 			return true;
 		}
 		
+		# Load transliterable full strings in brackets
+		$this->transliterableFullStringsInBrackets = $this->loadTransliterableFullStringsInBrackets ();
 	}
 	
 	
@@ -53,6 +55,13 @@ class transliteration
 	public function getSupportedReverseTransliterationLanguages ()
 	{
 		return $this->supportedReverseTransliterationLanguages;
+	}
+	
+	
+	# Getter for transliterableFullStringsInBrackets
+	public function getTransliterableFullStringsInBrackets ()
+	{
+		return $this->transliterableFullStringsInBrackets;
 	}
 	
 	
@@ -484,7 +493,7 @@ class transliteration
 	private function titleFullyInBrackets ($title)
 	{
 		# Omit special cases, e.g. *t example in /records/7826/ (test #1022) and *pu example in /records/29343/ (test #1023)
-		if (in_array ($title, $this->getTransliterableFullStringsInBrackets ())) {return false;}
+		if (in_array ($title, $this->transliterableFullStringsInBrackets)) {return false;}
 		
 		# Check for [...] ; the regexp should match the MySQL equivalent in createTransliterationsTable ()
 		$literalBackslash = '\\';
@@ -505,62 +514,19 @@ class transliteration
 	}
 	
 	
-	# Function to define a list of full strings [in square brackets] that should be transliterated, because they are simply not in the publication itself but otherwise known; e.g. *t example in /records/7826/ (test #1022) and *pu example in /records/29343/ (test #1023)
-	# NB This has to be late-bound and cannot be run in the constructor, because it depends on catalogue_processed existing, which is not the case at the point $this->transliteration is instantiated in muscatConversion::main ()
-	public function getTransliterableFullStringsInBrackets ()
-	{
-		# Use cache if present
-		if ($this->transliterableFullStringsInBrackets) {
-			return $this->transliterableFullStringsInBrackets;
-		}
-		
-		# Define a list of shards that should be protected from being protected (i.e. are transliterated)
-		# Identified by inspection of list `SELECT * FROM catalogue_processed WHERE value LIKE '[%' AND recordLanguage LIKE 'Russian' AND value NOT IN ('[n.d]',  '[n.p.]' , '[n.pub.]', '[Anon.]', '[Leningrad]', '[St. Petersburg]', '[Moscow]') AND field NOT IN('d', 'p','note', 'tc') LIMIT 500;`
-		$shards = array (
-			// *pu:
-			29343	=> '/doc/pg/pu',
-			29344	=> '/doc/pg/pu',
-			30052	=> '/doc/pg/pu',
-			34729	=> '/doc/pg/pu',
-			139645	=> '/doc/pg/pu',
-			212337	=> '/doc/pg/pu',
-			215922	=> '/doc/pg/pu',
-			// *t:
-			6996	=> '/art/tg/t',
-			7826	=> '/art/tg/t',
-			13057	=> '/art/j/tg/t',
-			116039	=> '/art/tg/t',
-			142468	=> '/art/tg/t',
-		);
-		
-		# Combine to create an efficient query
-		$identifiers = array ();
-		foreach ($shards as $recordId => $xPath) {
-			$identifiers[] = $recordId . ':' . $xPath;
-		}
-		
-		# Obtain the shard strings
-		$query = "SELECT
-			DISTINCT value
-			FROM {$this->settings['database']}.catalogue_processed
-			WHERE
-				    recordId IN(" . implode (',', array_keys ($shards)) . ")		-- Prefilter to reduce search space
-				AND CONCAT(recordId, ':', xPath) IN('" . implode ("','", $identifiers) . "')
-		;";
-		$transliterableFullStringsInBrackets = $this->databaseConnection->getPairs ($query);
-		
-		# Cache
-		$this->transliterableFullStringsInBrackets = $transliterableFullStringsInBrackets;
-		
-		# Return the list
-		return $transliterableFullStringsInBrackets;
-	}
-	
-	
 	# Function to reinstate protected substrings, e.g. /records/139647/ (test #823)
 	public function reinstateProtectedSubstrings ($cyrillic, $protectedParts)
 	{
 		return $cyrillic = strtr ($cyrillic, $protectedParts);
+	}
+	
+	
+	# Function to define a list of full strings [in square brackets] that should be transliterated, because they are simply not in the publication itself but otherwise known
+	# E.g. *t example in /records/7826/ (test #1022) and *pu example in /records/29343/ (test #1023)
+	public function loadTransliterableFullStringsInBrackets ()
+	{
+		# Identified by inspection of list `SELECT * FROM catalogue_processed WHERE value LIKE '[%' AND recordLanguage LIKE 'Russian' AND value NOT IN ('[n.d]',  '[n.p.]' , '[n.pub.]', '[Anon.]', '[Leningrad]', '[St. Petersburg]', '[Moscow]') AND field NOT IN('d', 'p','note', 'tc') LIMIT 500;`
+		return application::textareaToList ($this->applicationRoot . '/tables/' . 'transliterableFullStringsInBrackets.txt', true);
 	}
 }
 
