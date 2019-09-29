@@ -6293,7 +6293,7 @@ Kruchinin, I︠U︡ A.
 
 1087
 876 missing notes when only some of the copies not present
-16870
+133207
 876
 ‡jMissing (1 of the 2 copies)
 
@@ -6518,4 +6518,10 @@ Second parent of child with two *kg values correctly receives children
 20577
 852
 ‡h(*7) : 91(091)‡9Create 1 item record‡0Migrate
+
+1126
+876 ‡j Missing skipped when '??'/'Pam ?' location derives from location=Periodical
+16870
+!876
+*
 

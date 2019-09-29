@@ -4284,9 +4284,28 @@ class marcConversion
 		
 		# Count missing locations
 		$missingLocations = 0;
-		foreach ($locations as $location) {
-			#!# This should be skipping cases where the location derives from location=Periodical, i.e. if the parent is missing, this should not result in an 876, because the 876 gets attached to item records, whereas a location=Periodical match will be a 773 instead, so this is misleading - if this can't be resolved, turn into a post-migration report
+		foreach ($locations as $xPathIndex => $location) {
+			
+			# Check for missing locations
 			if ($location == '??' || $location == 'Pam ?') {	// I.e. SUPPRESS-MISSINGQ status types, 'Pam ?' in /records/1645/ (test #1086)
+				
+				# Skip locations where the location derives from location=Periodical, e.g. /records/16870/ (test #1126)
+				# I.e. if the parent is missing, this should not result in an 876, because the 876 gets attached to item records, whereas a location=Periodical match will be a 773 instead, so this is misleading
+				$query = "
+					SELECT catalogue_rawdata.id
+					FROM catalogue_processed
+					JOIN catalogue_rawdata USING(id)
+					WHERE
+					    catalogue_processed.recordId = {$this->recordId}
+					AND catalogue_processed.xPathWithIndex LIKE '%/location[{$xPathIndex}]'
+					AND catalogue_rawdata.value = 'Periodical'
+				;";
+				$shardId = $this->databaseConnection->getOneField ($query, 'id');
+				if ($shardId) {
+					continue;	// Skip if matched, e.g. /records/16870/ (test #1126)
+				}
+				
+				# Register missing locations
 				$missingLocations++;
 			}
 		}
@@ -4310,7 +4329,7 @@ class marcConversion
 		$totalLocations = count ($locations);
 		if ($totalLocations > 1) {
 			if ($missingLocations != $totalLocations) {
-				$result .= " ({$missingLocations} of the {$totalLocations} copies)";	// Add note to flag up need for disambiguation if multiple locations, some of which are not missing, e.g. /records/16870/ (test #1087)
+				$result .= " ({$missingLocations} of the {$totalLocations} copies)";	// Add note to flag up need for disambiguation if multiple locations, some of which are not missing, e.g. /records/133207/ (test #1087)
 			}
 		}
 		
