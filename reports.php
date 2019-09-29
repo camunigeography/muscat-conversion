@@ -2391,7 +2391,7 @@ class reports
 				SELECT
 					recordId,
 					title,
--- #!# Check this - /records/66296/ seems to be wrong for instance
+					-- #!# Check this - /records/66296/ seems to be wrong for instance
 					IF (INSTR(title_latin,'[') > 0, LEFT(title_latin,LOCATE('[',title_latin) - 1), title_latin) AS title_latin
 				FROM transliterations
 			) AS transliterations_firstParts
