@@ -543,7 +543,7 @@ class transliteration
 	
 	# Function to define a list of whitelisted Russian phrases inside italics, e.g. /records/12328/ (test #1118), /records/76594/ (test #1119), /records/24085/ (test #1120); negative example (unaffected) in /records/1661/ (test #1121)
 	# These are cases where, in a Russian record, a phrase in italics is actually in Russian, e.g. <em>Slava</em>, rather than a protected string like a <em>Ship name</em> that is in Latin
-	# See "1909 Russian italics" Excel file
+	# See "1909 Russian italics" Excel file and /reports/russianitalics/
 	public function loadTransliterationItalicisedRussian ()
 	{
 		# Obtain the list
