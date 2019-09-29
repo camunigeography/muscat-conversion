@@ -6382,7 +6382,7 @@ In 852 matching (under not-shelved-with and starts-with-number, for /art/j with 
 ‡wSPRI-1221
 
 1103
-852 skipping due to locations matching host location giving only 773 still results in filterTokenCreation (with migrate) happening
+852 skipping due to locations matching host location giving only 773 still results in filterTokenCreation (with migrate) happening - /art/in case (see also test #1122)
 1222
 s
 migrate
@@ -6494,4 +6494,10 @@ Known Russian words in italics should be transliterated rather than be protected
 1661
 880
 глубоководный вид Hemilamprops canadensis
+
+1122
+852 skipping due to locations matching host location giving only 773 still results in filterTokenCreation (with migrate) happening - /art/j case (see also test #1103)
+20557
+s
+migrate
 

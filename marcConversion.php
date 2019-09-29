@@ -3787,13 +3787,13 @@ class marcConversion
 		
 		# If no locations (which will mean there is a status - see /reports/nolocationnostatus/ ), no 852 is generated, e.g. /records/1331/ (test #648) - this is the normal scenario for *status = RECEIVED, ON ORDER, etc.
 		if (!$locations) {
-			$filterTokens = $this->filterTokenCreation ($locations /* i.e. empty array () */);		// Create the filterTokens registry entry
+			$this->filterTokenCreation ($locations /* i.e. empty array () */);		// Create the filterTokens registry entry
 			return false;	// Do not use the resulting $0 line as no 852 line since no *location
 		}
 		
 		# For the special case of "Not in SPRI" being present (in any *location), no 852 is generated, e.g. /records/7976/ (test #649), multiple in e.g. /records/31021/ (test #651), none in e.g. /records/1302/ (test #650); /reports/notinspriinspri/ confirms there are now no cases of items "Not in SPRI" also having a SPRI location, i.e. the other locations are always clarificatory adjuncts to the Not in SPRI
 		if (in_array ('Not in SPRI', $locations)) {	// NB Manually validated in the database that this is always present as the full string, not a match
-			$filterTokens = $this->filterTokenCreation ($locations);		// Create the filterTokens registry entry
+			$this->filterTokenCreation ($locations);		// Create the filterTokens registry entry
 			return false;	// Do not use the resulting $0 line as no 852 line since no *location
 		}
 		
@@ -3864,6 +3864,7 @@ class marcConversion
 						$hostRecordLocation = $this->getHostRecordLocation ();	// (which is a *kg or title-based match)
 						if ($location == $hostRecordLocation) {
 							# If the current location matches the host location, skip creation of the 852, as the host is a proxy for the location, and a 773 will have been created representing the link, e.g. /records/20557/ (tests #1096, #1097), /records/1109/
+							$this->filterTokenCreation (false);		// Ensure filter token creation is run, e.g. /records/20557/ (test #1122) which gets MIGRATE, where 852 has been skipped because the *location matches its *kg's *location, resulting in only 773 and not 852
 							continue;
 						} else {
 							# If it does not match, create the 852, e.g. /records/27094/ (tests #1098, #1099, #1100), /records/1959/
@@ -3890,6 +3891,7 @@ class marcConversion
 							# See fuller commentary above in similar block
 							$hostRecordLocation = $this->getHostRecordLocation ();
 							if ($location == $hostRecordLocation) {
+								$this->filterTokenCreation (false);		// Ensure filter token creation is run, e.g. /records/1222/ (test #1103) which gets MIGRATE, where 852 has been skipped because the *location matches its *kg's *location, resulting in only 773 and not 852
 								continue;	// Skip creation of the 852, e.g. /records/1222/ (tests #1101, #1102)
 							} else {
 								$result .= "{$this->doubleDagger}h" . $classification;	// E.g. /records/2288/ (tests #1115, #1116) , /records/9142/ , /records/30693/
@@ -3959,12 +3961,6 @@ class marcConversion
 			$resultLines[] = trim ($result);
 		}
 		
-		# End if no result lines, but ensure filter token creation is run, e.g. /records/1222/ (test #1103) where 852 has been skipped because the *location matches its *kg's *location, resulting in only 773 and not 852
-		if (!$resultLines) {
-			$filterTokens = $this->filterTokenCreation (array ());		// Create the filterTokens registry entry
-			return false;
-		}
-		
 		# Implode the list as a multiline if multiple, e.g. /records/1104/ (test #622)
 		$result = implode ("\n" . '852 7# ', $resultLines);
 		
@@ -3997,7 +3993,7 @@ class marcConversion
 	
 	# Function to determine any suppression status based on *location and/or *status, for use as a private note in 852
 	# See: /doc/status.md
-	private function filterTokenCreation ($locations /* array of locations (if any) or single location */)
+	private function filterTokenCreation ($locations /* array of locations (if any) or single location or false */)
 	{
 		# Start a list of filter tokens for this instantiation (suppression-based instance or 852 location -based instance)
 		$filterTokens = array ();
@@ -4019,7 +4015,7 @@ class marcConversion
 		
 		# Work through locations
 		# NB Verified that, following data work, all records in ignore are also 'Not in SPRI' and have no other location, using `SELECT id, EXTRACTVALUE(xml, '//location') AS locations FROM catalogue_xml WHERE EXTRACTVALUE(xml, '//location') REGEXP '(IGS|International Glaciological Society|Basement IGS Collection)';`
-		if (!is_array ($locations)) {$locations = array ($locations);}	// Ensure is an array of locations, even if a single location
+		if (!is_array ($locations)) {$locations = ($locations ? array ($locations) : array ());}	// Ensure is an array of locations, even if a single location (or empty, e.g. /records/1222/ (test #1103))
 		foreach ($locations as $location) {
 			
 			# Location-based matches (exact)
