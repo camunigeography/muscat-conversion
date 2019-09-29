@@ -173,6 +173,7 @@ class reports
 		'artkgart_postmigration' => 'records with an *art joining (via *kg) to an *art',
 		'multipleholdingssamelocation_postmigration' => 'records with multiple holdings at the same location',
 		'rvalues_postmigration' => 'records with an *r (range, in *ser) values for review',
+		'boundwithmultiple_postmigration' => 'records with a "Bound with" note but multiple locations',
 	);
 	
 	# Listing (values) reports
@@ -310,7 +311,10 @@ class reports
 				'Records with multiple holdings at the same $c location have not had any more than one holding created. This list of records will need to have to holdings added post-migration.',
 			
 			'rvalues' =>
-				'*r (range, in *ser) values for review, so that the number and values for item records can be collectly allocated',
+				'*r (range, in *ser) values for review, so that the number and values for item records can be collectly allocated.',
+			
+			'boundwithmultiple' =>
+				'Because these records have multiple locations, the "Bound with" note cannot be disambiguated; irrelevant item records will need to be removed.',
 			
 			'locationperiodical' =>
 				'Records with location=Periodical which have not been able to be matched with any parent, which thus have no location. These need to be found.',
@@ -4617,6 +4621,32 @@ class reports
 				recordId
 			FROM catalogue_processed
 			WHERE field = 'r'
+		";
+		
+		# Return the query
+		return $query;
+	}
+	
+	
+	# Records with a "Bound with" note but multiple locations
+	public function report_boundwithmultiple ()
+	{
+		# Define the query
+		$query = "
+			SELECT
+				'boundwithmultiple' AS report,
+				id AS recordId
+			FROM fieldsindex
+			WHERE
+				    fieldslist LIKE '%location%location%'
+				AND id IN(
+					SELECT
+						recordId
+					FROM catalogue_processed
+					WHERE
+						    field IN('note','local','priv')
+						AND value LIKE 'Bound with %'
+				)
 		";
 		
 		# Return the query

@@ -3824,6 +3824,7 @@ class marcConversion
 		
 		# Loop through each location to create a result line
 		$resultLines = array ();
+		$totalLocations = count ($locations);
 		foreach ($locations as $locationIndex => $location) {
 			
 			# Split the value out into values for ‡c (location code) and ‡h (classification, which may or may not exist)
@@ -3952,7 +3953,7 @@ class marcConversion
 			$filterTokens = $this->filterTokenCreation ($location);
 			
 			# Determine whether this *location should result in an 852 being generated, and if so, how many item records in the $9 or no item records (so no $9)
-			list ($create852, $itemRecordsCountDollar9) = $this->itemRecordsCreation ($location, $locationIndex);
+			list ($create852, $itemRecordsCountDollar9) = $this->itemRecordsCreation ($location, $locationIndex, $totalLocations);
 			
 			# Determine if item records should be created for this location, and if not, skip this 852 line entirely, e.g. /records/23120/ (test #1075)
 			if (!$create852) {continue;}
@@ -4124,7 +4125,7 @@ class marcConversion
 	
 	
 	# Function to determine the item record creation status, for use as a private note in 852
-	private function itemRecordsCreation ($location, $locationIndex /* i.e. which location, e.g. 0, 1, etc. */)
+	private function itemRecordsCreation ($location, $locationIndex /* i.e. which location, e.g. 0, 1, etc. */, $totalLocations)
 	{
 		# No records for items with a SPRI-ELE location, as they do not physically exist, all of which have been confirmed to have that as the only location, e.g. /records/213625/ (test #924)
 		if (substr_count ($location, 'Digital Repository') || substr_count ($location, 'Electronic Resource (online)')) {
@@ -4249,13 +4250,21 @@ class marcConversion
 				;
 			*/
 			
-			# For *art records without a host, create an item record if the record is in the list of non-serial locations and is not "Bound in"; otherwise still create the 852 but without an item record ($9); tests for each scenario below
+			# For *art records without a host, create an item record if the record is in the list of non-serial locations and is not "Bound in" / "Bound with"; otherwise still create the 852 but without an item record ($9); tests for each scenario below
 			if (preg_match ("/^(Archives|Atlas|Basement BB Roberts Cabinet|Bibliographers' Office|Folio|Librarian's Office|Map Room|Pam|Pam |Picture Library Store|Reference|Russian REZ.IS|Shelf|Shelved with monographs|Special Collection|Theses)/", $location) || ($location == '??')) {	// ?? example: /records/2581/ (test #1073)
-				#!# /records/1189/ has a note "Bound with" - ideally (to avoid 500 locations pointlessly getting item records) opt in "Bound with%" (at the start) in *note/*local/*priv where there is only one location; all other cases of "bound with" appearing in such a note get in a report for manual review as to (a) whether they are actually bound with, and if multiple locations, which location; see: `select * from fieldsindex fieldslist where fieldslist like '%location%location%' and id IN( SELECT recordId FROM `catalogue_processed` WHERE `field` IN ('note','local','priv') AND `value` LIKE 'Bound with%' )`
-				if (!substr_count ($location, 'Bound in')) {		// NB 'Not in SPRI' will already have stopped execution in the calling code so is not listed here but is needed in the equivalent SQL above
-					$count = 1;		// E.g. /records/1107/ (test #928)
+				
+				# Determine if there is a note "Bound with", e.g. /records/1189/ (test #1124)
+				$singleLocationWithBoundWithNote = false;
+				if ($totalLocations == 1) {		// E.g. /records/20577/ (test #1125), /records/6086/ , found using `SELECT * from catalogue_processed WHERE xPathWithIndex LIKE '%/location[2]' AND recordId IN( SELECT recordId FROM `catalogue_processed` WHERE `field` IN ('note','local','priv') AND `value` LIKE 'Bound with%' );`
+					$query = "SELECT recordId FROM catalogue_processed WHERE recordId = {$this->recordId} AND field IN('note','local','priv') AND value LIKE 'Bound with %';";
+					$singleLocationWithBoundWithNote = $this->databaseConnection->getOneField ($query, 'recordId');
+				}
+				
+				# Check for bound in / bound with note
+				if (substr_count ($location, 'Bound in') || $singleLocationWithBoundWithNote) {		// NB 'Not in SPRI' will already have stopped execution in the calling code so is not listed here but is needed in the equivalent SQL above
+					$count = 0;		// E.g. /records/1350/ (test #930), "Bound with" in /records/20577/ (test #1125)
 				} else {
-					$count = 0;		// E.g. /records/1350/ (test #930)
+					$count = 1;		// E.g. /records/1107/ (test #928)
 				}
 			} else {
 				$count = 0;		// E.g. /records/1512/ (test #1074)

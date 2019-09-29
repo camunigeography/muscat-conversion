@@ -6507,3 +6507,15 @@ Second parent of child with two *kg values correctly receives children
 700
 ‡aHjulström, Filip.‡tAn account of the expedition and its aims.
 
+1124
+852 gets no item records when note stating "Bound with" when single location (see also next test)
+1189
+852
+‡h(*7) : 91(091)[BP Vol.2]‡0Migrate
+
+1125
+852 gets item records when note stating "Bound with" but has more than one location, as not disambiguatable (see also previous test)
+20577
+852
+‡h(*7) : 91(091)‡9Create 1 item record‡0Migrate
+
