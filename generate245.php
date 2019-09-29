@@ -74,7 +74,7 @@ class generate245
 			$this->t = $this->marcConversion->transliteration->transliterateLocLatinToCyrillic ($this->t, $lpt, $error, $nonTransliterable /* passed back by reference */);	// (test #49)
 			
 			# End if the transliteration has determined that the string is not actually intended for transliteration, e.g. [Titles fully in square brackets like this]; e.g. /records/31750/ (test #822)
-			#!# If the title is [in brackets] but the author is transliterable, this should still result in an 880, e.g. /records/6996/ (test #1021)
+			#!# If the title is [in brackets] but the author is transliterable, this should still result in an 880, e.g. /records/17279/ (test #1021)
 			if ($nonTransliterable) {return false;}
 		}
 		
