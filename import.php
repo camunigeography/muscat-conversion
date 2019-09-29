@@ -1324,9 +1324,8 @@ class import
 		;";
 		$this->databaseConnection->query ($query);	// 724 rows updated
 		
-		# Handle the special case of *lto for *to - if there is an *lto in the same half of the record, update the language of that *to shared to the *lto value, e.g. /records/52557/
+		# Handle the special case of *lto for *to - if there is an *lto in the same half of the record, update the language of that *to shared to the *lto value, e.g. /records/52557/ (test #831)
 		# 1549 shards; matches 1546 results for `SELECT recordId FROM catalogue_processed where field = 'lto';` plus three records (51402, 88661, 188949) which have multiple *to
-		#!# Not yet used in MARC conversion
 		$this->logger ('|-- In ' . __METHOD__ . ', retaining *to with relevant *lto');
 		$query = "
 			UPDATE transliterations
