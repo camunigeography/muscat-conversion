@@ -73,8 +73,7 @@ class generate245
 			$lpt = $this->marcConversion->xPathValue ($this->xml, $lptFieldXpath);	// Languages of parallel title, e.g. "Russian = English"
 			$this->t = $this->marcConversion->transliteration->transliterateLocLatinToCyrillic ($this->t, $lpt, $error, $nonTransliterable /* passed back by reference */);	// (test #49)
 			
-			# End if the transliteration has determined that the string is not actually intended for transliteration, e.g. [Titles fully in square brackets like this]; e.g. /records/31750/ (test #822)
-			#!# If the title is [in brackets] but the author is transliterable, this should still result in an 880, e.g. /records/17279/ (test #1021)
+			# End if the transliterator has determined that the string is not actually intended for transliteration, e.g. [Cyrillic version of title fully in square brackets like this]; although the $c may still be fine, that is already present in the 1xx/7xx, so there is little point in having an 880-245; e.g. /records/31750/ (test #822)
 			if ($nonTransliterable) {return false;}
 		}
 		
