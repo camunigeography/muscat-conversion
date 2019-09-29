@@ -6470,3 +6470,28 @@ When there is a host record, skip 852 creation when the current *location was or
 2288
 852
 ‡cSPRI-SPC‡h(*41) : 675.6
+
+1118
+Known Russian words in italics should be transliterated rather than be protected (first example)
+12328
+880
+‡aЭкспедиция на Куесте /‡c
+
+1119
+Known Russian words in italics should be transliterated rather than be protected (second example)
+76594
+880
+‡aК истории суффикса -мен в
+
+1120
+Known Russian words in italics should be transliterated rather than be protected (third example)
+24085
+880
+‡aСлава :‡b
+
+1121
+Known Russian words in italics should be transliterated rather than be protected - negative example not affected
+1661
+880
+глубоководный вид Hemilamprops canadensis
+

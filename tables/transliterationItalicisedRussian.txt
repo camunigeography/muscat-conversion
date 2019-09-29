@@ -1,0 +1,80 @@
+# These are cases where, in a Russian record, a phrase in italics is actually in Russian, e.g. <em>Slava</em>, rather than a protected string like a <em>Ship name</em> that is in Latin
+# See "1909 Russian italics" Excel file
+Aeroarktik
+Akademik Knipovich
+Aleut
+Alga
+-ana
+Apostol Andrei
+Arkane
+Arkticheskoy flory SSSR, Panarkticheskoy flore
+AVLAP
+Aykhal
+Belukha, beluga
+Bering
+Biologicheskiye problemy Severa
+Chelyuskin
+Chelyuskinu
+chud'
+Chukotki
+Chukotskaya saga
+Fedor Litke
+Georgiy Sedov
+Gerkules
+Gerkulese
+Glyatsiologicheskogo slovarya
+Graf Zeppelin
+G. Sedov
+infuzorii, Raznoresnichnyye
+-iś
+Izlozheniye
+Komsomol'skaya Pravda
+Krasina
+Krasine
+Krasnykh Knig
+Kueste
+m
+Manhatten
+-men
+Metel'
+Mir
+Moskva
+Neymin'g
+Ob
+Ob'
+Oleniy Ruchey
+olonkho
+Olonkho
+O vnesenii izmeneniy i dopolneniy v Ukaz Prezidiuma Verkhovnogo Soveta SSSR "O dokhodnom naloge s kolkhozov"
+Panarkticheskiye flory i fauny
+Paylot
+Polyarnaya strategiya
+Polyarshtern
+Problemy energetiki kraynego Severa
+Problemy glyatsiologii Altaya
+Professor Vize, Ob
+prostranstvo
+Rusanov
+Ruslovaya
+S
+Sadko
+Sever
+Severnyy olen'
+shaytana
+Sibir'
+Slava
+Slovarya botanikov Sibiri
+Stavropol
+sterkh
+Sytykanskaya
+Udachnaya
+Ueddell-1
+Vityaz'
+Voypel'
+Vunderland
+Vym'
+Vzaimodeystviye atmosfery i gidrosfery v severnoy chasti Atlanticheskogo okeana
+ysyakh
+Zarni an', Zolotaya baba
+zhe
+Zhizn Nashikh Ptits i Zverey Vypusk

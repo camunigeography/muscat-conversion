@@ -40,6 +40,9 @@ class transliteration
 		
 		# Load transliterable full strings in brackets
 		$this->transliterableFullStringsInBrackets = $this->loadTransliterableFullStringsInBrackets ();
+		
+		# Load whitelisted italicised Russian
+		$this->transliterationItalicisedRussian = $this->loadTransliterationItalicisedRussian ();
 	}
 	
 	
@@ -289,11 +292,19 @@ class transliteration
 		}
 		
 		# Protect parts in italics, which are Latin names that a publisher would not translate, e.g. /records/1664/ (tests #993 and #994)
+		$italicTagsAlso = false;
 		preg_match_all ('|(<em>.+</em>)|uU', $string, $italicisedNameMatches);		// Uses /U ungreedy, to avoid "a <em>b</em> c <em>d</em> e" becoming "a  e", e.g. /records/17256/ (tests #46 and #992)
+		if (array_intersect ($italicisedNameMatches[1], $this->transliterationItalicisedRussian)) {		// Except for specific phrases, in which case filter out, e.g. <em>Kueste</em> should have 'Kueste' transliterated and the <em> </em> protected, e.g. /records/12328/ (test #1118), /records/76594/ (test #1119), /records/24085/ (test #1120); negative example (unaffected) in /records/1661/ (test #1121)
+			$italicisedNameMatches[1] = array_diff ($italicisedNameMatches[1], $this->transliterationItalicisedRussian);
+			$italicTagsAlso = true;
+		}
 		$replacements = array_merge ($replacements, $italicisedNameMatches[1]);
 		
 		# Protect HTML tags, protecting the tag string itself, not its contents; e.g. /records/114278/ (test #973)
 		$tags = array ('<sub>', '</sub>', '<sup>', '</sup>', );
+		if ($italicTagsAlso) {
+			$tags = array_merge ($tags, array ('<em>', '</em>'));
+		}
 		$replacements = array_merge ($replacements, $tags);
 		
 		# Protect known strings to protect from transliteration (Latin abbreviations, Order names, Roman numeral pattern regexps), e.g. /records/72688/ (test #995), /records/195773/ (test #837)
@@ -526,7 +537,25 @@ class transliteration
 	public function loadTransliterableFullStringsInBrackets ()
 	{
 		# Identified by inspection of list `SELECT * FROM catalogue_processed WHERE value LIKE '[%' AND recordLanguage LIKE 'Russian' AND value NOT IN ('[n.d]',  '[n.p.]' , '[n.pub.]', '[Anon.]', '[Leningrad]', '[St. Petersburg]', '[Moscow]') AND field NOT IN('d', 'p','note', 'tc') LIMIT 500;`
-		return application::textareaToList ($this->applicationRoot . '/tables/' . 'transliterableFullStringsInBrackets.txt', true);
+		return application::textareaToList ($this->applicationRoot . '/tables/' . 'transliterableFullStringsInBrackets.txt', true, true);
+	}
+	
+	
+	# Function to define a list of whitelisted Russian phrases inside italics, e.g. /records/12328/ (test #1118), /records/76594/ (test #1119), /records/24085/ (test #1120); negative example (unaffected) in /records/1661/ (test #1121)
+	# These are cases where, in a Russian record, a phrase in italics is actually in Russian, e.g. <em>Slava</em>, rather than a protected string like a <em>Ship name</em> that is in Latin
+	# See "1909 Russian italics" Excel file
+	public function loadTransliterationItalicisedRussian ()
+	{
+		# Obtain the list
+		$list = application::textareaToList ($this->applicationRoot . '/tables/' . 'transliterationItalicisedRussian.txt', true, true);
+		
+		# Add italics to each
+		foreach ($list as $index => $string) {
+			$list[$index] = '<em>' . $string . '</em>';
+		}
+		
+		# Return the list
+		return $list;
 	}
 }
 
