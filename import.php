@@ -2152,7 +2152,6 @@ class import
 		# Explicit matches using *kg take priority; this switches off the title-based lookup for replacing *location=Periodical, e.g. /records/43303/ (test #990), which has *kg=23052 rather than wrongly matching using *ts from /records/72770/
 		# This maintains the field = 'location' AND value = 'Periodical' constraint so that records like /record/15523/ (tests #1061, #1062) and /records/39757/ do not wipe out another *location (e.g. hard-coded shelf location)
 		# *kg parents are: 2270 *doc, 1455 *ser, 11 *art, e.g. `SELECT * FROM catalogue_processed WHERE field = 'doc' and recordId IN( SELECT distinct value FROM catalogue_processed WHERE field = 'kg' ORDER BY value DESC);`
-		#!# Currently there are some parent records with location[2] - should that be ignored? - see `SELECT * FROM catalogue_processed WHERE field = 'location' and xPathWithIndex LIKE '%/location[2]' AND recordId IN( SELECT DISTINCT value FROM `catalogue_processed` WHERE field = 'kg' ORDER BY value DESC);`
 		#!# Should we overwrite just location=Periodical or any other location value, e.g. hard-coded as particularly exist with *doc records?
 		$this->logger ('Replacing location=Periodical for explicit match with *kg (first pass, before implicit matches');
 		$this->joinKg ();
