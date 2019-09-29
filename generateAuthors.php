@@ -419,7 +419,7 @@ class generateAuthors
 			$eIndex++;
 		}
 		
-		# Check for a *ke which is a flag indicating that there are analytic (child) records; e.g. /records/7463/
+		# Check for a *ke which is a flag indicating that there are analytic (child) records; e.g. /records/7463/, /records/1895/ (test #1123)
 		if ($this->marcConversion->xPathValue ($this->mainRecordXml, '//ke')) {		// Is just a flag, not a useful value (test #87); e.g. /records/1221/ contains "\<b> Analytics \<b(l) ~l 1000/"ME1221"/ ~>" which creates a button in the Muscat GUI
 			
 			# Look up the records whose *kg matches, e.g. /records/9375/ has *kg=7463, so this indicates that 9375 (which will be an *art) is a child of 7463 (tests #76 and #77)
@@ -471,6 +471,7 @@ class generateAuthors
 	private function getAnalyticChildren ($parentId)
 	{
 		# Get the children
+		# NB This works correctly when a child has two parents (see also lookupHostRecord ()), i.e. *k2[2]/kg is present in the child, e.g. /records/1896/ (test #763) which joins to /records/11625/ and /records/1895/ (test #1123)
 		$childIds = $this->databaseConnection->selectPairs ($this->settings['database'], 'catalogue_processed', array ('field' => 'kg', 'value' => $parentId), array ('recordId'));
 		
 		# Load the XML records for the children

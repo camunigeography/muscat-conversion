@@ -3371,9 +3371,9 @@ class marcConversion
 	# Function to look up the host record, if any
 	private function lookupHostRecord (&$hostId = false)
 	{
-		# Up-front, obtain the host ID (if any) from *kg, used in both 773 and 500, e.g. /records/1129/ (test #493); if more than one, the first is chosen, e.g. /records/1896/ (test #763)
+		# Up-front, obtain the host ID (if any) from *kg, used in both 773 and 500, e.g. /records/1129/ (test #493)
+		# NB When *k2[2]/kg is present, e.g. /records/1896/ (test #763) which joins to /records/11625/ and /records/1895/ (test #1123), the first *kg only is used; this represents articles in a physical book set (of multiple physical parts), with the second *kg representing the serialised parts within each of this physical set; the second *kg is being ignored at the article level, but the parents are correctly getting the children; `SELECT * FROM `fieldsindex` WHERE `fieldslist` REGEXP '@kg@.*kg@'` - there is actually one case only
 		$hostId = false;
-		#!# Need to determine what happens when *k2[2]/kg is present, e.g. /records/1896/ which joins to /records/11625/ and /records/1895/ - `SELECT * FROM `fieldsindex` WHERE `fieldslist` REGEXP '@kg@.*kg@'` - there is actually one case only, and this represents articles in a physical book set (of multiple physical parts), with the second *kg representing the serialised parts within each of this physical set; the second *kg is being ignored at the article level, but the parents are correctly getting the children
 		if ($hostIdFromExplicitKg = $this->xPathValue ($this->xml, '//k2[1]/kg')) {
 			$hostId = $hostIdFromExplicitKg;
 		} else {
