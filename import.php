@@ -2141,7 +2141,6 @@ class import
 	
 	# Function to replace location=Periodical in the processed records with the real, looked-up values; dependencies: catalogue_processed with xPath field populated
 	# NB This matching is done before the transliteration phase, so that the /art/j/tg/t matches its parent (e.g. /records/167320/ joins to its parent /records/33585/ ) and then AFTER that it gets upgraded
-	#!# There is still the problem that the target name itself does not get upgraded; UPDATE 26/1/2018: Believe this is now done - and the comment is wrong, as the target is *t which was always being done - create a test /records/30493/ to /records/33201/ (which is a pair of a /doc/ts[1] in Russian with location=Russian and location=Russian and not explicit *kg link
 	private function processPeriodicalLocations (&$errorsHtml)
 	{
 		# Log start
