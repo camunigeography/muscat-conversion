@@ -3257,7 +3257,7 @@ class marcConversion
 		if ($this->recordType == '/art/j') {
 			
 			# If there is a (real) host record, we use the 773 (but do not prefix with "In: " - e.g. /records/191969/ (test #1029))
-			#!# Note: at present, some pseudo-analytics erroneously have a *kg in - this will either be fixed in the data, or we will change here to use 490 instead of 773 in cases of a controlled serial
+			#!# Note: at present, some pseudo-analytics erroneously have a *kg in - this will either be fixed in the data, or we will change here to use 490 (though that probably already exists anyway) instead of 773 in cases of a controlled serial
 			if ($this->hostRecord) {
 				
 				# Get the data from the 773, e.g. /records/1109/ (test #490); for an /*art/*j the 245 of the parent is not sufficient, because e.g. it doesn't have the volume number etc., in
