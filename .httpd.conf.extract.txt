@@ -2,7 +2,7 @@
 
 # Load using:
 #	# Muscat conversion project
-#	Include /path/to/muscat-conversion/.httpd.conf.extract
+#	Include /path/to/muscat-conversion/.httpd.conf.extract.txt
 #	Use MacroMuscatConversion /library/catalogue "/path/to/site/:/path/to/muscat-conversion/:/path/to/php/libraries/"
 
 
