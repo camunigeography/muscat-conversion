@@ -484,10 +484,10 @@ class import
 				id INT(11) NOT NULL AUTO_INCREMENT,
 				`recordId` INT(6),
 				`line` INT(3),
-				`field` VARCHAR(8) COLLATE utf8_unicode_ci,
+				`field` VARCHAR(8) COLLATE utf8mb4_unicode_ci,
 				`value` TEXT,
 				PRIMARY KEY (id)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='{$tableComment}';
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='{$tableComment}';
 			
 			-- Data in catalogue_{$type}.csv
 			LOAD DATA LOCAL INFILE '{$this->exportsProcessingTmp}catalogue_{$type}.csv'
@@ -528,7 +528,7 @@ class import
 		$this->databaseConnection->execute ($sql);
 		# CREATE TABLE AS ... wrongly results in a VARCHAR(344) column, resulting in record #195245 and others being truncated; length of at least VARCHAR(579) (as of Jan/2018) is needed
 		# $sql = "CREATE TABLE fieldsindex (PRIMARY KEY (id))
-		# 	ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci	/* MyISAM forced, so that FULLTEXT search can be used */
+		# 	ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci	/* MyISAM forced, so that FULLTEXT search can be used */
 		# 	AS
 		# 	(SELECT
 		# 		recordId AS id,
@@ -540,7 +540,7 @@ class import
 			  id INT(6) NOT NULL COMMENT 'Record #',
 			  fieldslist VARCHAR(1024) NOT NULL COMMENT 'Fields list',
 			  PRIMARY KEY (`id`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Summary statistics';
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Summary statistics';
 		";
 		$this->databaseConnection->execute ($sql);
 		$sql = "INSERT INTO fieldsindex (SELECT
@@ -645,7 +645,7 @@ class import
 		# Add status field to enable suppression, and populate the data
 		$query = "
 			ALTER TABLE searchindex
-			ADD COLUMN status ENUM('migratewithitem','migrate','suppresswithitem','suppress','ignore') COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Status' AFTER id,
+			ADD COLUMN status ENUM('migratewithitem','migrate','suppresswithitem','suppress','ignore') COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Status' AFTER id,
 			ADD INDEX(status)
 		;";
 		$this->databaseConnection->query ($query);
@@ -767,9 +767,9 @@ class import
 			  `totalDataEntries` int(11) NOT NULL COMMENT 'Total data entries',
 			  `averageDataEntriesPerRecord` int(3) NOT NULL COMMENT 'Average data entries per record',
 			  `highestNumberedRecord` int(11) NOT NULL COMMENT 'Highest-numbered record',
-			  `exportDate` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Export date',
+			  `exportDate` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Export date',
 			  PRIMARY KEY (`id`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Summary statistics';";
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Summary statistics';";
 		$this->databaseConnection->execute ($sql);
 		$sql = "
 			INSERT INTO statistics VALUES (
@@ -1173,17 +1173,17 @@ class import
 			`xPath` VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field (path only)',
 			`language` VARCHAR(255) NOT NULL COMMENT 'Language of shard',
 			`lpt` VARCHAR(255) NULL COMMENT 'Parallel title languages (*lpt, adjacent in hierarchy)',
-			`title_latin` TEXT COLLATE utf8_unicode_ci COMMENT 'Title (latin characters), unmodified from original data',
-			`title_latin_tt` TEXT COLLATE utf8_unicode_ci COMMENT '*tt if present',
-			`title` TEXT COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT 'Reverse-transliterated title',
-			`title_spellcheck_html` TEXT COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT 'Reverse-transliterated title (spellcheck HTML)',
-			`title_forward` TEXT COLLATE utf8_unicode_ci COMMENT 'Forward transliteration from generated Cyrillic (BGN/PCGN)',
+			`title_latin` TEXT COLLATE utf8mb4_unicode_ci COMMENT 'Title (latin characters), unmodified from original data',
+			`title_latin_tt` TEXT COLLATE utf8mb4_unicode_ci COMMENT '*tt if present',
+			`title` TEXT COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT 'Reverse-transliterated title',
+			`title_spellcheck_html` TEXT COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT 'Reverse-transliterated title (spellcheck HTML)',
+			`title_forward` TEXT COLLATE utf8mb4_unicode_ci COMMENT 'Forward transliteration from generated Cyrillic (BGN/PCGN)',
 			`forwardCheckFailed` INT(1) NULL COMMENT 'Forward check failed?',
-			`title_loc` TEXT COLLATE utf8_unicode_ci COMMENT 'Forward transliteration from generated Cyrillic (Library of Congress)',
+			`title_loc` TEXT COLLATE utf8mb4_unicode_ci COMMENT 'Forward transliteration from generated Cyrillic (Library of Congress)',
 			`inNameAuthorityList` INT(11) SIGNED NULL DEFAULT NULL COMMENT 'Whether the title value is in the LoC name authority list',
 			PRIMARY KEY (`id`),
 			INDEX(`field`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of transliterations'
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table of transliterations'
 		;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -1221,11 +1221,11 @@ class import
 		$sql = "
 			CREATE TABLE IF NOT EXISTS tickednames (
 				id VARCHAR(10) NOT NULL COMMENT 'Processed shard ID (catalogue_processed.id)',
-				surname VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Surname',
+				surname VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Surname',
 				results INT(11) NOT NULL COMMENT 'Number of results',
 				PRIMARY KEY (id),
 				INDEX(surname)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of names ticked during manual checking';
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table of names ticked during manual checking';
 		";
 		$this->databaseConnection->execute ($sql);
 		
@@ -1579,10 +1579,10 @@ class import
 				locId VARCHAR(255) NOT NULL COMMENT 'LoC ID',
 				surname VARCHAR(255) NULL COMMENT 'Surname',
 				name VARCHAR(1024) NOT NULL COMMENT 'Name (full string)',
-				url VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'URL',
+				url VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'URL',
 			  PRIMARY KEY (id),
 			  INDEX(surname)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of Library of Congress name authority list';
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table of Library of Congress name authority list';
 		";
 		$this->databaseConnection->execute ($sql);
 		
@@ -1731,12 +1731,12 @@ class import
 		$sql = "
 			CREATE TABLE othernames (
 				id INT(11) NOT NULL AUTO_INCREMENT COMMENT 'Automatic key',
-				surname VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Surname',
+				surname VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Surname',
 				results INT(11) NOT NULL COMMENT 'Number of results',
-				source VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Source',
+				source VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Source',
 				PRIMARY KEY (id),
 				INDEX(surname)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of names sourced from other sources';
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table of names sourced from other sources';
 		";
 		$this->databaseConnection->execute ($sql);
 		
@@ -1920,11 +1920,11 @@ class import
 		$sql = "
 			CREATE TABLE IF NOT EXISTS catalogue_xml (
 				id int(11) NOT NULL COMMENT 'Record number',
-				xml text COLLATE utf8_unicode_ci COMMENT 'XML representation of Muscat record',
-				language VARCHAR(255) NULL COLLATE utf8_unicode_ci COMMENT 'Record language',
-				parallelTitleLanguages VARCHAR(255) NULL COLLATE utf8_unicode_ci COMMENT 'Parallel title languages',
+				xml text COLLATE utf8mb4_unicode_ci COMMENT 'XML representation of Muscat record',
+				language VARCHAR(255) NULL COLLATE utf8mb4_unicode_ci COMMENT 'Record language',
+				parallelTitleLanguages VARCHAR(255) NULL COLLATE utf8mb4_unicode_ci COMMENT 'Parallel title languages',
 			  PRIMARY KEY (id)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='XML representation of Muscat records'
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='XML representation of Muscat records'
 		;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -2013,7 +2013,7 @@ class import
 				xPath          VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field (path only)',
 				xPathWithIndex VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field (path with index)',
 				PRIMARY KEY (id)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Temporary table of xPaths for joining'
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Temporary table of xPaths for joining'
 			;";
 			$this->databaseConnection->execute ($sql);
 		}
@@ -2166,12 +2166,12 @@ class import
 		$sql = "CREATE TABLE IF NOT EXISTS `periodicallocations` (
 			`id` INT(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
 			`recordId` INT(6) NOT NULL COMMENT 'Record number',
-			`title` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title (/ser/tg/t)',
-			`location` TEXT COLLATE utf8_unicode_ci NOT NULL COMMENT 'Location(s) (/ser/loc/location, grouped)',	-- TEXT due to GROUP_CONCAT field length below
+			`title` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Title (/ser/tg/t)',
+			`location` TEXT COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Location(s) (/ser/loc/location, grouped)',	-- TEXT due to GROUP_CONCAT field length below
 			PRIMARY KEY (id),
 			INDEX(recordId),
 			INDEX(title)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of periodical locations'
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table of periodical locations'
 		;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -2199,15 +2199,15 @@ class import
 		$sql = "CREATE TABLE IF NOT EXISTS `periodicallocationmatches` (
 			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
 			`recordId` int(6) NOT NULL COMMENT 'Record number of child',
-			`title` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Title in child',
+			`title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Title in child',
 			`parentRecordId` int(6) NULL COMMENT 'Record number of parent',
-			`parentLocation` varchar(255) COLLATE utf8_unicode_ci NULL COMMENT 'Parent location',
-			`parentTitle` varchar(255) COLLATE utf8_unicode_ci NULL COMMENT 'Parent title',
-			`matchTitleField` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Field used in matching',
+			`parentLocation` varchar(255) COLLATE utf8mb4_unicode_ci NULL COMMENT 'Parent location',
+			`parentTitle` varchar(255) COLLATE utf8mb4_unicode_ci NULL COMMENT 'Parent title',
+			`matchTitleField` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Field used in matching',
 			PRIMARY KEY (id),
 			INDEX(recordId),
 			INDEX(parentRecordId)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of periodical location matches'
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table of periodical location matches'
 		;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -2307,12 +2307,12 @@ class import
 				itemRecords INT(4) NULL COMMENT 'Create item record?',
 				mergeType VARCHAR(255) NULL DEFAULT NULL COMMENT 'Merge type',
 				mergeVoyagerId VARCHAR(255) NULL DEFAULT NULL COMMENT 'Voyager ID for merging',
-				marcPreMerge TEXT NULL COLLATE utf8_unicode_ci COMMENT 'Pre-merged MARC representation of local Muscat record',
-				marc TEXT COLLATE utf8_unicode_ci COMMENT 'MARC representation of Muscat record',
-				bibcheckErrors TEXT NULL COLLATE utf8_unicode_ci COMMENT 'Bibcheck errors, if any',
+				marcPreMerge TEXT NULL COLLATE utf8mb4_unicode_ci COMMENT 'Pre-merged MARC representation of local Muscat record',
+				marc TEXT COLLATE utf8mb4_unicode_ci COMMENT 'MARC representation of Muscat record',
+				bibcheckErrors TEXT NULL COLLATE utf8mb4_unicode_ci COMMENT 'Bibcheck errors, if any',
 				filterTokens VARCHAR(255) NULL DEFAULT NULL COMMENT 'Filtering tokens for suppression/ignoration',
 			  PRIMARY KEY (id)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC representation of Muscat records'
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='MARC representation of Muscat records'
 		;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -2519,9 +2519,9 @@ class import
 				voyagerId INT(11) NOT NULL COMMENT 'Voyager ID',
 				field VARCHAR(3) NOT NULL COMMENT 'Field code',
 				indicators VARCHAR(2) NOT NULL COMMENT 'First and second indicator',
-				data VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Data',
+				data VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Data',
 			  PRIMARY KEY (id)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Existing Voyager records';
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Existing Voyager records';
 		";
 		$this->databaseConnection->execute ($sql);
 		
@@ -2616,9 +2616,9 @@ class import
 		$this->databaseConnection->execute ($sql);
 		$sql = "CREATE TABLE IF NOT EXISTS udctranslations (
 			`ks` VARCHAR(20) NOT NULL COMMENT '*ks',
-			`kw` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL COMMENT '*kw equivalent, looked-up',
+			`kw` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '*kw equivalent, looked-up',
 			PRIMARY KEY (`ks`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of UDC translations'
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table of UDC translations'
 		;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -2727,7 +2727,7 @@ class import
 			result VARCHAR(255) DEFAULT NULL COMMENT 'Result of translation',
 			matchedRegexp VARCHAR(255) DEFAULT NULL COMMENT 'Matched regexp',
 			PRIMARY KEY (id)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table of volume numbers'
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table of volume numbers'
 		;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -2814,11 +2814,11 @@ class import
 		# Create the new results table
 		$query = "CREATE TABLE IF NOT EXISTS reportresults (
 			`id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Automatic key',
-			`report` varchar(40) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Report type',
+			`report` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Report type',
 			`recordId` int(6) NOT NULL COMMENT 'Record number',
 			PRIMARY KEY (`id`),
 			KEY `report` (`report`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Results table' AUTO_INCREMENT=1 ;
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Results table' AUTO_INCREMENT=1 ;
 		";
 		$this->databaseConnection->query ($query);
 		
@@ -2900,7 +2900,7 @@ class import
 			  `expected` VARCHAR(255) NOT NULL COMMENT 'Expected',
 			  `found` TEXT NULL COMMENT 'Found line(s)',
 			  PRIMARY KEY (`id`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Test results';";
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Test results';";
 		$this->databaseConnection->execute ($sql);
 		
 		# Load the tests definition

@@ -271,30 +271,30 @@ class muscatConversion extends frontControllerApplication
 	{
 		return "
 			CREATE TABLE IF NOT EXISTS `administrators` (
-			  `username` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Username' PRIMARY KEY,
-			  `active` enum('','Yes','No') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'Yes' COMMENT 'Currently active?',
-			  `privilege` enum('Administrator','Restricted administrator') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'Administrator' COMMENT 'Administrator level'
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='System administrators';
+			  `username` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Username' PRIMARY KEY,
+			  `active` enum('','Yes','No') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Yes' COMMENT 'Currently active?',
+			  `privilege` enum('Administrator','Restricted administrator') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Administrator' COMMENT 'Administrator level'
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='System administrators';
 			
 			CREATE TABLE IF NOT EXISTS `marcparserdefinition` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Automatic key' PRIMARY KEY,
-			  `definition` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Parser definition',
+			  `definition` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Parser definition',
 			  `savedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Automatic timestamp'
-			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC parser definition';
+			) ENGINE=MyISAM  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='MARC parser definition';
 			
 			CREATE TABLE IF NOT EXISTS `reversetransliterationdefinition` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Automatic key' PRIMARY KEY,
-			  `definition` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Parser definition',
+			  `definition` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Parser definition',
 			  `savedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Automatic timestamp'
-			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC parser definition';
+			) ENGINE=MyISAM  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='MARC parser definition';
 			
 			CREATE TABLE `selectiondefinition` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Automatic key' PRIMARY KEY,
 			  `tests` int(1) NOT NULL DEFAULT '1' COMMENT 'Include records used by the test system?',
-			  `definition` mediumtext COLLATE utf8_unicode_ci NOT NULL COMMENT 'Parser definition',
-			  `createdBy` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'Created by user',
+			  `definition` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Parser definition',
+			  `createdBy` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Created by user',
 			  `savedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Automatic timestamp'
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='MARC parser definition';
+			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='MARC parser definition';
 		";
 	}
 	
