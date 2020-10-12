@@ -9,9 +9,9 @@
 <Macro MacroMuscatConversion $baseUrl $includePath>
 	
 	# Include path
-	<LocationMatch $baseUrl>
+	<Location $baseUrl>
 		php_value include_path "$includePath"
-	</LocationMatch>
+	</Location>
 	
 	# Front controller application support
 	Use MacroFrontControllerApplication "$baseUrl/" "Muscat conversion project"
