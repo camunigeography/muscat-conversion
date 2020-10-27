@@ -640,8 +640,7 @@ class muscatConversion extends frontControllerApplication
 		$selected = $this->reportLink ($current);
 		
 		# Compile the HTML and register a processor
-		$html  = pureContent::htmlJumplist ($droplist, $selected, $this->baseUrl . '/', $name = 'reportsjumplist', $parentTabLevel = 0, $class = 'reportsjumplist', 'Switch to: ');
-		pureContent::jumplistProcessor ($name);
+		$html  = application::htmlJumplist ($droplist, $selected, $this->baseUrl . '/', $name = 'reportsjumplist', $parentTabLevel = 0, $class = 'reportsjumplist', 'Switch to: ');
 		
 		# Return the HTML
 		return $html;
@@ -1708,8 +1707,7 @@ class muscatConversion extends frontControllerApplication
 		$selected = $this->fieldLink ($currentField) . ($showDistinctValues ? 'values/' : '');
 		
 		# Compile the HTML and register a processor
-		$html  = pureContent::htmlJumplist ($droplist, $selected, $this->baseUrl . '/', $name = 'fieldsdroplist', $parentTabLevel = 0, $class = 'fieldsjumplist', false);
-		pureContent::jumplistProcessor ($name);
+		$html  = application::htmlJumplist ($droplist, $selected, $this->baseUrl . '/', $name = 'fieldsdroplist', $parentTabLevel = 0, $class = 'fieldsjumplist', false);
 		
 		# Return the HTML
 		return $html;
