@@ -79,6 +79,7 @@
 #muscatconversion p#udcjumplist a, #muscatconversion table.udc a.anchor {border: 1px solid #ddd; padding: 2px 5px; color: gray; background-color: #f7f7f; margin-right: 2px;}
 #muscatconversion table.udc th {background-color: #eee; padding-bottom: 5px;}
 #muscatconversion table.udc td:first-child {width: 120px;}
+#muscatconversion table.splitlist {clear: both;}
 #muscatconversion pre#schema {white-space: pre; overflow-x: scroll;}
 
 /* Print styles */
