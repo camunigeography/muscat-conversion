@@ -94,6 +94,7 @@ class muscatConversion extends frontControllerApplication
 			'useFeedback' => false,
 			'importLog' => '%applicationRoot/exports-tmp/importlog.txt',
 			'mergingEnabled' => false,
+			'tabUlClass' => 'tabsflat',
 		);
 		
 		# Return the defaults
