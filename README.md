@@ -3,6 +3,8 @@ Muscat conversion system
 
 This is a PHP application to assist with the conversion from Muscat to MARC21.
 
+[![DOI](https://zenodo.org/badge/39077026.svg)](https://zenodo.org/badge/latestdoi/39077026)
+
 A [talk about the project](https://www.youtube.com/watch?v=kVIvFswvRXI) was given to the [CILIP CIG (MDG) Conference 2020: Metadata and Discovery](https://www.cilip.org.uk/events/EventDetails.aspx?id=1332403) conference on 9th September 2020.
 
 
