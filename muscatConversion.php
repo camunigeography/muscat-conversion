@@ -397,6 +397,15 @@ class muscatConversion extends frontControllerApplication
 		require_once ('import.php');
 		$this->import = new import ($this, $this->marcConversion, $this->transliteration, $this->reports, $this->exportsProcessingTmp, $this->errorsFile);
 		
+		# Show note for public access
+		if (!$this->userIsAdministrator) {
+			echo "\n<div class=\"graybox\">
+				<p class=\"warning\"><strong>Please note: You are viewing the legacy database of the Scott Polar Research Institute Library catalogue. It is no longer being updated, so does not reliably reflect our current library holdings.</strong></p>
+				<p class=\"warning\"><strong>Please <a href=\"/library/\">search for material in iDiscover</a> for up-to-date information about the library collection.</strong></p>
+			</div>
+			<br />
+			";
+		}
 	}
 	
 	
