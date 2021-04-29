@@ -400,7 +400,7 @@ class muscatConversion extends frontControllerApplication
 		if (!$this->userIsAdministrator) {
 			echo "\n<div class=\"graybox\">
 				<p class=\"warning\"><strong>Please note: You are viewing the legacy database of the Scott Polar Research Institute Library catalogue. It is no longer being updated, so does not reliably reflect our current library holdings.</strong></p>
-				<p class=\"warning\"><strong>Please <a href=\"/library/\">search for material in iDiscover</a> for up-to-date information about the library collection.</strong></p>
+				<p class=\"warning\"><strong>Please <a href=\"https://idiscover.lib.cam.ac.uk/primo-explore/search?vid=44CAM_PROD&amp;lang=en_US&amp;tab=cam_lib_coll&amp;search_scope=SCOP_SCO&amp;sortby=rank\">search for material in iDiscover</a> for up-to-date information about the library collection.</strong></p>
 			</div>
 			<br />
 			";
