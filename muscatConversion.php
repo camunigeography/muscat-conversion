@@ -954,7 +954,7 @@ class muscatConversion extends frontControllerApplication
 			# Text records
 			case 'marc':
 				$output  = '';
-				$marcXmlLink = "<a href=\"{$this->baseUrl}/records/{$id}/muscat{$id}.marcxml.xml\">MARCXML</a>";
+				$marcXmlLink = "<a rel=\"nofollow\" href=\"{$this->baseUrl}/records/{$id}/muscat{$id}.marcxml.xml\">MARCXML</a>";
 				if ($this->userIsAdministrator) {
 					$output  = "\n<p>The MARC output uses the <a target=\"_blank\" href=\"{$this->baseUrl}/marcparser.html\">parser definition</a> to do the mapping from the XML representation.</p>";
 					if ($record['bibcheckErrors']) {
