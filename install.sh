@@ -36,7 +36,7 @@ if [ ! -f "${SCRIPTDIRECTORY}/libraries/transliteration/cpan/bin/translit" ] ; t
 	cd cpan/
 	wget https://search.cpan.org/CPAN/authors/id/A/AL/ALINKE/Lingua-Translit-0.22.tar.gz
 	tar zxvf Lingua-Translit-0.22.tar.gz
-	cd Lingua-Translit*
+	cd Lingua-Translit-0.22/
 	perl Makefile.PL PREFIX=../
 	make
 	make test
@@ -52,13 +52,13 @@ if [ ! -f "${SCRIPTDIRECTORY}/libraries/transliteration/cpan/bin/translit" ] ; t
 fi
 
 # Also install Enchant, for spell-checking
-apt-get install php-enchant aspell aspell-ru
+apt-get -y install php-enchant aspell aspell-ru
 
 # MarcEdit via MONO; see: https://marcedit.reeset.net/marcedit-linux-installation-instructions
 # See also: http://blog.reeset.net/archives/946 and http://blog.reeset.net/archives/805
 apt-get -y install mono-complete
 apt-get -y install mono-runtime
-apt-get -y install libyaz4
+apt-get -y install libyaz4-dev
 apt-get -y install libxml2
 #service apache2 restart	# To catch libxml2
 if [ ! -d "/usr/local/bin/marcedit" ]; then
