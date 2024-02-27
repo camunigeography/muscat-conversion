@@ -78,11 +78,9 @@
 	
 	# Output files
 	AddType text/plain .mrk
-	RewriteRule $baseUrl/export/spri-marc-(migratewithitem|migrate|suppress|suppresswithitem|ignore|selection)-(serials|monographsarticles)\.(txt|mrk|mrc|mrc.zip|errors.txt)$ $baseUrl/spri-marc-$1-$2.$3
+	RewriteRule ^$baseUrl/export/spri-marc-(migratewithitem|migrate|suppress|suppresswithitem|ignore|selection)-(serials|monographsarticles)\.(txt|mrk|mrc|mrc.zip|errors.txt)$ $baseUrl/spri-marc-$1-$2.$3
 	<LocationMatch ^$baseUrl/export/spri-marc-(migratewithitem|migrate|suppress|suppresswithitem|ignore|selection)-(serials|monographsarticles)\.(txt|mrk|mrc|mrc.zip|errors.txt)$>
-		Order allow,deny
-		Allow from all
-		Satisfy any
+		Require all granted
 	</LocationMatch>
 	
 </Macro>
