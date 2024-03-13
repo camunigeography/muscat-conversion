@@ -2,13 +2,12 @@
 
 # Define the settings
 $settings = array (
-	'hostname' => 'localhost',
 	'username' => 'my_username',
 	'password' => 'my_password',
 );
 
 # Load and run the Muscat conversion class
-require_once ('muscat-conversion/muscatConversion.php');
+require_once ('vendor/autoload.php');
 new muscatConversion ($settings);
 
 ?>

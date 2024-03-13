@@ -3666,7 +3666,6 @@ class reports
 	public function report_article245 ()
 	{
 		# Get the whitelisted records
-		require_once ('generate245.php');
 		$secondIndicatorSpecialCases = $this->marcConversion->generate245->getSecondIndicatorSpecialCases ();
 		$whitelistedIds = array_keys ($secondIndicatorSpecialCases);
 		

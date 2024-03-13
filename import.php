@@ -459,7 +459,6 @@ class import
 		}
 		
 		# Convert to CSV
-		require_once ('csv.php');
 		$csv = csv::dataToCsv ($record, '', ',', array (), $includeHeaderRow = ($recordId == $firstRealRecord));
 		
 		# Return the CSV
@@ -472,9 +471,6 @@ class import
 	{
 		# Log start
 		$this->logger ('Starting ' . __METHOD__ . " with CSV file {$csvFilename}");
-		
-		# Compile the table structure
-		require_once ('csv.php');
 		
 		# Compile the SQL; this is done manually rather than using csv::filesToSql as that is slow (it has to compute the structure) and doesn't cope well with having two CSVs in the same directory with one for each table
 		$sql = "
@@ -1555,7 +1551,6 @@ class import
 		$tsvTransliteratedRaw = $this->transliteration->{$transliterationFunction} ($tsv, $language);
 		
 		# Convert back to key-value pairs
-		require_once ('csv.php');
 		$tsvTransliteratedRaw = 'id' . "\t" . 'string' . "\n" . $tsvTransliteratedRaw;		// Add header row for csv::tsvToArray()
 		$dataTransliterated = csv::tsvToArray ($tsvTransliteratedRaw, true);
 		foreach ($dataTransliterated as $id => $subArray) {
@@ -1719,7 +1714,6 @@ class import
 		}
 		
 		# Convert from TSV
-		require_once ('csv.php');
 		$otherNames = csv::tsvToArray (trim ($tsv));
 		
 		# End if none, e.g. if new file
@@ -1886,7 +1880,6 @@ class import
 	{
 		# Convert the TSV to an associative array
 		$tsv = trim ($tsv);
-		require_once ('csv.php');
 		$mergeDefinitionRaw = csv::tsvToArray ($tsv, $firstColumnIsId = true, $firstColumnIsIdIncludeInData = false, $errorMessage, $skipRowsEmptyFirstCell = true);
 		
 		# Rearrange by strategy
@@ -2129,7 +2122,6 @@ class import
 		
 		# Flatten if required
 		if ($flattenedWithContainership) {
-			require_once ('xml.php');
 			$structure = xml::flattenedXmlWithContainership ($structure);
 		}
 		
@@ -2780,7 +2772,6 @@ class import
 		foreach ($this->recordGroupings as $type => $limitToRecordTypes) {
 			
 			# Generate the output files and attach errors to the database records
-			require_once ('createMarcExport.php');
 			$createMarcExport = new createMarcExport ($this->muscatConversion, $this->applicationRoot, $this->recordProcessingOrder);
 			foreach ($this->filesets as $fileset => $label) {
 				$createMarcExport->createExport ($fileset, array (), $type, $limitToRecordTypes, $errorsHtml /* amended by reference */);

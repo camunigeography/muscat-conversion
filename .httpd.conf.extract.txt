@@ -3,15 +3,10 @@
 # Load using:
 #	# Muscat conversion project
 #	Include /path/to/muscat-conversion/.httpd.conf.extract.txt
-#	Use MacroMuscatConversion /library/catalogue "/path/to/site/:/path/to/muscat-conversion/:/path/to/php/libraries/"
+#	Use MacroMuscatConversion /library/catalogue
 
 
-<Macro MacroMuscatConversion $baseUrl $includePath>
-	
-	# Include path
-	<Location $baseUrl>
-		php_value include_path "$includePath"
-	</Location>
+<Macro MacroMuscatConversion $baseUrl>
 	
 	# Front controller application support
 	Use MacroFrontControllerApplication "$baseUrl/" "Muscat conversion project"

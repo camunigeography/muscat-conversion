@@ -144,15 +144,12 @@ class marcConversion
 		
 		# Load authors support
 		$languageModes = array_merge (array ('default'), array_keys ($this->supportedReverseTransliterationLanguages));		// Feed in the languages list, with 'default' as the first
-		require_once ('generateAuthors.php');
 		$this->generateAuthors = new generateAuthors ($this, $languageModes);
 		
 		# Load generate008 support
-		require_once ('generate008.php');
 		$this->generate008 = new generate008 ($this);
 		
 		# Load generate245 support
-		require_once ('generate245.php');
 		$this->generate245 = new generate245 ($this);
 		
 		# Create a registry of *pu shard language values
@@ -3181,7 +3178,6 @@ class marcConversion
 		
 		# Convert to TSV
 		$lookupTable = trim ($lookupTable);
-		require_once ('csv.php');
 		$lookupTableRaw = csv::tsvToArray ($lookupTable, $firstColumnIsId = true);
 		
 		# Define the fallback value in case that is needed

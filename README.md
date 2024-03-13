@@ -18,7 +18,7 @@ Usage
 -----
 
 1. Clone the repository.
-2. Download the PHP library dependencies and ensure they are in your PHP include_path.
+2. Run `composer install` to install the dependencies.
 3. Download and install the famfamfam icon set in /images/icons/
 4. Add the Apache directives in httpd.conf (and restart the webserver) as per the example given in .httpd.conf.extract.txt; the example assumes mod_macro but this can be easily removed.
 5. Create a copy of the index.html.template file as index.html, and fill in the parameters.
@@ -36,19 +36,6 @@ System software:
 * MarcEdit
 * Mono
 * Bibcheck lint checker
-
-PHP libraries:
-
-* [application.php application support library](http://download.geog.cam.ac.uk/projects/application/)
-* [csv.php CSV manipulation library](http://download.geog.cam.ac.uk/projects/csv/)
-* [database.php database wrapper library](http://download.geog.cam.ac.uk/projects/database/)
-* [directories.php directory manipulation library](http://download.geog.cam.ac.uk/projects/directories/)
-* [frontControllerApplication.php front controller application implementation library](http://download.geog.cam.ac.uk/projects/frontcontrollerapplication/)
-* [jQuery.php jQuery abstraction library](http://download.geog.cam.ac.uk/projects/jquery/)
-* [pagination.php Pagination library](http://download.geog.cam.ac.uk/projects/pagination/)
-* [pureContent.php general environment library](http://download.geog.cam.ac.uk/projects/purecontent/)
-* [ultimateForm.php form library](http://download.geog.cam.ac.uk/projects/ultimateform/)
-* [xml.php XML support library](http://download.geog.cam.ac.uk/projects/xml/)
 
 Other:
 
@@ -70,7 +57,7 @@ Bug markers are defined as follows:
 Author
 ------
 
-Martin Lucas-Smith, Department of Geography, University of Cambridge, 2012-19.
+Martin Lucas-Smith, Department of Geography, University of Cambridge, 2012-19, 2024.
 
 
 License

@@ -1,7 +1,6 @@
 <?php
 
 # Class to manage Muscat data conversion
-require_once ('frontControllerApplication.php');
 class muscatConversion extends frontControllerApplication
 {
 	# Define the types, describing each representation of the data as it passes through each conversion stage
@@ -373,15 +372,12 @@ class muscatConversion extends frontControllerApplication
 		$this->doubleDagger = chr(0xe2).chr(0x80).chr(0xa1);
 		
 		# Create a handle to the transliteration module
-		require_once ('transliteration.php');
 		$this->transliteration = new transliteration ($this);
 		
 		# Create a handle to the MARC conversion module
-		require_once ('marcConversion.php');
 		$this->marcConversion = new marcConversion ($this, $this->transliteration);
 		
 		# Create a handle to the reports module
-		require_once ('reports.php');
 		$this->reports = new reports ($this, $this->marcConversion);
 		$this->reportsList = $this->reports->getReportsList ();
 		$this->listingsList = $this->reports->getListingsList ();
@@ -393,7 +389,6 @@ class muscatConversion extends frontControllerApplication
 		$this->reportsList += $this->listingsList;
 		
 		# Load the import system
-		require_once ('import.php');
 		$this->import = new import ($this, $this->marcConversion, $this->transliteration, $this->reports, $this->exportsProcessingTmp, $this->errorsFile);
 		
 		# Show note for public access
@@ -793,7 +788,6 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Load into tabs and render
-		require_once ('jquery.php');
 		$jQuery = new jQuery (false, false, false, $jQueryLoaded = true);
 		$jQuery->tabs ($labels, $tabs);
 		$html .= $jQuery->getHtml ();
@@ -813,7 +807,6 @@ class muscatConversion extends frontControllerApplication
 		file_put_contents ($mrkFile, $marc);
 		
 		# Convert to .mrk
-		require_once ('createMarcExport.php');
 		$createMarcExport = new createMarcExport ($this, $applicationRoot = NULL, $recordProcessingOrder = NULL);
 		$createMarcExport->reformatMarcToVoyagerStyle ($mrkFile);
 		
@@ -1971,7 +1964,6 @@ class muscatConversion extends frontControllerApplication
 		// die;
 		
 		# Convert to CSV
-		require_once ('csv.php');
 		csv::serve ($data, $id);
 	}
 	
@@ -2004,7 +1996,6 @@ class muscatConversion extends frontControllerApplication
 		}
 		
 		# Load the pagination class
-		require_once ('pagination.php');
 		$pagination = new pagination ($this->settings, $this->baseUrl);
 		
 		# Determine what page
@@ -2934,7 +2925,6 @@ class muscatConversion extends frontControllerApplication
 		# Validate the parser syntax
 		if ($unfinalisedData = $form->getUnfinalisedData ()) {
 			if ($unfinalisedData['definition']) {
-				require_once ('xml.php');
 				if (!xml::isValid ($unfinalisedData['definition'], $errors)) {
 					$form->registerProblem ('invalidxml', 'The definition was not valid XML, as per the following error(s):' . application::htmlUl ($errors));
 				}
