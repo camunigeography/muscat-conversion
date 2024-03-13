@@ -12,9 +12,10 @@
 /**
  * Russian mapping (ALA-LC system).
  *
- * @see http://en.wikipedia.org/wiki/Romanization_of_Russian
+ * @see https://en.wikipedia.org/wiki/Romanization_of_Russian
  */
-return array (
+
+$ala_lc = array (
     'cyr' => array(
         'щ', 'ж', 'х', 'ц', 'ч', 'ш', 'ъ', 'э', 'ю', 'я',
         'Щ', 'Ж', 'Х', 'Ц', 'Ч', 'Ш', 'Ъ', 'Э', 'Ю', 'Я',
@@ -28,3 +29,5 @@ return array (
         'A', 'B', 'V', 'G', 'D', 'E', 'Ë', 'Z', 'I', 'Ĭ', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'F', 'ʹ', 'Y',
     )
 );
+
+?>

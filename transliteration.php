@@ -174,7 +174,8 @@ class transliteration
 		
 		# Transliterate, first loading if necessary the Library of Congress transliterations definition, copied from https://github.com/umpirsky/Transliterator/blob/master/src/Transliterator/data/ru/ALA_LC.php
 		if (!isSet ($this->locTransliterationDefinition)) {
-			$this->locTransliterationDefinition = require_once ('tables/ALA_LC.php');
+			require_once (__DIR__ . '/tables/ALA_LC.php');
+			$this->locTransliterationDefinition = $ala_lc;
 		}
 		$cyrillic = str_replace ($this->locTransliterationDefinition['lat'], $this->locTransliterationDefinition['cyr'], $stringLatin);
 		
@@ -216,7 +217,8 @@ class transliteration
 	{
 		# Load the Library of Congress transliterations definition, copied from https://github.com/umpirsky/Transliterator/blob/master/src/Transliterator/data/ru/ALA_LC.php
 		if (!isSet ($this->locTransliterationDefinition)) {
-			$this->locTransliterationDefinition = require_once ('tables/ALA_LC.php');
+			require_once (__DIR__ . '/tables/ALA_LC.php');
+			$this->locTransliterationDefinition = $ala_lc;
 		}
 		
 		# Transliterate and return, e.g. /records/1043/ (test #991)
