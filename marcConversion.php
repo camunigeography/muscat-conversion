@@ -140,7 +140,7 @@ class marcConversion
 		$this->diacriticsTable = $this->diacriticsTable ();
 		
 		# Load ISBN support
-		$this->isbn = $this->loadIsbnValidationLibrary ();
+		$this->isbn = new Isbn\Isbn();
 		
 		# Load authors support
 		$languageModes = array_merge (array ('default'), array_keys ($this->supportedReverseTransliterationLanguages));		// Feed in the languages list, with 'default' as the first
@@ -4740,20 +4740,6 @@ class marcConversion
 		
 		# Return the array
 		return $diacritics;
-	}
-	
-	
-	# Function to load the ISBN validation library; see: https://github.com/Fale/isbn , and a manual checker at: http://www.isbn-check.com/
-	private function loadIsbnValidationLibrary ()
-	{
-		# This is a Composer package, so work around the autoloading requirement; see: http://stackoverflow.com/questions/599670/how-to-include-all-php-files-from-a-directory
-		foreach (glob ($this->applicationRoot . '/libraries/isbn/src/Isbn/*.php') as $filename) {
-			require_once $filename;
-		}
-		
-		# Load and instantiate the library
-		require_once ('libraries/isbn/src/Isbn/Isbn.php');
-		return new Isbn\Isbn();
 	}
 }
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "882520f2bcc1ac7e4850d2ca3eeb2a06",
+    "content-hash": "09667f42be0c1d0f96bf653590661c78",
     "packages": [
         {
             "name": "camunigeography/camunidata",
@@ -41,6 +41,57 @@
                 "source": "https://github.com/camunigeography/camunidata/tree/v2.1.0"
             },
             "time": "2024-01-15T17:05:45+00:00"
+        },
+        {
+            "name": "fale/isbn",
+            "version": "3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Fale/isbn.git",
+                "reference": "f0777e84ad432fdf2eda7a71ed4e98886f8c16b4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Fale/isbn/zipball/f0777e84ad432fdf2eda7a71ed4e98886f8c16b4",
+                "reference": "f0777e84ad432fdf2eda7a71ed4e98886f8c16b4",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Isbn": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "AGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Fabio Alessandro Locati",
+                    "email": "fabiolocati@gmail.com",
+                    "homepage": "http://fabiolocati.com",
+                    "role": "lead"
+                }
+            ],
+            "description": "ISBN library",
+            "homepage": "http://github.com/fale/isbn",
+            "keywords": [
+                "ISBN",
+                "ISBN-10",
+                "ISBN-13"
+            ],
+            "support": {
+                "issues": "https://github.com/Fale/isbn/issues",
+                "source": "https://github.com/Fale/isbn/tree/master"
+            },
+            "time": "2015-10-03T11:18:48+00:00"
         },
         {
             "name": "libpurecontent/application",
