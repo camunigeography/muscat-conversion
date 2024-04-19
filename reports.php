@@ -4017,9 +4017,9 @@ class reports
 		$this->databaseConnection->execute ($sql);
 		$sql = "CREATE TABLE IF NOT EXISTS `listing_diacritics` (
 			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
-			`diacritic` varchar(2) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Diacritic modifier',
-			`description` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Description',
-			`letter` varchar(2) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Letter',
+			`diacritic` varchar(2) NOT NULL COMMENT 'Diacritic modifier',
+			`description` varchar(255) NOT NULL COMMENT 'Description',
+			`letter` varchar(2) NOT NULL COMMENT 'Letter',
 			`instances` int(11) NOT NULL COMMENT 'Instances',
 			PRIMARY KEY (`id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table of diacritic modifier instances'
@@ -4132,7 +4132,7 @@ class reports
 		$this->databaseConnection->execute ($sql);
 		$sql = "CREATE TABLE IF NOT EXISTS `listing_{$field}s` (
 			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
-			`title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '{$description}',
+			`title` varchar(255) NOT NULL COMMENT '{$description}',
 			`instances` int(11) NOT NULL COMMENT 'Instances',
 			PRIMARY KEY (`id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table of series title instances'
@@ -4247,7 +4247,7 @@ class reports
 		$this->databaseConnection->execute ($query);
 		$query = "CREATE TABLE IF NOT EXISTS `listing_seriestitlemismatches{$variantNumber}` (
 			`id` int(11) AUTO_INCREMENT NOT NULL COMMENT 'Automatic key',
-			`title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Series title',
+			`title` varchar(255) NOT NULL COMMENT 'Series title',
 			`instances` int(11) NOT NULL COMMENT 'Instances',
 			PRIMARY KEY (`id`)
 			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table of series title mismatches'
