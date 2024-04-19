@@ -743,6 +743,15 @@ class muscatConversion extends frontControllerApplication
 		# Start the HTML
 		$html = '';
 		
+		# Do a quick check to ensure the record exists, ending if not
+		if (!$this->getRecords ($id, 'xml')) {
+			$errorHtml = "There is no such record <em>{$id}</em>.";
+			$html .= "\n<p>{$errorHtml}</p>";
+			echo $html;
+			application::sendHeader (404);
+			return false;
+		}
+		
 		# Enable jQuery, needed for previous/next keyboard navigation, and tabbing
 		$html .= "\n\n\n" . '<script type="text/javascript" src="//code.jquery.com/jquery.min.js"></script>';
 		
