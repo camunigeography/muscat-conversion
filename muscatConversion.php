@@ -889,7 +889,7 @@ class muscatConversion extends frontControllerApplication
 		# Compile the HTML
 		$html = application::htmlUl ($list, 0, 'previousnextlinks');
 		
-		# Add keyboard navigation; see: http://stackoverflow.com/questions/12682157/
+		# Add keyboard navigation; see: https://stackoverflow.com/questions/12682157/
 		$html .= '
 			<script language="javascript" type="text/javascript">
 				$(function() {
@@ -899,10 +899,12 @@ class muscatConversion extends frontControllerApplication
 					
 					$( document ).on( "keyup", function(event) {
 						var href;
-						var selector = keymap[ event.which ];
+						var selector = keymap[event.which];
 						// if the key pressed was in our map, check for the href
-						if ( selector ) {
-							window.location = $( selector ).attr( "href" );
+						if (selector) {
+							if ($(selector).length) {	// If actually present
+								window.location = $(selector).attr ("href");
+							}
 						}
 					});
 				});
