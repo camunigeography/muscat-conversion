@@ -483,7 +483,7 @@ class import
 				`field` VARCHAR(8),
 				`value` TEXT,
 				PRIMARY KEY (id)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='{$tableComment}';
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='{$tableComment}';
 			
 			-- Data in catalogue_{$type}.csv
 			LOAD DATA LOCAL INFILE '{$this->exportsProcessingTmp}catalogue_{$type}.csv'
@@ -524,7 +524,7 @@ class import
 		$this->databaseConnection->execute ($sql);
 		# CREATE TABLE AS ... wrongly results in a VARCHAR(344) column, resulting in record #195245 and others being truncated; length of at least VARCHAR(579) (as of Jan/2018) is needed
 		# $sql = "CREATE TABLE fieldsindex (PRIMARY KEY (id))
-		# 	ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci	/* MyISAM forced, so that FULLTEXT search can be used */
+		# 	ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci	/* MyISAM forced, so that FULLTEXT search can be used */
 		# 	AS
 		# 	(SELECT
 		# 		recordId AS id,
@@ -536,7 +536,7 @@ class import
 			  id INT(6) NOT NULL COMMENT 'Record #',
 			  fieldslist VARCHAR(1024) NOT NULL COMMENT 'Fields list',
 			  PRIMARY KEY (`id`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Summary statistics';
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Summary statistics';
 		";
 		$this->databaseConnection->execute ($sql);
 		$sql = "INSERT INTO fieldsindex (SELECT
@@ -765,7 +765,7 @@ class import
 			  `highestNumberedRecord` int(11) NOT NULL COMMENT 'Highest-numbered record',
 			  `exportDate` varchar(255) NOT NULL COMMENT 'Export date',
 			  PRIMARY KEY (`id`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Summary statistics';";
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Summary statistics';";
 		$this->databaseConnection->execute ($sql);
 		$sql = "
 			INSERT INTO statistics VALUES (
@@ -1179,7 +1179,7 @@ class import
 			`inNameAuthorityList` INT(11) SIGNED NULL DEFAULT NULL COMMENT 'Whether the title value is in the LoC name authority list',
 			PRIMARY KEY (`id`),
 			INDEX(`field`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of transliterations'
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of transliterations'
 		;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -1221,7 +1221,7 @@ class import
 				results INT(11) NOT NULL COMMENT 'Number of results',
 				PRIMARY KEY (id),
 				INDEX(surname)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of names ticked during manual checking';
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of names ticked during manual checking';
 		";
 		$this->databaseConnection->execute ($sql);
 		
@@ -1577,7 +1577,7 @@ class import
 				url VARCHAR(255) NOT NULL COMMENT 'URL',
 			  PRIMARY KEY (id),
 			  INDEX(surname)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of Library of Congress name authority list';
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of Library of Congress name authority list';
 		";
 		$this->databaseConnection->execute ($sql);
 		
@@ -1730,7 +1730,7 @@ class import
 				source VARCHAR(255) NOT NULL COMMENT 'Source',
 				PRIMARY KEY (id),
 				INDEX(surname)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of names sourced from other sources';
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of names sourced from other sources';
 		";
 		$this->databaseConnection->execute ($sql);
 		
@@ -1917,7 +1917,7 @@ class import
 				language VARCHAR(255) NULL COMMENT 'Record language',
 				parallelTitleLanguages VARCHAR(255) NULL COMMENT 'Parallel title languages',
 			  PRIMARY KEY (id)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='XML representation of Muscat records'
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='XML representation of Muscat records'
 		;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -2006,7 +2006,7 @@ class import
 				xPath          VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field (path only)',
 				xPathWithIndex VARCHAR(255) NULL DEFAULT NULL COMMENT 'XPath to the field (path with index)',
 				PRIMARY KEY (id)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Temporary table of xPaths for joining'
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Temporary table of xPaths for joining'
 			;";
 			$this->databaseConnection->execute ($sql);
 		}
@@ -2163,7 +2163,7 @@ class import
 			PRIMARY KEY (id),
 			INDEX(recordId),
 			INDEX(title)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of periodical locations'
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of periodical locations'
 		;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -2199,7 +2199,7 @@ class import
 			PRIMARY KEY (id),
 			INDEX(recordId),
 			INDEX(parentRecordId)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of periodical location matches'
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of periodical location matches'
 		;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -2304,7 +2304,7 @@ class import
 				bibcheckErrors TEXT NULL COMMENT 'Bibcheck errors, if any',
 				filterTokens VARCHAR(255) NULL DEFAULT NULL COMMENT 'Filtering tokens for suppression/ignoration',
 			  PRIMARY KEY (id)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='MARC representation of Muscat records'
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='MARC representation of Muscat records'
 		;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -2513,7 +2513,7 @@ class import
 				indicators VARCHAR(2) NOT NULL COMMENT 'First and second indicator',
 				data VARCHAR(255) NOT NULL COMMENT 'Data',
 			  PRIMARY KEY (id)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Existing Voyager records';
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Existing Voyager records';
 		";
 		$this->databaseConnection->execute ($sql);
 		
@@ -2610,7 +2610,7 @@ class import
 			`ks` VARCHAR(20) NOT NULL COMMENT '*ks',
 			`kw` VARCHAR(255) NOT NULL COMMENT '*kw equivalent, looked-up',
 			PRIMARY KEY (`ks`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of UDC translations'
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of UDC translations'
 		;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -2719,7 +2719,7 @@ class import
 			result VARCHAR(255) DEFAULT NULL COMMENT 'Result of translation',
 			matchedRegexp VARCHAR(255) DEFAULT NULL COMMENT 'Matched regexp',
 			PRIMARY KEY (id)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of volume numbers'
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of volume numbers'
 		;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -2809,7 +2809,7 @@ class import
 			`recordId` int(6) NOT NULL COMMENT 'Record number',
 			PRIMARY KEY (`id`),
 			KEY `report` (`report`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Results table' AUTO_INCREMENT=1 ;
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Results table' AUTO_INCREMENT=1 ;
 		";
 		$this->databaseConnection->query ($query);
 		
@@ -2891,7 +2891,7 @@ class import
 			  `expected` VARCHAR(255) NOT NULL COMMENT 'Expected',
 			  `found` TEXT NULL COMMENT 'Found line(s)',
 			  PRIMARY KEY (`id`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Test results';";
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Test results';";
 		$this->databaseConnection->execute ($sql);
 		
 		# Load the tests definition

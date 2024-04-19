@@ -4022,7 +4022,7 @@ class reports
 			`letter` varchar(2) NOT NULL COMMENT 'Letter',
 			`instances` int(11) NOT NULL COMMENT 'Instances',
 			PRIMARY KEY (`id`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of diacritic modifier instances'
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of diacritic modifier instances'
 		;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -4135,7 +4135,7 @@ class reports
 			`title` varchar(255) NOT NULL COMMENT '{$description}',
 			`instances` int(11) NOT NULL COMMENT 'Instances',
 			PRIMARY KEY (`id`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of series title instances'
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of series title instances'
 		;";
 		$this->databaseConnection->execute ($sql);
 		
@@ -4250,7 +4250,7 @@ class reports
 			`title` varchar(255) NOT NULL COMMENT 'Series title',
 			`instances` int(11) NOT NULL COMMENT 'Instances',
 			PRIMARY KEY (`id`)
-			) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of series title mismatches'
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Table of series title mismatches'
 		;";
 		$this->databaseConnection->execute ($query);
 		
@@ -4333,7 +4333,7 @@ class reports
 				title VARCHAR(255) NOT NULL,
 				PRIMARY KEY (id),
 				INDEX (title)
-			) ENGINE=MyISAM
+			) ENGINE=InnoDB
 			AS
 				SELECT
 					id,
@@ -4354,7 +4354,7 @@ class reports
 			CREATE TABLE temp_serialtitles (
 				title VARCHAR(255) NOT NULL,
 				INDEX (title)
-			) ENGINE=MyISAM
+			) ENGINE=InnoDB
 			AS
 				/* Subquery to extract the title from the parent serials */
 				SELECT
