@@ -12,7 +12,7 @@
         "libpurecontent/pagination": "^1.1",
         "libpurecontent/application": "^1.9",
         "libpurecontent/ultimateform": "^1.31",
-        "fale/isbn": "3.0.0"
+        "fale/isbn": "^3.1"
     },
     "autoload": {
         "files": ["muscatConversion.php", "reports.php", "import.php", "marcConversion.php", "generateAuthors.php", "generate008.php", "generate245.php", "transliteration.php", "createMarcExport.php"]
