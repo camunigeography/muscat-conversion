@@ -1964,12 +1964,12 @@ class muscatConversion extends frontControllerApplication
 				
 			FROM catalogue_xml
 			LEFT OUTER JOIN (
-				SELECT recordId FROM reportresults WHERE report = '{$id}' ORDER BY recordId
+				SELECT recordId FROM reportresults WHERE report = :id ORDER BY recordId
 			) AS matches
 			ON catalogue_xml.id = matches.recordId
 			WHERE recordId IS NOT NULL
 		;";
-		$data = $this->databaseConnection->getData ($query);
+		$data = $this->databaseConnection->getData ($query, false, true, array ('id' => $id));
 		
 		// application::dumpData ($data);
 		// die;
