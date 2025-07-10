@@ -5,13 +5,13 @@
     "license": "GPL-3.0-only",
     "minimum-stability": "stable",
     "require": {
-        "libpurecontent/frontcontrollerapplication": "^1.13",
-        "libpurecontent/csv": "^1.5",
+        "libpurecontent/frontcontrollerapplication": "^1.14",
+        "libpurecontent/csv": "^1.6",
         "libpurecontent/xml": "^1.11",
         "libpurecontent/jquery": "^1.1",
         "libpurecontent/pagination": "^1.1",
         "libpurecontent/application": "^1.9",
-        "libpurecontent/ultimateform": "^1.29",
+        "libpurecontent/ultimateform": "^1.31",
         "fale/isbn": "3.0.0"
     },
     "autoload": {
