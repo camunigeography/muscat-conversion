@@ -2882,7 +2882,7 @@ class import
 		$sql = "
 			CREATE TABLE `tests` (
 			  `id` INT(1) NOT NULL AUTO_INCREMENT COMMENT 'Test #',
-			  `result` INT(1) NOT NULL COMMENT 'Result',	-- 1=passed, 0=failed
+			  `result` TINYINT NOT NULL COMMENT 'Result',	-- 1=passed, 0=failed
 			  `description` VARCHAR(255) NOT NULL COMMENT 'Description',
 			  `recordId` INT(6) NOT NULL COMMENT 'Record number',
 			  `marcField` VARCHAR(3) NOT NULL COMMENT 'MARC field',
@@ -2956,7 +2956,7 @@ class import
 			
 			# Set default state
 			$tests[$id]['found'] = NULL;
-			$tests[$id]['result'] = 0;	// Assume failure
+			$tests[$id]['result'] = false;	// Assume failure
 			$tests[$id]['negativeTest'] = NULL;
 			$tests[$id]['indicatorTest'] = NULL;
 			
@@ -3063,6 +3063,12 @@ class import
 				}
 			}
 		}
+		
+		# Cast result field to 0/1, as the field uses TINYINT to represent a boolean
+		foreach ($tests as $id => $test) {
+			$tests[$id]['result'] = (int) $test['result'];
+		}
+		
 		
 		# Insert the results
 		$this->databaseConnection->insertMany ($this->settings['database'], 'tests', $tests);
