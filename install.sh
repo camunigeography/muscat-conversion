@@ -66,7 +66,7 @@ if [ ! -d "/usr/local/bin/marcedit" ]; then
 	unzip /tmp/marcedit.bin.zip -d /tmp/
 	rm /tmp/marcedit.bin.zip
 	mv /tmp/marcedit /usr/local/bin/
-	chown -R root.root /usr/local/bin/marcedit/
+	chown -R root:root /usr/local/bin/marcedit/
 	chmod -R 775 /usr/local/bin/marcedit/
 fi
 mono /usr/local/bin/marcedit/linux_bootloader.exe
