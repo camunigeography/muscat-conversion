@@ -58,7 +58,7 @@ apt-get -y install php-enchant aspell aspell-ru
 # See also: http://blog.reeset.net/archives/946 and http://blog.reeset.net/archives/805
 apt-get -y install mono-complete
 apt-get -y install mono-runtime
-apt-get -y install libyaz4-dev
+apt-get -y install libyaz-dev
 apt-get -y install libxml2
 #service apache2 restart	# To catch libxml2
 if [ ! -d "/usr/local/bin/marcedit" ]; then
