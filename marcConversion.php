@@ -866,7 +866,7 @@ class marcConversion
 				$counts[$macroBlock] = (is_string ($replacementValues) ? 1 : count ($replacementValues));	// Check for is_string to avoid PHP7.2 warning following change in count() ; see: https://php.net/count#example-6224 and https://wiki.php.net/rfc/counting_non_countables
 			}
 			if (count (array_count_values ($counts)) != 1) {
-				$this->errorHtml .= 'Line ' . ($lineNumber + 1) . ' is a vertically-repeatable field, but the number of generated values in the subfields are not consistent:' . application::dumpData ($counts, false, true);
+				$this->errorHtml .= 'Line ' . ($lineNumber + 1) . ' is a vertically-repeatable field, but the number of generated values in the subfields are not consistent:' . application::dumpData ($counts, true);
 				continue;
 			}
 			

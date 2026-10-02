@@ -801,7 +801,7 @@ class muscatConversion extends frontControllerApplication
 		$jQuery->tabs ($labels, $tabs);
 		$html .= $jQuery->getHtml ();
 		
-		// $html .= application::dumpData ($record, false, true);
+		// $html .= application::dumpData ($record, true);
 		
 		# Show the HTML
 		echo $html;
@@ -1236,7 +1236,7 @@ class muscatConversion extends frontControllerApplication
 		$html .= application::htmlTableKeyed ($table, array (), $omitEmpty = true, 'lines presented', $allowHtml = array ('In journal', 'Keywords', 'Notes'));
 		
 		# Debug info
-		//$html .= application::dumpData ($record, false, true);
+		//$html .= application::dumpData ($record, true);
 		
 		# Return the HTML
 		return $html;

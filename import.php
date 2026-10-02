@@ -2035,7 +2035,7 @@ class import
 					$html .= "\n" . $errorHtml;
 					$html .= "\n<div class=\"graybox\">\n<h3>Crashed record:</h3>" . "\n<pre>" . htmlspecialchars ($xml) . "\n</pre>\n</div>";
 					$html .= "\n<div class=\"graybox\">\n<h3>Stack debug:</h3>" . nl2br ($debugString) . "\n</div>";
-					// $html .= "\n<div class=\"graybox\">\n<h3>Target schema:</h3>" . application::dumpData ($schemaFlattenedXmlWithContainership, false, true) . "\n</div>";
+					// $html .= "\n<div class=\"graybox\">\n<h3>Target schema:</h3>" . application::dumpData ($schemaFlattenedXmlWithContainership, true) . "\n</div>";
 					$errorsHtml .= $html;
 					$xml = "<q0>{$recordId}</q0>";
 					return false;
@@ -2062,7 +2062,7 @@ class import
 			# Update these records
 			if (!$this->databaseConnection->replaceMany ($this->settings['database'], 'catalogue_xml', $inserts)) {
 				$html  = "<p class=\"warning\">Error generating XML, stopping at batch ({$recordId}):</p>";
-				$html .= application::dumpData ($this->databaseConnection->error (), false, true);
+				$html .= application::dumpData ($this->databaseConnection->error (), true);
 				$errorsHtml .= $html;
 				return false;
 			}
@@ -2071,7 +2071,7 @@ class import
 			if ($pathSeedingOnly) {
 				if (!$this->databaseConnection->insertMany ($this->settings['database'], 'catalogue_processed_xpaths_temp', $processedRecordXPaths)) {
 					$html  = "<p class=\"warning\">Error updating processed records to add XPath values, stopping at batch ({$recordId}):</p>";
-					$html .= application::dumpData ($this->databaseConnection->error (), false, true);
+					$html .= application::dumpData ($this->databaseConnection->error (), true);
 					$errorsHtml .= $html;
 					return false;
 				}
@@ -2442,7 +2442,7 @@ class import
 				$this->logger ('|- In ' . __METHOD__ . ": {$recordType}, adding " . count ($inserts) . 'r; second pass: @' . count ($marcSecondPass) . 'r; memory: ' . $memoryUsageMb . 'MB');
 				if (!$this->databaseConnection->insertMany ($this->settings['database'], 'catalogue_marc', $inserts, false, $onDuplicateKeyUpdate = true)) {
 					$html  = "<p class=\"warning\">Error generating MARC, stopping at batched ({$id}):</p>";
-					$html .= application::dumpData ($this->databaseConnection->error (), false, true);
+					$html .= application::dumpData ($this->databaseConnection->error (), true);
 					$errorsHtml .= $html;
 					return false;
 				}
@@ -2826,7 +2826,7 @@ class import
 			# Handle errors
 			if ($result === false) {
 				echo "<p class=\"warning\">Error generating report <em>{$reportId}</em>:</p>";
-				echo application::dumpData ($this->databaseConnection->error (), false, true);
+				echo application::dumpData ($this->databaseConnection->error (), true);
 			}
 		}
 	}

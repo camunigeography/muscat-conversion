@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5dd1c54dc89e30c16d9751c961797288",
+    "content-hash": "301a387dc0b3c795e5656ac707510c68",
     "packages": [
         {
             "name": "camunigeography/camunidata",
@@ -174,16 +174,16 @@
         },
         {
             "name": "libpurecontent/application",
-            "version": "v1.9.7",
+            "version": "v1.10.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/libpurecontent/application.git",
-                "reference": "2b36edb97a6541ddc0d987f7b660311e63e51878"
+                "reference": "7d76925641f19b7138bde3b152e2f85d94db8042"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/libpurecontent/application/zipball/2b36edb97a6541ddc0d987f7b660311e63e51878",
-                "reference": "2b36edb97a6541ddc0d987f7b660311e63e51878",
+                "url": "https://api.github.com/repos/libpurecontent/application/zipball/7d76925641f19b7138bde3b152e2f85d94db8042",
+                "reference": "7d76925641f19b7138bde3b152e2f85d94db8042",
                 "shasum": ""
             },
             "require": {
@@ -208,9 +208,9 @@
             "description": "PHP library application within the pureContent library suite",
             "support": {
                 "issues": "https://github.com/libpurecontent/application/issues",
-                "source": "https://github.com/libpurecontent/application/tree/v1.9.7"
+                "source": "https://github.com/libpurecontent/application/tree/v1.10.2"
             },
-            "time": "2025-04-02T18:26:07+00:00"
+            "time": "2026-09-26T15:59:32+00:00"
         },
         {
             "name": "libpurecontent/csv",
@@ -1592,5 +1592,5 @@
     "prefer-lowest": false,
     "platform": {},
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

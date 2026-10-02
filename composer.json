@@ -10,7 +10,7 @@
         "libpurecontent/xml": "^1.11",
         "libpurecontent/jquery": "^1.1",
         "libpurecontent/pagination": "^1.1",
-        "libpurecontent/application": "^1.9",
+        "libpurecontent/application": "^1.10",
         "libpurecontent/ultimateform": "^1.31",
         "fale/isbn": "^3.1"
     },
